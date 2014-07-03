@@ -13,6 +13,7 @@ var globalOptions = {
     options: {
         compilation_level: 'SIMPLE_OPTIMIZATIONS',
         language_in: 'ECMASCRIPT5_STRICT',
+        source_map_format: 'V3',
         define: [
             '"DEBUG=false"'
         ]
@@ -21,13 +22,19 @@ var globalOptions = {
 
 module.exports = {
     host: {
-        js: '<%= paths.tmp %>' + 'host.js',
-        jsOutputFile: '<%= paths.tmp %>' + 'host.min.js',
+        js: '<%= paths.tmp %>' + 'host-debug.js',
+        jsOutputFile: '<%= paths.tmp %>' + 'host.js',
+        options: {
+            create_source_map: '<%= paths.tmp %>' + 'host.map'
+        }
 
     },
     plugin: {
         js: '<%= paths.tmp %>' + 'all-debug.js',
-        jsOutputFile: '<%= paths.tmp %>'+ 'all.js'
+        jsOutputFile: '<%= paths.tmp %>' + 'all.js',
+        options: {
+            create_source_map: '<%= paths.tmp %>' + 'all.map'
+        }
     }
 };
 

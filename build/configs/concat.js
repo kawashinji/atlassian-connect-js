@@ -7,7 +7,7 @@ module.exports = {
     // host side js in one file
     host: {
         files: {
-            '.tmp/host.js': [
+            '.tmp/host-debug.js': [
             // ap-amd
             '<%= paths.jsSource %>' + 'iframe/host/_ap.js',
             '<%= paths.jsSource %>' + 'iframe/iframe/_amd.js',

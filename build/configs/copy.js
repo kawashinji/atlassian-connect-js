@@ -5,7 +5,8 @@ module.exports = {
             dest:  '<%= paths.dist %>',
             expand: true,
             filter: 'isFile',
-            src: ['**']
+            src: ['**',
+            '!*.report.txt']
         }]
     }
 };
