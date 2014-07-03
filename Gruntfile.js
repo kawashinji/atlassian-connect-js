@@ -11,8 +11,6 @@ module.exports = function (grunt) {
         bowerSource: 'bower_components/',
         styleSource: 'src/less/',
         cssVendorSource: 'src/css-vendor/',
-        soySource: 'src/soy/',
-        compiledSoySource: '.tmp/compiled-soy/',
         i18nBundle: 'src/i18n/aui.properties',
         dist: 'dist/',
         tmp: '.tmp/'
@@ -29,7 +27,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-requirejs');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-closure-compiler');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-jscs-checker');
     grunt.loadNpmTasks('grunt-karma');
@@ -44,30 +42,18 @@ module.exports = function (grunt) {
     grunt.registerTask('test-dist', 'Runs the unit tests with the dist', ['requirejs-config', 'clean:tmp', 'clean:dist']);
     grunt.registerTask('build', 'Builds Atlassian Connect js', [
         'build-js',
-        'less:dist',
-        'concat:auiAll',
-        'cssmin:dist',
+/*       'less:dist',
         'replace:projectVersion',
         'clean:tmp'
+*/
     ]);
     grunt.registerTask('build-js', 'Builds Atlassian Connect js', [
-        'soy-compile:core',
-//        'amd-stubs', //TODO add back in
-        'requirejs:dist',
+        'concat:host',
+        'concat:plugin',
+        'closure-compiler',
         'replace:projectVersion',
-        'clean:tmp'
+        'copy:dist',
+//        'clean:tmp'
     ]);
 
-    // TODO: Refactor into grunt-shell command once https://bitbucket.org/atlassian/aui/pull-request/656/implement-jscs-and-re-enable-jshint-task/diff is merged.
-    grunt.registerTask('amd-stubs', 'Create stub files for the RequireJS optimiser.',  function() {
-        var cmds = [
-            'mkdir -p .tmp/amd-stubs',
-            'touch .tmp/amd-stubs/aui-datepicker.js',
-            'touch .tmp/amd-stubs/aui-experimental.js',
-            'touch .tmp/amd-stubs/aui-soy.js',
-            'touch .tmp/amd-stubs/aui.js'
-        ];
-
-        require('child_process').exec(cmds.join(' && '), this.async());
-    });
 };
