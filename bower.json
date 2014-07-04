@@ -2,7 +2,8 @@
   "name": "atlassian-connect-js",
   "version": "0.0.1",
   "dependencies": {
-    "aui": "http://bitbucket.org/atlassian/aui-dist.git#5.4.4",
+    "aui": "http://bitbucket.org/atlassian/aui.git#5.4.4",
+    "aui-dist": "http://bitbucket.org/atlassian/aui-dist.git#5.4.4",
     "jquery": "1.8.3",
     "closure-compiler": "http://dl.google.com/closure-compiler/compiler-latest.zip"
   }
