@@ -11,7 +11,6 @@ module.exports = function (grunt) {
         bowerSource: 'bower_components/',
         styleSource: 'src/less/',
         cssVendorSource: 'src/css-vendor/',
-        i18nBundle: 'src/i18n/aui.properties',
         dist: 'dist/',
         tmp: '.tmp/'
     };
