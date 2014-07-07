@@ -1,4 +1,4 @@
-/*! atlassian-connect-js - v0.0.1 - 2014-07-04 */
+/*! atlassian-connect-js - v0.0.1 - 2014-07-07 */
 
 window._AP = window._AP || {};
 (function (window) {
@@ -317,6 +317,339 @@ _AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
 
 });
 
+_AP.require(["dialog/main", "host/content", "_uri", "dialog/dialog-factory"], function(dialog, hostContentUtilities, uri, dialogFactory) {
+
+  /**
+   * Binds all elements with the class "ap-dialog" to open dialogs.
+   * TODO: document options
+   */
+    AJS.toInit(function ($) {
+
+        var action = "click",
+            selector = ".ap-dialog",
+            callback = function(href, options){
+
+                var webItemOptions = hostContentUtilities.getOptionsForWebItem(options.bindTo);
+                //this is a dialog-page (xml descriptor)
+                var dialogPageMatch = href.match(/\/servlet\/atlassian\-connect\/([\w-]+)\/([\w-]+)/);
+                if(dialogPageMatch){
+                    var dialogPageOptions = {
+                        key: dialogPageMatch[1],
+                        moduleKey: dialogPageMatch[2],
+                        chrome: true
+                    };
+
+                    dialogFactory(dialogPageOptions, options);
+                    return;
+                }
+
+                $.extend(options, webItemOptions);
+                options.src = href;
+
+                var contentUrlObj = new uri.init(href);
+                if (!options.ns) {
+                    options.ns = contentUrlObj.getQueryParamValue('xdm_c').replace('channel-', '');
+                }
+                if(!options.container){
+                    options.container = options.ns;
+                }
+
+                //default chrome to be false for backwards compatability with webitems
+                if(options.chrome === undefined || options.chrome === ""){
+                  options.chrome = true;
+                }
+
+                dialog.create(options);
+            };
+
+        hostContentUtilities.eventHandler(action, selector, callback);
+
+    });
+
+});
+
+_AP.define("dialog/button", ["_dollar"], function($) {
+
+    function button(options){
+        this.$el = $('<button />')
+            .text(options.text)
+            .addClass('aui-button aui-button-' + options.type)
+            .addClass(options.additionalClasses);
+
+        this.isEnabled = function(){
+            return !(this.$el.attr('aria-disabled') === "true");
+        };
+
+        this.setEnabled = function(enabled){
+            //cannot disable a noDisable button
+            if(options.noDisable === true){
+                return false;
+            }
+            this.$el.attr('aria-disabled', !enabled);
+            return true;
+        };
+
+        this.setEnabled(true);
+
+        this.click = function(listener){
+            if (listener) {
+                this.$el.bind("ra.dialog.click", listener);
+            } else {
+                this.dispatch(true);
+            }
+        };
+
+        this.dispatch = function (result) {
+            var name = result ? "done" : "fail";
+            options.actions && options.actions[name] && options.actions[name]();
+        };
+
+        this.setText = function(text){
+            if(text){
+                this.$el.text(text);
+            }
+        };
+
+    }
+
+    return {
+        submit: function(actions){
+            return new button({
+                type: 'primary',
+                text: 'Submit',
+                additionalClasses: 'ap-dialog-submit',
+                actions: actions
+            });
+        },
+        cancel: function(actions){
+            return new button({
+                type: 'link',
+                text: 'Cancel',
+                noDisable: true,
+                additionalClasses: 'ap-dialog-cancel',
+                actions: actions
+            });
+        }
+    };
+
+});
+
+
+_AP.define("dialog/dialog-factory", ["_dollar", "dialog/main", 'host/content'], function($, dialog, hostContentUtilities) {
+    //might rename this, it opens a dialog by first working out the url (used for javascript opening a dialog).
+    /**
+    * opens a dialog by sending the add-on and module keys back to the server for signing.
+    * Used by dialog-pages, confluence macros and opening from javascript.
+    * @param {Object} options for passing to AP.create
+    * @param {Object} dialog options (width, height, etc)
+    * @param {String} productContextJson pass context back to the server
+    */
+    return function(options, dialogOptions, productContext) {
+        var promise,
+        container,
+        module = {key: options.moduleKey},
+        uiParams = $.extend({dlg: 1}, options.uiParams);
+        dialog.create({
+            id: options.id,
+            ns: options.moduleKey || options.key,
+            chrome: dialogOptions.chrome || options.chrome,
+            header: dialogOptions.header,
+            width: dialogOptions.width,
+            height: dialogOptions.height,
+            size: dialogOptions.size,
+            submitText: dialogOptions.submitText,
+            cancelText: dialogOptions.cancelText
+        }, false);
+
+        container = $('.ap-dialog-container');
+        if(options.url){
+            promise = hostContentUtilities.getIframeHtmlForUrl(options.key, options.url, productContext, uiParams);
+        } else {
+            promise = hostContentUtilities.getIframeHtmlForKey(options.key, productContext, module, uiParams);
+        }
+
+        promise
+            .done(function(data) {
+                var dialogHtml = $(data);
+                dialogHtml.addClass('ap-dialog-container');
+                container.replaceWith(dialogHtml);
+            })
+            .fail(function(xhr, status, ex) {
+                var title = $("<p class='title' />").text("Unable to load add-on content. Please try again later.");
+                container.html("<div class='aui-message error ap-aui-message'></div>");
+                container.find(".error").append(title);
+                var msg = status + (ex ? ": " + ex.toString() : "");
+                container.find(".error").text(msg);
+                AJS.log(msg);
+            });
+
+        return dialog;
+    };
+});
+
+_AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/button"], function($, uri, statusHelper, dialogButton) {
+
+    var $global = $(window);
+    var idSeq = 0;
+    var $nexus;
+    var dialog;
+    var dialogId;
+
+    var buttons = {
+        submit: dialogButton.submit({
+            done: closeDialog
+        }),
+        cancel: dialogButton.cancel({
+            done: closeDialog
+        })
+    };
+
+    function createChromelessDialogElement(options, $nexus){
+        var $el = $(aui.dialog.dialog2Chrome({
+            id: options.id,
+            titleId: options.titleId,
+            size: options.size,
+            extraClasses: ['ap-aui-dialog2', 'ap-aui-dialog2-chromeless'],
+            removeOnHide: true
+        }));
+        $el.append($nexus);
+        return $el;
+    }
+
+    function createDialogElement(options, $nexus){
+        var $el = $(aui.dialog.dialog2({
+            id: options.id,
+            titleText: options.header,
+            titleId: options.titleId,
+            size: options.size,
+            extraClasses: ['ap-aui-dialog2'],
+            removeOnHide: true,
+            footerActionContent: true
+        }));
+
+        buttons.submit.setText(options.submitText);
+        buttons.cancel.setText(options.cancelText);
+
+        //soy templates don't support sending objects, so make the template and bind them.
+        $el.find('.aui-dialog2-footer-actions').empty().append(buttons.submit.$el, buttons.cancel.$el);
+
+        $el.find('.aui-dialog2-content').append($nexus);
+        $nexus.data('ra.dialog.buttons', buttons);
+
+        function handler(button) {
+            // ignore clicks on disabled links
+            if(button.isEnabled()){
+                button.$el.trigger("ra.dialog.click", button.dispatch);
+            }
+        }
+
+        $.each(buttons, function(i, button) {
+            button.$el.click(function(){
+                handler(button);
+            });
+        });
+
+        return $el;
+    }
+
+    function displayDialogContent($container, options){
+        $container.append('<div id="embedded-' + options.ns + '" class="ap-dialog-container" />');
+    }
+
+
+    function parseDimension(value, viewport) {
+        if (typeof value === "string") {
+            var percent = value.indexOf("%") === value.length - 1;
+            value = parseInt(value, 10);
+            if (percent) value = value / 100 * viewport;
+        }
+        return value;
+    }
+
+    function closeDialog() {
+        if ($nexus) {
+            // Signal the XdmRpc for the dialog's iframe to clean up
+            $nexus.trigger("ra.iframe.destroy")
+            .removeData("ra.dialog.buttons")
+            .unbind();
+            // Clear the nexus handle to allow subsequent dialogs to open
+            $nexus = null;
+        }
+        dialog.hide();
+    }
+
+    return {
+        id: dialogId,
+        getButton: function(name){
+            var buttons = $nexus.data('ra.dialog.buttons');
+            return (name) ? buttons[name] : buttons;
+        },
+
+        /**
+        * Constructs a new AUI dialog. The dialog has a single content panel containing a single iframe.
+        * The iframe's content is either created by loading [options.src] as the iframe url. Or fetching the content from the server by add-on key + module key.
+        *
+        * @param {Object} options Options to configure the behaviour and appearance of the dialog.
+        * @param {String} [options.header="Remotable Plugins Dialog Title"]  Dialog header.
+        * @param {String} [options.headerClass="ap-dialog-header"] CSS class to apply to dialog header.
+        * @param {String|Number} [options.width="50%"] width of the dialog, expressed as either absolute pixels (eg 800) or percent (eg 50%)
+        * @param {String|Number} [options.height="50%"] height of the dialog, expressed as either absolute pixels (eg 600) or percent (eg 50%)
+        * @param {String} [options.id] ID attribute to assign to the dialog. Default to "ap-dialog-n" where n is an autoincrementing id.
+        */
+        create: function(options, showLoadingIndicator) {
+
+            var defaultOptions = {
+                    // These options really _should_ be provided by the caller, or else the dialog is pretty pointless
+                    width: "50%",
+                    height: "50%"
+                },
+                dialogId = options.id || "ap-dialog-" + (idSeq += 1),
+                mergedOptions = $.extend({id: dialogId}, defaultOptions, options, {dlg: 1}),
+                dialogElement;
+
+            mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
+            mergedOptions.h = parseDimension(mergedOptions.height, $global.height());
+
+            $nexus = $("<div />").addClass("ap-servlet-placeholder").attr('id', 'ap-' + options.ns)
+            .bind("ra.dialog.close", closeDialog);
+
+            if(options.chrome){
+                dialogElement = createDialogElement(mergedOptions, $nexus);
+
+            } else {
+                dialogElement = createChromelessDialogElement(mergedOptions, $nexus);
+            }
+
+            if(options.size){
+                mergedOptions.w = "100%";
+                mergedOptions.h = "100%";
+            } else {
+                AJS.layer(dialogElement).changeSize(mergedOptions.w, mergedOptions.h);
+            }
+
+            dialog = AJS.dialog2(dialogElement);
+            dialog.on("hide", closeDialog);
+
+            displayDialogContent($nexus, mergedOptions);
+
+            if(showLoadingIndicator !== false){
+                $nexus.append(statusHelper.createStatusMessages());
+            }
+
+            //difference between a webitem and opening from js.
+            if(options.src){
+                _AP.create(mergedOptions);
+            }
+
+            dialog.show();
+
+        },
+        close: closeDialog
+    };
+
+});
+
+
 _AP.define("dialog", ["_dollar", "_rpc", "dialog/dialog-factory", "dialog/main"], function ($, rpc, dialogFactory, dialogMain) {
     "use strict";
 
@@ -365,6 +698,193 @@ _AP.define("dialog", ["_dollar", "_rpc", "dialog/dialog-factory", "dialog/main"]
                     this.events.emit('ra.iframe.destroy');
                     dialogMain.close();
                 }
+            }
+        };
+    });
+
+});
+
+_AP.define("inline-dialog", ["_dollar", "inline-dialog/simple"], function($, simpleInlineDialog) {
+
+    function getInlineDialog($content){
+        return $content.closest('.contents').data('inlineDialog');
+    }
+
+    function showInlineDialog($content) {
+        getInlineDialog($content).show();
+    }
+
+    function resizeInlineDialog($content, width, height) {
+        $content.closest('.contents').css({width: width, height: height});
+        refreshInlineDialog($content);
+    }
+
+    function refreshInlineDialog($content) {
+        getInlineDialog($content).refresh();
+    }
+
+    function hideInlineDialog($content){
+        getInlineDialog($content).hide();
+    }
+
+    return {
+        showInlineDialog: showInlineDialog,
+        resizeInlineDialog: resizeInlineDialog,
+        hideInlineDialog: hideInlineDialog
+    };
+
+});
+
+_AP.require(["inline-dialog/simple", "_dollar", "host/content"], function(simpleInlineDialog, $, hostContentUtilities) {
+var inlineDialogTrigger = '.ap-inline-dialog';
+    AJS.toInit(function ($) {
+        var action = "click mouseover mouseout",
+            callback = function(href, options, eventType){
+                var webItemOptions = hostContentUtilities.getOptionsForWebItem(options.bindTo);
+                $.extend(options, webItemOptions);
+                if(options.onHover !== "true" && eventType !== 'click'){
+                    return;
+                }
+                simpleInlineDialog(href, options).show();
+            };
+        hostContentUtilities.eventHandler(action, inlineDialogTrigger, callback);
+    });
+});
+_AP.define("inline-dialog/simple", ["_dollar", "host/_status_helper", "host/_util"], function($, statusHelper, util) {
+    return function (contentUrl, options) {
+        var $inlineDialog;
+
+        // Find the web-item that was clicked, we'll be needing its ID.
+        if (!options.bindTo || !options.bindTo.jquery) {
+            return;
+        }
+
+        var webItem = options.bindTo.hasClass("ap-inline-dialog") ? options.bindTo : options.bindTo.closest(".ap-inline-dialog");
+        var itemId = webItem.attr("id");
+        if (!itemId) {
+            return;
+        }
+
+        var displayInlineDialog = function(content, trigger, showPopup) {
+
+            options.w = options.w || options.width;
+            options.h = options.h || options.height;
+            if (!options.ns) {
+                options.ns = itemId;
+            }
+            options.container = options.ns;
+            options.src = options.url = options.url || contentUrl;
+            content.data('inlineDialog', $inlineDialog);
+
+            if(!content.find('iframe').length){
+                content.attr('id', 'ap-' + options.ns);
+                content.append('<div id="embedded-' + options.ns + '" />');
+                content.append(statusHelper.createStatusMessages());
+                _AP.create(options);
+            }
+            showPopup();
+            return false;
+        };
+
+        var dialogElementIdentifier = "ap-inline-dialog-content-" + itemId;
+
+        $inlineDialog = $("#inline-dialog-" + util.escapeSelector(dialogElementIdentifier));
+        if($inlineDialog.length === 0){
+            //Create the AUI inline dialog with a unique ID.
+            $inlineDialog = AJS.InlineDialog(
+                options.bindTo,
+                //assign unique id to inline Dialog
+                dialogElementIdentifier,
+                displayInlineDialog,
+                options
+            );
+        }
+
+        return {
+            id: $inlineDialog.attr('id'),
+            show: function() {
+                $inlineDialog.show();
+            },
+            hide: function() {
+                $inlineDialog.hide();
+            }
+        };
+
+    };
+
+});
+
+_AP.define("messages/main", ["_dollar"], function($) {
+    var MESSAGE_BAR_ID = 'ac-message-container',
+        MESSAGE_TYPES = ["generic", "error", "warning", "success", "info", "hint"];
+
+    function validateMessageId(msgId){
+        return msgId.search(/^ap\-message\-[0-9]+$/) == 0;
+    }
+
+    function getMessageBar(){
+        var msgBar = $('#' + MESSAGE_BAR_ID);
+
+        if(msgBar.length < 1){
+            msgBar = $('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
+        }
+        return msgBar;
+    }
+
+    function filterMessageOptions(options){
+        var i,
+        key,
+        copy = {},
+        allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
+
+        for (i in allowed){
+            key = allowed[i];
+            if (key in options){
+                copy[key] = options[key];
+            }
+        }
+
+        return copy;
+    }
+
+    return {
+        showMessage: function (name, title, bodyHTML, options) {
+            var msgBar = getMessageBar();
+
+            options = filterMessageOptions(options);
+            $.extend(options, {
+                title: title,
+                body: AJS.escapeHtml(bodyHTML)
+            });
+
+            if($.inArray(name, MESSAGE_TYPES) < 0){
+                throw "Invalid message type. Must be: " + MESSAGE_TYPES.join(", ");
+            }
+            if(validateMessageId(options.id)){
+                AJS.messages[name](msgBar, options);
+                // Calculate the left offset based on the content width.
+                // This ensures the message always stays in the centre of the window.
+                msgBar.css('margin-left', '-' + msgBar.innerWidth()/2 + 'px');
+            }
+        },
+        clearMessage: function (id) {
+            if(validateMessageId(id)){
+                $('#' + id).remove();
+            }
+        }
+    };
+});
+
+_AP.define("messages-rpc", ["_dollar", "messages/main", "_rpc"], function($, messages, rpc) {
+    rpc.extend(function () {
+        return {
+            internals: {
+                showMessage: function (name, title, body, options) {
+                    return messages.showMessage(name, title, body, options);
+                },
+                clearMessage: function (id) {
+                    return messages.clearMessage(id);
+                },
             }
         };
     });

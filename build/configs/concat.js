@@ -59,7 +59,21 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/host/loading-indicator.js',
             // old additional modules used to load here
             '<%= paths.jsSource %>' + 'iframe/host/request.js',
+            //dialog
+            '<%= paths.jsSource %>' + 'dialog/binder.js',
+            '<%= paths.jsSource %>' + 'dialog/button.js',
+            '<%= paths.jsSource %>' + 'dialog/dialog-factory.js',
+            '<%= paths.jsSource %>' + 'dialog/main.js',
             '<%= paths.jsSource %>' + 'dialog/dialog-rpc.js',
+            // inline dialog
+            '<%= paths.jsSource %>' + 'inline-dialog/main.js',
+            '<%= paths.jsSource %>' + 'inline-dialog/binder.js',
+            '<%= paths.jsSource %>' + 'inline-dialog/simple.js',
+
+            // messages
+            '<%= paths.jsSource %>' + 'messages/main.js',
+            '<%= paths.jsSource %>' + 'messages/messages-rpc.js',
+
             '<%= paths.jsSource %>' + 'history/history-rpc.js',
             '<%= paths.jsSource %>' + 'iframe/history/history.js',
             '<%= paths.jsSource %>' + 'iframe/_events.js',

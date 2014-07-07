@@ -1,4 +1,4 @@
-/*! atlassian-connect-js - v0.0.1 - 2014-07-04 */
+/*! atlassian-connect-js - v0.0.1 - 2014-07-07 */
 
 (function (window) {
 
