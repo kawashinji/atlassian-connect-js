@@ -123,7 +123,7 @@
    * metadata (e.g. the bus's namespace).
    *
    * @param {String} name The name of event to emit
-   * @param {String[]} args 0 or more additional data arguments to deliver with the event
+   * @param {Array.<String>} args 0 or more additional data arguments to deliver with the event
    * @returns {Events} This Events instance
    */
   proto.emit = function (name) {
@@ -135,7 +135,7 @@
    * event payload arguments.
    *
    * @param {String} name The name of event to emit
-   * @param {String[]} args 0 or more additional data arguments to deliver with the event
+   * @param {Array.<String>} args 0 or more additional data arguments to deliver with the event
    * @returns {Object} A new event object
    * @private
    */

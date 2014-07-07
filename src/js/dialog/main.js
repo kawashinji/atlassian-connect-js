@@ -101,8 +101,8 @@ _AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/but
         * The iframe's content is either created by loading [options.src] as the iframe url. Or fetching the content from the server by add-on key + module key.
         *
         * @param {Object} options Options to configure the behaviour and appearance of the dialog.
-        * @param {String} [options.header="Remotable Plugins Dialog Title"]  Dialog header.
-        * @param {String} [options.headerClass="ap-dialog-header"] CSS class to apply to dialog header.
+        * @param {String} [options.header] Dialog header.
+        * @param {String} [options.headerClass] CSS class to apply to dialog header.
         * @param {String|Number} [options.width="50%"] width of the dialog, expressed as either absolute pixels (eg 800) or percent (eg 50%)
         * @param {String|Number} [options.height="50%"] height of the dialog, expressed as either absolute pixels (eg 600) or percent (eg 50%)
         * @param {String} [options.id] ID attribute to assign to the dialog. Default to "ap-dialog-n" where n is an autoincrementing id.

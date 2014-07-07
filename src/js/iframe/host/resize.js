@@ -17,16 +17,16 @@ _AP.define("resize", ["_dollar", "_rpc"], function ($, rpc) {
                 },
                 sizeToParent: _.debounce(function() {
 
-                    function resizeHandler(iframe) {
+                    var resizeHandler = function (iframe) {
                         var height = $(document).height() - $("#header > nav").outerHeight() - $("#footer").outerHeight() - 20;
                         $(iframe).css({width: "100%", height: height + "px"});
-                    }
+                    };
                     // sizeToParent is only available for general-pages
                     if (this.uiParams.isGeneral) {
                         // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
                         $(this.iframe).addClass("full-size-general-page");
                         $(window).on('resize', function(){
-                            resizeHander(this.iframe);
+                            resizeHandler(this.iframe);
                         });
                         resizeHandler(this.iframe);
                     }
