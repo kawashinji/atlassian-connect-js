@@ -26,6 +26,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-requirejs');
     grunt.loadNpmTasks('grunt-closure-compiler');
+    grunt.loadNpmTasks('grunt-append-sourcemapping');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-jscs-checker');
     grunt.loadNpmTasks('grunt-karma');
@@ -38,7 +39,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test-dist', 'Runs the unit tests with the dist', ['requirejs-config', 'clean:tmp', 'clean:dist']);
     grunt.registerTask('build', 'Builds Atlassian Connect js', [
         'build-js',
-        'clean:tmp'
+//        'clean:tmp'
 /*       'less:dist',
         'replace:projectVersion',
 */
@@ -47,6 +48,7 @@ module.exports = function (grunt) {
         'concat:host',
         'concat:plugin',
         'closure-compiler',
+        'append-sourcemapping',
         'replace:projectVersion',
         'copy:dist',
 //        'clean:tmp'

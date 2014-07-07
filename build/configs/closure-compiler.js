@@ -14,6 +14,7 @@ var globalOptions = {
         compilation_level: 'SIMPLE_OPTIMIZATIONS',
         language_in: 'ECMASCRIPT5_STRICT',
         source_map_format: 'V3',
+        //warning_level: "VERBOSE",
         define: [
             '"DEBUG=false"'
         ]
