@@ -31,6 +31,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-jscs-checker');
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-text-replace');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
 
     grunt.registerTask('default', 'Shows the available tasks.', 'availabletasks');
     grunt.registerTask('lint', 'Lints the code using JSHint and JSCS.', ['jshint', 'jscs']);
@@ -47,8 +48,9 @@ module.exports = function (grunt) {
     grunt.registerTask('build-js', 'Builds Atlassian Connect js', [
         'concat:host',
         'concat:plugin',
-        'closure-compiler',
-        'append-sourcemapping',
+//        'closure-compiler',
+//        'append-sourcemapping',
+        'uglify',
         'replace:projectVersion',
         'copy:dist',
 //        'clean:tmp'

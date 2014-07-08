@@ -28,7 +28,8 @@
     "karma-qunit": "0.1.1",
     "karma-junit-reporter": "0.1.0",
     "karma-coffee-preprocessor": "0.1",
-    "grunt-append-sourcemapping": "0.0.2"
+    "grunt-append-sourcemapping": "0.0.2",
+    "grunt-contrib-uglify": "^0.5.0"
   },
   "devDependencies": {},
   "scripts": {
