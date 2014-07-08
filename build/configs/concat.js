@@ -97,7 +97,7 @@ module.exports = {
             // confluence
             '<%= paths.jsSource %>' + 'confluence/macro/editor-rpc.js',
             '<%= paths.jsSource %>' + 'confluence/macro/editor.js',
-            '<%= paths.jsSource %>' + 'confluence/macro/override.js',
+//            '<%= paths.jsSource %>' + 'confluence/macro/override.js',
             '<%= paths.jsSource %>' + 'iframe/_ui-params.js'
 
             ],
