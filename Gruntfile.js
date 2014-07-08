@@ -48,9 +48,9 @@ module.exports = function (grunt) {
     grunt.registerTask('build-js', 'Builds Atlassian Connect js', [
         'concat:host',
         'concat:plugin',
-//        'closure-compiler',
-//        'append-sourcemapping',
-        'uglify',
+        'closure-compiler',
+        'append-sourcemapping',
+//        'uglify',
         'replace:projectVersion',
         'copy:dist',
 //        'clean:tmp'
