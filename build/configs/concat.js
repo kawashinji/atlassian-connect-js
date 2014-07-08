@@ -40,7 +40,8 @@ var fs = require('fs'),
 module.exports = {
     options: {
         stripBanners: true,
-        banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> */\n\n'
+        banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> */\n\n',
+        nonull: true
     },
     /**
     * The host takes all files that references _AP as all our JS is namespaced.
@@ -75,7 +76,7 @@ module.exports = {
             '<%= paths.jsSource %>' + 'messages/messages-rpc.js',
 
             '<%= paths.jsSource %>' + 'history/history-rpc.js',
-            '<%= paths.jsSource %>' + 'iframe/history/history.js',
+            '<%= paths.jsSource %>' + 'history/history.js',
             '<%= paths.jsSource %>' + 'iframe/_events.js',
             '<%= paths.jsSource %>' + 'iframe/_events.js',
             '<%= paths.jsSource %>' + 'iframe/_uri.js',
@@ -89,7 +90,8 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/_ui-params.js',
             '<%= paths.jsSource %>' + 'iframe/host/_status_helper.js'
             ],
-        dest: '.tmp/host-debug.js'
+        dest: '.tmp/host-debug.js',
+        nonull: true
     },
     /**
     * If the file references AP (without _ before it). Include it in the plugin
@@ -120,6 +122,7 @@ module.exports = {
 
             '<%= paths.jsSource %>' + 'iframe/plugin/_init.js'
         ],
-        dest: '.tmp/all-debug.js'
+        dest: '.tmp/all-debug.js',
+        nonull: true
     }
 };
