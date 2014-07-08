@@ -91,12 +91,12 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/_ui-params.js',
             '<%= paths.jsSource %>' + 'iframe/host/_status_helper.js',
             // JIRA
-            '<%= paths.jsSource %>' + 'jira/workflow-post-function/workflow-post-function.js',
-            '<%= paths.jsSource %>' + 'jira/workflow-post-function/workflow-post-function-rpc.js',
-            '<%= paths.jsSource %>' + 'jira/events.js',
+            // '<%= paths.jsSource %>' + 'jira/workflow-post-function/workflow-post-function.js',
+            // '<%= paths.jsSource %>' + 'jira/workflow-post-function/workflow-post-function-rpc.js',
+            // '<%= paths.jsSource %>' + 'jira/events.js',
             // confluence
-            '<%= paths.jsSource %>' + 'confluence/macro/editor-rpc.js',
-            '<%= paths.jsSource %>' + 'confluence/macro/editor.js',
+            // '<%= paths.jsSource %>' + 'confluence/macro/editor-rpc.js',
+            // '<%= paths.jsSource %>' + 'confluence/macro/editor.js',
 //            '<%= paths.jsSource %>' + 'confluence/macro/override.js',
             '<%= paths.jsSource %>' + 'iframe/_ui-params.js'
 
@@ -128,8 +128,8 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/plugin/history.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_resize_listener.js',
             // jira / confluence specifics go here
-            '<%= paths.jsSource %>' + 'iframe/plugin/jira.js',
-            '<%= paths.jsSource %>' + 'iframe/plugin/confluence.js',
+            // '<%= paths.jsSource %>' + 'iframe/plugin/jira.js',
+            // '<%= paths.jsSource %>' + 'iframe/plugin/confluence.js',
 
             '<%= paths.jsSource %>' + 'iframe/plugin/_init.js'
         ],
