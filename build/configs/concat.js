@@ -58,6 +58,7 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/host/env.js',
             '<%= paths.jsSource %>' + 'iframe/host/resize.js',
             '<%= paths.jsSource %>' + 'iframe/host/loading-indicator.js',
+            '<%= paths.jsSource %>' + 'iframe/host/cookie.js',
             // old additional modules used to load here
             '<%= paths.jsSource %>' + 'iframe/host/request.js',
             //dialog
@@ -88,7 +89,17 @@ module.exports = {
             // core modules
             '<%= paths.jsSource %>' + 'iframe/_xdm.js',
             '<%= paths.jsSource %>' + 'iframe/_ui-params.js',
-            '<%= paths.jsSource %>' + 'iframe/host/_status_helper.js'
+            '<%= paths.jsSource %>' + 'iframe/host/_status_helper.js',
+            // JIRA
+            '<%= paths.jsSource %>' + 'jira/workflow-post-function/workflow-post-function.js',
+            '<%= paths.jsSource %>' + 'jira/workflow-post-function/workflow-post-function-rpc.js',
+            '<%= paths.jsSource %>' + 'jira/events.js',
+            // confluence
+            '<%= paths.jsSource %>' + 'confluence/macro/editor-rpc.js',
+            '<%= paths.jsSource %>' + 'confluence/macro/editor.js',
+            '<%= paths.jsSource %>' + 'confluence/macro/override.js',
+            '<%= paths.jsSource %>' + 'iframe/_ui-params.js'
+
             ],
         dest: '.tmp/host-debug.js',
         nonull: true
