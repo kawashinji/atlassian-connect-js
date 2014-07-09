@@ -131,7 +131,8 @@ AP.require(
       });
     }
   }
-
-  rpc.init(options);
+  $(function(){
+    rpc.init(options);
+  });
 
 });
