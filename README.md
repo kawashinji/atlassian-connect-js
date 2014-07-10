@@ -67,6 +67,7 @@ To automatically re-create the dist directory on code change, run:
     grunt watch:compile
 
 To automatically re-package whilst developing for jira / confluence.
+
     cd /path/to/atlassian-connect-js
     npm link
     cd /path/to/atlassian-connect/plugin
