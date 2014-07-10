@@ -34,9 +34,8 @@ module.exports = function (grunt) {
                 'tests/unit/**'
             ],
             tasks: [
-                'soy-compile:core',
-                'requirejs-config',
-                'karma:cli'
+                'karma:host',
+                'karma:plugin'
             ],
             options: {
                 atBegin: true

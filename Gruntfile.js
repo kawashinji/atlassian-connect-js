@@ -35,7 +35,11 @@ module.exports = function (grunt) {
 
     grunt.registerTask('default', 'Shows the available tasks.', 'availabletasks');
     grunt.registerTask('lint', 'Lints the code using JSHint and JSCS.', ['jshint', 'jscs']);
-    grunt.registerTask('test', 'Runs the unit tests.', ['requirejs-config', 'karma:cli', 'clean:tmp']);
+    grunt.registerTask('test', 'Runs the unit tests.', [
+        'karma:host',
+        'karma:plugin',
+        'clean:tmp'
+        ]);
     grunt.registerTask('test-debug', 'Runs the unit tests.', ['watch:test', 'clean:tmp']);
     grunt.registerTask('test-dist', 'Runs the unit tests with the dist', ['requirejs-config', 'clean:tmp', 'clean:dist']);
     grunt.registerTask('build', 'Builds Atlassian Connect js', [

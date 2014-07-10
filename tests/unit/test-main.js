@@ -30,9 +30,6 @@ requirejs.config({
     'dialog/dialog-factory': '../src/js/dialog/dialog-factory',
     'inline-dialog/main': '../src/js/inline-dialog/main',
     'inline-dialog/simple': '../src/js/inline-dialog/simple',
-    'confluence/macro/editor': '../src/js/confluence/macro/editor',
-    'jira/events': '../src/js/jira/events',
-    'jira/workflow-post-function': '../src/js/jira/workflow-post-function/workflow-post-function',
     'messages/main': '../src/js/messages/main',
     // shared
     'iframe/_amd': '../src/js/iframe/_amd',
@@ -132,28 +129,11 @@ requirejs.config({
       'dialog/main'
       ]
     },
-    'confluence/macro/editor': {
-        deps: [
-        'iframe/host/_dollar',
-        'dialog/main'
-        ]
-    },
     'iframe/host/_rpc': {
       deps: [
         'iframe/host/_dollar',
         'iframe/_xdm'
       ]
-    },
-    'jira/events': {
-        deps: [
-        'iframe/host/_dollar',
-        'iframe/host/_rpc'
-        ]
-    },
-    'jira/workflow-post-function': {
-        deps: [
-        'iframe/host/_dollar'
-        ]
     },
     'messages/main': {
         deps: [
@@ -209,13 +189,6 @@ requirejs.config({
         'iframe/host/_ap',
         'iframe/host/_dollar',
         'iframe/_amd'
-        ]
-    },
-    'iframe-plugin-confluence': {
-        deps:[
-        'iframe/_amd',
-        'iframe/host/_dollar',
-        'iframe/host/main'
         ]
     }
   },

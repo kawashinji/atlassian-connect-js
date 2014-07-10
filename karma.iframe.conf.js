@@ -15,9 +15,9 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       {pattern: 'node_modules/karma-sinon/node_modules/sinon/lib/sinon/util/timers_ie.js', included: true},
+      {pattern: 'bower_components/jquery/jquery.js', included: true},
+      {pattern: 'tests/unit/js/iframe/plugin/fixture.js', included: true},
       'tests/unit/test-iframe-main.js',
-
-      'tests/unit/js/iframe/plugin/fixture.js',
       //events run on both sides of the bridge.
       {pattern: 'tests/unit/js/iframe/_events-test.js', included: false},
       {pattern: 'tests/unit/js/iframe/plugin/*-test.js', included: false},
@@ -29,11 +29,12 @@ module.exports = function(config) {
 
     // list of files to exclude
     exclude: [
+      'src/js/iframe/host/**/*.js'
     ],
 
     //do not process my html files.
     preprocessors: {
-      'src/test/resources/fixtures/!(*).html': ['html2js']
+      'tests/unit/fixtures/!(*).html': ['html2js']
     },
 
 
