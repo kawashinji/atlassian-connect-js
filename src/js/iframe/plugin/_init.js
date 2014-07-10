@@ -1,8 +1,8 @@
 // @todo make product-specific inclusions (e.g. jira) dynamic
 AP.require(
-  ["_dollar", "_rpc", "_resize_listener", "env", "request", "dialog", "jira"],
+  ["_dollar", "_rpc", "_resize_listener", "env", "request", "dialog", "jira", "confluence"],
 
-  function ($, rpc, resizeListener, env, request, dialog, jira) {
+  function ($, rpc, resizeListener, env, request, dialog, jira, confluence) {
 
   "use strict";
 
