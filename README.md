@@ -60,6 +60,19 @@ How do you get it?
 
 CDN to come.
 
+Dev loop
+------------------
+
+To automatically re-create the dist directory on code change, run:
+    grunt watch:compile
+
+To automatically re-package whilst developing for jira / confluence.
+    cd /path/to/atlassian-connect-js
+    npm link
+    cd /path/to/atlassian-connect/plugin
+    npm link atlassian-connect-js
+    npm run watch
+
 
 Compatibility
 -------------
