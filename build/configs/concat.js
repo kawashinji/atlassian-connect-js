@@ -82,7 +82,7 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/_events.js',
             '<%= paths.jsSource %>' + 'iframe/_uri.js',
             '<%= paths.jsSource %>' + 'iframe/host/_addons.js',
-            '<%= paths.jsSource %>' + 'iframe/host/main.js',
+            // '<%= paths.jsSource %>' + 'iframe/host/main.js',
             '<%= paths.jsSource %>' + 'iframe/_base64.js',
             '<%= paths.jsSource %>' + 'iframe/host/content.js',
             '<%= paths.jsSource %>' + 'analytics/analytics.js',
@@ -131,7 +131,7 @@ module.exports = {
             // '<%= paths.jsSource %>' + 'iframe/plugin/jira.js',
             // '<%= paths.jsSource %>' + 'iframe/plugin/confluence.js',
 
-            '<%= paths.jsSource %>' + 'iframe/plugin/_init.js'
+            // '<%= paths.jsSource %>' + 'iframe/plugin/_init.js'
         ],
         dest: '.tmp/all-debug.js',
         nonull: true

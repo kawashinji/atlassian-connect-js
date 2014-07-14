@@ -1,4 +1,8 @@
-(this.AP || this._AP).define("_xdm", ["_events", "_base64", "_uri",  "_ui-params", "host/analytics", "host/_util"], function (events, base64, uri, uiParams, analytics, util) {
+var deps = ["_events", "_base64", "_uri",  "_ui-params", "analytics/analytics", "host/_util"];
+if(this.AP){
+  deps = ["_events", "_base64", "_uri",  "_ui-params"];
+}
+(this.AP || this._AP).define("_xdm", deps, function (events, base64, uri, uiParams, analytics, util) {
 
   "use strict";
 
