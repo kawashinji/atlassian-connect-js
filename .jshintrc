@@ -36,7 +36,6 @@
     "noempty": true,
     "nonew": false,
     "nonstandard": true,
-    "quotmark": "single",
     "strict": true,
     "trailing": true,
     "undef": true,

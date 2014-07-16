@@ -61,6 +61,7 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/host/cookie.js',
             // old additional modules used to load here
             '<%= paths.jsSource %>' + 'iframe/host/request.js',
+            '<%= paths.jsSource %>' + 'iframe/host/content.js',
             //dialog
             '<%= paths.jsSource %>' + 'dialog/binder.js',
             '<%= paths.jsSource %>' + 'dialog/button.js',
@@ -84,7 +85,6 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/host/_addons.js',
             // '<%= paths.jsSource %>' + 'iframe/host/main.js',
             '<%= paths.jsSource %>' + 'iframe/_base64.js',
-            '<%= paths.jsSource %>' + 'iframe/host/content.js',
             '<%= paths.jsSource %>' + 'analytics/analytics.js',
             // core modules
             '<%= paths.jsSource %>' + 'iframe/_xdm.js',

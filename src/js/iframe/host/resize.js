@@ -5,7 +5,7 @@ _AP.define("resize", ["_dollar", "_rpc"], function ($, rpc) {
 
         return {
             init: function (config, xdm) {
-                xdm.resize = _.debounce(function resize ($, width, height) {
+                xdm.resize = AJS.debounce(function resize ($, width, height) {
                     $(this.iframe).css({width: width, height: height});
                 });
             },
@@ -15,7 +15,7 @@ _AP.define("resize", ["_dollar", "_rpc"], function ($, rpc) {
                         this.resize($, width, height);
                     }
                 },
-                sizeToParent: _.debounce(function() {
+                sizeToParent: AJS.debounce(function() {
 
                     var resizeHandler = function (iframe) {
                         var height = $(document).height() - $("#header > nav").outerHeight() - $("#footer").outerHeight() - 20;
