@@ -23,7 +23,9 @@ module.exports = function(config) {
       {pattern: 'tests/unit/js/iframe/plugin/*-test.js', included: false},
       {pattern: 'tests/unit/js/iframe/plugin/_*Mock*.js', included: false},
       {pattern: 'src/js/iframe/plugin/*.js', included: false},
-      {pattern: 'src/js/**/*.js', included: false}
+      {pattern: 'src/js/**/*.js', included: false},
+      {pattern: 'dist/all-debug.js', included: false},
+      {pattern: 'tests/unit/fixtures/_init.js', included: false}
     ],
 
 

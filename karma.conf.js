@@ -21,7 +21,10 @@ module.exports = function(config) {
       'tests/unit/test-main.js',
       {pattern: 'tests/unit/**/*-test.js', included: false},
       {pattern: 'tests/unit/fixtures/**', included: false},
-      {pattern: 'src/js/**/*.js', included: false}
+      {pattern: 'src/js/**/*.js', included: false},
+      {pattern: 'dist/all-debug.js', included: false},
+      {pattern: 'tests/unit/fixtures/_init.js', included: false}
+
 //      {pattern: 'target/qunit/dependencies/**/*.js', included: false},
     ],
 

@@ -19,8 +19,6 @@ var xdmMockEnv;
     xdmMockEnv = {
         init: function() {},
         getLocation: sinon.spy(),
-        getUser: sinon.spy(),
-        getTimeZone: sinon.spy(),
         resize: sinon.spy(),
         sizeToParent: sinon.spy()
     };
@@ -34,8 +32,6 @@ var xdmMockEnv;
 
                 this.clock = sinon.useFakeTimers();
                 xdmMockEnv.getLocation.reset();
-                xdmMockEnv.getUser.reset();
-                xdmMockEnv.getTimeZone.reset();
                 xdmMockEnv.resize.reset();
                 xdmMockEnv.sizeToParent.reset();
             },
@@ -158,28 +154,6 @@ var xdmMockEnv;
             var spy = sinon.spy();
             env.getLocation(spy);
             equal(xdmMockEnv.getLocation.args[0][0], spy);
-        });
-
-        test("getUser calls remote getUser", function() {
-            env.getUser();
-            ok(xdmMockEnv.getUser.calledOnce);
-        });
-
-        test("getUser passes callback to remote method", function() {
-            var spy = sinon.spy();
-            env.getUser(spy);
-            equal(xdmMockEnv.getUser.args[0][0], spy);
-        });
-
-        test("getTimeZone calls remote getTimeZone", function() {
-            env.getTimeZone();
-            ok(xdmMockEnv.getTimeZone.calledOnce);
-        });
-
-        test("getTimeZone passes callback to remote method", function() {
-            var spy = sinon.spy();
-            env.getTimeZone(spy);
-            equal(xdmMockEnv.getTimeZone.args[0][0], spy);
         });
 
         test("resize calls remote resize", function() {
