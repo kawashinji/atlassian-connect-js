@@ -10,6 +10,7 @@ module.exports = function (grunt) {
         jsVendorSource: 'src/js-vendor/',
         bowerSource: 'bower_components/',
         styleSource: 'src/less/',
+        cssSource: 'src/css/',
         cssVendorSource: 'src/css-vendor/',
         dist: 'dist/',
         tmp: '.tmp/'
@@ -44,11 +45,17 @@ module.exports = function (grunt) {
     grunt.registerTask('test-dist', 'Runs the unit tests with the dist', ['requirejs-config', 'clean:tmp', 'clean:dist']);
     grunt.registerTask('build', 'Builds Atlassian Connect js', [
         'build-js',
+        'build-css'
 //        'clean:tmp'
 /*       'less:dist',
         'replace:projectVersion',
 */
     ]);
+    grunt.registerTask('build-css', 'Builds Atlassian Connect js', [
+        'concat:hostcss',
+        'copy:distcss'
+    ]);
+
     grunt.registerTask('build-js', 'Builds Atlassian Connect js', [
         'concat:host',
         'concat:plugin',
@@ -56,7 +63,7 @@ module.exports = function (grunt) {
 //        'append-sourcemapping',
         'uglify',
         'replace:projectVersion',
-        'copy:dist',
+        'copy:distjs',
 //        'clean:tmp'
     ]);
 

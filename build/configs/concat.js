@@ -46,6 +46,15 @@ module.exports = {
     /**
     * The host takes all files that references _AP as all our JS is namespaced.
     */
+    hostcss: {
+        src: [
+            '<%= paths.cssSource %>' + 'iframe/host.css',
+            '<%= paths.cssSource %>' + 'messages/main.css',
+            '<%= paths.cssSource %>' + 'dialog/dialog.css'
+        ],
+        dest: '.tmp/host-css.css',
+        nonull: true
+    },
     host: {
         src: [
             // ap-amd

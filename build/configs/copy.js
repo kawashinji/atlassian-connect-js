@@ -1,11 +1,21 @@
 module.exports = {
-    dist: {
+    distjs: {
         files: [{
             cwd: '<%= paths.tmp %>',
             dest:  '<%= paths.dist %>',
             expand: true,
             filter: 'isFile',
-            src: ['**',
+            src: ['**.js',
+            '!*.report.txt']
+        }]
+    },
+    distcss: {
+        files: [{
+            cwd: '<%= paths.tmp %>',
+            dest:  '<%= paths.dist %>',
+            expand: true,
+            filter: 'isFile',
+            src: ['**.css',
             '!*.report.txt']
         }]
     }
