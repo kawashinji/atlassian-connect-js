@@ -25,43 +25,6 @@ AP.define("env", ["_dollar", "_rpc"], function ($, rpc) {
         },
 
         /**
-        * get a user object containing the user's id and full name
-        *
-        * @param {Function} callback  function (user) {...}
-        * @example
-        * AP.getUser(function(user){ 
-        *   console.log(user);
-        * });
-        */
-        getUser: function (callback) {
-          remote.getUser(callback);
-        },
-
-        /**
-        * get current timezone - if user is logged in then this will retrieve user's timezone
-        * the default (application/server) timezone will be used for unauthorized user
-        *
-        * @param {Function} callback  function (user) {...}
-        * @example
-        * AP.getTimeZone(function(timezone){
-        *   console.log(timezone);
-        * });
-        */
-        getTimeZone: function (callback) {
-          remote.getTimeZone(callback);
-        },
-
-        /**
-        * fire an analytics event
-        *
-        * @param id  the event id.  Will be prepended with the prefix "p3.iframe."
-        * @param props the event properties
-        * @deprecated
-        */
-        fireEvent: function (id, props) {
-          console.log("AP.fireEvent deprecated; will be removed in future version");
-        },
-        /**
         * resize this iframe
         * @method
         * @param {String} width   the desired width
