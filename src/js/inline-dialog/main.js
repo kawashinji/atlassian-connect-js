@@ -1,4 +1,5 @@
 _AP.define("inline-dialog", ["_dollar", "inline-dialog/simple"], function($, simpleInlineDialog) {
+    "use strict";
 
     function getInlineDialog($content){
         return $content.closest('.contents').data('inlineDialog');

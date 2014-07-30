@@ -1,4 +1,5 @@
-_AP.define("dialog/dialog-factory", ["_dollar", "dialog/main", 'host/content'], function($, dialog, hostContentUtilities) {
+_AP.define("dialog/dialog-factory", ["_dollar", "dialog/main"], function($, dialog) {
+    "use strict";
     //might rename this, it opens a dialog by first working out the url (used for javascript opening a dialog).
     /**
     * opens a dialog by sending the add-on and module keys back to the server for signing.
@@ -10,7 +11,6 @@ _AP.define("dialog/dialog-factory", ["_dollar", "dialog/main", 'host/content'], 
     return function(options, dialogOptions, productContext) {
         var promise,
         container,
-        module = {key: options.moduleKey},
         uiParams = $.extend({dlg: 1}, options.uiParams);
         dialog.create({
             id: options.id,
@@ -26,10 +26,17 @@ _AP.define("dialog/dialog-factory", ["_dollar", "dialog/main", 'host/content'], 
 
         container = $('.ap-dialog-container');
         if(options.url){
-            promise = hostContentUtilities.getIframeHtmlForUrl(options.key, options.url, productContext, uiParams);
-        } else {
-            promise = hostContentUtilities.getIframeHtmlForKey(options.key, productContext, module, uiParams);
+            throw new Error('Cannot retrieve dialog content by URL');
         }
+
+        promise = window._AP.contentResolver.resolveByParameters({
+            addonKey: options.key,
+            moduleKey: options.moduleKey,
+            productContext: productContext,
+            uiParams: uiParams
+        });
+
+        console.log("MY PROMISE", promise);
 
         promise
             .done(function(data) {

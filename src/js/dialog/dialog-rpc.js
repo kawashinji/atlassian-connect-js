@@ -37,8 +37,9 @@ _AP.define("dialog", ["_dollar", "_rpc", "dialog/dialog-factory", "dialog/main"]
                     if(dialogOptions.key) {
                         xdmOptions.moduleKey = dialogOptions.key;
                     } else if(dialogOptions.url) {
-                        xdmOptions.url = dialogOptions.url;
+                        throw new Error('Cannot open dialog by URL, please use module key');
                     }
+
                     dialogFactory(xdmOptions, dialogOptions, this.productContext);
 
                 },

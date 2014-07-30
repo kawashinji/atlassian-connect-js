@@ -1,5 +1,5 @@
 _AP.require(["dialog/main", "host/content", "_uri", "dialog/dialog-factory"], function(dialog, hostContentUtilities, uri, dialogFactory) {
-
+    "use strict";
   /**
    * Binds all elements with the class "ap-dialog" to open dialogs.
    * TODO: document options
@@ -11,18 +11,6 @@ _AP.require(["dialog/main", "host/content", "_uri", "dialog/dialog-factory"], fu
             callback = function(href, options){
 
                 var webItemOptions = hostContentUtilities.getOptionsForWebItem(options.bindTo);
-                //this is a dialog-page (xml descriptor)
-                var dialogPageMatch = href.match(/\/servlet\/atlassian\-connect\/([\w-]+)\/([\w-]+)/);
-                if(dialogPageMatch){
-                    var dialogPageOptions = {
-                        key: dialogPageMatch[1],
-                        moduleKey: dialogPageMatch[2],
-                        chrome: true
-                    };
-
-                    dialogFactory(dialogPageOptions, options);
-                    return;
-                }
 
                 $.extend(options, webItemOptions);
                 options.src = href;
