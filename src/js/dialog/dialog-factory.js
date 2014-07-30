@@ -36,8 +36,6 @@ _AP.define("dialog/dialog-factory", ["_dollar", "dialog/main"], function($, dial
             uiParams: uiParams
         });
 
-        console.log("MY PROMISE", promise);
-
         promise
             .done(function(data) {
                 var dialogHtml = $(data);
