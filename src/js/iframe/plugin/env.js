@@ -24,6 +24,14 @@ AP.define("env", ["_dollar", "_rpc"], function ($, rpc) {
           remote.getLocation(callback);
         },
 
+        getUser: function(callback){
+          AP.require(["user"], function(user){
+            if(user && user.getUser){
+              return user.getUser(callback);
+            }
+          });
+        },
+
         /**
         * resize this iframe
         * @method
