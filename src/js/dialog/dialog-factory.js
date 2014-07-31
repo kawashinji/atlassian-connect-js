@@ -11,7 +11,8 @@ _AP.define("dialog/dialog-factory", ["_dollar", "dialog/main"], function($, dial
     return function(options, dialogOptions, productContext) {
         var promise,
         container,
-        uiParams = $.extend({dlg: 1}, options.uiParams);
+        uiParams = $.extend({isDialog: 1}, options.uiParams);
+
         dialog.create({
             id: options.id,
             ns: options.moduleKey || options.key,
