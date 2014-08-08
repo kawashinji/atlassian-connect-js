@@ -19,8 +19,18 @@ define(['dialog/dialog-factory'], function() {
                 this.server = sinon.fakeServer.create();
                 AJS.contextPath = sinon.stub().returns("");
 
+                // content resolver that would usually be implemented by the product.
+                var contentResolverPromise = this.contentResolverPromise =  {
+                    done: sinon.stub().returns($.Deferred().promise()),
+                    fail: sinon.stub().returns($.Deferred().promise())
+                };
+                window._AP.contentResolver = {
+                    resolveByParameters: sinon.stub().returns(this.contentResolverPromise)
+                };
+
             },
             teardown: function(){
+                delete window._AP.contentResolver;
                 this.server.restore();
                 // clean up mock
                 _AP.AJS = null;
@@ -46,20 +56,53 @@ define(['dialog/dialog-factory'], function() {
 
         });
 
-        test("open a dialog by url launches an xhr", function(){
-            this.server.respondWith("GET", /.*render\-signed\-iframe/,
-            [200, { "Content-Type": "text/html" }, 'This is the <span id="my-span">content</span>']);
 
+        test("content resolver is passed addon key", function(){
             dialogFactory({
-                key: "somekey",
-                url: "/dialog.html",
+                key: 'somekey',
+                moduleKey: 'somemodulekey',
                 id: 'dialogid'
-            }, {}, "");
+            },
+            {}, "");
+            equal(window._AP.contentResolver.resolveByParameters.args[0][0].addonKey, 'somekey');
 
-            equal(AJS.dialog2.args[0][0].attr('id'), "dialogid", "Dialog element was created");
-            ok(this.dialogSpy.show.calledOnce, "Dialog was shown");
-            ok(this.server.requests[0].url.search(/remote-url\=%2Fdialog\.html/) > 0, "request url contains the remote url to sign");
-            ok(this.server.requests[0].url.search(/plugin-key\=somekey/) > 0, "request url contains the plugin key");
+        });
+
+
+        test("content resolver is passed module key", function(){
+            dialogFactory({
+                key: 'somekey',
+                moduleKey: 'somemodulekey',
+                id: 'dialogid'
+            },
+            {}, "");
+            equal(window._AP.contentResolver.resolveByParameters.args[0][0].moduleKey, 'somemodulekey');
+
+        });
+
+        test("content resolver is passed product Context", function(){
+            var productContext = {a: 'a'};
+            dialogFactory({
+                key: 'somekey',
+                moduleKey: 'somemodulekey',
+                id: 'dialogid'
+            },
+            {}, productContext);
+            deepEqual(window._AP.contentResolver.resolveByParameters.args[0][0].productContext, productContext);
+
+
+        });
+
+        test("content resolver is passed uiParams", function(){
+            dialogFactory({
+                key: 'somekey',
+                moduleKey: 'somemodulekey',
+                id: 'dialogid'
+            },
+            {}, "");
+            ok(typeof window._AP.contentResolver.resolveByParameters.args[0][0].uiParams === "object");
+
+
         });
 
     });
