@@ -44,7 +44,7 @@ module.exports = function(config) {
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
     reporters: ['progress', 'junit'],
     junitReporter: {
-      outputFile: 'target/surefire-reports/karma-iframe-results.xml',
+      outputFile: 'target/test-reports/karma-iframe-results.xml',
       suite: ''
     },
 
