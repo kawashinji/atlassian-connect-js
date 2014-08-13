@@ -38,7 +38,7 @@ _AP.define("host/content", ["_dollar", "_uri"], function ($, uri) {
             };
             callback(href, options, event.type);
         }
-
+        return false; // dummy test to see if my tests still pass.
         $(window.document).on(action, selector, domEventHandler);
 
     }
