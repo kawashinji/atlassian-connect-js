@@ -25,8 +25,19 @@
                         $('<a class="ap-plugin-key-addon ap-module-key-addon__module">link</a>'),
                         this.showPopupMock)
                     .returns(inlineDialogMock);
+
+                    // content resolver that would usually be implemented by the product.
+                    var contentResolverPromise = this.contentResolverPromise =  {
+                        done: sinon.stub().returns($.Deferred().promise()),
+                        fail: sinon.stub().returns($.Deferred().promise())
+                    };
+                    window._AP.contentResolver = {
+                        resolveByParameters: sinon.stub().returns(this.contentResolverPromise)
+                    };
+
                 },
                 teardown: function() {
+                    delete window._AP.contentResolver;
                     //restore _AP.create to it's default state.
                     if(this.apCreateMock){
                         delete _AP.create;
