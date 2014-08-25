@@ -6,17 +6,18 @@ _AP.define("host/content", ["_dollar", "_uri"], function ($, uri) {
     "use strict";
 
     function getWebItemPluginKey(target){
-        var m = target.attr('class').match(/ap-plugin-key-([^\s]*)/);
+        var cssClass = target.attr('class');
+        var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
         return $.isArray(m) ? m[1] : false;
     }
     function getWebItemModuleKey(target){
-        var m = target.attr('class').match(/ap-module-key-([^\s]*)/);
+        var cssClass = target.attr('class');
+        var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
         return $.isArray(m) ? m[1] : false;
     }
 
     function getOptionsForWebItem(target){
-        var pluginKey = getWebItemPluginKey(target),
-            moduleKey = getWebItemModuleKey(target),
+        var moduleKey = getWebItemModuleKey(target),
             type = target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
             return window._AP[type + 'Options'][moduleKey] || {};
     }
@@ -45,7 +46,9 @@ _AP.define("host/content", ["_dollar", "_uri"], function ($, uri) {
 
     return {
         eventHandler: eventHandler,
-        getOptionsForWebItem: getOptionsForWebItem
+        getOptionsForWebItem: getOptionsForWebItem,
+        getWebItemPluginKey: getWebItemPluginKey,
+        getWebItemModuleKey: getWebItemModuleKey
     };
 
 

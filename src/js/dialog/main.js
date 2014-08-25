@@ -1,4 +1,5 @@
 _AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/button"], function($, uri, statusHelper, dialogButton) {
+    "use strict";
 
     var $global = $(window);
     var idSeq = 0;
@@ -92,8 +93,8 @@ _AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/but
     return {
         id: dialogId,
         getButton: function(name){
-            var buttons = $nexus.data('ra.dialog.buttons');
-            return (name) ? buttons[name] : buttons;
+            var buttons = $nexus ? $nexus.data('ra.dialog.buttons') : null;
+            return (name) && (buttons) ? buttons[name] : buttons;
         },
 
         /**
@@ -101,8 +102,8 @@ _AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/but
         * The iframe's content is either created by loading [options.src] as the iframe url. Or fetching the content from the server by add-on key + module key.
         *
         * @param {Object} options Options to configure the behaviour and appearance of the dialog.
-        * @param {String} [options.header] Dialog header.
-        * @param {String} [options.headerClass] CSS class to apply to dialog header.
+        * @param {String} [options.header="Remotable Plugins Dialog Title"]  Dialog header.
+        * @param {String} [options.headerClass="ap-dialog-header"] CSS class to apply to dialog header.
         * @param {String|Number} [options.width="50%"] width of the dialog, expressed as either absolute pixels (eg 800) or percent (eg 50%)
         * @param {String|Number} [options.height="50%"] height of the dialog, expressed as either absolute pixels (eg 600) or percent (eg 50%)
         * @param {String} [options.id] ID attribute to assign to the dialog. Default to "ap-dialog-n" where n is an autoincrementing id.
@@ -121,7 +122,6 @@ _AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/but
             mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
             mergedOptions.h = parseDimension(mergedOptions.height, $global.height());
 
-
             $nexus = $("<div />").addClass("ap-servlet-placeholder ap-container").attr('id', 'ap-' + options.ns)
             .bind("ra.dialog.close", closeDialog);
 
@@ -137,6 +137,7 @@ _AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/but
                 mergedOptions.h = "100%";
             } else {
                 AJS.layer(dialogElement).changeSize(mergedOptions.w, mergedOptions.h);
+                dialogElement.removeClass('aui-dialog2-medium'); // this class has a min-height so must be removed.
             }
 
             dialog = AJS.dialog2(dialogElement);
