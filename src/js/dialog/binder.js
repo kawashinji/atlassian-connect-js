@@ -10,14 +10,14 @@ _AP.require(["dialog/main", "host/content", "_uri", "dialog/dialog-factory"], fu
             selector = ".ap-dialog",
             callback = function(href, options){
 
-                var webItemOptions = hostContentUtilities.getOptionsForWebItem(options.bindTo);
+                var webItemOptions = hostContentUtilities.getOptionsForWebItem(options.bindTo),
+                moduleKey = hostContentUtilities.getWebItemModuleKey(options.bindTo),
+                addonKey = hostContentUtilities.getWebItemPluginKey(options.bindTo);
 
                 $.extend(options, webItemOptions);
-                options.src = href;
 
-                var contentUrlObj = new uri.init(href);
                 if (!options.ns) {
-                    options.ns = contentUrlObj.getQueryParamValue('xdm_c').replace('channel-', '');
+                    options.ns = moduleKey;
                 }
                 if(!options.container){
                     options.container = options.ns;
@@ -33,7 +33,12 @@ _AP.require(["dialog/main", "host/content", "_uri", "dialog/dialog-factory"], fu
                   options.chrome = true;
                 }
 
-                dialog.create(options);
+                dialogFactory({
+                    key: addonKey,
+                    moduleKey: moduleKey
+                }, options);
+
+                    // dialog.create(options);
             };
 
         hostContentUtilities.eventHandler(action, selector, callback);
