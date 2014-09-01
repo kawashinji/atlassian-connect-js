@@ -22,6 +22,15 @@ _AP.define("host/content", ["_dollar", "_uri"], function ($, uri) {
             return window._AP[type + 'Options'][moduleKey] || {};
     }
 
+    function contextFromUrl (url) {
+        var pairs = new uri.init(url).queryPairs;
+        var obj = {};
+        $.each(pairs, function (key, value) {
+            obj[value[0]] = value[1];
+        });
+        return obj;
+    }
+
     function eventHandler(action, selector, callback) {
 
         function domEventHandler(event) {
@@ -35,7 +44,8 @@ _AP.define("host/content", ["_dollar", "_uri"], function ($, uri) {
                 width:  url.getQueryParamValue('width'),
                 height: url.getQueryParamValue('height'),
                 cp:     url.getQueryParamValue('cp'),
-                key: getWebItemPluginKey($el)
+                key: getWebItemPluginKey($el),
+                productContext: contextFromUrl(href)
             };
             callback(href, options, event.type);
         }

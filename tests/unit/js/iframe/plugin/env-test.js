@@ -112,7 +112,7 @@ var xdmMockEnv;
             equal(dim.h, height);
         });
 
-        test("auto resize causes 100% width to be returned", function() {
+        test("size gets correct width", function() {
             var width = 50,
             acContainer = this.createAcContainer({
                 'className': 'ac-content',
@@ -121,7 +121,7 @@ var xdmMockEnv;
             acContainer.style.width = width + 'px';
             dim = env.size(null, null, acContainer);
 
-            equal(dim.w, "100%");
+            equal(dim.w, width);
         });
 
         test("size returns passed width", function() {

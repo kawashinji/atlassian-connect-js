@@ -1,4 +1,4 @@
-_AP.define("inline-dialog", ["_dollar", "inline-dialog/simple"], function($, simpleInlineDialog) {
+_AP.define("inline-dialog", ["_dollar", "_rpc", "inline-dialog/simple"], function($, rpc, simpleInlineDialog) {
     "use strict";
 
     function getInlineDialog($content){
@@ -21,6 +21,23 @@ _AP.define("inline-dialog", ["_dollar", "inline-dialog/simple"], function($, sim
     function hideInlineDialog($content){
         getInlineDialog($content).hide();
     }
+
+    rpc.extend(function () {
+        return {
+            init: function(state, xdm){
+                if(xdm.uiParams.isInlineDialog){
+                    $(xdm.iframe).closest(".ap-container").on("resized", function(e, dimensions){
+                        resizeInlineDialog($(xdm.iframe), dimensions.width, dimensions.height);
+                    });
+                }
+            },
+            internals: {
+                hideInlineDialog: function(){
+                    hideInlineDialog(AJS.$(this.iframe));
+                }
+            }
+        };
+    });
 
     return {
         showInlineDialog: showInlineDialog,

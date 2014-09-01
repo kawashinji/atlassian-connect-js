@@ -16,12 +16,14 @@ _AP.define("inline-dialog/simple", ["_dollar", "host/_status_helper", "host/_uti
         var displayInlineDialog = function(content, trigger, showInlineDialog) {
 
             trigger = $(trigger); // sometimes it's not jQuery. Lets make it jQuery.
+            content.data('inlineDialog', $inlineDialog);
 
             var pluginKey = hostContentUtilities.getWebItemPluginKey(trigger),
                 moduleKey = hostContentUtilities.getWebItemModuleKey(trigger),
                 promise = window._AP.contentResolver.resolveByParameters({
                     addonKey: pluginKey,
-                    moduleKey: moduleKey
+                    moduleKey: moduleKey,
+                    isInlineDialog: true
                 });
 
             promise.done(function(data) {

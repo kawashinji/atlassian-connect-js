@@ -7,6 +7,9 @@ _AP.define("resize", ["_dollar", "_rpc"], function ($, rpc) {
             init: function (config, xdm) {
                 xdm.resize = AJS.debounce(function resize ($, width, height) {
                     $(this.iframe).css({width: width, height: height});
+                    var nexus = $(this.iframe).closest('.ap-container');
+                    nexus.trigger('resized', {width: width, height: height});
+
                 });
             },
             internals: {
