@@ -64,6 +64,11 @@ function ($, rpc) {
             * @param    {String}            body        The main content of the message.
             * @param    {MessageOptions}    options     Message Options
             * @returns  {String}    The id to be used when clearing the message
+            * @example
+            * AP.require("messages", function(messages){
+            *   //create a message
+            *   var message = messages.generic('title', 'generic message example');
+            * });
             */
 
             /**
@@ -75,6 +80,11 @@ function ($, rpc) {
             * @param    {String}            body        The main content of the message.
             * @param    {MessageOptions}    options     Message Options
             * @returns  {String}    The id to be used when clearing the message
+            * @example
+            * AP.require("messages", function(messages){
+            *   //create a message
+            *   var message = messages.error('title', 'error message example');
+            * });
             */
 
             /**
@@ -86,6 +96,11 @@ function ($, rpc) {
             * @param    {String}            body        The main content of the message.
             * @param    {MessageOptions}    options     Message Options
             * @returns  {String}    The id to be used when clearing the message
+            * @example
+            * AP.require("messages", function(messages){
+            *   //create a message
+            *   var message = messages.warning('title', 'warning message example');
+            * });
             */
 
             /**
@@ -97,6 +112,11 @@ function ($, rpc) {
             * @param    {String}            body        The main content of the message.
             * @param    {MessageOptions}    options     Message Options
             * @returns  {String}    The id to be used when clearing the message
+            * @example
+            * AP.require("messages", function(messages){
+            *   //create a message
+            *   var message = messages.success('title', 'success message example');
+            * });
             */
 
             /**
@@ -108,6 +128,11 @@ function ($, rpc) {
             * @param    {String}            body        The main content of the message.
             * @param    {MessageOptions}    options     Message Options
             * @returns  {String}    The id to be used when clearing the message
+            * @example
+            * AP.require("messages", function(messages){
+            *   //create a message
+            *   var message = messages.info('title', 'info message example');
+            * });
             */
 
             /**
@@ -119,6 +144,11 @@ function ($, rpc) {
             * @param    {String}            body        The main content of the message.
             * @param    {MessageOptions}    options     Message Options
             * @returns  {String}    The id to be used when clearing the message
+            * @example
+            * AP.require("messages", function(messages){
+            *   //create a message
+            *   var message = messages.hint('title', 'hint message example');
+            * });
             */
 
             apis: apis,
