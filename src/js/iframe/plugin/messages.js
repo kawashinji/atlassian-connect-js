@@ -46,7 +46,9 @@ function ($, rpc) {
         * AP.require("messages", function(messages){
         *   //create a message
         *   var message = messages.info('title', 'body');
-        *   messages.clear(message);
+        *   setTimeout(function(){
+        *     messages.clear(message);
+        *   }, 2000);
         * });
         */
 
