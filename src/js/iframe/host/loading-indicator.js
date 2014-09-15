@@ -9,18 +9,24 @@ _AP.define("loading-indicator", ["_dollar", "_rpc", "host/_status_helper"], func
 
                 $home.find(".ap-load-timeout a.ap-btn-cancel").click(function () {
                     statusHelper.showLoadErrorStatus($home);
-                    xdm.analytics.iframePerformance.cancel();
+                    if(xdm.analytics && xdm.analytics.iframePerformance){
+                        xdm.analytics.iframePerformance.cancel();
+                    }
                 });
 
                 xdm.timeout = setTimeout(function(){
                     xdm.timeout = null;
                     statusHelper.showloadTimeoutStatus($home);
-                    xdm.analytics.iframePerformance.timeout();
+                    if(xdm.analytics && xdm.analytics.iframePerformance){
+                        xdm.analytics.iframePerformance.timeout();
+                    }
                 }, 20000);
             },
             internals: {
                 init: function() {
-                    this.analytics.iframePerformance.end();
+                    if(this.analytics && this.analytics.iframePerformance){
+                        this.analytics.iframePerformance.end();
+                    }
                     var $home = $(this.iframe).closest(".ap-container");
                     statusHelper.showLoadedStatus($home);
 
