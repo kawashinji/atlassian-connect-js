@@ -22,7 +22,8 @@ _AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/but
             titleId: options.titleId,
             size: options.size,
             extraClasses: ['ap-aui-dialog2', 'ap-aui-dialog2-chromeless'],
-            removeOnHide: true
+            removeOnHide: true,
+            modal: true
         }));
         $el.append($nexus);
         return $el;
@@ -36,7 +37,8 @@ _AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/but
             size: options.size,
             extraClasses: ['ap-aui-dialog2'],
             removeOnHide: true,
-            footerActionContent: true
+            footerActionContent: true,
+            modal: true
         }));
 
         buttons.submit.setText(options.submitText);
