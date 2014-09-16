@@ -93,6 +93,10 @@ if(this.AP){
     //    redundant with the current internal implementation of the XdmRpc and should be considered for removal
     if (!/xdm_e/.test(loc)) {
       // Host-side constructor branch
+
+      // if there is already an iframe created. Destroy it. It's an old version.
+      $(config.container).find('iframe').trigger('ra.iframe.destroy');
+
       var iframe = createIframe(config);
       target = iframe.contentWindow;
       localKey = param(config.remote, "oauth_consumer_key") || param(config.remote, "jwt");
