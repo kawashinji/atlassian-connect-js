@@ -121,6 +121,11 @@ _AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/but
                 mergedOptions = $.extend({id: dialogId}, defaultOptions, options, {dlg: 1}),
                 dialogElement;
 
+            // patch for an old workaround where people would make 100% height / width dialogs.
+            if(mergedOptions.width === "100%" && mergedOptions.height === "100%"){
+                mergedOptions.size = "maximum";
+            }
+
             mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
             mergedOptions.h = parseDimension(mergedOptions.height, $global.height());
 
