@@ -43,6 +43,10 @@ _AP.define("dialog", ["_dollar", "_rpc", "dialog/dialog-factory", "dialog/main"]
                         throw new Error('Cannot open dialog by URL, please use module key');
                     }
 
+                    if($(".aui-layer :visible").length !== 0){
+                        throw new Error('Cannot open dialog when a layer is already visible');
+                    }
+
                     dialogFactory(xdmOptions, dialogOptions, this.productContext);
 
                 },
