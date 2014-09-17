@@ -16,6 +16,13 @@ _AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/but
         })
     };
 
+    var keyPressListener = function(e){
+        if(e.keyCode === 27 && dialog && dialog.hide){
+            dialog.hide();
+            $(document).unbind("keydown", keyPressListener);
+        }
+    };
+
     function createChromelessDialogElement(options, $nexus){
         var $el = $(aui.dialog.dialog2Chrome({
             id: options.id,
@@ -149,6 +156,8 @@ _AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/but
 
             dialog = AJS.dialog2(dialogElement);
             dialog.on("hide", closeDialog);
+            // ESC key closes the dialog
+            $(document).on("keydown", keyPressListener);
 
             displayDialogContent($nexus, mergedOptions);
 
