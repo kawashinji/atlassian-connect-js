@@ -50,7 +50,7 @@ _AP.define("dialog", ["_dollar", "_rpc", "dialog/dialog-factory", "dialog/main"]
                     dialogFactory(xdmOptions, dialogOptions, this.productContext);
 
                 },
-                closeDialog: function(done, fail) {
+                closeDialog: function() {
                     this.events.emit('ra.iframe.destroy');
                     dialogMain.close();
                 }

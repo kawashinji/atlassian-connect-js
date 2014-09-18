@@ -1,6 +1,7 @@
 _AP.define("history/rpc", ["_dollar", "history/history", "_rpc"], function($, history, rpc){
+    "use strict";
 
-    rpc.extend(function(config){
+    rpc.extend(function(){
         return {
             init: function (state, xdm) {
                 if(state.uiParams.isGeneral){
