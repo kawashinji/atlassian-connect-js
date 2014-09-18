@@ -2,14 +2,20 @@ _AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
     "use strict";
 
     var xhrProperties = ["status", "statusText", "responseText"],
-        xhrHeaders = ["Content-Type"];
+        xhrHeaders = ["Content-Type"],
+        contextPath = null;
 
     rpc.extend(function () {
         return {
+            init: function(xdm){
+                contextPath = xdm.cp;
+            },
             internals: {
                 request: function (args, success, error) {
                     // add the context path to the request url
-                    var url = AJS.contextPath() + args.url;
+                    var url = contextPath + args.url;
+                    url = url.replace(/\/\.\.\//ig,''); // strip /../ from urls
+
                     // reduce the xhr object to the just bits we can/want to expose over the bridge
                     function toJSON (xhr) {
                         var json = {headers: {}};
