@@ -1,8 +1,8 @@
-var deps = ["_events", "_base64", "_uri",  "_ui-params", "host/_util"];
+var deps = ["_events", "_jwt", "_uri",  "_ui-params", "host/_util"];
 if(this.AP){
-  deps = ["_events", "_base64", "_uri",  "_ui-params"];
+  deps = ["_events", "_jwt", "_uri",  "_ui-params"];
 }
-(this.AP || this._AP).define("_xdm", deps, function (events, base64, uri, uiParams, util) {
+(this.AP || this._AP).define("_xdm", deps, function (events, jwt, uri, uiParams, util) {
 
   "use strict";
 
@@ -95,7 +95,7 @@ if(this.AP){
       // Host-side constructor branch
 
       // if there is already an iframe created. Destroy it. It's an old version.
-      $(config.container).find('iframe').trigger('ra.iframe.destroy');
+      $('#' + config.container).find('iframe').trigger('ra.iframe.destroy');
 
       var iframe = createIframe(config);
       target = iframe.contentWindow;
@@ -110,6 +110,7 @@ if(this.AP){
         iframe: iframe,
         uiParams: config.uiParams,
         destroy: function () {
+          window.clearTimeout(self.timeout); //clear the iframe load time.
           // Unbind postMessage handler when destroyed
           unbind();
           // Then remove the iframe, if it still exists
@@ -130,8 +131,8 @@ if(this.AP){
       localKey = "local"; // Would be better to make this the add-on key, but it's not readily available at this time
 
       // identify the add-on by unique key: first try JWT issuer claim and fall back to OAuth1 consumer key
-      var jwt = param(loc, "jwt");
-      remoteKey = jwt ? parseJwtIssuer(jwt) : param(loc, "oauth_consumer_key");
+      var jwtParam = param(loc, "jwt");
+      remoteKey = jwtParam ? jwt.parseJwtIssuer(jwtParam) : param(loc, "oauth_consumer_key");
 
       // if the authentication method is "none" then it is valid to have no jwt and no oauth in the url
       // but equally we don't trust this iframe as far as we can throw it, so assign it a random id
@@ -410,33 +411,6 @@ if(this.AP){
     function log() {
       var log = $.log || (w.AJS && w.AJS.log);
       if (log) log.apply(w, arguments);
-    }
-
-    function parseJwtIssuer(jwt) {
-      return parseJwtClaims(jwt)['iss'];
-    }
-
-    function parseJwtClaims(jwt) {
-
-      if (null === jwt || '' === jwt) {
-        throw('Invalid JWT: must be neither null nor empty-string.');
-      }
-
-      var firstPeriodIndex = jwt.indexOf('.');
-      var secondPeriodIndex = jwt.indexOf('.', firstPeriodIndex + 1);
-
-      if (firstPeriodIndex < 0 || secondPeriodIndex <= firstPeriodIndex) {
-        throw('Invalid JWT: must contain 2 period (".") characters.');
-      }
-
-      var encodedClaims = jwt.substring(firstPeriodIndex + 1, secondPeriodIndex);
-
-      if (null === encodedClaims || '' === encodedClaims) {
-        throw('Invalid JWT: encoded claims must be neither null nor empty-string.');
-      }
-
-      var claimsString = base64.decode(encodedClaims);
-      return JSON.parse(claimsString);
     }
 
     // Immediately start listening for events
