@@ -1,4 +1,4 @@
-(this.AP || this._AP).define("_jwt", ["_base64"], function(base64){
+(window.AP || window._AP).define("_jwt", ["_base64"], function(base64){
     "use strict";
 
     function parseJwtIssuer(jwt) {
