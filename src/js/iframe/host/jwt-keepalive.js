@@ -10,13 +10,12 @@ _AP.define("host/jwt-keepalive", ["_dollar", "_jwt"], function($, jwt){
                 uiParams: config.uiParams,
                 width: config.width,
                 height: config.height,
-                raw: 'false'
+                classifier: 'json'
             });
 
             contentPromise.done(function(data){
-                var matches = data.match(/src\:"(.+?)\"/),
-                src = matches[1]; // HAPPY PATH :-)
-                defer.resolve(src);
+                var values = JSON.parse(data);
+                defer.resolve(values.src);
             });
         });
 
