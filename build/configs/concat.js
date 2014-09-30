@@ -96,6 +96,8 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/_base64.js',
             '<%= paths.jsSource %>' + 'analytics/analytics.js',
             // core modules
+            '<%= paths.jsSource %>' + 'iframe/_jwt.js',
+            '<%= paths.jsSource %>' + 'iframe/host/jwt-keepalive.js',
             '<%= paths.jsSource %>' + 'iframe/_xdm.js',
             '<%= paths.jsSource %>' + 'iframe/_ui-params.js',
             '<%= paths.jsSource %>' + 'iframe/host/_status_helper.js',
@@ -125,6 +127,7 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/_base64.js',
             '<%= paths.jsSource %>' + 'iframe/_uri.js',
             '<%= paths.jsSource %>' + 'iframe/_ui-params.js',
+            '<%= paths.jsSource %>' + 'iframe/_jwt.js',
             '<%= paths.jsSource %>' + 'iframe/_xdm.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_rpc.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/events.js',

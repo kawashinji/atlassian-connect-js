@@ -31,12 +31,14 @@ requirejs.config({
     'inline-dialog/main': '../src/js/inline-dialog/main',
     'inline-dialog/simple': '../src/js/inline-dialog/simple',
     'messages/main': '../src/js/messages/main',
+    'iframe/host/jwt-keepalive': '../src/js/iframe/host/jwt-keepalive',
     // shared
     'iframe/_amd': '../src/js/iframe/_amd',
     'iframe/_events': '../src/js/iframe/_events',
     'iframe/_xdm': '../src/js/iframe/_xdm',
     'iframe/_uri': '../src/js/iframe/_uri',
     'iframe/_base64': '../src/js/iframe/_base64',
+    'iframe/_jwt': '../src/js/iframe/_jwt',
     'iframe/_ui-params': '../src/js/iframe/_ui-params',
     'iframe/host/main': '../src/js/iframe/host/main'
   },
@@ -48,6 +50,18 @@ requirejs.config({
     'aui-atlassian': {
       deps: [
         'jquery'
+      ]
+    },
+    'iframe/host/jwt-keepalive': {
+      deps: [
+      'iframe/_amd',
+      'iframe/_jwt'
+      ]
+    },
+    'iframe/_jwt': {
+      deps: [
+      'iframe/_amd',
+      'iframe/_base64'
       ]
     },
     'iframe/host/_dollar': {

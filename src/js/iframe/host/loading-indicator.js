@@ -17,7 +17,8 @@ _AP.define("loading-indicator", ["_dollar", "_rpc", "host/_status_helper"], func
                 xdm.timeout = setTimeout(function(){
                     xdm.timeout = null;
                     statusHelper.showloadTimeoutStatus($home);
-                    if(xdm.analytics && xdm.analytics.iframePerformance){
+                    // if inactive, the iframe has been destroyed by the product.
+                    if(xdm.isActive() && xdm.analytics && xdm.analytics.iframePerformance){
                         xdm.analytics.iframePerformance.timeout();
                     }
                 }, 20000);

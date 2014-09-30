@@ -1,48 +1,71 @@
-_AP.define("_rpc", ["_dollar", "_xdm"], function ($, XdmRpc) {
+_AP.define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri"], function ($, XdmRpc, jwtKeepAlive, uri) {
 
-  "use strict";
+    "use strict";
 
-  var each = $.each,
-      extend = $.extend,
-      isFn = $.isFunction,
-      rpcCollection = [],
-      apis = {},
-      stubs = [],
-      internals = {},
-      inits = [];
+    var each = $.each,
+        extend = $.extend,
+        isFn = $.isFunction,
+        rpcCollection = [],
+        apis = {},
+        stubs = [],
+        internals = {},
+        inits = [];
 
-  return {
+    return {
 
-    extend: function (config) {
-      if (isFn(config)) config = config();
-      extend(apis, config.apis);
-      extend(internals, config.internals);
-      stubs = stubs.concat(config.stubs || []);
+        extend: function (config) {
+            if (isFn(config)) config = config();
+            extend(apis, config.apis);
+            extend(internals, config.internals);
+            stubs = stubs.concat(config.stubs || []);
 
-      var init = config.init;
-      if (isFn(init)) inits.push(init);
-      return config.apis;
-    },
+            var init = config.init;
+            if (isFn(init)) inits.push(init);
+            return config.apis;
+        },
 
-    // init connect host side
-    // options = things that go to all init functions
+        // init connect host side
+        // options = things that go to all init functions
 
-    init: function (options, xdmConfig) {
-      options = options || {};
+        init: function (options, xdmConfig) {
 
-        // add stubs for each public api
-        each(apis, function (method) { stubs.push(method); });
+            var remoteUrl = new uri.init(xdmConfig.remote),
+            remoteJwt = remoteUrl.getQueryParamValue('jwt'),
+            promise;
 
-        // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
-        var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internals)});
-        rpcCollection[rpc.id] = rpc;
-        each(inits, function (_, init) {
-          try { init(extend({}, options), rpc); }
-          catch (ex) { console.log(ex); }
-        });
+            options = options || {};
+            // add stubs for each public api
+            each(apis, function (method) { stubs.push(method); });
 
-    }
+            // refresh JWT tokens as required.
+            if(remoteJwt && jwtKeepAlive.isExpired(remoteJwt)){
+                promise = jwtKeepAlive.updateUrl({
+                    addonKey: xdmConfig.remoteKey,
+                    moduleKey: options.ns,
+                    productContext: options.productContext || {},
+                    uiParams: xdmConfig.uiParams,
+                    width: xdmConfig.props.width,
+                    height: xdmConfig.props.height
+                });
+            }
 
-  };
+            $.when(promise).always(function(src){
+                // if the promise resolves to a new url. update it.
+                if(src){
+                    xdmConfig.remote = src;
+                }
+                // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
+                var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internals)});
+
+                rpcCollection[rpc.id] = rpc;
+                each(inits, function (_, init) {
+                    try { init(extend({}, options), rpc); }
+                    catch (ex) { console.log(ex); }
+                });
+            });
+
+        }
+
+    };
 
 });
