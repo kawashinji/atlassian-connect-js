@@ -58,6 +58,19 @@
                 ok(AJS.InlineDialog.calledOnce);
             });
 
+            test("Inline dialog passes context params if specified", function() {
+                var href = "someurl";
+                var options = {
+                    bindTo: $("<div id='acmodule-foo' class='ap-inline-dialog'></div>"),
+                    productContext: {
+                        'page.id': '1234'
+                    }
+                };
+                simpleInlineDialog(href, options);
+                ok(window._AP.contentResolver.resolveByParameters.args[0][0].productContext);
+                equal(window._AP.contentResolver.resolveByParameters.args[0][0].productContext["page.id"], '1234');
+            });
+
             test("Inline dialog returns the inline dialog id", function() {
                 var href = "someurl";
                 var options = {
