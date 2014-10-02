@@ -19,7 +19,8 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
   function ($, rpc, UiParams, Uri) {
   "use strict";
 
-    var isDialog = Boolean(UiParams.fromUrl(window.location.toString()).dlg),
+    var uiParams = UiParams.fromUrl(window.location.toString()),
+      isDialog = Boolean(uiParams.dlg) || Boolean(uiParams.isDialog),
       exports,
       url = new Uri.init(window.location.toString());
 
