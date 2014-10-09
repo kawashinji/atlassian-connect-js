@@ -1,6 +1,9 @@
-AP.define("env", ["_dollar", "_rpc"], function ($, rpc) {
+AP.define("env", ["_dollar", "_rpc", "_ui-params"], function ($, rpc, UiParams) {
 
   "use strict";
+
+  var uiParams = UiParams.fromWindowName(),
+      isInlineDialog = Boolean(uiParams.isInlineDialog);
 
   var apis = rpc.extend(function (remote) {
 
@@ -82,18 +85,20 @@ AP.define("env", ["_dollar", "_rpc"], function ($, rpc) {
     },
 
     size: function (width, height, container) {
-      var w, h, docHeight;
+      var w = width == null ? "100%" : width, h, docHeight;
+
       if(!container){
         container = this.container();
       }
-      if (width) {
-        w = width;
-      } else {
+
+      // if it's an inline dialog. 100% won't work. Instead, get the container pixel width.
+      if(isInlineDialog && width === "100%"){
         w = Math.max(
           container.scrollWidth,
           container.offsetWidth,
           container.clientWidth
         );
+
       }
 
       if (height) {
@@ -119,6 +124,8 @@ AP.define("env", ["_dollar", "_rpc"], function ($, rpc) {
           }
         }
       }
+      // we need to return pixel width for inline elements such as dialogs and inline dialogs
+      // as they cannot get height from the parent.
       return {w: w, h: h};
     }
   });

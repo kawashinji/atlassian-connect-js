@@ -28,6 +28,10 @@ _AP.define("inline-dialog/simple", ["_dollar", "host/_status_helper", "host/_uti
 
             promise.done(function(data) {
                 content.empty().append(data);
+                // if target options contain width and height. set it.
+                if(options.width || options.height){
+                    content.css({width: options.width, height: options.height});
+                }
             })
             .fail(function(xhr, status, ex) {
                 var title = $("<p class='title' />").text("Unable to load add-on content. Please try again later.");
