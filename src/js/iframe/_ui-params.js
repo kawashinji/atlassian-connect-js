@@ -11,7 +11,9 @@
         * Encode options for transport
         */
         encode: function(options){
-            return base64.encode(JSON.stringify(options));
+            if(options){
+                return base64.encode(JSON.stringify(options));
+            }
         },
         /**
         * return ui params from a Url
