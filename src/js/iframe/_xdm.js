@@ -95,7 +95,7 @@ if(this.AP){
       // Host-side constructor branch
 
       // if there is already an iframe created. Destroy it. It's an old version.
-      $('#' + config.container).find('iframe').trigger('ra.iframe.destroy');
+      $("#" + util.escapeSelector(config.container)).find('iframe').trigger('ra.iframe.destroy');
 
       var iframe = createIframe(config);
       target = iframe.contentWindow;
