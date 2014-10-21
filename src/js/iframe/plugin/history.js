@@ -35,6 +35,7 @@ function ($, rpc, uiParams) {
             /**
             * The current url anchor.
             * @return String
+            * @noDemo
             * @example
             * AP.require(["history"], function(history){
             *    history.pushState("page5");
@@ -51,6 +52,7 @@ function ($, rpc, uiParams) {
             * If the delta is out of range, does nothing.
             * Will invoke the popstate callback
             * @param int delta
+            * @noDemo
             * @example
             * AP.require(["history"], function(history){
             *    history.go(-2); // go back by 2 entries in the browser history.
@@ -62,6 +64,7 @@ function ($, rpc, uiParams) {
             /**
             * Goes back one step in the joint session history.
             * Will invoke the popstate callback
+            * @noDemo
             * @example
             * AP.require(["history"], function(history){
             *    history.back(); // go back by 1 entry in the browser history.
@@ -73,6 +76,7 @@ function ($, rpc, uiParams) {
             /**
             * Goes back one step in the joint session history.
             * Will invoke the popstate callback
+            * @noDemo
             * @example
             * AP.require(["history"], function(history){
             *    history.forward(); // go forward by 1 entry in the browser history.

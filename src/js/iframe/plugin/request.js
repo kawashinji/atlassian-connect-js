@@ -74,7 +74,7 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
         * // Display an alert box with a list of JIRA dashboards using the JIRA REST API.
         * AP.require('request', function(request){
         *   request({
-        *     url: '/rest/api/2/dashboard',
+        *     url: '/assets/js/rest-example.json',
         *     success: function(responseText){
         *       alert(responseText);
         *     }

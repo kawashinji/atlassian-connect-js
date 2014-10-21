@@ -77,6 +77,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
       * This will only close a dialog that has been opened by your add-on.
       * You can register for close events using the `dialog.close` event and the [events module](module-Events.html)
       * @param {Object} data An object to be emitted on dialog close.
+      * @noDemo
       * @example
       * AP.require('dialog', function(dialog){
       *   dialog.close({foo: 'bar'});
@@ -101,6 +102,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
       /**
       * Returns the button that was requested (either cancel or submit)
       * @returns {DialogButton}
+      * @noDemo
       * @example
       * AP.require('dialog', function(dialog){
       *   dialog.getButton('submit');
@@ -117,6 +119,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
           /**
           * Sets the button state to enabled
           * @memberOf DialogButton
+          * @noDemo
           * @example
           * AP.require('dialog', function(dialog){
           *   dialog.getButton('submit').enable();
@@ -128,6 +131,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
           /**
           * Sets the button state to disabled
           * @memberOf DialogButton
+          * @noDemo
           * @example
           * AP.require('dialog', function(dialog){
           *   dialog.getButton('submit').disable();
@@ -139,6 +143,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
           /**
           * Toggle the button state between enabled and disabled.
           * @memberOf DialogButton
+          * @noDemo
           * @example
           * AP.require('dialog', function(dialog){
           *   dialog.getButton('submit').toggle();
@@ -154,6 +159,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
           * Query a button for it's current state.
           * @memberOf DialogButton
           * @param {Function} callback function to receive the button state.
+          * @noDemo
           * @example
           * AP.require('dialog', function(dialog){
           *   dialog.getButton('submit').isEnabled(function(enabled){
@@ -170,6 +176,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
           * Registers a function to be called when the button is clicked.
           * @memberOf DialogButton
           * @param {Function} callback function to be triggered on click or programatically.
+          * @noDemo
           * @example
           * AP.require('dialog', function(dialog){
           *   dialog.getButton('submit').bind(function(){
@@ -188,6 +195,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
           /**
           * Trigger a callback bound to a button.
           * @memberOf DialogButton
+          * @noDemo
           * @example
           * AP.require('dialog', function(dialog){
           *   dialog.getButton('submit').bind(function(){

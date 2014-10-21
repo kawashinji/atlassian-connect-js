@@ -17,6 +17,7 @@ function ($, rpc) {
         exports = {
             /**
             * Hide the inline dialog that contains your connect add-on.
+            * @noDemo
             * @example
             * AP.require('inline-dialog', function(inlineDialog){
             *   inlineDialog.hide();
