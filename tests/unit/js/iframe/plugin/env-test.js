@@ -10,7 +10,19 @@ var xdmMockEnv;
             }
         },
         paths: {
-            '_xdmMockEnvTest': '/base/tests/unit/js/iframe/plugin/_xdmMockEnvTest'
+            '_xdmMockEnvTest': '/base/tests/unit/js/iframe/plugin/_xdmMockEnvTest',
+            '_ui-params': '../_ui-params',
+            '_base64': '../_base64',
+            '_uri': '../_uri'
+        },
+        shim: {
+            'env': {
+                deps: [
+                    '_ui-params',
+                    '_base64',
+                    '_uri'
+                ]
+            }
         }
     });
 
@@ -23,7 +35,7 @@ var xdmMockEnv;
         sizeToParent: sinon.spy()
     };
 
-    context(["_rpc", "env", "_dollar"], function(_rpc, env, $) {
+    context(["_rpc", "env", "_dollar", "_ui-params"], function(_rpc, env, $, UiParams) {
         _rpc.init();
 
         module("Env plugin", {
@@ -101,7 +113,8 @@ var xdmMockEnv;
         });
 
         test("size gets correct height", function() {
-            var height = 50,
+            var dim,
+            height = 50,
             acContainer = this.createAcContainer({
                 'className': 'ac-content',
                 'innerHTML': '<span>foo bar</span>',
@@ -112,8 +125,9 @@ var xdmMockEnv;
             equal(dim.h, height);
         });
 
-        test("size gets correct width", function() {
-            var width = 50,
+        test("size gets 100% width by default", function() {
+            var dim,
+            width = 50,
             acContainer = this.createAcContainer({
                 'className': 'ac-content',
                 'innerHTML': '<span>foo bar</span>',
@@ -121,11 +135,12 @@ var xdmMockEnv;
             acContainer.style.width = width + 'px';
             dim = env.size(null, null, acContainer);
 
-            equal(dim.w, width);
+            equal(dim.w, "100%");
         });
 
         test("size returns passed width", function() {
-            var width = 50,
+            var dim,
+            width = 50,
             acContainer = this.createAcContainer({
                 'className': 'ac-content',
                 'innerHTML': '<span>foo bar</span>',
@@ -135,7 +150,8 @@ var xdmMockEnv;
         });
 
         test("size returns passed height", function() {
-            var height = 50,
+            var dim,
+            height = 50,
             acContainer = this.createAcContainer({
                 'className': 'ac-content',
                 'innerHTML': '<span>foo bar</span>',

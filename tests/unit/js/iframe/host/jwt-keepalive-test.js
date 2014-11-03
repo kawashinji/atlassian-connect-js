@@ -15,7 +15,7 @@
 
                     // mock promise that resolves instantly.
                     var promise = jQuery.Deferred(function(defer){
-                        defer.resolve('{src:"http://www.google.co.uk"}');
+                        defer.resolve('{"src":"http://www.google.co.uk"}');
                     }).promise(); 
 
                     window._AP.contentResolver = {

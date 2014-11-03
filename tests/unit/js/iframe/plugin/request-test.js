@@ -11,7 +11,19 @@ var xdmMockRequest;
             }
         },
         paths: {
-            '_xdmMockRequestTest': '/base/tests/unit/js/iframe/plugin/_xdmMockRequestTest'
+            '_xdmMockRequestTest': '/base/tests/unit/js/iframe/plugin/_xdmMockRequestTest',
+            '_ui-params': '../_ui-params',
+            '_base64': '../_base64',
+            '_uri': '../_uri'
+        },
+        shim: {
+            'env': {
+                deps: [
+                    '_ui-params',
+                    '_base64',
+                    '_uri'
+                ]
+            }
         }
 
 

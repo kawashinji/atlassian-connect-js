@@ -16,7 +16,7 @@ requirejs.config({
         'iframe/_events': '../_events',
         'iframe/_uri': '../_uri',
         '_events': '../_events',
-        'iframe/_ui-params': '../_ui-params',
+        '_ui-params': '../_ui-params'
     },
     // ask Require.js to load these files (all our tests)
     deps: tests,
