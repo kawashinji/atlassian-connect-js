@@ -1,4 +1,4 @@
-_AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
+define("request", ["_dollar", "_rpc"], function ($, rpc) {
     "use strict";
 
     var xhrProperties = ["status", "statusText", "responseText"],

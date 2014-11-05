@@ -1,4 +1,4 @@
-_AP.define("host/jwt-keepalive", ["_dollar", "_jwt"], function($, jwt){
+define("host/jwt-keepalive", ["_dollar", "_jwt"], function($, jwt){
     "use strict";
 
     function updateUrl (config){

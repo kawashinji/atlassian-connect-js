@@ -1,4 +1,4 @@
-_AP.define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri"], function ($, XdmRpc, jwtKeepAlive, uri) {
+define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri"], function ($, XdmRpc, jwtKeepAlive, uri) {
 
     "use strict";
 

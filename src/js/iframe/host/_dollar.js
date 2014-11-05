@@ -3,6 +3,6 @@
  * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
  * to code that runs on host and iframe.
  */
-_AP.define("_dollar", function () {
+define("_dollar", function () {
   return AJS.$;
 });

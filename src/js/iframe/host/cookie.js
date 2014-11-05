@@ -1,4 +1,4 @@
-_AP.define("host/cookie", ["_dollar", "_rpc"], function ($, rpc) {
+define("host/cookie", ["_dollar", "_rpc"], function ($, rpc) {
     "use strict";
 
     var module;

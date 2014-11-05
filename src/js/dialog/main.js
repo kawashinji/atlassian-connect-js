@@ -1,4 +1,4 @@
-_AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/button"], function($, uri, statusHelper, dialogButton) {
+define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/button"], function($, uri, statusHelper, dialogButton) {
     "use strict";
 
     var $global = $(window);

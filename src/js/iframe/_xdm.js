@@ -2,7 +2,7 @@ var deps = ["_events", "_jwt", "_uri",  "_ui-params", "host/_util"];
 if(this.AP){
   deps = ["_events", "_jwt", "_uri",  "_ui-params"];
 }
-(this.AP || this._AP).define("_xdm", deps, function (events, jwt, uri, uiParams, util) {
+(this.AP || window).define("_xdm", deps, function (events, jwt, uri, uiParams, util) {
 
   "use strict";
 

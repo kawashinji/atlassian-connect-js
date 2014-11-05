@@ -1,4 +1,4 @@
-_AP.define("host/_util", function () {
+define("host/_util", function () {
     return {
         escapeSelector: function( s ){
             if(!s){

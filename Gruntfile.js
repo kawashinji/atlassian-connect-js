@@ -31,6 +31,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-jscs-checker');
     grunt.loadNpmTasks('grunt-karma');
+    grunt.loadNpmTasks('grunt-shell');
     grunt.loadNpmTasks('grunt-text-replace');
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
@@ -57,7 +58,9 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('build-js', 'Builds Atlassian Connect js', [
-        'concat:host',
+//        'concat:host',
+        'shell:amdStubs',
+        'requirejs:dist',
         'concat:plugin',
         // 'closure-compiler',
 //        'append-sourcemapping',

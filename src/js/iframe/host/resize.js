@@ -1,4 +1,4 @@
-_AP.define("resize", ["_dollar", "_rpc"], function ($, rpc) {
+define("resize", ["_dollar", "_rpc"], function ($, rpc) {
     "use strict";
 
     rpc.extend(function () {

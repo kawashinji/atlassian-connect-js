@@ -1,4 +1,4 @@
-_AP.define("inline-dialog", ["_dollar", "_rpc", "inline-dialog/simple"], function($, rpc, simpleInlineDialog) {
+define("inline-dialog", ["_dollar", "_rpc", "inline-dialog/simple"], function($, rpc, simpleInlineDialog) {
     "use strict";
 
     function getInlineDialog($content){

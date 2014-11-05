@@ -1,4 +1,4 @@
-_AP.define("dialog/dialog-factory", ["_dollar", "dialog/main"], function($, dialog) {
+define("dialog/dialog-factory", ["_dollar", "dialog/main"], function($, dialog) {
     "use strict";
     //might rename this, it opens a dialog by first working out the url (used for javascript opening a dialog).
     /**

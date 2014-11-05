@@ -1,4 +1,4 @@
-_AP.define("messages-rpc", ["_dollar", "messages/main", "_rpc"], function($, messages, rpc) {
+define("messages-rpc", ["_dollar", "messages/main", "_rpc"], function($, messages, rpc) {
     rpc.extend(function () {
         return {
             internals: {

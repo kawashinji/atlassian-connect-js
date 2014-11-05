@@ -2,7 +2,7 @@
  * Utility methods for rendering connect addons in AUI components
  */
 
-_AP.define("host/content", ["_dollar", "_uri"], function ($, uri) {
+define("host/content", ["_dollar", "_uri"], function ($, uri) {
     "use strict";
 
     function getWebItemPluginKey(target){

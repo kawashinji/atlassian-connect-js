@@ -1,7 +1,7 @@
 module.exports = {
     distjs: {
         files: [{
-            cwd: '<%= paths.tmp %>',
+            cwd: '<%= paths.tmp %>amd-stubs',
             dest:  '<%= paths.dist %>',
             expand: true,
             filter: 'isFile',

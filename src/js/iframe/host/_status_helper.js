@@ -2,7 +2,7 @@
  * Methods for showing the status of a connect-addon (loading, time'd-out etc)
  */
 
-_AP.define("host/_status_helper", ["_dollar"], function ($) {
+define("host/_status_helper", ["_dollar"], function ($) {
     "use strict";
 
     var statuses = {

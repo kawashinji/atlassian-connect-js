@@ -1,4 +1,4 @@
-_AP.define("dialog/button", ["_dollar"], function($) {
+define("dialog/button", ["_dollar"], function($) {
 
     function button(options){
         this.$el = $('<button />')
@@ -22,7 +22,9 @@ _AP.define("dialog/button", ["_dollar"], function($) {
         this.setEnabled(true);
 
         this.click = function(listener){
+            console.log("AAA", listener);
             if (listener) {
+                console.log(".click listener", listener, this.$el);
                 this.$el.bind("ra.dialog.click", listener);
             } else {
                 this.dispatch(true);
