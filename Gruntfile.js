@@ -66,8 +66,9 @@ module.exports = function (grunt) {
 //        'append-sourcemapping',
         'uglify',
         'replace:projectVersion',
-        'copy:distjs',
-//        'clean:tmp'
+        'copy:disthostjs',
+        'copy:distpluginjs',
+        'clean:tmp'
     ]);
 
 };
