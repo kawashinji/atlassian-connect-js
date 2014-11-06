@@ -1,8 +1,6 @@
-define("resize", ["_dollar", "_rpc"], function ($, rpc) {
+require(["_dollar", "_rpc"], function ($, rpc) {
     "use strict";
-
     rpc.extend(function () {
-
         return {
             init: function (config, xdm) {
                 xdm.resize = AJS.debounce(function resize ($, width, height) {

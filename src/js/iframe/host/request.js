@@ -1,4 +1,4 @@
-define("request", ["_dollar", "_rpc"], function ($, rpc) {
+require(["_dollar", "_rpc"], function ($, rpc) {
     "use strict";
 
     var xhrProperties = ["status", "statusText", "responseText"],

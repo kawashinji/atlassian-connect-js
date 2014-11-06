@@ -1,8 +1,7 @@
-define("host/cookie", ["_dollar", "_rpc"], function ($, rpc) {
+require(["_dollar", "_rpc"], function ($, rpc) {
     "use strict";
 
-    var module;
-
+    
     rpc.extend(function () {
         function prefixCookie(addonKey, name){
             if (!addonKey || addonKey.length === 0) {
@@ -15,7 +14,7 @@ define("host/cookie", ["_dollar", "_rpc"], function ($, rpc) {
             return addonKey + '$$' + name;
         }
 
-        module = {
+        return {
             internals: {
                 saveCookie: function(name, value, expires){
                     AJS.Cookie.save(prefixCookie(this.addonKey, name), value, expires);
@@ -31,8 +30,6 @@ define("host/cookie", ["_dollar", "_rpc"], function ($, rpc) {
                 }
             }
         };
-        return module;
     });
 
-    return module;
 });

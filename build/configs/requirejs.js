@@ -28,12 +28,27 @@
     }
 
     var paths = {
+        '_ap': 'iframe/host/_ap',
+        '_dollar': 'iframe/host/_dollar',
         '_uri': 'iframe/_uri',
         'host/_status_helper': 'iframe/host/_status_helper',
-        '_xdm': 'iframe/_xdm',
-        'host/jwt-keepalive': 'iframe/host/jwt-keepalive',
+        '_util': 'iframe/host/_util',
+        '_rpc': 'iframe/host/_rpc',
+        '_events': 'iframe/_events',
+        'env': 'iframe/host/env',
+        'resize': 'iframe/host/resize',
+        'loading-indicator': 'iframe/host/loading-indicator',
+        'cookie': 'iframe/host/cookie',
+        'request': 'iframe/host/request',
+        'content': 'iframe/host/content',
+        'history/rpc': 'history/history-rpc',
+        'host/_addons': 'iframe/host/_addons',
+        '_base64': 'iframe/_base64',
         '_jwt': 'iframe/_jwt',
-        'dialog/rpc': 'dialog/dialog-rpc'
+        'host/jwt-keepalive': 'iframe/host/jwt-keepalive',
+        '_xdm': 'iframe/_xdm',
+        '_ui-params': 'iframe/_ui-params',
+        'create': 'iframe/host/create'
     };
 
     var config = {
@@ -41,62 +56,65 @@
             options: {
                 baseUrl: PATH_BASEURL,
                 preserveLicenseComments: false,
-                optimize: 'none',
+                //optimize: 'none',
                 paths: paths,
-                skipDirOptimize: true,
+//                skipDirOptimize: true,
                 // dir: rootSource("dist/js"),
                 dir: '.tmp/requirejs-optimizer',
                 wrap: {
                     startFile: 'build/start.frag',
                     endFile: 'build/end.frag'
                 },
+                shim: {
+                    '_jwt': ['_base64'],
+                    '_xdm': ["_events", "_jwt", "_uri",  "_ui-params", "host/_util"]
+                },
                 modules: [{
                     name: rootSource('.tmp/amd-stubs/connect-host'),
                     include: [
                         // ap-amd
-                        'iframe/host/_ap.js',
-                        'iframe/host/_dollar.js',
+                        '_ap',
+                        '_dollar',
                         // iframe-host-js
-                        'iframe/host/_util.js',
-                        'iframe/host/_rpc.js',
-                        'iframe/host/env.js',
-                        'iframe/host/resize.js',
-                        'iframe/host/loading-indicator.js',
-                        'iframe/host/cookie.js',
+                        '_util',
+                        '_rpc',
+                        '_events',
+                        'env',
+                        'resize',
+                        'loading-indicator',
+                        'cookie',
                         // old additional modules used to load here
-                        'iframe/host/request.js',
-                        'iframe/host/content.js',
+                        'request',
+                        'content',
                         //dialog
-                        'dialog/binder.js',
-                        'dialog/button.js',
-                        'dialog/dialog-factory.js',
-                        'dialog/main.js',
-                        'dialog/dialog-rpc.js',
+                        'dialog/binder',
+                        'dialog/button',
+                        'dialog/dialog-factory',
+                        'dialog/main',
+                        'dialog/dialog-rpc',
                         // inline dialog
-                        'inline-dialog/main.js',
-                        'inline-dialog/binder.js',
-                        'inline-dialog/simple.js',
+                        'inline-dialog/main',
+                        'inline-dialog/binder',
+                        'inline-dialog/simple',
 
                         // messages
-                        'messages/main.js',
-                        'messages/messages-rpc.js',
+                        'messages/main',
+                        'messages/messages-rpc',
 
-                        'history/history-rpc.js',
-                        'history/history.js',
-                        'iframe/_events.js',
-                        'iframe/_events.js',
-                        'iframe/_uri.js',
-                        'iframe/host/_addons.js',
+                        'history/history',
+                        'history/rpc',
+                        '_uri',
+                        'host/_addons',
                         // 'iframe/host/main.js',
-                        'iframe/_base64.js',
-                        'analytics/analytics.js',
+                        '_base64',
+                        'analytics/analytics',
                         // core modules
-                        'iframe/_jwt.js',
-                        'iframe/host/jwt-keepalive.js',
-                        'iframe/_xdm.js',
-                        'iframe/_ui-params.js',
-                        'iframe/host/_status_helper.js',
-                        'iframe/host/create.js'
+                        '_jwt',
+                        'host/jwt-keepalive',
+                        '_xdm',
+                        '_ui-params',
+                        'host/_status_helper',
+                        'create'
                     ]
                 }],
                 skipModuleInsertion: true
