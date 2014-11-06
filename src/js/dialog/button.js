@@ -22,9 +22,7 @@ define("dialog/button", ["_dollar"], function($) {
         this.setEnabled(true);
 
         this.click = function(listener){
-            console.log("AAA", listener);
             if (listener) {
-                console.log(".click listener", listener, this.$el);
                 this.$el.bind("ra.dialog.click", listener);
             } else {
                 this.dispatch(true);
