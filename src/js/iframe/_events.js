@@ -1,4 +1,4 @@
-(this.AP || window).define("_events", ["_dollar"], function ($) {
+( (typeof _AP !== "undefined") ? define : AP.define)("_events", ["_dollar"], function ($) {
 
   "use strict";
 

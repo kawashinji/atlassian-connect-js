@@ -25,7 +25,7 @@
  Modified slightly to wrap in our define() and function($) logic.
  */
 
-(window.AP || window).define("_base64", ["_dollar"], function ($) {
+( (typeof _AP !== "undefined") ? define : AP.define)("_base64", ["_dollar"], function ($) {
 
     "use strict";
 

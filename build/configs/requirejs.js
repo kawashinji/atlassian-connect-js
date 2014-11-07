@@ -28,6 +28,7 @@
     }
 
     var paths = {
+        'almond': bowerSource('almond/almond'),
         '_ap': 'iframe/host/_ap',
         '_dollar': 'iframe/host/_dollar',
         '_uri': 'iframe/_uri',
@@ -67,11 +68,12 @@
                 },
                 shim: {
                     '_jwt': ['_base64'],
-                    '_xdm': ["_events", "_jwt", "_uri",  "_ui-params", "host/_util"]
+                    '_xdm': ["_events", "_jwt", "_uri",  "_ui-params", "_util"]
                 },
                 modules: [{
                     name: rootSource('.tmp/amd-stubs/connect-host'),
                     include: [
+                        'almond',
                         // ap-amd
                         '_ap',
                         '_dollar',

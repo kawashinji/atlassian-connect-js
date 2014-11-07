@@ -1,4 +1,4 @@
-require(["_dollar", "_rpc"], function ($, rpc) {
+define('resize', ["_dollar", "_rpc"], function ($, rpc) {
     "use strict";
     rpc.extend(function () {
         return {
@@ -42,3 +42,5 @@ require(["_dollar", "_rpc"], function ($, rpc) {
     });
 
 });
+
+require('resize');

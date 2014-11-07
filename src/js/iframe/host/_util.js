@@ -1,4 +1,6 @@
 define("host/_util", function () {
+    "use strict";
+
     return {
         escapeSelector: function( s ){
             if(!s){

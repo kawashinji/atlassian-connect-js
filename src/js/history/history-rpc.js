@@ -1,4 +1,4 @@
-require(["_dollar", "history/history", "_rpc"], function($, history, rpc){
+define('history/rpc',["_dollar", "history/history", "_rpc"], function($, history, rpc){
     "use strict";
 
     rpc.extend(function(){
@@ -39,3 +39,5 @@ require(["_dollar", "history/history", "_rpc"], function($, history, rpc){
     });
 
 });
+
+require('history/rpc');
