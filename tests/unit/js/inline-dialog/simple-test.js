@@ -1,105 +1,92 @@
 (function(){
-    define(['inline-dialog/simple'], function() {
+    define(['inline-dialog/simple'], function(simpleInlineDialog) {
+        var INLINE_DIALOG_SELECTOR = '.aui-inline-dialog';
 
-        _AP.require(["inline-dialog/simple", "_dollar"], function(simpleInlineDialog, $) {
+        module("Inline Dialog Simple", {
+            setup: function() {
+                var inlineDialogMock = $('<div id="ap-acmodule-foo"></div>');
+                AJS.contextPath = function() { return ""; };
+                $content = $('<div class="' + INLINE_DIALOG_SELECTOR + '"><div class="ap-content"></div></div>');
+                $('<div id="qunit-fixture">').append($content).appendTo('body');
 
-            var INLINE_DIALOG_SELECTOR = '.aui-inline-dialog';
+                this.showPopupMock = sinon.spy();
+                AJS.InlineDialog = sinon.stub().yields(
+                    inlineDialogMock,
+                    $('<a class="ap-plugin-key-addon ap-module-key-addon__module">link</a>'),
+                    this.showPopupMock)
+                .returns(inlineDialogMock);
 
-            module("Inline Dialog Simple", {
-                setup: function() {
-                    if (!_AP.create) {
-                        _AP.require(["host/main"], function(main) {
-                            _AP.create = main;
-                        });
-                        this.apCreateMock = true;
-                    }
+                // content resolver that would usually be implemented by the product.
+                var contentResolverPromise = this.contentResolverPromise =  {
+                    done: sinon.stub().returns($.Deferred().promise()),
+                    fail: sinon.stub().returns($.Deferred().promise())
+                };
+                window._AP.contentResolver = {
+                    resolveByParameters: sinon.stub().returns(this.contentResolverPromise)
+                };
 
-                    var inlineDialogMock = $('<div id="ap-acmodule-foo"></div>');
-                    AJS.contextPath = function() { return ""; };
-                    $content = $('<div class="' + INLINE_DIALOG_SELECTOR + '"><div class="ap-content"></div></div>');
-                    $('<div id="qunit-fixture">').append($content).appendTo('body');
+            },
+            teardown: function() {
+                delete window._AP.contentResolver;
+                //restore _AP.create to it's default state.
+                this.showPopupMock.reset();
+                AJS.InlineDialog = null;
+                $('#qunit-fixture').remove();
+            }
+        });
 
-                    this.showPopupMock = sinon.spy();
-                    AJS.InlineDialog = sinon.stub().yields(
-                        inlineDialogMock,
-                        $('<a class="ap-plugin-key-addon ap-module-key-addon__module">link</a>'),
-                        this.showPopupMock)
-                    .returns(inlineDialogMock);
 
-                    // content resolver that would usually be implemented by the product.
-                    var contentResolverPromise = this.contentResolverPromise =  {
-                        done: sinon.stub().returns($.Deferred().promise()),
-                        fail: sinon.stub().returns($.Deferred().promise())
-                    };
-                    window._AP.contentResolver = {
-                        resolveByParameters: sinon.stub().returns(this.contentResolverPromise)
-                    };
+        test("Inline dialog creates an inline dialog", function() {
+            var href = "someurl";
+            var options = {
+                bindTo: $("<div id='acmodule-foo' class='ap-inline-dialog'></div>")
+            };
+            simpleInlineDialog(href, options);
+            ok(AJS.InlineDialog.calledOnce);
+        });
 
-                },
-                teardown: function() {
-                    delete window._AP.contentResolver;
-                    //restore _AP.create to it's default state.
-                    if(this.apCreateMock){
-                        delete _AP.create;
-                    }
-                    this.showPopupMock.reset();
-                    AJS.InlineDialog = null;
-                    $('#qunit-fixture').remove();
+        test("Inline dialog passes context params if specified", function() {
+            var href = "someurl";
+            var options = {
+                bindTo: $("<div id='acmodule-foo' class='ap-inline-dialog'></div>"),
+                productContext: {
+                    'page.id': '1234'
                 }
-            });
+            };
+            simpleInlineDialog(href, options);
+            ok(window._AP.contentResolver.resolveByParameters.args[0][0].productContext);
+            equal(window._AP.contentResolver.resolveByParameters.args[0][0].productContext["page.id"], '1234');
+        });
 
+        test("Inline dialog returns the inline dialog id", function() {
+            var href = "someurl";
+            var options = {
+                bindTo: $("<div id='irrelevent_id' class='ap-inline-dialog'></div>")
+            };
 
-            test("Inline dialog creates an inline dialog", function() {
-                var href = "someurl";
-                var options = {
-                    bindTo: $("<div id='acmodule-foo' class='ap-inline-dialog'></div>")
-                };
-                simpleInlineDialog(href, options);
-                ok(AJS.InlineDialog.calledOnce);
-            });
+            var inlineDialog = simpleInlineDialog(href, options);
+            equal(inlineDialog.id, "ap-acmodule-foo");
+        });
 
-            test("Inline dialog passes context params if specified", function() {
-                var href = "someurl";
-                var options = {
-                    bindTo: $("<div id='acmodule-foo' class='ap-inline-dialog'></div>"),
-                    productContext: {
-                        'page.id': '1234'
-                    }
-                };
-                simpleInlineDialog(href, options);
-                ok(window._AP.contentResolver.resolveByParameters.args[0][0].productContext);
-                equal(window._AP.contentResolver.resolveByParameters.args[0][0].productContext["page.id"], '1234');
-            });
+        test("Inline dialog bails if no element to bind to", function() {
+            var options = {
+            };
+            ok(!simpleInlineDialog("someurl", options));
+        });
 
-            test("Inline dialog returns the inline dialog id", function() {
-                var href = "someurl";
-                var options = {
-                    bindTo: $("<div id='irrelevent_id' class='ap-inline-dialog'></div>")
-                };
+        test("Inline dialog bails if bind target is not a jQuery object", function() {
+            var options = {
+                bindTo: $("<div id='acmodule-foo' class='ap-inline-dialog'></div>")[0]
+            };
+            ok(!simpleInlineDialog("someurl", options));
+        });
 
-                var inlineDialog = simpleInlineDialog(href, options);
-                equal(inlineDialog.id, "ap-acmodule-foo");
-            });
-
-            test("Inline dialog bails if no element to bind to", function() {
-                var options = {
-                };
-                ok(!simpleInlineDialog("someurl", options));
-            });
-
-            test("Inline dialog bails if bind target is not a jQuery object", function() {
-                var options = {
-                    bindTo: $("<div id='acmodule-foo' class='ap-inline-dialog'></div>")[0]
-                };
-                ok(!simpleInlineDialog("someurl", options));
-            });
-
-            test("Inline dialog bails if web-item ID is not found", function() {
-                var options = {
-                    bindTo: $("<div class='ap-inline-dialog'></div>")
-                };
-                ok(!simpleInlineDialog("someurl", options));
-            });
+        test("Inline dialog bails if web-item ID is not found", function() {
+            var options = {
+                bindTo: $("<div class='ap-inline-dialog'></div>")
+            };
+            ok(!simpleInlineDialog("someurl", options));
         });
     });
+
 })();

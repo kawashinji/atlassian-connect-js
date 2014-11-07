@@ -1,4 +1,4 @@
-define("inline-dialog", ["_dollar", "_rpc", "inline-dialog/simple"], function($, rpc, simpleInlineDialog) {
+require("inline-dialog/main", ["_dollar", "_rpc", "inline-dialog/simple"], function($, rpc, simpleInlineDialog) {
     "use strict";
 
     function getInlineDialog($content){
@@ -39,10 +39,5 @@ define("inline-dialog", ["_dollar", "_rpc", "inline-dialog/simple"], function($,
         };
     });
 
-    return {
-        showInlineDialog: showInlineDialog,
-        resizeInlineDialog: resizeInlineDialog,
-        hideInlineDialog: hideInlineDialog
-    };
-
 });
+
