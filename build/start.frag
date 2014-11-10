@@ -8,6 +8,11 @@
     } else {
         //Browser globals case. Just assign the
         //result to a property on the global.
+
+        if(!window._AP){
+            window._AP = {};
+        }
+
         AJS.$.extend(_AP, factory());
     }
 }(this, function () {
