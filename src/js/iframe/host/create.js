@@ -115,11 +115,5 @@
     };
 
   });
-/*
-  context._AP.create = function(config){
-    AJS.$(function(){
-      require('host/create')(config);
-    });
-  };
-  */
+
 }(this));

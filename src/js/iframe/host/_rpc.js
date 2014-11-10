@@ -28,6 +28,7 @@ define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri"], function ($, X
         // options = things that go to all init functions
 
         init: function (options, xdmConfig) {
+
             var remoteUrl = new uri.init(xdmConfig.remote),
             remoteJwt = remoteUrl.getQueryParamValue('jwt'),
             promise;
