@@ -1,4 +1,4 @@
-require("inline-dialog/main", ["_dollar", "_rpc", "inline-dialog/simple"], function($, rpc, simpleInlineDialog) {
+require(["_dollar", "_rpc", "inline-dialog/simple"], function($, rpc, simpleInlineDialog) {
     "use strict";
 
     function getInlineDialog($content){

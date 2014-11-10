@@ -1,13 +1,11 @@
 
     var rpc = require("_rpc");
 
-    var returnVal = {
+    return {
         extend: rpc.extend,
         init: rpc.init,
         uiParams: require("_ui-params"),
-        Dialog: require("dialog/main")
+        Dialog: require("dialog/main"),
+        create: require('host/create')
     };
-
-    AJS.$.extend(_AP, returnVal);
-    return returnVal;
 }));
