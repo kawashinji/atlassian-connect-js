@@ -1,4 +1,4 @@
-define(["_dollar", "_rpc"], function ($, rpc) {
+define("cookie", ["_dollar", "_rpc"], function ($, rpc) {
     "use strict";
 
     var exp;
@@ -36,3 +36,5 @@ define(["_dollar", "_rpc"], function ($, rpc) {
 
     return exp;
 });
+
+require("cookie");
