@@ -29,7 +29,6 @@ requirejs.config({
     'cookie': 'cookie/cookie',
     'request': 'iframe/host/request',
     'host/content': 'iframe/host/content',
-    'history/rpc': 'history/history-rpc',
     'host/_addons': 'iframe/host/_addons',
     '_base64': 'iframe/_base64',
     '_jwt': 'iframe/_jwt',
