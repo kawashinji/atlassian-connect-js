@@ -1,5 +1,5 @@
 (function(){
-    define(['inline-dialog/simple'], function(simpleInlineDialog) {
+    require(['inline-dialog/simple', "_dollar"], function(simpleInlineDialog, $) {
         var INLINE_DIALOG_SELECTOR = '.aui-inline-dialog';
 
         module("Inline Dialog Simple", {

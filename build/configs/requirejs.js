@@ -39,7 +39,6 @@
         'env': 'iframe/host/env',
         'resize': 'iframe/host/resize',
         'loading-indicator': 'iframe/host/loading-indicator',
-        'cookie': 'iframe/host/cookie',
         'request': 'iframe/host/request',
         'content': 'iframe/host/content',
         'history/rpc': 'history/history-rpc',
@@ -84,7 +83,8 @@
                         'env',
                         'resize',
                         'loading-indicator',
-                        'cookie',
+                        'cookie/cookie',
+                        'cookie/cookie-rpc',
                         // old additional modules used to load here
                         'request',
                         'content',

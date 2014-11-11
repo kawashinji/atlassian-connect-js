@@ -1,4 +1,4 @@
-define(['_events', "_dollar"], function(events, $) {
+require(['_events', "_dollar"], function(events, $) {
 
     var Events = events.Events;
 

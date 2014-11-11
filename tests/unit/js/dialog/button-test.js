@@ -1,5 +1,5 @@
 
-define(['dialog/button'], function(dialogButton) {
+require(['dialog/button'], function(dialogButton) {
 
     module("Dialog Button", {
     });

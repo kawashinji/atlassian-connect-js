@@ -1,5 +1,5 @@
 (function(){
-    define(['_ui-params', "_base64"], function(uiParams, base64) {
+    require(['_ui-params', "_base64"], function(uiParams, base64) {
 
         module('Ui Params', {
             setup: function(){

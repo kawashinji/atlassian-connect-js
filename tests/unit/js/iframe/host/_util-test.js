@@ -1,5 +1,5 @@
 (function(){
-    define(["host/_util"], function(util) {
+    require(["host/_util"], function(util) {
         module("Host Utils", {
             setup: function() {
                 this.container = $("<div>container</div>").attr("id", "qunit-container").appendTo("body");

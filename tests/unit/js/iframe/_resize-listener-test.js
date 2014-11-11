@@ -1,7 +1,6 @@
-/*
 (function(){
 
-    define(['iframe/_xdm'], function(_rpc, $) {
+    require(["_xdm", "_dollar"], function(XdmRpc, $) {
 
         module('XDM host', {
             setup: function() {
@@ -71,4 +70,3 @@
     });
 
 })();
-*/

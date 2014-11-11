@@ -1,6 +1,6 @@
 (function(){
 
-    define(["_jwt", "_base64"], function(jwt, base64) {
+    require(["_jwt", "_base64"], function(jwt, base64) {
 
         // returns a "valid enough" jwt token from an expired one.
         function validTokenFromExpired(expiredToken){

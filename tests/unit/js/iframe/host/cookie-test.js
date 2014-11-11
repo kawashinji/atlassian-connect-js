@@ -1,5 +1,5 @@
 (function(){
-    define(["cookie"], function(cookie) {
+    require(["cookie"], function(cookie) {
         var SEPARATOR = '$$';
 
         module("Cookie", {
@@ -10,7 +10,6 @@
                     read: sinon.spy(),
                     erase: sinon.spy()
                 };
-                cookie.internals.addonKey = "myAddon";
             },
             teardown: function() {
                 window.AJS.Cookie = this.default_AJSCookie;
@@ -19,7 +18,7 @@
         });
 
         test("saveCookie calls AJS.Cookie.save", function(){
-            cookie.internals.saveCookie('name', 'value', 1);
+            cookie.saveCookie('addonKey', 'name', 'value', 1);
             ok(window.AJS.Cookie.save.calledOnce);
         });
 
@@ -27,20 +26,20 @@
             var cookieName = "myCookie",
                 cookieValue = "some value";
 
-            cookie.internals.saveCookie(cookieName, cookieValue);
-            equal(window.AJS.Cookie.save.args[0][0], cookie.internals.addonKey + SEPARATOR + cookieName);
+            cookie.saveCookie('addonKey', cookieName, cookieValue);
+            equal(window.AJS.Cookie.save.args[0][0], 'addonKey' + SEPARATOR + cookieName);
         });
 
         test("readCookie calls AJS.Cookie.read", function(){
-            cookie.internals.readCookie("something");
+            cookie.readCookie('addonKey', "something");
             ok(window.AJS.Cookie.read.calledOnce);
         });
 
         test("readCookie prefixes the cookie with the add-on key", function(){
             var cookieName = "myCookie",
                 cookieValue = "some value";
-                cookie.internals.readCookie(cookieName);
-            ok(window.AJS.Cookie.read.args[0][0], cookie.internals.addonKey + SEPARATOR + cookieName);
+                cookie.readCookie('addonKey', cookieName);
+            ok(window.AJS.Cookie.read.args[0][0], 'addonKey' + SEPARATOR + cookieName);
         });
 
         test("readCookie runs the callback function", function(){
@@ -48,7 +47,7 @@
                 cookieValue = "some value",
                 callback = sinon.spy();
 
-            cookie.internals.readCookie(cookieName, callback);
+            cookie.readCookie('addonKey', cookieName, callback);
             ok(callback.calledOnce);
         });
 
@@ -59,15 +58,15 @@
 
             // mock away AJS.Cookie as we assume AUI works.
             window.AJS.Cookie.read = sinon.stub()
-                .withArgs(cookie.internals.addonKey + SEPARATOR + cookieName)
+                .withArgs('addonKey' + SEPARATOR + cookieName)
                 .returns(cookieValue);
 
-            cookie.internals.readCookie(cookieName, callback);
+            cookie.readCookie('addonKey', cookieName, callback);
             equal(callback.args[0][0], cookieValue);
         });
 
         test("eraseCookie calls JS.Cookie.erase", function(){
-            cookie.internals.eraseCookie("abc");
+            cookie.eraseCookie('addonKey', "abc");
             ok(window.AJS.Cookie.erase.calledOnce);
         });
 
@@ -75,8 +74,8 @@
             var cookieName = "myCookie",
                 cookieValue = "some value";
 
-            cookie.internals.eraseCookie(cookieName);
-            equal(window.AJS.Cookie.erase.args[0], cookie.internals.addonKey + SEPARATOR + cookieName);
+            cookie.eraseCookie('addonKey', cookieName);
+            equal(window.AJS.Cookie.erase.args[0], 'addonKey' + SEPARATOR + cookieName);
         });
 
     });

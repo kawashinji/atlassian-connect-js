@@ -1,5 +1,5 @@
 (function(){
-    define(['messages/main'], function(messages) {
+    require(['messages/main'], function(messages) {
 
         module("Messages Main", {
             setup: function() {

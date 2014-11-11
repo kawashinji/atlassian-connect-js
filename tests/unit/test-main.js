@@ -26,7 +26,7 @@ requirejs.config({
     'env': 'iframe/host/env',
     'resize': 'iframe/host/resize',
     'loading-indicator': 'iframe/host/loading-indicator',
-    'cookie': 'iframe/host/cookie',
+    'cookie': 'cookie/cookie',
     'request': 'iframe/host/request',
     'host/content': 'iframe/host/content',
     'history/rpc': 'history/history-rpc',

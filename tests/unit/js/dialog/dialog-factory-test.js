@@ -1,5 +1,5 @@
 
-define(['dialog/dialog-factory'], function(dialogFactory) {
+require(['dialog/dialog-factory'], function(dialogFactory) {
 
     module("Dialog Factory", {
         setup: function(){

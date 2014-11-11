@@ -1,4 +1,4 @@
-define(['dialog/main'], function(simpleDialog) {
+require(['dialog/main'], function(simpleDialog) {
 
     module("Main Dialog", {
         setup: function(){

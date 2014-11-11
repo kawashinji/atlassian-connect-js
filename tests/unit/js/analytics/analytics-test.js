@@ -1,6 +1,6 @@
 
 (function(){
-    define(["analytics/analytics", "_dollar"], function(analytics) {
+    require(["analytics/analytics", "_dollar"], function(analytics) {
         module("Analytics", {
 
             setup: function() {

@@ -1,5 +1,5 @@
 (function(){
-    define(["host/content"], function(contentUtilities) {
+    require(["host/content"], function(contentUtilities) {
 
         var pluginKey = "foo-plugin-key",
         capability = {

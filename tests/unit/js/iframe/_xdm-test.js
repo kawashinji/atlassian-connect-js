@@ -1,6 +1,5 @@
-/*
 (function(){
-    define(['iframe/_xdm'], function(XdmRpc) {
+    require(['_xdm', '_dollar'], function(XdmRpc, $) {
         module('XDM host', {
             setup: function() {
             this.container = $("<div />").attr("id", "qunit-container").appendTo("body");
@@ -85,4 +84,3 @@
     });
 
 })();
-*/

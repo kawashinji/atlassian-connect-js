@@ -1,6 +1,6 @@
 (function(){
 
-    define(['host/jwt-keepalive'], function(jwtKeepAlive) {
+    require(['host/jwt-keepalive'], function(jwtKeepAlive) {
 
         var contentResolver;
 
