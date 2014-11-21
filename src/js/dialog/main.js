@@ -23,36 +23,33 @@ _AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/but
         }
     };
 
-    function createChromelessDialogElement(options, $nexus){
-        var $el = $(aui.dialog.dialog2Chrome({
-            id: options.id,
-            titleId: options.titleId,
-            size: options.size,
-            extraClasses: ['ap-aui-dialog2', 'ap-aui-dialog2-chromeless'],
-            removeOnHide: true,
-            modal: true
-        }));
-        $el.append($nexus);
-        return $el;
-    }
+    function createDialogElement(options, $nexus, chromeless){
+        var $el,
+        extraClasses = ['ap-aui-dialog2'];
 
-    function createDialogElement(options, $nexus){
-        var $el = $(aui.dialog.dialog2({
+        if(chromeless){
+            extraClasses.push('ap-aui-dialog2-chromeless');
+        }
+
+        $el = $(aui.dialog.dialog2({
             id: options.id,
             titleText: options.header,
             titleId: options.titleId,
             size: options.size,
-            extraClasses: ['ap-aui-dialog2'],
+            extraClasses: extraClasses,
             removeOnHide: true,
             footerActionContent: true,
             modal: true
         }));
 
-        buttons.submit.setText(options.submitText);
-        buttons.cancel.setText(options.cancelText);
-
-        //soy templates don't support sending objects, so make the template and bind them.
-        $el.find('.aui-dialog2-footer-actions').empty().append(buttons.submit.$el, buttons.cancel.$el);
+        if(chromeless){
+            $el.find('header, footer').remove();
+        } else {
+            buttons.submit.setText(options.submitText);
+            buttons.cancel.setText(options.cancelText);
+            //soy templates don't support sending objects, so make the template and bind them.
+            $el.find('.aui-dialog2-footer-actions').empty().append(buttons.submit.$el, buttons.cancel.$el);
+        }
 
         $el.find('.aui-dialog2-content').append($nexus);
         $nexus.data('ra.dialog.buttons', buttons);
@@ -143,7 +140,7 @@ _AP.define("dialog/main", ["_dollar", "_uri", "host/_status_helper", "dialog/but
                 dialogElement = createDialogElement(mergedOptions, $nexus);
 
             } else {
-                dialogElement = createChromelessDialogElement(mergedOptions, $nexus);
+                dialogElement = createDialogElement(mergedOptions, $nexus, true);
             }
 
             if(options.size){
