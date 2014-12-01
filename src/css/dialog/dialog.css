@@ -41,5 +41,5 @@
     background-color:transparent;
 
     /* Override the aui selector that assumes the last-child is the footer */
-    border-radius: 0 0 0 0;
+    border-radius: 0;
 }
