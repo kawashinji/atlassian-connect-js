@@ -30,7 +30,7 @@
 
     /* in safari, chromeless dialogs become invisible, because apparently GPU FTW */
     -webkit-transform: translatez(0);
-    will-change: opacity, contents;
+    will-change: opacity, visibility;
 }
 
 .ap-aui-dialog2 iframe {
