@@ -12,13 +12,8 @@
 }
 
 .ap-aui-dialog2 div.ap-stats {
-	height: auto;
+    height: auto;
     position: absolute; /* go over the top of the bottom bar when visible */
-}
-
-/* in chrome'd dialogs - fixes scrollbars added by iframes with scrollbars pushing the width out */
-.ap-aui-dialog2 .aui-dialog2-content {
-	overflow:hidden;
 }
 
 /* add new aui dialog size of maximum */
@@ -29,8 +24,22 @@
 
 .ap-aui-dialog2 .aui-dialog2-content {
 	padding:0;
+
+    /* in chrome'd dialogs - fixes scrollbars added by iframes with scrollbars pushing the width out */
+    overflow:hidden;
+
+    /* in safari, chromeless dialogs become invisible, because apparently GPU FTW */
+    -webkit-transform: translatez(0);
+    will-change: opacity, visibility;
 }
 
 .ap-aui-dialog2 iframe {
-	display:block;
+    display:block;
+}
+
+.ap-aui-dialog2.ap-aui-dialog2-chromeless .aui-dialog2-content {
+    background-color:transparent;
+
+    /* Override the aui selector that assumes the last-child is the footer */
+    border-radius: 0;
 }
