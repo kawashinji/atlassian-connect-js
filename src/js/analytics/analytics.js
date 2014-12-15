@@ -1,4 +1,4 @@
-_AP.define("analytics/analytics", ["_dollar"], function($){
+define("analytics/analytics", ["_dollar"], function($){
     "use strict";
 
     /**

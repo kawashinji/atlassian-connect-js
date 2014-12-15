@@ -1,6 +1,4 @@
-define(['iframe/_events'], function() {
-
-  (window.AP || window._AP).require(["_events", "_dollar"], function(events, $) {
+require(['_events', "_dollar"], function(events, $) {
 
     var Events = events.Events;
 
@@ -179,6 +177,4 @@ define(['iframe/_events'], function() {
 
       ok(spy.calledOnce);
     });
-  });
 });
-

@@ -1,4 +1,4 @@
-_AP.define("loading-indicator", ["_dollar", "_rpc", "host/_status_helper"], function ($, rpc, statusHelper) {
+require(["_dollar", "_rpc", "host/_status_helper"], function ($, rpc, statusHelper) {
     "use strict";
 
     rpc.extend(function (config) {

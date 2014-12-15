@@ -1,4 +1,4 @@
-_AP.require(["inline-dialog/simple", "_dollar", "host/content"], function(simpleInlineDialog, $, hostContentUtilities) {
+require(["inline-dialog/simple", "_dollar", "host/content"], function(simpleInlineDialog, $, hostContentUtilities) {
     "use strict";
 
     var inlineDialogTrigger = '.ap-inline-dialog';

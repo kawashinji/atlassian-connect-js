@@ -31,7 +31,8 @@ module.exports = function(config) {
 
     // list of files to exclude
     exclude: [
-      'tests/unit/js/iframe/plugin/*-test.js'
+      'tests/unit/js/iframe/plugin/*-test.js',
+      'tests/unit/js/iframe/plugin/*Test.js'
     ],
 
     //do not process my html files.

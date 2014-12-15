@@ -9,38 +9,33 @@ for (var file in window.__karma__.files) {
 
 requirejs.config({
   // Karma serves files from '/base'
-  baseUrl: '/base/src',
+  baseUrl: '/base/src/js',
 
   paths: {
     // dependencies
     'aui-soy': '//aui-cdn.atlassian.com/aui-adg/5.4.3/js/aui-soy',
     // host side
-    'aui-atlassian': '../bower_components/aui/src/js/atlassian',
-    'iframe/host/_util': '../src/js/iframe/host/_util',
-    'iframe/host/_ap': '../src/js/iframe/host/_ap',
-    'iframe/host/_status_helper': '../src/js/iframe/host/_status_helper',
-    'iframe/host/_dollar': '../src/js/iframe/host/_dollar',
-    'iframe/host/content': '../src/js/iframe/host/content',
-    'iframe/host/_rpc': '../src/js/iframe/host/_rpc',
-    'iframe/host/cookie': '../src/js/iframe/host/cookie',
-    'analytics/analytics': '../src/js/analytics/analytics',
-    'history/history': '../src/js/history/history',
-    'dialog/main': '../src/js/dialog/main',
-    'dialog/button': '../src/js/dialog/button',
-    'dialog/dialog-factory': '../src/js/dialog/dialog-factory',
-    'inline-dialog/main': '../src/js/inline-dialog/main',
-    'inline-dialog/simple': '../src/js/inline-dialog/simple',
-    'messages/main': '../src/js/messages/main',
-    'iframe/host/jwt-keepalive': '../src/js/iframe/host/jwt-keepalive',
-    // shared
-    'iframe/_amd': '../src/js/iframe/_amd',
-    'iframe/_events': '../src/js/iframe/_events',
-    'iframe/_xdm': '../src/js/iframe/_xdm',
-    'iframe/_uri': '../src/js/iframe/_uri',
-    'iframe/_base64': '../src/js/iframe/_base64',
-    'iframe/_jwt': '../src/js/iframe/_jwt',
-    'iframe/_ui-params': '../src/js/iframe/_ui-params',
-    'iframe/host/main': '../src/js/iframe/host/main'
+    'aui-atlassian': '../../bower_components/aui/src/js/atlassian',
+    '_ap': 'iframe/host/_ap',
+    '_dollar': 'iframe/host/_dollar',
+    '_uri': 'iframe/_uri',
+    'host/_status_helper': 'iframe/host/_status_helper',
+    'host/_util': 'iframe/host/_util',
+    '_rpc': 'iframe/host/_rpc',
+    '_events': 'iframe/_events',
+    'env': 'iframe/host/env',
+    'resize': 'iframe/host/resize',
+    'loading-indicator': 'iframe/host/loading-indicator',
+    'cookie': 'cookie/cookie',
+    'request': 'iframe/host/request',
+    'host/content': 'iframe/host/content',
+    'host/_addons': 'iframe/host/_addons',
+    '_base64': 'iframe/_base64',
+    '_jwt': 'iframe/_jwt',
+    'host/jwt-keepalive': 'iframe/host/jwt-keepalive',
+    '_xdm': 'iframe/_xdm',
+    '_ui-params': 'iframe/_ui-params',
+    'create': 'iframe/host/create'
   },
 
   shim: {
@@ -52,157 +47,148 @@ requirejs.config({
         'jquery'
       ]
     },
-    'iframe/host/jwt-keepalive': {
+    'jwt-keepalive': {
       deps: [
-      'iframe/_amd',
-      'iframe/_jwt'
+        '_ap',
+        '_jwt'
       ]
     },
-    'iframe/_jwt': {
+    '_jwt': {
       deps: [
-      'iframe/_amd',
-      'iframe/_base64'
+        '_ap',
+        '_base64'
       ]
     },
-    'iframe/host/_dollar': {
+    '_dollar': {
       deps: [
+        '_ap',
         'jquery',
-        'aui-atlassian',
-        'iframe/_amd'
+        'aui-atlassian'
       ]
     },
-    'iframe/host/_util': {
+    'host/_util': {
       deps: [
-        'iframe/host/_dollar',
-        'iframe/_amd'
+        '_ap',
+        '_dollar'
       ]
     },
-    'iframe/host/cookie': {
+    'cookie': {
         deps: [
-        'iframe/host/_dollar',
-        'iframe/host/_rpc'
+        '_ap',
+        '_dollar',
+        '_rpc'
         ]
     },
-    'iframe/host/content': {
+    'host/content': {
         deps: [
+        '_ap',
         'jquery',
         'aui-atlassian',
-        'iframe/_amd',
-        'iframe/_ui-params'
+        '_ui-params'
         ]
     },
     'history/history': {
         deps: [
-        'iframe/host/_dollar',
-        'iframe/_uri'
+        '_ap',
+        '_dollar',
+        '_uri'
         ]
     },
-    'iframe/_base64': {
+    '_base64': {
       deps: [
-        'iframe/host/_dollar',
-        'iframe/_amd',
+        '_ap',
+        '_dollar'
       ]
     },
     'inline-dialog/simple': {
       deps: [
-        'iframe/host/_dollar',
-        'iframe/host/content',
-        'iframe/host/_status_helper',
-        'iframe/_ui-params'
+        '_ap',
+        '_dollar',
+        'host/content',
+        'host/_status_helper',
+        '_ui-params',
+        'create'
       ]
     },
-    'iframe/host/_status_helper': {
+    'host/_status_helper': {
       deps: [
-          'iframe/host/_dollar'
-      ]
-    },
-    'inline-dialog/main': {
-      deps: [
-        'iframe/host/_dollar',
-        'iframe/host/content',
-        'iframe/host/_status_helper'
+          '_ap',
+          '_dollar'
       ]
     },
     'dialog/main': {
       deps: [
-        'iframe/host/_dollar',
-        'iframe/_ui-params',
-        'iframe/host/_status_helper',
+        '_ap',
+        '_dollar',
+        '_ui-params',
+        'host/_status_helper',
         'dialog/button',
         'aui-soy'
       ]
     },
     'dialog/button': {
       deps: [
-      'iframe/host/_dollar'
+        '_ap',
+        '_dollar'
       ]
     },
     'dialog/dialog-factory': {
       deps: [
-      'iframe/host/_dollar',
-      'dialog/main'
+        '_ap',
+        '_dollar',
+        'dialog/main'
       ]
     },
     'iframe/host/_rpc': {
       deps: [
-        'iframe/host/_dollar',
+        '_ap',
+        '_dollar',
         'iframe/_xdm'
       ]
     },
     'messages/main': {
         deps: [
-        'iframe/host/_dollar'
+        '_ap',
+        '_dollar'
         ]
     },
     'analytics/analytics': {
         deps: [
-        'iframe/host/_dollar'
+        '_ap',
+        '_dollar'
         ]
     },
-    ///////////////////
-    //  SHARED SIDE  //
-    ///////////////////
-    'iframe/_amd': {
+    '_ui-params': {
       deps: [
-        'iframe/host/_ap'
+        '_ap',
+        '_dollar',
+        '_uri',
+        '_base64'
       ]
     },
-    'iframe/_events': {
+    '_events': {
       deps: [
-        'iframe/_amd'
-      ]
-    },
-    'iframe/_uri': {
-      deps: [
-      'iframe/_amd'
-      ]
-    },
-    'iframe/_ui-params': {
-      deps: [
-        'iframe/host/_dollar',
-        'iframe/_uri',
-        'iframe/_base64'
+        '_ap'
       ]
     },
     'iframe/_xdm': {
       deps: [
-        'iframe/_uri',
-        'iframe/_events',
-        'iframe/host/_util'
+        '_ap',
+        '_uri',
+        '_events',
+        'host/_util'
       ]
     },
     'iframe/host/analytics':{
         deps: [
-        'iframe/host/_ap',
-        'iframe/host/_dollar',
-        'iframe/_amd'
+        '_ap',
+        '_dollar'
         ]
     },
     'iframe/host/main':{
         deps: [
-        'iframe/host/_ap',
-        'iframe/host/_dollar',
-        'iframe/_amd'
+        '_ap',
+        '_dollar'
         ]
     }
   },

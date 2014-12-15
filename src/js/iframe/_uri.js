@@ -12,7 +12,7 @@
  */
 
  /*globals define, module */
-(this.AP || this._AP).define("_uri", [], function () {
+( (typeof _AP !== "undefined") ? define : AP.define)("_uri", [], function () {
 
   var re = {
     starts_with_slashes: /^\/+/,

@@ -1,4 +1,4 @@
-(this.AP || this._AP).define("_ui-params", ["_dollar", "_base64", "_uri"], function($, base64, Uri) {
+( (typeof _AP !== "undefined") ? define : AP.define)("_ui-params", ["_dollar", "_base64", "_uri"], function($, base64, Uri) {
 
     /**
     * These are passed into the main host create statement and can override

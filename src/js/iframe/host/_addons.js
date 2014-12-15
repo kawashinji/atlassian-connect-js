@@ -1,4 +1,4 @@
-(window.AP || window._AP).define("host/_addons", ["_dollar", "_rpc"], function ($, rpc) {
+require(["_dollar", "_rpc"], function ($, rpc) {
 
   "use strict";
 

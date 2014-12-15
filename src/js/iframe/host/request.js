@@ -1,4 +1,4 @@
-_AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
+define("request", ["_dollar", "_rpc"], function ($, rpc) {
     "use strict";
 
     var xhrProperties = ["status", "statusText", "responseText"],
@@ -35,7 +35,7 @@ _AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
                     var headers = {};
                     $.each(args.headers || {}, function (k, v) { headers[k.toLowerCase()] = v; });
                     // Disable system ajax settings. This stops confluence mobile from injecting callbacks and then throwing exceptions.
-                    $.ajaxSettings = {};
+                    // $.ajaxSettings = {};
 
                     // execute the request with our restricted set of inputs
                     $.ajax({
@@ -59,3 +59,5 @@ _AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
     });
 
 });
+
+require("request");

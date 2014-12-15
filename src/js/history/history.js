@@ -2,7 +2,7 @@
  * Methods for showing the status of a connect-addon (loading, time'd-out etc)
  */
 
-_AP.define("history/history", ["_dollar", "_uri"], function ($, Uri) {
+define("history/history", ["_dollar", "_uri"], function ($, Uri) {
     "use strict";
 
     var lastAdded,

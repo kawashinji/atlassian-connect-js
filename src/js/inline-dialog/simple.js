@@ -1,4 +1,6 @@
-_AP.define("inline-dialog/simple", ["_dollar", "host/_status_helper", "host/_util", "host/content"], function($, statusHelper, util, hostContentUtilities) {
+define("inline-dialog/simple", ["_dollar", "host/_status_helper", "host/_util", "host/content"], function($, statusHelper, util, hostContentUtilities) {
+    "use strict";
+
     return function (contentUrl, options) {
         var $inlineDialog;
 

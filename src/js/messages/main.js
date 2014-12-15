@@ -1,4 +1,4 @@
-_AP.define("messages/main", ["_dollar"], function($) {
+define("messages/main", ["_dollar"], function($) {
     var MESSAGE_BAR_ID = 'ac-message-container',
         MESSAGE_TYPES = ["generic", "error", "warning", "success", "info", "hint"];
 

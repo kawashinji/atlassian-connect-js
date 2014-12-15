@@ -1,4 +1,4 @@
-_AP.require(["dialog/main", "host/content", "_uri", "dialog/dialog-factory"], function(dialog, hostContentUtilities, uri, dialogFactory) {
+require(["dialog/main", "host/content", "_uri", "dialog/dialog-factory"], function(dialog, hostContentUtilities, uri, dialogFactory) {
     "use strict";
   /**
    * Binds all elements with the class "ap-dialog" to open dialogs.

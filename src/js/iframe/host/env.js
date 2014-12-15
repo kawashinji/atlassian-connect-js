@@ -1,4 +1,4 @@
-_AP.define("env", ["_dollar", "_rpc"], function ($, rpc) {
+require(["_dollar", "_rpc"], function ($, rpc) {
     "use strict";
 
     var connectModuleData; // data sent from the velocity template

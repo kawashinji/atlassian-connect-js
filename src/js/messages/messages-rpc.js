@@ -1,4 +1,6 @@
-_AP.define("messages-rpc", ["_dollar", "messages/main", "_rpc"], function($, messages, rpc) {
+require(["_dollar", "messages/main", "_rpc"], function($, messages, rpc) {
+    "use strict";
+
     rpc.extend(function () {
         return {
             internals: {
@@ -13,3 +15,4 @@ _AP.define("messages-rpc", ["_dollar", "messages/main", "_rpc"], function($, mes
     });
 
 });
+

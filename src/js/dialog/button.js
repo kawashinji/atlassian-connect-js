@@ -1,4 +1,4 @@
-_AP.define("dialog/button", ["_dollar"], function($) {
+define("dialog/button", ["_dollar"], function($) {
 
     function button(options){
         this.$el = $('<button />')
