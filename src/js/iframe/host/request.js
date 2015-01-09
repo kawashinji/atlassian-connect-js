@@ -3,8 +3,8 @@ define("request", ["_dollar", "_rpc"], function ($, rpc) {
 
     var xhrProperties = ["status", "statusText", "responseText"],
         xhrHeaders = ["Content-Type", "ETag"],
-            requestHeadersWhitelist = [
-                "If-Match"
+        requestHeadersWhitelist = [
+            "If-Match"
         ],
         contextPath = null;
 
@@ -60,7 +60,7 @@ define("request", ["_dollar", "_rpc"], function ($, rpc) {
                             ajaxOptions.headers[header] = headers[header.toLowerCase()];
                         }
                     });
-                    $.ajax(r).then(done, fail);
+                    $.ajax(ajaxOptions).then(done, fail);
                 }
 
             }
