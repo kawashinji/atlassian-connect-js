@@ -3,6 +3,9 @@ define("request", ["_dollar", "_rpc"], function ($, rpc) {
 
     var xhrProperties = ["status", "statusText", "responseText"],
         xhrHeaders = ["Content-Type", "ETag"],
+            requestHeadersWhitelist = [
+                "If-Match"
+        ],
         contextPath = null;
 
     rpc.extend(function () {
@@ -38,7 +41,7 @@ define("request", ["_dollar", "_rpc"], function ($, rpc) {
                     // $.ajaxSettings = {};
 
                     // execute the request with our restricted set of inputs
-                    var r = {
+                    var ajaxOptions = {
                         url: url,
                         type: args.type || "GET",
                         data: args.data,
@@ -52,9 +55,11 @@ define("request", ["_dollar", "_rpc"], function ($, rpc) {
                             "AP-Client-Key": this.addonKey
                         }
                     };
-                    if (headers["if-match"]) {
-                        r.headers["If-Match"] = headers["if-match"];
-                    }
+                    $.each(requestHeadersWhitelist, function(index, header) {
+                        if (headers[header.toLowerCase()]) {
+                            ajaxOptions.headers[header] = headers[header.toLowerCase()];
+                        }
+                    });
                     $.ajax(r).then(done, fail);
                 }
 
