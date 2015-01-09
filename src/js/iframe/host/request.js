@@ -2,7 +2,7 @@ define("request", ["_dollar", "_rpc"], function ($, rpc) {
     "use strict";
 
     var xhrProperties = ["status", "statusText", "responseText"],
-        xhrHeaders = ["Content-Type"],
+        xhrHeaders = ["Content-Type", "ETag"],
         contextPath = null;
 
     rpc.extend(function () {
@@ -38,7 +38,7 @@ define("request", ["_dollar", "_rpc"], function ($, rpc) {
                     // $.ajaxSettings = {};
 
                     // execute the request with our restricted set of inputs
-                    $.ajax({
+                    var r = {
                         url: url,
                         type: args.type || "GET",
                         data: args.data,
@@ -51,7 +51,11 @@ define("request", ["_dollar", "_rpc"], function ($, rpc) {
                             // send the client key header to force scope checks
                             "AP-Client-Key": this.addonKey
                         }
-                    }).then(done, fail);
+                    };
+                    if (headers["if-match"]) {
+                        r.headers["If-Match"] = headers["if-match"];
+                    }
+                    $.ajax(r).then(done, fail);
                 }
 
             }
