@@ -4,7 +4,7 @@ define("request", ["_dollar", "_rpc"], function ($, rpc) {
     var xhrProperties = ["status", "statusText", "responseText"],
         xhrHeaders = ["Content-Type", "ETag"],
         requestHeadersWhitelist = [
-            "If-Match"
+            "If-Match", "If-None-Match"
         ],
         contextPath = null;
 
