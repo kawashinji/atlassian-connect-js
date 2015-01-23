@@ -74,6 +74,12 @@ To automatically re-package whilst developing for jira / confluence.
     npm link atlassian-connect-js
     npm run watch
 
+Releasing a new version
+------------------------
+
+To release a new version, you need to update package.json with the new version number.
+Next submit a PR to master, and after merging, create a new tag with the version number.
+Finally update package.json in your atlassian-connect branch to match the new version.
 
 Compatibility
 -------------
