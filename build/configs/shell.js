@@ -13,6 +13,7 @@ module.exports = function () {
                 'touch .tmp/amd-stubs/connect-host-messages.js',
                 'touch .tmp/amd-stubs/connect-host-env.js',
                 'touch .tmp/amd-stubs/connect-host-cookie.js',
+                'touch .tmp/amd-stubs/connect-host-history.js',
                 'touch .tmp/amd-stubs/connect-host-request.js'
             ].join('&&')
         }

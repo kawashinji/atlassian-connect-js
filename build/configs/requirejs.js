@@ -40,7 +40,6 @@
         'resize': 'iframe/host/resize',
         'loading-indicator': 'iframe/host/loading-indicator',
         'content': 'iframe/host/content',
-        'history/rpc': 'history/history-rpc',
         'host/_addons': 'iframe/host/_addons',
         '_base64': 'iframe/_base64',
         '_jwt': 'iframe/_jwt',
@@ -95,6 +94,16 @@
                     exclude: [
                         rootSource('.tmp/amd-stubs/connect-host')
                     ]
+                },
+                {
+                    name: rootSource('.tmp/amd-stubs/connect-host-history'),
+                    include: [
+                        'history/history',
+                        'history/history-rpc'
+                    ],
+                    exclude: [
+                        rootSource('.tmp/amd-stubs/connect-host')
+                    ]
                 }
                 ],
                 skipModuleInsertion: true
@@ -139,11 +148,6 @@
                         'inline-dialog/main',
                         'inline-dialog/binder',
                         'inline-dialog/simple',
-
-                        // messages
-
-                        'history/history',
-                        'history/rpc',
                         '_uri',
                         'host/_addons',
                         // 'iframe/host/main.js',

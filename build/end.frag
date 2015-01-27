@@ -6,6 +6,7 @@
         init: rpc.init,
         uiParams: require("_ui-params"),
         Dialog: require("dialog/main"),
-        create: require('host/create')
+        create: require('host/create'),
+        _uriHelper: require('_uri')
     };
 }));
