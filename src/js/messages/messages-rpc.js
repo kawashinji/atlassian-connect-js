@@ -1,6 +1,6 @@
-(function(require){
+(function(define){
     "use strict";
-    require(["ac/messages/main", 'connect-host'], function(messages, _AP) {
+    define('ac/messages', ["ac/messages/main", 'connect-host'], function(messages, _AP) {
         _AP.extend(function () {
             return {
                 internals: {
@@ -14,4 +14,4 @@
             };
         });
     });
-})(require);
+})(define);
