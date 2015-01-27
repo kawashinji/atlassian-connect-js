@@ -1,19 +1,21 @@
-require(["_dollar", "_rpc"], function ($, rpc) {
+(function(define){
     "use strict";
+    define("ac/env", ['connect-host'], function (_AP) {
 
-    var connectModuleData; // data sent from the velocity template
+        var connectModuleData; // data sent from the velocity template
 
-    rpc.extend(function () {
-        return {
-            init: function (state) {
-                connectModuleData = state;
-            },
-            internals: {
-                getLocation: function () {
-                    return window.location.href;
+        _AP.extend(function () {
+            return {
+                init: function (state) {
+                    connectModuleData = state;
+                },
+                internals: {
+                    getLocation: function () {
+                        return window.location.href;
+                    }
                 }
-            }
-        };
-    });
+            };
+        });
 
-});
+    });
+})(define);

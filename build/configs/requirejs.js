@@ -76,6 +76,15 @@
                     exclude: [
                         rootSource('.tmp/amd-stubs/connect-host')
                     ]
+                },
+                {
+                    name: rootSource('.tmp/amd-stubs/connect-host-env'),
+                    include: [
+                        'iframe/host/env'
+                    ],
+                    exclude: [
+                        rootSource('.tmp/amd-stubs/connect-host')
+                    ]
                 }
                 ],
                 skipModuleInsertion: true
@@ -106,7 +115,6 @@
                         '_util',
                         '_rpc',
                         '_events',
-                        'env',
                         'resize',
                         'loading-indicator',
                         'cookie/cookie',
