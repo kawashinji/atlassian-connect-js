@@ -59,6 +59,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build-js', 'Builds Atlassian Connect js', [
         'shell:amdStubs',
+        'requirejs:extensions',
         'requirejs:dist',
         'concat:plugin',
         // 'closure-compiler',

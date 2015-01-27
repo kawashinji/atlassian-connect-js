@@ -39,7 +39,6 @@
         'env': 'iframe/host/env',
         'resize': 'iframe/host/resize',
         'loading-indicator': 'iframe/host/loading-indicator',
-        'request': 'iframe/host/request',
         'content': 'iframe/host/content',
         'history/rpc': 'history/history-rpc',
         'host/_addons': 'iframe/host/_addons',
@@ -48,18 +47,45 @@
         'host/jwt-keepalive': 'iframe/host/jwt-keepalive',
         '_xdm': 'iframe/_xdm',
         '_ui-params': 'iframe/_ui-params',
-        'create': 'iframe/host/create'
+        'create': 'iframe/host/create',
+        'connect-host': rootSource('.tmp/amd-stubs/connect-host')
     };
 
     var config = {
+        extensions: {
+            options: {
+                baseUrl: PATH_BASEURL,
+                preserveLicenseComments: false,
+                paths: paths,
+                dir: '.tmp/requirejs-optimizer',
+                modules: [{
+                    name: rootSource('.tmp/amd-stubs/connect-host-messages'),
+                    include: [
+                        'messages/main',
+                        'messages/messages-rpc'
+                    ],
+                    exclude: [
+                        rootSource('.tmp/amd-stubs/connect-host')
+                    ]
+                },
+                {
+                    name: rootSource('.tmp/amd-stubs/connect-host-request'),
+                    include: [
+                        'iframe/host/request'
+                    ],
+                    exclude: [
+                        rootSource('.tmp/amd-stubs/connect-host')
+                    ]
+                }
+                ],
+                skipModuleInsertion: true
+            }
+        },
         dist: {
             options: {
                 baseUrl: PATH_BASEURL,
                 preserveLicenseComments: false,
-                //optimize: 'none',
                 paths: paths,
-//                skipDirOptimize: true,
-                // dir: rootSource("dist/js"),
                 dir: '.tmp/requirejs-optimizer',
                 wrap: {
                     startFile: 'build/start.frag',
@@ -86,7 +112,7 @@
                         'cookie/cookie',
                         'cookie/cookie-rpc',
                         // old additional modules used to load here
-                        'request',
+//                        'request',
                         'content',
                         //dialog
                         'dialog/binder',
@@ -100,8 +126,6 @@
                         'inline-dialog/simple',
 
                         // messages
-                        'messages/main',
-                        'messages/messages-rpc',
 
                         'history/history',
                         'history/rpc',

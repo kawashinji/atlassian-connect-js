@@ -9,7 +9,9 @@ module.exports = function () {
             command: [
                 'rm -rf .tmp/amd-stubs',
                 'mkdir -p .tmp/amd-stubs',
-                'touch .tmp/amd-stubs/connect-host.js'
+                'touch .tmp/amd-stubs/connect-host.js',
+                'touch .tmp/amd-stubs/connect-host-messages.js',
+                'touch .tmp/amd-stubs/connect-host-request.js'
             ].join('&&')
         }
     };
