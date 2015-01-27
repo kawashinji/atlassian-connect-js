@@ -85,6 +85,16 @@
                     exclude: [
                         rootSource('.tmp/amd-stubs/connect-host')
                     ]
+                },
+                {
+                    name: rootSource('.tmp/amd-stubs/connect-host-cookie'),
+                    include: [
+                        'cookie/main',
+                        'cookie/cookie-rpc'
+                    ],
+                    exclude: [
+                        rootSource('.tmp/amd-stubs/connect-host')
+                    ]
                 }
                 ],
                 skipModuleInsertion: true
@@ -117,10 +127,7 @@
                         '_events',
                         'resize',
                         'loading-indicator',
-                        'cookie/cookie',
-                        'cookie/cookie-rpc',
                         // old additional modules used to load here
-//                        'request',
                         'content',
                         //dialog
                         'dialog/binder',
