@@ -104,6 +104,30 @@
                     exclude: [
                         rootSource('.tmp/amd-stubs/connect-host')
                     ]
+                },
+                {
+                    name: rootSource('.tmp/amd-stubs/connect-host-inline-dialog'),
+                    include: [
+                        'inline-dialog/main',
+                        'inline-dialog/simple',
+                        'inline-dialog/binder'
+                    ],
+                    exclude: [
+                        rootSource('.tmp/amd-stubs/connect-host')
+                    ]
+                },
+                {
+                    name: rootSource('.tmp/amd-stubs/connect-host-dialog'),
+                    include: [
+                        'dialog/button',
+                        'dialog/main',
+                        'dialog/dialog-factory',
+                        'dialog/dialog-rpc',
+                        'dialog/binder'
+                    ],
+                    exclude: [
+                        rootSource('.tmp/amd-stubs/connect-host')
+                    ]
                 }
                 ],
                 skipModuleInsertion: true
@@ -127,33 +151,18 @@
                     name: rootSource('.tmp/amd-stubs/connect-host'),
                     include: [
                         'almond',
-                        // ap-amd
                         '_ap',
                         '_dollar',
-                        // iframe-host-js
                         '_util',
                         '_rpc',
                         '_events',
                         'resize',
                         'loading-indicator',
-                        // old additional modules used to load here
                         'content',
-                        //dialog
-                        'dialog/binder',
-                        'dialog/button',
-                        'dialog/dialog-factory',
-                        'dialog/main',
-                        'dialog/dialog-rpc',
-                        // inline dialog
-                        'inline-dialog/main',
-                        'inline-dialog/binder',
-                        'inline-dialog/simple',
                         '_uri',
                         'host/_addons',
-                        // 'iframe/host/main.js',
                         '_base64',
                         'analytics/analytics',
-                        // core modules
                         '_jwt',
                         'host/jwt-keepalive',
                         '_xdm',

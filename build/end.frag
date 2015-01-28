@@ -7,6 +7,8 @@
         uiParams: require("_ui-params"),
         Dialog: require("dialog/main"),
         create: require('host/create'),
-        _uriHelper: require('_uri')
+        _uriHelper: require('_uri'),
+        _statusHelper: require('host/_status_helper'),
+        webItemHelper: require('host/content')
     };
 }));
