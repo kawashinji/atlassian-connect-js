@@ -40,4 +40,4 @@
         });
 
     });
-})(define, AJS, $);
+})(define, AJS, AJS.$);
