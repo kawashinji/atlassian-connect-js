@@ -1,6 +1,6 @@
 (function(require, AJS){
     "use strict";
-    require(["ac/dialog/main", "ac/dialog/dialog-factory", "connect-host"], function(dialog, dialogFactory, connect) {
+    require(["ac/dialog", "ac/dialog/dialog-factory", "connect-host"], function(dialog, dialogFactory, connect) {
       /**
        * Binds all elements with the class "ap-dialog" to open dialogs.
        * TODO: document options

@@ -1,6 +1,6 @@
-(function(define, AJS, $){
+(function(define, require, AJS, $){
     "use strict";
-    define("ac/dialog/main", ["connect-host", "ac/dialog/button"], function(connect, dialogButton) {
+    define("ac/dialog", ["connect-host", "ac/dialog/button"], function(connect, dialogButton) {
 
         var $global = $(window);
         var idSeq = 0;
@@ -175,4 +175,11 @@
         };
 
     });
-})(define, AJS, AJS.$);
+
+    if(_AP){
+        //_AP.dialog global fallback.
+        require(['ac/dialog'], function(dialog){
+            _AP.Dialog = dialog;
+        });
+    }
+})(define, require, AJS, AJS.$);

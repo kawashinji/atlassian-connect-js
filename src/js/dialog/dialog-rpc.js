@@ -1,6 +1,6 @@
 (function(require, $){
     "use strict";
-    require(["connect-host", "ac/dialog/dialog-factory", "ac/dialog/main"], function (connect, dialogFactory, dialogMain) {
+    require(["connect-host", "ac/dialog/dialog-factory", "ac/dialog"], function (connect, dialogFactory, dialogMain) {
 
         connect.extend(function () {
             return {
