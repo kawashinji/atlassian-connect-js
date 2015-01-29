@@ -1,5 +1,5 @@
 (function(){
-    require(["cookie"], function(cookie) {
+    require(["ac/cookie/main"], function(cookie) {
         var SEPARATOR = '$$';
 
         module("Cookie", {

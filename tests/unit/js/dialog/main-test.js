@@ -1,4 +1,4 @@
-require(['dialog/main'], function(simpleDialog) {
+require(['ac/dialog'], function(simpleDialog) {
 
     module("Main Dialog", {
         setup: function(){
@@ -12,15 +12,19 @@ require(['dialog/main'], function(simpleDialog) {
                 changeSize: sinon.spy()
             };
 
+            this.store = {
+                layer: window.AJS.layer,
+                dialog2: window.AJS.dialog2
+            };
+
             AJS.dialog2 = sinon.stub().returns(this.dialogSpy);
             AJS.layer = sinon.stub().returns(this.layerSpy);
 
         },
         teardown: function(){
             // clean up mock
-            _AP.AJS = null;
-            AJS.dialog2 = null;
-            AJS.layer = null;
+            window.AJS.dialog2 = this.store.dialog2;
+            window.AJS.layer = this.store.layer;
         }
     });
 

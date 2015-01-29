@@ -2,20 +2,20 @@
     require(['_xdm', '_dollar'], function(XdmRpc, $) {
         module('XDM host', {
             setup: function() {
-            this.container = $("<div />").attr("id", "qunit-container").appendTo("body");
+                this.container = $("<div />").attr("id", "qunit-container-xdm-host").appendTo("body");
             },
             teardown: function() {
                 this.container.remove();
             },
             iframeId: function() {
-                return "easyXDM_qunit-container_provider";
+                return "easyXDM_qunit-container-xdm-host_provider";
             },
             createXdm: function(fixture){
                 var f = fixture || 'xdm-emit.html';
                 return new XdmRpc($, {
                     remoteKey: 'myremotekey',
                     remote: this.getBaseUrl() + '/base/tests/unit/fixtures/' + f + '?oauth_consumer_key=jira:12345&xdm_e=' + encodeURIComponent(this.getBaseUrl()) + '&xdm_c=testchannel',
-                    container: 'qunit-container',
+                    container: 'qunit-container-xdm-host',
                     channel: 'testchannel',
                     props: {}
                 }, {

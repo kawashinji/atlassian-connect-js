@@ -1,13 +1,13 @@
 (function(){
-    require(['messages/main'], function(messages) {
+    require(['ac/messages/main'], function(messages) {
 
         module("Messages Main", {
             setup: function() {
                 AJS.contextPath = function() { return ""; };
-                $('<div id="qunit-fixture" />').appendTo('body');
+                $('<div id="qunit-fixture-messages" />').appendTo('body');
             },
             teardown: function() {
-                $('#qunit-fixture').remove();
+                $('#qunit-fixture-messages').remove();
             }
         });
 
@@ -20,7 +20,7 @@
 
         test("clearMessage removes valid elements from the dom", function () {
             var messageId = "ap-message-222";
-            $("#qunit-fixture").append('<div id="' + messageId + '" />');
+            $("#qunit-fixture-messages").append('<div id="' + messageId + '" />');
             messages.clearMessage(messageId);
             equal($('#' + messageId).length, 0);
 
@@ -28,7 +28,7 @@
 
         test("clearMessage only removes valid messages", function () {
             var messageId = "somethinginvalid";
-            $("#qunit-fixture").append('<div id="' + messageId + '" />');
+            $("#qunit-fixture-messages").append('<div id="' + messageId + '" />');
             messages.clearMessage(messageId);
             equal($('#' + messageId).length, 1);
 

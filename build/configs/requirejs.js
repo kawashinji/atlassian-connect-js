@@ -98,7 +98,7 @@
                 {
                     name: rootSource('.tmp/amd-stubs/connect-host-history'),
                     include: [
-                        'history/history',
+                        'history/main',
                         'history/history-rpc'
                     ],
                     exclude: [

@@ -1,17 +1,5 @@
-var tests = [];
-for (var file in window.__karma__.files) {
-  if (window.__karma__.files.hasOwnProperty(file)) {
-    if (/-test\.js$/.test(file)) {
-      tests.push(file);
-    }
-  }
-}
-
-requirejs.config({
-  // Karma serves files from '/base'
-  baseUrl: '/base/src/js',
-
-  paths: {
+var tests = [],
+    paths = {
     // dependencies
     'aui-soy': '//aui-cdn.atlassian.com/aui-adg/5.4.3/js/aui-soy',
     // host side
@@ -35,8 +23,31 @@ requirejs.config({
     'host/jwt-keepalive': 'iframe/host/jwt-keepalive',
     '_xdm': 'iframe/_xdm',
     '_ui-params': 'iframe/_ui-params',
-    'create': 'iframe/host/create'
-  },
+    'create': 'iframe/host/create',
+    'ac/dialog': 'dialog/main',
+    'ac/dialog/dialog-factory': 'dialog/dialog-factory',
+    'connect-host': '../../dist/connect-host'
+  };
+
+for (var file in window.__karma__.files) {
+  if (window.__karma__.files.hasOwnProperty(file)) {
+    if (/-test\.js$/.test(file)) {
+      tests.push(file);
+    } else {
+      var str = file.replace(/\/base\/src\/js\//, '');
+      str = str.substr(0,str.length -3);
+      paths['ac/' + str] = str;
+    }
+  }
+}
+
+
+
+requirejs.config({
+  // Karma serves files from '/base'
+  baseUrl: '/base/src/js',
+
+  paths: paths,
 
   shim: {
     /////////////////
@@ -116,27 +127,28 @@ requirejs.config({
           '_dollar'
       ]
     },
-    'dialog/main': {
+    'ac/dialog': {
       deps: [
         '_ap',
         '_dollar',
         '_ui-params',
         'host/_status_helper',
-        'dialog/button',
-        'aui-soy'
+        'ac/dialog/button',
+        'aui-soy',
+        'connect-host'
       ]
     },
-    'dialog/button': {
+    'ac/dialog/button': {
       deps: [
         '_ap',
         '_dollar'
       ]
     },
-    'dialog/dialog-factory': {
+    'ac/dialog/dialog-factory': {
       deps: [
         '_ap',
         '_dollar',
-        'dialog/main'
+        'ac/dialog'
       ]
     },
     'iframe/host/_rpc': {

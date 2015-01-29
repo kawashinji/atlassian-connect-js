@@ -1,5 +1,5 @@
 (function(){
-    require(["history/history"], function(connectHistory) {
+    require(["ac/history/main"], function(connectHistory) {
 
         module("History", {
             setup: function() {

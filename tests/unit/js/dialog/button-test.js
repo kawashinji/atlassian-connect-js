@@ -1,9 +1,7 @@
-
-require(['dialog/button'], function(dialogButton) {
+require(['ac/dialog/button'], function(dialogButton) {
 
     module("Dialog Button", {
     });
-
 
     test("Submit Button is set to a primary button", function() {
         var button = dialogButton.submit();

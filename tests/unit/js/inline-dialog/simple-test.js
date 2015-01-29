@@ -1,16 +1,21 @@
 (function(){
-    require(['inline-dialog/simple', "_dollar"], function(simpleInlineDialog, $) {
+    require(['ac/inline-dialog/simple', "_dollar"], function(simpleInlineDialog, $) {
         var INLINE_DIALOG_SELECTOR = '.aui-inline-dialog';
 
         module("Inline Dialog Simple", {
             setup: function() {
                 var inlineDialogMock = $('<div id="ap-acmodule-foo"></div>');
+                this.store = {
+                    contextPath: window.AJS.contextPath,
+                    inlineDialog: window.AJS.InlineDialog
+                };
                 AJS.contextPath = function() { return ""; };
                 $content = $('<div class="' + INLINE_DIALOG_SELECTOR + '"><div class="ap-content"></div></div>');
                 $('<div id="qunit-fixture">').append($content).appendTo('body');
 
                 this.showPopupMock = sinon.spy();
-                AJS.InlineDialog = sinon.stub().yields(
+
+                window.AJS.InlineDialog = sinon.stub().yields(
                     inlineDialogMock,
                     $('<a class="ap-plugin-key-addon ap-module-key-addon__module">link</a>'),
                     this.showPopupMock)
@@ -27,10 +32,10 @@
 
             },
             teardown: function() {
-                delete window._AP.contentResolver;
                 //restore _AP.create to it's default state.
                 this.showPopupMock.reset();
-                AJS.InlineDialog = null;
+                window.AJS.InlineDialog = this.store.inlineDialog;
+
                 $('#qunit-fixture').remove();
             }
         });

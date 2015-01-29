@@ -1,9 +1,9 @@
 (function(){
     require(["host/_status_helper"], function(statusHelper){
-        module("Content Utilities", {
+        module("Status Helper", {
 
             setup: function() {
-                this.container = $("<div />").attr("id", "qunit-container").appendTo("body");
+                this.container = $("<div />").attr("id", "qunit-container-status-helper").appendTo("body");
             },
             teardown: function() {
                 this.container.remove();
@@ -26,8 +26,9 @@
             equal(dom.find('.ap-load-error').length, 1);
         });
 
-        asyncTest("showLoadingStatus shows the loading status after specified delay", function() {
+        test("showLoadingStatus shows the loading status after specified delay", function() {
             var dom = statusHelper.createStatusMessages();
+            stop();
             statusHelper.showLoadingStatus(dom, 100);
             ok(dom.find('.ap-loading').hasClass('hidden'));
             setTimeout(function() {
