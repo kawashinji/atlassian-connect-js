@@ -6,6 +6,11 @@
             return {
                 stubs: ["dialogMessage"],
                 init: function(state, xdm){
+                    // fallback for old connect p2 plugin.
+                    if(state.dlg === "1"){
+                        xdm.uiParams.isDialog = true;
+                    }
+
                     if(xdm.uiParams.isDialog){
                         var buttons = dialogMain.getButton();
                         if(buttons){
