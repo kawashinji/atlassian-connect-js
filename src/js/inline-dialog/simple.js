@@ -26,7 +26,10 @@
                         addonKey: pluginKey,
                         moduleKey: moduleKey,
                         isInlineDialog: true,
-                        productContext: options.productContext
+                        productContext: options.productContext,
+                        uiParams: {
+                            isInlineDialog: true
+                        }
                     });
 
                 promise.done(function(data) {
