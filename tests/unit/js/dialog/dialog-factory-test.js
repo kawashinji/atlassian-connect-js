@@ -52,8 +52,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
         dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
-            id: 'dialogid',
-            size: "medium"
+            id: 'dialogid'
         },
         {}, "");
 
@@ -67,8 +66,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
         dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
-            id: 'dialogid',
-            size: "medium"
+            id: 'dialogid'
         },
         {}, "");
         equal(window._AP.contentResolver.resolveByParameters.args[0][0].addonKey, 'somekey');
@@ -80,8 +78,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
         dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
-            id: 'dialogid',
-            size: "medium"
+            id: 'dialogid'
         },
         {}, "");
         equal(window._AP.contentResolver.resolveByParameters.args[0][0].moduleKey, 'somemodulekey');
@@ -93,8 +90,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
         dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
-            id: 'dialogid',
-            size: "medium"
+            id: 'dialogid'
         },
         {}, productContext);
         deepEqual(window._AP.contentResolver.resolveByParameters.args[0][0].productContext, productContext);
@@ -108,7 +104,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
             moduleKey: 'somemodulekey',
             id: 'dialogid'
         },
-        {size: "medium"}, "");
+        {}, "");
         ok(typeof window._AP.contentResolver.resolveByParameters.args[0][0].uiParams === "object");
 
 
