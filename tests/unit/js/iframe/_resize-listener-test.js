@@ -2,11 +2,12 @@
 
     require(["_xdm", "_dollar"], function(XdmRpc, $) {
 
-        module('XDM host', {
+        module('Resizer listener', {
             setup: function() {
                 this.container = $("<div />").attr("id", "qunit-container").appendTo("body");
             },
             teardown: function() {
+                $("#easyXDM_qunit-container_provider").trigger('ra.iframe.destroy');
                 this.container.remove();
             },
             iframeId: function() {
@@ -46,12 +47,13 @@
             equal($("iframe#" + this.iframeId())[0].offsetHeight, 11, "iframe starts at 11px high");
         });
 
-        asyncTest('AP.resize crosses the bridge', function () {
+        test('AP.resize crosses the bridge', function () {
+            stop();
             var spy = function(){
                 ok(true, 'resize was called in the bridge');
                 start();
             };
-            this.createXdm(null, null, {resize: spy});
+            this.createXdm(null, { width:10, height: 11}, {resize: spy});
         });
 
         test('resize function is called when the iframe contents change dimensions', function () {

@@ -1,43 +1,45 @@
-require(["_dollar", "_rpc", "inline-dialog/simple"], function($, rpc, simpleInlineDialog) {
+(function(define, $){
     "use strict";
+    define("ac/inline-dialog", ["connect-host"], function (connect) {
 
-    function getInlineDialog($content){
-        return $content.closest('.contents').data('inlineDialog');
-    }
+        function getInlineDialog($content){
+            return $content.closest('.contents').data('inlineDialog');
+        }
 
-    function showInlineDialog($content) {
-        getInlineDialog($content).show();
-    }
+        function showInlineDialog($content) {
+            getInlineDialog($content).show();
+        }
 
-    function resizeInlineDialog($content, width, height) {
-        $content.closest('.contents').css({width: width, height: height});
-        refreshInlineDialog($content);
-    }
+        function resizeInlineDialog($content, width, height) {
+            $content.closest('.contents').css({width: width, height: height});
+            refreshInlineDialog($content);
+        }
 
-    function refreshInlineDialog($content) {
-        getInlineDialog($content).refresh();
-    }
+        function refreshInlineDialog($content) {
+            getInlineDialog($content).refresh();
+        }
 
-    function hideInlineDialog($content){
-        getInlineDialog($content).hide();
-    }
+        function hideInlineDialog($content){
+            getInlineDialog($content).hide();
+        }
 
-    rpc.extend(function () {
-        return {
-            init: function(state, xdm){
-                if(xdm.uiParams.isInlineDialog){
-                    $(xdm.iframe).closest(".ap-container").on("resized", function(e, dimensions){
-                        resizeInlineDialog($(xdm.iframe), dimensions.width, dimensions.height);
-                    });
+        connect.extend(function () {
+            return {
+                init: function(state, xdm){
+                    if(xdm.uiParams.isInlineDialog){
+                        $(xdm.iframe).closest(".ap-container").on("resized", function(e, dimensions){
+                            resizeInlineDialog($(xdm.iframe), dimensions.width, dimensions.height);
+                        });
+                    }
+                },
+                internals: {
+                    hideInlineDialog: function(){
+                        hideInlineDialog($(this.iframe));
+                    }
                 }
-            },
-            internals: {
-                hideInlineDialog: function(){
-                    hideInlineDialog(AJS.$(this.iframe));
-                }
-            }
-        };
+            };
+        });
+
     });
 
-});
-
+})(define, AJS.$);

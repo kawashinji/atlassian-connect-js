@@ -1,5 +1,5 @@
 
-require(['dialog/dialog-factory'], function(dialogFactory) {
+require(['ac/dialog/dialog-factory'], function(dialogFactory) {
 
     module("Dialog Factory", {
         setup: function(){
@@ -13,8 +13,14 @@ require(['dialog/dialog-factory'], function(dialogFactory) {
                 changeSize: sinon.spy()
             };
 
+            this.store = {
+                layer: window.AJS.layer,
+                dialog2: window.AJS.dialog2
+            };
+
             AJS.dialog2 = sinon.stub().returns(this.dialogSpy);
             AJS.layer = sinon.stub().returns(this.layerSpy);
+
             this.server = sinon.fakeServer.create();
             AJS.contextPath = sinon.stub().returns("");
 
@@ -23,18 +29,18 @@ require(['dialog/dialog-factory'], function(dialogFactory) {
                 done: sinon.stub().returns($.Deferred().promise()),
                 fail: sinon.stub().returns($.Deferred().promise())
             };
+            this.store.contentResolver = window._AP.contentResolver;
+
             window._AP.contentResolver = {
                 resolveByParameters: sinon.stub().returns(this.contentResolverPromise)
             };
 
         },
         teardown: function(){
-            delete window._AP.contentResolver;
+            window._AP.contentResolver = this.store.contentResolver;
             this.server.restore();
-            // clean up mock
-            _AP.AJS = null;
-            AJS.dialog2 = null;
-            AJS.layer = null;
+            window.AJS.dialog2 = this.store.dialog2;
+            window.AJS.layer = this.store.layer;
             AJS.contextPath = null;
         }
     });

@@ -38,6 +38,7 @@
         });
 
         test('updateUrl calls the content resolver', function () {
+            window._AP.contentResolver.resolveByParameters.reset();
             jwtKeepAlive.updateUrl(this.mockConfig);
             ok(window._AP.contentResolver.resolveByParameters.calledOnce, "calls the content resolver");
         });

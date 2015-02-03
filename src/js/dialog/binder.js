@@ -1,49 +1,49 @@
-require(["dialog/main", "host/content", "_uri", "dialog/dialog-factory"], function(dialog, hostContentUtilities, uri, dialogFactory) {
+(function(require, AJS){
     "use strict";
-  /**
-   * Binds all elements with the class "ap-dialog" to open dialogs.
-   * TODO: document options
-   */
-    AJS.toInit(function ($) {
+    require(["ac/dialog", "ac/dialog/dialog-factory", "connect-host"], function(dialog, dialogFactory, connect) {
+      /**
+       * Binds all elements with the class "ap-dialog" to open dialogs.
+       * TODO: document options
+       */
+        AJS.toInit(function ($) {
 
-        var action = "click",
-            selector = ".ap-dialog",
-            callback = function(href, options){
+            var action = "click",
+                selector = ".ap-dialog",
+                callback = function(href, options){
 
-                var webItemOptions = hostContentUtilities.getOptionsForWebItem(options.bindTo),
-                moduleKey = hostContentUtilities.getWebItemModuleKey(options.bindTo),
-                addonKey = hostContentUtilities.getWebItemPluginKey(options.bindTo);
+                    var webItemOptions = connect.webItemHelper.getOptionsForWebItem(options.bindTo),
+                    moduleKey = connect.webItemHelper.getWebItemModuleKey(options.bindTo),
+                    addonKey = connect.webItemHelper.getWebItemPluginKey(options.bindTo);
 
-                $.extend(options, webItemOptions);
+                    $.extend(options, webItemOptions);
 
-                if (!options.ns) {
-                    options.ns = moduleKey;
-                }
-                if(!options.container){
-                    options.container = options.ns;
-                }
+                    if (!options.ns) {
+                        options.ns = moduleKey;
+                    }
+                    if(!options.container){
+                        options.container = options.ns;
+                    }
 
-                // webitem target options can sometimes be sent as strings.
-                if(typeof options.chrome === "string"){
-                    options.chrome = (options.chrome.toLowerCase() === "false") ? false : true;
-                }
+                    // webitem target options can sometimes be sent as strings.
+                    if(typeof options.chrome === "string"){
+                        options.chrome = (options.chrome.toLowerCase() === "false") ? false : true;
+                    }
 
-                //default chrome to be true for backwards compatibility with webitems
-                if(options.chrome === undefined){
-                  options.chrome = true;
-                }
+                    //default chrome to be true for backwards compatibility with webitems
+                    if(options.chrome === undefined){
+                      options.chrome = true;
+                    }
 
-                dialogFactory({
-                    key: addonKey,
-                    moduleKey: moduleKey
-                }, options,
-                options.productContext);
+                    dialogFactory({
+                        key: addonKey,
+                        moduleKey: moduleKey
+                    }, options,
+                    options.productContext);
+                };
 
-                    // dialog.create(options);
-            };
+            connect.webItemHelper.eventHandler(action, selector, callback);
 
-        hostContentUtilities.eventHandler(action, selector, callback);
+        });
 
     });
-
-});
+})(require, AJS);

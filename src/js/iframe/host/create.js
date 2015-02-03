@@ -39,12 +39,10 @@
       }
 
       var ns = options.ns,
-          $content = contentDiv(ns),
           contentId = "embedded-" + ns,
           channelId = "channel-" + ns,
           initWidth = options.w || "100%",
-          initHeight = options.h || "0",
-          isInlineDialog = ($content.closest('.aui-inline-dialog').length > 0);
+          initHeight = options.h || "0";
 
       if(typeof options.uiParams !== "object"){
         options.uiParams = {};
@@ -52,14 +50,6 @@
 
       if(!!options.general) {
         options.uiParams.isGeneral = true;
-      }
-
-      if(options.dlg){
-        options.uiParams.isDialog = true;
-      }
-
-      if(options.isInlineDialog || isInlineDialog){
-        options.uiParams.isInlineDialog = true;
       }
 
       var xdmOptions = {
