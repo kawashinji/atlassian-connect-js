@@ -50,6 +50,27 @@
         'connect-host': rootSource('.tmp/amd-stubs/connect-host')
     };
 
+    var coreModules = [
+        '_ap',
+        '_dollar',
+        '_util',
+        '_rpc',
+        '_events',
+        'resize',
+        'loading-indicator',
+        'content',
+        '_uri',
+        'host/_addons',
+        '_base64',
+        'analytics/analytics',
+        '_jwt',
+        'host/jwt-keepalive',
+        '_xdm',
+        '_ui-params',
+        'host/_status_helper',
+        'create'
+    ];
+
     var config = {
         extensions: {
             options: {
@@ -147,30 +168,16 @@
                     '_jwt': ['_base64'],
                     '_xdm': ["_events", "_jwt", "_uri",  "_ui-params", "_util"]
                 },
-                modules: [{
+                modules: [
+                {
                     name: rootSource('.tmp/amd-stubs/connect-host'),
-                    include: [
-                        'almond',
-                        '_ap',
-                        '_dollar',
-                        '_util',
-                        '_rpc',
-                        '_events',
-                        'resize',
-                        'loading-indicator',
-                        'content',
-                        '_uri',
-                        'host/_addons',
-                        '_base64',
-                        'analytics/analytics',
-                        '_jwt',
-                        'host/jwt-keepalive',
-                        '_xdm',
-                        '_ui-params',
-                        'host/_status_helper',
-                        'create'
-                    ]
-                }],
+                        include: ['almond'].concat(coreModules)
+                },
+                {
+                    name: rootSource('.tmp/amd-stubs/connect-host-amd'),
+                        include: coreModules
+                }
+                ],
                 skipModuleInsertion: true
             }
         }

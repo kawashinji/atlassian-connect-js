@@ -10,6 +10,7 @@ module.exports = function () {
                 'rm -rf .tmp/amd-stubs',
                 'mkdir -p .tmp/amd-stubs',
                 'touch .tmp/amd-stubs/connect-host.js',
+                'touch .tmp/amd-stubs/connect-host-amd.js',
                 'touch .tmp/amd-stubs/connect-host-messages.js',
                 'touch .tmp/amd-stubs/connect-host-env.js',
                 'touch .tmp/amd-stubs/connect-host-cookie.js',
