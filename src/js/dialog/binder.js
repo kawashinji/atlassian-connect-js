@@ -1,11 +1,12 @@
-(function(require, AJS){
-    "use strict";
-    require(["ac/dialog", "ac/dialog/dialog-factory", "connect-host"], function(dialog, dialogFactory, connect) {
-      /**
-       * Binds all elements with the class "ap-dialog" to open dialogs.
-       * TODO: document options
-       */
-        AJS.toInit(function ($) {
+/**
+ * Binds all elements with the class "ap-dialog" to open dialogs.
+ * TODO: document options
+ */
+AJS.toInit(function ($) {
+
+    (function(require, AJS){
+        "use strict";
+        require(["ac/dialog", "ac/dialog/dialog-factory", "connect-host"], function(dialog, dialogFactory, connect) {
 
             var action = "click",
                 selector = ".ap-dialog",
@@ -42,8 +43,6 @@
                 };
 
             connect.webItemHelper.eventHandler(action, selector, callback);
-
         });
-
-    });
-})(require, AJS);
+    })(require, AJS);
+});
