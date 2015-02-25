@@ -175,11 +175,16 @@
         };
 
     });
-
-    if(typeof window._AP !== "undefined"){
-        //_AP.dialog global fallback.
-        require(['ac/dialog'], function(dialog){
-            _AP.Dialog = dialog;
-        });
-    }
 })(define, require, AJS, AJS.$);
+
+AJS.toInit(function ($) {
+
+    (function(require, AJS){
+        if(typeof window._AP !== "undefined"){
+            //_AP.dialog global fallback.
+            require(['ac/dialog'], function(dialog){
+                _AP.Dialog = dialog;
+            });
+        }
+    })(require, AJS);
+});

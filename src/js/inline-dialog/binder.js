@@ -1,10 +1,9 @@
-(function(require, AJS){
-    "use strict";
+AJS.toInit(function ($) {
+    (function(require, AJS){
+        "use strict";
+            require(["ac/inline-dialog/simple", "connect-host"], function(simpleInlineDialog, _AP) {
 
-    require(["ac/inline-dialog/simple", "connect-host"], function(simpleInlineDialog, _AP) {
-
-        var inlineDialogTrigger = '.ap-inline-dialog';
-        AJS.toInit(function ($) {
+            var inlineDialogTrigger = '.ap-inline-dialog';
             var action = "click mouseover mouseout",
                 callback = function(href, options, eventType){
                     var webItemOptions = _AP.webItemHelper.getOptionsForWebItem(options.bindTo);
@@ -21,5 +20,5 @@
                 };
             _AP.webItemHelper.eventHandler(action, inlineDialogTrigger, callback);
         });
-    });
-})(require, AJS);
+    })(require, AJS);
+});
