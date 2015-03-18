@@ -1,7 +1,5 @@
 var tests = [],
     paths = {
-    // dependencies
-    'aui-soy': '//aui-cdn.atlassian.com/aui-adg/5.4.3/js/aui-soy',
     // host side
     'aui-atlassian': '../../bower_components/aui/src/js/atlassian',
     '_ap': 'iframe/host/_ap',
@@ -134,7 +132,6 @@ requirejs.config({
         '_ui-params',
         'host/_status_helper',
         'ac/dialog/button',
-        'aui-soy',
         'connect-host'
       ]
     },
