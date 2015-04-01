@@ -1,4 +1,5 @@
 //HACK FOR limitation in grunt-closure-compiler
+/*
 var fs = require('fs'),
 closureDir = 'bower_components/closure-compiler';
 
@@ -44,3 +45,4 @@ var extend = require('extend');
 Object.keys(module.exports).forEach(function(val) {
     extend(true, module.exports[val], globalOptions);
 });
+*/
