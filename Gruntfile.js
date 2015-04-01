@@ -26,7 +26,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-requirejs');
-    grunt.loadNpmTasks('grunt-closure-compiler');
+//    grunt.loadNpmTasks('grunt-closure-compiler');
     grunt.loadNpmTasks('grunt-append-sourcemapping');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-jscs-checker');
