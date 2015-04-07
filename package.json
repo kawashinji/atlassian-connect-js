@@ -3,6 +3,7 @@
   "description": "Atlassian Connect javascript lib",
   "version": "3.0.2",
   "dependencies": {
+    "qunitjs": "~1.17.0",
     "grunt": "~0.4.5",
     "grunt-available-tasks": "~0.4.5",
     "grunt-cli": "~0.1.11",
