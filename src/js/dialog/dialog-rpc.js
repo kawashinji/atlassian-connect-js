@@ -43,7 +43,7 @@ require(["_dollar", "_rpc", "dialog/dialog-factory", "dialog/main"], function ($
                         throw new Error('Cannot open dialog by URL, please use module key');
                     }
 
-                    if($(".aui-layer :visible").length !== 0){
+                    if($(".aui-dialog-2").length !== 0) {
                         throw new Error('Cannot open dialog when a layer is already visible');
                     }
 

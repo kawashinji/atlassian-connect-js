@@ -12,6 +12,8 @@
 
 .tmp
 dist
+target
+tests/test-reports
 node_modules
 npm-debug.log
 reports
