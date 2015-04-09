@@ -17,6 +17,7 @@ module.exports = function(config) {
       {pattern: 'node_modules/karma-sinon/node_modules/sinon/lib/sinon/util/timers_ie.js', included: true},
       {pattern: 'bower_components/jquery/jquery.js', included: true},
       {pattern: 'bower_components/aui/src/js/atlassian.js', included: true},
+      {pattern: 'bower_components/aui-dist/aui/js/aui-soy.js', included: true},
       {pattern: 'bower_components/aui-dist/aui/js/aui-all.js', included: false},
       {pattern: 'dist/connect-host.js', included: false},
       'tests/unit/test-main.js',
