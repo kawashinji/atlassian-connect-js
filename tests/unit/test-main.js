@@ -206,7 +206,11 @@ requirejs.config({
   deps: tests,
 
   // start test run, once Require.js is done
-  callback: window.__karma__.start
+  callback: function(hostTests){
+    setTimeout(function(){
+        window.__karma__.start(hostTests);
+    }, 1000);
+}
 });
 
 //tests will timeout after 5 seconds
