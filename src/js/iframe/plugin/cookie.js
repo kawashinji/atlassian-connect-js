@@ -18,6 +18,7 @@ function ($, rpc) {
             * @param name {String} name of cookie
             * @param value {String} value of cookie
             * @param expires {Number} number of days before cookie expires
+            * @noDemo
             * @example
             * AP.require("cookie", function(cookie){
             *   cookie.save('my_cookie', 'my value', 1);

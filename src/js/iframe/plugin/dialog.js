@@ -44,7 +44,8 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
       *   dialog.create({
       *     key: 'my-module-key',
       *     width: '500px',
-      *     height: '200px'
+      *     height: '200px',
+      *     chrome: true
       *   });
       * });
       */
