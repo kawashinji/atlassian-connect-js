@@ -2,9 +2,6 @@ AP.define("env", ["_dollar", "_rpc", "_ui-params"], function ($, rpc, UiParams) 
 
   "use strict";
 
-  var uiParams = UiParams.fromWindowName(),
-      isInlineDialog = Boolean(uiParams.isInlineDialog);
-
   var apis = rpc.extend(function (remote) {
 
     return {
@@ -85,21 +82,18 @@ AP.define("env", ["_dollar", "_rpc", "_ui-params"], function ($, rpc, UiParams) 
     },
 
     size: function (width, height, container) {
-      var w = width == null ? "100%" : width, h, docHeight;
+      var w, h, docHeight;
 
       if(!container){
         container = this.container();
       }
 
-      // if it's an inline dialog. 100% won't work. Instead, get the container pixel width.
-      if(isInlineDialog && width === "100%"){
-        w = Math.max(
-          container.scrollWidth,
-          container.offsetWidth,
-          container.clientWidth
-        );
+      w = width || Math.max(
+              container.scrollWidth, document.documentElement.scrollWidth,
+              container.offsetWidth, document.documentElement.offsetWidth,
+              container.clientWidth, document.documentElement.clientWidth
+      );
 
-      }
 
       if (height) {
         h = height;
