@@ -77,9 +77,11 @@ To automatically re-package whilst developing for jira / confluence.
 Releasing a new version
 ------------------------
 
-To release a new version, you need to update package.json with the new version number.
-Next submit a PR to master, and after merging, create a new tag with the version number.
-Finally update package.json in your atlassian-connect branch to match the new version.
+1. Add a new version in [Atlassian Connect JS Releases](https://extranet.atlassian.com/display/ARA/Atlassian+Connect+JS+Releases).
+2. Update `package.json` with the new version number.
+3. Submit a PR targeting the `master` branch and, after merging, create a new tag with the version number.
+4. Update `package.json` in your `atlassian-connect` branch to match the new version and raise a PR.
+5. Raise similar PRs to move HipChat and Bitbucket to this new version of `atlassian-connect-js`.
 
 Compatibility
 -------------

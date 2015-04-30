@@ -38,15 +38,21 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
     exports = {
       /**
       * Creates a dialog for a web-item or page module key.
+      * @name Dialog
+      * @class
+      * @property {function} on Takes parameters event name ({String}) and callback ({Function})
       * @param {DialogOptions} options configuration object of dialog options.
       * @example
       * AP.require('dialog', function(dialog){
       *   dialog.create({
       *     key: 'my-module-key',
       *     width: '500px',
-      *     height: '200px'
-      *   });
+      *     height: '200px',
+      *     chrome: true
+      *   }).on("close", callbackFunc);
       * });
+      *
+      * @return {Dialog} Dialog object allowing for callback registrations
       */
       create: function(options) {
         /**
