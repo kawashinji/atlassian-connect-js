@@ -37,6 +37,15 @@ AP.define("env", ["_dollar", "_rpc", "_ui-params"], function ($, rpc, UiParams) 
 
         /**
         * resize this iframe
+		*
+		* Only content within an element with the class `ac-content` will be resized automatically. 
+		* Content without this identifier is sized according to the `body` element, and 
+		* is *not* dynamically resized. 
+		* ```
+		* <div class="ac-content">
+    	* <p>Hello World</p>
+		* </div>
+		* ```
         * @method
         * @param {String} width   the desired width
         * @param {String} height  the desired height
