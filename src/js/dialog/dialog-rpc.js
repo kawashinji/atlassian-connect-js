@@ -24,6 +24,7 @@
                                 });
                             });
                         }
+                        xdm.iframe.focus();
                     }
                 },
                 internals: {
