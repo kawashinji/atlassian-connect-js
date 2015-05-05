@@ -54,6 +54,12 @@
 
             $el.find('.aui-dialog2-content').append($nexus);
             $nexus.data('ra.dialog.buttons', buttons);
+            
+            $.each(buttons, function(name, button) {
+                button.click(function (e, callback) {
+                    callback(true);
+                });
+            });
 
             function handler(button) {
                 // ignore clicks on disabled links

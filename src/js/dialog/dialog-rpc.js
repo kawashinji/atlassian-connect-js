@@ -2,6 +2,10 @@
     "use strict";
     require(["connect-host", "ac/dialog/dialog-factory", "ac/dialog"], function (connect, dialogFactory, dialogMain) {
 
+        $("body").on('click', 'button', function(e, callback) {
+            debugger;
+            callback(true);
+        });
         connect.extend(function () {
             return {
                 stubs: ["dialogMessage"],
