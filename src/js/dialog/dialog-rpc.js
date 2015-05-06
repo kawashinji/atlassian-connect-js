@@ -2,9 +2,21 @@
     "use strict";
     require(["connect-host", "ac/dialog/dialog-factory", "ac/dialog"], function (connect, dialogFactory, dialogMain) {
 
-        $("body").on('click', 'button', function(e, callback) {
-            debugger;
-            callback(true);
+        var thisXdm;
+        
+        $("body").on('click', '.ap-dialog-submit, .ap-dialog-cancel', function(e){
+            if(thisXdm){
+                var button = dialogMain.getButton('cancel');
+                if(button){
+                    if(thisXdm.isActive() && thisXdm.buttonListenerBound){
+                        thisXdm.dialogMessage('cancel', button.dispatch);
+                    }
+                    else {
+                        button.dispatch(true);
+                    }
+                }
+
+            }
         });
         connect.extend(function () {
             return {
@@ -14,21 +26,7 @@
                     if(state.dlg === "1"){
                         xdm.uiParams.isDialog = true;
                     }
-
-                    if(xdm.uiParams.isDialog){
-                        var buttons = dialogMain.getButton();
-                        if(buttons){
-                            $.each(buttons, function(name, button) {
-                                button.click(function (e, callback) {
-                                    if(xdm.isActive() && xdm.buttonListenerBound){
-                                        xdm.dialogMessage(name, callback);
-                                    } else {
-                                        callback(true);
-                                    }
-                                });
-                            });
-                        }
-                    }
+                    thisXdm = xdm;
                 },
                 internals: {
                     dialogListenerBound: function(){

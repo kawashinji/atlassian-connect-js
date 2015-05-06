@@ -67,14 +67,6 @@
                     button.$el.trigger("ra.dialog.click", button.dispatch);
                 }
             }
-
-            $.each(buttons, function(i, button) {
-                button.$el.click(function(){
-                    handler(button);
-                });
-            });
-
-            return $el;
         }
 
         function displayDialogContent($container, options){
