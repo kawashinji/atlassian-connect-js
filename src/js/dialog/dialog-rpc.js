@@ -24,7 +24,11 @@
                                 });
                             });
                         }
-                        xdm.iframe.focus();
+                        // If we don't wait for load, the iframe won't get focus in IE9
+                        $(xdm.iframe).load(function() {
+                            // If we don't defer the focus, the iframe won't get focus in Firefox
+                            setTimeout(function() { $(xdm.iframe).focus(); }, 0);
+                        });
                     }
                 },
                 internals: {
