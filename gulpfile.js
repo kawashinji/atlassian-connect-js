@@ -50,13 +50,12 @@ function build(entryModule, distModule, options) {
     return rebundle(bundler, options);
 }
 
-function buildLib(options) {
+function buildPlugin(options) {
     options = options || {};
-    var stream = gulp.src('src/**/*.js').pipe(babel());
-    if (options.watch) {
-        stream = stream.pipe(watch('src/**/*.js'));
-    }
-    return stream.pipe(gulp.dest('lib'));
+    return build('./src/plugin/index.js', 'plugin', {
+        env: {ENV: 'plugin'},
+        watch: options.watch
+    });
 }
 
 function buildHost(options) {
@@ -86,13 +85,13 @@ function buildHostModules(){
 */
 }
 
-gulp.task('lib:build', buildLib);
-gulp.task('lib:watch', buildLib.bind(null, {watch: true}));
+gulp.task('plugin:build', buildPlugin);
+gulp.task('plugin:watch', buildPlugin.bind(null, {watch: true}));
 
 gulp.task('host:build', buildHost);
 gulp.task('host:watch', buildHost.bind(null, {watch: true}));
 
-gulp.task('watch', ['lib:watch', 'host:watch']);
-gulp.task('build', ['lib:build', 'host:build']);
+gulp.task('watch', ['plugin:watch', 'host:watch']);
+gulp.task('build', ['plugin:build', 'host:build']);
 
 gulp.task('default', ['build']);

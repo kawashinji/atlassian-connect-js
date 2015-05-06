@@ -28,12 +28,6 @@ if (!window._AP) {
     window._AP = {};
 }
 
-AJS.toInit(function () {
-    if (typeof window._AP !== 'undefined') {
-        window._AP.Dialog = dialog;
-    }
-});
-
 // AJS.toInit(dialogBinder);
 // AJS.toInit(inlineDialogBinder);
 

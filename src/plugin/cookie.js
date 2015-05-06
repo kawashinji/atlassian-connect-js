@@ -1,5 +1,5 @@
 import $ from './dollar';
-import XdmRpc from '../common/xdm-rpc';
+import rpc from './rpc';
 
 /**
 * Allows add-ons to store, retrieve and erased cookies against the host JIRA / Confluence. These cannot be seen by other add-ons.
