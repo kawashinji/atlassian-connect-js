@@ -4,12 +4,12 @@
 
         var thisXdm;
         
-        $("body").on('click', '.ap-dialog-submit, .ap-dialog-cancel', function(e){
+        function performClick(buttonName) {
             if(thisXdm){
-                var button = dialogMain.getButton('cancel');
+                var button = dialogMain.getButton(buttonName);
                 if(button){
                     if(thisXdm.isActive() && thisXdm.buttonListenerBound){
-                        thisXdm.dialogMessage('cancel', button.dispatch);
+                        thisXdm.dialogMessage(buttonName, button.dispatch);
                     }
                     else {
                         button.dispatch(true);
@@ -17,7 +17,16 @@
                 }
 
             }
+        }
+        
+        $("body").on('click', '.ap-dialog-cancel', function(e){
+            performClick('cancel');
         });
+
+        $("body").on('click', '.ap-dialog-submit', function(e){
+            performClick('submit');
+        });
+        
         connect.extend(function () {
             return {
                 stubs: ["dialogMessage"],
