@@ -9,8 +9,8 @@ AP.define("env", ["_dollar", "_rpc", "_ui-params"], function ($, rpc, UiParams) 
 
     return {
       /**
-      * @exports AP
       * Utility methods that are available without requiring additional modules.
+      * @exports AP
       */
       apis: {
 
