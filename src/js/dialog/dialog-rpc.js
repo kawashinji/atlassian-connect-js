@@ -24,10 +24,12 @@
                                 });
                             });
                         }
-                        // If we don't wait for load, the iframe won't get focus in IE9
-                        $(xdm.iframe).load(function() {
-                            // If we don't defer the focus, the iframe won't get focus in Firefox
-                            setTimeout(function() { $(xdm.iframe).focus(); }, 0);
+
+                        // Needs to be triggered via a deferred or else IE9 / Firefox won't focus the iframe
+                        $.Deferred(function(defer) {
+                            $(xdm.iframe).load(defer.resolve(xdm.iframe));
+                        }).done(function(iframe) {
+                            iframe.focus();
                         });
                     }
                 },
