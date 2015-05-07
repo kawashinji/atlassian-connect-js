@@ -9,7 +9,7 @@ import rpc from './rpc';
 import events from './events';
 import env from './env';
 
-// pre-populate all the old core modules incase someone is requiring them in their add-on.
+// pre-populate all the old core modules for the old AP.require syntax.
 
 var modules = {
   '_util': util,

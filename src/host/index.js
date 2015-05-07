@@ -2,15 +2,15 @@ import addons from './addons';
 import content from './content';
 // import cookie from './cookie/rpc';
 import create from './create';
-// import dialog from './dialog/api';
-// import dialogBinder from './dialog/binder';
-// import dialogRpc from './dialog/rpc';
-// import env from './env';
+import dialog from './dialog/api';
+import dialogBinder from './dialog/binder';
+import dialogRpc from './dialog/rpc';
+import env from './env';
 // import history from './history/rpc';
-// import inlineDialog from './inline-dialog/rpc';
-// import inlineDialogBinder from './inline-dialog/binder';
+import inlineDialog from './inline-dialog/rpc';
+import inlineDialogBinder from './inline-dialog/binder';
 import loadingIndicator from './loading-indicator';
-// import messages from './messages/rpc';
+import messages from './messages/rpc';
 // import request from './request';
 import resize from './resize';
 import rpc from './rpc';
@@ -28,17 +28,17 @@ if (!window._AP) {
     window._AP = {};
 }
 
-// AJS.toInit(dialogBinder);
-// AJS.toInit(inlineDialogBinder);
+ AJS.toInit(dialogBinder);
+ AJS.toInit(inlineDialogBinder);
 
 rpc.extend(addons);
 // rpc.extend(cookie);
-// rpc.extend(dialogRpc);
-// rpc.extend(env);
+rpc.extend(dialogRpc);
+rpc.extend(env);
 // rpc.extend(history);
-// rpc.extend(inlineDialog);
+rpc.extend(inlineDialog);
 rpc.extend(loadingIndicator);
-// rpc.extend(messages);
+rpc.extend(messages);
 rpc.extend(resize);
 // rpc.extend(request);
 

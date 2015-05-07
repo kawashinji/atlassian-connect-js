@@ -12,7 +12,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var unreachableBranch = require('unreachable-branch-transform');
 var watch = require('gulp-watch');
 var watchify = require('watchify');
-var argv = require('yargs').argv;
+
 
 function build(entryModule, distModule, options) {
     var bundler = watchify(
