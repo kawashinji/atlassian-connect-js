@@ -65,8 +65,8 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
       apis: {
 
         /**
-        * Execute an XMLHttpRequest in the context of the host application. The format of the response is not able
-        * to be specified - the response will always be given as text.
+        * Execute an XMLHttpRequest in the context of the host application. The format of the response (dataType) will
+        * always be set to "text" - even if specified.
         *
         * @param {String} url either the URI to request or an options object (as below) containing at least a 'url' property;<br />
         *                     this value should be relative to the context path of the host application.
