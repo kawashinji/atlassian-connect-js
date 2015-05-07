@@ -46,6 +46,8 @@ AP.define("env", ["_dollar", "_rpc", "_ui-params"], function ($, rpc, UiParams) 
     	* <p>Hello World</p>
 		* </div>
 		* ```
+		* Note that this can only be used in an iframe on the main page and NOT in a dialog
+		* 
         * @method
         * @param {String} width   the desired width
         * @param {String} height  the desired height
