@@ -9,8 +9,8 @@ AP.define("env", ["_dollar", "_rpc", "_ui-params"], function ($, rpc, UiParams) 
 
     return {
       /**
-      * @exports AP
       * Utility methods that are available without requiring additional modules.
+      * @exports AP
       */
       apis: {
 
@@ -37,6 +37,17 @@ AP.define("env", ["_dollar", "_rpc", "_ui-params"], function ($, rpc, UiParams) 
 
         /**
         * resize this iframe
+		*
+		* Only content within an element with the class `ac-content` will be resized automatically. 
+		* Content without this identifier is sized according to the `body` element, and 
+		* will dynamically grow, but not shrink. 
+		* ```
+		* <div class="ac-content">
+    	* <p>Hello World</p>
+		* </div>
+		* ```
+		* Note that this method cannot be used in dialogs.
+		* 
         * @method
         * @param {String} width   the desired width
         * @param {String} height  the desired height
