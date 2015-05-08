@@ -168,6 +168,12 @@
                     _AP.create(mergedOptions);
                 }
 
+                // give the dialog iframe focus so it can capture keypress events, etc.
+                // the 'iframe' selector needs to be specified, otherwise Firefox won't focus the iframe
+                dialogElement.on('ra.iframe.create', 'iframe', function () {
+                    this.focus();
+                });
+
                 dialog.show();
 
             },

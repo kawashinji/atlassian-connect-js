@@ -24,13 +24,6 @@
                                 });
                             });
                         }
-
-                        // Needs to be triggered via a deferred or else IE9 / Firefox won't focus the iframe
-                        $.Deferred(function(defer) {
-                            $(xdm.iframe).load(defer.resolve(xdm.iframe));
-                        }).done(function(iframe) {
-                            iframe.focus();
-                        });
                     }
                 },
                 internals: {
