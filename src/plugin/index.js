@@ -12,18 +12,18 @@ import xdmRpc from '../common/xdm-rpc';
 import rpc from './rpc';
 import events from './events';
 import env from './env';
-import request from './request';
 import dialog from './dialog';
 import inlineDialog from './inline-dialog';
 import messages from './messages';
-import cookie from './cookie';
 import history from './history';
 import resize_listener from './resize_listener';
+// import cookie from './cookie';
+// import request from './request';
 
 $.extend(AP, env, amd, {
     rpc: {extend: rpc.extend, init: rpc.init},
     Meta: {get: env.meta},
-    request: request,
+//    request: request,
     Dialog: dialog,
 });
 

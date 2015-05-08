@@ -9,19 +9,26 @@ import rpc from './rpc';
 import events from './events';
 import env from './env';
 
+import messages from './messages';
+import dialog from './dialog';
+import inlineDialog from './inline-dialog';
+
 // pre-populate all the old core modules for the old AP.require syntax.
 
 var modules = {
-  '_util': util,
-  '_dollar': $,
-  '_events': _events,
-  '_base64': base64,
-  '_uri': uri,
-  '_ui-params': uiParams,
-  '_xdm': xdm,
-  '_rpc': rpc,
-  'events': events,
-  'env': env
+  '_util': {exports: util},
+  '_dollar': {exports: $},
+  '_events': {exports: _events},
+  '_base64': {exports:  base64},
+  '_uri': {exports: uri},
+  '_ui-params': {exports: uiParams},
+  '_xdm': {exports: xdm},
+  '_rpc': {exports: rpc},
+  'events': {exports: events},
+  'env': {exports: env},
+  'messages': {exports: messages},
+  'dialog': {exports: dialog},
+  'inline-dialog': {exports: inlineDialog}
 };
 
 function reqAll(deps, callback) {
