@@ -1,5 +1,6 @@
 import content from '../content';
 import simpleInlineDialog from './simple';
+import $ from '../dollar';
 
 export default function () {
     var inlineDialogTrigger = '.ap-inline-dialog';

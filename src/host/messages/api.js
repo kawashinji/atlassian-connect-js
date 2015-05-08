@@ -1,3 +1,5 @@
+import $ from '../dollar';
+
 var MESSAGE_BAR_ID = 'ac-message-container';
 var MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
 

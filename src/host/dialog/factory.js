@@ -1,4 +1,5 @@
 import dialog from './api';
+import $ from '../dollar';
 //might rename this, it opens a dialog by first working out the url (used for javascript opening a dialog).
 /**
 * opens a dialog by sending the add-on and module keys back to the server for signing.

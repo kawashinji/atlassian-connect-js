@@ -1,3 +1,5 @@
+import $ from '../dollar';
+
 function Button(options) {
     this.$el = $('<button />')
         .text(options.text)

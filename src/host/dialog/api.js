@@ -1,6 +1,7 @@
 import create from '../create';
 import dialogButton from './button';
 import statusHelper from '../status-helper';
+import $ from '../dollar';
 
 var $global = $(window);
 var idSeq = 0;

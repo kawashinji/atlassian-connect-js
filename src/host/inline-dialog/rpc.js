@@ -1,3 +1,5 @@
+import $ from '../dollar';
+
 function getInlineDialog($content) {
     return $content.closest('.contents').data('inlineDialog');
 }

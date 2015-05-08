@@ -1,5 +1,6 @@
 import dialog from './api';
 import dialogFactory from './factory';
+import $ from '../dollar';
 
 export default function () {
     return {

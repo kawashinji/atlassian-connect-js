@@ -1,3 +1,4 @@
+import $ from '../dollar';
 import content from '../content';
 
 export default function (contentUrl, options) {

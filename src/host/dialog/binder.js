@@ -1,6 +1,7 @@
 import content from '../content';
 import dialog from './api';
 import dialogFactory from './factory';
+import $ from '../dollar';
 
 export default function () {
     var action = 'click';
