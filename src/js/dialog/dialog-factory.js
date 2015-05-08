@@ -46,10 +46,10 @@
                     container.replaceWith(dialogHtml);
                 })
                 .fail(function(xhr, status, ex) {
-                    container.html("<div class='aui-message error ap-aui-message'></div>");
-                    var msg = status + (ex ? ": " + ex.toString() : "");
-                    container.find(".error").text(msg);
                     var title = $("<p class='title' />").text("Unable to load add-on content. Please try again later.");
+                    var msg = status + (ex ? ": " + ex.toString() : "");
+                    container.html("<div class='aui-message error ap-aui-message'></div>");
+                    container.find(".error").text(msg);
                     container.find(".error").prepend(title);
                     AJS.log(msg);
                 });

@@ -4,6 +4,7 @@ AP.define("history", ["_dollar", "_rpc", "_ui-params"],
 * History API
 * Changing the URL of the host product, allowing manipulation of the browser history.
 * Note: This is only enabled for page modules (Admin page, General page, Configure page, User profile page).
+* It cannot be used if the page module is launched as a dialog.
 * ### Example ###
 * ```
 * AP.require(["history"], function(history){
