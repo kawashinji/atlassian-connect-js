@@ -108,7 +108,8 @@ exports['default'] = {
     create: _create2['default'],
     _uriHelper: _commonUri2['default'],
     _statusHelper: _statusHelper2['default'],
-    webItemHelper: _content2['default']
+    webItemHelper: _content2['default'],
+    dialog: _dialogApi2['default']
 };
 module.exports = exports['default'];
 

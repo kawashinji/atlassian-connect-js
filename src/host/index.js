@@ -49,5 +49,6 @@ export default {
     create,
     _uriHelper: uri,
     _statusHelper: statusHelper,
-    webItemHelper: content
+    webItemHelper: content,
+    dialog: dialog
 }
