@@ -69,10 +69,6 @@ var _messages = _dereq_('./messages');
 
 var _messages2 = _interopRequireDefault(_messages);
 
-var _history = _dereq_('./history');
-
-var _history2 = _interopRequireDefault(_history);
-
 var _resize_listener = _dereq_('./resize_listener');
 
 var _resize_listener2 = _interopRequireDefault(_resize_listener);
@@ -90,7 +86,7 @@ _dollar2['default'].extend(AP, _env2['default'], _amd2['default'], {
 exports['default'] = AP;
 module.exports = exports['default'];
 
-},{"../common/base64":4,"../common/events":6,"../common/jwt":7,"../common/ui-params":8,"../common/uri":9,"../common/xdm-rpc":10,"./amd":12,"./dialog":13,"./dollar":14,"./env":15,"./events":16,"./history":17,"./inline-dialog":18,"./messages":19,"./resize_listener":20,"./rpc":21,"./util":22}],2:[function(_dereq_,module,exports){
+},{"../common/base64":4,"../common/events":6,"../common/jwt":7,"../common/ui-params":8,"../common/uri":9,"../common/xdm-rpc":10,"./amd":12,"./dialog":13,"./dollar":14,"./env":15,"./events":16,"./inline-dialog":17,"./messages":18,"./resize_listener":19,"./rpc":20,"./util":21}],2:[function(_dereq_,module,exports){
 ;(function () {
 
   var object = typeof exports != 'undefined' ? exports : this; // #8: web workers
@@ -1643,7 +1639,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/base64":4,"../common/events":6,"../common/ui-params":8,"../common/uri":9,"../common/xdm-rpc":10,"./dialog":13,"./dollar":14,"./env":15,"./events":16,"./inline-dialog":18,"./messages":19,"./rpc":21,"./util":22}],13:[function(_dereq_,module,exports){
+},{"../common/base64":4,"../common/events":6,"../common/ui-params":8,"../common/uri":9,"../common/xdm-rpc":10,"./dialog":13,"./dollar":14,"./env":15,"./events":16,"./inline-dialog":17,"./messages":18,"./rpc":20,"./util":21}],13:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1909,7 +1905,7 @@ _rpc2['default'].extend(function (remote) {
 exports['default'] = _exports;
 module.exports = exports['default'];
 
-},{"../common/ui-params":8,"../common/uri":9,"./dollar":14,"./rpc":21}],14:[function(_dereq_,module,exports){
+},{"../common/ui-params":8,"../common/uri":9,"./dollar":14,"./rpc":20}],14:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2000,7 +1996,7 @@ function $(sel, context) {
 exports["default"] = extend($, _util2["default"]);
 module.exports = exports["default"];
 
-},{"./util":22}],15:[function(_dereq_,module,exports){
+},{"./util":21}],15:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2142,7 +2138,7 @@ exports['default'] = _dollar2['default'].extend(apis, {
 });
 module.exports = exports['default'];
 
-},{"../common/ui-params":8,"./dollar":14,"./rpc":21}],16:[function(_dereq_,module,exports){
+},{"../common/ui-params":8,"./dollar":14,"./rpc":20}],16:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2273,156 +2269,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
 });
 module.exports = exports['default'];
 
-},{"./dollar":14,"./rpc":21}],17:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('./dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _rpc = _dereq_('./rpc');
-
-var _rpc2 = _interopRequireDefault(_rpc);
-
-var _commonUiParams = _dereq_('../common/ui-params');
-
-var _commonUiParams2 = _interopRequireDefault(_commonUiParams);
-
-/**
-* History API
-* Changing the URL of the host product, allowing manipulation of the browser history.
-* Note: This is only enabled for page modules (Admin page, General page, Configure page, User profile page).
-* ### Example ###
-* ```
-* AP.require(["history"], function(history){
-*
-*    // Register a function to run when state is changed.
-*    // You should use this to update your UI to show the state.
-*    history.popState(function(e){
-*        alert("The URL has changed from: " + e.oldURL + "to: " + e.newURL);
-*    });
-*
-*    // Adds a new entry to the history and changes the url in the browser.
-*    history.pushState("page2");
-*
-*    // Changes the URL back and invokes any registered popState callbacks.
-*    history.back();
-*
-* });
-* ```
-* @exports history
-*/
-
-var popStateCallbacks = [];
-var state = _commonUiParams2['default'].fromWindowName(null, 'historyState');
-exports['default'] = _rpc2['default'].extend(function (remote) {
-    var exports = {
-        /**
-        * The current url anchor.
-        * @return String
-        * @noDemo
-        * @example
-        * AP.require(["history"], function(history){
-        *    history.pushState("page5");
-        *    history.getState(); // returns "page5";
-        * });
-        */
-        getState: function getState() {
-            return state;
-        },
-
-        /**
-        * Goes back or forward the specified number of steps
-        * A zero delta will reload the current page.
-        * If the delta is out of range, does nothing.
-        * Will invoke the popstate callback
-        * @param int delta
-        * @noDemo
-        * @example
-        * AP.require(["history"], function(history){
-        *    history.go(-2); // go back by 2 entries in the browser history.
-        * });
-        */
-        go: function go(delta) {
-            remote.historyGo(delta);
-        },
-        /**
-        * Goes back one step in the joint session history.
-        * Will invoke the popstate callback
-        * @noDemo
-        * @example
-        * AP.require(["history"], function(history){
-        *    history.back(); // go back by 1 entry in the browser history.
-        * });
-        */
-        back: function back() {
-            return this.go(-1);
-        },
-        /**
-        * Goes back one step in the joint session history.
-        * Will invoke the popstate callback
-        * @noDemo
-        * @example
-        * AP.require(["history"], function(history){
-        *    history.forward(); // go forward by 1 entry in the browser history.
-        * });
-        */
-        forward: function forward() {
-            return this.go(1);
-        },
-        /**
-        * Pushes the given data onto the session history.
-        * Does NOT invoke popState callback
-        * @param String url to add to history
-        */
-        pushState: function pushState(url) {
-            state = url;
-            remote.historyPushState(url);
-        },
-        /**
-        * Updates the current entry in the session history.
-        * Does NOT invoke popState callback
-        * @param String url to add to history
-        */
-        replaceState: function replaceState(url) {
-            state = url;
-            remote.historyReplaceState(url);
-        },
-        /**
-        * Register a function to be executed on state change
-        * @param Function callback to be executed on state change.
-        */
-        popState: function popState(callback) {
-            popStateCallbacks.push(callback);
-        }
-    };
-
-    return {
-        apis: exports,
-        internals: {
-            historyMessage: function historyMessage(e) {
-                state = e.newURL;
-                for (var i in popStateCallbacks) {
-                    try {
-                        popStateCallbacks[i](e);
-                    } catch (err) {
-                        _dollar2['default'].log('History popstate callback exception: ' + err.message);
-                    }
-                }
-            }
-        },
-        stubs: ['historyPushState', 'historyGo', 'historyReplaceState']
-    };
-});
-module.exports = exports['default'];
-
-},{"../common/ui-params":8,"./dollar":14,"./rpc":21}],18:[function(_dereq_,module,exports){
+},{"./dollar":14,"./rpc":20}],17:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2463,7 +2310,7 @@ _rpc2['default'].extend(function (remote) {
 exports['default'] = _exports;
 module.exports = exports['default'];
 
-},{"./dollar":14,"./rpc":21}],19:[function(_dereq_,module,exports){
+},{"./dollar":14,"./rpc":20}],18:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2645,7 +2492,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
 */
 module.exports = exports['default'];
 
-},{"./dollar":14,"./rpc":21}],20:[function(_dereq_,module,exports){
+},{"./dollar":14,"./rpc":20}],19:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2739,7 +2586,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./dollar":14}],21:[function(_dereq_,module,exports){
+},{"./dollar":14}],20:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2805,7 +2652,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/xdm-rpc":10,"./dollar":14}],22:[function(_dereq_,module,exports){
+},{"../common/xdm-rpc":10,"./dollar":14}],21:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

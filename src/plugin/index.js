@@ -15,7 +15,6 @@ import env from './env';
 import dialog from './dialog';
 import inlineDialog from './inline-dialog';
 import messages from './messages';
-import history from './history';
 import resize_listener from './resize_listener';
 // import cookie from './cookie';
 // import request from './request';
