@@ -12,7 +12,8 @@ var sourcemaps = require('gulp-sourcemaps');
 var unreachableBranch = require('unreachable-branch-transform');
 var watch = require('gulp-watch');
 var watchify = require('watchify');
-
+var concat = require('gulp-concat');
+var minifyCSS = require('gulp-minify-css');
 
 function build(entryModule, distModule, options) {
     var bundler = watchify(
@@ -66,23 +67,18 @@ function buildHost(options) {
     });
 }
 
-function buildHostModule(options){
+function buildCss(options) {
     options = options || {};
-    return build('./src/host/' + module + '.js', 'connect-host-' + module, {
-        env: {ENV: 'host'},
-        watch: options.watch
-    });
-}
+    var g = gulp.src('src/css/**/*.css')
+    .pipe(concat('connect-host.css'))
+    .pipe(gulp.dest('dist'));
 
-function buildHostModules(){
-    return buildHostModule({module: 'messages'});
-/*
-        .pipe(buildHostModule('analytics'))
-        .pipe(buildHostModule('cookie'))
-        .pipe(buildHostModule('dialog'))
-        .pipe(buildHostModule('history'))
-        .pipe(buildHostModule('inline-dialog'));
-*/
+    if(options.minify){
+        g.pipe(concat("connect-host.min.css"))
+        .pipe(minifyCSS())
+        .pipe(gulp.dest('dist'));
+    }
+    return g;
 }
 
 gulp.task('plugin:build', buildPlugin);
@@ -90,6 +86,9 @@ gulp.task('plugin:watch', buildPlugin.bind(null, {watch: true}));
 
 gulp.task('host:build', buildHost);
 gulp.task('host:watch', buildHost.bind(null, {watch: true}));
+
+gulp.task('css:build', buildCss);
+gulp.task('css:minify', buildCss.bind(null, {minify: true}));
 
 gulp.task('watch', ['plugin:watch', 'host:watch']);
 gulp.task('build', ['plugin:build', 'host:build']);
