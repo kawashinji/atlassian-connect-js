@@ -1,5 +1,5 @@
 import $ from '../dollar';
-import content from '../content';
+import webitemHelper from '../content';
 
 export default function (contentUrl, options) {
     var $inlineDialog;
@@ -18,8 +18,8 @@ export default function (contentUrl, options) {
     function displayInlineDialog(content, trigger, showInlineDialog) {
         trigger = $(trigger); // sometimes it's not jQuery. Lets make it jQuery.
         content.data('inlineDialog', $inlineDialog);
-        var pluginKey = content.getWebItemPluginKey(trigger);
-        var moduleKey = content.getWebItemModuleKey(trigger);
+        var pluginKey = webitemHelper.getWebItemPluginKey(trigger);
+        var moduleKey = webitemHelper.getWebItemModuleKey(trigger);
         var promise = window._AP.contentResolver.resolveByParameters({
             addonKey: pluginKey,
             moduleKey,

@@ -2548,8 +2548,8 @@ exports['default'] = function (contentUrl, options) {
     function displayInlineDialog(content, trigger, showInlineDialog) {
         trigger = _dollar2['default'](trigger); // sometimes it's not jQuery. Lets make it jQuery.
         content.data('inlineDialog', $inlineDialog);
-        var pluginKey = content.getWebItemPluginKey(trigger);
-        var moduleKey = content.getWebItemModuleKey(trigger);
+        var pluginKey = _content2['default'].getWebItemPluginKey(trigger);
+        var moduleKey = _content2['default'].getWebItemModuleKey(trigger);
         var promise = window._AP.contentResolver.resolveByParameters({
             addonKey: pluginKey,
             moduleKey: moduleKey,

@@ -1,4 +1,4 @@
-import content from '../content';
+import webitemHelper from '../content';
 import simpleInlineDialog from './simple';
 import $ from '../dollar';
 
@@ -7,7 +7,7 @@ export default function () {
     var action = 'click mouseover mouseout';
 
     function callback(href, options, eventType) {
-        var webItemOptions = content.getOptionsForWebItem(options.bindTo);
+        var webItemOptions = webitemHelper.getOptionsForWebItem(options.bindTo);
         $.extend(options, webItemOptions);
         if (options.onHover !== 'true' && eventType !== 'click') {
             return;
@@ -20,5 +20,5 @@ export default function () {
         simpleInlineDialog(href, options).show();
     }
 
-    content.eventHandler(action, inlineDialogTrigger, callback);
+    webitemHelper.eventHandler(action, inlineDialogTrigger, callback);
 }
