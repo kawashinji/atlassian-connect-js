@@ -54,6 +54,8 @@
 
             $el.find('.aui-dialog2-content').append($nexus);
             $nexus.data('ra.dialog.buttons', buttons);
+            
+            return $el;
         }
 
         function displayDialogContent($container, options){
