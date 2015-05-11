@@ -7,7 +7,7 @@
         function performClick(buttonName) {
             if(thisXdm){
                 var button = dialogMain.getButton(buttonName);
-                if(button){
+                if(button && button.isEnabled()){
                     if(thisXdm.isActive() && thisXdm.buttonListenerBound){
                         thisXdm.dialogMessage(buttonName, button.dispatch);
                     }
@@ -19,11 +19,11 @@
             }
         }
         
-        $("body").on('click', '.ap-dialog-cancel', function(e){
+        $("body").on('click', '.ap-dialog-cancel', function(){
             performClick('cancel');
         });
 
-        $("body").on('click', '.ap-dialog-submit', function(e){
+        $("body").on('click', '.ap-dialog-submit', function(){
             performClick('submit');
         });
         

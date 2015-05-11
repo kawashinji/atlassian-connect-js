@@ -23,14 +23,6 @@
 
             this.setEnabled(true);
 
-            this.click = function(listener){
-                if (listener) {
-                    this.$el.bind("ra.dialog.click", listener);
-                } else {
-                    this.dispatch(true);
-                }
-            };
-
             this.dispatch = function (result) {
                 var name = result ? "done" : "fail";
                 options.actions && options.actions[name] && options.actions[name]();
