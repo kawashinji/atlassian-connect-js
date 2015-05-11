@@ -12,7 +12,7 @@ import env from './env';
 import messages from './messages';
 import dialog from './dialog';
 import inlineDialog from './inline-dialog';
-
+import resize_listener from './resize_listener';
 // pre-populate all the old core modules for the old AP.require syntax.
 
 var modules = {
@@ -28,7 +28,8 @@ var modules = {
   'env': {exports: env},
   'messages': {exports: messages},
   'dialog': {exports: dialog},
-  'inline-dialog': {exports: inlineDialog}
+  'inline-dialog': {exports: inlineDialog},
+  '_resize_listener': {exports: resize_listener}
 };
 
 function reqAll(deps, callback) {

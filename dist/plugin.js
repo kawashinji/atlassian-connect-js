@@ -69,11 +69,8 @@ var _messages = _dereq_('./messages');
 
 var _messages2 = _interopRequireDefault(_messages);
 
-var _resize_listener = _dereq_('./resize_listener');
-
-var _resize_listener2 = _interopRequireDefault(_resize_listener);
-
 var AP = window.AP = {};
+
 // import cookie from './cookie';
 // import request from './request';
 
@@ -86,7 +83,7 @@ _dollar2['default'].extend(AP, _env2['default'], _amd2['default'], {
 exports['default'] = AP;
 module.exports = exports['default'];
 
-},{"../common/base64":4,"../common/events":6,"../common/jwt":7,"../common/ui-params":8,"../common/uri":9,"../common/xdm-rpc":10,"./amd":12,"./dialog":13,"./dollar":14,"./env":15,"./events":16,"./inline-dialog":17,"./messages":18,"./resize_listener":19,"./rpc":20,"./util":21}],2:[function(_dereq_,module,exports){
+},{"../common/base64":4,"../common/events":6,"../common/jwt":7,"../common/ui-params":8,"../common/uri":9,"../common/xdm-rpc":10,"./amd":12,"./dialog":13,"./dollar":14,"./env":15,"./events":16,"./inline-dialog":17,"./messages":18,"./rpc":20,"./util":21}],2:[function(_dereq_,module,exports){
 ;(function () {
 
   var object = typeof exports != 'undefined' ? exports : this; // #8: web workers
@@ -1541,6 +1538,10 @@ var _inlineDialog = _dereq_('./inline-dialog');
 
 var _inlineDialog2 = _interopRequireDefault(_inlineDialog);
 
+var _resize_listener = _dereq_('./resize_listener');
+
+var _resize_listener2 = _interopRequireDefault(_resize_listener);
+
 // pre-populate all the old core modules for the old AP.require syntax.
 
 var modules = {
@@ -1556,7 +1557,8 @@ var modules = {
   'env': { exports: _env2['default'] },
   'messages': { exports: _messages2['default'] },
   'dialog': { exports: _dialog2['default'] },
-  'inline-dialog': { exports: _inlineDialog2['default'] }
+  'inline-dialog': { exports: _inlineDialog2['default'] },
+  '_resize_listener': { exports: _resize_listener2['default'] }
 };
 
 function reqAll(deps, callback) {
@@ -1639,7 +1641,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/base64":4,"../common/events":6,"../common/ui-params":8,"../common/uri":9,"../common/xdm-rpc":10,"./dialog":13,"./dollar":14,"./env":15,"./events":16,"./inline-dialog":17,"./messages":18,"./rpc":20,"./util":21}],13:[function(_dereq_,module,exports){
+},{"../common/base64":4,"../common/events":6,"../common/ui-params":8,"../common/uri":9,"../common/xdm-rpc":10,"./dialog":13,"./dollar":14,"./env":15,"./events":16,"./inline-dialog":17,"./messages":18,"./resize_listener":19,"./rpc":20,"./util":21}],13:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

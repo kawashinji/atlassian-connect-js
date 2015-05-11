@@ -2324,7 +2324,7 @@ exports['default'] = function () {
             }
 
             if (xdm.uiParams.isDialog) {
-                var buttons = dialogMain.getButton();
+                var buttons = _api2['default'].getButton();
                 if (buttons) {
                     _dollar2['default'].each(buttons, function (name, button) {
                         button.click(function (e, callback) {
