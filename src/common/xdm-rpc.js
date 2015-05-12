@@ -248,6 +248,7 @@ import util from '../host/util';
             } catch (ex) {
               // If the invocation threw an error, invoke the fail responder callback with it
               fail(errmsg(ex));
+              logError(ex);
             }
           } else {
             // No such local rpc method name found
@@ -410,6 +411,12 @@ import util from '../host/util';
     function log() {
       var log = $.log || (w.AJS && w.AJS.log);
       if (log) log.apply(w, arguments);
+    }
+
+    function logError() {
+      // $.error seems to do the same thing as $.log in client console
+      var error = (w.AJS && w.AJS.error);
+      if (error) error.apply(w, arguments);
     }
 
     // Immediately start listening for events
