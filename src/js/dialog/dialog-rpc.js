@@ -4,27 +4,18 @@
 
         var thisXdm;
         
-        function performClick(buttonName) {
+        $("body").on('click', '.ap-aui-dialog2', function(e){
             if(thisXdm){
-                var button = dialogMain.getButton(buttonName);
+                var button = dialogMain.getButton(e.target.innerText.toLowerCase());
                 if(button && button.isEnabled()){
                     if(thisXdm.isActive() && thisXdm.buttonListenerBound){
-                        thisXdm.dialogMessage(buttonName, button.dispatch);
+                        thisXdm.dialogMessage(button.name, button.dispatch);
                     }
                     else {
                         button.dispatch(true);
                     }
                 }
-
             }
-        }
-        
-        $("body").on('click', '.ap-dialog-cancel', function(){
-            performClick('cancel');
-        });
-
-        $("body").on('click', '.ap-dialog-submit', function(){
-            performClick('submit');
         });
         
         connect.extend(function () {
