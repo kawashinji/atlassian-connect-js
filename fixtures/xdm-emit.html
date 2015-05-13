@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>fixture</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <script src="/base/dist/plugin.js"></script>
+    <script src="/base/tests/unit/fixtures/_init.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<body>
+    <script>
+        AP.require("events", function (events) {
+            events.emit("clientevent", '12345');
+        });
+    </script>
+</body>
+</html>

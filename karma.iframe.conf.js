@@ -1,6 +1,8 @@
 // Karma configuration
 // Generated on Wed Oct 16 2013 15:12:27 GMT+1100 (EST)
 
+var envify = require('envify/custom')
+
 module.exports = function(config) {
   config.set({
 
@@ -9,23 +11,15 @@ module.exports = function(config) {
 
 
     // frameworks to use
-    frameworks: ['requirejs', 'qunit', 'sinon'],
+    frameworks: ['browserify', 'qunit', 'sinon'],
 
 
     // list of files / patterns to load in the browser
     files: [
-      {pattern: 'node_modules/karma-sinon/node_modules/sinon/lib/sinon/util/timers_ie.js', included: true},
-      {pattern: 'bower_components/jquery/jquery.js', included: true},
-      {pattern: 'tests/unit/js/iframe/plugin/fixture.js', included: true},
-      'tests/unit/test-iframe-main.js',
-      //events run on both sides of the bridge.
-      {pattern: 'tests/unit/js/iframe/_events-test.js', included: false},
-      {pattern: 'tests/unit/js/iframe/plugin/*-test.js', included: false},
-      {pattern: 'tests/unit/js/iframe/plugin/_*Mock*.js', included: false},
-      {pattern: 'src/js/iframe/plugin/*.js', included: false},
-      {pattern: 'src/js/**/*.js', included: false},
-      {pattern: 'dist/all-debug.js', included: false},
-      {pattern: 'tests/unit/fixtures/_init.js', included: false}
+      'https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.js',
+      'https://aui-cdn.atlassian.com/aui-adg/5.8.9/js/aui.js',
+      'https://aui-cdn.atlassian.com/aui-adg/5.8.9/js/aui-soy.js',
+      'test/iframe/**/*.js'
     ],
 
 
@@ -36,9 +30,14 @@ module.exports = function(config) {
 
     //do not process my html files.
     preprocessors: {
+      'test/**/*.js': ['browserify'],
       'tests/unit/fixtures/!(*).html': ['html2js']
     },
 
+    browserify: {
+      debug: true,
+      transform: ['babelify', envify({ENV: 'plugin'})]
+    },
 
     // test results reporter to use
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'

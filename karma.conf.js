@@ -1,45 +1,40 @@
 // Karma configuration
 // Generated on Wed Oct 16 2013 15:12:27 GMT+1100 (EST)
 
+var envify = require('envify/custom')
+
 module.exports = function(config) {
   config.set({
 
     // base path, that will be used to resolve files and exclude
     basePath: '',
 
-
     // frameworks to use
-    frameworks: ['requirejs', 'qunit', 'sinon'],
-
+    frameworks: ['browserify', 'qunit', 'sinon'],
 
     // list of files / patterns to load in the browser
     files: [
-      {pattern: 'node_modules/karma-sinon/node_modules/sinon/lib/sinon/util/timers_ie.js', included: true},
-      {pattern: 'bower_components/jquery/jquery.js', included: true},
-      {pattern: 'bower_components/aui/src/js/atlassian.js', included: true},
-      {pattern: 'bower_components/aui-dist/aui/js/aui-soy.js', included: true},
-      {pattern: 'bower_components/aui-dist/aui/js/aui-all.js', included: false},
-      {pattern: 'dist/connect-host.js', included: false},
-      'tests/unit/test-main.js',
-      {pattern: 'tests/unit/**/*-test.js', included: false},
-      {pattern: 'tests/unit/fixtures/**', included: false},
-      {pattern: 'src/js/**/*.js', included: false},
-      {pattern: 'dist/all-debug.js', included: false},
-      {pattern: 'tests/unit/fixtures/_init.js', included: false}
-
-//      {pattern: 'target/qunit/dependencies/**/*.js', included: false},
+      'https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.js',
+      'https://aui-cdn.atlassian.com/aui-adg/5.8.9/js/aui.js',
+      'https://aui-cdn.atlassian.com/aui-adg/5.8.9/js/aui-soy.js',
+      'test/**/*.js'
     ],
-
 
     // list of files to exclude
     exclude: [
-      'tests/unit/js/iframe/plugin/*-test.js',
-      'tests/unit/js/iframe/plugin/*Test.js'
+      'test/iframe/plugin/*-test.js',
+      'test/iframe/plugin/*Test.js'
     ],
 
     //do not process my html files.
     preprocessors: {
+      'test/**/*.js': ['browserify'],
       'tests/unit/fixtures/!(*).html': ['html2js']
+    },
+
+    browserify: {
+      debug: true,
+      transform: ['babelify', envify({ENV: 'host'})]
     },
 
     // test results reporter to use
