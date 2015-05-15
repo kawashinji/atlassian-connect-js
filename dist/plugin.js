@@ -615,11 +615,15 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-_dereq_('Base64');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _Base64 = _dereq_('Base64');
+
+var _Base642 = _interopRequireDefault(_Base64);
 
 exports['default'] = {
-    encode: window.btoa,
-    decode: window.atob
+    encode: _Base642['default'].btoa,
+    decode: _Base642['default'].atob
 };
 module.exports = exports['default'];
 
@@ -1285,6 +1289,7 @@ function XdmRpc($, config, bindings) {
           } catch (ex) {
             // If the invocation threw an error, invoke the fail responder callback with it
             fail(errmsg(ex));
+            logError(ex);
           }
         } else {
           // No such local rpc method name found
@@ -1448,6 +1453,12 @@ function XdmRpc($, config, bindings) {
   function log() {
     var log = $.log || w.AJS && w.AJS.log;
     if (log) log.apply(w, arguments);
+  }
+
+  function logError() {
+    // $.error seems to do the same thing as $.log in client console
+    var error = w.AJS && w.AJS.error;
+    if (error) error.apply(w, arguments);
   }
 
   // Immediately start listening for events
@@ -2085,14 +2096,14 @@ exports['default'] = _dollar2['default'].extend(apis, {
         }
       }
     } else {
-      return _dollar2['default']('meta[name=\'ap-' + name + '\']').attr('content');
+      return (0, _dollar2['default'])('meta[name=\'ap-' + name + '\']').attr('content');
     }
   },
 
   container: function container() {
     // Look for these two selectors first... you need these to allow for the auto-shrink to work
     // Otherwise, it'll default to document.body which can't auto-grow or auto-shrink
-    var container = _dollar2['default']('.ac-content, #content');
+    var container = (0, _dollar2['default'])('.ac-content, #content');
     return container.length > 0 ? container[0] : document.body;
   },
 
@@ -2530,7 +2541,7 @@ function addFlowListener(element, type, fn) {
 function addListener(element, fn) {
     var resize = ('onresize' in element);
     if (!resize && !element._resizeSensor) {
-        _dollar2['default']('head').append({ tag: 'style', type: 'text/css', $text: '.ac-resize-sensor,.ac-resize-sensor>div {position: absolute;top: 0;left: 0;width: 100%;height: 100%;overflow: hidden;z-index: -1;}' });
+        (0, _dollar2['default'])('head').append({ tag: 'style', type: 'text/css', $text: '.ac-resize-sensor,.ac-resize-sensor>div {position: absolute;top: 0;left: 0;width: 100%;height: 100%;overflow: hidden;z-index: -1;}' });
         var sensor = element._resizeSensor = document.createElement('div');
         sensor.className = 'ac-resize-sensor';
         sensor.innerHTML = '<div class="ac-resize-overflow"><div></div></div><div class="ac-resize-underflow"><div></div></div>';

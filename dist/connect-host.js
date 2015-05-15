@@ -15,8 +15,6 @@ var _content = _dereq_('./content');
 
 var _content2 = _interopRequireDefault(_content);
 
-// import cookie from './cookie/rpc';
-
 var _create = _dereq_('./create');
 
 var _create2 = _interopRequireDefault(_create);
@@ -37,8 +35,6 @@ var _env = _dereq_('./env');
 
 var _env2 = _interopRequireDefault(_env);
 
-// import history from './history/rpc';
-
 var _inlineDialogRpc = _dereq_('./inline-dialog/rpc');
 
 var _inlineDialogRpc2 = _interopRequireDefault(_inlineDialogRpc);
@@ -54,8 +50,6 @@ var _loadingIndicator2 = _interopRequireDefault(_loadingIndicator);
 var _messagesRpc = _dereq_('./messages/rpc');
 
 var _messagesRpc2 = _interopRequireDefault(_messagesRpc);
-
-// import request from './request';
 
 var _resize = _dereq_('./resize');
 
@@ -91,15 +85,12 @@ AJS.toInit(_dialogBinder2['default']);
 AJS.toInit(_inlineDialogBinder2['default']);
 
 _rpc2['default'].extend(_addons2['default']);
-// rpc.extend(cookie);
 _rpc2['default'].extend(_dialogRpc2['default']);
 _rpc2['default'].extend(_env2['default']);
-// rpc.extend(history);
 _rpc2['default'].extend(_inlineDialogRpc2['default']);
 _rpc2['default'].extend(_loadingIndicator2['default']);
 _rpc2['default'].extend(_messagesRpc2['default']);
 _rpc2['default'].extend(_resize2['default']);
-// rpc.extend(request);
 
 exports['default'] = {
     extend: _rpc2['default'].extend,
@@ -645,11 +636,15 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-_dereq_('Base64');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _Base64 = _dereq_('Base64');
+
+var _Base642 = _interopRequireDefault(_Base64);
 
 exports['default'] = {
-    encode: window.btoa,
-    decode: window.atob
+    encode: _Base642['default'].btoa,
+    decode: _Base642['default'].atob
 };
 module.exports = exports['default'];
 
@@ -1315,6 +1310,7 @@ function XdmRpc($, config, bindings) {
           } catch (ex) {
             // If the invocation threw an error, invoke the fail responder callback with it
             fail(errmsg(ex));
+            logError(ex);
           }
         } else {
           // No such local rpc method name found
@@ -1478,6 +1474,12 @@ function XdmRpc($, config, bindings) {
   function log() {
     var log = $.log || w.AJS && w.AJS.log;
     if (log) log.apply(w, arguments);
+  }
+
+  function logError() {
+    // $.error seems to do the same thing as $.log in client console
+    var error = w.AJS && w.AJS.error;
+    if (error) error.apply(w, arguments);
   }
 
   // Immediately start listening for events
@@ -1726,7 +1728,7 @@ function eventHandler(action, selector, callback) {
 
     function domEventHandler(event) {
         event.preventDefault();
-        var $el = _dollar2['default'](event.target).closest(selector),
+        var $el = (0, _dollar2['default'])(event.target).closest(selector),
             href = $el.attr('href'),
             url = new _commonUri2['default'].init(href),
             options = {
@@ -1741,7 +1743,7 @@ function eventHandler(action, selector, callback) {
         callback(href, options, event.type);
     }
 
-    _dollar2['default'](window.document).on(action, selector, domEventHandler);
+    (0, _dollar2['default'])(window.document).on(action, selector, domEventHandler);
 }
 
 exports['default'] = {
@@ -1789,7 +1791,7 @@ function contentDiv(ns) {
   if (!ns) {
     throw new Error('ns undefined');
   }
-  return _dollar2['default'](document.getElementById('embedded-' + ns));
+  return (0, _dollar2['default'])(document.getElementById('embedded-' + ns));
 }
 
 /**
@@ -1879,7 +1881,7 @@ exports['default'] = function (options) {
     // that updates to the desired container node's parents have completed
     defer(doCreate);
   } else {
-    _dollar2['default'](doCreate);
+    (0, _dollar2['default'])(doCreate);
   }
 };
 
@@ -1911,7 +1913,7 @@ var _dollar = _dereq_('../dollar');
 
 var _dollar2 = _interopRequireDefault(_dollar);
 
-var $global = _dollar2['default'](window);
+var $global = (0, _dollar2['default'])(window);
 var idSeq = 0;
 var $nexus;
 var dialog;
@@ -1929,7 +1931,7 @@ var buttons = {
 function keyPressListener(e) {
     if (e.keyCode === 27 && dialog && dialog.hide) {
         dialog.hide();
-        _dollar2['default'](document).unbind('keydown', keyPressListener);
+        (0, _dollar2['default'])(document).unbind('keydown', keyPressListener);
     }
 };
 
@@ -1941,7 +1943,7 @@ function createDialogElement(options, $nexus, chromeless) {
         extraClasses.push('ap-aui-dialog2-chromeless');
     }
 
-    $el = _dollar2['default'](aui.dialog.dialog2({
+    $el = (0, _dollar2['default'])(aui.dialog.dialog2({
         id: options.id,
         titleText: options.header,
         titleId: options.titleId,
@@ -2042,7 +2044,7 @@ exports['default'] = {
         mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
         mergedOptions.h = parseDimension(mergedOptions.height, $global.height());
 
-        $nexus = _dollar2['default']('<div />').addClass('ap-servlet-placeholder ap-container').attr('id', 'ap-' + options.ns).bind('ra.dialog.close', closeDialog);
+        $nexus = (0, _dollar2['default'])('<div />').addClass('ap-servlet-placeholder ap-container').attr('id', 'ap-' + options.ns).bind('ra.dialog.close', closeDialog);
 
         if (options.chrome) {
             dialogElement = createDialogElement(mergedOptions, $nexus);
@@ -2061,7 +2063,7 @@ exports['default'] = {
         dialog = AJS.dialog2(dialogElement);
         dialog.on('hide', closeDialog);
         // ESC key closes the dialog
-        _dollar2['default'](document).on('keydown', keyPressListener);
+        (0, _dollar2['default'])(document).on('keydown', keyPressListener);
 
         displayDialogContent($nexus, mergedOptions);
 
@@ -2071,7 +2073,7 @@ exports['default'] = {
 
         //difference between a webitem and opening from js.
         if (options.src) {
-            _create3['default'](mergedOptions);
+            (0, _create3['default'])(mergedOptions);
         }
 
         dialog.show();
@@ -2135,7 +2137,7 @@ exports['default'] = function () {
             options.chrome = true;
         }
 
-        _factory2['default']({
+        (0, _factory2['default'])({
             key: addonKey,
             moduleKey: moduleKey
         }, options, options.productContext);
@@ -2160,7 +2162,7 @@ var _dollar = _dereq_('../dollar');
 var _dollar2 = _interopRequireDefault(_dollar);
 
 function Button(options) {
-    this.$el = _dollar2['default']('<button />').text(options.text).addClass('aui-button aui-button-' + options.type).addClass(options.additionalClasses);
+    this.$el = (0, _dollar2['default'])('<button />').text(options.text).addClass('aui-button aui-button-' + options.type).addClass(options.additionalClasses);
 
     this.isEnabled = function () {
         return !(this.$el.attr('aria-disabled') === 'true');
@@ -2262,7 +2264,7 @@ exports['default'] = function (options, dialogOptions, productContext) {
         cancelText: dialogOptions.cancelText
     }, false);
 
-    container = _dollar2['default']('.ap-dialog-container');
+    container = (0, _dollar2['default'])('.ap-dialog-container');
     if (options.url) {
         throw new Error('Cannot retrieve dialog content by URL');
     }
@@ -2275,11 +2277,11 @@ exports['default'] = function (options, dialogOptions, productContext) {
     });
 
     promise.done(function (data) {
-        var dialogHtml = _dollar2['default'](data);
+        var dialogHtml = (0, _dollar2['default'])(data);
         dialogHtml.addClass('ap-dialog-container');
         container.replaceWith(dialogHtml);
     }).fail(function (xhr, status, ex) {
-        var title = _dollar2['default']('<p class="title" />').text('Unable to load add-on content. Please try again later.');
+        var title = (0, _dollar2['default'])('<p class="title" />').text('Unable to load add-on content. Please try again later.');
         container.html('<div class="aui-message error ap-aui-message"></div>');
         container.find('.error').append(title);
         var msg = status + (ex ? ': ' + ex.toString() : '');
@@ -2365,11 +2367,11 @@ exports['default'] = function () {
                     throw new Error('Cannot open dialog by URL, please use module key');
                 }
 
-                if (_dollar2['default']('.aui-dialog2 :visible').length !== 0) {
+                if ((0, _dollar2['default'])('.aui-dialog2 :visible').length !== 0) {
                     throw new Error('Cannot open dialog when a layer is already visible');
                 }
 
-                _factory2['default'](xdmOptions, dialogOptions, this.productContext);
+                (0, _factory2['default'])(xdmOptions, dialogOptions, this.productContext);
             },
             closeDialog: function closeDialog() {
                 this.events.emit('ra.iframe.destroy');
@@ -2450,7 +2452,7 @@ exports['default'] = function () {
         if (options.onHover === true && options.bindTo.hasClass('active')) {
             return;
         }
-        _simple2['default'](href, options).show();
+        (0, _simple2['default'])(href, options).show();
     }
 
     _content2['default'].eventHandler(action, inlineDialogTrigger, callback);
@@ -2499,14 +2501,14 @@ exports['default'] = function () {
     return {
         init: function init(state, xdm) {
             if (xdm.uiParams.isInlineDialog) {
-                _dollar2['default'](xdm.iframe).closest('.ap-container').on('resized', function (e, dimensions) {
-                    resizeInlineDialog(_dollar2['default'](xdm.iframe), dimensions.width, dimensions.height);
+                (0, _dollar2['default'])(xdm.iframe).closest('.ap-container').on('resized', function (e, dimensions) {
+                    resizeInlineDialog((0, _dollar2['default'])(xdm.iframe), dimensions.width, dimensions.height);
                 });
             }
         },
         internals: {
             hideInlineDialog: function hideInlineDialog() {
-                _hideInlineDialog(_dollar2['default'](this.iframe));
+                _hideInlineDialog((0, _dollar2['default'])(this.iframe));
             }
         }
     };
@@ -2546,7 +2548,7 @@ exports['default'] = function (contentUrl, options) {
     }
 
     function displayInlineDialog(content, trigger, showInlineDialog) {
-        trigger = _dollar2['default'](trigger); // sometimes it's not jQuery. Lets make it jQuery.
+        trigger = (0, _dollar2['default'])(trigger); // sometimes it's not jQuery. Lets make it jQuery.
         content.data('inlineDialog', $inlineDialog);
         var pluginKey = _content2['default'].getWebItemPluginKey(trigger);
         var moduleKey = _content2['default'].getWebItemModuleKey(trigger);
@@ -2570,7 +2572,7 @@ exports['default'] = function (contentUrl, options) {
                 });
             }
         }).fail(function (xhr, status, ex) {
-            var title = _dollar2['default']('<p class="title" />').text('Unable to load add-on content. Please try again later.');
+            var title = (0, _dollar2['default'])('<p class="title" />').text('Unable to load add-on content. Please try again later.');
             content.html('<div class="aui-message error ap-aui-message"></div>');
             content.find('.error').append(title);
             var msg = status + (ex ? ': ' + ex.toString() : '');
@@ -2583,7 +2585,7 @@ exports['default'] = function (contentUrl, options) {
 
     var dialogElementIdentifier = 'ap-inline-dialog-content-' + itemId;
 
-    $inlineDialog = _dollar2['default'](document.getElementById('inline-dialog-' + dialogElementIdentifier));
+    $inlineDialog = (0, _dollar2['default'])(document.getElementById('inline-dialog-' + dialogElementIdentifier));
 
     if ($inlineDialog.length !== 0) {
         $inlineDialog.remove();
@@ -2677,7 +2679,7 @@ var _statusHelper2 = _interopRequireDefault(_statusHelper);
 exports['default'] = function () {
     return {
         init: function init(state, xdm) {
-            var $home = _dollar2['default'](xdm.iframe).closest('.ap-container');
+            var $home = (0, _dollar2['default'])(xdm.iframe).closest('.ap-container');
             _statusHelper2['default'].showLoadingStatus($home, 0);
 
             $home.find('.ap-load-timeout a.ap-btn-cancel').click(function () {
@@ -2702,7 +2704,7 @@ exports['default'] = function () {
                 if (this.analytics && this.analytics.iframePerformance) {
                     this.analytics.iframePerformance.end();
                 }
-                var $home = _dollar2['default'](this.iframe).closest('.ap-container');
+                var $home = (0, _dollar2['default'])(this.iframe).closest('.ap-container');
                 _statusHelper2['default'].showLoadedStatus($home);
 
                 clearTimeout(this.timeout);
@@ -2736,10 +2738,10 @@ function validateMessageId(msgId) {
 }
 
 function getMessageBar() {
-    var msgBar = _dollar2['default']('#' + MESSAGE_BAR_ID);
+    var msgBar = (0, _dollar2['default'])('#' + MESSAGE_BAR_ID);
 
     if (msgBar.length < 1) {
-        msgBar = _dollar2['default']('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
+        msgBar = (0, _dollar2['default'])('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
     }
     return msgBar;
 }
@@ -2783,7 +2785,7 @@ exports['default'] = {
 
     clearMessage: function clearMessage(id) {
         if (validateMessageId(id)) {
-            _dollar2['default']('#' + id).remove();
+            (0, _dollar2['default'])('#' + id).remove();
         }
     }
 };
@@ -2860,8 +2862,8 @@ exports['default'] = function () {
 
             sizeToParent: AJS.debounce(function () {
                 function resizeHandler(iframe) {
-                    var height = _dollar2['default'](document).height() - _dollar2['default']('#header > nav').outerHeight() - _dollar2['default']('#footer').outerHeight() - 20;
-                    _dollar2['default'](iframe).css({
+                    var height = (0, _dollar2['default'])(document).height() - (0, _dollar2['default'])('#header > nav').outerHeight() - (0, _dollar2['default'])('#footer').outerHeight() - 20;
+                    (0, _dollar2['default'])(iframe).css({
                         width: '100%',
                         height: height + 'px'
                     });
@@ -2869,15 +2871,15 @@ exports['default'] = function () {
                 // sizeToParent is only available for general-pages
                 if (this.uiParams.isGeneral) {
                     // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
-                    _dollar2['default'](this.iframe).addClass('full-size-general-page');
-                    _dollar2['default'](window).on('resize', function () {
+                    (0, _dollar2['default'])(this.iframe).addClass('full-size-general-page');
+                    (0, _dollar2['default'])(window).on('resize', function () {
                         resizeHandler(this.iframe);
                     });
                     resizeHandler(this.iframe);
                 } else {
                     // This is only here to support integration testing
                     // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-                    _dollar2['default'](this.iframe).addClass('full-size-general-page-fail');
+                    (0, _dollar2['default'])(this.iframe).addClass('full-size-general-page-fail');
                 }
             })
         }
@@ -3063,10 +3065,10 @@ function showLoadErrorStatus($home) {
 
 function createStatusMessages() {
     var i;
-    var stats = _dollar2['default']('<div class="ap-stats" />');
+    var stats = (0, _dollar2['default'])('<div class="ap-stats" />');
 
     for (i in statuses) {
-        var status = _dollar2['default']('<div class="ap-' + i + ' ap-status hidden" />');
+        var status = (0, _dollar2['default'])('<div class="ap-' + i + ' ap-status hidden" />');
         status.append('<small>' + statuses[i].descriptionHtml + '</small>');
         stats.append(status);
     }
