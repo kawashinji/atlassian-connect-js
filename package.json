@@ -8,7 +8,8 @@
     "url": "ssh://git@stash.atlassian.com:7997/ac/atlassian-connect-js.git"
   },
   "scripts": {
-    "prepublish": "gulp"
+    "prepublish": "gulp",
+    "test": "karma start --single-run"
   },
   "devDependencies": {
     "babelify": "^6.0.2",
