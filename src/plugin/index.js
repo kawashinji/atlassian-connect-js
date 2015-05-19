@@ -26,4 +26,5 @@ $.extend(AP, env, amd, {
     Dialog: dialog,
 });
 
+window.AP = AP;
 export default AP
