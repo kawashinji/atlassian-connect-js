@@ -80,6 +80,7 @@ _dollar2['default'].extend(AP, _env2['default'], _amd2['default'], {
     //    request: request,
     Dialog: _dialog2['default'] });
 
+window.AP = AP;
 exports['default'] = AP;
 module.exports = exports['default'];
 
