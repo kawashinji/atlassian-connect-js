@@ -18,7 +18,7 @@ var minifyCSS = require('gulp-minify-css');
 function build(entryModule, distModule, options) {
     var bundler = browserify(entryModule, {
       debug: true,
-      standalone: distModule
+      standalone: options.standalone || distModule
     }).transform(babelify)
       .transform(envify(options.env || {}))
       .transform(unreachableBranch);
@@ -53,6 +53,7 @@ function build(entryModule, distModule, options) {
 function buildPlugin(options) {
     options = options || {};
     return build('./src/plugin/index.js', 'plugin', {
+        standalone: 'AP',
         env: {ENV: 'plugin'},
         watch: options.watch
     });
