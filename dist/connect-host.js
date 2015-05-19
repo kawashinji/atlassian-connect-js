@@ -2384,16 +2384,16 @@ exports['default'] = function () {
 module.exports = exports['default'];
 
 },{"../dollar":20,"./api":15,"./factory":18}],20:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 /**
  * The iframe-side code exposes a jquery-like implementation via _dollar.
  * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
  * to code that runs on host and iframe.
  */
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 exports["default"] = AJS.$;
 module.exports = exports["default"];
 
