@@ -17,7 +17,9 @@ module.exports = function(config) {
       'https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.js',
       'https://aui-cdn.atlassian.com/aui-adg/5.8.9/js/aui.js',
       'https://aui-cdn.atlassian.com/aui-adg/5.8.9/js/aui-soy.js',
-      'test/**/*.js'
+      'test/**/*.js',
+      {pattern: 'fixtures/**', included: false, served: true},
+      {pattern: 'dist/**', included: false, served: true}
     ],
 
     // list of files to exclude
@@ -29,12 +31,17 @@ module.exports = function(config) {
     //do not process my html files.
     preprocessors: {
       'test/**/*.js': ['browserify'],
-      'tests/unit/fixtures/!(*).html': ['html2js']
+      'fixtures/!(*).html': ['html2js']
     },
 
     browserify: {
       debug: true,
-      transform: ['babelify', envify({ENV: 'host'})]
+      bundleDelay: 1000,
+      configure: function(bundle) {
+        bundle._builtOnce = true; // fix issue in osx
+      },
+      transform: ['babelify', envify({ENV: 'host'})],
+
     },
 
     // test results reporter to use

@@ -34,7 +34,7 @@ QUnit.test("eventHandler assigns an event handler to the dom node", function(ass
     assert.ok(spy.calledOnce);
 });
 
-QUnit.test("eventHandler callback includes the width", function(){
+QUnit.test("eventHandler callback includes the width", function(assert){
     var spy = sinon.spy();
 
     contentUtilities.eventHandler("click", '#qunit-fixture', spy);
@@ -43,7 +43,7 @@ QUnit.test("eventHandler callback includes the width", function(){
     assert.equal(spy.firstCall.args[1]['width'], '101');
 });
 
-QUnit.test("eventHandler callback includes the height", function(){
+QUnit.test("eventHandler callback includes the height", function(assert){
     var spy = sinon.spy();
 
     contentUtilities.eventHandler("click", '#qunit-fixture', spy);
@@ -52,7 +52,7 @@ QUnit.test("eventHandler callback includes the height", function(){
     assert.equal(spy.firstCall.args[1]['height'], '200');
 });
 
-QUnit.test("eventHandler callback includes the context path", function(){
+QUnit.test("eventHandler callback includes the context path", function(assert){
     var spy = sinon.spy();
 
     contentUtilities.eventHandler("click", '#qunit-fixture', spy);

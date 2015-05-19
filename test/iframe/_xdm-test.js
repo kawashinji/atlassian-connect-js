@@ -16,7 +16,7 @@ QUnit.module('XDM host', {
         var f = fixture || 'xdm-emit.html';
         return new XdmRpc($, {
             remoteKey: 'myremotekey',
-            remote: this.getBaseUrl() + '/base/tests/unit/fixtures/' + f + '?oauth_consumer_key=jira:12345&xdm_e=' + encodeURIComponent(this.getBaseUrl()) + '&xdm_c=testchannel',
+            remote: this.getBaseUrl() + '/base/fixtures/' + f + '?oauth_consumer_key=jira:12345&xdm_e=' + encodeURIComponent(this.getBaseUrl()) + '&xdm_c=testchannel',
             container: 'qunit-container-xdm-host',
             channel: 'testchannel',
             props: {}
@@ -43,7 +43,7 @@ QUnit.test('isHost is true', function (assert) {
     assert.ok(xdm.isHost, 'XDM is host');
 });
 
-QUnit.test('remoteOrigin is resolved to the iframe baseurl', function() {
+QUnit.test('remoteOrigin is resolved to the iframe baseurl', function (assert) {
     var remoteUrl = 'http://www.example.com?oauth_consumer_key=jira:12345',
     xdm = new XdmRpc($, {
         remoteKey: 'myremotekey',
@@ -83,7 +83,7 @@ QUnit.test('messages are sent and received', function (assert) {
     });
 });
 
-QUnit.test('check error message on fail', function(){
+QUnit.test('check error message on fail', function(assert){
     stop();
     AJS.error = sinon.spy();
 

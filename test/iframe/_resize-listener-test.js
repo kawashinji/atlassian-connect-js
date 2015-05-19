@@ -17,7 +17,7 @@ QUnit.module('Resizer listener', {
 
         return new XdmRpc($, {
             remoteKey: 'myremotekey',
-            remote: this.getBaseUrl() + '/base/tests/unit/fixtures/' + fixture + '?oauth_consumer_key=jira:12345&xdm_e=' + encodeURIComponent(this.getBaseUrl()) + '&xdm_c=testchannel',
+            remote: this.getBaseUrl() + '/base/fixtures/' + fixture + '?oauth_consumer_key=jira:12345&xdm_e=' + encodeURIComponent(this.getBaseUrl()) + '&xdm_c=testchannel',
             container: 'qunit-container',
             channel: 'testchannel',
             props: props || {}
