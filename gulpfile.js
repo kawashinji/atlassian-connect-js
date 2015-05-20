@@ -16,15 +16,12 @@ var concat = require('gulp-concat');
 var minifyCSS = require('gulp-minify-css');
 
 function build(entryModule, distModule, options) {
-    var bundler = watchify(
-        browserify(entryModule, {
-            debug: true,
-            standalone: distModule
-        })
-        .transform(babelify)
-        .transform(envify(options.env || {}))
-        .transform(unreachableBranch)
-    );
+    var bundler = browserify(entryModule, {
+      debug: true,
+      standalone: options.standalone || distModule
+    }).transform(babelify)
+      .transform(envify(options.env || {}))
+      .transform(unreachableBranch);
 
     function rebundle() {
         return bundler.bundle()
@@ -41,6 +38,8 @@ function build(entryModule, distModule, options) {
     }
 
     if (options.watch) {
+        bundler = watchify(bundler);
+
         bundler.on('update', function () {
             gutil.log('Rebundling', gutil.colors.blue(entryModule));
             rebundle(bundler, options);
@@ -54,6 +53,7 @@ function build(entryModule, distModule, options) {
 function buildPlugin(options) {
     options = options || {};
     return build('./src/plugin/index.js', 'plugin', {
+        standalone: 'AP',
         env: {ENV: 'plugin'},
         watch: options.watch
     });
@@ -69,14 +69,16 @@ function buildHost(options) {
 
 function buildCss(options) {
     options = options || {};
+    options.dest = options.dest || 'dist';
+
     var g = gulp.src('src/css/**/*.css')
     .pipe(concat('connect-host.css'))
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest(options.dest));
 
     if(options.minify){
         g.pipe(concat("connect-host.min.css"))
         .pipe(minifyCSS())
-        .pipe(gulp.dest('dist'));
+        .pipe(gulp.dest(options.dest));
     }
     return g;
 }

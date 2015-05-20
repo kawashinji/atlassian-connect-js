@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.plugin = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.AP = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -80,6 +80,7 @@ _dollar2['default'].extend(AP, _env2['default'], _amd2['default'], {
     //    request: request,
     Dialog: _dialog2['default'] });
 
+window.AP = AP;
 exports['default'] = AP;
 module.exports = exports['default'];
 
@@ -615,11 +616,15 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-_dereq_('Base64');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _Base64 = _dereq_('Base64');
+
+var _Base642 = _interopRequireDefault(_Base64);
 
 exports['default'] = {
-    encode: window.btoa,
-    decode: window.atob
+    encode: _Base642['default'].btoa,
+    decode: _Base642['default'].atob
 };
 module.exports = exports['default'];
 
@@ -1285,6 +1290,7 @@ function XdmRpc($, config, bindings) {
           } catch (ex) {
             // If the invocation threw an error, invoke the fail responder callback with it
             fail(errmsg(ex));
+            logError(ex);
           }
         } else {
           // No such local rpc method name found
@@ -1448,6 +1454,12 @@ function XdmRpc($, config, bindings) {
   function log() {
     var log = $.log || w.AJS && w.AJS.log;
     if (log) log.apply(w, arguments);
+  }
+
+  function logError() {
+    // $.error seems to do the same thing as $.log in client console
+    var error = w.AJS && w.AJS.error;
+    if (error) error.apply(w, arguments);
   }
 
   // Immediately start listening for events
@@ -2085,14 +2097,14 @@ exports['default'] = _dollar2['default'].extend(apis, {
         }
       }
     } else {
-      return _dollar2['default']('meta[name=\'ap-' + name + '\']').attr('content');
+      return (0, _dollar2['default'])('meta[name=\'ap-' + name + '\']').attr('content');
     }
   },
 
   container: function container() {
     // Look for these two selectors first... you need these to allow for the auto-shrink to work
     // Otherwise, it'll default to document.body which can't auto-grow or auto-shrink
-    var container = _dollar2['default']('.ac-content, #content');
+    var container = (0, _dollar2['default'])('.ac-content, #content');
     return container.length > 0 ? container[0] : document.body;
   },
 
@@ -2530,7 +2542,7 @@ function addFlowListener(element, type, fn) {
 function addListener(element, fn) {
     var resize = ('onresize' in element);
     if (!resize && !element._resizeSensor) {
-        _dollar2['default']('head').append({ tag: 'style', type: 'text/css', $text: '.ac-resize-sensor,.ac-resize-sensor>div {position: absolute;top: 0;left: 0;width: 100%;height: 100%;overflow: hidden;z-index: -1;}' });
+        (0, _dollar2['default'])('head').append({ tag: 'style', type: 'text/css', $text: '.ac-resize-sensor,.ac-resize-sensor>div {position: absolute;top: 0;left: 0;width: 100%;height: 100%;overflow: hidden;z-index: -1;}' });
         var sensor = element._resizeSensor = document.createElement('div');
         sensor.className = 'ac-resize-sensor';
         sensor.innerHTML = '<div class="ac-resize-overflow"><div></div></div><div class="ac-resize-underflow"><div></div></div>';
@@ -2655,12 +2667,12 @@ exports['default'] = {
 module.exports = exports['default'];
 
 },{"../common/xdm-rpc":10,"./dollar":14}],21:[function(_dereq_,module,exports){
+// universal iterator utility
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
-// universal iterator utility
 function each(o, it) {
     var l;
     var k;

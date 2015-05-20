@@ -1,6 +1,6 @@
-import 'Base64';
+import base64 from 'Base64';
 
 export default {
-    encode: window.btoa,
-    decode: window.atob
+    encode: base64.btoa,
+    decode: base64.atob
 }

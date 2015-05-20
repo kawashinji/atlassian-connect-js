@@ -1,6 +1,6 @@
 {
   "name": "atlassian-connect-js",
-  "version": "0.0.1",
+  "main": "dist/connect-host.js",
   "dependencies": {
     "aui": "http://bitbucket.org/atlassian/aui.git#5.4.4",
     "aui-dist": "http://bitbucket.org/atlassian/aui-dist.git#5.4.4",
