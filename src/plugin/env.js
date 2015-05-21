@@ -24,6 +24,7 @@ var apis = rpc.extend(function (remote) {
       * });
       */
       getLocation: function (callback) {
+        console.log("REMOTE IS", remote, this);
         remote.getLocation(callback);
       },
 

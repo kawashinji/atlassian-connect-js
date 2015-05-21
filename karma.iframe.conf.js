@@ -19,24 +19,23 @@ module.exports = function(config) {
       'https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.js',
       'https://aui-cdn.atlassian.com/aui-adg/5.8.9/js/aui.js',
       'https://aui-cdn.atlassian.com/aui-adg/5.8.9/js/aui-soy.js',
-      'test/iframe/**/*.js'
-    ],
-
-
-    // list of files to exclude
-    exclude: [
-      'src/js/iframe/host/**/*.js'
+      'test/iframe/plugin/**/*.js'
     ],
 
     //do not process my html files.
     preprocessors: {
-      'test/**/*.js': ['browserify'],
-      'tests/unit/fixtures/!(*).html': ['html2js']
+      'test/iframe/plugin/**/*.js': ['browserify'],
+      'fixtures/!(*).html': ['html2js']
     },
 
     browserify: {
       debug: true,
-      transform: ['babelify', envify({ENV: 'plugin'})]
+      bundleDelay: 1000,
+      configure: function(bundle) {
+        bundle._builtOnce = true; // fix issue in osx
+      },
+      transform: ['babelify', envify({ENV: 'plugin'})],
+
     },
 
     // test results reporter to use
