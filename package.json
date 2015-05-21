@@ -9,7 +9,7 @@
   },
   "scripts": {
     "prepublish": "gulp",
-    "test": "karma start --single-run"
+    "test": "karma start --single-run && karma start karma.iframe.conf --single-run"
   },
   "devDependencies": {
     "babelify": "^6.0.2",
