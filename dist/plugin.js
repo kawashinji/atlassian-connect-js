@@ -1164,7 +1164,7 @@ function XdmRpc($, config, bindings) {
     var jwtParam = param(loc, 'jwt');
     remoteKey = jwtParam ? _jwt2['default'].parseJwtIssuer(jwtParam) : param(loc, 'oauth_consumer_key');
 
-    // if the authentication method is "none" then it is valid to have no jwt and no oauth in the url
+    // if the authentication method is 'none' then it is valid to have no jwt and no oauth in the url
     // but equally we don't trust this iframe as far as we can throw it, so assign it a random id
     // in order to prevent it from talking to any other iframe
     if (null === remoteKey) {
@@ -1474,20 +1474,20 @@ exports['default'] = XdmRpc;
 module.exports = exports['default'];
 
 },{"../host/util":11,"./events":6,"./jwt":7,"./ui-params":8,"./uri":9}],11:[function(_dereq_,module,exports){
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
     value: true
 });
 function escapeSelector(s) {
     if (!s) {
-        throw new Error("No selector to escape");
+        throw new Error('No selector to escape');
     }
-    return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&");
+    return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
 }
 
-exports["default"] = { escapeSelector: escapeSelector };
-module.exports = exports["default"];
+exports['default'] = { escapeSelector: escapeSelector };
+module.exports = exports['default'];
 
 },{}],12:[function(_dereq_,module,exports){
 'use strict';
@@ -1708,7 +1708,7 @@ _rpc2['default'].extend(function (remote) {
     *     width: '500px',
     *     height: '200px',
     *     chrome: true
-    *   }).on("close", callbackFunc);
+    *   }).on('close', callbackFunc);
     * });
     *
     * @return {Dialog} Dialog object allowing for callback registrations
@@ -1729,8 +1729,8 @@ _rpc2['default'].extend(function (remote) {
       remote.createDialog(options);
       return {
         on: function on(event, callback) {
-          // HACK: Note this is a "once" as it's assumed the only event is "close", and close is only fired
-          // once per dialog. If we changed this to "on", then it would be fired when *any* dialog is closed,
+          // HACK: Note this is a 'once' as it's assumed the only event is 'close', and close is only fired
+          // once per dialog. If we changed this to 'on', then it would be fired when *any* dialog is closed,
           // meaning that if say two dialog were opened, closed, opened, then closed, then the callback
           // registered for the first dialog would be issued when the second was closed.
           remote.events.once('dialog.' + event, callback);
@@ -1756,8 +1756,8 @@ _rpc2['default'].extend(function (remote) {
     isDialog: isDialog,
 
     /**
-    * register callbacks responding to messages from the host dialog, such as "submit" or "cancel"
-    * @param String button either "cancel" or "submit"
+    * register callbacks responding to messages from the host dialog, such as 'submit' or 'cancel'
+    * @param String button either 'cancel' or 'submit'
     * @param Function callback function
     * @deprecated
     */
@@ -1920,20 +1920,20 @@ exports['default'] = _exports;
 module.exports = exports['default'];
 
 },{"../common/ui-params":8,"../common/uri":9,"./dollar":14,"./rpc":20}],14:[function(_dereq_,module,exports){
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
   value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _util = _dereq_("./util");
+var _util = _dereq_('./util');
 
 var _util2 = _interopRequireDefault(_util);
 
-var _each = _util2["default"].each,
-    extend = _util2["default"].extend,
+var _each = _util2['default'].each,
+    extend = _util2['default'].extend,
     document = window.document;
 
 function $(sel, context) {
@@ -1942,7 +1942,7 @@ function $(sel, context) {
 
   var els = [];
   if (sel) {
-    if (typeof sel === "string") {
+    if (typeof sel === 'string') {
       var results = context.querySelectorAll(sel);
       _each(results, function (i, v) {
         els.push(v);
@@ -1961,7 +1961,7 @@ function $(sel, context) {
     },
     bind: function bind(name, callback) {
       this.each(function (i, el) {
-        _util2["default"].bind(el, name, callback);
+        _util2['default'].bind(el, name, callback);
       });
     },
     attr: function attr(k) {
@@ -1975,7 +1975,7 @@ function $(sel, context) {
     removeClass: function removeClass(className) {
       return this.each(function (i, el) {
         if (el.className) {
-          el.className = el.className.replace(new RegExp("(^|\\s)" + className + "(\\s|$)"), " ");
+          el.className = el.className.replace(new RegExp('(^|\\s)' + className + '(\\s|$)'), ' ');
         }
       });
     },
@@ -1988,14 +1988,14 @@ function $(sel, context) {
       return this.each(function (i, to) {
         var el = context.createElement(spec.tag);
         _each(spec, function (k, v) {
-          if (k === "$text") {
+          if (k === '$text') {
             if (el.styleSheet) {
               // style tags in ie
               el.styleSheet.cssText = v;
             } else {
               el.appendChild(context.createTextNode(v));
             }
-          } else if (k !== "tag") {
+          } else if (k !== 'tag') {
             el[k] = v;
           }
         });
@@ -2007,8 +2007,8 @@ function $(sel, context) {
   return els;
 }
 
-exports["default"] = extend($, _util2["default"]);
-module.exports = exports["default"];
+exports['default'] = extend($, _util2['default']);
+module.exports = exports['default'];
 
 },{"./util":21}],15:[function(_dereq_,module,exports){
 'use strict';
@@ -2049,7 +2049,7 @@ var apis = _rpc2['default'].extend(function (remote) {
       * @param {Function} callback function (location) {...}
       * @example
       * AP.getLocation(function(location){
-      *   alert(location); 
+      *   alert(location);
       * });
       */
       getLocation: function getLocation(callback) {
@@ -2097,7 +2097,7 @@ exports['default'] = _dollar2['default'].extend(apis, {
         }
       }
     } else {
-      return (0, _dollar2['default'])('meta[name=\'ap-' + name + '\']').attr('content');
+      return (0, _dollar2['default'])('meta[name="ap-' + name + '"]').attr('content');
     }
   },
 
@@ -2347,7 +2347,7 @@ var _rpc2 = _interopRequireDefault(_rpc);
 * For visual examples of each kind please see the [Design guide](https://developer.atlassian.com/design/latest/communicators/messages/).
 * ### Example ###
 * ```
-* AP.require("messages", function(messages){
+* AP.require('messages', function(messages){
 *   //create a message
 *   var message = messages.info('plain text title', 'plain text body');
 * });
@@ -2381,7 +2381,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
     * @memberof module:messages#
     * @param    {String}    id  The id that was returned when the message was created.
     * @example
-    * AP.require("messages", function(messages){
+    * AP.require('messages', function(messages){
     *   //create a message
     *   var message = messages.info('title', 'body');
     *   setTimeout(function(){
@@ -2405,7 +2405,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
         * @param    {MessageOptions}    options     Message Options
         * @returns  {String}    The id to be used when clearing the message
         * @example
-        * AP.require("messages", function(messages){
+        * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.generic('title', 'generic message example');
         * });
@@ -2421,7 +2421,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
         * @param    {MessageOptions}    options     Message Options
         * @returns  {String}    The id to be used when clearing the message
         * @example
-        * AP.require("messages", function(messages){
+        * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.error('title', 'error message example');
         * });
@@ -2437,7 +2437,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
         * @param    {MessageOptions}    options     Message Options
         * @returns  {String}    The id to be used when clearing the message
         * @example
-        * AP.require("messages", function(messages){
+        * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.warning('title', 'warning message example');
         * });
@@ -2453,7 +2453,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
         * @param    {MessageOptions}    options     Message Options
         * @returns  {String}    The id to be used when clearing the message
         * @example
-        * AP.require("messages", function(messages){
+        * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.success('title', 'success message example');
         * });
@@ -2469,7 +2469,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
         * @param    {MessageOptions}    options     Message Options
         * @returns  {String}    The id to be used when clearing the message
         * @example
-        * AP.require("messages", function(messages){
+        * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.info('title', 'info message example');
         * });
@@ -2485,7 +2485,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
         * @param    {MessageOptions}    options     Message Options
         * @returns  {String}    The id to be used when clearing the message
         * @example
-        * AP.require("messages", function(messages){
+        * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.hint('title', 'hint message example');
         * });
@@ -2532,7 +2532,7 @@ function addFlowListener(element, type, fn) {
 };
 
 // Adds a resize listener to a DOM element (other within <body>). It first adds a set of invisible
-// "sensor" divs to the bottom of the selected element. Those sensor divs serve as over/underflow
+// 'sensor' divs to the bottom of the selected element. Those sensor divs serve as over/underflow
 // detectors using the addFlowLister. The flowListener triggers the over/underflow within the div
 // which tells us that the element has resized. We compare the previous and current size. If it's
 // changed, we trigger the resize event.
