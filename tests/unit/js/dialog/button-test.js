@@ -13,14 +13,31 @@ require(['ac/dialog/button'], function(dialogButton) {
         equal(button.$el.text(), "Submit");
     });
 
-    test("Submit Button done callback is executed on dispatch", function() {
+    test("Submit Button done callback is executed on click", function() {
         var spy = sinon.spy();
         var button = dialogButton.submit({
             done: spy
         });
-        button.dispatch(true);
+        button.click();
         ok(spy.calledOnce);
     });
+
+    test("Submit Button done callback doesn't execute if custom callback is registered", function() {
+        var spy = sinon.spy();
+        var customCallback = sinon.spy();
+
+        var button = dialogButton.submit({
+            done: spy
+        });
+        button.click(customCallback);
+        ok(spy.notCalled);
+        ok(customCallback.notCalled);
+
+        button.$el.trigger('ra.dialog.click');
+        ok(customCallback.calledOnce);
+        ok(spy.notCalled);
+    });
+
 
     test("Submit Button can be disabled", function() {
         var button = dialogButton.submit();
@@ -38,12 +55,12 @@ require(['ac/dialog/button'], function(dialogButton) {
         equal(button.$el.text(), "Cancel");
     });
 
-    test("Cancel Button done callback is executed on dispatch", function() {
+    test("Cancel Button done callback is executed on click", function() {
         var spy = sinon.spy();
         var button = dialogButton.cancel({
             done: spy
         });
-        button.dispatch(true);
+        button.click();
         ok(spy.calledOnce);
     });
 
@@ -69,6 +86,15 @@ require(['ac/dialog/button'], function(dialogButton) {
     test("Buttons are enabled by default", function() {
         var button = dialogButton.submit();
         ok(button.isEnabled());
+    });
+
+    test("click binds an event to ra.dialog.click if passed a function", function() {
+        var spy = sinon.spy();
+        var button = dialogButton.submit();
+        button.click(spy);
+        ok(spy.notCalled);
+        button.$el.trigger('ra.dialog.click');
+        ok(spy.calledOnce);
     });
 
     test("setText changes the button text", function() {
