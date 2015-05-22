@@ -9,7 +9,7 @@ var uiParams = UiParams.fromUrl(window.location.toString()),
   url = new Uri.init(window.location.toString());
 
 // if it has been set to a dialog on the server.
-if(url.getQueryParamValue("dialog") === "1"){
+if(url.getQueryParamValue('dialog') === '1'){
   isDialog = true;
 }
 
@@ -33,7 +33,7 @@ rpc.extend(function (remote) {
     *     width: '500px',
     *     height: '200px',
     *     chrome: true
-    *   }).on("close", callbackFunc);
+    *   }).on('close', callbackFunc);
     * });
     *
     * @return {Dialog} Dialog object allowing for callback registrations
@@ -54,11 +54,11 @@ rpc.extend(function (remote) {
       remote.createDialog(options);
       return {
         on: function (event, callback) {
-          // HACK: Note this is a "once" as it's assumed the only event is "close", and close is only fired
-          // once per dialog. If we changed this to "on", then it would be fired when *any* dialog is closed,
+          // HACK: Note this is a 'once' as it's assumed the only event is 'close', and close is only fired
+          // once per dialog. If we changed this to 'on', then it would be fired when *any* dialog is closed,
           // meaning that if say two dialog were opened, closed, opened, then closed, then the callback
           // registered for the first dialog would be issued when the second was closed.
-          remote.events.once("dialog." + event, callback);
+          remote.events.once('dialog.' + event, callback);
         }
       };
     },
@@ -74,15 +74,15 @@ rpc.extend(function (remote) {
     * });
     */
     close: function(data) {
-      remote.events.emit("dialog.close", data);
+      remote.events.emit('dialog.close', data);
       remote.closeDialog();
     },
 
     isDialog: isDialog,
 
     /**
-    * register callbacks responding to messages from the host dialog, such as "submit" or "cancel"
-    * @param String button either "cancel" or "submit"
+    * register callbacks responding to messages from the host dialog, such as 'submit' or 'cancel'
+    * @param String button either 'cancel' or 'submit'
     * @param Function callback function
     * @deprecated
     */
@@ -142,7 +142,7 @@ rpc.extend(function (remote) {
         toggle: function () {
           var self = this;
           self.isEnabled(function (enabled) {
-            self[enabled ? "disable" : "enable"](name);
+            self[enabled ? 'disable' : 'enable'](name);
           });
         },
         /**
@@ -225,7 +225,7 @@ rpc.extend(function (remote) {
             result = exports.getButton(name).trigger();
           }
           else {
-            $.handleError("Received unexpected dialog button event from host:", name);
+            $.handleError('Received unexpected dialog button event from host:', name);
           }
         }
         catch (e) {
@@ -237,11 +237,11 @@ rpc.extend(function (remote) {
     },
 
     stubs: [
-      "dialogListenerBound",
-      "setDialogButtonEnabled",
-      "isDialogButtonEnabled",
-      "createDialog",
-      "closeDialog"
+      'dialogListenerBound',
+      'setDialogButtonEnabled',
+      'isDialogButtonEnabled',
+      'createDialog',
+      'closeDialog'
     ]
 
   };

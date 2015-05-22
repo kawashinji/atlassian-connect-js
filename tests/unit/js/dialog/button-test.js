@@ -1,19 +1,19 @@
 require(['ac/dialog/button'], function(dialogButton) {
 
-    module("Dialog Button", {
+    module('Dialog Button', {
     });
 
-    test("Submit Button is set to a primary button", function() {
+    test('Submit Button is set to a primary button', function() {
         var button = dialogButton.submit();
-        ok(button.$el.hasClass("aui-button-primary"));
+        ok(button.$el.hasClass('aui-button-primary'));
     });
 
-    test("Submit Button has text set to submit", function() {
+    test('Submit Button has text set to submit', function() {
         var button = dialogButton.submit();
-        equal(button.$el.text(), "Submit");
+        equal(button.$el.text(), 'Submit');
     });
 
-    test("Submit Button done callback is executed on click", function() {
+    test('Submit Button done callback is executed on click', function() {
         var spy = sinon.spy();
         var button = dialogButton.submit({
             done: spy
@@ -22,7 +22,7 @@ require(['ac/dialog/button'], function(dialogButton) {
         ok(spy.calledOnce);
     });
 
-    test("Submit Button done callback doesn't execute if custom callback is registered", function() {
+    test('Submit Button done callback doesn't execute if custom callback is registered', function() {
         var spy = sinon.spy();
         var customCallback = sinon.spy();
 
@@ -39,23 +39,23 @@ require(['ac/dialog/button'], function(dialogButton) {
     });
 
 
-    test("Submit Button can be disabled", function() {
+    test('Submit Button can be disabled', function() {
         var button = dialogButton.submit();
         button.setEnabled(false);
         ok(!button.isEnabled());
     });
 
-    test("Cancel Button is set to a link button", function() {
+    test('Cancel Button is set to a link button', function() {
         var button = dialogButton.cancel();
-        ok(button.$el.hasClass("aui-button-link"));
+        ok(button.$el.hasClass('aui-button-link'));
     });
 
-    test("Cancel Button has text set to cancel", function() {
+    test('Cancel Button has text set to cancel', function() {
         var button = dialogButton.cancel();
-        equal(button.$el.text(), "Cancel");
+        equal(button.$el.text(), 'Cancel');
     });
 
-    test("Cancel Button done callback is executed on click", function() {
+    test('Cancel Button done callback is executed on click', function() {
         var spy = sinon.spy();
         var button = dialogButton.cancel({
             done: spy
@@ -64,31 +64,31 @@ require(['ac/dialog/button'], function(dialogButton) {
         ok(spy.calledOnce);
     });
 
-    test("Cancel Button cannot be disabled", function() {
+    test('Cancel Button cannot be disabled', function() {
         var button = dialogButton.cancel();
         button.setEnabled(false);
         ok(button.isEnabled());
     });
 
-    test("setEnabled(true) enables a button", function() {
+    test('setEnabled(true) enables a button', function() {
         var button = dialogButton.submit();
-        button.$el.attr('aria-disabled', "true");
+        button.$el.attr('aria-disabled', 'true');
         button.setEnabled(true);
         ok(button.isEnabled());
     });
 
-    test("setEnabled(false) disables a button", function() {
+    test('setEnabled(false) disables a button', function() {
         var button = dialogButton.submit();
         button.setEnabled(false);
         ok(!button.isEnabled());
     });
 
-    test("Buttons are enabled by default", function() {
+    test('Buttons are enabled by default', function() {
         var button = dialogButton.submit();
         ok(button.isEnabled());
     });
 
-    test("click binds an event to ra.dialog.click if passed a function", function() {
+    test('click binds an event to ra.dialog.click if passed a function', function() {
         var spy = sinon.spy();
         var button = dialogButton.submit();
         button.click(spy);
@@ -97,7 +97,7 @@ require(['ac/dialog/button'], function(dialogButton) {
         ok(spy.calledOnce);
     });
 
-    test("setText changes the button text", function() {
+    test('setText changes the button text', function() {
         var button = dialogButton.submit();
         button.setText('abc123');
         equal(button.$el.text(), 'abc123');

@@ -18,10 +18,10 @@ var xdmMockInlineDialog;
         init: function() {}
     };
 
-    context(["_rpc", "inline-dialog"], function(_rpc, inlineDialog) {
+    context(['_rpc', 'inline-dialog'], function(_rpc, inlineDialog) {
         _rpc.init();
 
-        module("Inline Dialog plugin", {
+        module('Inline Dialog plugin', {
             setup: function(){
                 xdmMockInlineDialog.hideInlineDialog.reset();
             }

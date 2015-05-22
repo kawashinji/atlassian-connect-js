@@ -166,7 +166,7 @@
                 },
                 shim: {
                     '_jwt': ['_base64'],
-                    '_xdm': ["_events", "_jwt", "_uri",  "_ui-params", "_util"]
+                    '_xdm': ['_events', '_jwt', '_uri',  '_ui-params', '_util']
                 },
                 modules: [
                 {

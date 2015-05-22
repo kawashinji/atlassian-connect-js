@@ -7,7 +7,7 @@ var each = $.each,
     proxy = {},
     rpc,
     apis = {},
-    stubs = ["init"],
+    stubs = ['init'],
     internals = {},
     inits = [],
     isInited;

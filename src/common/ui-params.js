@@ -45,7 +45,7 @@ export default {
                 obj = JSON.parse(base64.decode.call(window, params));
             } catch(e) {
                 if(console && console.log){
-                    console.log("Cannot decode passed ui params", params);
+                    console.log('Cannot decode passed ui params', params);
                 }
             }
         }

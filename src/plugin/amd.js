@@ -85,11 +85,11 @@ export default {
       deps = [];
     }
     if (exports) {
-      factory = typeof exports !== "function" ? function () { return exports; } : exports;
+      factory = typeof exports !== 'function' ? function () { return exports; } : exports;
       reqAll(deps, function () {
         var exports = factory.apply(window, arguments);
         if (exports) {
-          if (typeof exports === "function") {
+          if (typeof exports === 'function') {
             mod.exports.__target__ = exports;
           }
           for (var k in exports) {
@@ -103,6 +103,6 @@ export default {
   },
   require: function(deps, callback) {
 
-    reqAll(typeof deps === "string" ? [deps] : deps, callback);
+    reqAll(typeof deps === 'string' ? [deps] : deps, callback);
   }
 };

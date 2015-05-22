@@ -35,10 +35,10 @@ var xdmMockEnv;
         sizeToParent: sinon.spy()
     };
 
-    context(["_rpc", "env", "_dollar", "_ui-params"], function(_rpc, env, $, UiParams) {
+    context(['_rpc', 'env', '_dollar', '_ui-params'], function(_rpc, env, $, UiParams) {
         _rpc.init();
 
-        module("Env plugin", {
+        module('Env plugin', {
             setup: function() {
                 this.createFixtureContainer();
 
@@ -75,15 +75,15 @@ var xdmMockEnv;
             },
         });
 
-        test("meta tag is found", function() {
+        test('meta tag is found', function() {
             equal(env.meta('fixture'), 'foo bar');
         });
 
-        test("non existant meta tag is not found", function() {
+        test('non existant meta tag is not found', function() {
             ok(!env.meta('fdsjnfks'));
         });
 
-        test("#content container found", function() {
+        test('#content container found', function() {
             var acContainer = this.createAcContainer({
                 'id': 'content',
                 'innerHTML': '<span>foo bar</span>'
@@ -91,7 +91,7 @@ var xdmMockEnv;
             equal(env.container().innerHTML, acContainer.innerHTML);
         });
 
-        test(".ac-content container found", function() {
+        test('.ac-content container found', function() {
             var acContainer = this.createAcContainer({
                 'className': 'ac-content',
                 'innerHTML': '<span>foo bar</span>'
@@ -100,19 +100,19 @@ var xdmMockEnv;
             equal(env.container().innerHTML, acContainer.innerHTML);
         });
 
-        test("container not found", function() {
+        test('container not found', function() {
             equal(env.container().nodeName, 'BODY');
         });
 
-        test("localUrl", function() {
+        test('localUrl', function() {
             equal(env.localUrl(), 'http://www.example.com/confluence');
         });
 
-        test("localUrl appends the path", function() {
+        test('localUrl appends the path', function() {
             equal(env.localUrl('/abc'), 'http://www.example.com/confluence/abc');
         });
 
-        test("size gets correct height", function() {
+        test('size gets correct height', function() {
             var dim,
             height = 50,
             acContainer = this.createAcContainer({
@@ -125,7 +125,7 @@ var xdmMockEnv;
             equal(dim.h, height);
         });
 
-        test("size gets 100% width by default", function() {
+        test('size gets 100% width by default', function() {
             var dim,
             width = 50,
             acContainer = this.createAcContainer({
@@ -135,10 +135,10 @@ var xdmMockEnv;
             acContainer.style.width = width + 'px';
             dim = env.size(null, null, acContainer);
 
-            equal(dim.w, "100%");
+            equal(dim.w, '100%');
         });
 
-        test("size returns passed width", function() {
+        test('size returns passed width', function() {
             var dim,
             width = 50,
             acContainer = this.createAcContainer({
@@ -149,7 +149,7 @@ var xdmMockEnv;
             equal(dim.w, width);
         });
 
-        test("size returns passed height", function() {
+        test('size returns passed height', function() {
             var dim,
             height = 50,
             acContainer = this.createAcContainer({
@@ -161,25 +161,25 @@ var xdmMockEnv;
         });
 
         //xdm bridge methods.
-        test("getLocation calls remote getLocation", function() {
+        test('getLocation calls remote getLocation', function() {
             env.getLocation();
             ok(xdmMockEnv.getLocation.calledOnce);
         });
 
-        test("getLocation passes callback to remote method", function() {
+        test('getLocation passes callback to remote method', function() {
             var spy = sinon.spy();
             env.getLocation(spy);
             equal(xdmMockEnv.getLocation.args[0][0], spy);
         });
 
-        test("resize calls remote resize", function() {
+        test('resize calls remote resize', function() {
             env.resize();
             //resize runs every 50ms.
             this.clock.tick(50);
             ok(xdmMockEnv.resize.calledOnce);
         });
 
-        test("resize calls remote resize with width", function() {
+        test('resize calls remote resize with width', function() {
             var width = 20;
             env.resize(width);
             //resize runs every 50ms.
@@ -187,7 +187,7 @@ var xdmMockEnv;
             equal(xdmMockEnv.resize.args[0][0], width);
         });
 
-        test("resize calls remote resize with height", function() {
+        test('resize calls remote resize with height', function() {
             var height = 23;
             env.resize(null, height);
             //resize runs every 50ms.
@@ -195,7 +195,7 @@ var xdmMockEnv;
             equal(xdmMockEnv.resize.args[0][1], height);
         });
 
-        test("sizeToParent calls remote sizeToParent", function() {
+        test('sizeToParent calls remote sizeToParent', function() {
             env.sizeToParent();
             //sizeToParent runs every 50ms.
             this.clock.tick(50);

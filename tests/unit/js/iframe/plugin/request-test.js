@@ -34,10 +34,10 @@ var xdmMockRequest;
         request: sinon.spy()
     };
 
-    context(["_rpc", "env", "_dollar"], function(_rpc, env, $) {
+    context(['_rpc', 'env', '_dollar'], function(_rpc, env, $) {
         _rpc.init();
-        context(["request"], function(request){
-            module("Request Plugin", {
+        context(['request'], function(request){
+            module('Request Plugin', {
 
                 teardown: function () {
                     xdmMockRequest.request.reset();
@@ -54,35 +54,35 @@ var xdmMockRequest;
                 }
             });
 
-            test("invokes to host request", function () {
-                request("/foo/bar");
-                ok(xdmMockRequest.request.calledOnce, "invokes host request function");
+            test('invokes to host request', function () {
+                request('/foo/bar');
+                ok(xdmMockRequest.request.calledOnce, 'invokes host request function');
             });
 
-            test("host request is passed url", function () {
-                request("/foo/bar");
+            test('host request is passed url', function () {
+                request('/foo/bar');
 
-                equal(xdmMockRequest.request.args[0][0].url, "/foo/bar", "passes correct url");
+                equal(xdmMockRequest.request.args[0][0].url, '/foo/bar', 'passes correct url');
             });
 
-            test("host request is passed success callback", function () {
+            test('host request is passed success callback', function () {
                 request('/foo/bar');
 
                 ok(this.isFunction(xdmMockRequest.request.args[0][1]));
             });
 
-            test("host request is passed fail callback", function () {
+            test('host request is passed fail callback', function () {
                 request('/foo/bar');
 
                 ok(this.isFunction(xdmMockRequest.request.args[0][2]));
             });
 
-            test("host request is passed cache param", function () {
+            test('host request is passed cache param', function () {
                 request('/foo/bar', {cache: true});
                 equal(xdmMockRequest.request.args[0][0].cache, true);
             });
 
-            test("custom success callback passed", function () {
+            test('custom success callback passed', function () {
                 var successSpy = sinon.spy();
 
                 request('/foo/bar', {success: successSpy});
@@ -92,7 +92,7 @@ var xdmMockRequest;
                 ok(successSpy.calledOnce, 'success callback is executed on success');
             });
 
-            test("custom error callback passed", function () {
+            test('custom error callback passed', function () {
                 var failureSpy = sinon.spy();
 
                 request('/foo/bar', {error: failureSpy});
@@ -102,7 +102,7 @@ var xdmMockRequest;
                 ok(failureSpy.calledOnce, 'error callback is executed on failure');
             });
 
-            test("success callback getAllResponseHeaders returns a formatted string of headers", function () {
+            test('success callback getAllResponseHeaders returns a formatted string of headers', function () {
                 var successSpy = sinon.spy(),
                 successHeaders = {
                     abc: 123
@@ -114,7 +114,7 @@ var xdmMockRequest;
                 equal(successSpy.args[0][2].getAllResponseHeaders(), 'abc: 123', 'all success headers are returned');
             });
 
-            test("success callback getResponseHeader returns the response header", function () {
+            test('success callback getResponseHeader returns the response header', function () {
                 var successSpy = sinon.spy(),
                 successHeaders = {
                     abc: 123
@@ -128,7 +128,7 @@ var xdmMockRequest;
 
             });
 
-            test("error callback getAllResponseHeaders returns a formatted string of headers", function () {
+            test('error callback getAllResponseHeaders returns a formatted string of headers', function () {
                 var errorSpy = sinon.spy(),
                 errorHeaders = {
                     abc: 123
@@ -141,7 +141,7 @@ var xdmMockRequest;
                 equal(errorSpy.args[0][0].getAllResponseHeaders(), 'abc: 123', 'all error headers are returned');
             });
 
-            test("error callback getResponseHeader returns the response header", function () {
+            test('error callback getResponseHeader returns the response header', function () {
                 var errorSpy = sinon.spy(),
                 errorHeaders = {
                     abc: 123

@@ -1,7 +1,7 @@
 
 require(['ac/dialog/dialog-factory'], function(dialogFactory) {
 
-    module("Dialog Factory", {
+    module('Dialog Factory', {
         setup: function(){
             this.dialogSpy = {
                 show: sinon.spy(),
@@ -45,9 +45,9 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
         }
     });
 
-    test("open a dialog by key launches an xhr", function(){
-        this.server.respondWith("GET", /.*somekey\/somemodulekey/,
-        [200, { "Content-Type": "text/html" }, 'This is the <span id="my-span">content</span>']);
+    test('open a dialog by key launches an xhr', function(){
+        this.server.respondWith('GET', /.*somekey\/somemodulekey/,
+        [200, { 'Content-Type': 'text/html' }, 'This is the <span id='my-span'>content</span>']);
 
         dialogFactory({
             key: 'somekey',
@@ -56,13 +56,13 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
         },
         {}, "");
 
-        equal(AJS.dialog2.args[0][0].attr('id'), "dialogid", "Dialog element was created");
-        ok(this.dialogSpy.show.calledOnce, "Dialog was shown");
+        equal(AJS.dialog2.args[0][0].attr('id'), 'dialogid', 'Dialog element was created');
+        ok(this.dialogSpy.show.calledOnce, 'Dialog was shown');
 
     });
 
 
-    test("content resolver is passed addon key", function(){
+    test('content resolver is passed addon key', function(){
         dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
@@ -74,7 +74,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
     });
 
 
-    test("content resolver is passed module key", function(){
+    test('content resolver is passed module key', function(){
         dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
@@ -85,7 +85,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
 
     });
 
-    test("content resolver is passed product Context", function(){
+    test('content resolver is passed product Context', function(){
         var productContext = {a: 'a'};
         dialogFactory({
             key: 'somekey',
@@ -98,14 +98,14 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
 
     });
 
-    test("content resolver is passed uiParams", function(){
+    test('content resolver is passed uiParams', function(){
         dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
             id: 'dialogid'
         },
         {}, "");
-        ok(typeof window._AP.contentResolver.resolveByParameters.args[0][0].uiParams === "object");
+        ok(typeof window._AP.contentResolver.resolveByParameters.args[0][0].uiParams === 'object');
 
 
     });

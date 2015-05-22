@@ -16,7 +16,7 @@ function addFlowListener(element, type, fn){
 };
 
 // Adds a resize listener to a DOM element (other within <body>). It first adds a set of invisible
-// "sensor" divs to the bottom of the selected element. Those sensor divs serve as over/underflow
+// 'sensor' divs to the bottom of the selected element. Those sensor divs serve as over/underflow
 // detectors using the addFlowLister. The flowListener triggers the over/underflow within the div
 // which tells us that the element has resized. We compare the previous and current size. If it's
 // changed, we trigger the resize event.
@@ -26,7 +26,7 @@ function addFlowListener(element, type, fn){
 function addListener(element, fn){
     var resize = 'onresize' in element;
     if (!resize && !element._resizeSensor) {
-        $("head").append({tag: "style", type: "text/css", $text: ".ac-resize-sensor,.ac-resize-sensor>div {position: absolute;top: 0;left: 0;width: 100%;height: 100%;overflow: hidden;z-index: -1;}"});
+        $('head').append({tag: 'style', type: 'text/css', $text: '.ac-resize-sensor,.ac-resize-sensor>div {position: absolute;top: 0;left: 0;width: 100%;height: 100%;overflow: hidden;z-index: -1;}'});
         var sensor = element._resizeSensor = document.createElement('div');
         sensor.className = 'ac-resize-sensor';
         sensor.innerHTML = '<div class="ac-resize-overflow"><div></div></div><div class="ac-resize-underflow"><div></div></div>';

@@ -20,10 +20,10 @@ var xdmMockCookie;
         eraseCookie: sinon.spy()
     };
 
-    context(["_rpc", "cookie"], function(_rpc, cookie){
+    context(['_rpc', 'cookie'], function(_rpc, cookie){
         _rpc.init();
 
-        module("Cookie plugin", {
+        module('Cookie plugin', {
             setup: function(){
                 xdmMockCookie.saveCookie.reset();
                 xdmMockCookie.readCookie.reset();
@@ -36,21 +36,21 @@ var xdmMockCookie;
             ok(xdmMockCookie.saveCookie.calledOnce);
         });
 
-        test("save passes cookie name as first parameter", function(){
-            var cookieName = "mycookiename";
+        test('save passes cookie name as first parameter', function(){
+            var cookieName = 'mycookiename';
             cookie.save(cookieName);
             equal(xdmMockCookie.saveCookie.args[0][0], cookieName);
         });
         
-        test("save passes cookie value as the second parameter", function(){
-            var cookieValue = "abc123";
-            cookie.save("somename", cookieValue);
+        test('save passes cookie value as the second parameter', function(){
+            var cookieValue = 'abc123';
+            cookie.save('somename', cookieValue);
             equal(xdmMockCookie.saveCookie.args[0][1], cookieValue);
         });
 
-        test("save passes cookie expiry as the third parameter", function(){
+        test('save passes cookie expiry as the third parameter', function(){
             var cookieExpiry = 1;
-            cookie.save("somename", "cookieValue", cookieExpiry);
+            cookie.save('somename', 'cookieValue', cookieExpiry);
             equal(xdmMockCookie.saveCookie.args[0][2], cookieExpiry);
         });
 
@@ -59,15 +59,15 @@ var xdmMockCookie;
             ok(xdmMockCookie.readCookie.calledOnce);
         });
 
-        test("read passes cookie name as first parameter", function(){
-            var cookieName = "mycookie";
+        test('read passes cookie name as first parameter', function(){
+            var cookieName = 'mycookie';
             cookie.read(cookieName);
             equal(xdmMockCookie.readCookie.args[0][0], cookieName);
         });
 
-        test("read passes a callback as the second parameter", function(){
+        test('read passes a callback as the second parameter', function(){
             var callback = function(){};
-            cookie.read("somecookie", callback);
+            cookie.read('somecookie', callback);
             deepEqual(xdmMockCookie.readCookie.args[0][1], callback);
         });
 
@@ -77,8 +77,8 @@ var xdmMockCookie;
             ok(xdmMockCookie.eraseCookie.calledOnce);
         });
 
-        test("erase passes cookie name as first parameter", function(){
-            var cookieName = "acookiename";
+        test('erase passes cookie name as first parameter', function(){
+            var cookieName = 'acookiename';
             cookie.erase(cookieName);
             equal(xdmMockCookie.eraseCookie.args[0][0], cookieName);
         });

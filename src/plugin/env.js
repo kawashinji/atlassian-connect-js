@@ -20,7 +20,7 @@ var apis = rpc.extend(function (remote) {
       * @param {Function} callback function (location) {...}
       * @example
       * AP.getLocation(function(location){
-      *   alert(location); 
+      *   alert(location);
       * });
       */
       getLocation: function (callback) {
@@ -28,7 +28,7 @@ var apis = rpc.extend(function (remote) {
       },
 
       getUser: function(callback){
-        AP.require(["user"], function(user){
+        AP.require(['user'], function(user){
           if(user && user.getUser){
             return user.getUser(callback);
           }
@@ -64,12 +64,12 @@ export default $.extend(apis, {
       metas = document.getElementsByTagName('meta');
 
       for (i=0; i<metas.length; i++) {
-        if(metas[i].getAttribute("name") === 'ap-' + name) {
-           return metas[i].getAttribute("content");
+        if(metas[i].getAttribute('name') === 'ap-' + name) {
+           return metas[i].getAttribute('content');
         }
       }
     } else {
-      return $("meta[name='ap-" + name + "']").attr("content");
+      return $('meta[name="ap-' + name + '"]').attr('content');
     }
   },
 
@@ -81,18 +81,18 @@ export default $.extend(apis, {
   },
 
   localUrl: function (path) {
-    return this.meta("local-base-url") + (path == null ? "" : path);
+    return this.meta('local-base-url') + (path == null ? "" : path);
   },
 
   size: function (width, height, container) {
-    var w = width == null ? "100%" : width, h, docHeight;
+    var w = width == null ? '100%' : width, h, docHeight;
 
     if(!container){
       container = this.container();
     }
 
     // if it's an inline dialog. 100% won't work. Instead, get the container pixel width.
-    if(isInlineDialog && width === "100%"){
+    if(isInlineDialog && width === '100%'){
       w = Math.max(
         container.scrollWidth,
         container.offsetWidth,

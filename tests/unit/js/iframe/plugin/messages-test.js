@@ -19,17 +19,17 @@ var xdmMockMessages;
         showMessage: sinon.spy()
     };
 
-    context(["_rpc", "messages"], function(_rpc, messages) {
+    context(['_rpc', 'messages'], function(_rpc, messages) {
         _rpc.init();
 
-        module("Messages plugin", {
+        module('Messages plugin', {
             setup: function(){
                 xdmMockMessages.clearMessage.reset();
                 xdmMockMessages.showMessage.reset();
             }
         });
 
-        var MESSAGE_TYPES = ["generic", "error", "warning", "success", "info", "hint"];
+        var MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
 
         test('Each message type calls remote showMessage', function () {
             for(var i in MESSAGE_TYPES){
@@ -41,7 +41,7 @@ var xdmMockMessages;
 
         test('creating a message returns the message id', function () {
             var id = messages.info('title','body');
-            ok(typeof id === "string");
+            ok(typeof id === 'string');
         });
 
         test('clear calls remote clearMessage', function () {

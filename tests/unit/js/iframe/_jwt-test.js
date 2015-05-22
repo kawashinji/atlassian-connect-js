@@ -1,8 +1,8 @@
 (function(){
 
-    require(["_jwt", "_base64"], function(jwt, base64) {
+    require(['_jwt', '_base64'], function(jwt, base64) {
 
-        // returns a "valid enough" jwt token from an expired one.
+        // returns a 'valid enough' jwt token from an expired one.
         function validTokenFromExpired(expiredToken){
             var decoded = jwt.parseJwtClaims(expiredToken),
             now = Math.floor(Date.now() / 1000) + 180; // UTC timestamp 3 minutes in the future
@@ -45,12 +45,12 @@
 
         test('isExpired returns false on new jwt token', function (){
             var isExp = jwt.isJwtExpired(this.currentJwtToken);
-            equal(isExp, false, "token is not expired");
+            equal(isExp, false, 'token is not expired');
         });
 
         test('isExpired returns true on expired jwt token', function (){
             var isExp = jwt.isJwtExpired(this.expiredJwtToken);
-            ok(isExp, "token is expired");
+            ok(isExp, 'token is expired');
 
         });
 

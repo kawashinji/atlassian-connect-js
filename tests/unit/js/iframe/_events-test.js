@@ -1,4 +1,4 @@
-require(['_events', "_dollar"], function(events, $) {
+require(['_events', '_dollar'], function(events, $) {
 
     var Events = events.Events;
 
@@ -11,7 +11,7 @@ require(['_events', "_dollar"], function(events, $) {
       bus.on('foo', spy);
       bus.emit('foo');
 
-      ok(spy.calledOnce, "Spy was called");
+      ok(spy.calledOnce, 'Spy was called');
     });
 
     test('emits events with arbitrary arguments', function() {
@@ -21,7 +21,7 @@ require(['_events', "_dollar"], function(events, $) {
       bus.on('foo', spy);
       bus.emit('foo', 1, 2, 3);
 
-      ok(spy.withArgs(1, 2, 3), "Args were passed to spy");
+      ok(spy.withArgs(1, 2, 3), 'Args were passed to spy');
     });
 
     test('emits events with an event object as the last argument', function() {
@@ -105,7 +105,7 @@ require(['_events', "_dollar"], function(events, $) {
       bus.onAny(spy);
       bus.emit('foo', 1, 2, 3);
 
-      ok(spy.withArgs(1, 2, 3), "Args were passed to spy");
+      ok(spy.withArgs(1, 2, 3), 'Args were passed to spy');
       var event = spy.firstCall.args[4];
       equal(typeof event, 'object');
       equal(event.name, 'foo');

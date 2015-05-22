@@ -1,17 +1,17 @@
 (function(){
 
-    require(["_xdm", "_dollar"], function(XdmRpc, $) {
+    require(['_xdm', '_dollar'], function(XdmRpc, $) {
 
         module('Resizer listener', {
             setup: function() {
-                this.container = $("<div />").attr("id", "qunit-container").appendTo("body");
+                this.container = $('<div />').attr('id', 'qunit-container').appendTo('body');
             },
             teardown: function() {
-                $("#easyXDM_qunit-container_provider").trigger('ra.iframe.destroy');
+                $('#easyXDM_qunit-container_provider').trigger('ra.iframe.destroy');
                 this.container.remove();
             },
             iframeId: function() {
-                return "easyXDM_qunit-container_provider";
+                return 'easyXDM_qunit-container_provider';
             },
             createXdm: function(fixture, props, local, remote){
                 fixture = fixture || 'resize-listener-resize.html';
@@ -29,22 +29,22 @@
             },
             getBaseUrl: function(){
                 if (!window.location.origin) {
-                    window.location.origin = window.location.protocol+"//"+window.location.host;
+                    window.location.origin = window.location.protocol+'//'+window.location.host;
                 }
                 return window.location.origin;
             }
         });
 
         test('iframe is created at the specified width', function () {
-            this.createXdm("blank.html", { width:10, height: 11});
+            this.createXdm('blank.html', { width:10, height: 11});
 
-            equal($("iframe#" + this.iframeId())[0].offsetWidth, 10, "iframe starts at 10px wide");
+            equal($('iframe#' + this.iframeId())[0].offsetWidth, 10, 'iframe starts at 10px wide');
         });
 
         test('iframe is created at the specified height', function () {
-            this.createXdm("blank.html", { width:10, height: 11});
+            this.createXdm('blank.html', { width:10, height: 11});
 
-            equal($("iframe#" + this.iframeId())[0].offsetHeight, 11, "iframe starts at 11px high");
+            equal($('iframe#' + this.iframeId())[0].offsetHeight, 11, 'iframe starts at 11px high');
         });
 
         test('AP.resize crosses the bridge', function () {

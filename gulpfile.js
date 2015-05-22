@@ -76,7 +76,7 @@ function buildCss(options) {
     .pipe(gulp.dest(options.dest));
 
     if(options.minify){
-        g.pipe(concat("connect-host.min.css"))
+        g.pipe(concat('connect-host.min.css'))
         .pipe(minifyCSS())
         .pipe(gulp.dest(options.dest));
     }

@@ -36,7 +36,7 @@ function eventHandler(action, selector, callback) {
     function domEventHandler(event) {
         event.preventDefault();
         var $el = $(event.target).closest(selector),
-        href = $el.attr("href"),
+        href = $el.attr('href'),
         url = new uri.init(href),
         options = {
             bindTo: $el,

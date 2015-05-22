@@ -1,7 +1,7 @@
 module.exports = {
     options: {
         stripBanners: true,
-        banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> */\n\n',
+        banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today('yyyy-mm-dd') %> */\n\n',
         nonull: true
     },
     hostcss: {

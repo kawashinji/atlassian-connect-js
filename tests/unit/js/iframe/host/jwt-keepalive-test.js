@@ -14,7 +14,7 @@
                 // mock promise that resolves instantly.
                 var promise = jQuery.Deferred(function(defer){
                     defer.resolve('{"src":"http://www.google.co.uk"}');
-                }).promise(); 
+                }).promise();
 
                 window._AP.contentResolver = {
                     resolveByParameters: sinon.stub().returns(promise)
@@ -40,18 +40,18 @@
         test('updateUrl calls the content resolver', function () {
             window._AP.contentResolver.resolveByParameters.reset();
             jwtKeepAlive.updateUrl(this.mockConfig);
-            ok(window._AP.contentResolver.resolveByParameters.calledOnce, "calls the content resolver");
+            ok(window._AP.contentResolver.resolveByParameters.calledOnce, 'calls the content resolver');
         });
 
         test('updateUrl returns a promise', function (){
             var prom = jwtKeepAlive.updateUrl(this.mockConfig);
-            ok(prom.done, "updateUrl returns a promise");
+            ok(prom.done, 'updateUrl returns a promise');
         });
 
         test('updateUrl promise resolves to the url', function (){
             var prom = jwtKeepAlive.updateUrl(this.mockConfig);
             prom.done(function (src){
-                equal(src, "http://www.google.co.uk", "url is returned in the promise");
+                equal(src, 'http://www.google.co.uk', 'url is returned in the promise');
             });
         });
 

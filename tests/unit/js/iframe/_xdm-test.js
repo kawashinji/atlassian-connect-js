@@ -2,13 +2,13 @@
     require(['_xdm', '_dollar'], function(XdmRpc, $) {
         module('XDM host', {
             setup: function() {
-                this.container = $("<div />").attr("id", "qunit-container-xdm-host").appendTo("body");
+                this.container = $('<div />').attr('id', 'qunit-container-xdm-host').appendTo('body');
             },
             teardown: function() {
                 this.container.remove();
             },
             iframeId: function() {
-                return "easyXDM_qunit-container-xdm-host_provider";
+                return 'easyXDM_qunit-container-xdm-host_provider';
             },
             createXdm: function(fixture, local){
 				local = local ? local : {};
@@ -26,7 +26,7 @@
             },
             getBaseUrl: function(){
                 if (!window.location.origin) {
-                    window.location.origin = window.location.protocol+"//"+window.location.host;
+                    window.location.origin = window.location.protocol+'//'+window.location.host;
                 }
                 return window.location.origin;
             }
@@ -55,24 +55,24 @@
                 remote: {}
             });
 
-            equal(xdm.remoteOrigin, "http://www.example.com");
+            equal(xdm.remoteOrigin, 'http://www.example.com');
         });
 
         test('creates an iframe', function () {
             this.createXdm('blank.html');
-            equal($("iframe#" + this.iframeId()).length, 1, "Iframe was created");
+            equal($('iframe#' + this.iframeId()).length, 1, 'Iframe was created');
         });
 
         test('destroys an iframe', function () {
             var xdm = this.createXdm('blank.html');
             xdm.destroy();
-            equal($("iframe#" + this.iframeId()).length, 0, "Iframe was destroyed");
+            equal($('iframe#' + this.iframeId()).length, 0, 'Iframe was destroyed');
         });
 
         test('messages are sent and received', function () {
             stop();
             var xdm = this.createXdm('xdm-emit-on.html');
-            $("iframe#" + this.iframeId()).load(function(){
+            $('iframe#' + this.iframeId()).load(function(){
                 xdm.events.on('clientevent', function(e){
                     equal(e, '9876');
                     xdm.destroy();
@@ -94,11 +94,11 @@
 			equal(AJS.error.callCount, 0);
 		
 			var testTimeout = setTimeout(function() {
-				ok(false, "Error was not called"); 
+				ok(false, 'Error was not called'); 
 				start();
 			}, 5000);
 	
-			$(window).on("message", function(e){
+			$(window).on('message', function(e){
 				var event = JSON.parse(e.originalEvent.data);
 				if(event.m.n === 'getLocation'){
 					ok(AJS.error.calledOnce);
