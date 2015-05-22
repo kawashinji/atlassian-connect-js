@@ -6,10 +6,11 @@
         
         $("body").on('click', '.ap-aui-dialog2', function(e){
             if(thisXdm){
-                var button = dialogMain.getButton(e.target.innerText.toLowerCase());
+                var buttonText = e.target.textContent.toLowerCase();
+                var button = dialogMain.getButton(buttonText);
                 if(button && button.isEnabled()){
                     if(thisXdm.isActive() && thisXdm.buttonListenerBound){
-                        thisXdm.dialogMessage(button.name, button.dispatch);
+                        thisXdm.dialogMessage(buttonText, button.dispatch);
                     }
                     else {
                         button.dispatch(true);
