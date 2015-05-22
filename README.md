@@ -22,7 +22,7 @@ Building
 
 To build the distribution:
 
-    grunt build
+    gulp
 
 Running tests
 -------------
@@ -40,13 +40,9 @@ To run tests over the built distribution instead of the source files:
 Linting && Coding Style Checks
 ------------------------------
 
-Atlassian Connect uses its own subset of the [JSHint](http://jshint.com) and [JSCS](https://github.com/mdevils/node-jscs) rules. To run both of these:
+Linting has not been re-introduced since the move from grunt to gulp. [An issue](https://ecosystem.atlassian.net/browse/ACJS-35) has been raised to track bringing it back.
 
-    grunt lint
-
-To lint individual files as they are modified run:
-
-    grunt watch:lint
+In the meanwhile, you can still point IntelliJ / Sublime / your editor of choice at the .jshintrc for linting as you edit.
 
 Commands
 --------
