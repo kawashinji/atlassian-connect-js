@@ -6,11 +6,17 @@
         
         $("body").on('click', '.ap-aui-dialog2', function(e){
             if(thisXdm){
-                var buttonText = e.target.textContent.toLowerCase();
-                var button = dialogMain.getButton(buttonText);
+                var buttonName;
+                if(e.target.classList.contains("ap-dialog-submit")){
+                    buttonName = "submit";
+                }
+                else if(e.target.classList.contains("ap-dialog-cancel")){
+                    buttonName = "cancel";
+                }
+                var button = dialogMain.getButton(buttonName);
                 if(button && button.isEnabled()){
                     if(thisXdm.isActive() && thisXdm.buttonListenerBound){
-                        thisXdm.dialogMessage(buttonText, button.dispatch);
+                        thisXdm.dialogMessage(buttonName, button.dispatch);
                     }
                     else {
                         button.dispatch(true);
