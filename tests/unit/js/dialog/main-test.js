@@ -30,7 +30,7 @@ require(['ac/dialog'], function(simpleDialog) {
 
     test("dialog options.id sets the dialog id", function() {
         var dialogId = "abc123";
-        var dialog = simpleDialog.create({
+        simpleDialog.create({
             id: dialogId
         });
 
@@ -99,6 +99,20 @@ require(['ac/dialog'], function(simpleDialog) {
         simpleDialog.close();
 
         ok(this.dialogSpy.hide.calledOnce, "Dialog close was called");
+    });
+
+    test("Focuses on iframe creation", function() {
+        simpleDialog.create({
+            id: "my-dialog",
+            chrome: true
+        });
+        var dialogElement = AJS.dialog2.args[0][0];
+
+        var iframe = document.createElement('iframe');
+        iframe.focus = sinon.spy();
+        dialogElement.append(iframe);
+        $(iframe).trigger('ra.iframe.create');
+        ok(iframe.focus.calledOnce, 'iframe was focused');
     });
 
     test("chromeless opens a chromeless dialog", function(){

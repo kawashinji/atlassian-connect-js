@@ -1439,6 +1439,7 @@ function XdmRpc($, config, bindings) {
     //$.extend will not add the attribute rel.
     iframe.setAttribute('rel', 'nofollow');
     $(document.getElementById(config.container)).append(iframe);
+    $(iframe).trigger('ra.iframe.create');
     iframe.src = config.remote;
     return iframe;
   }
@@ -1678,6 +1679,22 @@ var _commonUri = _dereq_('../common/uri');
 
 var _commonUri2 = _interopRequireDefault(_commonUri);
 
+/**
+ * The Dialog module provides a mechanism for launching an add-on's modules as modal dialogs from within an add-on's iframe.
+ * A modal dialog displays information without requiring the user to leave the current page.
+ * The dialog is opened over the entire window, rather than within the iframe itself.
+ * ###Styling your dialog to look like a standard Atlassian dialog
+ * By default the dialog iframe is undecorated. It's up to the developer to style the dialog.
+ * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
+ *
+ * In order to maintain a consistent look and feel between the host application and the add-on,
+ * we encourage add-on developers to style their dialogs to match Atlassian's Design Guidelines for modal dialogs.
+ * To do that, you'll need to add the AUI styles to your dialog.
+ *
+ * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog.html).
+ * @exports Dialog
+ */
+
 var uiParams = _commonUiParams2['default'].fromUrl(window.location.toString()),
     isDialog = Boolean(uiParams.dlg) || Boolean(uiParams.isDialog),
     _exports,
@@ -1693,22 +1710,6 @@ _rpc2['default'].extend(function (remote) {
   // dialog-related sub-api for use when the remote plugin is running as the content of a host dialog
 
   var listeners = {};
-
-  /**
-   * The Dialog module provides a mechanism for launching an add-on's modules as modal dialogs from within an add-on's iframe.
-   * A modal dialog displays information without requiring the user to leave the current page.
-   * The dialog is opened over the entire window, rather than within the iframe itself.
-   * ###Styling your dialog to look like a standard Atlassian dialog
-   * By default the dialog iframe is undecorated. It's up to the developer to style the dialog.
-   * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
-   *
-   * In order to maintain a consistent look and feel between the host application and the add-on,
-   * we encourage add-on developers to style their dialogs to match Atlassian's Design Guidelines for modal dialogs.
-   * To do that, you'll need to add the AUI styles to your dialog.
-   *
-   * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog.html).
-   * @exports Dialog
-   */
 
   _exports = {
     /**
@@ -1927,7 +1928,15 @@ _rpc2['default'].extend(function (remote) {
 
     },
 
-    stubs: ['dialogListenerBound', 'setDialogButtonEnabled', 'isDialogButtonEnabled', 'createDialog', 'closeDialog']
+    stubs: ['dialogListenerBound', 'setDialogButtonEnabled', 'isDialogButtonEnabled', 'createDialog', 'closeDialog'],
+
+    init: function init() {
+      window.addEventListener('keydown', function (event) {
+        if (event.keyCode === 27) {
+          _exports.close();
+        }
+      });
+    }
 
   };
 });
@@ -2316,18 +2325,17 @@ var _rpc = _dereq_('./rpc');
 
 var _rpc2 = _interopRequireDefault(_rpc);
 
+/**
+ * The inline dialog is a wrapper for secondary content/controls to be displayed on user request. Consider this component as displayed in context to the triggering control with the dialog overlaying the page content.
+ * A inline dialog should be preferred over a modal dialog when a connection between the action has a clear benefit versus having a lower user focus.
+ *
+ * For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inlineDialog.html).
+ * @exports inline-dialog
+ */
+
 var _exports;
 
 _rpc2['default'].extend(function (remote) {
-
-    /**
-     * The inline dialog is a wrapper for secondary content/controls to be displayed on user request. Consider this component as displayed in context to the triggering control with the dialog overlaying the page content.
-     * A inline dialog should be preferred over a modal dialog when a connection between the action has a clear benefit versus having a lower user focus.
-     *
-     * For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inlineDialog.html).
-     * @exports inline-dialog
-     */
-
     _exports = {
         /**
         * Hide the inline dialog that contains your connect add-on.

@@ -396,6 +396,7 @@ import util from '../host/util';
       //$.extend will not add the attribute rel.
       iframe.setAttribute('rel', 'nofollow');
       $(document.getElementById(config.container)).append(iframe);
+      $(iframe).trigger("ra.iframe.create");
       iframe.src = config.remote;
       return iframe;
     }

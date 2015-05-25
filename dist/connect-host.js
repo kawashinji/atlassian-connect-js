@@ -1459,6 +1459,7 @@ function XdmRpc($, config, bindings) {
     //$.extend will not add the attribute rel.
     iframe.setAttribute('rel', 'nofollow');
     $(document.getElementById(config.container)).append(iframe);
+    $(iframe).trigger('ra.iframe.create');
     iframe.src = config.remote;
     return iframe;
   }
@@ -2076,6 +2077,12 @@ exports['default'] = {
             (0, _create3['default'])(mergedOptions);
         }
 
+        // give the dialog iframe focus so it can capture keypress events, etc.
+        // the 'iframe' selector needs to be specified, otherwise Firefox won't focus the iframe
+        dialogElement.on('ra.iframe.create', 'iframe', function () {
+            this.focus();
+        });
+
         dialog.show();
     },
 
@@ -2282,10 +2289,10 @@ exports['default'] = function (options, dialogOptions, productContext) {
         container.replaceWith(dialogHtml);
     }).fail(function (xhr, status, ex) {
         var title = (0, _dollar2['default'])('<p class="title" />').text('Unable to load add-on content. Please try again later.');
-        container.html('<div class="aui-message error ap-aui-message"></div>');
-        container.find('.error').append(title);
         var msg = status + (ex ? ': ' + ex.toString() : '');
+        container.html('<div class="aui-message error ap-aui-message"></div>');
         container.find('.error').text(msg);
+        container.find('.error').prepend(title);
         AJS.log(msg);
     });
 
