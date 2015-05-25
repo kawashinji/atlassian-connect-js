@@ -258,7 +258,15 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
         "isDialogButtonEnabled",
         "createDialog",
         "closeDialog"
-      ]
+      ],
+
+      init: function() {
+          window.addEventListener('keydown', function(event) {
+                if (event.keyCode === 27) {
+                    exports.close();
+                }
+          });
+      }
 
     };
 

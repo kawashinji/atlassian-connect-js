@@ -10,7 +10,8 @@
             iframeId: function() {
                 return "easyXDM_qunit-container-xdm-host_provider";
             },
-            createXdm: function(fixture){
+            createXdm: function(fixture, local){
+				local = local ? local : {};
                 var f = fixture || 'xdm-emit.html';
                 return new XdmRpc($, {
                     remoteKey: 'myremotekey',
@@ -19,7 +20,7 @@
                     channel: 'testchannel',
                     props: {}
                 }, {
-                    local: [],
+                    local: local,
                     remote: {}
                 });
             },
@@ -80,6 +81,33 @@
                 xdm.events.emit('hostevent', '9876');
             });
         });
+		
+		test('check error message on fail', function(){
+			stop();
+			AJS.error = sinon.spy();
+		
+	        var someXdm = this.createXdm('xdm-error.html', {
+	        	'getLocation': function(){
+		           	throw new Exception('an exception!');
+		    }});
+		
+			equal(AJS.error.callCount, 0);
+		
+			var testTimeout = setTimeout(function() {
+				ok(false, "Error was not called"); 
+				start();
+			}, 5000);
+	
+			$(window).on("message", function(e){
+				var event = JSON.parse(e.originalEvent.data);
+				if(event.m.n === 'getLocation'){
+					ok(AJS.error.calledOnce);
+					start();
+					clearTimeout(testTimeout);
+				}
+			});
+			
+		});
 
     });
 

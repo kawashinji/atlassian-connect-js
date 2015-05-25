@@ -54,7 +54,20 @@
 
             $el.find('.aui-dialog2-content').append($nexus);
             $nexus.data('ra.dialog.buttons', buttons);
-            
+
+            function handler(button) {
+                // ignore clicks on disabled links
+                if(button.isEnabled()){
+                    button.$el.trigger("ra.dialog.click", button.dispatch);
+                }
+            }
+
+            $.each(buttons, function(i, button) {
+                button.$el.click(function(){
+                    handler(button);
+                });
+            });
+
             return $el;
         }
 
@@ -154,6 +167,12 @@
                 if(options.src){
                     _AP.create(mergedOptions);
                 }
+
+                // give the dialog iframe focus so it can capture keypress events, etc.
+                // the 'iframe' selector needs to be specified, otherwise Firefox won't focus the iframe
+                dialogElement.on('ra.iframe.create', 'iframe', function () {
+                    this.focus();
+                });
 
                 dialog.show();
 

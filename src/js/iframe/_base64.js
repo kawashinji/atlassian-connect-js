@@ -212,10 +212,10 @@
 
                 this.current = chr1;
 
-                if (enc3 != 64)
+                if (enc3 != 64 && chr2 != 0)
                     this._buffer.push(chr2);
 
-                if (enc4 != 64)
+                if (enc4 != 64 && chr3 != 0)
                     this._buffer.push(chr3);
 
                 return true;
@@ -224,11 +224,11 @@
     };
 
     function encode(plainText) {
-        return window.btoa ? window.btoa(plainText) : Base64.encode(plainText);
+        return Base64.encode(plainText);
     }
 
     function decode(encodedText) {
-        return window.atob ? window.atob(encodedText) : Base64.decode(encodedText);
+        return Base64.decode(encodedText);
     }
 
     return {
