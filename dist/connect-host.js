@@ -2671,7 +2671,7 @@ _dollar2['default'](function (jq) {
         if (thisXdm) {
             var buttonName;
             if (e.target.classList.contains('ap-dialog-submit')) {
-                buttonName = '"submit';
+                buttonName = 'submit';
             } else if (e.target.classList.contains('ap-dialog-cancel')) {
                 buttonName = 'cancel';
             }
