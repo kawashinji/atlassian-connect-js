@@ -52,3 +52,10 @@ QUnit.test('isExpired returns true on expired jwt token', function (assert){
     assert.ok(isExp, "token is expired");
 
 });
+
+QUnit.test('Decode jwt with UTF-8 chars', function (assert) {
+    var jwtToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkaGFkZW4rY2hlY2syIiwicXNoIjoiYzY0NzliN2RmN2I2ZGZkYzUwYzRmMmM1ZjFkN2I1YzA1ZTVhYmYyNGUzZGJkMjM5NWRkMTlmZTQwN2NhNDNhYiIsImlzcyI6ImppcmE6Njk2Y2E3MzAtMGM4ZC00MjUxLWExNGYtNjg4OTA5NjY2YTdkIiwiY29udGV4dCI6eyJ1c2VyIjp7InVzZXJLZXkiOiJkaGFkZW4rY2hlY2syIiwidXNlcm5hbWUiOiJkaGFkZW4rY2hlY2syIiwiZGlzcGxheU5hbWUiOiLRjNC10LLQodC10YDQs9C10LnQodC40YDQuNC6LdCT0YDRg9GI0LXQstCw0b/QnNCw0YDQuNC90LDQkNGE0LDQvdCw0YEifX0sImV4cCI6MTQzMjUyNTcwNSwiaWF0IjoxNDMyNTI1NTI1fQ.NCkerlbhsHl5uT32SyKIRa23PdEj88aKfwEBoR6bGM8';
+    claims = jwt.parseJwtClaims(jwtToken);
+    assert.equal(claims.context.user.displayName, "ьевСергейСирик-ГрушеваѿМаринаАфанас");
+});
+

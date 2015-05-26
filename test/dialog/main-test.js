@@ -101,6 +101,21 @@ QUnit.test("Dialog close", function(assert){
     assert.ok(this.dialogSpy.hide.calledOnce, "Dialog close was called");
 });
 
+QUnit.test("Focuses on iframe creation", function(assert) {
+    simpleDialog.create({
+        id: "my-dialog",
+        chrome: true
+    });
+    var dialogElement = AJS.dialog2.args[0][0];
+
+    var iframe = document.createElement('iframe');
+    iframe.focus = sinon.spy();
+    dialogElement.append(iframe);
+    $(iframe).trigger('ra.iframe.create');
+    assert.ok(iframe.focus.calledOnce, 'iframe was focused');
+});
+
+
 QUnit.test("chromeless opens a chromeless dialog", function(assert){
     simpleDialog.create({
         id: "my-dialog",
