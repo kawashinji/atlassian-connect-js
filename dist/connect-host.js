@@ -104,70 +104,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/ui-params":8,"../common/uri":9,"./addons":11,"./content":13,"./create":14,"./dialog/api":15,"./dialog/binder":16,"./dialog/rpc":19,"./env":21,"./inline-dialog/binder":22,"./inline-dialog/rpc":23,"./loading-indicator":26,"./messages/rpc":28,"./resize":29,"./rpc":30,"./status-helper":31}],2:[function(_dereq_,module,exports){
-;(function () {
-
-  var object = typeof exports != 'undefined' ? exports : this; // #8: web workers
-  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-  function InvalidCharacterError(message) {
-    this.message = message;
-  }
-  InvalidCharacterError.prototype = new Error;
-  InvalidCharacterError.prototype.name = 'InvalidCharacterError';
-
-  // encoder
-  // [https://gist.github.com/999166] by [https://github.com/nignag]
-  object.btoa || (
-  object.btoa = function (input) {
-    var str = String(input);
-    for (
-      // initialize result and counter
-      var block, charCode, idx = 0, map = chars, output = '';
-      // if the next str index does not exist:
-      //   change the mapping table to "="
-      //   check if d has no fractional digits
-      str.charAt(idx | 0) || (map = '=', idx % 1);
-      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
-    ) {
-      charCode = str.charCodeAt(idx += 3/4);
-      if (charCode > 0xFF) {
-        throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
-      }
-      block = block << 8 | charCode;
-    }
-    return output;
-  });
-
-  // decoder
-  // [https://gist.github.com/1020396] by [https://github.com/atk]
-  object.atob || (
-  object.atob = function (input) {
-    var str = String(input).replace(/=+$/, '');
-    if (str.length % 4 == 1) {
-      throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
-    }
-    for (
-      // initialize result and counters
-      var bc = 0, bs, buffer, idx = 0, output = '';
-      // get next character
-      buffer = str.charAt(idx++);
-      // character found in table? initialize bit storage and add its ascii value;
-      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
-        // and if not first of each 4 characters,
-        // convert the first 8 bits to one ascii character
-        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
-    ) {
-      // try to find character in table (0-63, not found => -1)
-      buffer = chars.indexOf(buffer);
-    }
-    return output;
-  });
-
-}());
-
-},{}],3:[function(_dereq_,module,exports){
+},{"../common/ui-params":7,"../common/uri":8,"./addons":10,"./content":12,"./create":13,"./dialog/api":14,"./dialog/binder":15,"./dialog/rpc":18,"./env":20,"./inline-dialog/binder":21,"./inline-dialog/rpc":22,"./loading-indicator":25,"./messages/rpc":27,"./resize":28,"./rpc":29,"./status-helper":30}],2:[function(_dereq_,module,exports){
 /*!
  * jsUri
  * https://github.com/derek-watson/jsUri
@@ -629,26 +566,206 @@ module.exports = exports['default'];
   }
 }(this));
 
-},{}],4:[function(_dereq_,module,exports){
-'use strict';
+},{}],3:[function(_dereq_,module,exports){
+/*
+ Copyright (c) 2008 Fred Palmer fred.palmer_at_gmail.com
 
-Object.defineProperty(exports, '__esModule', {
+ Permission is hereby granted, free of charge, to any person
+ obtaining a copy of this software and associated documentation
+ files (the "Software"), to deal in the Software without
+ restriction, including without limitation the rights to use,
+ copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the
+ Software is furnished to do so, subject to the following
+ conditions:
+
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ OTHER DEALINGS IN THE SOFTWARE.
+
+ Modified slightly to make use of our es6-style exports, and to handle non-latin characters.
+ */
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
+function StringBuffer() {
+    this.buffer = [];
+}
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _Base64 = _dereq_('Base64');
-
-var _Base642 = _interopRequireDefault(_Base64);
-
-exports['default'] = {
-    encode: _Base642['default'].btoa,
-    decode: _Base642['default'].atob
+StringBuffer.prototype.append = function append(string) {
+    this.buffer.push(string);
+    return this;
 };
-module.exports = exports['default'];
 
-},{"Base64":2}],5:[function(_dereq_,module,exports){
+StringBuffer.prototype.toString = function toString() {
+    return this.buffer.join("");
+};
+
+var Base64 = {
+    codex: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+
+    encode: function encode(input) {
+        var output = new StringBuffer();
+
+        var enumerator = new Utf8EncodeEnumerator(input);
+        while (enumerator.moveNext()) {
+            var chr1 = enumerator.current;
+
+            enumerator.moveNext();
+            var chr2 = enumerator.current;
+
+            enumerator.moveNext();
+            var chr3 = enumerator.current;
+
+            var enc1 = chr1 >> 2;
+            var enc2 = (chr1 & 3) << 4 | chr2 >> 4;
+            var enc3 = (chr2 & 15) << 2 | chr3 >> 6;
+            var enc4 = chr3 & 63;
+
+            if (isNaN(chr2)) {
+                enc3 = enc4 = 64;
+            } else if (isNaN(chr3)) {
+                enc4 = 64;
+            }
+
+            output.append(this.codex.charAt(enc1) + this.codex.charAt(enc2) + this.codex.charAt(enc3) + this.codex.charAt(enc4));
+        }
+
+        return output.toString();
+    },
+
+    decode: function decode(input) {
+        var output = new StringBuffer();
+
+        var enumerator = new Base64DecodeEnumerator(input);
+        while (enumerator.moveNext()) {
+            var charCode = enumerator.current;
+
+            if (charCode < 128) output.append(String.fromCharCode(charCode));else if (charCode > 191 && charCode < 224) {
+                enumerator.moveNext();
+                var charCode2 = enumerator.current;
+
+                output.append(String.fromCharCode((charCode & 31) << 6 | charCode2 & 63));
+            } else {
+                enumerator.moveNext();
+                var charCode2 = enumerator.current;
+
+                enumerator.moveNext();
+                var charCode3 = enumerator.current;
+
+                output.append(String.fromCharCode((charCode & 15) << 12 | (charCode2 & 63) << 6 | charCode3 & 63));
+            }
+        }
+
+        return output.toString();
+    }
+};
+
+function Utf8EncodeEnumerator(input) {
+    this._input = input;
+    this._index = -1;
+    this._buffer = [];
+}
+
+Utf8EncodeEnumerator.prototype = {
+    current: Number.NaN,
+
+    moveNext: function moveNext() {
+        if (this._buffer.length > 0) {
+            this.current = this._buffer.shift();
+            return true;
+        } else if (this._index >= this._input.length - 1) {
+            this.current = Number.NaN;
+            return false;
+        } else {
+            var charCode = this._input.charCodeAt(++this._index);
+
+            // "\r\n" -> "\n"
+            //
+            if (charCode == 13 && this._input.charCodeAt(this._index + 1) == 10) {
+                charCode = 10;
+                this._index += 2;
+            }
+
+            if (charCode < 128) {
+                this.current = charCode;
+            } else if (charCode > 127 && charCode < 2048) {
+                this.current = charCode >> 6 | 192;
+                this._buffer.push(charCode & 63 | 128);
+            } else {
+                this.current = charCode >> 12 | 224;
+                this._buffer.push(charCode >> 6 & 63 | 128);
+                this._buffer.push(charCode & 63 | 128);
+            }
+
+            return true;
+        }
+    }
+};
+
+function Base64DecodeEnumerator(input) {
+    this._input = input;
+    this._index = -1;
+    this._buffer = [];
+}
+
+Base64DecodeEnumerator.prototype = {
+    current: 64,
+
+    moveNext: function moveNext() {
+        if (this._buffer.length > 0) {
+            this.current = this._buffer.shift();
+            return true;
+        } else if (this._index >= this._input.length - 1) {
+            this.current = 64;
+            return false;
+        } else {
+            var enc1 = Base64.codex.indexOf(this._input.charAt(++this._index));
+            var enc2 = Base64.codex.indexOf(this._input.charAt(++this._index));
+            var enc3 = Base64.codex.indexOf(this._input.charAt(++this._index));
+            var enc4 = Base64.codex.indexOf(this._input.charAt(++this._index));
+
+            var chr1 = enc1 << 2 | enc2 >> 4;
+            var chr2 = (enc2 & 15) << 4 | enc3 >> 2;
+            var chr3 = (enc3 & 3) << 6 | enc4;
+
+            this.current = chr1;
+
+            if (enc3 != 64 && chr2 != 0) this._buffer.push(chr2);
+
+            if (enc4 != 64 && chr3 != 0) this._buffer.push(chr3);
+
+            return true;
+        }
+    }
+};
+
+function encode(plainText) {
+    return Base64.encode(plainText);
+}
+
+function decode(encodedText) {
+    return Base64.decode(encodedText);
+}
+
+exports["default"] = {
+    encode: encode,
+    decode: decode
+};
+module.exports = exports["default"];
+
+},{}],4:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -662,7 +779,7 @@ var $;
 exports['default'] = $;
 
 module.exports = exports['default'];
-},{"../host/dollar":20}],6:[function(_dereq_,module,exports){
+},{"../host/dollar":19}],5:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -866,7 +983,7 @@ function fire(listeners, args) {
 exports['default'] = { Events: Events };
 module.exports = exports['default'];
 
-},{"./dollar":5}],7:[function(_dereq_,module,exports){
+},{"./dollar":4}],6:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -932,7 +1049,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./base64":4}],8:[function(_dereq_,module,exports){
+},{"./base64":3}],7:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1003,7 +1120,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./base64":4,"./uri":9}],9:[function(_dereq_,module,exports){
+},{"./base64":3,"./uri":8}],8:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1019,7 +1136,7 @@ var _jsuri2 = _interopRequireDefault(_jsuri);
 exports['default'] = { init: _jsuri2['default'] };
 module.exports = exports['default'];
 
-},{"jsuri":3}],10:[function(_dereq_,module,exports){
+},{"jsuri":2}],9:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1494,7 +1611,7 @@ function XdmRpc($, config, bindings) {
 exports['default'] = XdmRpc;
 module.exports = exports['default'];
 
-},{"../host/util":32,"./events":6,"./jwt":7,"./ui-params":8,"./uri":9}],11:[function(_dereq_,module,exports){
+},{"../host/util":31,"./events":5,"./jwt":6,"./ui-params":7,"./uri":8}],10:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1564,7 +1681,7 @@ exports['default'] = function () {
 
 module.exports = exports['default'];
 
-},{"./dollar":20,"./rpc":30}],12:[function(_dereq_,module,exports){
+},{"./dollar":19,"./rpc":29}],11:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1678,7 +1795,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{"./dollar":20}],13:[function(_dereq_,module,exports){
+},{"./dollar":19}],12:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1755,7 +1872,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/uri":9,"./dollar":20}],14:[function(_dereq_,module,exports){
+},{"../common/uri":8,"./dollar":19}],13:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1889,7 +2006,7 @@ exports['default'] = function (options) {
 ;
 module.exports = exports['default'];
 
-},{"../common/ui-params":8,"./analytics":12,"./dollar":20,"./rpc":30,"./util":32}],15:[function(_dereq_,module,exports){
+},{"../common/ui-params":7,"./analytics":11,"./dollar":19,"./rpc":29,"./util":31}],14:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1966,19 +2083,6 @@ function createDialogElement(options, $nexus, chromeless) {
 
     $el.find('.aui-dialog2-content').append($nexus);
     $nexus.data('ra.dialog.buttons', buttons);
-
-    function handler(button) {
-        // ignore clicks on disabled links
-        if (button.isEnabled()) {
-            button.$el.trigger('ra.dialog.click', button.dispatch);
-        }
-    }
-
-    _dollar2['default'].each(buttons, function (i, button) {
-        button.$el.click(function () {
-            handler(button);
-        });
-    });
 
     return $el;
 }
@@ -2090,7 +2194,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../create":14,"../dollar":20,"../status-helper":31,"./button":17}],16:[function(_dereq_,module,exports){
+},{"../create":13,"../dollar":19,"../status-helper":30,"./button":16}],15:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2155,7 +2259,7 @@ exports['default'] = function () {
 
 module.exports = exports['default'];
 
-},{"../content":13,"../dollar":20,"./api":15,"./factory":18}],17:[function(_dereq_,module,exports){
+},{"../content":12,"../dollar":19,"./api":14,"./factory":17}],16:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2185,14 +2289,6 @@ function Button(options) {
     };
 
     this.setEnabled(true);
-
-    this.click = function (listener) {
-        if (listener) {
-            this.$el.bind('ra.dialog.click', listener);
-        } else {
-            this.dispatch(true);
-        }
-    };
 
     this.dispatch = function (result) {
         var name = result ? 'done' : 'fail';
@@ -2228,7 +2324,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":20}],18:[function(_dereq_,module,exports){
+},{"../dollar":19}],17:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2301,7 +2397,7 @@ exports['default'] = function (options, dialogOptions, productContext) {
 
 module.exports = exports['default'];
 
-},{"../dollar":20,"./api":15}],19:[function(_dereq_,module,exports){
+},{"../dollar":19,"./api":14}],18:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2322,6 +2418,27 @@ var _dollar = _dereq_('../dollar');
 
 var _dollar2 = _interopRequireDefault(_dollar);
 
+var thisXdm;
+
+(0, _dollar2['default'])('body').on('click', '.ap-aui-dialog2', function (e) {
+    if (thisXdm) {
+        var buttonName;
+        if (e.target.classList.contains('ap-dialog-submit')) {
+            buttonName = '"submit';
+        } else if (e.target.classList.contains('ap-dialog-cancel')) {
+            buttonName = 'cancel';
+        }
+        var button = dialogMain.getButton(buttonName);
+        if (button && button.isEnabled()) {
+            if (thisXdm.isActive() && thisXdm.buttonListenerBound) {
+                thisXdm.dialogMessage(buttonName, button.dispatch);
+            } else {
+                button.dispatch(true);
+            }
+        }
+    }
+});
+
 exports['default'] = function () {
     return {
         stubs: ['dialogMessage'],
@@ -2331,21 +2448,7 @@ exports['default'] = function () {
             if (state.dlg === '1') {
                 xdm.uiParams.isDialog = true;
             }
-
-            if (xdm.uiParams.isDialog) {
-                var buttons = _api2['default'].getButton();
-                if (buttons) {
-                    _dollar2['default'].each(buttons, function (name, button) {
-                        button.click(function (e, callback) {
-                            if (xdm.isActive() && xdm.buttonListenerBound) {
-                                xdm.dialogMessage(name, callback);
-                            } else {
-                                callback(true);
-                            }
-                        });
-                    });
-                }
-            }
+            thisXdm = xdm;
         },
 
         internals: {
@@ -2390,7 +2493,7 @@ exports['default'] = function () {
 
 module.exports = exports['default'];
 
-},{"../dollar":20,"./api":15,"./factory":18}],20:[function(_dereq_,module,exports){
+},{"../dollar":19,"./api":14,"./factory":17}],19:[function(_dereq_,module,exports){
 /**
  * The iframe-side code exposes a jquery-like implementation via _dollar.
  * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
@@ -2404,7 +2507,7 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = AJS.$;
 module.exports = exports["default"];
 
-},{}],21:[function(_dereq_,module,exports){
+},{}],20:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2423,7 +2526,7 @@ exports["default"] = function () {
 
 module.exports = exports["default"];
 
-},{}],22:[function(_dereq_,module,exports){
+},{}],21:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2467,7 +2570,7 @@ exports['default'] = function () {
 
 module.exports = exports['default'];
 
-},{"../content":13,"../dollar":20,"./simple":24}],23:[function(_dereq_,module,exports){
+},{"../content":12,"../dollar":19,"./simple":23}],22:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2523,7 +2626,7 @@ exports['default'] = function () {
 
 module.exports = exports['default'];
 
-},{"../dollar":20}],24:[function(_dereq_,module,exports){
+},{"../dollar":19}],23:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2618,7 +2721,7 @@ exports['default'] = function (contentUrl, options) {
 
 module.exports = exports['default'];
 
-},{"../content":13,"../dollar":20}],25:[function(_dereq_,module,exports){
+},{"../content":12,"../dollar":19}],24:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2662,7 +2765,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/jwt":7,"./dollar":20}],26:[function(_dereq_,module,exports){
+},{"../common/jwt":6,"./dollar":19}],25:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2724,7 +2827,7 @@ exports['default'] = function () {
 
 module.exports = exports['default'];
 
-},{"./dollar":20,"./rpc":30,"./status-helper":31}],27:[function(_dereq_,module,exports){
+},{"./dollar":19,"./rpc":29,"./status-helper":30}],26:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2798,7 +2901,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":20}],28:[function(_dereq_,module,exports){
+},{"../dollar":19}],27:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2827,7 +2930,7 @@ exports['default'] = function () {
 
 module.exports = exports['default'];
 
-},{"./api":27}],29:[function(_dereq_,module,exports){
+},{"./api":26}],28:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2895,7 +2998,7 @@ exports['default'] = function () {
 
 module.exports = exports['default'];
 
-},{"./dollar":20,"./rpc":30}],30:[function(_dereq_,module,exports){
+},{"./dollar":19,"./rpc":29}],29:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2994,7 +3097,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/uri":9,"../common/xdm-rpc":10,"./dollar":20,"./jwt-keep-alive":25}],31:[function(_dereq_,module,exports){
+},{"../common/uri":8,"../common/xdm-rpc":9,"./dollar":19,"./jwt-keep-alive":24}],30:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3091,7 +3194,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./dollar":20}],32:[function(_dereq_,module,exports){
+},{"./dollar":19}],31:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

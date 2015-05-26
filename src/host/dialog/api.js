@@ -56,19 +56,6 @@ function createDialogElement(options, $nexus, chromeless) {
     $el.find('.aui-dialog2-content').append($nexus);
     $nexus.data('ra.dialog.buttons', buttons);
 
-    function handler(button) {
-        // ignore clicks on disabled links
-        if (button.isEnabled()) {
-            button.$el.trigger('ra.dialog.click', button.dispatch);
-        }
-    }
-
-    $.each(buttons, function (i, button) {
-        button.$el.click(function () {
-            handler(button);
-        });
-    });
-
     return $el;
 }
 

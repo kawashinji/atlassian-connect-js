@@ -84,70 +84,7 @@ window.AP = AP;
 exports['default'] = AP;
 module.exports = exports['default'];
 
-},{"../common/base64":4,"../common/events":6,"../common/jwt":7,"../common/ui-params":8,"../common/uri":9,"../common/xdm-rpc":10,"./amd":12,"./dialog":13,"./dollar":14,"./env":15,"./events":16,"./inline-dialog":17,"./messages":18,"./rpc":20,"./util":21}],2:[function(_dereq_,module,exports){
-;(function () {
-
-  var object = typeof exports != 'undefined' ? exports : this; // #8: web workers
-  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-  function InvalidCharacterError(message) {
-    this.message = message;
-  }
-  InvalidCharacterError.prototype = new Error;
-  InvalidCharacterError.prototype.name = 'InvalidCharacterError';
-
-  // encoder
-  // [https://gist.github.com/999166] by [https://github.com/nignag]
-  object.btoa || (
-  object.btoa = function (input) {
-    var str = String(input);
-    for (
-      // initialize result and counter
-      var block, charCode, idx = 0, map = chars, output = '';
-      // if the next str index does not exist:
-      //   change the mapping table to "="
-      //   check if d has no fractional digits
-      str.charAt(idx | 0) || (map = '=', idx % 1);
-      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
-    ) {
-      charCode = str.charCodeAt(idx += 3/4);
-      if (charCode > 0xFF) {
-        throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
-      }
-      block = block << 8 | charCode;
-    }
-    return output;
-  });
-
-  // decoder
-  // [https://gist.github.com/1020396] by [https://github.com/atk]
-  object.atob || (
-  object.atob = function (input) {
-    var str = String(input).replace(/=+$/, '');
-    if (str.length % 4 == 1) {
-      throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
-    }
-    for (
-      // initialize result and counters
-      var bc = 0, bs, buffer, idx = 0, output = '';
-      // get next character
-      buffer = str.charAt(idx++);
-      // character found in table? initialize bit storage and add its ascii value;
-      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
-        // and if not first of each 4 characters,
-        // convert the first 8 bits to one ascii character
-        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
-    ) {
-      // try to find character in table (0-63, not found => -1)
-      buffer = chars.indexOf(buffer);
-    }
-    return output;
-  });
-
-}());
-
-},{}],3:[function(_dereq_,module,exports){
+},{"../common/base64":3,"../common/events":5,"../common/jwt":6,"../common/ui-params":7,"../common/uri":8,"../common/xdm-rpc":9,"./amd":11,"./dialog":12,"./dollar":13,"./env":14,"./events":15,"./inline-dialog":16,"./messages":17,"./rpc":19,"./util":20}],2:[function(_dereq_,module,exports){
 /*!
  * jsUri
  * https://github.com/derek-watson/jsUri
@@ -609,26 +546,206 @@ module.exports = exports['default'];
   }
 }(this));
 
-},{}],4:[function(_dereq_,module,exports){
-'use strict';
+},{}],3:[function(_dereq_,module,exports){
+/*
+ Copyright (c) 2008 Fred Palmer fred.palmer_at_gmail.com
 
-Object.defineProperty(exports, '__esModule', {
+ Permission is hereby granted, free of charge, to any person
+ obtaining a copy of this software and associated documentation
+ files (the "Software"), to deal in the Software without
+ restriction, including without limitation the rights to use,
+ copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the
+ Software is furnished to do so, subject to the following
+ conditions:
+
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ OTHER DEALINGS IN THE SOFTWARE.
+
+ Modified slightly to make use of our es6-style exports, and to handle non-latin characters.
+ */
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
+function StringBuffer() {
+    this.buffer = [];
+}
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _Base64 = _dereq_('Base64');
-
-var _Base642 = _interopRequireDefault(_Base64);
-
-exports['default'] = {
-    encode: _Base642['default'].btoa,
-    decode: _Base642['default'].atob
+StringBuffer.prototype.append = function append(string) {
+    this.buffer.push(string);
+    return this;
 };
-module.exports = exports['default'];
 
-},{"Base64":2}],5:[function(_dereq_,module,exports){
+StringBuffer.prototype.toString = function toString() {
+    return this.buffer.join("");
+};
+
+var Base64 = {
+    codex: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+
+    encode: function encode(input) {
+        var output = new StringBuffer();
+
+        var enumerator = new Utf8EncodeEnumerator(input);
+        while (enumerator.moveNext()) {
+            var chr1 = enumerator.current;
+
+            enumerator.moveNext();
+            var chr2 = enumerator.current;
+
+            enumerator.moveNext();
+            var chr3 = enumerator.current;
+
+            var enc1 = chr1 >> 2;
+            var enc2 = (chr1 & 3) << 4 | chr2 >> 4;
+            var enc3 = (chr2 & 15) << 2 | chr3 >> 6;
+            var enc4 = chr3 & 63;
+
+            if (isNaN(chr2)) {
+                enc3 = enc4 = 64;
+            } else if (isNaN(chr3)) {
+                enc4 = 64;
+            }
+
+            output.append(this.codex.charAt(enc1) + this.codex.charAt(enc2) + this.codex.charAt(enc3) + this.codex.charAt(enc4));
+        }
+
+        return output.toString();
+    },
+
+    decode: function decode(input) {
+        var output = new StringBuffer();
+
+        var enumerator = new Base64DecodeEnumerator(input);
+        while (enumerator.moveNext()) {
+            var charCode = enumerator.current;
+
+            if (charCode < 128) output.append(String.fromCharCode(charCode));else if (charCode > 191 && charCode < 224) {
+                enumerator.moveNext();
+                var charCode2 = enumerator.current;
+
+                output.append(String.fromCharCode((charCode & 31) << 6 | charCode2 & 63));
+            } else {
+                enumerator.moveNext();
+                var charCode2 = enumerator.current;
+
+                enumerator.moveNext();
+                var charCode3 = enumerator.current;
+
+                output.append(String.fromCharCode((charCode & 15) << 12 | (charCode2 & 63) << 6 | charCode3 & 63));
+            }
+        }
+
+        return output.toString();
+    }
+};
+
+function Utf8EncodeEnumerator(input) {
+    this._input = input;
+    this._index = -1;
+    this._buffer = [];
+}
+
+Utf8EncodeEnumerator.prototype = {
+    current: Number.NaN,
+
+    moveNext: function moveNext() {
+        if (this._buffer.length > 0) {
+            this.current = this._buffer.shift();
+            return true;
+        } else if (this._index >= this._input.length - 1) {
+            this.current = Number.NaN;
+            return false;
+        } else {
+            var charCode = this._input.charCodeAt(++this._index);
+
+            // "\r\n" -> "\n"
+            //
+            if (charCode == 13 && this._input.charCodeAt(this._index + 1) == 10) {
+                charCode = 10;
+                this._index += 2;
+            }
+
+            if (charCode < 128) {
+                this.current = charCode;
+            } else if (charCode > 127 && charCode < 2048) {
+                this.current = charCode >> 6 | 192;
+                this._buffer.push(charCode & 63 | 128);
+            } else {
+                this.current = charCode >> 12 | 224;
+                this._buffer.push(charCode >> 6 & 63 | 128);
+                this._buffer.push(charCode & 63 | 128);
+            }
+
+            return true;
+        }
+    }
+};
+
+function Base64DecodeEnumerator(input) {
+    this._input = input;
+    this._index = -1;
+    this._buffer = [];
+}
+
+Base64DecodeEnumerator.prototype = {
+    current: 64,
+
+    moveNext: function moveNext() {
+        if (this._buffer.length > 0) {
+            this.current = this._buffer.shift();
+            return true;
+        } else if (this._index >= this._input.length - 1) {
+            this.current = 64;
+            return false;
+        } else {
+            var enc1 = Base64.codex.indexOf(this._input.charAt(++this._index));
+            var enc2 = Base64.codex.indexOf(this._input.charAt(++this._index));
+            var enc3 = Base64.codex.indexOf(this._input.charAt(++this._index));
+            var enc4 = Base64.codex.indexOf(this._input.charAt(++this._index));
+
+            var chr1 = enc1 << 2 | enc2 >> 4;
+            var chr2 = (enc2 & 15) << 4 | enc3 >> 2;
+            var chr3 = (enc3 & 3) << 6 | enc4;
+
+            this.current = chr1;
+
+            if (enc3 != 64 && chr2 != 0) this._buffer.push(chr2);
+
+            if (enc4 != 64 && chr3 != 0) this._buffer.push(chr3);
+
+            return true;
+        }
+    }
+};
+
+function encode(plainText) {
+    return Base64.encode(plainText);
+}
+
+function decode(encodedText) {
+    return Base64.decode(encodedText);
+}
+
+exports["default"] = {
+    encode: encode,
+    decode: decode
+};
+module.exports = exports["default"];
+
+},{}],4:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -642,7 +759,7 @@ var $;
 exports['default'] = $;
 
 module.exports = exports['default'];
-},{"../plugin/dollar":14}],6:[function(_dereq_,module,exports){
+},{"../plugin/dollar":13}],5:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -846,7 +963,7 @@ function fire(listeners, args) {
 exports['default'] = { Events: Events };
 module.exports = exports['default'];
 
-},{"./dollar":5}],7:[function(_dereq_,module,exports){
+},{"./dollar":4}],6:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -912,7 +1029,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./base64":4}],8:[function(_dereq_,module,exports){
+},{"./base64":3}],7:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -983,7 +1100,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./base64":4,"./uri":9}],9:[function(_dereq_,module,exports){
+},{"./base64":3,"./uri":8}],8:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -999,7 +1116,7 @@ var _jsuri2 = _interopRequireDefault(_jsuri);
 exports['default'] = { init: _jsuri2['default'] };
 module.exports = exports['default'];
 
-},{"jsuri":3}],10:[function(_dereq_,module,exports){
+},{"jsuri":2}],9:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1474,7 +1591,7 @@ function XdmRpc($, config, bindings) {
 exports['default'] = XdmRpc;
 module.exports = exports['default'];
 
-},{"../host/util":11,"./events":6,"./jwt":7,"./ui-params":8,"./uri":9}],11:[function(_dereq_,module,exports){
+},{"../host/util":10,"./events":5,"./jwt":6,"./ui-params":7,"./uri":8}],10:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1490,7 +1607,7 @@ function escapeSelector(s) {
 exports["default"] = { escapeSelector: escapeSelector };
 module.exports = exports["default"];
 
-},{}],12:[function(_dereq_,module,exports){
+},{}],11:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1654,7 +1771,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/base64":4,"../common/events":6,"../common/ui-params":8,"../common/uri":9,"../common/xdm-rpc":10,"./dialog":13,"./dollar":14,"./env":15,"./events":16,"./inline-dialog":17,"./messages":18,"./resize_listener":19,"./rpc":20,"./util":21}],13:[function(_dereq_,module,exports){
+},{"../common/base64":3,"../common/events":5,"../common/ui-params":7,"../common/uri":8,"../common/xdm-rpc":9,"./dialog":12,"./dollar":13,"./env":14,"./events":15,"./inline-dialog":16,"./messages":17,"./resize_listener":18,"./rpc":19,"./util":20}],12:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1944,7 +2061,7 @@ _rpc2['default'].extend(function (remote) {
 exports['default'] = _exports;
 module.exports = exports['default'];
 
-},{"../common/ui-params":8,"../common/uri":9,"./dollar":14,"./rpc":20}],14:[function(_dereq_,module,exports){
+},{"../common/ui-params":7,"../common/uri":8,"./dollar":13,"./rpc":19}],13:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2035,7 +2152,7 @@ function $(sel, context) {
 exports["default"] = extend($, _util2["default"]);
 module.exports = exports["default"];
 
-},{"./util":21}],15:[function(_dereq_,module,exports){
+},{"./util":20}],14:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2177,7 +2294,7 @@ exports['default'] = _dollar2['default'].extend(apis, {
 });
 module.exports = exports['default'];
 
-},{"../common/ui-params":8,"./dollar":14,"./rpc":20}],16:[function(_dereq_,module,exports){
+},{"../common/ui-params":7,"./dollar":13,"./rpc":19}],15:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2308,7 +2425,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
 });
 module.exports = exports['default'];
 
-},{"./dollar":14,"./rpc":20}],17:[function(_dereq_,module,exports){
+},{"./dollar":13,"./rpc":19}],16:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2357,7 +2474,7 @@ _rpc2['default'].extend(function (remote) {
 exports['default'] = _exports;
 module.exports = exports['default'];
 
-},{"./dollar":14,"./rpc":20}],18:[function(_dereq_,module,exports){
+},{"./dollar":13,"./rpc":19}],17:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2539,7 +2656,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
 */
 module.exports = exports['default'];
 
-},{"./dollar":14,"./rpc":20}],19:[function(_dereq_,module,exports){
+},{"./dollar":13,"./rpc":19}],18:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2633,7 +2750,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./dollar":14}],20:[function(_dereq_,module,exports){
+},{"./dollar":13}],19:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2699,7 +2816,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/xdm-rpc":10,"./dollar":14}],21:[function(_dereq_,module,exports){
+},{"../common/xdm-rpc":9,"./dollar":13}],20:[function(_dereq_,module,exports){
 // universal iterator utility
 'use strict';
 

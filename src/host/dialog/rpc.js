@@ -2,6 +2,29 @@ import dialog from './api';
 import dialogFactory from './factory';
 import $ from '../dollar';
 
+var thisXdm;
+
+$('body').on('click', '.ap-aui-dialog2', function(e){
+    if(thisXdm){
+        var buttonName;
+        if(e.target.classList.contains('ap-dialog-submit')){
+            buttonName = '"submit';
+        }
+        else if(e.target.classList.contains("ap-dialog-cancel")){
+            buttonName = 'cancel';
+        }
+        var button = dialogMain.getButton(buttonName);
+        if(button && button.isEnabled()){
+            if(thisXdm.isActive() && thisXdm.buttonListenerBound){
+                thisXdm.dialogMessage(buttonName, button.dispatch);
+            }
+            else {
+                button.dispatch(true);
+            }
+        }
+    }
+});
+
 export default function () {
     return {
         stubs: ['dialogMessage'],
@@ -11,21 +34,7 @@ export default function () {
             if (state.dlg === '1') {
                 xdm.uiParams.isDialog = true;
             }
-
-            if (xdm.uiParams.isDialog) {
-                var buttons = dialog.getButton();
-                if (buttons) {
-                    $.each(buttons, function (name, button) {
-                        button.click(function (e, callback) {
-                            if (xdm.isActive() && xdm.buttonListenerBound) {
-                                xdm.dialogMessage(name, callback);
-                            } else {
-                                callback(true);
-                            }
-                        });
-                    });
-                }
-            }
+            thisXdm = xdm;
         },
 
         internals: {
