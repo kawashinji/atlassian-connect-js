@@ -8,9 +8,9 @@ var defer = window.requestAnimationFrame || function (f) {setTimeout(f,10); };
 
 function contentDiv(ns) {
     if(!ns){
-      throw new Error("ns undefined");
+      throw new Error('ns undefined');
     }
-    return $(document.getElementById("embedded-" + ns));
+    return $(document.getElementById('embedded-' + ns));
 }
 
 /**
@@ -35,17 +35,17 @@ function contentDiv(ns) {
 * @param {Options} options These values come from the velocity template and can be overridden using uiParams
 */
 function create(options) {
-  if(typeof options.uiParams !== "object"){
+  if(typeof options.uiParams !== 'object'){
     options.uiParams = uiParams.fromUrl(options.src);
   }
 
   var ns = options.ns,
-      contentId = "embedded-" + ns,
-      channelId = "channel-" + ns,
-      initWidth = options.w || "100%",
-      initHeight = options.h || "0";
+      contentId = 'embedded-' + ns,
+      channelId = 'channel-' + ns,
+      initWidth = options.w || '100%',
+      initHeight = options.h || '0';
 
-  if(typeof options.uiParams !== "object"){
+  if(typeof options.uiParams !== 'object'){
     options.uiParams = {};
   }
 

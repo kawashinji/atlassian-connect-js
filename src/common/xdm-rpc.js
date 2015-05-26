@@ -65,7 +65,7 @@ import util from '../host/util';
               handled = true;
             } else {
               // Only mark other calls as handled if they weren't expecting a callback and didn't fail
-              handled = !callbacks[uid].async && type !== "fail";
+              handled = !callbacks[uid].async && type !== 'fail';
             }
             delete callbacks[uid];
           }
@@ -98,7 +98,7 @@ import util from '../host/util';
 
       var iframe = createIframe(config);
       target = iframe.contentWindow;
-      localKey = param(config.remote, "oauth_consumer_key") || param(config.remote, "jwt");
+      localKey = param(config.remote, 'oauth_consumer_key') || param(config.remote, 'jwt');
       remoteKey = config.remoteKey;
       addonKey = remoteKey;
       remoteOrigin = getBaseUrl(config.remote).toLowerCase();
@@ -127,13 +127,13 @@ import util from '../host/util';
     } else {
       // Add-on-side constructor branch
       target = w.parent;
-      localKey = "local"; // Would be better to make this the add-on key, but it's not readily available at this time
+      localKey = 'local'; // Would be better to make this the add-on key, but it's not readily available at this time
 
       // identify the add-on by unique key: first try JWT issuer claim and fall back to OAuth1 consumer key
-      var jwtParam = param(loc, "jwt");
-      remoteKey = jwtParam ? jwt.parseJwtIssuer(jwtParam) : param(loc, "oauth_consumer_key");
+      var jwtParam = param(loc, 'jwt');
+      remoteKey = jwtParam ? jwt.parseJwtIssuer(jwtParam) : param(loc, 'oauth_consumer_key');
 
-      // if the authentication method is "none" then it is valid to have no jwt and no oauth in the url
+      // if the authentication method is 'none' then it is valid to have no jwt and no oauth in the url
       // but equally we don't trust this iframe as far as we can throw it, so assign it a random id
       // in order to prevent it from talking to any other iframe
       if (null === remoteKey) {
@@ -141,8 +141,8 @@ import util from '../host/util';
       }
 
       addonKey = localKey;
-      remoteOrigin = param(loc, "xdm_e").toLowerCase();
-      channel = param(loc, "xdm_c");
+      remoteOrigin = param(loc, 'xdm_e').toLowerCase();
+      channel = param(loc, 'xdm_c');
       // Define the add-on-side mixin
       mixin = {
         isHost: false,
@@ -153,7 +153,7 @@ import util from '../host/util';
       };
     }
 
-    id = addonKey + "|" + (count += 1);
+    id = addonKey + '|' + (count += 1);
 
     // Create the actual XdmRpc instance, and apply the context-sensitive mixin
     self = $.extend({
@@ -186,15 +186,15 @@ import util from '../host/util';
       // Send a request to the remote, where:
       //  - n is the name of the remote function
       //  - a is an array of the (hopefully) serializable, non-callback arguments to this method
-      send(sid, "request", {n: methodName, a: args});
+      send(sid, 'request', {n: methodName, a: args});
     }
 
     function sendDone(sid, message) {
-      send(sid, "done", message);
+      send(sid, 'done', message);
     }
 
     function sendFail(sid, message) {
-      send(sid, "fail", message);
+      send(sid, 'fail', message);
     }
 
     // Handles an normalized, incoming post-message event
@@ -214,7 +214,7 @@ import util from '../host/util';
           return;
         }
 
-        if (ptype === "request") {
+        if (ptype === 'request') {
           // If the payload type is request, this is an incoming method invocation
           var name = pmessage.n, args = pmessage.a,
               local = locals[name], done, fail, async;
@@ -252,13 +252,13 @@ import util from '../host/util';
             }
           } else {
             // No such local rpc method name found
-            debug("Unhandled request:", payload);
+            debug('Unhandled request:', payload);
           }
-        } else if (ptype === "done" || ptype === "fail") {
+        } else if (ptype === 'done' || ptype === 'fail') {
           // The payload is of a response type, so try to invoke the appropriate callback via the nexus registry
           if (!nexus.invoke(ptype, pid, pmessage)) {
             // The nexus didn't find an appropriate reponse callback to invoke
-            debug("Unhandled response:", ptype, pid, pmessage);
+            debug('Unhandled response:', ptype, pid, pmessage);
           }
         }
       } catch (ex) {
@@ -294,7 +294,7 @@ import util from '../host/util';
     // post-message request events, tracking async callbacks as necessary.
     $.each(remotes, function (methodName, v) {
       // If remotes were specified as an array rather than a map, promote v to methodName
-      if (typeof methodName === "number") methodName = v;
+      if (typeof methodName === 'number') methodName = v;
       self[methodName] = bridge(methodName);
     });
 
@@ -305,7 +305,7 @@ import util from '../host/util';
       // The actual event object is the last argument passed to any listener
       var event = arguments[arguments.length - 1];
       var trace = event.trace = event.trace || {};
-      var traceKey = self.id + "|xdm";
+      var traceKey = self.id + '|xdm';
       if ((self.isHost && !trace[traceKey] && event.source.channel !== self.id)
           || (!self.isHost && event.source.key === localKey)) {
         // Only forward an event once in this listener
@@ -313,8 +313,8 @@ import util from '../host/util';
         // Clone the event and forward without tracing info, to avoid leaking host-side iframe topology to add-ons
         event = $.extend({}, event);
         delete event.trace;
-        debug("Forwarding " + (self.isHost ? "host" : "addon") + " event:", event);
-        sendRequest("_event", [event]);
+        debug('Forwarding ' + (self.isHost ? 'host' : 'addon') + ' event:', event);
+        sendRequest('_event', [event]);
       }
     });
     // Define our own reserved local to receive remote events
@@ -331,7 +331,7 @@ import util from '../host/util';
           origin: this.remoteOrigin || remoteOrigin
         };
       }
-      debug("Receiving as " + (this.isHost ? "host" : "addon") + " event:", event);
+      debug('Receiving as ' + (this.isHost ? 'host' : 'addon') + ' event:', event);
       // Emit the event on the local bus
       bus._emitEvent(event);
     };
@@ -349,12 +349,12 @@ import util from '../host/util';
 
     // Starts listening for window messaging events
     function bind() {
-      $(window).bind("message", postMessageHandler);
+      $(window).bind('message', postMessageHandler);
     }
 
     // Stops listening for window messaging events
     function unbind() {
-      $(window).unbind("message", postMessageHandler);
+      $(window).unbind('message', postMessageHandler);
     }
 
     // Crudely extracts a query param value from a url by name
@@ -383,16 +383,16 @@ import util from '../host/util';
     //  - channel:    deprecated
     function createIframe(config) {
       if(!config.container){
-        throw new Error("config.container must be defined");
+        throw new Error('config.container must be defined');
       }
-      var iframe = document.createElement("iframe"),
-        id = "easyXDM_" + config.container + "_provider",
+      var iframe = document.createElement('iframe'),
+        id = 'easyXDM_' + config.container + '_provider',
         windowName = "";
 
       if(config.uiParams){
         windowName = uiParams.encode(config.uiParams);
       }
-      $.extend(iframe, {id: id, name: windowName, frameBorder: "0"}, config.props);
+      $.extend(iframe, {id: id, name: windowName, frameBorder: '0'}, config.props);
       //$.extend will not add the attribute rel.
       iframe.setAttribute('rel', 'nofollow');
       $(document.getElementById(config.container)).append(iframe);
@@ -406,7 +406,7 @@ import util from '../host/util';
     }
 
     function debug() {
-      if (XdmRpc.debug) log.apply(w, ["DEBUG:"].concat([].slice.call(arguments)));
+      if (XdmRpc.debug) log.apply(w, ['DEBUG:'].concat([].slice.call(arguments)));
     }
 
     function log() {

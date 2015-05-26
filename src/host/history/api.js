@@ -4,18 +4,18 @@ import Uri from '../../common/uri';
 * Methods for showing the status of a connect-addon (loading, time'd-out etc)
 */
 var lastAdded,
-    anchorPrefix = "!";
+    anchorPrefix = '!';
 
 function stripPrefix (text) {
     if(text === undefined || text === null){
         return "";
     }
-    return text.toString().replace(new RegExp("^" + anchorPrefix), "");
+    return text.toString().replace(new RegExp('^' + anchorPrefix), "");
 }
 
 function addPrefix (text) {
     if(text === undefined || text === null){
-        throw "You must supply text to prefix";
+        throw 'You must supply text to prefix';
     }
 
     return anchorPrefix + stripPrefix(text);
@@ -32,9 +32,9 @@ function changeState (anchor, replace) {
         lastAdded = newUrlObj.anchor();
         // If it was replaceState or pushState?
         if(replace){
-            window.location.replace("#" + newUrlObj.anchor());
+            window.location.replace('#' + newUrlObj.anchor());
         } else {
-            window.location.assign("#" + newUrlObj.anchor());
+            window.location.assign('#' + newUrlObj.anchor());
         }
         return newUrlObj.anchor();
     }

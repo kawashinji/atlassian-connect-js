@@ -10,7 +10,7 @@ function $(sel, context) {
 
   var els = [];
   if (sel) {
-    if (typeof sel === "string") {
+    if (typeof sel === 'string') {
       var results = context.querySelectorAll(sel);
       each(results, function (i, v) { els.push(v); });
     }
@@ -43,7 +43,7 @@ function $(sel, context) {
     removeClass: function (className) {
       return this.each(function (i, el) {
         if (el.className) {
-          el.className = el.className.replace(new RegExp("(^|\\s)" + className + "(\\s|$)"), " ");
+          el.className = el.className.replace(new RegExp('(^|\\s)' + className + '(\\s|$)'), ' ');
         }
       });
     },
@@ -56,7 +56,7 @@ function $(sel, context) {
       return this.each(function (i, to) {
         var el = context.createElement(spec.tag);
         each(spec, function (k, v) {
-          if (k === "$text") {
+          if (k === '$text') {
             if (el.styleSheet) { // style tags in ie
               el.styleSheet.cssText = v;
             }
@@ -64,7 +64,7 @@ function $(sel, context) {
               el.appendChild(context.createTextNode(v));
             }
           }
-          else if (k !== "tag") {
+          else if (k !== 'tag') {
             el[k] = v;
           }
         });

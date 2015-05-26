@@ -8,11 +8,11 @@ var statuses = {
     loading: {
         descriptionHtml: '<div class="small-spinner"></div>Loading add-on...'
     },
-    "load-timeout": {
+    'load-timeout': {
         descriptionHtml: '<div class="small-spinner"></div>Add-on is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?'
     },
 
-    "load-error": {
+    'load-error': {
         descriptionHtml: 'Add-on failed to load.'
     }
 };
@@ -29,13 +29,13 @@ function hideStatuses($home) {
 function showStatus($home, status) {
     hideStatuses($home);
     $home.closest('.ap-container').removeClass('hidden');
-    $home.find(".ap-stats").removeClass("hidden");
+    $home.find('.ap-stats').removeClass('hidden');
     $home.find('.ap-' + status).removeClass('hidden');
     /* setTimout fixes bug in AUI spinner positioning */
     setTimeout(function () {
         var spinner = $home.find('.small-spinner','.ap-' + status);
         if (spinner.length && spinner.spin) {
-            spinner.spin({zIndex: "1"});
+            spinner.spin({zIndex: '1'});
         }
     }, 10);
 }

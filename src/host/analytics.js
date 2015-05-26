@@ -5,8 +5,8 @@ import $ from './dollar';
  * @type {Array}
  */
 var BRIDGEMETHODBLACKLIST = [
-    "resize",
-    "init"
+    'resize',
+    'init'
 ];
 
 /**
@@ -70,7 +70,7 @@ proto.getKey = function () {
 };
 
 proto.track = function (name, data) {
-    var prefixedName = "connect.addon." + name;
+    var prefixedName = 'connect.addon.' + name;
     if(AJS.Analytics){
         AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
     } else if(AJS.trigger) {

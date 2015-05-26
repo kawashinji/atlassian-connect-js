@@ -7,7 +7,7 @@ import rpc from './rpc';
 * For visual examples of each kind please see the [Design guide](https://developer.atlassian.com/design/latest/communicators/messages/).
 * ### Example ###
 * ```
-* AP.require("messages", function(messages){
+* AP.require('messages', function(messages){
 *   //create a message
 *   var message = messages.info('plain text title', 'plain text body');
 * });
@@ -25,7 +25,7 @@ function getMessageId(){
 export default rpc.extend(function (remote) {
 
     var apis = {};
-    $.each(["generic", "error", "warning", "success", "info", "hint"], function (_, name) {
+    $.each(['generic', 'error', 'warning', 'success', 'info', 'hint'], function (_, name) {
         apis[name] = function (title, body, options) {
             options = options || {};
             options.id = getMessageId();
@@ -41,7 +41,7 @@ export default rpc.extend(function (remote) {
     * @memberof module:messages#
     * @param    {String}    id  The id that was returned when the message was created.
     * @example
-    * AP.require("messages", function(messages){
+    * AP.require('messages', function(messages){
     *   //create a message
     *   var message = messages.info('title', 'body');
     *   setTimeout(function(){
@@ -65,7 +65,7 @@ export default rpc.extend(function (remote) {
         * @param    {MessageOptions}    options     Message Options
         * @returns  {String}    The id to be used when clearing the message
         * @example
-        * AP.require("messages", function(messages){
+        * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.generic('title', 'generic message example');
         * });
@@ -81,7 +81,7 @@ export default rpc.extend(function (remote) {
         * @param    {MessageOptions}    options     Message Options
         * @returns  {String}    The id to be used when clearing the message
         * @example
-        * AP.require("messages", function(messages){
+        * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.error('title', 'error message example');
         * });
@@ -97,7 +97,7 @@ export default rpc.extend(function (remote) {
         * @param    {MessageOptions}    options     Message Options
         * @returns  {String}    The id to be used when clearing the message
         * @example
-        * AP.require("messages", function(messages){
+        * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.warning('title', 'warning message example');
         * });
@@ -113,7 +113,7 @@ export default rpc.extend(function (remote) {
         * @param    {MessageOptions}    options     Message Options
         * @returns  {String}    The id to be used when clearing the message
         * @example
-        * AP.require("messages", function(messages){
+        * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.success('title', 'success message example');
         * });
@@ -129,7 +129,7 @@ export default rpc.extend(function (remote) {
         * @param    {MessageOptions}    options     Message Options
         * @returns  {String}    The id to be used when clearing the message
         * @example
-        * AP.require("messages", function(messages){
+        * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.info('title', 'info message example');
         * });
@@ -145,7 +145,7 @@ export default rpc.extend(function (remote) {
         * @param    {MessageOptions}    options     Message Options
         * @returns  {String}    The id to be used when clearing the message
         * @example
-        * AP.require("messages", function(messages){
+        * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.hint('title', 'hint message example');
         * });

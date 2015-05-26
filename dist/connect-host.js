@@ -1548,7 +1548,7 @@ function XdmRpc($, config, bindings) {
     var jwtParam = param(loc, 'jwt');
     remoteKey = jwtParam ? _jwt2['default'].parseJwtIssuer(jwtParam) : param(loc, 'oauth_consumer_key');
 
-    // if the authentication method is "none" then it is valid to have no jwt and no oauth in the url
+    // if the authentication method is 'none' then it is valid to have no jwt and no oauth in the url
     // but equally we don't trust this iframe as far as we can throw it, so assign it a random id
     // in order to prevent it from talking to any other iframe
     if (null === remoteKey) {
@@ -1929,15 +1929,15 @@ exports['default'] = function () {
 module.exports = exports['default'];
 
 },{"./dollar":21,"./rpc":31}],13:[function(_dereq_,module,exports){
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _dollar = _dereq_("./dollar");
+var _dollar = _dereq_('./dollar');
 
 var _dollar2 = _interopRequireDefault(_dollar);
 
@@ -1946,7 +1946,7 @@ var _dollar2 = _interopRequireDefault(_dollar);
  * @const
  * @type {Array}
  */
-var BRIDGEMETHODBLACKLIST = ["resize", "init"];
+var BRIDGEMETHODBLACKLIST = ['resize', 'init'];
 
 /**
  * Timings beyond 20 seconds (connect's load timeout) will be clipped to an X.
@@ -1976,15 +1976,15 @@ function Analytics(addonKey, moduleKey) {
         },
         end: function end() {
             var value = time() - metrics.startLoading;
-            proto.track("iframe.performance.load", {
+            proto.track('iframe.performance.load', {
                 addonKey: addonKey,
                 moduleKey: moduleKey,
-                value: value > THRESHOLD ? "x" : Math.ceil(value / TRIMPPRECISION)
+                value: value > THRESHOLD ? 'x' : Math.ceil(value / TRIMPPRECISION)
             });
             delete metrics.startLoading;
         },
         timeout: function timeout() {
-            proto.track("iframe.performance.timeout", {
+            proto.track('iframe.performance.timeout', {
                 addonKey: addonKey,
                 moduleKey: moduleKey
             });
@@ -1993,7 +1993,7 @@ function Analytics(addonKey, moduleKey) {
         },
         // User clicked cancel button during loading
         cancel: function cancel() {
-            proto.track("iframe.performance.cancel", {
+            proto.track('iframe.performance.cancel', {
                 addonKey: addonKey,
                 moduleKey: moduleKey
             });
@@ -2004,16 +2004,16 @@ function Analytics(addonKey, moduleKey) {
 var proto = Analytics.prototype;
 
 proto.getKey = function () {
-    return this.addonKey + ":" + this.moduleKey;
+    return this.addonKey + ':' + this.moduleKey;
 };
 
 proto.track = function (name, data) {
-    var prefixedName = "connect.addon." + name;
+    var prefixedName = 'connect.addon.' + name;
     if (AJS.Analytics) {
         AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
     } else if (AJS.trigger) {
         // BTF fallback
-        AJS.trigger("analyticsEvent", {
+        AJS.trigger('analyticsEvent', {
             name: prefixedName,
             data: data
         });
@@ -2025,22 +2025,22 @@ proto.track = function (name, data) {
 };
 
 proto.trackBridgeMethod = function (name) {
-    if (_dollar2["default"].inArray(name, BRIDGEMETHODBLACKLIST) !== -1) {
+    if (_dollar2['default'].inArray(name, BRIDGEMETHODBLACKLIST) !== -1) {
         return false;
     }
-    this.track("bridge.invokemethod", {
+    this.track('bridge.invokemethod', {
         name: name,
         addonKey: this.addonKey,
         moduleKey: this.moduleKey
     });
 };
 
-exports["default"] = {
+exports['default'] = {
     get: function get(addonKey, moduleKey) {
         return new Analytics(addonKey, moduleKey);
     }
 };
-module.exports = exports["default"];
+module.exports = exports['default'];
 
 },{"./dollar":21}],14:[function(_dereq_,module,exports){
 'use strict';
@@ -2335,7 +2335,7 @@ function createDialogElement(options, $nexus, chromeless) {
 }
 
 function displayDialogContent($container, options) {
-    $container.append('<div id="embedded-' + options.ns + '" class="ap-dialog-container ap-content" />');
+    $container.append('<div id="embedded-' + options.ns + '" class="ap-dialog-container ap-content"/>');
 }
 
 function parseDimension(value, viewport) {
@@ -3443,20 +3443,20 @@ exports['default'] = {
 module.exports = exports['default'];
 
 },{"./dollar":21}],33:[function(_dereq_,module,exports){
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
     value: true
 });
 function escapeSelector(s) {
     if (!s) {
-        throw new Error("No selector to escape");
+        throw new Error('No selector to escape');
     }
-    return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&");
+    return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
 }
 
-exports["default"] = { escapeSelector: escapeSelector };
-module.exports = exports["default"];
+exports['default'] = { escapeSelector: escapeSelector };
+module.exports = exports['default'];
 
 },{}]},{},[1])(1)
 });

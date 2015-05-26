@@ -22,7 +22,7 @@ function parseJwtClaims(jwt) {
     if (null === encodedClaims || '' === encodedClaims) {
         throw('Invalid JWT: encoded claims must be neither null nor empty-string.');
     }
-    
+
     var claimsString = base64.decode.call(window, encodedClaims);
     return JSON.parse(claimsString);
 }

@@ -60,7 +60,7 @@ function createDialogElement(options, $nexus, chromeless) {
 }
 
 function displayDialogContent($container, options) {
-    $container.append('<div id="embedded-' + options.ns + '" class="ap-dialog-container ap-content" />');
+    $container.append('<div id="embedded-' + options.ns + '" class="ap-dialog-container ap-content"/>');
 }
 
 
