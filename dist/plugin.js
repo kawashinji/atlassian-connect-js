@@ -547,6 +547,11 @@ module.exports = exports['default'];
 }(this));
 
 },{}],3:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 /*
  Copyright (c) 2008 Fred Palmer fred.palmer_at_gmail.com
 
@@ -574,11 +579,6 @@ module.exports = exports['default'];
  Modified slightly to make use of our es6-style exports, and to handle non-latin characters.
  */
 
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
 function StringBuffer() {
     this.buffer = [];
 }
@@ -2239,14 +2239,14 @@ exports['default'] = _dollar2['default'].extend(apis, {
         }
       }
     } else {
-      return (0, _dollar2['default'])('meta[name=\'ap-' + name + '\']').attr('content');
+      return _dollar2['default']('meta[name=\'ap-' + name + '\']').attr('content');
     }
   },
 
   container: function container() {
     // Look for these two selectors first... you need these to allow for the auto-shrink to work
     // Otherwise, it'll default to document.body which can't auto-grow or auto-shrink
-    var container = (0, _dollar2['default'])('.ac-content, #content');
+    var container = _dollar2['default']('.ac-content, #content');
     return container.length > 0 ? container[0] : document.body;
   },
 
@@ -2692,7 +2692,7 @@ function addFlowListener(element, type, fn) {
 function addListener(element, fn) {
     var resize = ('onresize' in element);
     if (!resize && !element._resizeSensor) {
-        (0, _dollar2['default'])('head').append({ tag: 'style', type: 'text/css', $text: '.ac-resize-sensor,.ac-resize-sensor>div {position: absolute;top: 0;left: 0;width: 100%;height: 100%;overflow: hidden;z-index: -1;}' });
+        _dollar2['default']('head').append({ tag: 'style', type: 'text/css', $text: '.ac-resize-sensor,.ac-resize-sensor>div {position: absolute;top: 0;left: 0;width: 100%;height: 100%;overflow: hidden;z-index: -1;}' });
         var sensor = element._resizeSensor = document.createElement('div');
         sensor.className = 'ac-resize-sensor';
         sensor.innerHTML = '<div class="ac-resize-overflow"><div></div></div><div class="ac-resize-underflow"><div></div></div>';
@@ -2817,12 +2817,12 @@ exports['default'] = {
 module.exports = exports['default'];
 
 },{"../common/xdm-rpc":9,"./dollar":13}],20:[function(_dereq_,module,exports){
-// universal iterator utility
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+// universal iterator utility
 function each(o, it) {
     var l;
     var k;
