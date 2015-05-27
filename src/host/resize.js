@@ -2,9 +2,10 @@ import $ from './dollar';
 import rpc from './rpc';
 
 export default function () {
+    var debounce = AJS.debounce || $.debounce;
     return {
         init(config, xdm) {
-            xdm.resize = AJS.debounce(function resize($, width, height) {
+            xdm.resize = debounce(function resize($, width, height) {
                 $(this.iframe).css({
                     width: width,
                     height: height
@@ -24,7 +25,7 @@ export default function () {
                 }
             },
 
-            sizeToParent: AJS.debounce(function () {
+            sizeToParent: debounce(function () {
                 function resizeHandler(iframe) {
                     var height = $(document).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 20;
                     $(iframe).css({
