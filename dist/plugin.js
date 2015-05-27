@@ -2421,7 +2421,8 @@ var _commonUiParams = _dereq_('../common/ui-params');
 var _commonUiParams2 = _interopRequireDefault(_commonUiParams);
 
 var uiParams = _commonUiParams2['default'].fromWindowName(),
-    isInlineDialog = Boolean(uiParams.isInlineDialog);
+    isInlineDialog = Boolean(uiParams.isInlineDialog),
+    isInlineAddon = Boolean(uiParams.isInlineAddon);
 
 var apis = _rpc2['default'].extend(function (remote) {
 
@@ -2511,7 +2512,7 @@ exports['default'] = _dollar2['default'].extend(apis, {
     }
 
     // if it's an inline dialog. 100% won't work. Instead, get the container pixel width.
-    if (isInlineDialog && width === '100%') {
+    if (isInlineAddon || isInlineDialog && width === '100%') {
       w = Math.max(container.scrollWidth, container.offsetWidth, container.clientWidth);
     }
 

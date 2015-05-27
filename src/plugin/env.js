@@ -3,7 +3,8 @@ import rpc from './rpc';
 import UiParams from '../common/ui-params';
 
 var uiParams = UiParams.fromWindowName(),
-    isInlineDialog = Boolean(uiParams.isInlineDialog);
+    isInlineDialog = Boolean(uiParams.isInlineDialog),
+    isInlineAddon = Boolean(uiParams.isInlineAddon);
 
 var apis = rpc.extend(function (remote) {
 
@@ -92,7 +93,7 @@ export default $.extend(apis, {
     }
 
     // if it's an inline dialog. 100% won't work. Instead, get the container pixel width.
-    if(isInlineDialog && width === '100%'){
+    if(isInlineAddon || (isInlineDialog && width === '100%')){
       w = Math.max(
         container.scrollWidth,
         container.offsetWidth,
