@@ -20,9 +20,7 @@ export default function () {
 
         internals: {
             resize(width, height) {
-                if (!this.uiParams.isDialog) {
-                    this.resize($, width, height);
-                }
+                this.resize($, width, height);
             },
 
             sizeToParent: debounce(function () {
