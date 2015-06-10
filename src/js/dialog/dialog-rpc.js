@@ -2,29 +2,6 @@
     "use strict";
     require(["connect-host", "ac/dialog/dialog-factory", "ac/dialog"], function (connect, dialogFactory, dialogMain) {
 
-        var thisXdm;
-        
-        $("body").on('click', '.ap-aui-dialog2', function(e){
-            if(thisXdm){
-                var buttonName;
-                if(e.target.classList.contains("ap-dialog-submit")){
-                    buttonName = "submit";
-                }
-                else if(e.target.classList.contains("ap-dialog-cancel")){
-                    buttonName = "cancel";
-                }
-                var button = dialogMain.getButton(buttonName);
-                if(button && button.isEnabled()){
-                    if(thisXdm.isActive() && thisXdm.buttonListenerBound){
-                        thisXdm.dialogMessage(buttonName, button.dispatch);
-                    }
-                    else {
-                        button.dispatch(true);
-                    }
-                }
-            }
-        });
-        
         connect.extend(function () {
             return {
                 stubs: ["dialogMessage"],
@@ -33,7 +10,21 @@
                     if(state.dlg === "1"){
                         xdm.uiParams.isDialog = true;
                     }
-                    thisXdm = xdm;
+
+                    if(xdm.uiParams.isDialog){
+                        var buttons = dialogMain.getButton();
+                        if(buttons){
+                            $.each(buttons, function(name, button) {
+                                button.click(function (e, callback) {
+                                    if(xdm.isActive() && xdm.buttonListenerBound){
+                                        xdm.dialogMessage(name, callback);
+                                    } else {
+                                        callback(true);
+                                    }
+                                });
+                            });
+                        }
+                    }
                 },
                 internals: {
                     dialogListenerBound: function(){
