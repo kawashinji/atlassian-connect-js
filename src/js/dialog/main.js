@@ -157,6 +157,12 @@
                 // ESC key closes the dialog
                 $(document).on("keydown", keyPressListener);
 
+                $.each(buttons, function(name, button) {
+                    button.click(function () {
+                        button.dispatch(true);
+                    });
+                });
+
                 displayDialogContent($nexus, mergedOptions);
 
                 if(showLoadingIndicator !== false){
