@@ -1,6 +1,6 @@
 {
   "name": "atlassian-connect-js",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "Atlassian Connect JavaScript bridge",
   "main": "dist/connect-host.js",
   "repository": {
