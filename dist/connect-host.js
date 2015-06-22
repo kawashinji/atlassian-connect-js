@@ -2328,7 +2328,6 @@ function createDialogElement(options, $nexus, chromeless) {
         $el.find('.aui-dialog2-footer-actions').empty().append(buttons.submit.$el, buttons.cancel.$el);
     }
 
-    $el.find('.aui-dialog2-content').append($nexus);
     $nexus.data('ra.dialog.buttons', buttons);
 
     return $el;
@@ -2385,7 +2384,7 @@ exports['default'] = {
             height: '50%'
         };
         var dialogId = options.id || 'ap-dialog-' + (idSeq += 1);
-        var mergedOptions = _dollar2['default'].extend({ id: dialogId }, defaultOptions, options, { dlg: 1 });
+        var mergedOptions = _dollar2['default'].extend(true, { id: dialogId }, defaultOptions, options, { uiParams: { isDialog: true, isInlineAddon: true } });
         var dialogElement;
 
         // patch for an old workaround where people would make 100% height / width dialogs.
@@ -2412,7 +2411,17 @@ exports['default'] = {
             dialogElement.removeClass('aui-dialog2-medium'); // this class has a min-height so must be removed.
         }
 
+        var existingNode = (0, _dollar2['default'])('#' + dialogElement.attr('id'));
+
+        if (existingNode.length > 0) {
+            existingNode.addClass(dialogElement.attr('class'));
+            existingNode.empty().append(dialogElement.html());
+            dialogElement = existingNode;
+        }
+
+        dialogElement.find('.aui-dialog2-content').append($nexus);
         dialog = AJS.dialog2(dialogElement);
+
         dialog.on('hide', closeDialog);
         // ESC key closes the dialog
         (0, _dollar2['default'])(document).on('keydown', keyPressListener);
@@ -2435,6 +2444,7 @@ exports['default'] = {
         });
 
         dialog.show();
+        return dialog;
     },
 
     close: closeDialog
@@ -3214,9 +3224,7 @@ exports['default'] = function () {
 
         internals: {
             resize: function resize(width, height) {
-                if (!this.uiParams.isDialog) {
-                    this.resize(_dollar2['default'], width, height);
-                }
+                this.resize(_dollar2['default'], width, height);
             },
 
             sizeToParent: debounce(function () {

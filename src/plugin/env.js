@@ -93,7 +93,7 @@ export default $.extend(apis, {
     }
 
     // if it's an inline dialog. 100% won't work. Instead, get the container pixel width.
-    if(isInlineAddon || (isInlineDialog && width === '100%')){
+    if( (!w || w === "100%") && (isInlineAddon || (isInlineDialog && width === '100%'))){
       w = Math.max(
         container.scrollWidth,
         container.offsetWidth,
