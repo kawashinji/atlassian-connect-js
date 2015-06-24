@@ -261,11 +261,13 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
       ],
 
       init: function() {
-          window.addEventListener('keydown', function(event) {
-                if (event.keyCode === 27) {
-                    exports.close();
-                }
+        if(isDialog) {
+          window.addEventListener('keydown', function (event) {
+            if (event.keyCode === 27) {
+              exports.close();
+            }
           });
+        }
       }
 
     };
