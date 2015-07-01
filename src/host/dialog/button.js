@@ -21,6 +21,15 @@ function Button(options) {
 
     this.setEnabled(true);
 
+    this.click = function(listener){
+        if (listener) {
+            this.$el.unbind("ra.dialog.click");
+            this.$el.bind("ra.dialog.click", listener);
+        } else {
+            this.dispatch(true);
+        }
+    };
+
     this.dispatch = function (result) {
         var name = result ? 'done' : 'fail';
         options.actions && options.actions[name] && options.actions[name]();
