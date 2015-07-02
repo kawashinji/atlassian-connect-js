@@ -35,7 +35,7 @@ function showStatus($home, status) {
     setTimeout(function () {
         var spinner = $home.find('.small-spinner','.ap-' + status);
         if (spinner.length && spinner.spin) {
-            spinner.spin({zIndex: '1'});
+            spinner.spin({ lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1 });
         }
     }, 10);
 }

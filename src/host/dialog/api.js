@@ -55,6 +55,19 @@ function createDialogElement(options, $nexus, chromeless) {
 
     $nexus.data('ra.dialog.buttons', buttons);
 
+    function handler(button) {
+        // ignore clicks on disabled links
+        if(button.isEnabled()){
+            button.$el.trigger("ra.dialog.click", button.dispatch);
+        }
+    }
+
+    $.each(buttons, function(i, button) {
+        button.$el.click(function(){
+            handler(button);
+        });
+    });
+
     return $el;
 }
 
@@ -159,6 +172,12 @@ export default {
         dialog.on('hide', closeDialog);
         // ESC key closes the dialog
         $(document).on('keydown', keyPressListener);
+
+        $.each(buttons, function(name, button) {
+            button.click(function () {
+                button.dispatch(true);
+            });
+        });
 
         displayDialogContent($nexus, mergedOptions);
 

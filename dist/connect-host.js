@@ -2330,6 +2330,19 @@ function createDialogElement(options, $nexus, chromeless) {
 
     $nexus.data('ra.dialog.buttons', buttons);
 
+    function handler(button) {
+        // ignore clicks on disabled links
+        if (button.isEnabled()) {
+            button.$el.trigger('ra.dialog.click', button.dispatch);
+        }
+    }
+
+    _dollar2['default'].each(buttons, function (i, button) {
+        button.$el.click(function () {
+            handler(button);
+        });
+    });
+
     return $el;
 }
 
@@ -2427,6 +2440,12 @@ exports['default'] = {
         dialog.on('hide', closeDialog);
         // ESC key closes the dialog
         _dollar2['default'](document).on('keydown', keyPressListener);
+
+        _dollar2['default'].each(buttons, function (name, button) {
+            button.click(function () {
+                button.dispatch(true);
+            });
+        });
 
         displayDialogContent($nexus, mergedOptions);
 
@@ -2548,6 +2567,15 @@ function Button(options) {
     };
 
     this.setEnabled(true);
+
+    this.click = function (listener) {
+        if (listener) {
+            this.$el.unbind('ra.dialog.click');
+            this.$el.bind('ra.dialog.click', listener);
+        } else {
+            this.dispatch(true);
+        }
+    };
 
     this.dispatch = function (result) {
         var name = result ? 'done' : 'fail';
@@ -2677,28 +2705,6 @@ var _dollar = _dereq_('../dollar');
 
 var _dollar2 = _interopRequireDefault(_dollar);
 
-var thisXdm;
-_dollar2['default'](function (jq) {
-    jq('body').on('click', '.ap-aui-dialog2', function (e) {
-        if (thisXdm) {
-            var buttonName;
-            if (e.target.classList.contains('ap-dialog-submit')) {
-                buttonName = 'submit';
-            } else if (e.target.classList.contains('ap-dialog-cancel')) {
-                buttonName = 'cancel';
-            }
-            var button = _api2['default'].getButton(buttonName);
-            if (button && button.isEnabled()) {
-                if (thisXdm.isActive() && thisXdm.buttonListenerBound) {
-                    thisXdm.dialogMessage(buttonName, button.dispatch);
-                } else {
-                    button.dispatch(true);
-                }
-            }
-        }
-    });
-});
-
 exports['default'] = function () {
     return {
         stubs: ['dialogMessage'],
@@ -2708,7 +2714,21 @@ exports['default'] = function () {
             if (state.dlg === '1') {
                 xdm.uiParams.isDialog = true;
             }
-            thisXdm = xdm;
+
+            if (xdm.uiParams.isDialog) {
+                var buttons = dialogMain.getButton();
+                if (buttons) {
+                    _dollar2['default'].each(buttons, function (name, button) {
+                        button.click(function (e, callback) {
+                            if (xdm.isActive() && xdm.buttonListenerBound) {
+                                xdm.dialogMessage(name, callback);
+                            } else {
+                                callback(true);
+                            }
+                        });
+                    });
+                }
+            }
         },
 
         internals: {
@@ -3404,7 +3424,7 @@ function showStatus($home, status) {
     setTimeout(function () {
         var spinner = $home.find('.small-spinner', '.ap-' + status);
         if (spinner.length && spinner.spin) {
-            spinner.spin({ zIndex: '1' });
+            spinner.spin({ lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1 });
         }
     }, 10);
 }

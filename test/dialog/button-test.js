@@ -14,14 +14,30 @@ QUnit.test("Submit Button has text set to submit", function(assert) {
 });
 
 
-QUnit.test("Submit Button done callback is executed on dispatch", function(assert) {
+QUnit.test("Submit Button done callback is executed on click", function(assert) {
     var spy = sinon.spy(),
     button = dialogButton.submit({
         done: spy
     });
-    button.dispatch(true);
+    button.click();
     assert.ok(spy.calledOnce);
     });
+
+QUnit.test("Submit Button done callback doesn't execute if custom callback is registered", function() {
+    var spy = sinon.spy();
+    var customCallback = sinon.spy();
+
+    var button = dialogButton.submit({
+        done: spy
+    });
+    button.click(customCallback);
+    ok(spy.notCalled);
+    ok(customCallback.notCalled);
+
+    button.$el.trigger('ra.dialog.click');
+    ok(customCallback.calledOnce);
+    ok(spy.notCalled);
+});
 
 QUnit.test("Submit Button can be disabled", function(assert) {
     var button = dialogButton.submit();
@@ -39,12 +55,12 @@ QUnit.test("Cancel Button has text set to cancel", function(assert) {
     assert.equal(button.$el.text(), "Cancel");
 });
 
-QUnit.test("Cancel Button done callback is executed on dispatch", function(assert) {
+QUnit.test("Cancel Button done callback is executed on click", function(assert) {
     var spy = sinon.spy();
     var button = dialogButton.cancel({
         done: spy
     });
-    button.dispatch(true);
+    button.click();
     assert.ok(spy.calledOnce);
 });
 
@@ -72,6 +88,17 @@ QUnit.test("Buttons are enabled by default", function(assert) {
     var button = dialogButton.submit();
     assert.ok(button.isEnabled());
 });
+
+QUnit.test("click binds an event to ra.dialog.click if passed a function", function() {
+    var spy = sinon.spy();
+    var button = dialogButton.submit();
+    button.click(spy);
+    ok(spy.notCalled);
+    button.$el.trigger('ra.dialog.click');
+    ok(spy.calledOnce);
+});
+
+
 
 QUnit.test("setText changes the button text", function(assert) {
     var button = dialogButton.submit();

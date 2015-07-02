@@ -2295,11 +2295,13 @@ _rpc2['default'].extend(function (remote) {
     stubs: ['dialogListenerBound', 'setDialogButtonEnabled', 'isDialogButtonEnabled', 'createDialog', 'closeDialog'],
 
     init: function init() {
-      window.addEventListener('keydown', function (event) {
-        if (event.keyCode === 27) {
-          _exports.close();
-        }
-      });
+      if (isDialog) {
+        window.addEventListener('keydown', function (event) {
+          if (event.keyCode === 27) {
+            _exports.close();
+          }
+        });
+      }
     }
 
   };
