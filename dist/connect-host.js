@@ -2415,8 +2415,10 @@ exports['default'] = {
 
         if (existingNode.length > 0) {
             existingNode.addClass(dialogElement.attr('class'));
+            existingNode.attr('aria-hidden', false);
             existingNode.empty().append(dialogElement.html());
             dialogElement = existingNode;
+            AJS.$('.aui-blanket').remove();
         }
 
         dialogElement.find('.aui-dialog2-content').append($nexus);
