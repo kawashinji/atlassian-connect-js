@@ -95,4 +95,4 @@ gulp.task('css:minify', buildCss.bind(null, {minify: true}));
 gulp.task('watch', ['plugin:watch', 'host:watch']);
 gulp.task('build', ['plugin:build', 'host:build']);
 
-gulp.task('default', ['build']);
+gulp.task('default', ['build', 'css:minify']);

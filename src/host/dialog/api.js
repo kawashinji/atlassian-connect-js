@@ -26,34 +26,44 @@ function keyPressListener(e) {
 };
 
 function createDialogElement(options, $nexus, chromeless) {
-    var $el;
+    var $el = $('#' + options.id);
     var extraClasses = ['ap-aui-dialog2'];
 
     if (chromeless) {
         extraClasses.push('ap-aui-dialog2-chromeless');
     }
 
-    $el = $(aui.dialog.dialog2({
-        id: options.id,
-        titleText: options.header,
-        titleId: options.titleId,
-        size: options.size,
-        extraClasses: extraClasses,
-        removeOnHide: true,
-        footerActionContent: true,
-        modal: true
-    }));
+    if($el.length === 0){
+        $el = $(aui.dialog.dialog2({
+            id: options.id,
+            titleText: options.header,
+            titleId: options.titleId,
+            size: options.size,
+            extraClasses: extraClasses,
+            removeOnHide: true,
+            footerActionContent: true,
+            modal: true
+        }));
+    } else {
+        $el = $($el[0]);
+        $el.find('.aui-dialog2-header-main').text(options.header);
+        if(extraClasses){
+            $el.addClass(extraClasses.join(" "));
+        }
+    }
 
     if (chromeless) {
-        $el.find('header, footer').remove();
+        $el.find('header, footer').hide();
     } else {
         buttons.submit.setText(options.submitText);
         buttons.cancel.setText(options.cancelText);
         //soy templates don't support sending objects, so make the template and bind them.
-        $el.find('.aui-dialog2-footer-actions').empty().append(buttons.submit.$el, buttons.cancel.$el);
-    }
+        let footer = $el.find('.aui-dialog2-footer-actions');
+        footer.find('button').remove();
+        footer.append(buttons.submit.$el, buttons.cancel.$el);
+        $nexus.data('ra.dialog.buttons', buttons);
 
-    $nexus.data('ra.dialog.buttons', buttons);
+    }
 
     function handler(button) {
         // ignore clicks on disabled links
@@ -90,7 +100,8 @@ function parseDimension(value, viewport) {
 function closeDialog() {
     if ($nexus) {
         // Signal the XdmRpc for the dialog's iframe to clean up
-        $nexus
+
+        $nexus.find('iframe')
             .trigger('ra.iframe.destroy')
             .removeData('ra.dialog.buttons')
             .unbind();
@@ -156,16 +167,6 @@ export default {
             dialogElement.removeClass('aui-dialog2-medium'); // this class has a min-height so must be removed.
         }
 
-        var existingNode = $('#' + dialogElement.attr('id'));
-
-        if(existingNode.length > 0){
-            existingNode.addClass(dialogElement.attr('class'));
-            existingNode.attr('aria-hidden', false);
-            existingNode.empty().append(dialogElement.children());
-            dialogElement = existingNode;
-            AJS.$(".aui-blanket").remove();
-        }
-
         dialogElement.find('.aui-dialog2-content').append($nexus);
         dialog = AJS.dialog2(dialogElement);
 
@@ -196,7 +197,11 @@ export default {
             this.focus();
         });
 
-        dialog.show();
+        var existingNode = $('#' + dialogElement.attr('id'));
+        if(existingNode.length === 0){
+            dialog.show();
+        }
+
         return dialog;
 
     },

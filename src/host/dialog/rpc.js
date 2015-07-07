@@ -13,7 +13,7 @@ export default function () {
             }
 
             if(xdm.uiParams.isDialog){
-                var buttons = dialogMain.getButton();
+                var buttons = dialog.getButton();
                 if(buttons){
                     $.each(buttons, function(name, button) {
                         button.click(function (e, callback) {
@@ -63,7 +63,6 @@ export default function () {
 
             },
             closeDialog() {
-                this.events.emit('ra.iframe.destroy');
                 dialog.close();
             }
         }

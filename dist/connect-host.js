@@ -2301,34 +2301,43 @@ function keyPressListener(e) {
 };
 
 function createDialogElement(options, $nexus, chromeless) {
-    var $el;
+    var $el = _dollar2['default']('#' + options.id);
     var extraClasses = ['ap-aui-dialog2'];
 
     if (chromeless) {
         extraClasses.push('ap-aui-dialog2-chromeless');
     }
 
-    $el = _dollar2['default'](aui.dialog.dialog2({
-        id: options.id,
-        titleText: options.header,
-        titleId: options.titleId,
-        size: options.size,
-        extraClasses: extraClasses,
-        removeOnHide: true,
-        footerActionContent: true,
-        modal: true
-    }));
+    if ($el.length === 0) {
+        $el = _dollar2['default'](aui.dialog.dialog2({
+            id: options.id,
+            titleText: options.header,
+            titleId: options.titleId,
+            size: options.size,
+            extraClasses: extraClasses,
+            removeOnHide: true,
+            footerActionContent: true,
+            modal: true
+        }));
+    } else {
+        $el = _dollar2['default']($el[0]);
+        $el.find('.aui-dialog2-header-main').text(options.header);
+        if (extraClasses) {
+            $el.addClass(extraClasses.join(' '));
+        }
+    }
 
     if (chromeless) {
-        $el.find('header, footer').remove();
+        $el.find('header, footer').hide();
     } else {
         buttons.submit.setText(options.submitText);
         buttons.cancel.setText(options.cancelText);
         //soy templates don't support sending objects, so make the template and bind them.
-        $el.find('.aui-dialog2-footer-actions').empty().append(buttons.submit.$el, buttons.cancel.$el);
+        var footer = $el.find('.aui-dialog2-footer-actions');
+        footer.find('button').remove();
+        footer.append(buttons.submit.$el, buttons.cancel.$el);
+        $nexus.data('ra.dialog.buttons', buttons);
     }
-
-    $nexus.data('ra.dialog.buttons', buttons);
 
     function handler(button) {
         // ignore clicks on disabled links
@@ -2364,7 +2373,8 @@ function parseDimension(value, viewport) {
 function closeDialog() {
     if ($nexus) {
         // Signal the XdmRpc for the dialog's iframe to clean up
-        $nexus.trigger('ra.iframe.destroy').removeData('ra.dialog.buttons').unbind();
+
+        $nexus.find('iframe').trigger('ra.iframe.destroy').removeData('ra.dialog.buttons').unbind();
         // Clear the nexus handle to allow subsequent dialogs to open
         $nexus = null;
     }
@@ -2424,16 +2434,6 @@ exports['default'] = {
             dialogElement.removeClass('aui-dialog2-medium'); // this class has a min-height so must be removed.
         }
 
-        var existingNode = _dollar2['default']('#' + dialogElement.attr('id'));
-
-        if (existingNode.length > 0) {
-            existingNode.addClass(dialogElement.attr('class'));
-            existingNode.attr('aria-hidden', false);
-            existingNode.empty().append(dialogElement.html());
-            dialogElement = existingNode;
-            AJS.$('.aui-blanket').remove();
-        }
-
         dialogElement.find('.aui-dialog2-content').append($nexus);
         dialog = AJS.dialog2(dialogElement);
 
@@ -2464,7 +2464,11 @@ exports['default'] = {
             this.focus();
         });
 
-        dialog.show();
+        var existingNode = _dollar2['default']('#' + dialogElement.attr('id'));
+        if (existingNode.length === 0) {
+            dialog.show();
+        }
+
         return dialog;
     },
 
@@ -2716,7 +2720,7 @@ exports['default'] = function () {
             }
 
             if (xdm.uiParams.isDialog) {
-                var buttons = dialogMain.getButton();
+                var buttons = _api2['default'].getButton();
                 if (buttons) {
                     _dollar2['default'].each(buttons, function (name, button) {
                         button.click(function (e, callback) {
@@ -2764,7 +2768,6 @@ exports['default'] = function () {
                 _factory2['default'](xdmOptions, dialogOptions, this.productContext);
             },
             closeDialog: function closeDialog() {
-                this.events.emit('ra.iframe.destroy');
                 _api2['default'].close();
             }
         }
