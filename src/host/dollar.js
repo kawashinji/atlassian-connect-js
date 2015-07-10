@@ -3,6 +3,4 @@
  * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
  * to code that runs on host and iframe.
  */
-define("_dollar", function () {
-  return AJS.$;
-});
+export default AJS.$;

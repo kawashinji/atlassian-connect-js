@@ -1,10 +1,8 @@
-var deps = ["_events", "_jwt", "_uri",  "_ui-params", "host/_util"];
-if(this.AP){
-  deps = ["_events", "_jwt", "_uri",  "_ui-params"];
-}
-( (typeof _AP !== "undefined") ? define : AP.define)("_xdm", deps, function (events, jwt, uri, uiParams, util) {
-
-  "use strict";
+import events from './events';
+import jwt from './jwt';
+import uri from './uri';
+import uiParams from './ui-params';
+import util from '../host/util';
 
   // Capture some common values and symbol aliases
   var count = 0;
@@ -67,7 +65,7 @@ if(this.AP){
               handled = true;
             } else {
               // Only mark other calls as handled if they weren't expecting a callback and didn't fail
-              handled = !callbacks[uid].async && type !== "fail";
+              handled = !callbacks[uid].async && type !== 'fail';
             }
             delete callbacks[uid];
           }
@@ -95,11 +93,12 @@ if(this.AP){
       // Host-side constructor branch
 
       // if there is already an iframe created. Destroy it. It's an old version.
-      $("#" + util.escapeSelector(config.container)).find('iframe').trigger('ra.iframe.destroy');
+
+      $(document.getElementById(config.container)).find('iframe').trigger('ra.iframe.destroy');
 
       var iframe = createIframe(config);
       target = iframe.contentWindow;
-      localKey = param(config.remote, "oauth_consumer_key") || param(config.remote, "jwt");
+      localKey = param(config.remote, 'oauth_consumer_key') || param(config.remote, 'jwt');
       remoteKey = config.remoteKey;
       addonKey = remoteKey;
       remoteOrigin = getBaseUrl(config.remote).toLowerCase();
@@ -128,13 +127,13 @@ if(this.AP){
     } else {
       // Add-on-side constructor branch
       target = w.parent;
-      localKey = "local"; // Would be better to make this the add-on key, but it's not readily available at this time
+      localKey = 'local'; // Would be better to make this the add-on key, but it's not readily available at this time
 
       // identify the add-on by unique key: first try JWT issuer claim and fall back to OAuth1 consumer key
-      var jwtParam = param(loc, "jwt");
-      remoteKey = jwtParam ? jwt.parseJwtIssuer(jwtParam) : param(loc, "oauth_consumer_key");
+      var jwtParam = param(loc, 'jwt');
+      remoteKey = jwtParam ? jwt.parseJwtIssuer(jwtParam) : param(loc, 'oauth_consumer_key');
 
-      // if the authentication method is "none" then it is valid to have no jwt and no oauth in the url
+      // if the authentication method is 'none' then it is valid to have no jwt and no oauth in the url
       // but equally we don't trust this iframe as far as we can throw it, so assign it a random id
       // in order to prevent it from talking to any other iframe
       if (null === remoteKey) {
@@ -142,8 +141,8 @@ if(this.AP){
       }
 
       addonKey = localKey;
-      remoteOrigin = param(loc, "xdm_e").toLowerCase();
-      channel = param(loc, "xdm_c");
+      remoteOrigin = param(loc, 'xdm_e').toLowerCase();
+      channel = param(loc, 'xdm_c');
       // Define the add-on-side mixin
       mixin = {
         isHost: false,
@@ -154,7 +153,7 @@ if(this.AP){
       };
     }
 
-    id = addonKey + "|" + (count += 1);
+    id = addonKey + '|' + (count += 1);
 
     // Create the actual XdmRpc instance, and apply the context-sensitive mixin
     self = $.extend({
@@ -187,15 +186,15 @@ if(this.AP){
       // Send a request to the remote, where:
       //  - n is the name of the remote function
       //  - a is an array of the (hopefully) serializable, non-callback arguments to this method
-      send(sid, "request", {n: methodName, a: args});
+      send(sid, 'request', {n: methodName, a: args});
     }
 
     function sendDone(sid, message) {
-      send(sid, "done", message);
+      send(sid, 'done', message);
     }
 
     function sendFail(sid, message) {
-      send(sid, "fail", message);
+      send(sid, 'fail', message);
     }
 
     // Handles an normalized, incoming post-message event
@@ -215,7 +214,7 @@ if(this.AP){
           return;
         }
 
-        if (ptype === "request") {
+        if (ptype === 'request') {
           // If the payload type is request, this is an incoming method invocation
           var name = pmessage.n, args = pmessage.a,
               local = locals[name], done, fail, async;
@@ -253,13 +252,13 @@ if(this.AP){
             }
           } else {
             // No such local rpc method name found
-            debug("Unhandled request:", payload);
+            debug('Unhandled request:', payload);
           }
-        } else if (ptype === "done" || ptype === "fail") {
+        } else if (ptype === 'done' || ptype === 'fail') {
           // The payload is of a response type, so try to invoke the appropriate callback via the nexus registry
           if (!nexus.invoke(ptype, pid, pmessage)) {
             // The nexus didn't find an appropriate reponse callback to invoke
-            debug("Unhandled response:", ptype, pid, pmessage);
+            debug('Unhandled response:', ptype, pid, pmessage);
           }
         }
       } catch (ex) {
@@ -295,7 +294,7 @@ if(this.AP){
     // post-message request events, tracking async callbacks as necessary.
     $.each(remotes, function (methodName, v) {
       // If remotes were specified as an array rather than a map, promote v to methodName
-      if (typeof methodName === "number") methodName = v;
+      if (typeof methodName === 'number') methodName = v;
       self[methodName] = bridge(methodName);
     });
 
@@ -306,7 +305,7 @@ if(this.AP){
       // The actual event object is the last argument passed to any listener
       var event = arguments[arguments.length - 1];
       var trace = event.trace = event.trace || {};
-      var traceKey = self.id + "|xdm";
+      var traceKey = self.id + '|xdm';
       if ((self.isHost && !trace[traceKey] && event.source.channel !== self.id)
           || (!self.isHost && event.source.key === localKey)) {
         // Only forward an event once in this listener
@@ -314,8 +313,8 @@ if(this.AP){
         // Clone the event and forward without tracing info, to avoid leaking host-side iframe topology to add-ons
         event = $.extend({}, event);
         delete event.trace;
-        debug("Forwarding " + (self.isHost ? "host" : "addon") + " event:", event);
-        sendRequest("_event", [event]);
+        debug('Forwarding ' + (self.isHost ? 'host' : 'addon') + ' event:', event);
+        sendRequest('_event', [event]);
       }
     });
     // Define our own reserved local to receive remote events
@@ -332,7 +331,7 @@ if(this.AP){
           origin: this.remoteOrigin || remoteOrigin
         };
       }
-      debug("Receiving as " + (this.isHost ? "host" : "addon") + " event:", event);
+      debug('Receiving as ' + (this.isHost ? 'host' : 'addon') + ' event:', event);
       // Emit the event on the local bus
       bus._emitEvent(event);
     };
@@ -350,12 +349,12 @@ if(this.AP){
 
     // Starts listening for window messaging events
     function bind() {
-      $(window).bind("message", postMessageHandler);
+      $(window).bind('message', postMessageHandler);
     }
 
     // Stops listening for window messaging events
     function unbind() {
-      $(window).unbind("message", postMessageHandler);
+      $(window).unbind('message', postMessageHandler);
     }
 
     // Crudely extracts a query param value from a url by name
@@ -384,19 +383,19 @@ if(this.AP){
     //  - channel:    deprecated
     function createIframe(config) {
       if(!config.container){
-        throw new Error("config.container must be defined");
+        throw new Error('config.container must be defined');
       }
-      var iframe = document.createElement("iframe"),
-        id = "easyXDM_" + config.container + "_provider",
+      var iframe = document.createElement('iframe'),
+        id = 'easyXDM_' + config.container + '_provider',
         windowName = "";
 
       if(config.uiParams){
         windowName = uiParams.encode(config.uiParams);
       }
-      $.extend(iframe, {id: id, name: windowName, frameBorder: "0"}, config.props);
+      $.extend(iframe, {id: id, name: windowName, frameBorder: '0'}, config.props);
       //$.extend will not add the attribute rel.
       iframe.setAttribute('rel', 'nofollow');
-      $("#" + util.escapeSelector(config.container)).append(iframe);
+      $(document.getElementById(config.container)).append(iframe);
       $(iframe).trigger("ra.iframe.create");
       iframe.src = config.remote;
       return iframe;
@@ -407,7 +406,7 @@ if(this.AP){
     }
 
     function debug() {
-      if (XdmRpc.debug) log.apply(w, ["DEBUG:"].concat([].slice.call(arguments)));
+      if (XdmRpc.debug) log.apply(w, ['DEBUG:'].concat([].slice.call(arguments)));
     }
 
     function log() {
@@ -429,6 +428,5 @@ if(this.AP){
 
 //  XdmRpc.debug = true;
 
-  return XdmRpc;
+export default XdmRpc;
 
-});

@@ -1,48 +1,42 @@
-/**
- * Binds all elements with the class "ap-dialog" to open dialogs.
- * TODO: document options
- */
-AJS.toInit(function ($) {
+import content from '../content';
+import dialog from './api';
+import dialogFactory from './factory';
+import $ from '../dollar';
 
-    (function(require, AJS){
-        "use strict";
-        require(["ac/dialog", "ac/dialog/dialog-factory", "connect-host"], function(dialog, dialogFactory, connect) {
+export default function () {
+    var action = 'click';
+    var selector = '.ap-dialog';
 
-            var action = "click",
-                selector = ".ap-dialog",
-                callback = function(href, options){
+    function callback(href, options) {
+        var webItemOptions = content.getOptionsForWebItem(options.bindTo);
+        var moduleKey = content.getWebItemModuleKey(options.bindTo);
+        var addonKey = content.getWebItemPluginKey(options.bindTo);
 
-                    var webItemOptions = connect.webItemHelper.getOptionsForWebItem(options.bindTo),
-                    moduleKey = connect.webItemHelper.getWebItemModuleKey(options.bindTo),
-                    addonKey = connect.webItemHelper.getWebItemPluginKey(options.bindTo);
+        $.extend(options, webItemOptions);
 
-                    $.extend(options, webItemOptions);
+        if (!options.ns) {
+            options.ns = moduleKey;
+        }
 
-                    if (!options.ns) {
-                        options.ns = moduleKey;
-                    }
-                    if(!options.container){
-                        options.container = options.ns;
-                    }
+        if (!options.container) {
+            options.container = options.ns;
+        }
 
-                    // webitem target options can sometimes be sent as strings.
-                    if(typeof options.chrome === "string"){
-                        options.chrome = (options.chrome.toLowerCase() === "false") ? false : true;
-                    }
+        // webitem target options can sometimes be sent as strings.
+        if (typeof options.chrome === 'string') {
+            options.chrome = (options.chrome.toLowerCase() === 'false') ? false : true;
+        }
 
-                    //default chrome to be true for backwards compatibility with webitems
-                    if(options.chrome === undefined){
-                      options.chrome = true;
-                    }
+        //default chrome to be true for backwards compatibility with webitems
+        if (options.chrome === undefined) {
+          options.chrome = true;
+        }
 
-                    dialogFactory({
-                        key: addonKey,
-                        moduleKey: moduleKey
-                    }, options,
-                    options.productContext);
-                };
+        dialogFactory({
+            key: addonKey,
+            moduleKey: moduleKey
+        }, options, options.productContext);
+    }
 
-            connect.webItemHelper.eventHandler(action, selector, callback);
-        });
-    })(require, AJS);
-});
+    content.eventHandler(action, selector, callback);
+}

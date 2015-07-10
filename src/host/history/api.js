@@ -1,93 +1,85 @@
+import Uri from '../../common/uri';
+
 /**
- * Methods for showing the status of a connect-addon (loading, time'd-out etc)
- */
-(function(define){
-    "use strict";
+* Methods for showing the status of a connect-addon (loading, time'd-out etc)
+*/
+var lastAdded,
+    anchorPrefix = '!';
 
-    define("ac/history/main", ["connect-host"], function (_AP) {
+function stripPrefix (text) {
+    if(text === undefined || text === null){
+        return "";
+    }
+    return text.toString().replace(new RegExp('^' + anchorPrefix), "");
+}
 
-        var lastAdded,
-            anchorPrefix = "!",
-            Uri = _AP._uriHelper;
+function addPrefix (text) {
+    if(text === undefined || text === null){
+        throw 'You must supply text to prefix';
+    }
 
-        function stripPrefix (text) {
-            if(text === undefined || text === null){
-                return "";
-            }
-            return text.toString().replace(new RegExp("^" + anchorPrefix), "");
+    return anchorPrefix + stripPrefix(text);
+}
+
+function changeState (anchor, replace) {
+    var currentUrlObj = new Uri.init(window.location.href),
+    newUrlObj = new Uri.init(window.location.href);
+
+    newUrlObj.anchor(addPrefix(anchor));
+
+    // If the url has changed.
+    if(newUrlObj.anchor() !== currentUrlObj.anchor()){
+        lastAdded = newUrlObj.anchor();
+        // If it was replaceState or pushState?
+        if(replace){
+            window.location.replace('#' + newUrlObj.anchor());
+        } else {
+            window.location.assign('#' + newUrlObj.anchor());
         }
+        return newUrlObj.anchor();
+    }
+}
 
-        function addPrefix (text) {
-            if(text === undefined || text === null){
-                throw "You must supply text to prefix";
-            }
+function pushState (url) {
+    changeState(url);
+}
 
-            return anchorPrefix + stripPrefix(text);
-        }
+function replaceState (url) {
+    changeState(url, true);
+}
 
-        function changeState (anchor, replace) {
-            var currentUrlObj = new Uri.init(window.location.href),
-            newUrlObj = new Uri.init(window.location.href);
+function go (delta) {
+    history.go(delta);
+}
 
-            newUrlObj.anchor(addPrefix(anchor));
+function hashChange (event, historyMessage) {
+    var newUrlObj = new Uri.init(event.newURL);
+    var oldUrlObj = new Uri.init(event.oldURL);
+    if( ( newUrlObj.anchor() !== oldUrlObj.anchor() ) && // if the url has changed
+        ( lastAdded !== newUrlObj.anchor() ) //  and it's not the page we just pushed.
+     ){
+        historyMessage(sanitizeHashChangeEvent(event));
+    }
+    lastAdded = null;
+}
 
-            // If the url has changed.
-            if(newUrlObj.anchor() !== currentUrlObj.anchor()){
-                lastAdded = newUrlObj.anchor();
-                // If it was replaceState or pushState?
-                if(replace){
-                    window.location.replace("#" + newUrlObj.anchor());
-                } else {
-                    window.location.assign("#" + newUrlObj.anchor());
-                }
-                return newUrlObj.anchor();
-            }
-        }
+function sanitizeHashChangeEvent (e) {
+    return {
+        newURL: stripPrefix(new Uri.init(e.newURL).anchor()),
+        oldURL: stripPrefix(new Uri.init(e.oldURL).anchor())
+    };
+}
 
-        function pushState (url) {
-            changeState(url);
-        }
+function getState () {
+    var hostWindowUrl = new Uri.init(window.location.href),
+    anchor = stripPrefix(hostWindowUrl.anchor());
+    return anchor;
+}
 
-        function replaceState (url) {
-            changeState(url, true);
-        }
-
-        function go (delta) {
-            history.go(delta);
-        }
-
-        function hashChange (event, historyMessage) {
-            var newUrlObj = new Uri.init(event.newURL);
-            var oldUrlObj = new Uri.init(event.oldURL);
-            if( ( newUrlObj.anchor() !== oldUrlObj.anchor() ) && // if the url has changed
-                ( lastAdded !== newUrlObj.anchor() ) //  and it's not the page we just pushed.
-             ){
-                historyMessage(sanitizeHashChangeEvent(event));
-            }
-            lastAdded = null;
-        }
-
-        function sanitizeHashChangeEvent (e) {
-            return {
-                newURL: stripPrefix(new Uri.init(e.newURL).anchor()),
-                oldURL: stripPrefix(new Uri.init(e.oldURL).anchor())
-            };
-        }
-
-        function getState () {
-            var hostWindowUrl = new Uri.init(window.location.href),
-            anchor = stripPrefix(hostWindowUrl.anchor());
-            return anchor;
-        }
-
-        return {
-            pushState: pushState,
-            replaceState: replaceState,
-            go: go,
-            hashChange: hashChange,
-            getState: getState
-        };
-
-    });
-
-})(define);
+export default {
+    pushState,
+    replaceState,
+    go,
+    hashChange,
+    getState
+}

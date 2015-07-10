@@ -1,12 +1,8 @@
-define("host/_util", function () {
-    "use strict";
+function escapeSelector(s) {
+    if (!s) {
+        throw new Error('No selector to escape');
+    }
+    return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
+}
 
-    return {
-        escapeSelector: function( s ){
-            if(!s){
-                throw new Error("No selector to escape");
-            }
-            return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&");
-        }
-    };
-});
+export default {escapeSelector}

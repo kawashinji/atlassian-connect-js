@@ -1,4 +1,5 @@
-AP.define("messages", ["_dollar", "_rpc"],
+import $ from './dollar';
+import rpc from './rpc';
 
 /**
 * Messages are the primary method for providing system feedback in the product user interface.
@@ -6,7 +7,7 @@ AP.define("messages", ["_dollar", "_rpc"],
 * For visual examples of each kind please see the [Design guide](https://developer.atlassian.com/design/latest/communicators/messages/).
 * ### Example ###
 * ```
-* AP.require("messages", function(messages){
+* AP.require('messages', function(messages){
 *   //create a message
 *   var message = messages.info('plain text title', 'plain text body');
 * });
@@ -14,150 +15,145 @@ AP.define("messages", ["_dollar", "_rpc"],
 * @exports messages
 */
 
-function ($, rpc) {
-    "use strict";
+var messageId = 0;
 
-    var messageId = 0;
+function getMessageId(){
+    messageId++;
+    return 'ap-message-' + messageId;
+}
 
-    function getMessageId(){
-        messageId++;
-        return 'ap-message-' + messageId;
-    }
+export default rpc.extend(function (remote) {
 
-    return rpc.extend(function (remote) {
-
-        var apis = {};
-        $.each(["generic", "error", "warning", "success", "info", "hint"], function (_, name) {
-            apis[name] = function (title, body, options) {
-                options = options || {};
-                options.id = getMessageId();
-                remote.showMessage(name, title, body, options);
-                return options.id;
-            };
-        });
-
-        /**
-        * clear a message
-        * @name clear
-        * @method
-        * @memberof module:messages#
-        * @param    {String}    id  The id that was returned when the message was created.
-        * @example
-        * AP.require("messages", function(messages){
-        *   //create a message
-        *   var message = messages.info('title', 'body');
-        *   setTimeout(function(){
-        *     messages.clear(message);
-        *   }, 2000);
-        * });
-        */
-
-        apis.clear = function(id){
-            remote.clearMessage(id);
-        }
-
-        return {
-            /**
-            * Show a generic message
-            * @name generic
-            * @method
-            * @memberof module:messages#
-            * @param    {String}            title       Sets the title text of the message.
-            * @param    {String}            body        The main content of the message.
-            * @param    {MessageOptions}    options     Message Options
-            * @returns  {String}    The id to be used when clearing the message
-            * @example
-            * AP.require("messages", function(messages){
-            *   //create a message
-            *   var message = messages.generic('title', 'generic message example');
-            * });
-            */
-
-            /**
-            * Show an error message
-            * @name error
-            * @method
-            * @memberof module:messages#
-            * @param    {String}            title       Sets the title text of the message.
-            * @param    {String}            body        The main content of the message.
-            * @param    {MessageOptions}    options     Message Options
-            * @returns  {String}    The id to be used when clearing the message
-            * @example
-            * AP.require("messages", function(messages){
-            *   //create a message
-            *   var message = messages.error('title', 'error message example');
-            * });
-            */
-
-            /**
-            * Show a warning message
-            * @name warning
-            * @method
-            * @memberof module:messages#
-            * @param    {String}            title       Sets the title text of the message.
-            * @param    {String}            body        The main content of the message.
-            * @param    {MessageOptions}    options     Message Options
-            * @returns  {String}    The id to be used when clearing the message
-            * @example
-            * AP.require("messages", function(messages){
-            *   //create a message
-            *   var message = messages.warning('title', 'warning message example');
-            * });
-            */
-
-            /**
-            * Show a success message
-            * @name success
-            * @method
-            * @memberof module:messages#
-            * @param    {String}            title       Sets the title text of the message.
-            * @param    {String}            body        The main content of the message.
-            * @param    {MessageOptions}    options     Message Options
-            * @returns  {String}    The id to be used when clearing the message
-            * @example
-            * AP.require("messages", function(messages){
-            *   //create a message
-            *   var message = messages.success('title', 'success message example');
-            * });
-            */
-
-            /**
-            * Show an info message
-            * @name info
-            * @method
-            * @memberof module:messages#
-            * @param    {String}            title       Sets the title text of the message.
-            * @param    {String}            body        The main content of the message.
-            * @param    {MessageOptions}    options     Message Options
-            * @returns  {String}    The id to be used when clearing the message
-            * @example
-            * AP.require("messages", function(messages){
-            *   //create a message
-            *   var message = messages.info('title', 'info message example');
-            * });
-            */
-
-            /**
-            * Show a hint message
-            * @name hint
-            * @method
-            * @memberof module:messages#
-            * @param    {String}            title       Sets the title text of the message.
-            * @param    {String}            body        The main content of the message.
-            * @param    {MessageOptions}    options     Message Options
-            * @returns  {String}    The id to be used when clearing the message
-            * @example
-            * AP.require("messages", function(messages){
-            *   //create a message
-            *   var message = messages.hint('title', 'hint message example');
-            * });
-            */
-
-            apis: apis,
-            stubs: ['showMessage', 'clearMessage']
+    var apis = {};
+    $.each(['generic', 'error', 'warning', 'success', 'info', 'hint'], function (_, name) {
+        apis[name] = function (title, body, options) {
+            options = options || {};
+            options.id = getMessageId();
+            remote.showMessage(name, title, body, options);
+            return options.id;
         };
     });
 
+    /**
+    * clear a message
+    * @name clear
+    * @method
+    * @memberof module:messages#
+    * @param    {String}    id  The id that was returned when the message was created.
+    * @example
+    * AP.require('messages', function(messages){
+    *   //create a message
+    *   var message = messages.info('title', 'body');
+    *   setTimeout(function(){
+    *     messages.clear(message);
+    *   }, 2000);
+    * });
+    */
+
+    apis.clear = function(id){
+        remote.clearMessage(id);
+    }
+
+    return {
+        /**
+        * Show a generic message
+        * @name generic
+        * @method
+        * @memberof module:messages#
+        * @param    {String}            title       Sets the title text of the message.
+        * @param    {String}            body        The main content of the message.
+        * @param    {MessageOptions}    options     Message Options
+        * @returns  {String}    The id to be used when clearing the message
+        * @example
+        * AP.require('messages', function(messages){
+        *   //create a message
+        *   var message = messages.generic('title', 'generic message example');
+        * });
+        */
+
+        /**
+        * Show an error message
+        * @name error
+        * @method
+        * @memberof module:messages#
+        * @param    {String}            title       Sets the title text of the message.
+        * @param    {String}            body        The main content of the message.
+        * @param    {MessageOptions}    options     Message Options
+        * @returns  {String}    The id to be used when clearing the message
+        * @example
+        * AP.require('messages', function(messages){
+        *   //create a message
+        *   var message = messages.error('title', 'error message example');
+        * });
+        */
+
+        /**
+        * Show a warning message
+        * @name warning
+        * @method
+        * @memberof module:messages#
+        * @param    {String}            title       Sets the title text of the message.
+        * @param    {String}            body        The main content of the message.
+        * @param    {MessageOptions}    options     Message Options
+        * @returns  {String}    The id to be used when clearing the message
+        * @example
+        * AP.require('messages', function(messages){
+        *   //create a message
+        *   var message = messages.warning('title', 'warning message example');
+        * });
+        */
+
+        /**
+        * Show a success message
+        * @name success
+        * @method
+        * @memberof module:messages#
+        * @param    {String}            title       Sets the title text of the message.
+        * @param    {String}            body        The main content of the message.
+        * @param    {MessageOptions}    options     Message Options
+        * @returns  {String}    The id to be used when clearing the message
+        * @example
+        * AP.require('messages', function(messages){
+        *   //create a message
+        *   var message = messages.success('title', 'success message example');
+        * });
+        */
+
+        /**
+        * Show an info message
+        * @name info
+        * @method
+        * @memberof module:messages#
+        * @param    {String}            title       Sets the title text of the message.
+        * @param    {String}            body        The main content of the message.
+        * @param    {MessageOptions}    options     Message Options
+        * @returns  {String}    The id to be used when clearing the message
+        * @example
+        * AP.require('messages', function(messages){
+        *   //create a message
+        *   var message = messages.info('title', 'info message example');
+        * });
+        */
+
+        /**
+        * Show a hint message
+        * @name hint
+        * @method
+        * @memberof module:messages#
+        * @param    {String}            title       Sets the title text of the message.
+        * @param    {String}            body        The main content of the message.
+        * @param    {MessageOptions}    options     Message Options
+        * @returns  {String}    The id to be used when clearing the message
+        * @example
+        * AP.require('messages', function(messages){
+        *   //create a message
+        *   var message = messages.hint('title', 'hint message example');
+        * });
+        */
+
+        apis: apis,
+        stubs: ['showMessage', 'clearMessage']
+    };
 });
 
 /**

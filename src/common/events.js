@@ -1,6 +1,4 @@
-( (typeof _AP !== "undefined") ? define : AP.define)("_events", ["_dollar"], function ($) {
-
-  "use strict";
+import $ from './dollar';
 
   var w = window,
       log = (w.AJS && w.AJS.log) || (w.console && w.console.log) || (function() {});
@@ -190,8 +188,4 @@
     }
   }
 
-  return {
-    Events: Events
-  };
-
-});
+export default {Events: Events}
