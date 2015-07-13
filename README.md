@@ -1,7 +1,7 @@
 Atlassian Connect JS
 ===
 
-The javascript source for atlassian connect
+The javascript library which backs [Atlassian Connect](http://connect.atlassian.com).
 
 Requirements
 ------------
