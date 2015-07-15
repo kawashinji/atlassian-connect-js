@@ -2093,7 +2093,7 @@ function eventHandler(action, selector, callback) {
 
     function domEventHandler(event) {
         event.preventDefault();
-        var $el = (0, _dollar2['default'])(event.target).closest(selector),
+        var $el = _dollar2['default'](event.target).closest(selector),
             href = $el.attr('href'),
             url = new _commonUri2['default'].init(href),
             options = {
@@ -2108,7 +2108,7 @@ function eventHandler(action, selector, callback) {
         callback(href, options, event.type);
     }
 
-    (0, _dollar2['default'])(window.document).on(action, selector, domEventHandler);
+    _dollar2['default'](window.document).on(action, selector, domEventHandler);
 }
 
 exports['default'] = {
@@ -2156,7 +2156,7 @@ function contentDiv(ns) {
   if (!ns) {
     throw new Error('ns undefined');
   }
-  return (0, _dollar2['default'])(document.getElementById('embedded-' + ns));
+  return _dollar2['default'](document.getElementById('embedded-' + ns));
 }
 
 /**
@@ -2246,7 +2246,7 @@ exports['default'] = function (options) {
     // that updates to the desired container node's parents have completed
     defer(doCreate);
   } else {
-    (0, _dollar2['default'])(doCreate);
+    _dollar2['default'](doCreate);
   }
 };
 
@@ -2278,7 +2278,7 @@ var _dollar = _dereq_('../dollar');
 
 var _dollar2 = _interopRequireDefault(_dollar);
 
-var $global = (0, _dollar2['default'])(window);
+var $global = _dollar2['default'](window);
 var idSeq = 0;
 var $nexus;
 var dialog;
@@ -2296,39 +2296,61 @@ var buttons = {
 function keyPressListener(e) {
     if (e.keyCode === 27 && dialog && dialog.hide) {
         dialog.hide();
-        (0, _dollar2['default'])(document).unbind('keydown', keyPressListener);
+        _dollar2['default'](document).unbind('keydown', keyPressListener);
     }
 };
 
 function createDialogElement(options, $nexus, chromeless) {
-    var $el;
+    var $el = _dollar2['default']('#' + options.id);
     var extraClasses = ['ap-aui-dialog2'];
 
     if (chromeless) {
         extraClasses.push('ap-aui-dialog2-chromeless');
     }
 
-    $el = (0, _dollar2['default'])(aui.dialog.dialog2({
-        id: options.id,
-        titleText: options.header,
-        titleId: options.titleId,
-        size: options.size,
-        extraClasses: extraClasses,
-        removeOnHide: true,
-        footerActionContent: true,
-        modal: true
-    }));
+    if ($el.length === 0) {
+        $el = _dollar2['default'](aui.dialog.dialog2({
+            id: options.id,
+            titleText: options.header,
+            titleId: options.titleId,
+            size: options.size,
+            extraClasses: extraClasses,
+            removeOnHide: true,
+            footerActionContent: true,
+            modal: true
+        }));
+    } else {
+        $el = _dollar2['default']($el[0]);
+        $el.find('.aui-dialog2-header-main').text(options.header);
+        if (extraClasses) {
+            $el.addClass(extraClasses.join(' '));
+        }
+    }
 
     if (chromeless) {
-        $el.find('header, footer').remove();
+        $el.find('header, footer').hide();
     } else {
         buttons.submit.setText(options.submitText);
         buttons.cancel.setText(options.cancelText);
         //soy templates don't support sending objects, so make the template and bind them.
-        $el.find('.aui-dialog2-footer-actions').empty().append(buttons.submit.$el, buttons.cancel.$el);
+        var footer = $el.find('.aui-dialog2-footer-actions');
+        footer.find('button').remove();
+        footer.append(buttons.submit.$el, buttons.cancel.$el);
+        $nexus.data('ra.dialog.buttons', buttons);
     }
 
-    $nexus.data('ra.dialog.buttons', buttons);
+    function handler(button) {
+        // ignore clicks on disabled links
+        if (button.isEnabled()) {
+            button.$el.trigger('ra.dialog.click', button.dispatch);
+        }
+    }
+
+    _dollar2['default'].each(buttons, function (i, button) {
+        button.$el.click(function () {
+            handler(button);
+        });
+    });
 
     return $el;
 }
@@ -2351,7 +2373,8 @@ function parseDimension(value, viewport) {
 function closeDialog() {
     if ($nexus) {
         // Signal the XdmRpc for the dialog's iframe to clean up
-        $nexus.trigger('ra.iframe.destroy').removeData('ra.dialog.buttons').unbind();
+
+        $nexus.find('iframe').trigger('ra.iframe.destroy').removeData('ra.dialog.buttons').unbind();
         // Clear the nexus handle to allow subsequent dialogs to open
         $nexus = null;
     }
@@ -2395,7 +2418,7 @@ exports['default'] = {
         mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
         mergedOptions.h = parseDimension(mergedOptions.height, $global.height());
 
-        $nexus = (0, _dollar2['default'])('<div />').addClass('ap-servlet-placeholder ap-container').attr('id', 'ap-' + options.ns).bind('ra.dialog.close', closeDialog);
+        $nexus = _dollar2['default']('<div />').addClass('ap-servlet-placeholder ap-container').attr('id', 'ap-' + options.ns).bind('ra.dialog.close', closeDialog);
 
         if (options.chrome) {
             dialogElement = createDialogElement(mergedOptions, $nexus);
@@ -2411,20 +2434,18 @@ exports['default'] = {
             dialogElement.removeClass('aui-dialog2-medium'); // this class has a min-height so must be removed.
         }
 
-        var existingNode = (0, _dollar2['default'])('#' + dialogElement.attr('id'));
-
-        if (existingNode.length > 0) {
-            existingNode.addClass(dialogElement.attr('class'));
-            existingNode.empty().append(dialogElement.html());
-            dialogElement = existingNode;
-        }
-
         dialogElement.find('.aui-dialog2-content').append($nexus);
         dialog = AJS.dialog2(dialogElement);
 
         dialog.on('hide', closeDialog);
         // ESC key closes the dialog
-        (0, _dollar2['default'])(document).on('keydown', keyPressListener);
+        _dollar2['default'](document).on('keydown', keyPressListener);
+
+        _dollar2['default'].each(buttons, function (name, button) {
+            button.click(function () {
+                button.dispatch(true);
+            });
+        });
 
         displayDialogContent($nexus, mergedOptions);
 
@@ -2434,7 +2455,7 @@ exports['default'] = {
 
         //difference between a webitem and opening from js.
         if (options.src) {
-            (0, _create3['default'])(mergedOptions);
+            _create3['default'](mergedOptions);
         }
 
         // give the dialog iframe focus so it can capture keypress events, etc.
@@ -2443,7 +2464,11 @@ exports['default'] = {
             this.focus();
         });
 
-        dialog.show();
+        var existingNode = _dollar2['default']('#' + dialogElement.attr('id'));
+        if (existingNode.length === 0) {
+            dialog.show();
+        }
+
         return dialog;
     },
 
@@ -2505,7 +2530,7 @@ exports['default'] = function () {
             options.chrome = true;
         }
 
-        (0, _factory2['default'])({
+        _factory2['default']({
             key: addonKey,
             moduleKey: moduleKey
         }, options, options.productContext);
@@ -2530,7 +2555,7 @@ var _dollar = _dereq_('../dollar');
 var _dollar2 = _interopRequireDefault(_dollar);
 
 function Button(options) {
-    this.$el = (0, _dollar2['default'])('<button />').text(options.text).addClass('aui-button aui-button-' + options.type).addClass(options.additionalClasses);
+    this.$el = _dollar2['default']('<button />').text(options.text).addClass('aui-button aui-button-' + options.type).addClass(options.additionalClasses);
 
     this.isEnabled = function () {
         return !(this.$el.attr('aria-disabled') === 'true');
@@ -2546,6 +2571,15 @@ function Button(options) {
     };
 
     this.setEnabled(true);
+
+    this.click = function (listener) {
+        if (listener) {
+            this.$el.unbind('ra.dialog.click');
+            this.$el.bind('ra.dialog.click', listener);
+        } else {
+            this.dispatch(true);
+        }
+    };
 
     this.dispatch = function (result) {
         var name = result ? 'done' : 'fail';
@@ -2624,7 +2658,7 @@ exports['default'] = function (options, dialogOptions, productContext) {
         cancelText: dialogOptions.cancelText
     }, false);
 
-    container = (0, _dollar2['default'])('.ap-dialog-container');
+    container = _dollar2['default']('.ap-dialog-container');
     if (options.url) {
         throw new Error('Cannot retrieve dialog content by URL');
     }
@@ -2637,11 +2671,11 @@ exports['default'] = function (options, dialogOptions, productContext) {
     });
 
     promise.done(function (data) {
-        var dialogHtml = (0, _dollar2['default'])(data);
+        var dialogHtml = _dollar2['default'](data);
         dialogHtml.addClass('ap-dialog-container');
         container.replaceWith(dialogHtml);
     }).fail(function (xhr, status, ex) {
-        var title = (0, _dollar2['default'])('<p class="title" />').text('Unable to load add-on content. Please try again later.');
+        var title = _dollar2['default']('<p class="title" />').text('Unable to load add-on content. Please try again later.');
         var msg = status + (ex ? ': ' + ex.toString() : '');
         container.html('<div class="aui-message error ap-aui-message"></div>');
         container.find('.error').text(msg);
@@ -2675,28 +2709,6 @@ var _dollar = _dereq_('../dollar');
 
 var _dollar2 = _interopRequireDefault(_dollar);
 
-var thisXdm;
-(0, _dollar2['default'])(function (jq) {
-    jq('body').on('click', '.ap-aui-dialog2', function (e) {
-        if (thisXdm) {
-            var buttonName;
-            if (e.target.classList.contains('ap-dialog-submit')) {
-                buttonName = 'submit';
-            } else if (e.target.classList.contains('ap-dialog-cancel')) {
-                buttonName = 'cancel';
-            }
-            var button = _api2['default'].getButton(buttonName);
-            if (button && button.isEnabled()) {
-                if (thisXdm.isActive() && thisXdm.buttonListenerBound) {
-                    thisXdm.dialogMessage(buttonName, button.dispatch);
-                } else {
-                    button.dispatch(true);
-                }
-            }
-        }
-    });
-});
-
 exports['default'] = function () {
     return {
         stubs: ['dialogMessage'],
@@ -2706,7 +2718,21 @@ exports['default'] = function () {
             if (state.dlg === '1') {
                 xdm.uiParams.isDialog = true;
             }
-            thisXdm = xdm;
+
+            if (xdm.uiParams.isDialog) {
+                var buttons = _api2['default'].getButton();
+                if (buttons) {
+                    _dollar2['default'].each(buttons, function (name, button) {
+                        button.click(function (e, callback) {
+                            if (xdm.isActive() && xdm.buttonListenerBound) {
+                                xdm.dialogMessage(name, callback);
+                            } else {
+                                callback(true);
+                            }
+                        });
+                    });
+                }
+            }
         },
 
         internals: {
@@ -2735,14 +2761,13 @@ exports['default'] = function () {
                     throw new Error('Cannot open dialog by URL, please use module key');
                 }
 
-                if ((0, _dollar2['default'])('.aui-dialog2 :visible').length !== 0) {
+                if (_dollar2['default']('.aui-dialog2 :visible').length !== 0) {
                     throw new Error('Cannot open dialog when a layer is already visible');
                 }
 
-                (0, _factory2['default'])(xdmOptions, dialogOptions, this.productContext);
+                _factory2['default'](xdmOptions, dialogOptions, this.productContext);
             },
             closeDialog: function closeDialog() {
-                this.events.emit('ra.iframe.destroy');
                 _api2['default'].close();
             }
         }
@@ -2752,16 +2777,16 @@ exports['default'] = function () {
 module.exports = exports['default'];
 
 },{"../dollar":21,"./api":16,"./factory":19}],21:[function(_dereq_,module,exports){
-/**
- * The iframe-side code exposes a jquery-like implementation via _dollar.
- * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
- * to code that runs on host and iframe.
- */
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+/**
+ * The iframe-side code exposes a jquery-like implementation via _dollar.
+ * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
+ * to code that runs on host and iframe.
+ */
 exports["default"] = AJS.$;
 module.exports = exports["default"];
 
@@ -2820,7 +2845,7 @@ exports['default'] = function () {
         if (options.onHover === true && options.bindTo.hasClass('active')) {
             return;
         }
-        (0, _simple2['default'])(href, options).show();
+        _simple2['default'](href, options).show();
     }
 
     _content2['default'].eventHandler(action, inlineDialogTrigger, callback);
@@ -2869,14 +2894,14 @@ exports['default'] = function () {
     return {
         init: function init(state, xdm) {
             if (xdm.uiParams.isInlineDialog) {
-                (0, _dollar2['default'])(xdm.iframe).closest('.ap-container').on('resized', function (e, dimensions) {
-                    resizeInlineDialog((0, _dollar2['default'])(xdm.iframe), dimensions.width, dimensions.height);
+                _dollar2['default'](xdm.iframe).closest('.ap-container').on('resized', function (e, dimensions) {
+                    resizeInlineDialog(_dollar2['default'](xdm.iframe), dimensions.width, dimensions.height);
                 });
             }
         },
         internals: {
             hideInlineDialog: function hideInlineDialog() {
-                _hideInlineDialog((0, _dollar2['default'])(this.iframe));
+                _hideInlineDialog(_dollar2['default'](this.iframe));
             }
         }
     };
@@ -2916,7 +2941,7 @@ exports['default'] = function (contentUrl, options) {
     }
 
     function displayInlineDialog(content, trigger, showInlineDialog) {
-        trigger = (0, _dollar2['default'])(trigger); // sometimes it's not jQuery. Lets make it jQuery.
+        trigger = _dollar2['default'](trigger); // sometimes it's not jQuery. Lets make it jQuery.
         content.data('inlineDialog', $inlineDialog);
         var pluginKey = _content2['default'].getWebItemPluginKey(trigger);
         var moduleKey = _content2['default'].getWebItemModuleKey(trigger);
@@ -2940,7 +2965,7 @@ exports['default'] = function (contentUrl, options) {
                 });
             }
         }).fail(function (xhr, status, ex) {
-            var title = (0, _dollar2['default'])('<p class="title" />').text('Unable to load add-on content. Please try again later.');
+            var title = _dollar2['default']('<p class="title" />').text('Unable to load add-on content. Please try again later.');
             content.html('<div class="aui-message error ap-aui-message"></div>');
             content.find('.error').append(title);
             var msg = status + (ex ? ': ' + ex.toString() : '');
@@ -2953,7 +2978,7 @@ exports['default'] = function (contentUrl, options) {
 
     var dialogElementIdentifier = 'ap-inline-dialog-content-' + itemId;
 
-    $inlineDialog = (0, _dollar2['default'])(document.getElementById('inline-dialog-' + dialogElementIdentifier));
+    $inlineDialog = _dollar2['default'](document.getElementById('inline-dialog-' + dialogElementIdentifier));
 
     if ($inlineDialog.length !== 0) {
         $inlineDialog.remove();
@@ -3047,7 +3072,7 @@ var _statusHelper2 = _interopRequireDefault(_statusHelper);
 exports['default'] = function () {
     return {
         init: function init(state, xdm) {
-            var $home = (0, _dollar2['default'])(xdm.iframe).closest('.ap-container');
+            var $home = _dollar2['default'](xdm.iframe).closest('.ap-container');
             _statusHelper2['default'].showLoadingStatus($home, 0);
 
             $home.find('.ap-load-timeout a.ap-btn-cancel').click(function () {
@@ -3072,7 +3097,7 @@ exports['default'] = function () {
                 if (this.analytics && this.analytics.iframePerformance) {
                     this.analytics.iframePerformance.end();
                 }
-                var $home = (0, _dollar2['default'])(this.iframe).closest('.ap-container');
+                var $home = _dollar2['default'](this.iframe).closest('.ap-container');
                 _statusHelper2['default'].showLoadedStatus($home);
 
                 clearTimeout(this.timeout);
@@ -3106,10 +3131,10 @@ function validateMessageId(msgId) {
 }
 
 function getMessageBar() {
-    var msgBar = (0, _dollar2['default'])('#' + MESSAGE_BAR_ID);
+    var msgBar = _dollar2['default']('#' + MESSAGE_BAR_ID);
 
     if (msgBar.length < 1) {
-        msgBar = (0, _dollar2['default'])('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
+        msgBar = _dollar2['default']('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
     }
     return msgBar;
 }
@@ -3153,7 +3178,7 @@ exports['default'] = {
 
     clearMessage: function clearMessage(id) {
         if (validateMessageId(id)) {
-            (0, _dollar2['default'])('#' + id).remove();
+            _dollar2['default']('#' + id).remove();
         }
     }
 };
@@ -3229,8 +3254,8 @@ exports['default'] = function () {
 
             sizeToParent: debounce(function () {
                 function resizeHandler(iframe) {
-                    var height = (0, _dollar2['default'])(document).height() - (0, _dollar2['default'])('#header > nav').outerHeight() - (0, _dollar2['default'])('#footer').outerHeight() - 20;
-                    (0, _dollar2['default'])(iframe).css({
+                    var height = _dollar2['default'](document).height() - _dollar2['default']('#header > nav').outerHeight() - _dollar2['default']('#footer').outerHeight() - 20;
+                    _dollar2['default'](iframe).css({
                         width: '100%',
                         height: height + 'px'
                     });
@@ -3238,15 +3263,15 @@ exports['default'] = function () {
                 // sizeToParent is only available for general-pages
                 if (this.uiParams.isGeneral) {
                     // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
-                    (0, _dollar2['default'])(this.iframe).addClass('full-size-general-page');
-                    (0, _dollar2['default'])(window).on('resize', function () {
+                    _dollar2['default'](this.iframe).addClass('full-size-general-page');
+                    _dollar2['default'](window).on('resize', function () {
                         resizeHandler(this.iframe);
                     });
                     resizeHandler(this.iframe);
                 } else {
                     // This is only here to support integration testing
                     // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-                    (0, _dollar2['default'])(this.iframe).addClass('full-size-general-page-fail');
+                    _dollar2['default'](this.iframe).addClass('full-size-general-page-fail');
                 }
             })
         }
@@ -3432,10 +3457,10 @@ function showLoadErrorStatus($home) {
 
 function createStatusMessages() {
     var i;
-    var stats = (0, _dollar2['default'])('<div class="ap-stats" />');
+    var stats = _dollar2['default']('<div class="ap-stats" />');
 
     for (i in statuses) {
-        var status = (0, _dollar2['default'])('<div class="ap-' + i + ' ap-status hidden" />');
+        var status = _dollar2['default']('<div class="ap-' + i + ' ap-status hidden" />');
         status.append('<small>' + statuses[i].descriptionHtml + '</small>');
         stats.append(status);
     }

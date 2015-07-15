@@ -122,7 +122,7 @@ QUnit.test("chromeless opens a chromeless dialog", function(assert){
         chrome: false
     });
 
-    assert.equal(AJS.dialog2.args[0][0].find(".aui-dialog2-header").length, 0);
+    assert.equal(AJS.dialog2.args[0][0].find(".aui-dialog2-header:visible").length, 0);
 });
 
 QUnit.test("by default, dialogs are chromeless", function(assert){
@@ -130,7 +130,7 @@ QUnit.test("by default, dialogs are chromeless", function(assert){
         id: "my-dialog"
     });
 
-    assert.equal(AJS.dialog2.args[0][0].find(".aui-dialog2-header").length, 0);
+    assert.equal(AJS.dialog2.args[0][0].find(".aui-dialog2-header:visible").length, 0);
 });
 
 QUnit.test("options.chrome opens a dialog with chrome", function(assert){
