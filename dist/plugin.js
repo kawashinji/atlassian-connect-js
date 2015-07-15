@@ -78,7 +78,8 @@ _dollar2['default'].extend(AP, _env2['default'], _amd2['default'], {
     rpc: { extend: _rpc2['default'].extend, init: _rpc2['default'].init },
     Meta: { get: _env2['default'].meta },
     //    request: request,
-    Dialog: _dialog2['default'] });
+    Dialog: _dialog2['default']
+});
 
 window.AP = AP;
 exports['default'] = AP;
@@ -2489,14 +2490,14 @@ exports['default'] = _dollar2['default'].extend(apis, {
         }
       }
     } else {
-      return _dollar2['default']('meta[name="ap-' + name + '"]').attr('content');
+      return (0, _dollar2['default'])('meta[name="ap-' + name + '"]').attr('content');
     }
   },
 
   container: function container() {
     // Look for these two selectors first... you need these to allow for the auto-shrink to work
     // Otherwise, it'll default to document.body which can't auto-grow or auto-shrink
-    var container = _dollar2['default']('.ac-content, #content');
+    var container = (0, _dollar2['default'])('.ac-content, #content');
     return container.length > 0 ? container[0] : document.body;
   },
 
@@ -2942,7 +2943,7 @@ function addFlowListener(element, type, fn) {
 function addListener(element, fn) {
     var resize = ('onresize' in element);
     if (!resize && !element._resizeSensor) {
-        _dollar2['default']('head').append({ tag: 'style', type: 'text/css', $text: '.ac-resize-sensor,.ac-resize-sensor>div {position: absolute;top: 0;left: 0;width: 100%;height: 100%;overflow: hidden;z-index: -1;}' });
+        (0, _dollar2['default'])('head').append({ tag: 'style', type: 'text/css', $text: '.ac-resize-sensor,.ac-resize-sensor>div {position: absolute;top: 0;left: 0;width: 100%;height: 100%;overflow: hidden;z-index: -1;}' });
         var sensor = element._resizeSensor = document.createElement('div');
         sensor.className = 'ac-resize-sensor';
         sensor.innerHTML = '<div class="ac-resize-overflow"><div></div></div><div class="ac-resize-underflow"><div></div></div>';
@@ -3067,12 +3068,12 @@ exports['default'] = {
 module.exports = exports['default'];
 
 },{"../common/xdm-rpc":11,"./dollar":15}],22:[function(_dereq_,module,exports){
+// universal iterator utility
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
-// universal iterator utility
 function each(o, it) {
     var l;
     var k;
