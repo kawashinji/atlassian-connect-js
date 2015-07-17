@@ -1074,9 +1074,9 @@ function bindListeners(channelKey, endpoint) {
  * Receive a DOM event from the remote and dispatch to this page,
  * unless we have already seen it.
  *
- * @param channelKey The channel identifier
- * @param eventName The event received
- * @param eventData The data to attach to the event
+ * @param {String} channelKey The channel identifier
+ * @param {String} eventName The event received
+ * @param {EventInit} eventData The data to attach to the event
  */
 function receiveEvent(channelKey, eventName, eventData) {
     var event = createEvent(channelKey, eventName, eventData);
@@ -1136,7 +1136,7 @@ function sanitiseKeyboardEvent(keyboardEvent) {
  *
  * @param {String} channelKey The key for the channel the event was received on
  * @param {String} eventName The name of the event to create
- * @param eventData The data to create the event with
+ * @param {KeyboardEventInit|MouseEventInit} eventData The data to create the event with
  *
  * @returns {KeyboardEvent|MouseEvent} The constructed synthetic event
  */
@@ -1196,8 +1196,8 @@ function dispatchEvent(event) {
  * Construct the legacy DOM L3 key modifier string required for pre-L4 keyboard event initialisation
  * @see https://msdn.microsoft.com/en-us/library/ff975297%28v=vs.85%29.aspx
  *
- * @param eventData
- * @returns {string} The modifier string (e.g. "Ctr,Shift")
+ * @param {KeyboardEventInit} eventData The data to create the modifier string from
+ * @returns {String} The modifier string (e.g. "Ctr,Shift")
  */
 function constructLegacyModifierString(eventData) {
     var result = [];
@@ -1219,7 +1219,7 @@ function constructLegacyModifierString(eventData) {
 /**
  * Determine if the provided keycode is allowed to be propagated between iframes
  *
- * @param keyCode The keycode to test
+ * @param {Number} keyCode The keycode to test
  *
  * @returns {boolean} Whether the provided keycode is allowed to be propagated between iframes
  */
@@ -3148,7 +3148,7 @@ var _commonDomEventsJs2 = _interopRequireDefault(_commonDomEventsJs);
 'use strict';
 
 /**
- * Allows add-ons to receive whitelisted events from the parent page in the addon iframe.
+ * Allows add-ons to receive whitelisted DOM events from the host page in the addon iframe.
  */
 exports['default'] = _rpc2['default'].extend(function (remote) {
     return {
