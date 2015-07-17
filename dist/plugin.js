@@ -89,7 +89,7 @@ window.AP = AP;
 exports['default'] = AP;
 module.exports = exports['default'];
 
-},{"../common/base64":5,"../common/events":7,"../common/jwt":8,"../common/ui-params":9,"../common/uri":10,"../common/xdm-rpc":11,"./amd":13,"./dialog":14,"./dollar":15,"./env":16,"./events":17,"./inline-dialog":18,"./messages":19,"./propagate.js":20,"./rpc":22,"./util":23}],2:[function(_dereq_,module,exports){
+},{"../common/base64":5,"../common/events":8,"../common/jwt":9,"../common/ui-params":10,"../common/uri":11,"../common/xdm-rpc":12,"./amd":14,"./dialog":15,"./dollar":16,"./env":17,"./events":18,"./inline-dialog":19,"./messages":20,"./propagate.js":21,"./rpc":23,"./util":24}],2:[function(_dereq_,module,exports){
 (function (global){
 /*! http://mths.be/base64 v0.1.0 by @mathias | MIT license */
 ;(function(root) {
@@ -1011,7 +1011,261 @@ var $;
 exports['default'] = $;
 
 module.exports = exports['default'];
-},{"../plugin/dollar":15}],7:[function(_dereq_,module,exports){
+},{"../plugin/dollar":16}],7:[function(_dereq_,module,exports){
+'use strict';
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+/**
+ * Common methods for propagating DOM events between host/plugin iframes
+ */
+
+var w = window,
+    log = w.AJS && w.AJS.log || w.console && w.console.log || function () {};
+
+var SUPPORTED_MOUSE_EVENTS = ['click'];
+
+var SUPPORTED_KEYBOARD_EVENTS = ['keydown', 'keyup'];
+
+var ALLOWED_KEYCODES = [AJS.keyCode.ESCAPE];
+
+exports['default'] = {
+    bindListeners: bindListeners,
+    receiveEvent: receiveEvent
+};
+
+/**
+ * Bind listeners to the document to propagate events to the rpc endpoint
+ *
+ * @param {String} channelKey The unique key that identifies the rpc channel the listeners are bound to
+ * @param {function} endpoint The rpc endpoint to send events to
+ */
+function bindListeners(channelKey, endpoint) {
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = SUPPORTED_MOUSE_EVENTS[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var mouseEvent = _step.value;
+
+            document.addEventListener(mouseEvent, function (e) {
+                if (e['channelKey'] == channelKey) {
+                    return;
+                }
+                endpoint(channelKey, e.type, sanitiseMouseEvent(e));
+            });
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator['return']) {
+                _iterator['return']();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+        for (var _iterator2 = SUPPORTED_KEYBOARD_EVENTS[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var keyboardEvent = _step2.value;
+
+            document.addEventListener(keyboardEvent, function (e) {
+                if (e['channelKey'] == channelKey) {
+                    return;
+                }
+                // We don't want to send all keystrokes to addon pages (that would be bad)
+                if (isAllowedKeyCode(e.keyCode)) {
+                    endpoint(channelKey, e.type, sanitiseKeyboardEvent(e));
+                }
+            });
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+                _iterator2['return']();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
+            }
+        }
+    }
+}
+
+/**
+ * Receive a DOM event from the remote and dispatch to this page,
+ * unless we have already seen it.
+ *
+ * @param channelKey The channel identifier
+ * @param eventName The event received
+ * @param eventData The data to attach to the event
+ */
+function receiveEvent(channelKey, eventName, eventData) {
+    var event = createEvent(channelKey, eventName, eventData);
+    if (!event) {
+        return;
+    }
+
+    dispatchEvent(event);
+}
+
+/**
+ * Return a sanitised data object that can be used to re-create
+ * a synthetic click event
+ *
+ * @param {MouseEvent} mouseEvent The event to sanitise
+ * @return {MouseEventInit} Sanitised data suitable for sending between iframes
+ */
+function sanitiseMouseEvent(mouseEvent) {
+    return {
+        bubbles: true,
+        cancelable: true,
+        button: mouseEvent.button,
+        ctrlKey: mouseEvent.ctrlKey,
+        shiftKey: mouseEvent.shiftKey,
+        altKey: mouseEvent.altKey,
+        metaKey: mouseEvent.metaKey
+    };
+}
+
+/**
+ * Return a sanitised data object that can be used to
+ * re-create a synthetic keyboard event.
+ *
+ * @param {KeyboardEvent} keyboardEvent The event to sanitise
+ * @return {KeyboardEventInit} Sanities data suitable for sending between iframes
+ */
+function sanitiseKeyboardEvent(keyboardEvent) {
+    return {
+        bubbles: true,
+        cancelable: true,
+        key: keyboardEvent.key,
+        code: keyboardEvent.code,
+        keyCode: keyboardEvent.keyCode,
+        ctrlKey: keyboardEvent.ctrlKey,
+        shiftKey: keyboardEvent.shiftKey,
+        altKey: keyboardEvent.altKey,
+        metaKey: keyboardEvent.metaKey,
+        locale: null
+    };
+}
+
+/**
+ * Create a synthetic DOM event using the provided data
+ *
+ * The returned event will include a param <code>channelKey</code> that can be
+ * used to identify which channel the event was received on.
+ *
+ * @param {String} channelKey The key for the channel the event was received on
+ * @param {String} eventName The name of the event to create
+ * @param eventData The data to create the event with
+ *
+ * @returns {KeyboardEvent|MouseEvent} The constructed synthetic event
+ */
+function createEvent(channelKey, eventName, eventData) {
+    eventData.view = window;
+    var event;
+    switch (eventName) {
+        case 'click':
+            if (typeof window.Event == 'function') {
+                event = new MouseEvent(eventName, eventData);
+            } else {
+                // To support older browsers
+                // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
+                event = document.createEvent('MouseEvent');
+                event.initMouseEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, 0, 0, 0, 0, 0, eventData.ctrlKey, eventData.altKey, eventData.shiftKey, eventData.metaKey, eventData.button, null);
+            }
+            break;
+        case 'keyup':
+        case 'keydown':
+            if (typeof window.Event == 'function') {
+                event = new KeyboardEvent(eventName, eventData);
+            } else {
+                // To support older browsers
+                // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
+                event = document.createEvent('KeyboardEvent');
+                event.initKeyboardEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, eventData.key, 0, constructLegacyModifierString(eventData), false, eventData.locale);
+            }
+            break;
+        default:
+            log('Event ' + eventName + ' not supported');
+    }
+    if (event) {
+        event['channelKey'] = channelKey;
+    }
+    return event;
+}
+
+/**
+ * Dispatch the given event to the current document
+ *
+ * Includes some AUI-specific dispatch if AUI is detected to ensure dialogs work correctly etc.
+ *
+ * @param event The event to dispatch
+ */
+function dispatchEvent(event) {
+    document.body.dispatchEvent(event);
+
+    if (AJS && event.type == 'click') {
+        // If AJS is present we should fire the event on dialog curtains
+        // if they exist, to ensure AUI dialogs etc. are dismissed.
+        var blanket = AJS.$('.aui-blanket');
+        if (blanket.length > 0 && blanket[0]) {
+            blanket[0].dispatchEvent(event);
+        }
+    }
+}
+
+/**
+ * Construct the legacy DOM L3 key modifier string required for pre-L4 keyboard event initialisation
+ * @see https://msdn.microsoft.com/en-us/library/ff975297%28v=vs.85%29.aspx
+ *
+ * @param eventData
+ * @returns {string} The modifier string (e.g. "Ctr,Shift")
+ */
+function constructLegacyModifierString(eventData) {
+    var result = [];
+    if (eventData.shiftKey) {
+        result.push('Shift');
+    }
+    if (eventData.ctrlKey) {
+        result.push('Ctrl');
+    }
+    if (eventData.metaKey) {
+        result.push('Meta');
+    }
+    if (eventData.altKey) {
+        result.push('Alt');
+    }
+    return result.join(',');
+}
+
+/**
+ * Determine if the provided keycode is allowed to be propagated between iframes
+ *
+ * @param keyCode The keycode to test
+ *
+ * @returns {boolean} Whether the provided keycode is allowed to be propagated between iframes
+ */
+function isAllowedKeyCode(keyCode) {
+    return ALLOWED_KEYCODES.indexOf(keyCode) > -1;
+}
+module.exports = exports['default'];
+
+},{}],8:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1215,7 +1469,7 @@ function fire(listeners, args) {
 exports['default'] = { Events: Events };
 module.exports = exports['default'];
 
-},{"./dollar":6}],8:[function(_dereq_,module,exports){
+},{"./dollar":6}],9:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1281,7 +1535,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./base64":5}],9:[function(_dereq_,module,exports){
+},{"./base64":5}],10:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1352,7 +1606,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./base64":5,"./uri":10}],10:[function(_dereq_,module,exports){
+},{"./base64":5,"./uri":11}],11:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1368,7 +1622,7 @@ var _jsuri2 = _interopRequireDefault(_jsuri);
 exports['default'] = { init: _jsuri2['default'] };
 module.exports = exports['default'];
 
-},{"jsuri":3}],11:[function(_dereq_,module,exports){
+},{"jsuri":3}],12:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1843,7 +2097,7 @@ function XdmRpc($, config, bindings) {
 exports['default'] = XdmRpc;
 module.exports = exports['default'];
 
-},{"../host/util":12,"./events":7,"./jwt":8,"./ui-params":9,"./uri":10}],12:[function(_dereq_,module,exports){
+},{"../host/util":13,"./events":8,"./jwt":9,"./ui-params":10,"./uri":11}],13:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1859,7 +2113,7 @@ function escapeSelector(s) {
 exports['default'] = { escapeSelector: escapeSelector };
 module.exports = exports['default'];
 
-},{}],13:[function(_dereq_,module,exports){
+},{}],14:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2023,7 +2277,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/base64":5,"../common/events":7,"../common/ui-params":9,"../common/uri":10,"../common/xdm-rpc":11,"./dialog":14,"./dollar":15,"./env":16,"./events":17,"./inline-dialog":18,"./messages":19,"./resize_listener":21,"./rpc":22,"./util":23}],14:[function(_dereq_,module,exports){
+},{"../common/base64":5,"../common/events":8,"../common/ui-params":10,"../common/uri":11,"../common/xdm-rpc":12,"./dialog":15,"./dollar":16,"./env":17,"./events":18,"./inline-dialog":19,"./messages":20,"./resize_listener":22,"./rpc":23,"./util":24}],15:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2315,7 +2569,7 @@ _rpc2['default'].extend(function (remote) {
 exports['default'] = _exports;
 module.exports = exports['default'];
 
-},{"../common/ui-params":9,"../common/uri":10,"./dollar":15,"./rpc":22}],15:[function(_dereq_,module,exports){
+},{"../common/ui-params":10,"../common/uri":11,"./dollar":16,"./rpc":23}],16:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2406,7 +2660,7 @@ function $(sel, context) {
 exports['default'] = extend($, _util2['default']);
 module.exports = exports['default'];
 
-},{"./util":23}],16:[function(_dereq_,module,exports){
+},{"./util":24}],17:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2549,7 +2803,7 @@ exports['default'] = _dollar2['default'].extend(apis, {
 });
 module.exports = exports['default'];
 
-},{"../common/ui-params":9,"./dollar":15,"./rpc":22}],17:[function(_dereq_,module,exports){
+},{"../common/ui-params":10,"./dollar":16,"./rpc":23}],18:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2680,7 +2934,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
 });
 module.exports = exports['default'];
 
-},{"./dollar":15,"./rpc":22}],18:[function(_dereq_,module,exports){
+},{"./dollar":16,"./rpc":23}],19:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2729,7 +2983,7 @@ _rpc2['default'].extend(function (remote) {
 exports['default'] = _exports;
 module.exports = exports['default'];
 
-},{"./dollar":15,"./rpc":22}],19:[function(_dereq_,module,exports){
+},{"./dollar":16,"./rpc":23}],20:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2911,7 +3165,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
 */
 module.exports = exports['default'];
 
-},{"./dollar":15,"./rpc":22}],20:[function(_dereq_,module,exports){
+},{"./dollar":16,"./rpc":23}],21:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2924,115 +3178,29 @@ var _rpc = _dereq_('./rpc');
 
 var _rpc2 = _interopRequireDefault(_rpc);
 
+var _commonDomEventsJs = _dereq_('../common/dom-events.js');
+
+var _commonDomEventsJs2 = _interopRequireDefault(_commonDomEventsJs);
+
 'use strict';
 
 /**
  * Allows add-ons to receive whitelisted events from the parent page in the addon iframe.
- * @exports propagator
  */
 exports['default'] = _rpc2['default'].extend(function (remote) {
     return {
+        init: function init() {
+            _commonDomEventsJs2['default'].bindListeners(remote.channel, remote.propagateToHost);
+        },
         internals: {
-            propagate: propagate
-        }
+            propagateToPlugin: _commonDomEventsJs2['default'].receiveEvent
+        },
+        stubs: ['propagateToHost']
     };
 });
-
-/**
- * Propagate an event to the plugin page
- *
- * @param eventName The event to propagate
- * @param eventData The data to attach to the event
- */
-function propagate(eventName, eventData) {
-    var event = recreateEvent(eventName, eventData);
-    if (!event) {
-        return;
-    }
-
-    document.body.dispatchEvent(event);
-
-    if (AJS && eventName == 'click') {
-        // If AJS is present we should fire the event on dialog curtains
-        // if they exist, to ensure AUI dialogs etc. are dismissed.
-        var blanket = AJS.$('.aui-blanket');
-        if (blanket.length > 0 && blanket[0]) {
-            blanket[0].dispatchEvent(event);
-        }
-    }
-}
-
-/**
- * Reconstruct the original host event using the provided data
- *
- * @param {String} eventName The name of the event to recreate
- * @param eventData The data to create the event with
- *
- * @returns {KeyboardEvent|MouseEvent} The re-constructed synthetic event
- */
-function recreateEvent(eventName, eventData) {
-    eventData.view = window;
-    switch (eventName) {
-        case 'click':
-            if (typeof window.Event == 'function') {
-                return new MouseEvent(eventName, eventData);
-            } else {
-                // To support older browsers
-                // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
-                var event = document.createEvent('MouseEvent');
-                event.initMouseEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, 0, 0, 0, 0, 0, eventData.ctrlKey, eventData.altKey, eventData.shiftKey, eventData.metaKey, eventData.button, null);
-                return event;
-            }
-        case 'keyup':
-        case 'keydown':
-            if (typeof window.Event == 'function') {
-                return new KeyboardEvent(eventName, eventData);
-            } else {
-                // To support older browsers
-                // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
-                var event = document.createEvent('KeyboardEvent');
-                event.initKeyboardEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, eventData.key, 0, constructLegacyModifierString(eventData), false, eventData.locale);
-                return event;
-            }
-        default:
-            log('Event ' + eventName + ' not supported');
-    }
-}
-
-/**
- * Construct the legacy DOM L3 key modifier string required for pre-L4 keyboard event initialisation
- * @see https://msdn.microsoft.com/en-us/library/ff975297%28v=vs.85%29.aspx
- *
- * @param eventData
- * @returns {string} The modifier string (e.g. "Ctr,Shift")
- */
-function constructLegacyModifierString(eventData) {
-    var result = [];
-    if (eventData.shiftKey) {
-        result.push('Shift');
-    }
-    if (eventData.ctrlKey) {
-        result.push('Ctrl');
-    }
-    if (eventData.metaKey) {
-        result.push('Meta');
-    }
-    if (eventData.altKey) {
-        result.push('Alt');
-    }
-    return result.join(',');
-}
-
-function log(msg) {
-    if (AJS) {
-        AJS.log(msg);
-    } else if (window.console) {
-        console.log(msg);
-    }
-}
 module.exports = exports['default'];
 
-},{"./rpc":22}],21:[function(_dereq_,module,exports){
+},{"../common/dom-events.js":7,"./rpc":23}],22:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3126,7 +3294,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./dollar":15}],22:[function(_dereq_,module,exports){
+},{"./dollar":16}],23:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3192,7 +3360,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/xdm-rpc":11,"./dollar":15}],23:[function(_dereq_,module,exports){
+},{"../common/xdm-rpc":12,"./dollar":16}],24:[function(_dereq_,module,exports){
 // universal iterator utility
 'use strict';
 
