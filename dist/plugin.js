@@ -1049,68 +1049,25 @@ exports['default'] = {
  * @param {function} endpoint The rpc endpoint to send events to
  */
 function bindListeners(channelKey, endpoint) {
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        for (var _iterator = SUPPORTED_MOUSE_EVENTS[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var mouseEvent = _step.value;
-
-            document.addEventListener(mouseEvent, function (e) {
-                if (e['channelKey'] == channelKey) {
-                    return;
-                }
-                endpoint(channelKey, e.type, sanitiseMouseEvent(e));
-            });
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator['return']) {
-                _iterator['return']();
+    SUPPORTED_MOUSE_EVENTS.forEach(function (mouseEvent) {
+        document.addEventListener(mouseEvent, function (e) {
+            if (e['channelKey'] == channelKey) {
+                return;
             }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
+            endpoint(channelKey, e.type, sanitiseMouseEvent(e));
+        });
+    });
+    SUPPORTED_KEYBOARD_EVENTS.forEach(function (keyboardEvent) {
+        document.addEventListener(keyboardEvent, function (e) {
+            if (e['channelKey'] == channelKey) {
+                return;
             }
-        }
-    }
-
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
-
-    try {
-        for (var _iterator2 = SUPPORTED_KEYBOARD_EVENTS[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var keyboardEvent = _step2.value;
-
-            document.addEventListener(keyboardEvent, function (e) {
-                if (e['channelKey'] == channelKey) {
-                    return;
-                }
-                // We don't want to send all keystrokes to addon pages (that would be bad)
-                if (isAllowedKeyCode(e.keyCode)) {
-                    endpoint(channelKey, e.type, sanitiseKeyboardEvent(e));
-                }
-            });
-        }
-    } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion2 && _iterator2['return']) {
-                _iterator2['return']();
+            // We don't want to send all keystrokes to addon pages (that would be bad)
+            if (isAllowedKeyCode(e.keyCode)) {
+                endpoint(channelKey, e.type, sanitiseKeyboardEvent(e));
             }
-        } finally {
-            if (_didIteratorError2) {
-                throw _iteratorError2;
-            }
-        }
-    }
+        });
+    });
 }
 
 /**
@@ -1186,7 +1143,7 @@ function sanitiseKeyboardEvent(keyboardEvent) {
 function createEvent(channelKey, eventName, eventData) {
     eventData.view = window;
 
-    var event;
+    var event = undefined;
     if (SUPPORTED_MOUSE_EVENTS.indexOf(eventName > -1)) {
         if (typeof window.Event == 'function') {
             event = new MouseEvent(eventName, eventData);

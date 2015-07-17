@@ -6,16 +6,16 @@
 var w = window,
         log = (w.AJS && w.AJS.log) || (w.console && w.console.log) || (function () {});
 
-var SUPPORTED_MOUSE_EVENTS = [
+const SUPPORTED_MOUSE_EVENTS = [
     'click'
 ];
 
-var SUPPORTED_KEYBOARD_EVENTS = [
+const SUPPORTED_KEYBOARD_EVENTS = [
     'keydown',
     'keyup'
 ];
 
-var ALLOWED_KEYCODES = [
+const ALLOWED_KEYCODES = [
     27 // ESCAPE
 ];
 
@@ -38,15 +38,15 @@ export default  {
  * @param {function} endpoint The rpc endpoint to send events to
  */
 function bindListeners(channelKey, endpoint) {
-    for (var mouseEvent of SUPPORTED_MOUSE_EVENTS) {
+    SUPPORTED_MOUSE_EVENTS.forEach(function (mouseEvent) {
         document.addEventListener(mouseEvent, function (e) {
             if (e['channelKey'] == channelKey) {
                 return;
             }
             endpoint(channelKey, e.type, sanitiseMouseEvent(e))
-        })
-    }
-    for (var keyboardEvent of SUPPORTED_KEYBOARD_EVENTS) {
+        });
+    });
+    SUPPORTED_KEYBOARD_EVENTS.forEach(function (keyboardEvent) {
         document.addEventListener(keyboardEvent, function (e) {
             if (e['channelKey'] == channelKey) {
                 return;
@@ -56,7 +56,7 @@ function bindListeners(channelKey, endpoint) {
                 endpoint(channelKey, e.type, sanitiseKeyboardEvent(e))
             }
         });
-    }
+    });
 }
 
 /**
@@ -68,7 +68,7 @@ function bindListeners(channelKey, endpoint) {
  * @param eventData The data to attach to the event
  */
 function receiveEvent(channelKey, eventName, eventData) {
-    var event = createEvent(channelKey, eventName, eventData);
+    let event = createEvent(channelKey, eventName, eventData);
     if (!event) {
         return;
     }
@@ -132,7 +132,7 @@ function sanitiseKeyboardEvent(keyboardEvent) {
 function createEvent(channelKey, eventName, eventData) {
     eventData.view = window;
 
-    var event;
+    let event;
     if (SUPPORTED_MOUSE_EVENTS.indexOf(eventName > -1)) {
         if (typeof window.Event == 'function') {
             event = new MouseEvent(eventName, eventData);
@@ -200,7 +200,7 @@ function dispatchEvent(event) {
  * @returns {string} The modifier string (e.g. "Ctr,Shift")
  */
 function constructLegacyModifierString(eventData) {
-    var result = [];
+    let result = [];
     if (eventData.shiftKey) {
         result.push("Shift");
     }
