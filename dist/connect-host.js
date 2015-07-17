@@ -1047,11 +1047,19 @@ var SUPPORTED_MOUSE_EVENTS = ['click'];
 
 var SUPPORTED_KEYBOARD_EVENTS = ['keydown', 'keyup'];
 
-var ALLOWED_KEYCODES = [AJS.keyCode.ESCAPE];
+var ALLOWED_KEYCODES = [27 // ESCAPE
+];
 
 exports['default'] = {
+    // Public API
     bindListeners: bindListeners,
-    receiveEvent: receiveEvent
+    receiveEvent: receiveEvent,
+
+    // Visible for testing only
+    constructLegacyModifierString: constructLegacyModifierString,
+    supportedMouseEvents: SUPPORTED_MOUSE_EVENTS,
+    supportedKeyboardEvents: SUPPORTED_KEYBOARD_EVENTS,
+    isAllowedKeyCode: isAllowedKeyCode
 };
 
 /**
@@ -1197,32 +1205,30 @@ function sanitiseKeyboardEvent(keyboardEvent) {
  */
 function createEvent(channelKey, eventName, eventData) {
     eventData.view = window;
+
     var event;
-    switch (eventName) {
-        case 'click':
-            if (typeof window.Event == 'function') {
-                event = new MouseEvent(eventName, eventData);
-            } else {
-                // To support older browsers
-                // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
-                event = document.createEvent('MouseEvent');
-                event.initMouseEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, 0, 0, 0, 0, 0, eventData.ctrlKey, eventData.altKey, eventData.shiftKey, eventData.metaKey, eventData.button, null);
-            }
-            break;
-        case 'keyup':
-        case 'keydown':
-            if (typeof window.Event == 'function') {
-                event = new KeyboardEvent(eventName, eventData);
-            } else {
-                // To support older browsers
-                // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
-                event = document.createEvent('KeyboardEvent');
-                event.initKeyboardEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, eventData.key, 0, constructLegacyModifierString(eventData), false, eventData.locale);
-            }
-            break;
-        default:
-            log('Event ' + eventName + ' not supported');
+    if (SUPPORTED_MOUSE_EVENTS.indexOf(eventName > -1)) {
+        if (typeof window.Event == 'function') {
+            event = new MouseEvent(eventName, eventData);
+        } else {
+            // To support older browsers
+            // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
+            event = document.createEvent('MouseEvent');
+            event.initMouseEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, 0, 0, 0, 0, 0, eventData.ctrlKey, eventData.altKey, eventData.shiftKey, eventData.metaKey, eventData.button, null);
+        }
+    } else if (SUPPORTED_KEYBOARD_EVENTS.indexOf(eventName) > -1) {
+        if (typeof window.Event == 'function') {
+            event = new KeyboardEvent(eventName, eventData);
+        } else {
+            // To support older browsers
+            // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
+            event = document.createEvent('KeyboardEvent');
+            event.initKeyboardEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, eventData.key, 0, constructLegacyModifierString(eventData), false, eventData.locale);
+        }
+    } else {
+        log('Event ' + eventName + ' not supported');
     }
+
     if (event) {
         event['channelKey'] = channelKey;
     }
