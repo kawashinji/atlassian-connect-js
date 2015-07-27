@@ -1052,7 +1052,7 @@ exports['default'] = {
 function bindListeners(channelKey, endpoint) {
     SUPPORTED_MOUSE_EVENTS.forEach(function (mouseEvent) {
         document.addEventListener(mouseEvent, function (e) {
-            if (e['channelKey'] == channelKey) {
+            if (e.channelKey === channelKey) {
                 return;
             }
             endpoint(channelKey, e.type, sanitiseMouseEvent(e));
@@ -1060,7 +1060,7 @@ function bindListeners(channelKey, endpoint) {
     });
     SUPPORTED_KEYBOARD_EVENTS.forEach(function (keyboardEvent) {
         document.addEventListener(keyboardEvent, function (e) {
-            if (e['channelKey'] == channelKey) {
+            if (e.channelKey === channelKey) {
                 return;
             }
             // We don't want to send all keystrokes to addon pages (that would be bad)
@@ -1146,7 +1146,7 @@ function createEvent(channelKey, eventName, eventData) {
 
     var event = undefined;
     if (SUPPORTED_MOUSE_EVENTS.indexOf(eventName) > -1) {
-        if (typeof window.Event == 'function') {
+        if (typeof window.Event === 'function') {
             event = new MouseEvent(eventName, eventData);
         } else {
             // To support older browsers
@@ -1155,7 +1155,7 @@ function createEvent(channelKey, eventName, eventData) {
             event.initMouseEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, 0, 0, 0, 0, 0, eventData.ctrlKey, eventData.altKey, eventData.shiftKey, eventData.metaKey, eventData.button, null);
         }
     } else if (SUPPORTED_KEYBOARD_EVENTS.indexOf(eventName) > -1) {
-        if (typeof window.Event == 'function') {
+        if (typeof window.Event === 'function') {
             event = new KeyboardEvent(eventName, eventData);
         } else {
             // To support older browsers
@@ -1168,7 +1168,7 @@ function createEvent(channelKey, eventName, eventData) {
     }
 
     if (event) {
-        event['channelKey'] = channelKey;
+        event.channelKey = channelKey;
     }
     return event;
 }
@@ -3146,12 +3146,11 @@ var _commonDomEventsJs = _dereq_('../common/dom-events.js');
 
 var _commonDomEventsJs2 = _interopRequireDefault(_commonDomEventsJs);
 
-'use strict';
-
 /**
  * Allows add-ons to receive whitelisted DOM events from the host page in the addon iframe.
  */
 exports['default'] = _rpc2['default'].extend(function (remote) {
+    'use strict';
     return {
         init: function init() {
             _commonDomEventsJs2['default'].bindListeners(remote.channel, remote.propagateToHost);

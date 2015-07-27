@@ -28,11 +28,11 @@ QUnit.test("only ESC is allowed as key press", function (assert) {
     assert.ok(events.isAllowedKeyCode(AJS.keyCode.ESCAPE));
 
     for (var i = 0; i < 222; i++) {
-        if (i != AJS.keyCode.ESCAPE) {
+        if (i !== AJS.keyCode.ESCAPE) {
             assert.notOk(events.isAllowedKeyCode(i));
         }
     }
-})
+});
 
 QUnit.test("bound listeners only propagate supported events", function (assert) {
     assert.expect(1);
@@ -52,15 +52,15 @@ QUnit.test("bound listeners only propagate events to other channels", function (
     var event = new MouseEvent("click");
 
     // Same channel - expect no propagation (+0)
-    event["channelKey"] = "test-channel";
+    event.channelKey = "test-channel";
     document.dispatchEvent(event);
 
     // Different channel - expect propagation (+1)
-    event["channelKey"] = "another-channel";
+    event.channelKey = "another-channel";
     document.dispatchEvent(event);
 
     // No channel (native event) - expect propagation (+1)
-    delete event["channelKey"];
+    delete event.channelKey;
     document.dispatchEvent(event);
 
     assert.expect(2);
@@ -69,7 +69,7 @@ QUnit.test("bound listeners only propagate events to other channels", function (
 QUnit.test("bound listeners with multiple channels", function (assert) {
 
     var tester = function (key, name, data) {
-        assert.ok(name, "click")
+        assert.ok(name, "click");
     };
 
     events.bindListeners("test-channel-1", tester);
@@ -78,15 +78,15 @@ QUnit.test("bound listeners with multiple channels", function (assert) {
     var event = new MouseEvent("click");
 
     // No match - expect propagation to all channels (+2)
-    event["channelKey"] = "test-channel";
+    event.channelKey = "test-channel";
     document.dispatchEvent(event);
 
     // Matched channel - expect propagation to other channels (+1)
-    event["channelKey"] = "test-channel-1";
+    event.channelKey = "test-channel-1";
     document.dispatchEvent(event);
 
     // No channel (native event) - expect propagation to all channels (+2)
-    delete event["channelKey"];
+    delete event.channelKey;
     document.dispatchEvent(event);
 
     assert.expect(5);
@@ -97,10 +97,10 @@ QUnit.test("create event with supported mouse event type", function (assert) {
         button: 1
     });
 
-    assert.ok(result != null);
+    assert.ok(typeof result !== "undefined");
     assert.strictEqual(result.button, 1);
     assert.strictEqual(result.type, "click");
-    assert.strictEqual(result["channelKey"], "key");
+    assert.strictEqual(result.channelKey, "key");
 });
 
 QUnit.test("create event with unsupported mouse event type", function (assert) {
@@ -108,7 +108,7 @@ QUnit.test("create event with unsupported mouse event type", function (assert) {
         button: 1
     });
 
-    assert.ok(result == null);
+    assert.ok(typeof result === "undefined");
 });
 
 QUnit.test("create event with supported keyboard event type", function (assert) {
@@ -116,7 +116,7 @@ QUnit.test("create event with supported keyboard event type", function (assert) 
         keyCode: 27
     });
 
-    assert.ok(result != null);
+    assert.ok(typeof result !== "undefined");
     assert.strictEqual(result.type, "keydown");
 });
 
@@ -125,5 +125,5 @@ QUnit.test("create event with unsupported keyboard event type", function (assert
         keyCode: 27
     });
 
-    assert.ok(result == null);
+    assert.ok(typeof result === "undefined");
 });

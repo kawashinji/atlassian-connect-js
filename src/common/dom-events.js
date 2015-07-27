@@ -4,7 +4,7 @@
  */
 
 var w = window,
-        log = (w.AJS && w.AJS.log) || (w.console && w.console.log) || (function () {});
+        log = (w.AJS && w.AJS.log) || (w.console && w.console.log) || function () {};
 
 const SUPPORTED_MOUSE_EVENTS = [
     'click'
@@ -41,20 +41,20 @@ export default  {
 function bindListeners(channelKey, endpoint) {
     SUPPORTED_MOUSE_EVENTS.forEach(function (mouseEvent) {
         document.addEventListener(mouseEvent, function (e) {
-            if (e['channelKey'] == channelKey) {
+            if (e.channelKey === channelKey) {
                 return;
             }
-            endpoint(channelKey, e.type, sanitiseMouseEvent(e))
+            endpoint(channelKey, e.type, sanitiseMouseEvent(e));
         });
     });
     SUPPORTED_KEYBOARD_EVENTS.forEach(function (keyboardEvent) {
         document.addEventListener(keyboardEvent, function (e) {
-            if (e['channelKey'] == channelKey) {
+            if (e.channelKey === channelKey) {
                 return;
             }
             // We don't want to send all keystrokes to addon pages (that would be bad)
             if (isAllowedKeyCode(e.keyCode)) {
-                endpoint(channelKey, e.type, sanitiseKeyboardEvent(e))
+                endpoint(channelKey, e.type, sanitiseKeyboardEvent(e));
             }
         });
     });
@@ -93,7 +93,7 @@ function sanitiseMouseEvent(mouseEvent) {
         shiftKey: mouseEvent.shiftKey,
         altKey: mouseEvent.altKey,
         metaKey: mouseEvent.metaKey
-    }
+    };
 }
 
 /**
@@ -115,7 +115,7 @@ function sanitiseKeyboardEvent(keyboardEvent) {
         altKey: keyboardEvent.altKey,
         metaKey: keyboardEvent.metaKey,
         locale: null
-    }
+    };
 }
 
 /**
@@ -135,7 +135,7 @@ function createEvent(channelKey, eventName, eventData) {
 
     let event;
     if (SUPPORTED_MOUSE_EVENTS.indexOf(eventName) > -1) {
-        if (typeof window.Event == 'function') {
+        if (typeof window.Event === 'function') {
             event = new MouseEvent(eventName, eventData);
         }
         else {
@@ -150,7 +150,7 @@ function createEvent(channelKey, eventName, eventData) {
         }
     }
     else if (SUPPORTED_KEYBOARD_EVENTS.indexOf(eventName) > -1) {
-        if (typeof window.Event == 'function') {
+        if (typeof window.Event === 'function') {
             event = new KeyboardEvent(eventName, eventData);
         }
         else {
@@ -168,7 +168,7 @@ function createEvent(channelKey, eventName, eventData) {
     }
 
     if (event) {
-        event['channelKey'] = channelKey;
+        event.channelKey = channelKey;
     }
     return event;
 }
@@ -203,16 +203,16 @@ function dispatchEvent(event) {
 function constructLegacyModifierString(eventData) {
     let result = [];
     if (eventData.shiftKey) {
-        result.push("Shift");
+        result.push('Shift');
     }
     if (eventData.ctrlKey) {
-        result.push("Ctrl");
+        result.push('Ctrl');
     }
     if (eventData.metaKey) {
-        result.push("Meta");
+        result.push('Meta');
     }
     if (eventData.altKey) {
-        result.push("Alt");
+        result.push('Alt');
     }
     return result.join(',');
 }
