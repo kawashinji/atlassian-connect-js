@@ -28,7 +28,8 @@ export default  {
     constructLegacyModifierString,
     supportedMouseEvents: SUPPORTED_MOUSE_EVENTS,
     supportedKeyboardEvents: SUPPORTED_KEYBOARD_EVENTS,
-    isAllowedKeyCode
+    isAllowedKeyCode,
+    createEvent
 };
 
 /**
@@ -133,7 +134,7 @@ function createEvent(channelKey, eventName, eventData) {
     eventData.view = window;
 
     let event;
-    if (SUPPORTED_MOUSE_EVENTS.indexOf(eventName > -1)) {
+    if (SUPPORTED_MOUSE_EVENTS.indexOf(eventName) > -1) {
         if (typeof window.Event == 'function') {
             event = new MouseEvent(eventName, eventData);
         }
@@ -182,7 +183,7 @@ function createEvent(channelKey, eventName, eventData) {
 function dispatchEvent(event) {
     document.body.dispatchEvent(event);
 
-    if (AJS && event.type == 'click') {
+    if (AJS && event.type === 'click') {
         // If AJS is present we should fire the event on dialog curtains
         // if they exist, to ensure AUI dialogs etc. are dismissed.
         var blanket = AJS.$('.aui-blanket');
