@@ -102,7 +102,7 @@ if(this.AP){
       localKey = param(config.remote, "oauth_consumer_key") || param(config.remote, "jwt");
       remoteKey = config.remoteKey;
       addonKey = remoteKey;
-      remoteOrigin = getBaseUrl(config.remote).toLowerCase();
+      remoteOrigin = config.remoteOrigin ? config.remoteOrigin : getBaseUrl(config.remote).toLowerCase();
       channel = config.channel;
       // Define the host-side mixin
       mixin = {

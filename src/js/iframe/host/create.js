@@ -28,6 +28,7 @@
       * @property {String}  ukey          user key
       * @property {String}  data.timeZone timezone of the current user
       * @property {String}  cp            context path
+      * @property {String}  origin        origin address of the add-on
       */
 
       /**
@@ -54,6 +55,7 @@
 
       var xdmOptions = {
         remote: options.src,
+        remoteOrigin: options.origin,
         remoteKey: options.key,
         container: contentId,
         channel: channelId,
