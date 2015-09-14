@@ -67,7 +67,7 @@
 
       rpc.extend({
         init: function(opts, xdm){
-          xdm.analytics = analytics.get(xdm.addonKey, ns);
+          xdm.analytics = analytics.get(xdm.addonKey, ns, opts.ukey);
           xdm.analytics.iframePerformance.start();
           xdm.productContext = options.productContext;
         }
