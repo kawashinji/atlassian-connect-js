@@ -21,12 +21,10 @@ define("resize", ["_dollar", "_rpc"], function ($, rpc) {
                     var resizeHandler = function (iframe) {
                         var height;
                         if (hideFooter) {
-                            //$('.ac-content-page #footer').append('<style>.class {display: none;}</style>');
                             $('.ac-content-page #footer').css({display: "none"});
                             $('.ac-content-page').css({overflow: "hidden !important"});
                             height = $(document).height() - $("#header > nav").outerHeight();
-                        }
-                        else {
+                        } else {
                             height = $(document).height() - $("#header > nav").outerHeight() - $("#footer").outerHeight() - 20;
                         }
 
