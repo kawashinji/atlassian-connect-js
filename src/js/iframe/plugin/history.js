@@ -1,8 +1,9 @@
 AP.define("history", ["_dollar", "_rpc", "_ui-params"],
 
 /**
-* History API
-* Changing the URL of the host product, allowing manipulation of the browser history.
+* The History API allows your add-on to manipulate the current page URL for use in navigation. When using
+* the history module only the page anchor is modified and not the entire window location.
+*
 * Note: This is only enabled for page modules (Admin page, General page, Configure page, User profile page).
 * It cannot be used if the page module is launched as a dialog.
 * ### Example ###
@@ -34,8 +35,8 @@ function ($, rpc, uiParams) {
     return rpc.extend(function (remote) {
         var exports = {
             /**
-            * The current url anchor.
-            * @return String
+            * Retrieves the current state of the history stack and returns the value. The returned value is the same as what was set with the pushState method.
+            * @return {String} The current url anchor
             * @noDemo
             * @example
             * AP.require(["history"], function(history){
@@ -48,11 +49,11 @@ function ($, rpc, uiParams) {
             },
 
             /**
-            * Goes back or forward the specified number of steps
+            * Moves the page history back or forward the specified number of steps.
             * A zero delta will reload the current page.
             * If the delta is out of range, does nothing.
-            * Will invoke the popstate callback
-            * @param int delta
+            * This call invoke the popState callback.
+            * @param {Integer} delta - Number of places to move in the history
             * @noDemo
             * @example
             * AP.require(["history"], function(history){
@@ -64,7 +65,7 @@ function ($, rpc, uiParams) {
             },
             /**
             * Goes back one step in the joint session history.
-            * Will invoke the popstate callback
+            * Will invoke the popState callback.
             * @noDemo
             * @example
             * AP.require(["history"], function(history){
@@ -76,7 +77,7 @@ function ($, rpc, uiParams) {
             },
             /**
             * Goes back one step in the joint session history.
-            * Will invoke the popstate callback
+            * Will invoke the popState callback.
             * @noDemo
             * @example
             * AP.require(["history"], function(history){
@@ -87,9 +88,9 @@ function ($, rpc, uiParams) {
                 return this.go(1);
             },
             /**
-            * Pushes the given data onto the session history.
-            * Does NOT invoke popState callback
-            * @param String url to add to history
+            * Updates the location's anchor with the specified value and pushes the given data onto the session history.
+            * Does not invoke popState callback.
+            * @param {String} url - URL to add to history
             */
             pushState: function(url){
                 state = url;
@@ -97,16 +98,17 @@ function ($, rpc, uiParams) {
             },
             /**
             * Updates the current entry in the session history.
-            * Does NOT invoke popState callback
-            * @param String url to add to history
+            * Updates the location's anchor with the specified value but does not change the session history.
+            * Does not invoke popState callback.
+            * @param {String} url - URL to update current history value with
             */
             replaceState: function(url){
                 state = url;
                 remote.historyReplaceState(url);
             },
             /**
-            * Register a function to be executed on state change
-            * @param Function callback to be executed on state change.
+            * Register a function to be executed on state change.
+            * @param {Function} callback - Callback method to be executed on state change.
             */
             popState: function(callback){
                 popStateCallbacks.push(callback);
