@@ -11,7 +11,8 @@
                 this.clock = sinon.useFakeTimers();
                 this.addonKey = "myaddonkey";
                 this.moduleKey = "myModulekey";
-                this.analytics = analytics.get(this.addonKey, this.moduleKey);
+                this.userKeyHash = "myUserKeyHash";
+                this.analytics = analytics.get({addonKey: this.addonKey, moduleKey: this.moduleKey, userKeyHash: this.userKeyHash});
             },
             teardown: function() {
                 this.triggerSpy.reset();
@@ -51,6 +52,7 @@
             this.analytics.iframePerformance.end();
             equal(this.triggerSpy.args[0][1].addonKey, this.addonKey);
             equal(this.triggerSpy.args[0][1].moduleKey, this.moduleKey);
+            equal(this.triggerSpy.args[0][1].userKeyHash, this.userKeyHash);
         });
 
         test("iframePerformance end analytics event includes time value", function() {
