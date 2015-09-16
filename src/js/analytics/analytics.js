@@ -29,11 +29,11 @@ define("analytics/analytics", ["_dollar"], function($){
         return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
     }
 
-    function Analytics(addonKey, moduleKey, userKey) {
+    function Analytics(addonKey, moduleKey, userKeyHash) {
         var metrics = {};
         this.addonKey = addonKey;
         this.moduleKey = moduleKey;
-        this.userKey = userKey;
+        this.userKeyHash = userKeyHash;
         this.iframePerformance = {
             start: function(){
                 metrics.startLoading = time();
@@ -44,7 +44,7 @@ define("analytics/analytics", ["_dollar"], function($){
                     addonKey: addonKey,
                     moduleKey: moduleKey,
                     value: value > THRESHOLD ? 'x' : Math.ceil((value) / TRIMPPRECISION),
-                    userHash: howDoICalculateThis(userKey)
+                    userKeyHash: userKeyHash
                 });
                 delete metrics.startLoading;
             },
@@ -68,11 +68,6 @@ define("analytics/analytics", ["_dollar"], function($){
     }
 
     var proto = Analytics.prototype;
-
-    proto.howDoICalculateThis = function (userKey) {
-        // ???????
-        return userKey;
-    };
 
     proto.getKey = function () {
         return this.addonKey + ':' + this.moduleKey;
