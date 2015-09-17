@@ -56,7 +56,6 @@
         test("iframePerformance end analytics event includes time value", function() {
             this.analytics.iframePerformance.start();
             this.analytics.iframePerformance.end();
-            ok(this.triggerSpy.args[0][1].value > 0);
             ok(Number.isFinite(this.triggerSpy.args[0][1].value), "performance value must be a number");
         });
 
