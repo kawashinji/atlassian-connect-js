@@ -6,7 +6,7 @@ AP.define("inline-dialog", ["_dollar", "_rpc"],
 *
 * Inline dialogs can be shown via a [web item target](../modules/common/web-item.html#target).
 *
-* For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inlineDialog.html).
+* For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inline-dialog.html).
 * @exports inline-dialog
 */
 
