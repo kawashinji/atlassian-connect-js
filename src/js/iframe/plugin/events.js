@@ -1,6 +1,7 @@
 AP.define("events", ["_dollar", "_rpc"], 
     /**
-    * The Events module provides a mechanism for emitting and receiving events.
+    * The Events Javascript module provides a mechanism for emitting and receiving events between add-on panels.
+    *
     * <h3>Basic example</h3>
     * ```
     * //The following will create an alert message every time the event `customEvent` is triggered.
