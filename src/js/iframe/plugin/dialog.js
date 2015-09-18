@@ -4,12 +4,14 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
    * The Dialog module provides a mechanism for launching an add-on's modules as modal dialogs from within an add-on's iframe.
    * A modal dialog displays information without requiring the user to leave the current page.
    * The dialog is opened over the entire window, rather than within the iframe itself.
-   * ###Styling your dialog to look like a standard Atlassian dialog
-   * By default the dialog iframe is undecorated. It's up to the developer to style the dialog.
+   * 
+   * <h3>Styling your dialog to look like a standard Atlassian dialog</h3>
+   * 
+   * By default the dialog iframe is undecorated. It's up to you to style the dialog.
    * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
    *
    * In order to maintain a consistent look and feel between the host application and the add-on,
-   * we encourage add-on developers to style their dialogs to match Atlassian's Design Guidelines for modal dialogs.
+   * we encourage you to style your dialogs to match Atlassian's Design Guidelines for modal dialogs.
    * To do that, you'll need to add the AUI styles to your dialog.
    *
    * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog.html).
@@ -98,12 +100,12 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
 
       /**
       * register callbacks responding to messages from the host dialog, such as "submit" or "cancel"
-      * @param String button either "cancel" or "submit"
-      * @param Function callback function
+      * @param {String} buttonName - button either "cancel" or "submit"
+      * @param {Function} listener - callback function invoked when the requested button is pressed
       * @deprecated
       */
-      onDialogMessage: function (message, listener) {
-        this.getButton(message).bind(listener);
+      onDialogMessage: function (buttonName, listener) {
+        this.getButton(buttonName).bind(listener);
       },
       /**
       * Returns the button that was requested (either cancel or submit)
