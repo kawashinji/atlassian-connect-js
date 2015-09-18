@@ -55,6 +55,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
         /**
          * Creates a dialog for a web-item or page module key.
          * @param {Dialog~DialogOptions} options configuration object of dialog options.
+         * @noDemo
          * @example
          * AP.require('dialog', function(dialog){
          *   dialog.create({
@@ -100,7 +101,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
         /**
          * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.
          * This will only close a dialog that has been opened by your add-on.
-         * You can register for close events using the `dialog.close` event and the [events module](module-Events.html)
+         * You can register for close events using the `dialog.close` event and the [events module](module-Events.html).
          * @param {Object} data An object to be emitted on dialog close.
          * @noDemo
          * @example
