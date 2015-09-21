@@ -29,6 +29,13 @@ define("analytics/analytics", ["_dollar"], function($){
         return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
     }
 
+    /**
+     * Initialises Connect analytics module. This module provides events for iframe performance (loaded, timed out, canceled).
+     *
+     * @param viewData.addonKey - addon's key
+     * @param viewData.moduleKey - module's key.
+     * @param viewData.userKeyHash - hash value of the currently logged in user. Null if anonymous.
+     */
     function Analytics(viewData) {
         var metrics = {};
         this.addonKey = viewData.addonKey;
