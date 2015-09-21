@@ -43,8 +43,9 @@
     "webpack": "^1.10.1"
   },
   "dependencies": {
-    "jsuri": "^1.3.1",
     "base-64": "^0.1.0",
+    "jsuri": "^1.3.1",
+    "simple-xdm": "^0.2.4",
     "utf8": "^2.1.0"
   }
 }
