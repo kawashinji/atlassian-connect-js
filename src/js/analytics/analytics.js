@@ -29,10 +29,18 @@ define("analytics/analytics", ["_dollar"], function($){
         return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
     }
 
-    function Analytics(addonKey, moduleKey) {
+    /**
+     * Initialises Connect analytics module. This module provides events for iframe performance (loaded, timed out, canceled).
+     *
+     * @param viewData.addonKey - addon's key
+     * @param viewData.moduleKey - module's key.
+     * @param viewData.userKeyHash - hash value of the currently logged in user. Null if anonymous.
+     */
+    function Analytics(viewData) {
         var metrics = {};
-        this.addonKey = addonKey;
-        this.moduleKey = moduleKey;
+        this.addonKey = viewData.addonKey;
+        this.moduleKey = viewData.moduleKey;
+        this.userKeyHash = viewData.userKeyHash;
         this.iframePerformance = {
             start: function(){
                 metrics.startLoading = time();
@@ -40,16 +48,17 @@ define("analytics/analytics", ["_dollar"], function($){
             end: function(){
                 var value = time() - metrics.startLoading;
                 proto.track('iframe.performance.load', {
-                    addonKey: addonKey,
-                    moduleKey: moduleKey,
-                    value: value > THRESHOLD ? 'x' : Math.ceil((value) / TRIMPPRECISION)
+                    addonKey: viewData.addonKey,
+                    moduleKey: viewData.moduleKey,
+                    value: value > THRESHOLD ? 'x' : Math.ceil((value) / TRIMPPRECISION),
+                    userKeyHash: viewData.userKeyHash
                 });
                 delete metrics.startLoading;
             },
             timeout: function(){
                 proto.track('iframe.performance.timeout', {
-                    addonKey: addonKey,
-                    moduleKey: moduleKey
+                    addonKey: viewData.addonKey,
+                    moduleKey: viewData.moduleKey
                 });
                 //track an end event during a timeout so we always have complete start / end data.
                 this.end();
@@ -57,8 +66,8 @@ define("analytics/analytics", ["_dollar"], function($){
             // User clicked cancel button during loading
             cancel: function(){
                 proto.track('iframe.performance.cancel', {
-                    addonKey: addonKey,
-                    moduleKey: moduleKey
+                    addonKey: viewData.addonKey,
+                    moduleKey: viewData.moduleKey
                 });
             }
         };
@@ -100,10 +109,9 @@ define("analytics/analytics", ["_dollar"], function($){
     };
 
     return {
-        get: function (addonKey, moduleKey) {
-            return new Analytics(addonKey, moduleKey);
+        get: function (viewData) {
+            return new Analytics(viewData);
         }
     };
-
 
 });
