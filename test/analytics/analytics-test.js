@@ -56,7 +56,7 @@ QUnit.test("iframePerformance end analytics event includes addon / module keys",
 QUnit.test("iframePerformance end analytics event includes time value", function(assert) {
     this.analytics.iframePerformance.start();
     this.analytics.iframePerformance.end();
-    assert.ok(this.triggerSpy.args[0][1].value > 0);
+    assert.ok(this.triggerSpy.args[0][1].value >= 0);
     assert.ok(Number.isFinite(this.triggerSpy.args[0][1].value), "performance value must be a number");
 });
 
