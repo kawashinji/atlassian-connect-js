@@ -10,44 +10,44 @@ var _channels = {};
 // between bridges, and potentially between add-ons.
 
 export default function () {
-    var self = {
-        _emitEvent(event) {
-            $.each(_channels[event.source.key], function (id, channel) {
-                channel.bus._emitEvent(event);
-            });
-        },
-        remove(xdm) {
-            var channel = _channels[xdm.addonKey][xdm.id];
-            if (channel) {
-                channel.bus.offAny(channel.listener);
-            }
-            delete _channels[xdm.addonKey][xdm.id];
-            return this;
-        },
-        init(config, xdm) {
-            if (!_channels[xdm.addonKey]) {
-                _channels[xdm.addonKey] = {};
-            }
-            var channel = _channels[xdm.addonKey][xdm.id] = {
-                bus: xdm.events,
-                listener() {
-                    var event = arguments[arguments.length - 1];
-                    var trace = event.trace = event.trace || {};
-                    var traceKey = xdm.id + '|addon';
-                    if (!trace[traceKey]) {
-                        // Only forward an event once in this listener
-                        trace[traceKey] = true;
-                        self._emitEvent(event);
-                    }
-                }
-            };
-            channel.bus.onAny(channel.listener); //forward add-on events.
-
-            // Remove reference to destroyed iframes such as closed dialogs.
-            channel.bus.on('ra.iframe.destroy', function () {
-                self.remove(xdm);
-            });
+  var self = {
+    _emitEvent(event) {
+      $.each(_channels[event.source.key], function (id, channel) {
+        channel.bus._emitEvent(event);
+      });
+    },
+    remove(xdm) {
+      var channel = _channels[xdm.addonKey][xdm.id];
+      if (channel) {
+        channel.bus.offAny(channel.listener);
+      }
+      delete _channels[xdm.addonKey][xdm.id];
+      return this;
+    },
+    init(config, xdm) {
+      if (!_channels[xdm.addonKey]) {
+        _channels[xdm.addonKey] = {};
+      }
+      var channel = _channels[xdm.addonKey][xdm.id] = {
+        bus: xdm.events,
+        listener() {
+          var event = arguments[arguments.length - 1];
+          var trace = event.trace = event.trace || {};
+          var traceKey = xdm.id + '|addon';
+          if (!trace[traceKey]) {
+            // Only forward an event once in this listener
+            trace[traceKey] = true;
+            self._emitEvent(event);
+          }
         }
-    };
-    return self;
+      };
+      channel.bus.onAny(channel.listener); //forward add-on events.
+
+      // Remove reference to destroyed iframes such as closed dialogs.
+      channel.bus.on('ra.iframe.destroy', function () {
+        self.remove(xdm);
+      });
+    }
+  };
+  return self;
 }

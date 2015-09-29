@@ -19,7 +19,7 @@ var modules = {
   '_util': {exports: util},
   '_dollar': {exports: $},
   '_events': {exports: _events},
-  '_base64': {exports:  base64},
+  '_base64': {exports: base64},
   '_uri': {exports: uri},
   '_ui-params': {exports: uiParams},
   '_xdm': {exports: xdm},
@@ -104,7 +104,7 @@ export default {
       });
     }
   },
-  require: function(deps, callback) {
+  require: function (deps, callback) {
 
     reqAll(typeof deps === 'string' ? [deps] : deps, callback);
   }

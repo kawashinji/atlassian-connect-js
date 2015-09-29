@@ -23,11 +23,11 @@ import propagator from './propagate/rpc';
  * @deprecated use AMD instead of global namespaces. The only thing that should be on _AP is _AP.define and _AP.require.
  */
 if (!window._AP) {
-    window._AP = {};
+  window._AP = {};
 }
 
- AJS.toInit(dialogBinder);
- AJS.toInit(inlineDialogBinder);
+AJS.toInit(dialogBinder);
+AJS.toInit(inlineDialogBinder);
 
 rpc.extend(addons);
 rpc.extend(dialogRpc);
@@ -39,12 +39,12 @@ rpc.extend(resize);
 rpc.extend(propagator);
 
 export default {
-    extend: rpc.extend,
-    init: rpc.init,
-    uiParams,
-    create,
-    _uriHelper: uri,
-    _statusHelper: statusHelper,
-    webItemHelper: content,
-    dialog: dialog
+  extend: rpc.extend,
+  init: rpc.init,
+  uiParams,
+  create,
+  _uriHelper: uri,
+  _statusHelper: statusHelper,
+  webItemHelper: content,
+  dialog: dialog
 }
