@@ -17,8 +17,8 @@ function getWebItemModuleKey(target){
 }
 
 function getOptionsForWebItem(target){
-    var moduleKey = getWebItemModuleKey(target),
-        type = target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
+    var moduleKey = getWebItemModuleKey(target);
+    var type = target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
         return window._AP[type + 'Options'][moduleKey] || {};
 }
 
@@ -35,10 +35,10 @@ function eventHandler(action, selector, callback) {
 
     function domEventHandler(event) {
         event.preventDefault();
-        var $el = $(event.target).closest(selector),
-        href = $el.attr('href'),
-        url = new uri.init(href),
-        options = {
+        var $el = $(event.target).closest(selector);
+        var href = $el.attr('href');
+        var url = new uri.init(href);
+        var options = {
             bindTo: $el,
             header: $el.text(),
             width:  url.getQueryParamValue('width'),

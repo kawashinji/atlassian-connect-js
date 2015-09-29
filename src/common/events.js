@@ -1,7 +1,7 @@
 import $ from './dollar';
 
-  var w = window,
-      log = (w.AJS && w.AJS.log) || (w.console && w.console.log) || (function() {});
+  var w = window;
+  var log = (w.AJS && w.AJS.log) || (w.console && w.console.log) || (function() {});
 
   /**
    * A simple pub/sub event bus capable of running on either side of the XDM bridge with no external

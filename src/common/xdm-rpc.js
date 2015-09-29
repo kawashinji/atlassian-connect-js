@@ -35,13 +35,20 @@ import util from '../host/util';
    */
   function XdmRpc($, config, bindings) {
 
-    var self, id, target, remoteOrigin, channel, mixin,
-        localKey, remoteKey, addonKey,
-        w = window,
-        loc = w.location.toString(),
-        locals = bindings.local || {},
-        remotes = bindings.remote || [],
-        localOrigin = getBaseUrl(loc);
+    var self;
+    var id;
+    var target;
+    var remoteOrigin;
+    var channel;
+    var mixin;
+    var localKey;
+    var remoteKey;
+    var addonKey;
+    var w = window;
+    var loc = w.location.toString();
+    var locals = bindings.local || {};
+    var remotes = bindings.remote || [];
+    var localOrigin = getBaseUrl(loc);
 
     // A hub through which all async callbacks for remote requests are parked until invoked from a response
     var nexus = function () {
@@ -201,8 +208,11 @@ import util from '../host/util';
     function receive(e) {
       try {
         // Extract message payload from the event
-        var payload = JSON.parse(e.data),
-            pid = payload.i, pchannel = payload.c, ptype = payload.t, pmessage = payload.m;
+        var payload = JSON.parse(e.data);
+        var pid = payload.i;
+        var pchannel = payload.c;
+        var ptype = payload.t;
+        var pmessage = payload.m;
 
         // if the iframe has potentially been reloaded. re-attach the source contentWindow object
         if (e.source !== target && e.origin.toLowerCase() === remoteOrigin && pchannel === channel) {
@@ -216,8 +226,12 @@ import util from '../host/util';
 
         if (ptype === 'request') {
           // If the payload type is request, this is an incoming method invocation
-          var name = pmessage.n, args = pmessage.a,
-              local = locals[name], done, fail, async;
+          var name = pmessage.n;
+          var args = pmessage.a;
+          var local = locals[name];
+          var done;
+          var fail;
+          var async;
           if (local) {
             // The message name matches a locally defined RPC method, so inspect and invoke it according
             // Create responders for each response type
@@ -271,7 +285,9 @@ import util from '../host/util';
       // Add a method to this instance that will convert from 'rpc.method(args..., done?, fail?)'-style
       // invocations to a postMessage event via the 'send' function
       return function () {
-        var args = [].slice.call(arguments), done, fail;
+        var args = [].slice.call(arguments);
+        var done;
+        var fail;
         // Pops the last arg off the args list if it's a function
         function popFn() {
           if ($.isFunction(args[args.length - 1])) {
@@ -385,9 +401,9 @@ import util from '../host/util';
       if(!config.container){
         throw new Error('config.container must be defined');
       }
-      var iframe = document.createElement('iframe'),
-        id = 'easyXDM_' + config.container + '_provider',
-        windowName = '';
+      var iframe = document.createElement('iframe');
+      var id = 'easyXDM_' + config.container + '_provider';
+      var windowName = '';
 
       if(config.uiParams){
         windowName = uiParams.encode(config.uiParams);

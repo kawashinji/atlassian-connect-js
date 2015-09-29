@@ -39,11 +39,11 @@ function create(options) {
     options.uiParams = uiParams.fromUrl(options.src);
   }
 
-  var ns = options.ns,
-      contentId = 'embedded-' + ns,
-      channelId = 'channel-' + ns,
-      initWidth = options.w || '100%',
-      initHeight = options.h || '0';
+  var ns = options.ns;
+  var contentId = 'embedded-' + ns;
+  var channelId = 'channel-' + ns;
+  var initWidth = options.w || '100%';
+  var initHeight = options.h || '0';
 
   if(typeof options.uiParams !== 'object'){
     options.uiParams = {};

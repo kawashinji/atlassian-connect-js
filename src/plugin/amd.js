@@ -33,11 +33,14 @@ var modules = {
 };
 
 function reqAll(deps, callback) {
-  var mods = [], i = 0, len = deps.length;
+  var mods = [];
+  var i = 0;
+  var len = deps.length;
   function addOne(mod) {
     mods.push(mod);
     if (mods.length === len) {
-      var exports = [], i = 0;
+      var exports = [];
+      var i = 0;
       for (; i < len; i += 1) {
         exports[i] = mods[i].exports;
       }
@@ -78,8 +81,8 @@ function getOrCreate(name) {
 // define(name, deps, fn(dep1, dep2, ...))
 export default {
   define: function (name, deps, exports) {
-    var mod = getOrCreate(name),
-        factory;
+    var mod = getOrCreate(name);
+    var factory;
     if (!exports) {
       exports = deps;
       deps = [];

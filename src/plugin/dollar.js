@@ -1,8 +1,8 @@
 import util from './util';
 
-var each = util.each,
-    extend = util.extend,
-    document = window.document;
+var each = util.each;
+var extend = util.extend;
+var document = window.document;
 
 function $(sel, context) {
 

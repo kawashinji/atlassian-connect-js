@@ -19,10 +19,10 @@ import Uri from '../common/uri';
  * @exports Dialog
  */
 
-var uiParams = UiParams.fromUrl(window.location.toString()),
-  isDialog = Boolean(uiParams.dlg) || Boolean(uiParams.isDialog),
-  exports,
-  url = new Uri.init(window.location.toString());
+var uiParams = UiParams.fromUrl(window.location.toString());
+var isDialog = Boolean(uiParams.dlg) || Boolean(uiParams.isDialog);
+var exports;
+var url = new Uri.init(window.location.toString());
 
 // if it has been set to a dialog on the server.
 if(url.getQueryParamValue('dialog') === '1'){
@@ -211,10 +211,10 @@ rpc.extend(function (remote) {
         * });
         */
         trigger: function () {
-          var self = this,
-              cont = true,
-              result = true,
-              list = listeners[name];
+          var self = this;
+          var cont = true;
+          var result = true;
+          var list = listeners[name];
           $.each(list, function (i, listener) {
             result = listener.call(self, {
               button: self,

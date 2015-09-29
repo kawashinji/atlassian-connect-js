@@ -31,9 +31,9 @@ function isJwtExpired(jwtString, skew){
     if(skew === undefined){
         skew = 60; // give a minute of leeway to allow clock skew
     }
-    var claims = parseJwtClaims(jwtString),
-    expires = 0,
-    now = Math.floor(Date.now() / 1000); // UTC timestamp now
+    var claims = parseJwtClaims(jwtString);
+    var expires = 0;
+    var now = Math.floor(Date.now() / 1000); // UTC timestamp now
 
     if(claims && claims.exp){
         expires = claims.exp;

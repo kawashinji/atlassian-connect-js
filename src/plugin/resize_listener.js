@@ -31,12 +31,13 @@ function addListener(element, fn){
         sensor.className = 'ac-resize-sensor';
         sensor.innerHTML = '<div class="ac-resize-overflow"><div></div></div><div class="ac-resize-underflow"><div></div></div>';
 
-        var x = 0, y = 0,
-        first = sensor.firstElementChild.firstChild,
-        last = sensor.lastElementChild.firstChild,
-        matchFlow = function(event){
-            var change = false,
-            width = element.offsetWidth;
+        var x = 0;
+        var y = 0;
+        var first = sensor.firstElementChild.firstChild;
+        var last = sensor.lastElementChild.firstChild;
+        var matchFlow = function(event){
+            var change = false;
+            var width = element.offsetWidth;
             if (x !== width) {
                 first.style.width = width - 1 + 'px';
                 last.style.width = width + 1 + 'px';

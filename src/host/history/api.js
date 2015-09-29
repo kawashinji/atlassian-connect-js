@@ -3,8 +3,8 @@ import Uri from '../../common/uri';
 /**
 * Methods for showing the status of a connect-addon (loading, time'd-out etc)
 */
-var lastAdded,
-    anchorPrefix = '!';
+var lastAdded;
+var anchorPrefix = '!';
 
 function stripPrefix (text) {
     if(text === undefined || text === null){
@@ -22,8 +22,8 @@ function addPrefix (text) {
 }
 
 function changeState (anchor, replace) {
-    var currentUrlObj = new Uri.init(window.location.href),
-    newUrlObj = new Uri.init(window.location.href);
+    var currentUrlObj = new Uri.init(window.location.href);
+    var newUrlObj = new Uri.init(window.location.href);
 
     newUrlObj.anchor(addPrefix(anchor));
 
@@ -71,8 +71,8 @@ function sanitizeHashChangeEvent (e) {
 }
 
 function getState () {
-    var hostWindowUrl = new Uri.init(window.location.href),
-    anchor = stripPrefix(hostWindowUrl.anchor());
+    var hostWindowUrl = new Uri.init(window.location.href);
+    var anchor = stripPrefix(hostWindowUrl.anchor());
     return anchor;
 }
 

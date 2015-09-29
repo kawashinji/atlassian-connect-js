@@ -96,7 +96,8 @@ export default {
           return Array.prototype.indexOf.call(array, value, fromIndex);
         }
 
-        var k = fromIndex >>> 0, len = array.length >>> 0;
+        var k = fromIndex >>> 0;
+        var len = array.length >>> 0;
         for (; k < len; k += 1) {
             if (array[k] === value) return k;
         }

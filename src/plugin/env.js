@@ -2,9 +2,9 @@ import $ from './dollar';
 import rpc from './rpc';
 import UiParams from '../common/ui-params';
 
-var uiParams = UiParams.fromWindowName(),
-    isInlineDialog = Boolean(uiParams.isInlineDialog),
-    isInlineAddon = Boolean(uiParams.isInlineAddon);
+var uiParams = UiParams.fromWindowName();
+var isInlineDialog = Boolean(uiParams.isInlineDialog);
+var isInlineAddon = Boolean(uiParams.isInlineAddon);
 
 var apis = rpc.extend(function (remote) {
 
@@ -61,8 +61,8 @@ export default $.extend(apis, {
   meta: function (name) {
     //IE8 fallback: querySelectorAll will never find nodes by name.
     if(navigator.userAgent.indexOf('MSIE 8') >= 0){
-      var i,
-      metas = document.getElementsByTagName('meta');
+      var i;
+      var metas = document.getElementsByTagName('meta');
 
       for (i=0; i<metas.length; i++) {
         if(metas[i].getAttribute('name') === 'ap-' + name) {
@@ -86,7 +86,9 @@ export default $.extend(apis, {
   },
 
   size: function (width, height, container) {
-    var w = width == null ? '100%' : width, h, docHeight;
+    var w = width == null ? '100%' : width;
+    var h;
+    var docHeight;
 
     if(!container){
       container = this.container();

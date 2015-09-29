@@ -1,16 +1,16 @@
 import $ from './dollar';
 import XdmRpc from '../common/xdm-rpc';
 
-var each = $.each,
-    extend = $.extend,
-    isFn = $.isFunction,
-    proxy = {},
-    rpc,
-    apis = {},
-    stubs = ['init'],
-    internals = {},
-    inits = [],
-    isInited;
+var each = $.each;
+var extend = $.extend;
+var isFn = $.isFunction;
+var proxy = {};
+var rpc;
+var apis = {};
+var stubs = ['init'];
+var internals = {};
+var inits = [];
+var isInited;
 
 export default {
 

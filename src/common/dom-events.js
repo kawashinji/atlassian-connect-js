@@ -3,8 +3,8 @@
  * Common methods for propagating DOM events between host/plugin iframes
  */
 
-var w = window,
-        log = (w.AJS && w.AJS.log) || (w.console && w.console.log) || function () {};
+var w = window;
+var log = (w.AJS && w.AJS.log) || (w.console && w.console.log) || function () {};
 
 const SUPPORTED_MOUSE_EVENTS = [
     'click'
