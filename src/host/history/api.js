@@ -8,9 +8,9 @@ var lastAdded,
 
 function stripPrefix (text) {
     if(text === undefined || text === null){
-        return "";
+        return '';
     }
-    return text.toString().replace(new RegExp('^' + anchorPrefix), "");
+    return text.toString().replace(new RegExp('^' + anchorPrefix), '');
 }
 
 function addPrefix (text) {

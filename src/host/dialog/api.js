@@ -48,7 +48,7 @@ function createDialogElement(options, $nexus, chromeless) {
         $el = $($el[0]);
         $el.find('.aui-dialog2-header-main').text(options.header);
         if(extraClasses){
-            $el.addClass(extraClasses.join(" "));
+            $el.addClass(extraClasses.join(' '));
         }
     }
 
@@ -68,7 +68,7 @@ function createDialogElement(options, $nexus, chromeless) {
     function handler(button) {
         // ignore clicks on disabled links
         if(button.isEnabled()){
-            button.$el.trigger("ra.dialog.click", button.dispatch);
+            button.$el.trigger('ra.dialog.click', button.dispatch);
         }
     }
 

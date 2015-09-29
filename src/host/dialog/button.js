@@ -23,8 +23,8 @@ function Button(options) {
 
     this.click = function(listener){
         if (listener) {
-            this.$el.unbind("ra.dialog.click");
-            this.$el.bind("ra.dialog.click", listener);
+            this.$el.unbind('ra.dialog.click');
+            this.$el.bind('ra.dialog.click', listener);
         } else {
             this.dispatch(true);
         }

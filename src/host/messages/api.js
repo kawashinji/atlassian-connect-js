@@ -4,7 +4,7 @@ var MESSAGE_BAR_ID = 'ac-message-container';
 var MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
 
 function validateMessageId(msgId) {
-    return msgId.search(/^ap\-message\-[0-9]+$/) == 0;
+    return msgId.search(/^ap\-message\-[0-9]+$/) === 0;
 }
 
 function getMessageBar() {

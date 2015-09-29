@@ -3,12 +3,12 @@ import $ from './dollar';
 // Normalize overflow/underflow events across browsers
 // http://www.backalleycoder.com/2013/03/14/oft-overlooked-overflow-and-underflow-events/
 function addFlowListener(element, type, fn){
-    var flow = type == 'over';
+    var flow = type === 'over';
     element.addEventListener('OverflowEvent' in window ? 'overflowchanged' : type + 'flow', function(e){
-        if (e.type == (type + 'flow') ||
-            ((e.orient == 0 && e.horizontalOverflow == flow) ||
-                (e.orient == 1 && e.verticalOverflow == flow) ||
-                (e.orient == 2 && e.horizontalOverflow == flow && e.verticalOverflow == flow))) {
+        if (e.type === (type + 'flow') ||
+            ((e.orient === 0 && e.horizontalOverflow === flow) ||
+                (e.orient === 1 && e.verticalOverflow === flow) ||
+                (e.orient === 2 && e.horizontalOverflow === flow && e.verticalOverflow === flow))) {
             e.flow = type;
             return fn.call(this, e);
         }
@@ -37,20 +37,20 @@ function addListener(element, fn){
         matchFlow = function(event){
             var change = false,
             width = element.offsetWidth;
-            if (x != width) {
+            if (x !== width) {
                 first.style.width = width - 1 + 'px';
                 last.style.width = width + 1 + 'px';
                 change = true;
                 x = width;
             }
             var height = element.offsetHeight;
-            if (y != height) {
+            if (y !== height) {
                 first.style.height = height - 1 + 'px';
                 last.style.height = height + 1 + 'px';
                 change = true;
                 y = height;
             }
-            if (change && event.currentTarget != element) {
+            if (change && event.currentTarget !== element) {
                 var event = document.createEvent('Event');
                 event.initEvent('resize', true, true);
                 element.dispatchEvent(event);
@@ -69,7 +69,7 @@ function addListener(element, fn){
         matchFlow({});
     }
     var events = element._flowEvents || (element._flowEvents = []);
-    if ($.inArray(fn, events) == -1) events.push(fn);
+    if ($.inArray(fn, events) === -1) events.push(fn);
     if (!resize) element.addEventListener('resize', fn, false);
     element.onresize = function(e){
         $.each(events,function(idx,fn){

@@ -387,7 +387,7 @@ import util from '../host/util';
       }
       var iframe = document.createElement('iframe'),
         id = 'easyXDM_' + config.container + '_provider',
-        windowName = "";
+        windowName = '';
 
       if(config.uiParams){
         windowName = uiParams.encode(config.uiParams);
@@ -396,7 +396,7 @@ import util from '../host/util';
       //$.extend will not add the attribute rel.
       iframe.setAttribute('rel', 'nofollow');
       $(document.getElementById(config.container)).append(iframe);
-      $(iframe).trigger("ra.iframe.create");
+      $(iframe).trigger('ra.iframe.create');
       iframe.src = config.remote;
       return iframe;
     }
