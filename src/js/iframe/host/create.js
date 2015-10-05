@@ -28,7 +28,7 @@
       * @property {String}  ukey          user key
       * @property {String}  data.timeZone timezone of the current user
       * @property {String}  cp            context path
-      * @property {String}  origin        origin address of the add-on, required when src does not point directly to the add-on.
+      * @property {String}  origin        origin address of the add-on, required when src does not point directly to the add-on
       */
 
       /**
