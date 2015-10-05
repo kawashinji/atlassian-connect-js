@@ -60,8 +60,14 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
     return {
 
       /**
-      * @exports request
-      */
+       * The Request Javascript module provides a mechanism for an add-on rendered in an iframe to make an XMLHttpRequest to
+       * the host product without requiring CORS.
+       * 
+       * In contrast to REST calls made from the add-on server to the product directly, any requests made in the browser are evaluated
+       * in the context of the currently logged in user. The requested resource is still evaluated against the add-ons granted scopes.
+       * 
+       * @exports request
+       */
       apis: {
 
         /**

@@ -16,10 +16,18 @@ define("resize", ["_dollar", "_rpc"], function ($, rpc) {
                         this.resize($, width, height);
                     }
                 },
-                sizeToParent: AJS.debounce(function() {
+                sizeToParent: AJS.debounce(function(hideFooter) {
 
                     var resizeHandler = function (iframe) {
-                        var height = $(document).height() - $("#header > nav").outerHeight() - $("#footer").outerHeight() - 20;
+                        var height;
+                        if (hideFooter) {
+                            $('.ac-content-page #footer').css({display: "none"});
+                            $('.ac-content-page').css({overflow: "hidden !important"});
+                            height = $(document).height() - $("#header > nav").outerHeight();
+                        } else {
+                            height = $(document).height() - $("#header > nav").outerHeight() - $("#footer").outerHeight() - 20;
+                        }
+
                         $(iframe).css({width: "100%", height: height + "px"});
                     };
                     // sizeToParent is only available for general-pages

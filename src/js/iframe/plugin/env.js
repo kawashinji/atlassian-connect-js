@@ -57,8 +57,15 @@ AP.define("env", ["_dollar", "_rpc", "_ui-params"], function ($, rpc, UiParams) 
           remote.resize(dim.w, dim.h);
         }, 50),
 
-        sizeToParent: $.debounce(function() {
-          remote.sizeToParent();
+        /**
+         * Resizes the iframe, so it takes the entire page. Add-on may define to hide footer using
+         * data-options.
+         *
+         * @method
+         * @param {boolean} hideFooter true if the footer is supposed to be hidden
+         */
+        sizeToParent: $.debounce(function(hideFooter) {
+          remote.sizeToParent(hideFooter);
         }, 50)
       }
 
