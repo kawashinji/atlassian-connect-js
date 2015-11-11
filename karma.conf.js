@@ -36,10 +36,10 @@ module.exports = function(config) {
 
     browserify: {
       debug: true,
-      bundleDelay: 1000,
-      configure: function(bundle) {
-        bundle._builtOnce = true; // fix issue in osx
-      },
+      bundleDelay: 2000,
+      //configure: function(bundle) {
+      //  bundle._builtOnce = true; // fix issue in osx
+      //},
       transform: ['babelify', envify({ENV: 'host'})],
 
     },
