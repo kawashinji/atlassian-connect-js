@@ -149,6 +149,16 @@
                     exclude: [
                         rootSource('.tmp/amd-stubs/connect-host')
                     ]
+                },
+                {
+                    name: rootSource('.tmp/amd-stubs/connect-host-navigation'),
+                    include: [
+                        'navigation/main',
+                        'navigation/navigation-rpc'
+                    ],
+                    exclude: [
+                        rootSource('.tmp/amd-stubs/connect-host')
+                    ]
                 }
                 ],
                 skipModuleInsertion: true

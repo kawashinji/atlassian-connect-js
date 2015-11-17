@@ -36,7 +36,8 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/plugin/messages.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/cookie.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/history.js',
-            '<%= paths.jsSource %>' + 'iframe/plugin/_resize_listener.js'
+            '<%= paths.jsSource %>' + 'iframe/plugin/_resize_listener.js',
+            '<%= paths.jsSource %>' + 'iframe/plugin/navigation.js'
         ],
         dest: '.tmp/all-debug.js',
         nonull: true
