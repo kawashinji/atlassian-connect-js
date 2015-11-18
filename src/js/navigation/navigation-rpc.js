@@ -1,16 +1,16 @@
-(function($, require){
+(function(require){
     "use strict";
-    require(["ac/navigate", 'connect-host'], function(navigate, _AP) {
-        _AP.extend(function () {
+    require(["connect-host", "ac/navigation"], function(connect, navigation) {
+        connect.extend(function () {
             return {
                 internals: {
                     to: function (target, context) {
-                        console.log("navigation rpc is loaded");
-                        navigate.to(target, context);
+                        navigation.to(target, context);
                     }
-                }
+                },
+                stubs: ["to"]
             };
         });
     });
 
-}(AJS.$, require));
+}(require));
