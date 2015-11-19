@@ -8,21 +8,25 @@
         }
 
         // ACJS-77: Migrate _uriTemplateHelper to use urijs.
-        var urijs   = connect._uriTemplateHelper,
+        var uri = connect._uriTemplateHelper,
             baseUrl = AJS.General.getBaseUrl(),
 
             // TODO move these out to a json file
-            routes  = {
+            routes = {
                 "dashboard"    : "",
                 "contentview"  : "/pages/viewpage.action?pageId={id}",
                 "contentedit"  : "/pages/resumedraft.action?draftId={id}&draftShareId={shareToken}",
-                "spaceview"    : "/display/CP/{id}",
                 "spaceadmin"   : "/spaces/viewspacesummary.action?key={id}",
-                "userprofile"  : "wiki/display/~{id}"
-                // TODO currentpage
+                "spaceview"    : "/display/{id}",
+                "userprofile"  : "/display/~{id}"
             };
 
         var to = function (target, context) {
+            if (target === "currentpage") {
+                location.reload();
+                return;
+            }
+
             if (target in routes) {
                 context = (typeof context === 'undefined') ? {} : context;
                 document.location = buildUrl(routes[target], context);
@@ -35,7 +39,7 @@
             var concreteUrl;
 
             if (context) {
-                concreteUrl = baseUrl + urijs.parse(urlTemplate).expand(context);
+                concreteUrl = baseUrl + uri.parse(urlTemplate).expand(context);
             } else {
                 concreteUrl = baseUrl + urlTemplate;
             }
