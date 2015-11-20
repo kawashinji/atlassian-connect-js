@@ -14,7 +14,7 @@
 
         return {
             routes: confluence_routes
-        }
+        };
 
     });
 })(define);

@@ -24,6 +24,8 @@ var tests = [],
     'create': 'iframe/host/create',
     'ac/dialog': 'dialog/main',
     'ac/dialog/dialog-factory': 'dialog/dialog-factory',
+    'ac/navigation': 'navigation/main',
+    'ac/navigation/navigation-routes': 'navigation/navigation-routes',
     'connect-host': '../../dist/connect-host'
   };
 
@@ -147,6 +149,15 @@ requirejs.config({
         '_dollar',
         'ac/dialog'
       ]
+    },
+    'ac/navigation': {
+      deps: [
+        'ac/navigation/navigation-routes',
+        'connect-host'
+      ]
+    },
+    'ac/navigation/navigation-routes': {
+        deps: [ ]
     },
     'iframe/host/_rpc': {
       deps: [
