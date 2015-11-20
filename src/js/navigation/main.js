@@ -1,6 +1,6 @@
 (function(define, AJS){
     "use strict";
-    define("ac/navigation", ["connect-host"], function(connect) {
+    define("ac/navigation", ["connect-host", "ac/navigation/navigation-routes"], function(connect, navigationRoutes) {
 
         if(!AJS.Confluence) {
             console.error('The navigation API is currently only implemented in Confluence.');
@@ -10,16 +10,7 @@
         // ACJS-77: Migrate _uriTemplateHelper to use urijs.
         var uri = connect._uriTemplateHelper,
             baseUrl = AJS.General.getBaseUrl(),
-
-            // TODO move these out to a json file
-            routes = {
-                "dashboard"    : "",
-                "contentview"  : "/pages/viewpage.action?pageId={id}",
-                "contentedit"  : "/pages/resumedraft.action?draftId={id}&draftShareId={shareToken}",
-                "spaceadmin"   : "/spaces/viewspacesummary.action?key={id}",
-                "spaceview"    : "/display/{id}",
-                "userprofile"  : "/display/~{id}"
-            };
+            routes = navigationRoutes.routes;
 
         var to = function (target, context) {
             if (target === "currentpage") {

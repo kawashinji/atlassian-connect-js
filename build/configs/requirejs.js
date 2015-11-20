@@ -155,6 +155,7 @@
                 {
                     name: rootSource('.tmp/amd-stubs/connect-host-navigation'),
                     include: [
+                        'navigation/navigation-routes',
                         'navigation/main',
                         'navigation/navigation-rpc'
                     ],
