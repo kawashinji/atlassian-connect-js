@@ -7,9 +7,9 @@
             "dashboard"    : "",
             "contentview"  : "/pages/viewpage.action?pageId={id}",
             "contentedit"  : "/pages/resumedraft.action?draftId={id}&draftShareId={shareToken}",
-            "spaceadmin"   : "/spaces/viewspacesummary.action?key={id}",
-            "spaceview"    : "/display/{id}",
-            "userprofile"  : "/display/~{id}"
+            "spaceadmin"   : "/spaces/viewspacesummary.action?key={key}",
+            "spaceview"    : "/display/{key}",
+            "userprofile"  : "/display/~{username}"
         };
 
         return {

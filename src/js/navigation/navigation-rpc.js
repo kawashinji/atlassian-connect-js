@@ -6,6 +6,9 @@
                 internals: {
                     to: function (target, context) {
                         navigation.to(target, context);
+                    },
+                    reload: function () {
+                        navigation.reload();
                     }
                 },
                 stubs: ["to"]

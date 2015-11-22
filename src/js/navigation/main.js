@@ -13,17 +13,17 @@
             routes = navigationRoutes.routes;
 
         var to = function (target, context) {
-            if (target === "currentpage") {
-                location.reload();
-                return;
-            }
-
             if (target in routes) {
                 context = (typeof context === 'undefined') ? {} : context;
                 document.location = buildUrl(routes[target], context);
             } else {
                 console.error("Unrecognised url target");
             }
+        };
+
+        var reload = function() {
+            location.reload();
+            return;
         };
 
         var buildUrl = function (urlTemplate, context) {
@@ -44,7 +44,8 @@
         };
 
         return {
-            to: to
+            to: to,
+            reload: reload
         };
     });
 })(define, AJS);
