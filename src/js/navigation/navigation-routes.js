@@ -5,10 +5,10 @@
         // Confluence only at the moment because JIRA navigation is not implemented yet.
         var confluence_routes = {
             "dashboard"    : "",
-            "contentview"  : "/pages/viewpage.action?pageId={id}",
-            "contentedit"  : "/pages/resumedraft.action?draftId={id}&draftShareId={shareToken}",
-            "spaceadmin"   : "/spaces/viewspacesummary.action?key={key}",
-            "spaceview"    : "/display/{key}",
+            "contentview"  : "/pages/viewpage.action?pageId={contentId}",
+            "contentedit"  : "/pages/resumedraft.action?draftId={draftId}&draftShareId={shareToken}",
+            "spaceadmin"   : "/spaces/viewspacesummary.action?key={spaceKey}",
+            "spaceview"    : "/display/{spaceKey}",
             "userprofile"  : "/display/~{username}"
         };
 

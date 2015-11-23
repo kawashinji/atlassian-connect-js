@@ -5,10 +5,10 @@ AP.define("navigation", ["_dollar", "_rpc"], function ($, rpc) {
 
             /**
              * @class Navigation~target
-             * @property {String}        contentview        The view page for pages and blogs. Takes an `id` to identify the content.
-             * @property {String}        contentedit        The edit page for pages and blogs. Takes an `id` to identify the content and a `shareToken` to allow editing.
-             * @property {String}        spaceview          The space view page. Takes a `key` to identify the space.
-             * @property {String}        spaceadmin         The space admin page. Takes a `key` to identify the space.
+             * @property {String}        contentview        The view page for pages and blogs. Takes a `contentId` to identify the content.
+             * @property {String}        contentedit        The edit page for pages and blogs. Takes a `contentId` to identify the content and a `shareToken` to allow editing.
+             * @property {String}        spaceview          The space view page. Takes a `spaceKey` to identify the space.
+             * @property {String}        spaceadmin         The space admin page. Takes a `spaceKey` to identify the space.
              * @property {String}        dashboard          The dashboard of Confluence.
              * @property {String}        userprofile        The profile page for a specific user. Takes a `username` to identify the user.
              */
