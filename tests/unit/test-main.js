@@ -4,8 +4,8 @@ var tests = [],
     'aui-atlassian': '../../bower_components/aui/src/js/atlassian',
     '_ap': 'iframe/host/_ap',
     '_dollar': 'iframe/host/_dollar',
-    '_uri': 'iframe/_uri',
     '_uritemplate': 'iframe/_uritemplate',
+    '_uri': 'iframe/_uri',
     'host/_status_helper': 'iframe/host/_status_helper',
     'host/_util': 'iframe/host/_util',
     '_rpc': 'iframe/host/_rpc',
@@ -154,7 +154,8 @@ requirejs.config({
     'ac/navigation': {
       deps: [
         'ac/navigation/navigation-routes',
-        'connect-host'
+        'connect-host',
+        '_uritemplate'
       ]
     },
     'iframe/host/_rpc': {
