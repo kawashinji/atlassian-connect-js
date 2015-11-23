@@ -5,6 +5,7 @@ var tests = [],
     '_ap': 'iframe/host/_ap',
     '_dollar': 'iframe/host/_dollar',
     '_uri': 'iframe/_uri',
+    '_uritemplate': 'iframe/_uritemplate',
     'host/_status_helper': 'iframe/host/_status_helper',
     'host/_util': 'iframe/host/_util',
     '_rpc': 'iframe/host/_rpc',
@@ -155,9 +156,6 @@ requirejs.config({
         'ac/navigation/navigation-routes',
         'connect-host'
       ]
-    },
-    'ac/navigation/navigation-routes': {
-        deps: [ ]
     },
     'iframe/host/_rpc': {
       deps: [

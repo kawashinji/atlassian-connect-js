@@ -1,44 +1,67 @@
-require(['ac/navigation'], function(navigation) {
+(function() {
+    require(['ac/navigation'], function (navigation) {
 
-    module("Main Navigation", {
-        setup: function () {
-            var buildUrl = sinon.spy();
-            var to = sinon.spy();
-            var AJS = sinon.stub();
+        module("Main Navigation", {
+            setup: function () {
+                var buildUrl = sinon.spy();
+                var to = sinon.spy();
+                var AJS = {};
+                AJS.Confluence = sinon.stub().returns(true);
 
-            var location = {};
-            location.reload = sinon.spy();
+                var location = {};
+                location.reload = sinon.spy();
 
-        }
+            }
+        });
+
+        test("Page refresh", function () {
+            navigation.reload();
+            ok(location.reload.called, "Page was refreshed");
+        });
+
+        //test("Navigate to dashboard", function () {
+        //    navigation.to("dashboard");
+        //
+        //    // TODO
+        //});
+        //
+        //test("Navigate to page", function () {
+        //    navigation.to("contentview", {id: 1234});
+        //
+        //    // TODO
+        //});
+        //
+        //test("Navigate to edit page", function () {
+        //    navigation.to("TODO", {id: 1234, shareToken: 5678});
+        //
+        //    // TODO
+        //});
+        //
+        //test("Navigate to space", function () {
+        //    navigation.to("spaceview", {key: "DS"});
+        //
+        //    // TODO
+        //});
+        //
+        //test("Navigate to admin view of space", function () {
+        //
+        //    // TODO
+        //});
+        //
+        //test("Navigate to user profile", function () {
+        //
+        //    // TODO
+        //});
+        //
+        //test("Unrecognised target", function () {
+        //
+        //    // TODO
+        //});
+        //
+        //test("Incorrect context variables", function () {
+        //
+        //    // TODO
+        //});
+
     });
-
-    test("Page refresh", function () {
-        navigation.to("currentPage");
-        ok(location.reload.called, "Page was refreshed");
-    });
-
-    test("Navigate to dashboard", function () {
-    });
-
-    test("Navigate to page", function () {
-    });
-
-    test("Navigate to edit page", function () {
-    });
-
-    test("Navigate to space", function () {
-    });
-
-    test("Navigate to admin view of space", function () {
-    });
-
-    test("Navigate to user profile", function () {
-    });
-
-    test("Unrecognised target", function () {
-    });
-
-    test("Incorrect context variables", function () {
-    });
-
-});
+})();
