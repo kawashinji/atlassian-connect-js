@@ -15,12 +15,16 @@ var isInited;
 export default {
 
   extend: function (config) {
-    if (isFn(config)) config = config(proxy);
+    if (isFn(config)) {
+      config = config(proxy);
+    }
     extend(apis, config.apis);
     extend(internals, config.internals);
     stubs = stubs.concat(config.stubs || []);
     var init = config.init;
-    if (isFn(init)) inits.push(init);
+    if (isFn(init)) {
+      inits.push(init);
+    }
     return config.apis;
   },
 
@@ -29,14 +33,19 @@ export default {
     options = options || {};
     if (!isInited) {
       // add stubs for each public api
-      each(apis, function (method) { stubs.push(method); });
+      each(apis, function (method) {
+        stubs.push(method);
+      });
       // empty config for add-on-side ctor
       rpc = this.rpc = new XdmRpc($, {}, {remote: stubs, local: internals});
       rpc.init();
       extend(proxy, rpc);
       each(inits, function (_, init) {
-        try { init(extend({}, options)); }
-        catch (ex) { $.handleError(ex); }
+        try {
+          init(extend({}, options));
+        } catch (ex) {
+          $.handleError(ex);
+        }
       });
       isInited = true;
     }

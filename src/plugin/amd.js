@@ -44,16 +44,19 @@ function reqAll(deps, callback) {
       for (; i < len; i += 1) {
         exports[i] = mods[i].exports;
       }
-      if (callback) callback.apply(window, exports);
+      if (callback) {
+        callback.apply(window, exports);
+      }
     }
   }
   if (deps && deps.length > 0) {
     for (; i < len; i += 1) {
       reqOne(deps[i], addOne);
     }
-  }
-  else {
-    if (callback) callback();
+  } else {
+    if (callback) {
+      callback();
+    }
   }
 }
 
@@ -88,7 +91,9 @@ export default {
       deps = [];
     }
     if (exports) {
-      factory = typeof exports !== 'function' ? function () { return exports; } : exports;
+      factory = typeof exports !== 'function' ? function () {
+        return exports;
+      } : exports;
       reqAll(deps, function () {
         var exports = factory.apply(window, arguments);
         if (exports) {

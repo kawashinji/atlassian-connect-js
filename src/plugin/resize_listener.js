@@ -70,8 +70,12 @@ function addListener(element, fn) {
     matchFlow({});
   }
   var events = element._flowEvents || (element._flowEvents = []);
-  if ($.inArray(fn, events) === -1) events.push(fn);
-  if (!resize) element.addEventListener('resize', fn, false);
+  if ($.inArray(fn, events) === -1) {
+    events.push(fn);
+  }
+  if (!resize) {
+    element.addEventListener('resize', fn, false);
+  }
   element.onresize = function (e) {
     $.each(events, function (idx, fn) {
       fn.call(element, e);

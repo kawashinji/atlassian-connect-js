@@ -4,7 +4,9 @@ import rpc from './rpc';
 import uiParams from '../common/ui-params';
 import util from './util';
 
-var defer = window.requestAnimationFrame || function (f) {setTimeout(f,10); };
+var defer = window.requestAnimationFrame || function (f) {
+  setTimeout(f,10);
+};
 
 function contentDiv(ns) {
   if (!ns) {

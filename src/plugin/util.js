@@ -7,13 +7,17 @@ function each(o, it) {
     if (l != null && typeof o !== 'function') {
       k = 0;
       while (k < l) {
-        if (it.call(o[k], k, o[k]) === false) break;
+        if (it.call(o[k], k, o[k]) === false) {
+          break;
+        }
         k += 1;
       }
     } else {
       for (k in o) {
         if (o.hasOwnProperty(k)) {
-          if (it.call(o[k], k, o[k]) === false) break;
+          if (it.call(o[k], k, o[k]) === false) {
+            break;
+          }
         }
       }
     }
@@ -99,7 +103,9 @@ export default {
     var k = fromIndex >>> 0;
     var len = array.length >>> 0;
     for (; k < len; k += 1) {
-      if (array[k] === value) return k;
+      if (array[k] === value) {
+        return k;
+      }
     }
     return -1;
   },

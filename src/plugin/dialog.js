@@ -218,7 +218,9 @@ rpc.extend(function (remote) {
           $.each(list, function (i, listener) {
             result = listener.call(self, {
               button: self,
-              stopPropagation: function () { cont = false; }
+              stopPropagation: function () {
+                cont = false;
+              }
             });
             return cont;
           });
@@ -239,12 +241,10 @@ rpc.extend(function (remote) {
         try {
           if (isDialog) {
             result = exports.getButton(name).trigger();
-          }
-          else {
+          } else {
             $.handleError('Received unexpected dialog button event from host:', name);
           }
-        }
-        catch (e) {
+        } catch (e) {
           $.handleError(e);
         }
         return result;

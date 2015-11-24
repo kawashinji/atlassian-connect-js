@@ -235,8 +235,12 @@ function XdmRpc($, config, bindings) {
         if (local) {
           // The message name matches a locally defined RPC method, so inspect and invoke it according
           // Create responders for each response type
-          done = function (message) { sendDone(pid, message); };
-          fail = function (message) { sendFail(pid, message); };
+          done = function (message) {
+            sendDone(pid, message);
+          };
+          fail = function (message) {
+            sendFail(pid, message);
+          };
           // The local method is considered async if it accepts more arguments than the message has sent;
           // the additional arguments are filled in with the above async responder callbacks;
           // TODO: consider specifying args somehow in the remote stubs so that non-callback args can be
@@ -310,7 +314,9 @@ function XdmRpc($, config, bindings) {
   // post-message request events, tracking async callbacks as necessary.
   $.each(remotes, function (methodName, v) {
     // If remotes were specified as an array rather than a map, promote v to methodName
-    if (typeof methodName === 'number') methodName = v;
+    if (typeof methodName === 'number') {
+      methodName = v;
+    }
     self[methodName] = bridge(methodName);
   });
 
@@ -422,18 +428,24 @@ function XdmRpc($, config, bindings) {
   }
 
   function debug() {
-    if (XdmRpc.debug) log.apply(w, ['DEBUG:'].concat([].slice.call(arguments)));
+    if (XdmRpc.debug) {
+      log.apply(w, ['DEBUG:'].concat([].slice.call(arguments)));
+    }
   }
 
   function log() {
     var log = $.log || (w.AJS && w.AJS.log);
-    if (log) log.apply(w, arguments);
+    if (log) {
+      log.apply(w, arguments);
+    }
   }
 
   function logError() {
     // $.error seems to do the same thing as $.log in client console
     var error = (w.AJS && w.AJS.error);
-    if (error) error.apply(w, arguments);
+    if (error) {
+      error.apply(w, arguments);
+    }
   }
 
   // Immediately start listening for events
