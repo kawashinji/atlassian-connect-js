@@ -25,7 +25,7 @@ module.exports = function(config) {
     //do not process my html files.
     preprocessors: {
       'test/iframe/plugin/**/*.js': ['browserify'],
-      'fixtures/!(*).html': ['html2js']
+      //'fixtures/!(*).html': ['html2js']
     },
 
     browserify: {
@@ -43,6 +43,7 @@ module.exports = function(config) {
     reporters: ['progress', 'junit'],
     junitReporter: {
       outputFile: 'target/test-reports/karma-iframe-results.xml',
+      useBrowserName: false,
       suite: ''
     },
 
