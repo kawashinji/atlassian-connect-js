@@ -42,7 +42,7 @@ module.exports = function(config) {
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
     reporters: ['progress', 'junit'],
     junitReporter: {
-      outputFile: 'target/test-reports/karma-iframe-results.xml',
+      outputFile: 'test/test-reports/karma-iframe-results.xml',
       useBrowserName: false,
       suite: ''
     },

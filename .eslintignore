@@ -5,4 +5,4 @@
 **/target/**
 .git/**
 .idea/**
-target/**
+build/**

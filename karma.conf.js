@@ -48,7 +48,7 @@ module.exports = function(config) {
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
     reporters: ['progress', 'junit'],
     junitReporter: {
-      outputFile: 'tests/test-reports/karma-results.xml',
+      outputFile: 'test/test-reports/karma-results.xml',
       useBrowserName: false,
       suite: ''
     },
