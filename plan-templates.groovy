@@ -1,7 +1,7 @@
 plan(
         projectKey: 'CONNECT',
         key:'CJF3',
-        name:'JavaScript API - 3.0 Feature branches',
+        name:'JavaScript API - 3.0',
         description:'Feature branches of atlassian-connect-js 3.0 against the develop branch of atlassian-connect-plugin'
 ) {
     commonPlanConfiguration()
