@@ -11,8 +11,7 @@
                 this.clock = sinon.useFakeTimers();
                 this.addonKey = "myaddonkey";
                 this.moduleKey = "myModulekey";
-                this.userKeyHash = "myUserKeyHash";
-                this.analytics = analytics.get({addonKey: this.addonKey, moduleKey: this.moduleKey, userKeyHash: this.userKeyHash});
+                this.analytics = analytics.get({addonKey: this.addonKey, moduleKey: this.moduleKey});
             },
             teardown: function() {
                 this.triggerSpy.reset();

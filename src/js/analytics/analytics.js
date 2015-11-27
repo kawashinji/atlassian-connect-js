@@ -34,13 +34,11 @@ define("analytics/analytics", ["_dollar"], function($){
      *
      * @param viewData.addonKey - addon's key
      * @param viewData.moduleKey - module's key.
-     * @param viewData.userKeyHash - hash value of the currently logged in user. Null if anonymous.
      */
     function Analytics(viewData) {
         var metrics = {};
         this.addonKey = viewData.addonKey;
         this.moduleKey = viewData.moduleKey;
-        this.userKeyHash = viewData.userKeyHash;
         this.iframePerformance = {
             start: function(){
                 metrics.startLoading = time();
@@ -50,8 +48,7 @@ define("analytics/analytics", ["_dollar"], function($){
                 proto.track('iframe.performance.load', {
                     addonKey: viewData.addonKey,
                     moduleKey: viewData.moduleKey,
-                    value: value > THRESHOLD ? 'x' : Math.ceil((value) / TRIMPPRECISION),
-                    userKeyHash: viewData.userKeyHash
+                    value: value > THRESHOLD ? 'x' : Math.ceil((value) / TRIMPPRECISION)
                 });
                 delete metrics.startLoading;
             },
