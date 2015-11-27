@@ -5,6 +5,11 @@ module.exports = function (grunt) {
 
     config.jquery = grunt.option('jquery') || '1.8.3';
     config.pkg = grunt.file.readJSON('package.json');
+
+    // Specified on the command line,
+    // e.g. --deployDest=/Users/dtaylor/src/atlassian/AC/atlassian-connect/plugin/src/main/resources/js/core
+    var deployPath = grunt.option('deployPath') || 'no deploy path';
+
     config.paths = {
         jsSource: 'src/js/',
         jsVendorSource: 'src/js-vendor/',
@@ -13,12 +18,12 @@ module.exports = function (grunt) {
         cssSource: 'src/css/',
         cssVendorSource: 'src/css-vendor/',
         dist: 'dist/',
-        tmp: '.tmp/'
+        tmp: '.tmp/',
+        deploy: deployPath
     };
 
     grunt.initConfig(config);
 
-    grunt.loadTasks('build/tasks');
     grunt.loadNpmTasks('grunt-available-tasks');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-concat');
@@ -70,4 +75,8 @@ module.exports = function (grunt) {
         'clean:tmp'
     ]);
 
+    grunt.registerTask('build-and-deploy', 'Builds Atlassian Connect JS and deploys it to a local folder defined by --deployPath option.', [
+        'build',
+        'copy:deploy'
+    ]);
 };

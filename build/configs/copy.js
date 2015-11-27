@@ -28,5 +28,17 @@ module.exports = {
             src: ['**.css',
             '!*.report.txt']
         }]
+    },
+
+    // Copy distribution files to another directory, generally the target of the plugin.resource.directories
+    // environment variable for the server running the Atlassian Connect Plugin. This enables resources from this project
+    // to be available to a running server without having to re-install the plugin that normally wraps these files.
+    deploy: {
+        files: [{
+            cwd: '<%= paths.dist %>',
+            dest:  '<%= paths.deploy %>',
+            expand: true,
+            src: ['**.*']
+        }]
     }
 };

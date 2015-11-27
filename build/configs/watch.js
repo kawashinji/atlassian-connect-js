@@ -6,6 +6,20 @@ module.exports = function (grunt) {
         grunt.config('jshint.all', filepath);
     });
 
+    if (grunt.option('deployPath')) {
+        // Deploy, and *only* deploy, on watch if the command-line param is set.
+        return {
+            deploy: {
+                tasks: [
+                    'build-and-deploy'
+                ],
+                files: [
+                    'src/**'
+                ]
+            }
+        };
+    }
+
     return {
         lint: {
             files: [
