@@ -1,6 +1,12 @@
 (function(define, require, AJS, $){
     "use strict";
-    define("ac/dialog", ["connect-host", "ac/dialog/button"], function(connect, dialogButton) {
+    define("ac/dialog", [
+        "connect-host",
+        "ac/dialog/button",
+        "ac/dialog/header-controls"], function(
+        connect,
+        dialogButton,
+        headerControls) {
 
         var $global = $(window);
         var idSeq = 0;
@@ -50,6 +56,17 @@
                 buttons.cancel.setText(options.cancelText);
                 //soy templates don't support sending objects, so make the template and bind them.
                 $el.find('.aui-dialog2-footer-actions').empty().append(buttons.submit.$el, buttons.cancel.$el);
+
+                // TODO - might not be an override of 'chrome' (existing options are 'true' and 'false'). dT
+                if (options.chrome === 'header-controls') {
+                    $el.addClass('header-controls');
+
+                    // Replace the default AUI dialog header with the markup required for File-Viewer-like
+                    // L&F. TODO - should strip back to AUI markup as much as possible, and use CSS selectors rooted at
+                    // .header-controls (class added above).
+                    var markup = headerControls.headerMarkup(options);
+                    $el.find('header').addClass('aui-group').html(markup);
+                }
             }
 
             $el.find('.aui-dialog2-content').append($nexus);

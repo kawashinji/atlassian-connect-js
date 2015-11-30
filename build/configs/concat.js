@@ -8,7 +8,8 @@ module.exports = {
         src: [
             '<%= paths.cssSource %>' + 'iframe/host.css',
             '<%= paths.cssSource %>' + 'messages/main.css',
-            '<%= paths.cssSource %>' + 'dialog/dialog.css'
+            '<%= paths.cssSource %>' + 'dialog/dialog.css',
+            '<%= paths.cssSource %>' + 'dialog/header-controls.css'
         ],
         dest: '.tmp/host-css.css',
         nonull: true
