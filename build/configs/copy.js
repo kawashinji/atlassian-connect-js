@@ -36,9 +36,14 @@ module.exports = {
     deploy: {
         files: [{
             cwd: '<%= paths.dist %>',
-            dest:  '<%= paths.deploy %>',
+            dest:  '<%= paths.deploy %>/js/core',
             expand: true,
-            src: ['**.*']
+            src: ['**.js']
+        }, {
+            cwd: '<%= paths.dist %>',
+            dest:  '<%= paths.deploy %>/css/core',
+            expand: true,
+            src: ['**.css']
         }]
     }
 };

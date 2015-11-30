@@ -7,7 +7,7 @@ module.exports = function (grunt) {
     config.pkg = grunt.file.readJSON('package.json');
 
     // Specified on the command line,
-    // e.g. --deployPath=/Users/dtaylor/src/atlassian/AC/atlassian-connect/plugin/src/main/resources/js/core
+    // e.g. --deployPath=/Users/dtaylor/src/atlassian/AC/atlassian-connect/plugin/src/main/resources
     var deployPath = grunt.option('deployPath') || 'no deploy path';
 
     config.paths = {
