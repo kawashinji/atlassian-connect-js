@@ -17,13 +17,11 @@
 
                 var markup =
                     '<div class="header-title-container" class="aui-item expanded">' +
-                    '<div>' +
-                    '<span class="header-title">' + title + '</span>' +
+                        '<div>' +
+                            '<span class="header-title">' + title + '</span>' +
+                        '</div>' +
                     '</div>' +
-                    '</div>' +
-                    '<div class="control-panel" class="aui-item">' +
-                    '<span><a href="#" class="close header-icon" original-title="Close"></a></span>' +
-                    '</div>';
+                    '<div class="control-panel" class="aui-item"></div>';
 
                 return markup;
             }
