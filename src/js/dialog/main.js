@@ -61,24 +61,15 @@
 
                 // TODO - might not be an override of 'chrome' (existing options are 'true' and 'false'). dT
                 if (options.chrome === 'header-controls') {
-                    // The dialog itself needs a class so that top and margin-top can be overridden.
+                    // Replace the default AUI dialog header with the markup required for a File-Viewer-like L&F.
+
+                    // The dialog itself needs an extra class so that the top and margin-top styles can be overridden.
                     $el.addClass('header-controls');
 
-                    // Replace the default AUI dialog header with the markup required for File-Viewer-like
-                    // L&F. TODO - should strip back to AUI markup as much as possible, and use CSS selectors rooted at
-                    // .header-controls (class added above).
-                    var markup = headerControls.headerMarkup(options);
-                    var $header = $el.find('header');
-                    $header.addClass('aui-group').html(markup);
-
-                    // TODO - this will botch the buttons for other dialogs! Why are they reused?! dT
-                    // Is it better to remove the class and have less to override in the CSS file, or to
-                    // leave the markup alone and ONLY have to modify the CSS?
-                    //$.each(buttons, function(i, button) {
-                    //    button.$el.removeClass('aui-button');
-                    //});
-
-                    $buttonContainer = $header.find('.control-panel');
+                    var hc = headerControls.create(options);
+                    var $container = $el.find('header');
+                    $container.addClass('aui-group').empty().append(hc.$el);
+                    $buttonContainer = $container.find('.header-control-panel');
                 }
                 else {
                     //soy templates don't support sending objects, so make the template and bind them.

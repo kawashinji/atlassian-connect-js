@@ -27,6 +27,10 @@ require(['ac/dialog'], function(simpleDialog) {
             window.AJS.layer = this.store.layer;
         }
     });
+    
+    function dialogElement() {
+        return AJS.dialog2.args[0][0];
+    }
 
     test("dialog options.id sets the dialog id", function() {
         var dialogId = "abc123";
@@ -34,7 +38,7 @@ require(['ac/dialog'], function(simpleDialog) {
             id: dialogId
         });
 
-        equal(AJS.dialog2.args[0][0].attr('id'), dialogId);
+        equal(dialogElement().attr('id'), dialogId);
     });
 
     test("dialog options.width sets the dialog width", function(){
@@ -66,7 +70,7 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: false
         });
 
-        ok(AJS.dialog2.args[0][0].is(".aui-dialog2-large"), "Size argument was passed to dialog");
+        ok(dialogElement().is(".aui-dialog2-large"), "Size argument was passed to dialog");
     });
 
     test("dialog options.header sets the dialog title", function(){
@@ -77,7 +81,7 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: true
         });
 
-        equal(AJS.dialog2.args[0][0].find('h1').text(), text);
+        equal(dialogElement().find('h1').text(), text);
     });
 
 
@@ -88,7 +92,7 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: true
         });
         // aui appends "dialog-title" to the end of your dialog titles.
-        equal(AJS.dialog2.args[0][0].attr("aria-labelledby"), "my-dialog-dialog-title", "TitleId attribute was passed to dialog");
+        equal(dialogElement().attr("aria-labelledby"), "my-dialog-dialog-title", "TitleId attribute was passed to dialog");
     });
 
     test("Dialog close", function(){
@@ -106,11 +110,9 @@ require(['ac/dialog'], function(simpleDialog) {
             id: "my-dialog",
             chrome: true
         });
-        var dialogElement = AJS.dialog2.args[0][0];
-
         var iframe = document.createElement('iframe');
         iframe.focus = sinon.spy();
-        dialogElement.append(iframe);
+        dialogElement().append(iframe);
         $(iframe).trigger('ra.iframe.create');
         ok(iframe.focus.calledOnce, 'iframe was focused');
     });
@@ -121,7 +123,7 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: false
         });
 
-        equal(AJS.dialog2.args[0][0].find(".aui-dialog2-header").length, 0);
+        equal(dialogElement().find(".aui-dialog2-header").length, 0);
     });
 
     test("by default, dialogs are chromeless", function(){
@@ -129,7 +131,7 @@ require(['ac/dialog'], function(simpleDialog) {
             id: "my-dialog"
         });
 
-        equal(AJS.dialog2.args[0][0].find(".aui-dialog2-header").length, 0);
+        equal(dialogElement().find(".aui-dialog2-header").length, 0);
     });
 
     test("options.chrome opens a dialog with chrome", function(){
@@ -138,7 +140,7 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: true
         });
 
-        equal(AJS.dialog2.args[0][0].find(".aui-dialog2-header").length, 1);
+        equal(dialogElement().find(".aui-dialog2-header").length, 1);
     });
 
     test("dialogs with chrome contain a submit button", function(){
@@ -147,7 +149,7 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: true
         });
 
-        equal(AJS.dialog2.args[0][0].find(".ap-dialog-submit").length, 1);
+        equal(dialogElement().find(".ap-dialog-submit").length, 1);
     });
 
     test("dialogs with chrome contain a cancel button", function(){
@@ -156,7 +158,17 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: true
         });
 
-        equal(AJS.dialog2.args[0][0].find(".ap-dialog-cancel").length, 1);
+        equal(dialogElement().find(".ap-dialog-cancel").length, 1);
+    });
+
+    test("dialogs with header-controls contain submit and cancel buttons in the header", function(){
+        simpleDialog.create({
+            id: "my-dialog",
+            chrome: 'header-controls'
+        });
+
+        equal(dialogElement().find("header .ap-dialog-submit").length, 1);
+        equal(dialogElement().find("header .ap-dialog-cancel").length, 1);
     });
 
     test("dialog with a submit button can set the text", function(){
@@ -165,7 +177,7 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: true,
             submitText: "some submit text"
         });
-        equal(AJS.dialog2.args[0][0].find(".ap-dialog-submit").text(), "some submit text");
+        equal(dialogElement().find(".ap-dialog-submit").text(), "some submit text");
     });
 
     test("dialog with a cancel button can set the text", function(){
@@ -174,7 +186,7 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: true,
             cancelText: "some cancel text"
         });
-        equal(AJS.dialog2.args[0][0].find(".ap-dialog-cancel").text(), "some cancel text");
+        equal(dialogElement().find(".ap-dialog-cancel").text(), "some cancel text");
     });
 
 

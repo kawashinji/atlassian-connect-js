@@ -10,20 +10,25 @@
 
         return {
 
-            // TODO Trivial implementation, should use Soy and eventually move to AUI. dT
-            headerMarkup: function(options) {
+            // This method is not intended for the public API - it's only in a separate JS file to split some code out
+            // of main.js.
+            create: function(options) {
 
-                var title = options.header || 'dT forgot to fix this';
-
+                // TODO This should use Soy and eventually move to AUI. dT
                 var markup =
                     '<div class="header-title-container" class="aui-item expanded">' +
                         '<div>' +
-                            '<span class="header-title">' + title + '</span>' +
+                            '<span class="header-title"></span>' +
                         '</div>' +
                     '</div>' +
-                    '<div class="control-panel" class="aui-item"></div>';
+                    '<div class="header-control-panel" class="aui-item"></div>';
 
-                return markup;
+                var $header = $(markup);
+                $header.find('.header-title').text(options.header || '');
+
+                return {
+                    $el: $header
+                };
             }
         };
 
