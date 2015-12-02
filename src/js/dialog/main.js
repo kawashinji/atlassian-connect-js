@@ -59,12 +59,11 @@
                 // The buttonContainer will probably end up being the 'controlBar.$el' element.
                 var $buttonContainer;
 
-                // TODO - might not be an override of 'chrome' (existing options are 'true' and 'false'). dT
-                if (options.chrome === 'header-controls') {
+                if (options.size === 'maximum') {
                     // Replace the default AUI dialog header with the markup required for a File-Viewer-like L&F.
 
                     // The dialog itself needs an extra class so that the top and margin-top styles can be overridden.
-                    $el.addClass('header-controls');
+                    $el.addClass('ap-header-controls');
 
                     var hc = headerControls.create(options);
                     var $container = $el.find('header');
@@ -159,13 +158,22 @@
                     mergedOptions.size = "maximum";
                 }
 
+                // Alias 'fullscreen' to 'maximum'.
+                if (mergedOptions.size === 'fullscreen') {
+                    mergedOptions.size = 'maximum';
+                }
+                if (mergedOptions.size === 'maximum' &&
+                    mergedOptions.chrome !== false) {
+                    mergedOptions.chrome = true; // chrome is forced in fullscreen mode.
+                }
+
                 mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
                 mergedOptions.h = parseDimension(mergedOptions.height, $global.height());
 
                 $nexus = $("<div />").addClass("ap-servlet-placeholder ap-container").attr('id', 'ap-' + options.ns)
                 .bind("ra.dialog.close", closeDialog);
 
-                if(options.chrome){
+                if (mergedOptions.chrome){
                     dialogElement = createDialogElement(mergedOptions, $nexus);
 
                 } else {
