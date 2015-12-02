@@ -24,6 +24,7 @@ if(this.AP){
    * @param {Object} config Configuration parameters
    * @param {String} config.remoteKey The remote peer's add-on key (host only)
    * @param {String} config.remote The src of remote iframe (host only)
+   * @param {String} config.remoteOrigin The src of remote origin. Required in case when remote doesn't points directly to the . (host only)
    * @param {String} config.container The id of element to which the generated iframe is appended (host only)
    * @param {Object} config.props Additional attributes to add to iframe element (host only)
    * @param {String} config.channel Channel (host only); deprecated
