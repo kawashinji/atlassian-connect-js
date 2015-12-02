@@ -1,15 +1,13 @@
 Atlassian Connect JS
 ===
 
-The javascript library which backs [Atlassian Connect](http://connect.atlassian.com/). This is the README for version 3.0,
+The javascript API for [Atlassian Connect](http://connect.atlassian.com/). This is the README for version 3.0,
 which is the current version in use by Connect for JIRA and Confluence.
 
 
 Requirements
 ------------
-- Java 1.7 - for building the soy templates.
-- Node 0.10
-- NPM
+- Node.js 0.10
 
 
 Installation
@@ -66,7 +64,7 @@ To automatically re-create the dist directory on code change, run:
 To have your changes automatically loaded onto a running JIRA or Confluence instance, specify the path to your Atlassian
 Connect plugin resource directory using the `deployPath` parameter, e.g.
 
-    grunt watch:compile --deployPath=/path/to/AC-plugin/atlassian-connect/plugin/src/main/resources/js/core
+    grunt watch:deploy --deployPath=/path/to/AC-plugin/atlassian-connect/plugin/src/main/resources
 
 
 Contributing
@@ -80,11 +78,15 @@ please contact the Atlassian Connect team to ensure you understand the process y
     * Include your issue key and a short description.
 3. Push your changes, prefixing each commit message with the issue key.
 4. Create a pull request against this repository (make sure you target `release/3.0.0-do-not-delete`).
+5. If your changes will affect the functionality of the Connect plugin, 
+[create a feature branch on bamboo](https://ecosystem-bamboo.internal.atlassian.com/chain/admin/config/configureBranches.action?buildKey=CONNECT-CF)
+and make sure the build is green against your ACJS branch. To make the build use your ACJS branch, 
+set the `maven.parameters` bamboo variable to `-Datlassian.connect-js.version=your-branch-name`.
 
 
 Releasing a new version
 ------------------------
-1. Add a new version in [Atlassian Connect JS Releases](https://extranet.atlassian.com/display/ARA/Atlassian+Connect+JS+Releases).
+1. Add a new version in [Atlassian Connect JS Releases](https://extranet.atlassian.com/display/ECO/Atlassian+Connect+JS+Releases).
 2. Update `package.json` with the new version number.
 3. After merging, create a new tag with the version number.
 4. Update `package.json` in your `atlassian-connect` branch to match the new version and raise a PR.
