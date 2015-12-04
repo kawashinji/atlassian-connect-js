@@ -19,13 +19,13 @@ import Uri from '../common/uri';
  * @exports Dialog
  */
 
-var uiParams = UiParams.fromUrl(window.location.toString()),
-  isDialog = Boolean(uiParams.dlg) || Boolean(uiParams.isDialog),
-  exports,
-  url = new Uri.init(window.location.toString());
+var uiParams = UiParams.fromUrl(window.location.toString());
+var isDialog = Boolean(uiParams.dlg) || Boolean(uiParams.isDialog);
+var exports;
+var url = new Uri.init(window.location.toString());
 
 // if it has been set to a dialog on the server.
-if(url.getQueryParamValue('dialog') === '1'){
+if (url.getQueryParamValue('dialog') === '1') {
   isDialog = true;
 }
 
@@ -37,13 +37,13 @@ rpc.extend(function (remote) {
 
   exports = {
     /**
-    * Creates a dialog for a web-item or page module key.
-    * @name Dialog
-    * @class
-    * @property {function} on Takes parameters event name ({String}) and callback ({Function})
-    * @param {DialogOptions} options configuration object of dialog options.
-    * @example
-    * AP.require('dialog', function(dialog){
+     * Creates a dialog for a web-item or page module key.
+     * @name Dialog
+     * @class
+     * @property {function} on Takes parameters event name ({String}) and callback ({Function})
+     * @param {DialogOptions} options configuration object of dialog options.
+     * @example
+     * AP.require('dialog', function(dialog){
     *   dialog.create({
     *     key: 'my-module-key',
     *     width: '500px',
@@ -51,22 +51,22 @@ rpc.extend(function (remote) {
     *     chrome: true
     *   }).on('close', callbackFunc);
     * });
-    *
-    * @return {Dialog} Dialog object allowing for callback registrations
-    */
-    create: function(options) {
+     *
+     * @return {Dialog} Dialog object allowing for callback registrations
+     */
+    create: function (options) {
       /**
-      * @name DialogOptions
-      * @class
-      * @property {String}        key         The module key of the page you want to open as a dialog
-      * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or maximum (full screen).
-      * @property {Number|String} width       overrides size, define the width as a percentage (append a % to the number) or pixels.
-      * @property {Number|String} height      overrides size, define the height as a percentage (append a % to the number) or pixels.
-      * @property {Boolean}       chrome      (optional) opens the dialog with heading and buttons.
-      * @property {String}        header      (optional) text to display in the header if opening a dialog with chrome.
-      * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
-      * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
-      */
+       * @name DialogOptions
+       * @class
+       * @property {String}        key         The module key of the page you want to open as a dialog
+       * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or maximum (full screen).
+       * @property {Number|String} width       overrides size, define the width as a percentage (append a % to the number) or pixels.
+       * @property {Number|String} height      overrides size, define the height as a percentage (append a % to the number) or pixels.
+       * @property {Boolean}       chrome      (optional) opens the dialog with heading and buttons.
+       * @property {String}        header      (optional) text to display in the header if opening a dialog with chrome.
+       * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
+       * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
+       */
       remote.createDialog(options);
       return {
         on: function (event, callback) {
@@ -79,17 +79,17 @@ rpc.extend(function (remote) {
       };
     },
     /**
-    * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.
-    * This will only close a dialog that has been opened by your add-on.
-    * You can register for close events using the `dialog.close` event and the [events module](module-Events.html)
-    * @param {Object} data An object to be emitted on dialog close.
-    * @noDemo
-    * @example
-    * AP.require('dialog', function(dialog){
+     * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.
+     * This will only close a dialog that has been opened by your add-on.
+     * You can register for close events using the `dialog.close` event and the [events module](module-Events.html)
+     * @param {Object} data An object to be emitted on dialog close.
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
     *   dialog.close({foo: 'bar'});
     * });
-    */
-    close: function(data) {
+     */
+    close: function (data) {
       remote.events.emit('dialog.close', data);
       remote.closeDialog();
     },
@@ -97,64 +97,64 @@ rpc.extend(function (remote) {
     isDialog: isDialog,
 
     /**
-    * register callbacks responding to messages from the host dialog, such as 'submit' or 'cancel'
-    * @param String button either 'cancel' or 'submit'
-    * @param Function callback function
-    * @deprecated
-    */
+     * register callbacks responding to messages from the host dialog, such as 'submit' or 'cancel'
+     * @param String button either 'cancel' or 'submit'
+     * @param Function callback function
+     * @deprecated
+     */
     onDialogMessage: function (message, listener) {
       this.getButton(message).bind(listener);
     },
     /**
-    * Returns the button that was requested (either cancel or submit)
-    * @returns {DialogButton}
-    * @noDemo
-    * @example
-    * AP.require('dialog', function(dialog){
+     * Returns the button that was requested (either cancel or submit)
+     * @returns {DialogButton}
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
     *   dialog.getButton('submit');
     * });
-    */
+     */
     getButton: function (name) {
       /**
-      * @class DialogButton
-      * @description A dialog button that can be controlled with javascript
-      */
+       * @class DialogButton
+       * @description A dialog button that can be controlled with javascript
+       */
       return {
         name: name,
 
         /**
-        * Sets the button state to enabled
-        * @memberOf DialogButton
-        * @noDemo
-        * @example
-        * AP.require('dialog', function(dialog){
+         * Sets the button state to enabled
+         * @memberOf DialogButton
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
         *   dialog.getButton('submit').enable();
         * });
-        */
+         */
         enable: function () {
           remote.setDialogButtonEnabled(name, true);
         },
         /**
-        * Sets the button state to disabled
-        * @memberOf DialogButton
-        * @noDemo
-        * @example
-        * AP.require('dialog', function(dialog){
+         * Sets the button state to disabled
+         * @memberOf DialogButton
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
         *   dialog.getButton('submit').disable();
         * });
-        */
+         */
         disable: function () {
           remote.setDialogButtonEnabled(name, false);
         },
         /**
-        * Toggle the button state between enabled and disabled.
-        * @memberOf DialogButton
-        * @noDemo
-        * @example
-        * AP.require('dialog', function(dialog){
+         * Toggle the button state between enabled and disabled.
+         * @memberOf DialogButton
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
         *   dialog.getButton('submit').toggle();
         * });
-        */
+         */
         toggle: function () {
           var self = this;
           self.isEnabled(function (enabled) {
@@ -162,34 +162,34 @@ rpc.extend(function (remote) {
           });
         },
         /**
-        * Query a button for it's current state.
-        * @memberOf DialogButton
-        * @param {Function} callback function to receive the button state.
-        * @noDemo
-        * @example
-        * AP.require('dialog', function(dialog){
+         * Query a button for it's current state.
+         * @memberOf DialogButton
+         * @param {Function} callback function to receive the button state.
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
         *   dialog.getButton('submit').isEnabled(function(enabled){
         *     if(enabled){
         *       //button is enabled
         *     }
         *   });
         * });
-        */
+         */
         isEnabled: function (callback) {
           remote.isDialogButtonEnabled(name, callback);
         },
         /**
-        * Registers a function to be called when the button is clicked.
-        * @memberOf DialogButton
-        * @param {Function} callback function to be triggered on click or programatically.
-        * @noDemo
-        * @example
-        * AP.require('dialog', function(dialog){
+         * Registers a function to be called when the button is clicked.
+         * @memberOf DialogButton
+         * @param {Function} callback function to be triggered on click or programatically.
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
         *   dialog.getButton('submit').bind(function(){
         *     alert('clicked!');
         *   });
         * });
-        */
+         */
         bind: function (listener) {
           remote.dialogListenerBound();
           var list = listeners[name];
@@ -199,26 +199,28 @@ rpc.extend(function (remote) {
           list.push(listener);
         },
         /**
-        * Trigger a callback bound to a button.
-        * @memberOf DialogButton
-        * @noDemo
-        * @example
-        * AP.require('dialog', function(dialog){
+         * Trigger a callback bound to a button.
+         * @memberOf DialogButton
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
         *   dialog.getButton('submit').bind(function(){
         *     alert('clicked!');
         *   });
         *   dialog.getButton('submit').trigger();
         * });
-        */
+         */
         trigger: function () {
-          var self = this,
-              cont = true,
-              result = true,
-              list = listeners[name];
+          var self = this;
+          var cont = true;
+          var result = true;
+          var list = listeners[name];
           $.each(list, function (i, listener) {
             result = listener.call(self, {
               button: self,
-              stopPropagation: function () { cont = false; }
+              stopPropagation: function () {
+                cont = false;
+              }
             });
             return cont;
           });
@@ -239,12 +241,10 @@ rpc.extend(function (remote) {
         try {
           if (isDialog) {
             result = exports.getButton(name).trigger();
-          }
-          else {
+          } else {
             $.handleError('Received unexpected dialog button event from host:', name);
           }
-        }
-        catch (e) {
+        } catch (e) {
           $.handleError(e);
         }
         return result;
@@ -258,17 +258,17 @@ rpc.extend(function (remote) {
       'isDialogButtonEnabled',
       'createDialog',
       'closeDialog'
-      ],
+    ],
 
-      init: function() {
-        if(isDialog) {
-          window.addEventListener('keydown', function (event) {
-            if (event.keyCode === 27) {
-              exports.close();
-            }
-          });
-        }
+    init: function () {
+      if (isDialog) {
+        window.addEventListener('keydown', function (event) {
+          if (event.keyCode === 27) {
+            exports.close();
+          }
+        });
       }
+    }
 
   };
 

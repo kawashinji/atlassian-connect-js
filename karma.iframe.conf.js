@@ -25,15 +25,15 @@ module.exports = function(config) {
     //do not process my html files.
     preprocessors: {
       'test/iframe/plugin/**/*.js': ['browserify'],
-      'fixtures/!(*).html': ['html2js']
+      //'fixtures/!(*).html': ['html2js']
     },
 
     browserify: {
       debug: true,
-      bundleDelay: 1000,
-      configure: function(bundle) {
-        bundle._builtOnce = true; // fix issue in osx
-      },
+      bundleDelay: 2000,
+      //configure: function(bundle) {
+      //  bundle._builtOnce = true; // fix issue in osx
+      //},
       transform: ['babelify', envify({ENV: 'plugin'})],
 
     },
@@ -42,7 +42,8 @@ module.exports = function(config) {
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
     reporters: ['progress', 'junit'],
     junitReporter: {
-      outputFile: 'target/test-reports/karma-iframe-results.xml',
+      outputFile: 'test/test-reports/karma-iframe-results.xml',
+      useBrowserName: false,
       suite: ''
     },
 

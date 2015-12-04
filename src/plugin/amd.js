@@ -19,7 +19,7 @@ var modules = {
   '_util': {exports: util},
   '_dollar': {exports: $},
   '_events': {exports: _events},
-  '_base64': {exports:  base64},
+  '_base64': {exports: base64},
   '_uri': {exports: uri},
   '_ui-params': {exports: uiParams},
   '_xdm': {exports: xdm},
@@ -33,24 +33,30 @@ var modules = {
 };
 
 function reqAll(deps, callback) {
-  var mods = [], i = 0, len = deps.length;
+  var mods = [];
+  var i = 0;
+  var len = deps.length;
   function addOne(mod) {
     mods.push(mod);
     if (mods.length === len) {
-      var exports = [], i = 0;
+      var exports = [];
+      var i = 0;
       for (; i < len; i += 1) {
         exports[i] = mods[i].exports;
       }
-      if (callback) callback.apply(window, exports);
+      if (callback) {
+        callback.apply(window, exports);
+      }
     }
   }
   if (deps && deps.length > 0) {
     for (; i < len; i += 1) {
       reqOne(deps[i], addOne);
     }
-  }
-  else {
-    if (callback) callback();
+  } else {
+    if (callback) {
+      callback();
+    }
   }
 }
 
@@ -78,14 +84,16 @@ function getOrCreate(name) {
 // define(name, deps, fn(dep1, dep2, ...))
 export default {
   define: function (name, deps, exports) {
-    var mod = getOrCreate(name),
-        factory;
+    var mod = getOrCreate(name);
+    var factory;
     if (!exports) {
       exports = deps;
       deps = [];
     }
     if (exports) {
-      factory = typeof exports !== 'function' ? function () { return exports; } : exports;
+      factory = typeof exports !== 'function' ? function () {
+        return exports;
+      } : exports;
       reqAll(deps, function () {
         var exports = factory.apply(window, arguments);
         if (exports) {
@@ -101,7 +109,7 @@ export default {
       });
     }
   },
-  require: function(deps, callback) {
+  require: function (deps, callback) {
 
     reqAll(typeof deps === 'string' ? [deps] : deps, callback);
   }

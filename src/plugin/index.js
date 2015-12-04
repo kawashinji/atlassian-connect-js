@@ -21,10 +21,10 @@ import propagator from './propagate.js';
 // import request from './request';
 
 $.extend(AP, env, amd, {
-    rpc: {extend: rpc.extend, init: rpc.init},
-    Meta: {get: env.meta},
+  rpc: {extend: rpc.extend, init: rpc.init},
+  Meta: {get: env.meta},
 //    request: request,
-    Dialog: dialog,
+  Dialog: dialog,
 });
 
 window.AP = AP;

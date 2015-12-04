@@ -1,95 +1,4 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.AP = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-//INSERT AMD STUBBER HERE!
-
-var _amd = _dereq_('./amd');
-
-var _amd2 = _interopRequireDefault(_amd);
-
-var _util = _dereq_('./util');
-
-var _util2 = _interopRequireDefault(_util);
-
-var _dollar = _dereq_('./dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _commonEvents = _dereq_('../common/events');
-
-var _commonEvents2 = _interopRequireDefault(_commonEvents);
-
-var _commonBase64 = _dereq_('../common/base64');
-
-var _commonBase642 = _interopRequireDefault(_commonBase64);
-
-var _commonUri = _dereq_('../common/uri');
-
-var _commonUri2 = _interopRequireDefault(_commonUri);
-
-var _commonUiParams = _dereq_('../common/ui-params');
-
-var _commonUiParams2 = _interopRequireDefault(_commonUiParams);
-
-var _commonJwt = _dereq_('../common/jwt');
-
-var _commonJwt2 = _interopRequireDefault(_commonJwt);
-
-var _commonXdmRpc = _dereq_('../common/xdm-rpc');
-
-var _commonXdmRpc2 = _interopRequireDefault(_commonXdmRpc);
-
-var _rpc = _dereq_('./rpc');
-
-var _rpc2 = _interopRequireDefault(_rpc);
-
-var _events2 = _dereq_('./events');
-
-var _events3 = _interopRequireDefault(_events2);
-
-var _env = _dereq_('./env');
-
-var _env2 = _interopRequireDefault(_env);
-
-var _dialog = _dereq_('./dialog');
-
-var _dialog2 = _interopRequireDefault(_dialog);
-
-var _inlineDialog = _dereq_('./inline-dialog');
-
-var _inlineDialog2 = _interopRequireDefault(_inlineDialog);
-
-var _messages = _dereq_('./messages');
-
-var _messages2 = _interopRequireDefault(_messages);
-
-var _propagateJs = _dereq_('./propagate.js');
-
-var _propagateJs2 = _interopRequireDefault(_propagateJs);
-
-var AP = window.AP = {};
-
-// import cookie from './cookie';
-// import request from './request';
-
-_dollar2['default'].extend(AP, _env2['default'], _amd2['default'], {
-    rpc: { extend: _rpc2['default'].extend, init: _rpc2['default'].init },
-    Meta: { get: _env2['default'].meta },
-    //    request: request,
-    Dialog: _dialog2['default']
-});
-
-window.AP = AP;
-exports['default'] = AP;
-module.exports = exports['default'];
-
-},{"../common/base64":5,"../common/events":8,"../common/jwt":9,"../common/ui-params":10,"../common/uri":11,"../common/xdm-rpc":12,"./amd":14,"./dialog":15,"./dollar":16,"./env":17,"./events":18,"./inline-dialog":19,"./messages":20,"./propagate.js":21,"./rpc":23,"./util":24}],2:[function(_dereq_,module,exports){
 (function (global){
 /*! http://mths.be/base64 v0.1.0 by @mathias | MIT license */
 ;(function(root) {
@@ -259,7 +168,7 @@ module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],3:[function(_dereq_,module,exports){
+},{}],2:[function(_dereq_,module,exports){
 /*!
  * jsUri
  * https://github.com/derek-watson/jsUri
@@ -721,7 +630,7 @@ module.exports = exports['default'];
   }
 }(this));
 
-},{}],4:[function(_dereq_,module,exports){
+},{}],3:[function(_dereq_,module,exports){
 (function (global){
 /*! https://mths.be/utf8js v2.0.0 by @mathias */
 ;(function(root) {
@@ -970,11 +879,11 @@ module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],5:[function(_dereq_,module,exports){
+},{}],4:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -988,40 +897,40 @@ var _utf8 = _dereq_('utf8');
 var _utf82 = _interopRequireDefault(_utf8);
 
 exports['default'] = {
-    encode: function encode(string) {
-        return _base642['default'].encode(_utf82['default'].encode(string));
-    },
-    decode: function decode(string) {
-        return _utf82['default'].decode(_base642['default'].decode(string));
-    }
+  encode: function encode(string) {
+    return _base642['default'].encode(_utf82['default'].encode(string));
+  },
+  decode: function decode(string) {
+    return _utf82['default'].decode(_base642['default'].decode(string));
+  }
 };
 module.exports = exports['default'];
 
-},{"base-64":2,"utf8":4}],6:[function(_dereq_,module,exports){
+},{"base-64":1,"utf8":3}],5:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 var $;
 {
-    $ = _dereq_('../plugin/dollar');
+  $ = _dereq_('../plugin/dollar');
 }
 
 exports['default'] = $;
 
 module.exports = exports['default'];
-},{"../plugin/dollar":16}],7:[function(_dereq_,module,exports){
+},{"../plugin/dollar":15}],6:[function(_dereq_,module,exports){
 'use strict';
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
 /**
  * Common methods for propagating DOM events between host/plugin iframes
  */
 
-var w = window,
-    log = w.AJS && w.AJS.log || w.console && w.console.log || function () {};
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+var w = window;
+var log = w.AJS && w.AJS.log || w.console && w.console.log || function () {};
 
 var SUPPORTED_MOUSE_EVENTS = ['click'];
 
@@ -1031,16 +940,16 @@ var ALLOWED_KEYCODES = [27 // ESCAPE
 ];
 
 exports['default'] = {
-    // Public API
-    bindListeners: bindListeners,
-    receiveEvent: receiveEvent,
+  // Public API
+  bindListeners: bindListeners,
+  receiveEvent: receiveEvent,
 
-    // Visible for testing only
-    constructLegacyModifierString: constructLegacyModifierString,
-    supportedMouseEvents: SUPPORTED_MOUSE_EVENTS,
-    supportedKeyboardEvents: SUPPORTED_KEYBOARD_EVENTS,
-    isAllowedKeyCode: isAllowedKeyCode,
-    createEvent: createEvent
+  // Visible for testing only
+  constructLegacyModifierString: constructLegacyModifierString,
+  supportedMouseEvents: SUPPORTED_MOUSE_EVENTS,
+  supportedKeyboardEvents: SUPPORTED_KEYBOARD_EVENTS,
+  isAllowedKeyCode: isAllowedKeyCode,
+  createEvent: createEvent
 };
 
 /**
@@ -1050,25 +959,25 @@ exports['default'] = {
  * @param {function} endpoint The rpc endpoint to send events to
  */
 function bindListeners(channelKey, endpoint) {
-    SUPPORTED_MOUSE_EVENTS.forEach(function (mouseEvent) {
-        document.addEventListener(mouseEvent, function (e) {
-            if (e.channelKey === channelKey) {
-                return;
-            }
-            endpoint(channelKey, e.type, sanitiseMouseEvent(e));
-        });
+  SUPPORTED_MOUSE_EVENTS.forEach(function (mouseEvent) {
+    document.addEventListener(mouseEvent, function (e) {
+      if (e.channelKey === channelKey) {
+        return;
+      }
+      endpoint(channelKey, e.type, sanitiseMouseEvent(e));
     });
-    SUPPORTED_KEYBOARD_EVENTS.forEach(function (keyboardEvent) {
-        document.addEventListener(keyboardEvent, function (e) {
-            if (e.channelKey === channelKey) {
-                return;
-            }
-            // We don't want to send all keystrokes to addon pages (that would be bad)
-            if (isAllowedKeyCode(e.keyCode)) {
-                endpoint(channelKey, e.type, sanitiseKeyboardEvent(e));
-            }
-        });
+  });
+  SUPPORTED_KEYBOARD_EVENTS.forEach(function (keyboardEvent) {
+    document.addEventListener(keyboardEvent, function (e) {
+      if (e.channelKey === channelKey) {
+        return;
+      }
+      // We don't want to send all keystrokes to addon pages (that would be bad)
+      if (isAllowedKeyCode(e.keyCode)) {
+        endpoint(channelKey, e.type, sanitiseKeyboardEvent(e));
+      }
     });
+  });
 }
 
 /**
@@ -1080,12 +989,12 @@ function bindListeners(channelKey, endpoint) {
  * @param {EventInit} eventData The data to attach to the event
  */
 function receiveEvent(channelKey, eventName, eventData) {
-    var event = createEvent(channelKey, eventName, eventData);
-    if (!event) {
-        return;
-    }
+  var event = createEvent(channelKey, eventName, eventData);
+  if (!event) {
+    return;
+  }
 
-    dispatchEvent(event);
+  dispatchEvent(event);
 }
 
 /**
@@ -1096,15 +1005,15 @@ function receiveEvent(channelKey, eventName, eventData) {
  * @return {MouseEventInit} Sanitised data suitable for sending between iframes
  */
 function sanitiseMouseEvent(mouseEvent) {
-    return {
-        bubbles: true,
-        cancelable: true,
-        button: mouseEvent.button,
-        ctrlKey: mouseEvent.ctrlKey,
-        shiftKey: mouseEvent.shiftKey,
-        altKey: mouseEvent.altKey,
-        metaKey: mouseEvent.metaKey
-    };
+  return {
+    bubbles: true,
+    cancelable: true,
+    button: mouseEvent.button,
+    ctrlKey: mouseEvent.ctrlKey,
+    shiftKey: mouseEvent.shiftKey,
+    altKey: mouseEvent.altKey,
+    metaKey: mouseEvent.metaKey
+  };
 }
 
 /**
@@ -1115,18 +1024,18 @@ function sanitiseMouseEvent(mouseEvent) {
  * @return {KeyboardEventInit} Sanities data suitable for sending between iframes
  */
 function sanitiseKeyboardEvent(keyboardEvent) {
-    return {
-        bubbles: true,
-        cancelable: true,
-        key: keyboardEvent.key,
-        code: keyboardEvent.code,
-        keyCode: keyboardEvent.keyCode,
-        ctrlKey: keyboardEvent.ctrlKey,
-        shiftKey: keyboardEvent.shiftKey,
-        altKey: keyboardEvent.altKey,
-        metaKey: keyboardEvent.metaKey,
-        locale: null
-    };
+  return {
+    bubbles: true,
+    cancelable: true,
+    key: keyboardEvent.key,
+    code: keyboardEvent.code,
+    keyCode: keyboardEvent.keyCode,
+    ctrlKey: keyboardEvent.ctrlKey,
+    shiftKey: keyboardEvent.shiftKey,
+    altKey: keyboardEvent.altKey,
+    metaKey: keyboardEvent.metaKey,
+    locale: null
+  };
 }
 
 /**
@@ -1142,35 +1051,35 @@ function sanitiseKeyboardEvent(keyboardEvent) {
  * @returns {KeyboardEvent|MouseEvent} The constructed synthetic event
  */
 function createEvent(channelKey, eventName, eventData) {
-    eventData.view = window;
+  eventData.view = window;
 
-    var event = undefined;
-    if (SUPPORTED_MOUSE_EVENTS.indexOf(eventName) > -1) {
-        if (typeof window.Event === 'function') {
-            event = new MouseEvent(eventName, eventData);
-        } else {
-            // To support older browsers
-            // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
-            event = document.createEvent('MouseEvent');
-            event.initMouseEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, 0, 0, 0, 0, 0, eventData.ctrlKey, eventData.altKey, eventData.shiftKey, eventData.metaKey, eventData.button, null);
-        }
-    } else if (SUPPORTED_KEYBOARD_EVENTS.indexOf(eventName) > -1) {
-        if (typeof window.Event === 'function') {
-            event = new KeyboardEvent(eventName, eventData);
-        } else {
-            // To support older browsers
-            // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
-            event = document.createEvent('KeyboardEvent');
-            event.initKeyboardEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, eventData.key, 0, constructLegacyModifierString(eventData), false, eventData.locale);
-        }
+  var event = undefined;
+  if (SUPPORTED_MOUSE_EVENTS.indexOf(eventName) > -1) {
+    if (typeof window.Event === 'function') {
+      event = new MouseEvent(eventName, eventData);
     } else {
-        log('Event ' + eventName + ' not supported');
+      // To support older browsers
+      // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
+      event = document.createEvent('MouseEvent');
+      event.initMouseEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, 0, 0, 0, 0, 0, eventData.ctrlKey, eventData.altKey, eventData.shiftKey, eventData.metaKey, eventData.button, null);
     }
+  } else if (SUPPORTED_KEYBOARD_EVENTS.indexOf(eventName) > -1) {
+    if (typeof window.Event === 'function') {
+      event = new KeyboardEvent(eventName, eventData);
+    } else {
+      // To support older browsers
+      // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
+      event = document.createEvent('KeyboardEvent');
+      event.initKeyboardEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, eventData.key, 0, constructLegacyModifierString(eventData), false, eventData.locale);
+    }
+  } else {
+    log('Event ' + eventName + ' not supported');
+  }
 
-    if (event) {
-        event.channelKey = channelKey;
-    }
-    return event;
+  if (event) {
+    event.channelKey = channelKey;
+  }
+  return event;
 }
 
 /**
@@ -1181,16 +1090,16 @@ function createEvent(channelKey, eventName, eventData) {
  * @param event The event to dispatch
  */
 function dispatchEvent(event) {
-    document.body.dispatchEvent(event);
+  document.body.dispatchEvent(event);
 
-    if (AJS && event.type === 'click') {
-        // If AJS is present we should fire the event on dialog curtains
-        // if they exist, to ensure AUI dialogs etc. are dismissed.
-        var blanket = AJS.$('.aui-blanket');
-        if (blanket.length > 0 && blanket[0]) {
-            blanket[0].dispatchEvent(event);
-        }
+  if (AJS && event.type === 'click') {
+    // If AJS is present we should fire the event on dialog curtains
+    // if they exist, to ensure AUI dialogs etc. are dismissed.
+    var blanket = AJS.$('.aui-blanket');
+    if (blanket.length > 0 && blanket[0]) {
+      blanket[0].dispatchEvent(event);
     }
+  }
 }
 
 /**
@@ -1201,20 +1110,20 @@ function dispatchEvent(event) {
  * @returns {String} The modifier string (e.g. "Ctr,Shift")
  */
 function constructLegacyModifierString(eventData) {
-    var result = [];
-    if (eventData.shiftKey) {
-        result.push('Shift');
-    }
-    if (eventData.ctrlKey) {
-        result.push('Ctrl');
-    }
-    if (eventData.metaKey) {
-        result.push('Meta');
-    }
-    if (eventData.altKey) {
-        result.push('Alt');
-    }
-    return result.join(',');
+  var result = [];
+  if (eventData.shiftKey) {
+    result.push('Shift');
+  }
+  if (eventData.ctrlKey) {
+    result.push('Ctrl');
+  }
+  if (eventData.metaKey) {
+    result.push('Meta');
+  }
+  if (eventData.altKey) {
+    result.push('Alt');
+  }
+  return result.join(',');
 }
 
 /**
@@ -1225,11 +1134,11 @@ function constructLegacyModifierString(eventData) {
  * @returns {boolean} Whether the provided keycode is allowed to be propagated between iframes
  */
 function isAllowedKeyCode(keyCode) {
-    return ALLOWED_KEYCODES.indexOf(keyCode) > -1;
+  return ALLOWED_KEYCODES.indexOf(keyCode) > -1;
 }
 module.exports = exports['default'];
 
-},{}],8:[function(_dereq_,module,exports){
+},{}],7:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1242,8 +1151,8 @@ var _dollar = _dereq_('./dollar');
 
 var _dollar2 = _interopRequireDefault(_dollar);
 
-var w = window,
-    log = w.AJS && w.AJS.log || w.console && w.console.log || function () {};
+var w = window;
+var log = w.AJS && w.AJS.log || w.console && w.console.log || function () {};
 
 /**
  * A simple pub/sub event bus capable of running on either side of the XDM bridge with no external
@@ -1433,11 +1342,11 @@ function fire(listeners, args) {
 exports['default'] = { Events: Events };
 module.exports = exports['default'];
 
-},{"./dollar":6}],9:[function(_dereq_,module,exports){
+},{"./dollar":5}],8:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1447,63 +1356,63 @@ var _base64 = _dereq_('./base64');
 var _base642 = _interopRequireDefault(_base64);
 
 function parseJwtIssuer(jwt) {
-    return parseJwtClaims(jwt)['iss'];
+  return parseJwtClaims(jwt)['iss'];
 }
 
 function parseJwtClaims(jwt) {
 
-    if (null === jwt || '' === jwt) {
-        throw 'Invalid JWT: must be neither null nor empty-string.';
-    }
+  if (null === jwt || '' === jwt) {
+    throw 'Invalid JWT: must be neither null nor empty-string.';
+  }
 
-    var firstPeriodIndex = jwt.indexOf('.');
-    var secondPeriodIndex = jwt.indexOf('.', firstPeriodIndex + 1);
+  var firstPeriodIndex = jwt.indexOf('.');
+  var secondPeriodIndex = jwt.indexOf('.', firstPeriodIndex + 1);
 
-    if (firstPeriodIndex < 0 || secondPeriodIndex <= firstPeriodIndex) {
-        throw 'Invalid JWT: must contain 2 period (".") characters.';
-    }
+  if (firstPeriodIndex < 0 || secondPeriodIndex <= firstPeriodIndex) {
+    throw 'Invalid JWT: must contain 2 period (".") characters.';
+  }
 
-    var encodedClaims = jwt.substring(firstPeriodIndex + 1, secondPeriodIndex);
+  var encodedClaims = jwt.substring(firstPeriodIndex + 1, secondPeriodIndex);
 
-    if (null === encodedClaims || '' === encodedClaims) {
-        throw 'Invalid JWT: encoded claims must be neither null nor empty-string.';
-    }
+  if (null === encodedClaims || '' === encodedClaims) {
+    throw 'Invalid JWT: encoded claims must be neither null nor empty-string.';
+  }
 
-    var claimsString = _base642['default'].decode.call(window, encodedClaims);
-    return JSON.parse(claimsString);
+  var claimsString = _base642['default'].decode.call(window, encodedClaims);
+  return JSON.parse(claimsString);
 }
 
 function isJwtExpired(jwtString, skew) {
-    if (skew === undefined) {
-        skew = 60; // give a minute of leeway to allow clock skew
-    }
-    var claims = parseJwtClaims(jwtString),
-        expires = 0,
-        now = Math.floor(Date.now() / 1000); // UTC timestamp now
+  if (skew === undefined) {
+    skew = 60; // give a minute of leeway to allow clock skew
+  }
+  var claims = parseJwtClaims(jwtString);
+  var expires = 0;
+  var now = Math.floor(Date.now() / 1000); // UTC timestamp now
 
-    if (claims && claims.exp) {
-        expires = claims.exp;
-    }
+  if (claims && claims.exp) {
+    expires = claims.exp;
+  }
 
-    if (expires - now < skew) {
-        return true;
-    }
+  if (expires - now < skew) {
+    return true;
+  }
 
-    return false;
+  return false;
 }
 
 exports['default'] = {
-    parseJwtIssuer: parseJwtIssuer,
-    parseJwtClaims: parseJwtClaims,
-    isJwtExpired: isJwtExpired
+  parseJwtIssuer: parseJwtIssuer,
+  parseJwtClaims: parseJwtClaims,
+  isJwtExpired: isJwtExpired
 };
 module.exports = exports['default'];
 
-},{"./base64":5}],10:[function(_dereq_,module,exports){
+},{"./base64":4}],9:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1517,60 +1426,60 @@ var _uri = _dereq_('./uri');
 var _uri2 = _interopRequireDefault(_uri);
 
 /**
-* These are passed into the main host create statement and can override
-* any options inside the velocity template.
-* Additionally these are accessed by the js inside the client iframe to check if we are in a dialog.
-*/
+ * These are passed into the main host create statement and can override
+ * any options inside the velocity template.
+ * Additionally these are accessed by the js inside the client iframe to check if we are in a dialog.
+ */
 
 exports['default'] = {
-    /**
-    * Encode options for transport
-    */
-    encode: function encode(options) {
-        if (options) {
-            var str = JSON.stringify(options);
-            return _base642['default'].encode.call(window, str);
-        }
-    },
-    /**
-    * return ui params from a Url
-    **/
-    fromUrl: function fromUrl(url) {
-        var params = new _uri2['default'].init(url).getQueryParamValue('ui-params');
-        return this.decode(params);
-    },
-    /**
-    * returns ui params from window.name
-    */
-    fromWindowName: function fromWindowName(w, param) {
-        w = w || window;
-        var decoded = this.decode(w.name);
-
-        if (!param) {
-            return decoded;
-        }
-        return decoded ? decoded[param] : undefined;
-    },
-    /**
-    * Decode a base64 encoded json string containing ui params
-    */
-    decode: function decode(params) {
-        var obj = {};
-        if (params && params.length > 0) {
-            try {
-                obj = JSON.parse(_base642['default'].decode.call(window, params));
-            } catch (e) {
-                if (console && console.log) {
-                    console.log('Cannot decode passed ui params', params);
-                }
-            }
-        }
-        return obj;
+  /**
+   * Encode options for transport
+   */
+  encode: function encode(options) {
+    if (options) {
+      var str = JSON.stringify(options);
+      return _base642['default'].encode.call(window, str);
     }
+  },
+  /**
+   * return ui params from a Url
+   **/
+  fromUrl: function fromUrl(url) {
+    var params = new _uri2['default'].init(url).getQueryParamValue('ui-params');
+    return this.decode(params);
+  },
+  /**
+   * returns ui params from window.name
+   */
+  fromWindowName: function fromWindowName(w, param) {
+    w = w || window;
+    var decoded = this.decode(w.name);
+
+    if (!param) {
+      return decoded;
+    }
+    return decoded ? decoded[param] : undefined;
+  },
+  /**
+   * Decode a base64 encoded json string containing ui params
+   */
+  decode: function decode(params) {
+    var obj = {};
+    if (params && params.length > 0) {
+      try {
+        obj = JSON.parse(_base642['default'].decode.call(window, params));
+      } catch (e) {
+        if (console && console.log) {
+          console.log('Cannot decode passed ui params', params);
+        }
+      }
+    }
+    return obj;
+  }
 };
 module.exports = exports['default'];
 
-},{"./base64":5,"./uri":11}],11:[function(_dereq_,module,exports){
+},{"./base64":4,"./uri":10}],10:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1586,7 +1495,7 @@ var _jsuri2 = _interopRequireDefault(_jsuri);
 exports['default'] = { init: _jsuri2['default'] };
 module.exports = exports['default'];
 
-},{"jsuri":3}],12:[function(_dereq_,module,exports){
+},{"jsuri":2}],11:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1646,20 +1555,20 @@ var count = 0;
  */
 function XdmRpc($, config, bindings) {
 
-  var self,
-      id,
-      target,
-      remoteOrigin,
-      channel,
-      mixin,
-      localKey,
-      remoteKey,
-      addonKey,
-      w = window,
-      loc = w.location.toString(),
-      locals = bindings.local || {},
-      remotes = bindings.remote || [],
-      localOrigin = getBaseUrl(loc);
+  var self;
+  var id;
+  var target;
+  var remoteOrigin;
+  var channel;
+  var mixin;
+  var localKey;
+  var remoteKey;
+  var addonKey;
+  var w = window;
+  var loc = w.location.toString();
+  var locals = bindings.local || {};
+  var remotes = bindings.remote || [];
+  var localOrigin = getBaseUrl(loc);
 
   // A hub through which all async callbacks for remote requests are parked until invoked from a response
   var nexus = (function () {
@@ -1819,11 +1728,11 @@ function XdmRpc($, config, bindings) {
   function receive(e) {
     try {
       // Extract message payload from the event
-      var payload = JSON.parse(e.data),
-          pid = payload.i,
-          pchannel = payload.c,
-          ptype = payload.t,
-          pmessage = payload.m;
+      var payload = JSON.parse(e.data);
+      var pid = payload.i;
+      var pchannel = payload.c;
+      var ptype = payload.t;
+      var pmessage = payload.m;
 
       // if the iframe has potentially been reloaded. re-attach the source contentWindow object
       if (e.source !== target && e.origin.toLowerCase() === remoteOrigin && pchannel === channel) {
@@ -1837,12 +1746,12 @@ function XdmRpc($, config, bindings) {
 
       if (ptype === 'request') {
         // If the payload type is request, this is an incoming method invocation
-        var name = pmessage.n,
-            args = pmessage.a,
-            local = locals[name],
-            done,
-            fail,
-            async;
+        var name = pmessage.n;
+        var args = pmessage.a;
+        var local = locals[name];
+        var done;
+        var fail;
+        var async;
         if (local) {
           // The message name matches a locally defined RPC method, so inspect and invoke it according
           // Create responders for each response type
@@ -1900,9 +1809,9 @@ function XdmRpc($, config, bindings) {
     // Add a method to this instance that will convert from 'rpc.method(args..., done?, fail?)'-style
     // invocations to a postMessage event via the 'send' function
     return function () {
-      var args = [].slice.call(arguments),
-          done,
-          fail;
+      var args = [].slice.call(arguments);
+      var done;
+      var fail;
       // Pops the last arg off the args list if it's a function
       function popFn() {
         if ($.isFunction(args[args.length - 1])) {
@@ -1925,7 +1834,9 @@ function XdmRpc($, config, bindings) {
   // post-message request events, tracking async callbacks as necessary.
   $.each(remotes, function (methodName, v) {
     // If remotes were specified as an array rather than a map, promote v to methodName
-    if (typeof methodName === 'number') methodName = v;
+    if (typeof methodName === 'number') {
+      methodName = v;
+    }
     self[methodName] = bridge(methodName);
   });
 
@@ -2015,9 +1926,9 @@ function XdmRpc($, config, bindings) {
     if (!config.container) {
       throw new Error('config.container must be defined');
     }
-    var iframe = document.createElement('iframe'),
-        id = 'easyXDM_' + config.container + '_provider',
-        windowName = '';
+    var iframe = document.createElement('iframe');
+    var id = 'easyXDM_' + config.container + '_provider';
+    var windowName = '';
 
     if (config.uiParams) {
       windowName = _uiParams2['default'].encode(config.uiParams);
@@ -2036,18 +1947,24 @@ function XdmRpc($, config, bindings) {
   }
 
   function debug() {
-    if (XdmRpc.debug) log.apply(w, ['DEBUG:'].concat([].slice.call(arguments)));
+    if (XdmRpc.debug) {
+      log.apply(w, ['DEBUG:'].concat([].slice.call(arguments)));
+    }
   }
 
   function log() {
     var log = $.log || w.AJS && w.AJS.log;
-    if (log) log.apply(w, arguments);
+    if (log) {
+      log.apply(w, arguments);
+    }
   }
 
   function logError() {
     // $.error seems to do the same thing as $.log in client console
     var error = w.AJS && w.AJS.error;
-    if (error) error.apply(w, arguments);
+    if (error) {
+      error.apply(w, arguments);
+    }
   }
 
   // Immediately start listening for events
@@ -2061,23 +1978,23 @@ function XdmRpc($, config, bindings) {
 exports['default'] = XdmRpc;
 module.exports = exports['default'];
 
-},{"../host/util":13,"./events":8,"./jwt":9,"./ui-params":10,"./uri":11}],13:[function(_dereq_,module,exports){
+},{"../host/util":12,"./events":7,"./jwt":8,"./ui-params":9,"./uri":10}],12:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 function escapeSelector(s) {
-    if (!s) {
-        throw new Error('No selector to escape');
-    }
-    return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
+  if (!s) {
+    throw new Error('No selector to escape');
+  }
+  return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
 }
 
 exports['default'] = { escapeSelector: escapeSelector };
 module.exports = exports['default'];
 
-},{}],14:[function(_dereq_,module,exports){
+},{}],13:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2162,18 +2079,20 @@ var modules = {
 };
 
 function reqAll(deps, callback) {
-  var mods = [],
-      i = 0,
-      len = deps.length;
+  var mods = [];
+  var i = 0;
+  var len = deps.length;
   function addOne(mod) {
     mods.push(mod);
     if (mods.length === len) {
-      var exports = [],
-          i = 0;
+      var exports = [];
+      var i = 0;
       for (; i < len; i += 1) {
         exports[i] = mods[i].exports;
       }
-      if (callback) callback.apply(window, exports);
+      if (callback) {
+        callback.apply(window, exports);
+      }
     }
   }
   if (deps && deps.length > 0) {
@@ -2181,7 +2100,9 @@ function reqAll(deps, callback) {
       reqOne(deps[i], addOne);
     }
   } else {
-    if (callback) callback();
+    if (callback) {
+      callback();
+    }
   }
 }
 
@@ -2209,8 +2130,8 @@ function getOrCreate(name) {
 // define(name, deps, fn(dep1, dep2, ...))
 exports['default'] = {
   define: function define(name, deps, exports) {
-    var mod = getOrCreate(name),
-        factory;
+    var mod = getOrCreate(name);
+    var factory;
     if (!exports) {
       exports = deps;
       deps = [];
@@ -2241,7 +2162,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/base64":5,"../common/events":8,"../common/ui-params":10,"../common/uri":11,"../common/xdm-rpc":12,"./dialog":15,"./dollar":16,"./env":17,"./events":18,"./inline-dialog":19,"./messages":20,"./resize_listener":22,"./rpc":23,"./util":24}],15:[function(_dereq_,module,exports){
+},{"../common/base64":4,"../common/events":7,"../common/ui-params":9,"../common/uri":10,"../common/xdm-rpc":11,"./dialog":14,"./dollar":15,"./env":16,"./events":17,"./inline-dialog":19,"./messages":20,"./resize_listener":22,"./rpc":23,"./util":24}],14:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2282,10 +2203,10 @@ var _commonUri2 = _interopRequireDefault(_commonUri);
  * @exports Dialog
  */
 
-var uiParams = _commonUiParams2['default'].fromUrl(window.location.toString()),
-    isDialog = Boolean(uiParams.dlg) || Boolean(uiParams.isDialog),
-    _exports,
-    url = new _commonUri2['default'].init(window.location.toString());
+var uiParams = _commonUiParams2['default'].fromUrl(window.location.toString());
+var isDialog = Boolean(uiParams.dlg) || Boolean(uiParams.isDialog);
+var _exports;
+var url = new _commonUri2['default'].init(window.location.toString());
 
 // if it has been set to a dialog on the server.
 if (url.getQueryParamValue('dialog') === '1') {
@@ -2300,13 +2221,13 @@ _rpc2['default'].extend(function (remote) {
 
   _exports = {
     /**
-    * Creates a dialog for a web-item or page module key.
-    * @name Dialog
-    * @class
-    * @property {function} on Takes parameters event name ({String}) and callback ({Function})
-    * @param {DialogOptions} options configuration object of dialog options.
-    * @example
-    * AP.require('dialog', function(dialog){
+     * Creates a dialog for a web-item or page module key.
+     * @name Dialog
+     * @class
+     * @property {function} on Takes parameters event name ({String}) and callback ({Function})
+     * @param {DialogOptions} options configuration object of dialog options.
+     * @example
+     * AP.require('dialog', function(dialog){
     *   dialog.create({
     *     key: 'my-module-key',
     *     width: '500px',
@@ -2314,22 +2235,22 @@ _rpc2['default'].extend(function (remote) {
     *     chrome: true
     *   }).on('close', callbackFunc);
     * });
-    *
-    * @return {Dialog} Dialog object allowing for callback registrations
-    */
+     *
+     * @return {Dialog} Dialog object allowing for callback registrations
+     */
     create: function create(options) {
       /**
-      * @name DialogOptions
-      * @class
-      * @property {String}        key         The module key of the page you want to open as a dialog
-      * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or maximum (full screen).
-      * @property {Number|String} width       overrides size, define the width as a percentage (append a % to the number) or pixels.
-      * @property {Number|String} height      overrides size, define the height as a percentage (append a % to the number) or pixels.
-      * @property {Boolean}       chrome      (optional) opens the dialog with heading and buttons.
-      * @property {String}        header      (optional) text to display in the header if opening a dialog with chrome.
-      * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
-      * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
-      */
+       * @name DialogOptions
+       * @class
+       * @property {String}        key         The module key of the page you want to open as a dialog
+       * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or maximum (full screen).
+       * @property {Number|String} width       overrides size, define the width as a percentage (append a % to the number) or pixels.
+       * @property {Number|String} height      overrides size, define the height as a percentage (append a % to the number) or pixels.
+       * @property {Boolean}       chrome      (optional) opens the dialog with heading and buttons.
+       * @property {String}        header      (optional) text to display in the header if opening a dialog with chrome.
+       * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
+       * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
+       */
       remote.createDialog(options);
       return {
         on: function on(event, callback) {
@@ -2342,16 +2263,16 @@ _rpc2['default'].extend(function (remote) {
       };
     },
     /**
-    * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.
-    * This will only close a dialog that has been opened by your add-on.
-    * You can register for close events using the `dialog.close` event and the [events module](module-Events.html)
-    * @param {Object} data An object to be emitted on dialog close.
-    * @noDemo
-    * @example
-    * AP.require('dialog', function(dialog){
+     * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.
+     * This will only close a dialog that has been opened by your add-on.
+     * You can register for close events using the `dialog.close` event and the [events module](module-Events.html)
+     * @param {Object} data An object to be emitted on dialog close.
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
     *   dialog.close({foo: 'bar'});
     * });
-    */
+     */
     close: function close(data) {
       remote.events.emit('dialog.close', data);
       remote.closeDialog();
@@ -2360,64 +2281,64 @@ _rpc2['default'].extend(function (remote) {
     isDialog: isDialog,
 
     /**
-    * register callbacks responding to messages from the host dialog, such as 'submit' or 'cancel'
-    * @param String button either 'cancel' or 'submit'
-    * @param Function callback function
-    * @deprecated
-    */
+     * register callbacks responding to messages from the host dialog, such as 'submit' or 'cancel'
+     * @param String button either 'cancel' or 'submit'
+     * @param Function callback function
+     * @deprecated
+     */
     onDialogMessage: function onDialogMessage(message, listener) {
       this.getButton(message).bind(listener);
     },
     /**
-    * Returns the button that was requested (either cancel or submit)
-    * @returns {DialogButton}
-    * @noDemo
-    * @example
-    * AP.require('dialog', function(dialog){
+     * Returns the button that was requested (either cancel or submit)
+     * @returns {DialogButton}
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
     *   dialog.getButton('submit');
     * });
-    */
+     */
     getButton: function getButton(name) {
       /**
-      * @class DialogButton
-      * @description A dialog button that can be controlled with javascript
-      */
+       * @class DialogButton
+       * @description A dialog button that can be controlled with javascript
+       */
       return {
         name: name,
 
         /**
-        * Sets the button state to enabled
-        * @memberOf DialogButton
-        * @noDemo
-        * @example
-        * AP.require('dialog', function(dialog){
+         * Sets the button state to enabled
+         * @memberOf DialogButton
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
         *   dialog.getButton('submit').enable();
         * });
-        */
+         */
         enable: function enable() {
           remote.setDialogButtonEnabled(name, true);
         },
         /**
-        * Sets the button state to disabled
-        * @memberOf DialogButton
-        * @noDemo
-        * @example
-        * AP.require('dialog', function(dialog){
+         * Sets the button state to disabled
+         * @memberOf DialogButton
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
         *   dialog.getButton('submit').disable();
         * });
-        */
+         */
         disable: function disable() {
           remote.setDialogButtonEnabled(name, false);
         },
         /**
-        * Toggle the button state between enabled and disabled.
-        * @memberOf DialogButton
-        * @noDemo
-        * @example
-        * AP.require('dialog', function(dialog){
+         * Toggle the button state between enabled and disabled.
+         * @memberOf DialogButton
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
         *   dialog.getButton('submit').toggle();
         * });
-        */
+         */
         toggle: function toggle() {
           var self = this;
           self.isEnabled(function (enabled) {
@@ -2425,34 +2346,34 @@ _rpc2['default'].extend(function (remote) {
           });
         },
         /**
-        * Query a button for it's current state.
-        * @memberOf DialogButton
-        * @param {Function} callback function to receive the button state.
-        * @noDemo
-        * @example
-        * AP.require('dialog', function(dialog){
+         * Query a button for it's current state.
+         * @memberOf DialogButton
+         * @param {Function} callback function to receive the button state.
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
         *   dialog.getButton('submit').isEnabled(function(enabled){
         *     if(enabled){
         *       //button is enabled
         *     }
         *   });
         * });
-        */
+         */
         isEnabled: function isEnabled(callback) {
           remote.isDialogButtonEnabled(name, callback);
         },
         /**
-        * Registers a function to be called when the button is clicked.
-        * @memberOf DialogButton
-        * @param {Function} callback function to be triggered on click or programatically.
-        * @noDemo
-        * @example
-        * AP.require('dialog', function(dialog){
+         * Registers a function to be called when the button is clicked.
+         * @memberOf DialogButton
+         * @param {Function} callback function to be triggered on click or programatically.
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
         *   dialog.getButton('submit').bind(function(){
         *     alert('clicked!');
         *   });
         * });
-        */
+         */
         bind: function bind(listener) {
           remote.dialogListenerBound();
           var list = listeners[name];
@@ -2462,22 +2383,22 @@ _rpc2['default'].extend(function (remote) {
           list.push(listener);
         },
         /**
-        * Trigger a callback bound to a button.
-        * @memberOf DialogButton
-        * @noDemo
-        * @example
-        * AP.require('dialog', function(dialog){
+         * Trigger a callback bound to a button.
+         * @memberOf DialogButton
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
         *   dialog.getButton('submit').bind(function(){
         *     alert('clicked!');
         *   });
         *   dialog.getButton('submit').trigger();
         * });
-        */
+         */
         trigger: function trigger() {
-          var self = this,
-              cont = true,
-              result = true,
-              list = listeners[name];
+          var self = this;
+          var cont = true;
+          var result = true;
+          var list = listeners[name];
           _dollar2['default'].each(list, function (i, listener) {
             result = listener.call(self, {
               button: self,
@@ -2533,7 +2454,7 @@ _rpc2['default'].extend(function (remote) {
 exports['default'] = _exports;
 module.exports = exports['default'];
 
-},{"../common/ui-params":10,"../common/uri":11,"./dollar":16,"./rpc":23}],16:[function(_dereq_,module,exports){
+},{"../common/ui-params":9,"../common/uri":10,"./dollar":15,"./rpc":23}],15:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2546,9 +2467,9 @@ var _util = _dereq_('./util');
 
 var _util2 = _interopRequireDefault(_util);
 
-var _each = _util2['default'].each,
-    extend = _util2['default'].extend,
-    document = window.document;
+var _each = _util2['default'].each;
+var extend = _util2['default'].extend;
+var document = window.document;
 
 function $(sel, context) {
 
@@ -2624,7 +2545,7 @@ function $(sel, context) {
 exports['default'] = extend($, _util2['default']);
 module.exports = exports['default'];
 
-},{"./util":24}],17:[function(_dereq_,module,exports){
+},{"./util":24}],16:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2645,28 +2566,28 @@ var _commonUiParams = _dereq_('../common/ui-params');
 
 var _commonUiParams2 = _interopRequireDefault(_commonUiParams);
 
-var uiParams = _commonUiParams2['default'].fromWindowName(),
-    isInlineDialog = Boolean(uiParams.isInlineDialog),
-    isInlineAddon = Boolean(uiParams.isInlineAddon);
+var uiParams = _commonUiParams2['default'].fromWindowName();
+var isInlineDialog = Boolean(uiParams.isInlineDialog);
+var isInlineAddon = Boolean(uiParams.isInlineAddon);
 
 var apis = _rpc2['default'].extend(function (remote) {
 
   return {
     /**
-    * @exports AP
-    * Utility methods that are available without requiring additional modules.
-    */
+     * @exports AP
+     * Utility methods that are available without requiring additional modules.
+     */
     apis: {
 
       /**
-      * get the location of the host page
-      *
-      * @param {Function} callback function (location) {...}
-      * @example
-      * AP.getLocation(function(location){
+       * get the location of the host page
+       *
+       * @param {Function} callback function (location) {...}
+       * @example
+       * AP.getLocation(function(location){
       *   alert(location);
       * });
-      */
+       */
       getLocation: function getLocation(callback) {
         remote.getLocation(callback);
       },
@@ -2680,11 +2601,11 @@ var apis = _rpc2['default'].extend(function (remote) {
       },
 
       /**
-      * resize this iframe
-      * @method
-      * @param {String} width   the desired width
-      * @param {String} height  the desired height
-      */
+       * resize this iframe
+       * @method
+       * @param {String} width   the desired width
+       * @param {String} height  the desired height
+       */
       resize: _dollar2['default'].debounce(function (width, height) {
         var dim = apis.size(width, height, apis.container());
         remote.resize(dim.w, dim.h);
@@ -2703,8 +2624,8 @@ exports['default'] = _dollar2['default'].extend(apis, {
   meta: function meta(name) {
     //IE8 fallback: querySelectorAll will never find nodes by name.
     if (navigator.userAgent.indexOf('MSIE 8') >= 0) {
-      var i,
-          metas = document.getElementsByTagName('meta');
+      var i;
+      var metas = document.getElementsByTagName('meta');
 
       for (i = 0; i < metas.length; i++) {
         if (metas[i].getAttribute('name') === 'ap-' + name) {
@@ -2728,9 +2649,9 @@ exports['default'] = _dollar2['default'].extend(apis, {
   },
 
   size: function size(width, height, container) {
-    var w = width == null ? '100%' : width,
-        h,
-        docHeight;
+    var w = width == null ? '100%' : width;
+    var h;
+    var docHeight;
 
     if (!container) {
       container = this.container();
@@ -2767,7 +2688,7 @@ exports['default'] = _dollar2['default'].extend(apis, {
 });
 module.exports = exports['default'];
 
-},{"../common/ui-params":10,"./dollar":16,"./rpc":23}],18:[function(_dereq_,module,exports){
+},{"../common/ui-params":9,"./dollar":15,"./rpc":23}],17:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2785,20 +2706,20 @@ var _rpc = _dereq_('./rpc');
 var _rpc2 = _interopRequireDefault(_rpc);
 
 /**
-* The Events module provides a mechanism for emitting and receiving events.
-* <h3>Basic example</h3>
-* ```
-* //The following will create an alert message every time the event `customEvent` is triggered.
-* AP.require('events', function(events){
+ * The Events module provides a mechanism for emitting and receiving events.
+ * <h3>Basic example</h3>
+ * ```
+ * //The following will create an alert message every time the event `customEvent` is triggered.
+ * AP.require('events', function(events){
 *   events.on('customEvent', function(){
 *       alert('event fired');
 *   });
 *   events.emit('customEvent');
 * });
-* ```
-* @name Events
-* @module
-*/
+ * ```
+ * @name Events
+ * @module
+ */
 
 exports['default'] = _rpc2['default'].extend(function (remote) {
   // Expose an Events API that delegates the to the underlying XdmRpc events bus; this is necessary since the bus
@@ -2830,14 +2751,14 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
 
   return {
     /**
-    * Adds a listener for all occurrences of an event of a particular name.
-    * Listener arguments include any arguments passed to `events.emit`, followed by an object describing the complete event information.
-    * @name on
-    * @method
-    * @memberof module:Events#
-    * @param {String} name The event name to subscribe the listener to
-    * @param {Function} listener A listener callback to subscribe to the event name
-    */
+     * Adds a listener for all occurrences of an event of a particular name.
+     * Listener arguments include any arguments passed to `events.emit`, followed by an object describing the complete event information.
+     * @name on
+     * @method
+     * @memberof module:Events#
+     * @param {String} name The event name to subscribe the listener to
+     * @param {Function} listener A listener callback to subscribe to the event name
+     */
 
     /**
      * Adds a listener for one occurrence of an event of a particular name.
@@ -2898,11 +2819,100 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
 });
 module.exports = exports['default'];
 
-},{"./dollar":16,"./rpc":23}],19:[function(_dereq_,module,exports){
+},{"./dollar":15,"./rpc":23}],18:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+//INSERT AMD STUBBER HERE!
+
+var _amd = _dereq_('./amd');
+
+var _amd2 = _interopRequireDefault(_amd);
+
+var _util = _dereq_('./util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var _dollar = _dereq_('./dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _commonEvents = _dereq_('../common/events');
+
+var _commonEvents2 = _interopRequireDefault(_commonEvents);
+
+var _commonBase64 = _dereq_('../common/base64');
+
+var _commonBase642 = _interopRequireDefault(_commonBase64);
+
+var _commonUri = _dereq_('../common/uri');
+
+var _commonUri2 = _interopRequireDefault(_commonUri);
+
+var _commonUiParams = _dereq_('../common/ui-params');
+
+var _commonUiParams2 = _interopRequireDefault(_commonUiParams);
+
+var _commonJwt = _dereq_('../common/jwt');
+
+var _commonJwt2 = _interopRequireDefault(_commonJwt);
+
+var _commonXdmRpc = _dereq_('../common/xdm-rpc');
+
+var _commonXdmRpc2 = _interopRequireDefault(_commonXdmRpc);
+
+var _rpc = _dereq_('./rpc');
+
+var _rpc2 = _interopRequireDefault(_rpc);
+
+var _events2 = _dereq_('./events');
+
+var _events3 = _interopRequireDefault(_events2);
+
+var _env = _dereq_('./env');
+
+var _env2 = _interopRequireDefault(_env);
+
+var _dialog = _dereq_('./dialog');
+
+var _dialog2 = _interopRequireDefault(_dialog);
+
+var _inlineDialog = _dereq_('./inline-dialog');
+
+var _inlineDialog2 = _interopRequireDefault(_inlineDialog);
+
+var _messages = _dereq_('./messages');
+
+var _messages2 = _interopRequireDefault(_messages);
+
+var _propagateJs = _dereq_('./propagate.js');
+
+var _propagateJs2 = _interopRequireDefault(_propagateJs);
+
+// import cookie from './cookie';
+// import request from './request';
+
+var AP = window.AP = {};_dollar2['default'].extend(AP, _env2['default'], _amd2['default'], {
+  rpc: { extend: _rpc2['default'].extend, init: _rpc2['default'].init },
+  Meta: { get: _env2['default'].meta },
+  //    request: request,
+  Dialog: _dialog2['default']
+});
+
+window.AP = AP;
+exports['default'] = AP;
+module.exports = exports['default'];
+
+},{"../common/base64":4,"../common/events":7,"../common/jwt":8,"../common/ui-params":9,"../common/uri":10,"../common/xdm-rpc":11,"./amd":13,"./dialog":14,"./dollar":15,"./env":16,"./events":17,"./inline-dialog":19,"./messages":20,"./propagate.js":21,"./rpc":23,"./util":24}],19:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2926,32 +2936,32 @@ var _rpc2 = _interopRequireDefault(_rpc);
 var _exports;
 
 _rpc2['default'].extend(function (remote) {
-    _exports = {
-        /**
-        * Hide the inline dialog that contains your connect add-on.
-        * @noDemo
-        * @example
-        * AP.require('inline-dialog', function(inlineDialog){
+  _exports = {
+    /**
+     * Hide the inline dialog that contains your connect add-on.
+     * @noDemo
+     * @example
+     * AP.require('inline-dialog', function(inlineDialog){
         *   inlineDialog.hide();
         * });
-        */
-        hide: function hide() {
-            remote.hideInlineDialog();
-        }
-    };
-    return {
-        stubs: ['hideInlineDialog']
-    };
+     */
+    hide: function hide() {
+      remote.hideInlineDialog();
+    }
+  };
+  return {
+    stubs: ['hideInlineDialog']
+  };
 });
 
 exports['default'] = _exports;
 module.exports = exports['default'];
 
-},{"./dollar":16,"./rpc":23}],20:[function(_dereq_,module,exports){
+},{"./dollar":15,"./rpc":23}],20:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2965,175 +2975,175 @@ var _rpc = _dereq_('./rpc');
 var _rpc2 = _interopRequireDefault(_rpc);
 
 /**
-* Messages are the primary method for providing system feedback in the product user interface.
-* Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
-* For visual examples of each kind please see the [Design guide](https://developer.atlassian.com/design/latest/communicators/messages/).
-* ### Example ###
-* ```
-* AP.require('messages', function(messages){
+ * Messages are the primary method for providing system feedback in the product user interface.
+ * Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
+ * For visual examples of each kind please see the [Design guide](https://developer.atlassian.com/design/latest/communicators/messages/).
+ * ### Example ###
+ * ```
+ * AP.require('messages', function(messages){
 *   //create a message
 *   var message = messages.info('plain text title', 'plain text body');
 * });
-* ```
-* @exports messages
-*/
+ * ```
+ * @exports messages
+ */
 
 var messageId = 0;
 
 function getMessageId() {
-    messageId++;
-    return 'ap-message-' + messageId;
+  messageId++;
+  return 'ap-message-' + messageId;
 }
 
 exports['default'] = _rpc2['default'].extend(function (remote) {
 
-    var apis = {};
-    _dollar2['default'].each(['generic', 'error', 'warning', 'success', 'info', 'hint'], function (_, name) {
-        apis[name] = function (title, body, options) {
-            options = options || {};
-            options.id = getMessageId();
-            remote.showMessage(name, title, body, options);
-            return options.id;
-        };
-    });
+  var apis = {};
+  _dollar2['default'].each(['generic', 'error', 'warning', 'success', 'info', 'hint'], function (_, name) {
+    apis[name] = function (title, body, options) {
+      options = options || {};
+      options.id = getMessageId();
+      remote.showMessage(name, title, body, options);
+      return options.id;
+    };
+  });
 
-    /**
-    * clear a message
-    * @name clear
-    * @method
-    * @memberof module:messages#
-    * @param    {String}    id  The id that was returned when the message was created.
-    * @example
-    * AP.require('messages', function(messages){
+  /**
+   * clear a message
+   * @name clear
+   * @method
+   * @memberof module:messages#
+   * @param    {String}    id  The id that was returned when the message was created.
+   * @example
+   * AP.require('messages', function(messages){
     *   //create a message
     *   var message = messages.info('title', 'body');
     *   setTimeout(function(){
     *     messages.clear(message);
     *   }, 2000);
     * });
-    */
+   */
 
-    apis.clear = function (id) {
-        remote.clearMessage(id);
-    };
+  apis.clear = function (id) {
+    remote.clearMessage(id);
+  };
 
-    return {
-        /**
-        * Show a generic message
-        * @name generic
-        * @method
-        * @memberof module:messages#
-        * @param    {String}            title       Sets the title text of the message.
-        * @param    {String}            body        The main content of the message.
-        * @param    {MessageOptions}    options     Message Options
-        * @returns  {String}    The id to be used when clearing the message
-        * @example
-        * AP.require('messages', function(messages){
+  return {
+    /**
+     * Show a generic message
+     * @name generic
+     * @method
+     * @memberof module:messages#
+     * @param    {String}            title       Sets the title text of the message.
+     * @param    {String}            body        The main content of the message.
+     * @param    {MessageOptions}    options     Message Options
+     * @returns  {String}    The id to be used when clearing the message
+     * @example
+     * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.generic('title', 'generic message example');
         * });
-        */
+     */
 
-        /**
-        * Show an error message
-        * @name error
-        * @method
-        * @memberof module:messages#
-        * @param    {String}            title       Sets the title text of the message.
-        * @param    {String}            body        The main content of the message.
-        * @param    {MessageOptions}    options     Message Options
-        * @returns  {String}    The id to be used when clearing the message
-        * @example
-        * AP.require('messages', function(messages){
+    /**
+     * Show an error message
+     * @name error
+     * @method
+     * @memberof module:messages#
+     * @param    {String}            title       Sets the title text of the message.
+     * @param    {String}            body        The main content of the message.
+     * @param    {MessageOptions}    options     Message Options
+     * @returns  {String}    The id to be used when clearing the message
+     * @example
+     * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.error('title', 'error message example');
         * });
-        */
+     */
 
-        /**
-        * Show a warning message
-        * @name warning
-        * @method
-        * @memberof module:messages#
-        * @param    {String}            title       Sets the title text of the message.
-        * @param    {String}            body        The main content of the message.
-        * @param    {MessageOptions}    options     Message Options
-        * @returns  {String}    The id to be used when clearing the message
-        * @example
-        * AP.require('messages', function(messages){
+    /**
+     * Show a warning message
+     * @name warning
+     * @method
+     * @memberof module:messages#
+     * @param    {String}            title       Sets the title text of the message.
+     * @param    {String}            body        The main content of the message.
+     * @param    {MessageOptions}    options     Message Options
+     * @returns  {String}    The id to be used when clearing the message
+     * @example
+     * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.warning('title', 'warning message example');
         * });
-        */
+     */
 
-        /**
-        * Show a success message
-        * @name success
-        * @method
-        * @memberof module:messages#
-        * @param    {String}            title       Sets the title text of the message.
-        * @param    {String}            body        The main content of the message.
-        * @param    {MessageOptions}    options     Message Options
-        * @returns  {String}    The id to be used when clearing the message
-        * @example
-        * AP.require('messages', function(messages){
+    /**
+     * Show a success message
+     * @name success
+     * @method
+     * @memberof module:messages#
+     * @param    {String}            title       Sets the title text of the message.
+     * @param    {String}            body        The main content of the message.
+     * @param    {MessageOptions}    options     Message Options
+     * @returns  {String}    The id to be used when clearing the message
+     * @example
+     * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.success('title', 'success message example');
         * });
-        */
+     */
 
-        /**
-        * Show an info message
-        * @name info
-        * @method
-        * @memberof module:messages#
-        * @param    {String}            title       Sets the title text of the message.
-        * @param    {String}            body        The main content of the message.
-        * @param    {MessageOptions}    options     Message Options
-        * @returns  {String}    The id to be used when clearing the message
-        * @example
-        * AP.require('messages', function(messages){
+    /**
+     * Show an info message
+     * @name info
+     * @method
+     * @memberof module:messages#
+     * @param    {String}            title       Sets the title text of the message.
+     * @param    {String}            body        The main content of the message.
+     * @param    {MessageOptions}    options     Message Options
+     * @returns  {String}    The id to be used when clearing the message
+     * @example
+     * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.info('title', 'info message example');
         * });
-        */
+     */
 
-        /**
-        * Show a hint message
-        * @name hint
-        * @method
-        * @memberof module:messages#
-        * @param    {String}            title       Sets the title text of the message.
-        * @param    {String}            body        The main content of the message.
-        * @param    {MessageOptions}    options     Message Options
-        * @returns  {String}    The id to be used when clearing the message
-        * @example
-        * AP.require('messages', function(messages){
+    /**
+     * Show a hint message
+     * @name hint
+     * @method
+     * @memberof module:messages#
+     * @param    {String}            title       Sets the title text of the message.
+     * @param    {String}            body        The main content of the message.
+     * @param    {MessageOptions}    options     Message Options
+     * @returns  {String}    The id to be used when clearing the message
+     * @example
+     * AP.require('messages', function(messages){
         *   //create a message
         *   var message = messages.hint('title', 'hint message example');
         * });
-        */
+     */
 
-        apis: apis,
-        stubs: ['showMessage', 'clearMessage']
-    };
+    apis: apis,
+    stubs: ['showMessage', 'clearMessage']
+  };
 });
 
 /**
-* @name MessageOptions
-* @class
-* @property {Boolean}   closeable   Adds a control allowing the user to close the message, removing it from the page.
-* @property {Boolean}   fadeout     Toggles the fade away on the message
-* @property {Number}    delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-* @property {Number}    duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-*/
+ * @name MessageOptions
+ * @class
+ * @property {Boolean}   closeable   Adds a control allowing the user to close the message, removing it from the page.
+ * @property {Boolean}   fadeout     Toggles the fade away on the message
+ * @property {Number}    delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+ * @property {Number}    duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+ */
 module.exports = exports['default'];
 
-},{"./dollar":16,"./rpc":23}],21:[function(_dereq_,module,exports){
+},{"./dollar":15,"./rpc":23}],21:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3150,24 +3160,24 @@ var _commonDomEventsJs2 = _interopRequireDefault(_commonDomEventsJs);
  * Allows add-ons to receive whitelisted DOM events from the host page in the addon iframe.
  */
 exports['default'] = _rpc2['default'].extend(function (remote) {
-    'use strict';
-    return {
-        init: function init() {
-            _commonDomEventsJs2['default'].bindListeners(remote.channel, remote.propagateToHost);
-        },
-        internals: {
-            propagateToPlugin: _commonDomEventsJs2['default'].receiveEvent
-        },
-        stubs: ['propagateToHost']
-    };
+  'use strict';
+  return {
+    init: function init() {
+      _commonDomEventsJs2['default'].bindListeners(remote.channel, remote.propagateToHost);
+    },
+    internals: {
+      propagateToPlugin: _commonDomEventsJs2['default'].receiveEvent
+    },
+    stubs: ['propagateToHost']
+  };
 });
 module.exports = exports['default'];
 
-},{"../common/dom-events.js":7,"./rpc":23}],22:[function(_dereq_,module,exports){
+},{"../common/dom-events.js":6,"./rpc":23}],22:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3179,13 +3189,13 @@ var _dollar2 = _interopRequireDefault(_dollar);
 // Normalize overflow/underflow events across browsers
 // http://www.backalleycoder.com/2013/03/14/oft-overlooked-overflow-and-underflow-events/
 function addFlowListener(element, type, fn) {
-    var flow = type == 'over';
-    element.addEventListener('OverflowEvent' in window ? 'overflowchanged' : type + 'flow', function (e) {
-        if (e.type == type + 'flow' || (e.orient == 0 && e.horizontalOverflow == flow || e.orient == 1 && e.verticalOverflow == flow || e.orient == 2 && e.horizontalOverflow == flow && e.verticalOverflow == flow)) {
-            e.flow = type;
-            return fn.call(this, e);
-        }
-    }, false);
+  var flow = type === 'over';
+  element.addEventListener('OverflowEvent' in window ? 'overflowchanged' : type + 'flow', function (e) {
+    if (e.type === type + 'flow' || e.orient === 0 && e.horizontalOverflow === flow || e.orient === 1 && e.verticalOverflow === flow || e.orient === 2 && e.horizontalOverflow === flow && e.verticalOverflow === flow) {
+      e.flow = type;
+      return fn.call(this, e);
+    }
+  }, false);
 };
 
 // Adds a resize listener to a DOM element (other within <body>). It first adds a set of invisible
@@ -3197,67 +3207,71 @@ function addFlowListener(element, type, fn) {
 // This listener is initiated during the page load event in _init.js. The callback function is
 // the actual iframe resize function in env.js.
 function addListener(element, fn) {
-    var resize = ('onresize' in element);
-    if (!resize && !element._resizeSensor) {
-        (0, _dollar2['default'])('head').append({ tag: 'style', type: 'text/css', $text: '.ac-resize-sensor,.ac-resize-sensor>div {position: absolute;top: 0;left: 0;width: 100%;height: 100%;overflow: hidden;z-index: -1;}' });
-        var sensor = element._resizeSensor = document.createElement('div');
-        sensor.className = 'ac-resize-sensor';
-        sensor.innerHTML = '<div class="ac-resize-overflow"><div></div></div><div class="ac-resize-underflow"><div></div></div>';
+  var resize = ('onresize' in element);
+  if (!resize && !element._resizeSensor) {
+    (0, _dollar2['default'])('head').append({ tag: 'style', type: 'text/css', $text: '.ac-resize-sensor,.ac-resize-sensor>div {position: absolute;top: 0;left: 0;width: 100%;height: 100%;overflow: hidden;z-index: -1;}' });
+    var sensor = element._resizeSensor = document.createElement('div');
+    sensor.className = 'ac-resize-sensor';
+    sensor.innerHTML = '<div class="ac-resize-overflow"><div></div></div><div class="ac-resize-underflow"><div></div></div>';
 
-        var x = 0,
-            y = 0,
-            first = sensor.firstElementChild.firstChild,
-            last = sensor.lastElementChild.firstChild,
-            matchFlow = function matchFlow(event) {
-            var change = false,
-                width = element.offsetWidth;
-            if (x != width) {
-                first.style.width = width - 1 + 'px';
-                last.style.width = width + 1 + 'px';
-                change = true;
-                x = width;
-            }
-            var height = element.offsetHeight;
-            if (y != height) {
-                first.style.height = height - 1 + 'px';
-                last.style.height = height + 1 + 'px';
-                change = true;
-                y = height;
-            }
-            if (change && event.currentTarget != element) {
-                var event = document.createEvent('Event');
-                event.initEvent('resize', true, true);
-                element.dispatchEvent(event);
-            }
-        };
-
-        if (getComputedStyle(element).position === 'static') {
-            element.style.position = 'relative';
-            element._resizeSensor._resetPosition = true;
-        }
-        addFlowListener(sensor, 'over', matchFlow);
-        addFlowListener(sensor, 'under', matchFlow);
-        addFlowListener(sensor.firstElementChild, 'over', matchFlow);
-        addFlowListener(sensor.lastElementChild, 'under', matchFlow);
-        element.appendChild(sensor);
-        matchFlow({});
-    }
-    var events = element._flowEvents || (element._flowEvents = []);
-    if (_dollar2['default'].inArray(fn, events) == -1) events.push(fn);
-    if (!resize) element.addEventListener('resize', fn, false);
-    element.onresize = function (e) {
-        _dollar2['default'].each(events, function (idx, fn) {
-            fn.call(element, e);
-        });
+    var x = 0;
+    var y = 0;
+    var first = sensor.firstElementChild.firstChild;
+    var last = sensor.lastElementChild.firstChild;
+    var matchFlow = function matchFlow(event) {
+      var change = false;
+      var width = element.offsetWidth;
+      if (x !== width) {
+        first.style.width = width - 1 + 'px';
+        last.style.width = width + 1 + 'px';
+        change = true;
+        x = width;
+      }
+      var height = element.offsetHeight;
+      if (y !== height) {
+        first.style.height = height - 1 + 'px';
+        last.style.height = height + 1 + 'px';
+        change = true;
+        y = height;
+      }
+      if (change && event.currentTarget !== element) {
+        var event = document.createEvent('Event');
+        event.initEvent('resize', true, true);
+        element.dispatchEvent(event);
+      }
     };
+
+    if (getComputedStyle(element).position === 'static') {
+      element.style.position = 'relative';
+      element._resizeSensor._resetPosition = true;
+    }
+    addFlowListener(sensor, 'over', matchFlow);
+    addFlowListener(sensor, 'under', matchFlow);
+    addFlowListener(sensor.firstElementChild, 'over', matchFlow);
+    addFlowListener(sensor.lastElementChild, 'under', matchFlow);
+    element.appendChild(sensor);
+    matchFlow({});
+  }
+  var events = element._flowEvents || (element._flowEvents = []);
+  if (_dollar2['default'].inArray(fn, events) === -1) {
+    events.push(fn);
+  }
+  if (!resize) {
+    element.addEventListener('resize', fn, false);
+  }
+  element.onresize = function (e) {
+    _dollar2['default'].each(events, function (idx, fn) {
+      fn.call(element, e);
+    });
+  };
 };
 
 exports['default'] = {
-    addListener: addListener
+  addListener: addListener
 };
 module.exports = exports['default'];
 
-},{"./dollar":16}],23:[function(_dereq_,module,exports){
+},{"./dollar":15}],23:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3274,26 +3288,30 @@ var _commonXdmRpc = _dereq_('../common/xdm-rpc');
 
 var _commonXdmRpc2 = _interopRequireDefault(_commonXdmRpc);
 
-var each = _dollar2['default'].each,
-    _extend = _dollar2['default'].extend,
-    isFn = _dollar2['default'].isFunction,
-    proxy = {},
-    rpc,
-    apis = {},
-    stubs = ['init'],
-    internals = {},
-    inits = [],
-    isInited;
+var each = _dollar2['default'].each;
+var _extend = _dollar2['default'].extend;
+var isFn = _dollar2['default'].isFunction;
+var proxy = {};
+var rpc;
+var apis = {};
+var stubs = ['init'];
+var internals = {};
+var inits = [];
+var isInited;
 
 exports['default'] = {
 
   extend: function extend(config) {
-    if (isFn(config)) config = config(proxy);
+    if (isFn(config)) {
+      config = config(proxy);
+    }
     _extend(apis, config.apis);
     _extend(internals, config.internals);
     stubs = stubs.concat(config.stubs || []);
     var init = config.init;
-    if (isFn(init)) inits.push(init);
+    if (isFn(init)) {
+      inits.push(init);
+    }
     return config.apis;
   },
 
@@ -3323,131 +3341,137 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/xdm-rpc":12,"./dollar":16}],24:[function(_dereq_,module,exports){
+},{"../common/xdm-rpc":11,"./dollar":15}],24:[function(_dereq_,module,exports){
 // universal iterator utility
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 function each(o, it) {
-    var l;
-    var k;
-    if (o) {
-        l = o.length;
-        if (l != null && typeof o !== 'function') {
-            k = 0;
-            while (k < l) {
-                if (it.call(o[k], k, o[k]) === false) break;
-                k += 1;
-            }
-        } else {
-            for (k in o) {
-                if (o.hasOwnProperty(k)) {
-                    if (it.call(o[k], k, o[k]) === false) break;
-                }
-            }
+  var l;
+  var k;
+  if (o) {
+    l = o.length;
+    if (l != null && typeof o !== 'function') {
+      k = 0;
+      while (k < l) {
+        if (it.call(o[k], k, o[k]) === false) {
+          break;
         }
+        k += 1;
+      }
+    } else {
+      for (k in o) {
+        if (o.hasOwnProperty(k)) {
+          if (it.call(o[k], k, o[k]) === false) {
+            break;
+          }
+        }
+      }
     }
+  }
 }
 
 function binder(std, odd) {
-    std += 'EventListener';
-    odd += 'Event';
-    return function (el, e, fn) {
-        if (el[std]) {
-            el[std](e, fn, false);
-        } else if (el[odd]) {
-            el[odd]('on' + e, fn);
-        }
-    };
+  std += 'EventListener';
+  odd += 'Event';
+  return function (el, e, fn) {
+    if (el[std]) {
+      el[std](e, fn, false);
+    } else if (el[odd]) {
+      el[odd]('on' + e, fn);
+    }
+  };
 }
 
 function log() {
-    var console = this.console;
-    if (console && console.log) {
-        var args = [].slice.call(arguments);
-        if (console.log.apply) {
-            console.log.apply(console, args);
-        } else {
-            for (var i = 0, l = args.length; i < l; i += 1) {
-                args[i] = JSON.stringify(args[i]);
-            }
-            console.log(args.join(' '));
-        }
-        return true;
+  var console = this.console;
+  if (console && console.log) {
+    var args = [].slice.call(arguments);
+    if (console.log.apply) {
+      console.log.apply(console, args);
+    } else {
+      for (var i = 0, l = args.length; i < l; i += 1) {
+        args[i] = JSON.stringify(args[i]);
+      }
+      console.log(args.join(' '));
     }
+    return true;
+  }
 }
 
 function decodeQueryComponent(encodedURI) {
-    return encodedURI == null ? null : decodeURIComponent(encodedURI.replace(/\+/g, '%20'));
+  return encodedURI == null ? null : decodeURIComponent(encodedURI.replace(/\+/g, '%20'));
 }
 
 exports['default'] = {
-    each: each,
-    log: log,
-    decodeQueryComponent: decodeQueryComponent,
-    bind: binder('add', 'attach'),
-    unbind: binder('remove', 'detach'),
+  each: each,
+  log: log,
+  decodeQueryComponent: decodeQueryComponent,
+  bind: binder('add', 'attach'),
+  unbind: binder('remove', 'detach'),
 
-    extend: function extend(dest) {
-        var args = arguments;
-        var srcs = [].slice.call(args, 1, args.length);
-        each(srcs, function (i, src) {
-            each(src, function (k, v) {
-                dest[k] = v;
-            });
-        });
-        return dest;
-    },
+  extend: function extend(dest) {
+    var args = arguments;
+    var srcs = [].slice.call(args, 1, args.length);
+    each(srcs, function (i, src) {
+      each(src, function (k, v) {
+        dest[k] = v;
+      });
+    });
+    return dest;
+  },
 
-    trim: function trim(s) {
-        return s && s.replace(/^\s+|\s+$/g, '');
-    },
+  trim: function trim(s) {
+    return s && s.replace(/^\s+|\s+$/g, '');
+  },
 
-    debounce: function debounce(fn, wait) {
-        var timeout;
-        return function () {
-            var ctx = this;
-            var args = [].slice.call(arguments);
-            function later() {
-                timeout = null;
-                fn.apply(ctx, args);
-            }
-            if (timeout) {
-                clearTimeout(timeout);
-            }
-            timeout = setTimeout(later, wait || 50);
-        };
-    },
+  debounce: function debounce(fn, wait) {
+    var timeout;
+    return function () {
+      var ctx = this;
+      var args = [].slice.call(arguments);
+      function later() {
+        timeout = null;
+        fn.apply(ctx, args);
+      }
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+      timeout = setTimeout(later, wait || 50);
+    };
+  },
 
-    inArray: function inArray(value, array, fromIndex) {
-        //optimisation for all browsers after IE8
-        if (Array.prototype.indexOf) {
-            return Array.prototype.indexOf.call(array, value, fromIndex);
-        }
-
-        var k = fromIndex >>> 0,
-            len = array.length >>> 0;
-        for (; k < len; k += 1) {
-            if (array[k] === value) return k;
-        }
-        return -1;
-    },
-
-    isFunction: function isFunction(fn) {
-        return typeof fn === 'function';
-    },
-
-    handleError: function handleError(err) {
-        if (!log.apply(this, err && err.message ? [err, err.message] : [err])) {
-            throw err;
-        }
+  inArray: function inArray(value, array, fromIndex) {
+    //optimisation for all browsers after IE8
+    if (Array.prototype.indexOf) {
+      return Array.prototype.indexOf.call(array, value, fromIndex);
     }
+
+    var k = fromIndex >>> 0;
+    var len = array.length >>> 0;
+    for (; k < len; k += 1) {
+      if (array[k] === value) {
+        return k;
+      }
+    }
+    return -1;
+  },
+
+  isFunction: function isFunction(fn) {
+    return typeof fn === 'function';
+  },
+
+  handleError: function handleError(err) {
+    if (!log.apply(this, err && err.message ? [err, err.message] : [err])) {
+      throw err;
+    }
+  }
 };
 module.exports = exports['default'];
 
-},{}]},{},[1])(1)
+},{}]},{},[18])(18)
 });
 
 
