@@ -56,7 +56,7 @@ require(['ac/navigator', 'ac/navigator-browser'], function (navigator, browser) 
         navigator.to("userprofile", {username: "admin"});
 
         ok(browser.goToUrl.called, "Tried to navigate");
-        ok(browser.goToUrl.calledWith("/display/~admin"), "Navigated to user profile");
+        ok(browser.goToUrl.calledWith("http://test.com/wiki/display/~admin"), "Navigated to user profile");
     });
 
     //test("Unrecognised target", function () {

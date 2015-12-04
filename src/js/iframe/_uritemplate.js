@@ -4,7 +4,6 @@
  UriTemplate Copyright (c) 2012-2013 Franz Antesberger. All Rights Reserved.
  Available via the MIT license.
  */
-
 (function (exportCallback) {
     "use strict";
 
@@ -867,10 +866,7 @@
 }(function (UriTemplate) {
         "use strict";
         // export UriTemplate, when module is present, or pass it to window or global
-        if (typeof module !== "undefined") {
-            module.exports = UriTemplate;
-        }
-        else if (typeof define === "function") {
+        if (typeof define === "function") {
             define("_uritemplate",[],function() {
                 return UriTemplate;
             });
