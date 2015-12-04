@@ -1,10 +1,10 @@
-AP.define("navigation", ["_dollar", "_rpc"], function ($, rpc) {
+AP.define("navigator", ["_dollar", "_rpc"], function ($, rpc) {
     "use strict";
     return rpc.extend(function (remote) {
         var exports = {
 
             /**
-             * @class Navigation~target
+             * @class Navigator~target
              * @property {String}        contentview        The view page for pages and blogs. Takes a `contentId` to identify the content.
              * @property {String}        contentedit        The edit page for pages and blogs. Takes a `draftId` to identify the content and a `shareToken` to allow editing.
              * @property {String}        spaceview          The space view page. Takes a `spaceKey` to identify the space.
@@ -17,12 +17,12 @@ AP.define("navigation", ["_dollar", "_rpc"], function ($, rpc) {
              * Navigates the user from the current page to a different one. Call is made out to the parent page.
              * @name to
              * @method
-             * @memberof module:Navigation#
-             * @param {String} {Navigation~target} The type of page to navigate to
+             * @memberof module:Navigator#
+             * @param {String} {Navigator~target} The type of page to navigate to
              * @param {Object} context Specific information that identifies the page to navigate to
              * @example
-             * AP.require('navigation', function(navigation){
-             *   navigation.to('contentview', {id: '12345'});
+             * AP.require('navigator', function(navigator){
+             *   navigator.to('contentview', {id: '12345'});
              * });
              */
             to: function (target, context) {
@@ -33,11 +33,11 @@ AP.define("navigation", ["_dollar", "_rpc"], function ($, rpc) {
              * Triggers a reload of the parent page.
              * @name reload
              * @method
-             * @memberof module:Navigation#
+             * @memberof module:Navigator#
              * @param none
              * @example
-             * AP.require('navigation', function(navigation){
-             *   navigation.reload();
+             * AP.require('navigator', function(navigator){
+             *   navigator.reload();
              * });
              */
             reload: function () {

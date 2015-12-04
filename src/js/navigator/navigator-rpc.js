@@ -1,14 +1,14 @@
 (function(require){
     "use strict";
-    require(["connect-host", "ac/navigation"], function(connect, navigation) {
+    require(["connect-host", "ac/navigator"], function(connect, navigator) {
         connect.extend(function () {
             return {
                 internals: {
                     to: function (target, context) {
-                        navigation.to(target, context);
+                        navigator.to(target, context);
                     },
                     reload: function () {
-                        navigation.reload();
+                        navigator.reload();
                     }
                 },
                 stubs: ["to"]

@@ -25,9 +25,9 @@ var tests = [],
     'create': 'iframe/host/create',
     'ac/dialog': 'dialog/main',
     'ac/dialog/dialog-factory': 'dialog/dialog-factory',
-    'ac/navigation': 'navigation/main',
-    'ac/navigation/navigation-routes': 'navigation/navigation-routes',
-    'ac/navigation-browser': 'navigation/navigation-browser',
+    'ac/navigator': 'navigator/main',
+    'ac/navigator/navigator-routes': 'navigator/navigator-routes',
+    'ac/navigator-browser': 'navigator/navigator-browser',
     'connect-host': '../../dist/connect-host'
   };
 
@@ -152,12 +152,12 @@ requirejs.config({
         'ac/dialog'
       ]
     },
-    'ac/navigation': {
+    'ac/navigator': {
       deps: [
         '_ap',
         'connect-host',
-        'ac/navigation-browser',
-        'ac/navigation/navigation-routes',
+        'ac/navigator-browser',
+        'ac/navigator/navigator-routes',
         '_uritemplate'
       ]
     },

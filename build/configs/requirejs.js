@@ -153,12 +153,12 @@
                     ]
                 },
                 {
-                    name: rootSource('.tmp/amd-stubs/connect-host-navigation'),
+                    name: rootSource('.tmp/amd-stubs/connect-host-navigator'),
                     include: [
-                        'navigation/navigation-routes',
-                        'navigation/navigation-browser',
-                        'navigation/main',
-                        'navigation/navigation-rpc'
+                        'navigator/navigator-routes',
+                        'navigator/navigator-browser',
+                        'navigator/main',
+                        'navigator/navigator-rpc'
                     ],
                     exclude: [
                         rootSource('.tmp/amd-stubs/connect-host')
