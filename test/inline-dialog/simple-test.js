@@ -2,6 +2,7 @@ import simpleInlineDialog from '../../src/host/inline-dialog/simple'
 import dollar from '../../src/common/dollar'
 
 var INLINE_DIALOG_SELECTOR = '.aui-inline-dialog';
+var FIXTURE_ID = 'inline-dialog-fixture';
 
 QUnit.module("Inline Dialog Simple", {
     setup: function() {
@@ -12,7 +13,7 @@ QUnit.module("Inline Dialog Simple", {
         };
         AJS.contextPath = function() { return ""; };
         var $content = $('<div class="' + INLINE_DIALOG_SELECTOR + '"><div class="ap-content"></div></div>');
-        $('<div id="qunit-fixture">').append($content).appendTo('body');
+        $('<div id="' + FIXTURE_ID + '">').append($content).appendTo('body');
 
         this.showPopupMock = sinon.spy();
 
@@ -39,7 +40,7 @@ QUnit.module("Inline Dialog Simple", {
         this.showPopupMock.reset();
         window.AJS.InlineDialog = this.store.inlineDialog;
 
-        $('#qunit-fixture').remove();
+        $('#' + FIXTURE_ID).remove();
     }
 });
 

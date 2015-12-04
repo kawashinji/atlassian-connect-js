@@ -10,7 +10,8 @@ module.exports = function(config) {
     basePath: '',
 
     // frameworks to use
-    frameworks: ['browserify', 'qunit', 'sinon'],
+    //frameworks: ['browserify', 'qunit', 'sinon'],
+    frameworks: ['qunit', 'sinon'],
 
     // list of files / patterns to load in the browser
     files: [
@@ -30,18 +31,28 @@ module.exports = function(config) {
 
     //do not process my html files.
     preprocessors: {
-      'test/**/*.js': ['browserify'],
+      'test/**/*.js': ['webpack'],
+      'src/**/*.js': ['webpack'],
       'fixtures/!(*).html': ['html2js']
     },
 
-    browserify: {
-      debug: true,
-      bundleDelay: 1000,
-      configure: function(bundle) {
-        bundle._builtOnce = true; // fix issue in osx
-      },
-      transform: ['babelify', envify({ENV: 'host'})],
+    // browserify: {
+    //   debug: true,
+    //   bundleDelay: 1000,
+    //   configure: function(bundle) {
+    //     bundle._builtOnce = true; // fix issue in osx
+    //   },
+    //   transform: ['babelify', envify({ENV: 'host'})],
 
+    // },
+
+    webpack: {
+      cache: true,
+      module: {
+        loaders: [
+          {test: /(?:\/src\/.*?\.js|\/test\/.*?\.js)$/, loader: "babel-loader?cacheDirectory"},
+        ]
+      }
     },
 
     // test results reporter to use
@@ -52,7 +63,12 @@ module.exports = function(config) {
       suite: ''
     },
 
-
+    plugins: [
+      require("karma-webpack"),
+      'karma-qunit',
+      'karma-sinon',
+      'karma-chrome-launcher'
+    ],
     // web server port
     port: 9876,
 
