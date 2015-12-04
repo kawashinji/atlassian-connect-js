@@ -25,8 +25,8 @@ AP.define("navigator", ["_dollar", "_rpc"], function ($, rpc) {
              *   navigator.to('contentview', {id: '12345'});
              * });
              */
-            to: function (target, context) {
-                remote.to(target, context);
+            go: function (target, context) {
+                remote.go(target, context);
             },
 
             /**

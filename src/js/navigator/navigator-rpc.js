@@ -4,14 +4,14 @@
         connect.extend(function () {
             return {
                 internals: {
-                    to: function (target, context) {
-                        navigator.to(target, context);
+                    go: function (target, context) {
+                        navigator.go(target, context);
                     },
                     reload: function () {
                         navigator.reload();
                     }
                 },
-                stubs: ["to"]
+                stubs: ["go"]
             };
         });
     });
