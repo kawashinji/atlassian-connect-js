@@ -1,6 +1,6 @@
 (function(define){
     "use strict";
-    define("ac/navigation/navigation-routes", [], function() {
+    define("ac/navigation/navigation-routes", function() {
 
         // Confluence only at the moment because JIRA navigation is not implemented yet.
         var confluence_routes = {

@@ -1,29 +1,27 @@
 (function(define, AJS){
     "use strict";
-    define("ac/navigation", ["connect-host", "ac/navigation/navigation-routes", "_uritemplate"], function(connect, navigationRoutes, uri) {
+    define("ac/navigation", ["connect-host", "ac/navigation/navigation-routes", "ac/navigation-browser", "_uritemplate"], function(connect, navigationRoutes, browser, uri) {
 
-        //if(!AJS.Confluence) {
-        //    console.error('The navigation API is currently only implemented in Confluence.');
-        //    return;
-        //}
+        if(!AJS.Confluence) {
+            console.error('The navigation API is currently only implemented in Confluence.');
+            return;
+        }
 
         // ACJS-77: Migrate _uriTemplateHelper to use urijs.
-
         var baseUrl = AJS.General.getBaseUrl(),
             routes = navigationRoutes.routes;
 
         var to = function (target, context) {
             if (target in routes) {
                 context = (typeof context === 'undefined') ? {} : context;
-                document.location = buildUrl(routes[target], context);
+                browser.goToUrl(buildUrl(routes[target], context));
             } else {
                 console.error("Unrecognised url target");
             }
         };
 
         var reload = function() {
-            location.reload();
-            return;
+            browser.reloadBrowserPage();
         };
 
         var buildUrl = function (urlTemplate, context) {
