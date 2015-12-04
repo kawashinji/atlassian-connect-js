@@ -15,14 +15,14 @@ AP.define("navigator", ["_dollar", "_rpc"], function ($, rpc) {
 
             /**
              * Navigates the user from the current page to a different one. Call is made out to the parent page.
-             * @name to
+             * @name go
              * @method
              * @memberof module:Navigator#
-             * @param {String} {Navigator~target} The type of page to navigate to
-             * @param {Object} context Specific information that identifies the page to navigate to
+             * @param {String} target The type of page to navigate to.
+             * @param {Object} context Specific information that identifies the page to navigate to.
              * @example
              * AP.require('navigator', function(navigator){
-             *   navigator.to('contentview', {id: '12345'});
+             *   navigator.go('contentview', {contentId: '12345'});
              * });
              */
             go: function (target, context) {
