@@ -1,115 +1,4 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.connectHost = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _addons = _dereq_('./addons');
-
-var _addons2 = _interopRequireDefault(_addons);
-
-var _content = _dereq_('./content');
-
-var _content2 = _interopRequireDefault(_content);
-
-var _create = _dereq_('./create');
-
-var _create2 = _interopRequireDefault(_create);
-
-var _dialogApi = _dereq_('./dialog/api');
-
-var _dialogApi2 = _interopRequireDefault(_dialogApi);
-
-var _dialogBinder = _dereq_('./dialog/binder');
-
-var _dialogBinder2 = _interopRequireDefault(_dialogBinder);
-
-var _dialogRpc = _dereq_('./dialog/rpc');
-
-var _dialogRpc2 = _interopRequireDefault(_dialogRpc);
-
-var _env = _dereq_('./env');
-
-var _env2 = _interopRequireDefault(_env);
-
-var _inlineDialogRpc = _dereq_('./inline-dialog/rpc');
-
-var _inlineDialogRpc2 = _interopRequireDefault(_inlineDialogRpc);
-
-var _inlineDialogBinder = _dereq_('./inline-dialog/binder');
-
-var _inlineDialogBinder2 = _interopRequireDefault(_inlineDialogBinder);
-
-var _loadingIndicator = _dereq_('./loading-indicator');
-
-var _loadingIndicator2 = _interopRequireDefault(_loadingIndicator);
-
-var _messagesRpc = _dereq_('./messages/rpc');
-
-var _messagesRpc2 = _interopRequireDefault(_messagesRpc);
-
-var _resize = _dereq_('./resize');
-
-var _resize2 = _interopRequireDefault(_resize);
-
-var _rpc = _dereq_('./rpc');
-
-var _rpc2 = _interopRequireDefault(_rpc);
-
-var _statusHelper = _dereq_('./status-helper');
-
-var _statusHelper2 = _interopRequireDefault(_statusHelper);
-
-var _commonUiParams = _dereq_('../common/ui-params');
-
-var _commonUiParams2 = _interopRequireDefault(_commonUiParams);
-
-var _commonUri = _dereq_('../common/uri');
-
-var _commonUri2 = _interopRequireDefault(_commonUri);
-
-var _propagateRpc = _dereq_('./propagate/rpc');
-
-var _propagateRpc2 = _interopRequireDefault(_propagateRpc);
-
-/**
- * Private namespace for host-side code.
- * @type {*|{}}
- * @private
- * @deprecated use AMD instead of global namespaces. The only thing that should be on _AP is _AP.define and _AP.require.
- */
-if (!window._AP) {
-    window._AP = {};
-}
-
-AJS.toInit(_dialogBinder2['default']);
-AJS.toInit(_inlineDialogBinder2['default']);
-
-_rpc2['default'].extend(_addons2['default']);
-_rpc2['default'].extend(_dialogRpc2['default']);
-_rpc2['default'].extend(_env2['default']);
-_rpc2['default'].extend(_inlineDialogRpc2['default']);
-_rpc2['default'].extend(_loadingIndicator2['default']);
-_rpc2['default'].extend(_messagesRpc2['default']);
-_rpc2['default'].extend(_resize2['default']);
-_rpc2['default'].extend(_propagateRpc2['default']);
-
-exports['default'] = {
-    extend: _rpc2['default'].extend,
-    init: _rpc2['default'].init,
-    uiParams: _commonUiParams2['default'],
-    create: _create2['default'],
-    _uriHelper: _commonUri2['default'],
-    _statusHelper: _statusHelper2['default'],
-    webItemHelper: _content2['default'],
-    dialog: _dialogApi2['default']
-};
-module.exports = exports['default'];
-
-},{"../common/ui-params":10,"../common/uri":11,"./addons":13,"./content":15,"./create":16,"./dialog/api":17,"./dialog/binder":18,"./dialog/rpc":21,"./env":23,"./inline-dialog/binder":24,"./inline-dialog/rpc":25,"./loading-indicator":28,"./messages/rpc":30,"./propagate/rpc":31,"./resize":32,"./rpc":33,"./status-helper":34}],2:[function(_dereq_,module,exports){
 (function (global){
 /*! http://mths.be/base64 v0.1.0 by @mathias | MIT license */
 ;(function(root) {
@@ -279,7 +168,7 @@ module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],3:[function(_dereq_,module,exports){
+},{}],2:[function(_dereq_,module,exports){
 /*!
  * jsUri
  * https://github.com/derek-watson/jsUri
@@ -741,7 +630,7 @@ module.exports = exports['default'];
   }
 }(this));
 
-},{}],4:[function(_dereq_,module,exports){
+},{}],3:[function(_dereq_,module,exports){
 (function (global){
 /*! https://mths.be/utf8js v2.0.0 by @mathias */
 ;(function(root) {
@@ -990,11 +879,11 @@ module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],5:[function(_dereq_,module,exports){
+},{}],4:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1008,40 +897,40 @@ var _utf8 = _dereq_('utf8');
 var _utf82 = _interopRequireDefault(_utf8);
 
 exports['default'] = {
-    encode: function encode(string) {
-        return _base642['default'].encode(_utf82['default'].encode(string));
-    },
-    decode: function decode(string) {
-        return _utf82['default'].decode(_base642['default'].decode(string));
-    }
+  encode: function encode(string) {
+    return _base642['default'].encode(_utf82['default'].encode(string));
+  },
+  decode: function decode(string) {
+    return _utf82['default'].decode(_base642['default'].decode(string));
+  }
 };
 module.exports = exports['default'];
 
-},{"base-64":2,"utf8":4}],6:[function(_dereq_,module,exports){
+},{"base-64":1,"utf8":3}],5:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 var $;
 {
-    $ = _dereq_('../host/dollar');
+  $ = _dereq_('../host/dollar');
 }
 
 exports['default'] = $;
 
 module.exports = exports['default'];
-},{"../host/dollar":22}],7:[function(_dereq_,module,exports){
+},{"../host/dollar":21}],6:[function(_dereq_,module,exports){
 'use strict';
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
 /**
  * Common methods for propagating DOM events between host/plugin iframes
  */
 
-var w = window,
-    log = w.AJS && w.AJS.log || w.console && w.console.log || function () {};
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+var w = window;
+var log = w.AJS && w.AJS.log || w.console && w.console.log || function () {};
 
 var SUPPORTED_MOUSE_EVENTS = ['click'];
 
@@ -1051,16 +940,16 @@ var ALLOWED_KEYCODES = [27 // ESCAPE
 ];
 
 exports['default'] = {
-    // Public API
-    bindListeners: bindListeners,
-    receiveEvent: receiveEvent,
+  // Public API
+  bindListeners: bindListeners,
+  receiveEvent: receiveEvent,
 
-    // Visible for testing only
-    constructLegacyModifierString: constructLegacyModifierString,
-    supportedMouseEvents: SUPPORTED_MOUSE_EVENTS,
-    supportedKeyboardEvents: SUPPORTED_KEYBOARD_EVENTS,
-    isAllowedKeyCode: isAllowedKeyCode,
-    createEvent: createEvent
+  // Visible for testing only
+  constructLegacyModifierString: constructLegacyModifierString,
+  supportedMouseEvents: SUPPORTED_MOUSE_EVENTS,
+  supportedKeyboardEvents: SUPPORTED_KEYBOARD_EVENTS,
+  isAllowedKeyCode: isAllowedKeyCode,
+  createEvent: createEvent
 };
 
 /**
@@ -1070,25 +959,25 @@ exports['default'] = {
  * @param {function} endpoint The rpc endpoint to send events to
  */
 function bindListeners(channelKey, endpoint) {
-    SUPPORTED_MOUSE_EVENTS.forEach(function (mouseEvent) {
-        document.addEventListener(mouseEvent, function (e) {
-            if (e.channelKey === channelKey) {
-                return;
-            }
-            endpoint(channelKey, e.type, sanitiseMouseEvent(e));
-        });
+  SUPPORTED_MOUSE_EVENTS.forEach(function (mouseEvent) {
+    document.addEventListener(mouseEvent, function (e) {
+      if (e.channelKey === channelKey) {
+        return;
+      }
+      endpoint(channelKey, e.type, sanitiseMouseEvent(e));
     });
-    SUPPORTED_KEYBOARD_EVENTS.forEach(function (keyboardEvent) {
-        document.addEventListener(keyboardEvent, function (e) {
-            if (e.channelKey === channelKey) {
-                return;
-            }
-            // We don't want to send all keystrokes to addon pages (that would be bad)
-            if (isAllowedKeyCode(e.keyCode)) {
-                endpoint(channelKey, e.type, sanitiseKeyboardEvent(e));
-            }
-        });
+  });
+  SUPPORTED_KEYBOARD_EVENTS.forEach(function (keyboardEvent) {
+    document.addEventListener(keyboardEvent, function (e) {
+      if (e.channelKey === channelKey) {
+        return;
+      }
+      // We don't want to send all keystrokes to addon pages (that would be bad)
+      if (isAllowedKeyCode(e.keyCode)) {
+        endpoint(channelKey, e.type, sanitiseKeyboardEvent(e));
+      }
     });
+  });
 }
 
 /**
@@ -1100,12 +989,12 @@ function bindListeners(channelKey, endpoint) {
  * @param {EventInit} eventData The data to attach to the event
  */
 function receiveEvent(channelKey, eventName, eventData) {
-    var event = createEvent(channelKey, eventName, eventData);
-    if (!event) {
-        return;
-    }
+  var event = createEvent(channelKey, eventName, eventData);
+  if (!event) {
+    return;
+  }
 
-    dispatchEvent(event);
+  dispatchEvent(event);
 }
 
 /**
@@ -1116,15 +1005,15 @@ function receiveEvent(channelKey, eventName, eventData) {
  * @return {MouseEventInit} Sanitised data suitable for sending between iframes
  */
 function sanitiseMouseEvent(mouseEvent) {
-    return {
-        bubbles: true,
-        cancelable: true,
-        button: mouseEvent.button,
-        ctrlKey: mouseEvent.ctrlKey,
-        shiftKey: mouseEvent.shiftKey,
-        altKey: mouseEvent.altKey,
-        metaKey: mouseEvent.metaKey
-    };
+  return {
+    bubbles: true,
+    cancelable: true,
+    button: mouseEvent.button,
+    ctrlKey: mouseEvent.ctrlKey,
+    shiftKey: mouseEvent.shiftKey,
+    altKey: mouseEvent.altKey,
+    metaKey: mouseEvent.metaKey
+  };
 }
 
 /**
@@ -1135,18 +1024,18 @@ function sanitiseMouseEvent(mouseEvent) {
  * @return {KeyboardEventInit} Sanities data suitable for sending between iframes
  */
 function sanitiseKeyboardEvent(keyboardEvent) {
-    return {
-        bubbles: true,
-        cancelable: true,
-        key: keyboardEvent.key,
-        code: keyboardEvent.code,
-        keyCode: keyboardEvent.keyCode,
-        ctrlKey: keyboardEvent.ctrlKey,
-        shiftKey: keyboardEvent.shiftKey,
-        altKey: keyboardEvent.altKey,
-        metaKey: keyboardEvent.metaKey,
-        locale: null
-    };
+  return {
+    bubbles: true,
+    cancelable: true,
+    key: keyboardEvent.key,
+    code: keyboardEvent.code,
+    keyCode: keyboardEvent.keyCode,
+    ctrlKey: keyboardEvent.ctrlKey,
+    shiftKey: keyboardEvent.shiftKey,
+    altKey: keyboardEvent.altKey,
+    metaKey: keyboardEvent.metaKey,
+    locale: null
+  };
 }
 
 /**
@@ -1162,35 +1051,35 @@ function sanitiseKeyboardEvent(keyboardEvent) {
  * @returns {KeyboardEvent|MouseEvent} The constructed synthetic event
  */
 function createEvent(channelKey, eventName, eventData) {
-    eventData.view = window;
+  eventData.view = window;
 
-    var event = undefined;
-    if (SUPPORTED_MOUSE_EVENTS.indexOf(eventName) > -1) {
-        if (typeof window.Event === 'function') {
-            event = new MouseEvent(eventName, eventData);
-        } else {
-            // To support older browsers
-            // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
-            event = document.createEvent('MouseEvent');
-            event.initMouseEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, 0, 0, 0, 0, 0, eventData.ctrlKey, eventData.altKey, eventData.shiftKey, eventData.metaKey, eventData.button, null);
-        }
-    } else if (SUPPORTED_KEYBOARD_EVENTS.indexOf(eventName) > -1) {
-        if (typeof window.Event === 'function') {
-            event = new KeyboardEvent(eventName, eventData);
-        } else {
-            // To support older browsers
-            // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
-            event = document.createEvent('KeyboardEvent');
-            event.initKeyboardEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, eventData.key, 0, constructLegacyModifierString(eventData), false, eventData.locale);
-        }
+  var event = undefined;
+  if (SUPPORTED_MOUSE_EVENTS.indexOf(eventName) > -1) {
+    if (typeof window.Event === 'function') {
+      event = new MouseEvent(eventName, eventData);
     } else {
-        log('Event ' + eventName + ' not supported');
+      // To support older browsers
+      // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
+      event = document.createEvent('MouseEvent');
+      event.initMouseEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, 0, 0, 0, 0, 0, eventData.ctrlKey, eventData.altKey, eventData.shiftKey, eventData.metaKey, eventData.button, null);
     }
+  } else if (SUPPORTED_KEYBOARD_EVENTS.indexOf(eventName) > -1) {
+    if (typeof window.Event === 'function') {
+      event = new KeyboardEvent(eventName, eventData);
+    } else {
+      // To support older browsers
+      // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
+      event = document.createEvent('KeyboardEvent');
+      event.initKeyboardEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, eventData.key, 0, constructLegacyModifierString(eventData), false, eventData.locale);
+    }
+  } else {
+    log('Event ' + eventName + ' not supported');
+  }
 
-    if (event) {
-        event.channelKey = channelKey;
-    }
-    return event;
+  if (event) {
+    event.channelKey = channelKey;
+  }
+  return event;
 }
 
 /**
@@ -1201,16 +1090,16 @@ function createEvent(channelKey, eventName, eventData) {
  * @param event The event to dispatch
  */
 function dispatchEvent(event) {
-    document.body.dispatchEvent(event);
+  document.body.dispatchEvent(event);
 
-    if (AJS && event.type === 'click') {
-        // If AJS is present we should fire the event on dialog curtains
-        // if they exist, to ensure AUI dialogs etc. are dismissed.
-        var blanket = AJS.$('.aui-blanket');
-        if (blanket.length > 0 && blanket[0]) {
-            blanket[0].dispatchEvent(event);
-        }
+  if (AJS && event.type === 'click') {
+    // If AJS is present we should fire the event on dialog curtains
+    // if they exist, to ensure AUI dialogs etc. are dismissed.
+    var blanket = AJS.$('.aui-blanket');
+    if (blanket.length > 0 && blanket[0]) {
+      blanket[0].dispatchEvent(event);
     }
+  }
 }
 
 /**
@@ -1221,20 +1110,20 @@ function dispatchEvent(event) {
  * @returns {String} The modifier string (e.g. "Ctr,Shift")
  */
 function constructLegacyModifierString(eventData) {
-    var result = [];
-    if (eventData.shiftKey) {
-        result.push('Shift');
-    }
-    if (eventData.ctrlKey) {
-        result.push('Ctrl');
-    }
-    if (eventData.metaKey) {
-        result.push('Meta');
-    }
-    if (eventData.altKey) {
-        result.push('Alt');
-    }
-    return result.join(',');
+  var result = [];
+  if (eventData.shiftKey) {
+    result.push('Shift');
+  }
+  if (eventData.ctrlKey) {
+    result.push('Ctrl');
+  }
+  if (eventData.metaKey) {
+    result.push('Meta');
+  }
+  if (eventData.altKey) {
+    result.push('Alt');
+  }
+  return result.join(',');
 }
 
 /**
@@ -1245,11 +1134,11 @@ function constructLegacyModifierString(eventData) {
  * @returns {boolean} Whether the provided keycode is allowed to be propagated between iframes
  */
 function isAllowedKeyCode(keyCode) {
-    return ALLOWED_KEYCODES.indexOf(keyCode) > -1;
+  return ALLOWED_KEYCODES.indexOf(keyCode) > -1;
 }
 module.exports = exports['default'];
 
-},{}],8:[function(_dereq_,module,exports){
+},{}],7:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1262,8 +1151,8 @@ var _dollar = _dereq_('./dollar');
 
 var _dollar2 = _interopRequireDefault(_dollar);
 
-var w = window,
-    log = w.AJS && w.AJS.log || w.console && w.console.log || function () {};
+var w = window;
+var log = w.AJS && w.AJS.log || w.console && w.console.log || function () {};
 
 /**
  * A simple pub/sub event bus capable of running on either side of the XDM bridge with no external
@@ -1453,11 +1342,11 @@ function fire(listeners, args) {
 exports['default'] = { Events: Events };
 module.exports = exports['default'];
 
-},{"./dollar":6}],9:[function(_dereq_,module,exports){
+},{"./dollar":5}],8:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1467,63 +1356,63 @@ var _base64 = _dereq_('./base64');
 var _base642 = _interopRequireDefault(_base64);
 
 function parseJwtIssuer(jwt) {
-    return parseJwtClaims(jwt)['iss'];
+  return parseJwtClaims(jwt)['iss'];
 }
 
 function parseJwtClaims(jwt) {
 
-    if (null === jwt || '' === jwt) {
-        throw 'Invalid JWT: must be neither null nor empty-string.';
-    }
+  if (null === jwt || '' === jwt) {
+    throw 'Invalid JWT: must be neither null nor empty-string.';
+  }
 
-    var firstPeriodIndex = jwt.indexOf('.');
-    var secondPeriodIndex = jwt.indexOf('.', firstPeriodIndex + 1);
+  var firstPeriodIndex = jwt.indexOf('.');
+  var secondPeriodIndex = jwt.indexOf('.', firstPeriodIndex + 1);
 
-    if (firstPeriodIndex < 0 || secondPeriodIndex <= firstPeriodIndex) {
-        throw 'Invalid JWT: must contain 2 period (".") characters.';
-    }
+  if (firstPeriodIndex < 0 || secondPeriodIndex <= firstPeriodIndex) {
+    throw 'Invalid JWT: must contain 2 period (".") characters.';
+  }
 
-    var encodedClaims = jwt.substring(firstPeriodIndex + 1, secondPeriodIndex);
+  var encodedClaims = jwt.substring(firstPeriodIndex + 1, secondPeriodIndex);
 
-    if (null === encodedClaims || '' === encodedClaims) {
-        throw 'Invalid JWT: encoded claims must be neither null nor empty-string.';
-    }
+  if (null === encodedClaims || '' === encodedClaims) {
+    throw 'Invalid JWT: encoded claims must be neither null nor empty-string.';
+  }
 
-    var claimsString = _base642['default'].decode.call(window, encodedClaims);
-    return JSON.parse(claimsString);
+  var claimsString = _base642['default'].decode.call(window, encodedClaims);
+  return JSON.parse(claimsString);
 }
 
 function isJwtExpired(jwtString, skew) {
-    if (skew === undefined) {
-        skew = 60; // give a minute of leeway to allow clock skew
-    }
-    var claims = parseJwtClaims(jwtString),
-        expires = 0,
-        now = Math.floor(Date.now() / 1000); // UTC timestamp now
+  if (skew === undefined) {
+    skew = 60; // give a minute of leeway to allow clock skew
+  }
+  var claims = parseJwtClaims(jwtString);
+  var expires = 0;
+  var now = Math.floor(Date.now() / 1000); // UTC timestamp now
 
-    if (claims && claims.exp) {
-        expires = claims.exp;
-    }
+  if (claims && claims.exp) {
+    expires = claims.exp;
+  }
 
-    if (expires - now < skew) {
-        return true;
-    }
+  if (expires - now < skew) {
+    return true;
+  }
 
-    return false;
+  return false;
 }
 
 exports['default'] = {
-    parseJwtIssuer: parseJwtIssuer,
-    parseJwtClaims: parseJwtClaims,
-    isJwtExpired: isJwtExpired
+  parseJwtIssuer: parseJwtIssuer,
+  parseJwtClaims: parseJwtClaims,
+  isJwtExpired: isJwtExpired
 };
 module.exports = exports['default'];
 
-},{"./base64":5}],10:[function(_dereq_,module,exports){
+},{"./base64":4}],9:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1537,60 +1426,60 @@ var _uri = _dereq_('./uri');
 var _uri2 = _interopRequireDefault(_uri);
 
 /**
-* These are passed into the main host create statement and can override
-* any options inside the velocity template.
-* Additionally these are accessed by the js inside the client iframe to check if we are in a dialog.
-*/
+ * These are passed into the main host create statement and can override
+ * any options inside the velocity template.
+ * Additionally these are accessed by the js inside the client iframe to check if we are in a dialog.
+ */
 
 exports['default'] = {
-    /**
-    * Encode options for transport
-    */
-    encode: function encode(options) {
-        if (options) {
-            var str = JSON.stringify(options);
-            return _base642['default'].encode.call(window, str);
-        }
-    },
-    /**
-    * return ui params from a Url
-    **/
-    fromUrl: function fromUrl(url) {
-        var params = new _uri2['default'].init(url).getQueryParamValue('ui-params');
-        return this.decode(params);
-    },
-    /**
-    * returns ui params from window.name
-    */
-    fromWindowName: function fromWindowName(w, param) {
-        w = w || window;
-        var decoded = this.decode(w.name);
-
-        if (!param) {
-            return decoded;
-        }
-        return decoded ? decoded[param] : undefined;
-    },
-    /**
-    * Decode a base64 encoded json string containing ui params
-    */
-    decode: function decode(params) {
-        var obj = {};
-        if (params && params.length > 0) {
-            try {
-                obj = JSON.parse(_base642['default'].decode.call(window, params));
-            } catch (e) {
-                if (console && console.log) {
-                    console.log('Cannot decode passed ui params', params);
-                }
-            }
-        }
-        return obj;
+  /**
+   * Encode options for transport
+   */
+  encode: function encode(options) {
+    if (options) {
+      var str = JSON.stringify(options);
+      return _base642['default'].encode.call(window, str);
     }
+  },
+  /**
+   * return ui params from a Url
+   **/
+  fromUrl: function fromUrl(url) {
+    var params = new _uri2['default'].init(url).getQueryParamValue('ui-params');
+    return this.decode(params);
+  },
+  /**
+   * returns ui params from window.name
+   */
+  fromWindowName: function fromWindowName(w, param) {
+    w = w || window;
+    var decoded = this.decode(w.name);
+
+    if (!param) {
+      return decoded;
+    }
+    return decoded ? decoded[param] : undefined;
+  },
+  /**
+   * Decode a base64 encoded json string containing ui params
+   */
+  decode: function decode(params) {
+    var obj = {};
+    if (params && params.length > 0) {
+      try {
+        obj = JSON.parse(_base642['default'].decode.call(window, params));
+      } catch (e) {
+        if (console && console.log) {
+          console.log('Cannot decode passed ui params', params);
+        }
+      }
+    }
+    return obj;
+  }
 };
 module.exports = exports['default'];
 
-},{"./base64":5,"./uri":11}],11:[function(_dereq_,module,exports){
+},{"./base64":4,"./uri":10}],10:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1606,7 +1495,7 @@ var _jsuri2 = _interopRequireDefault(_jsuri);
 exports['default'] = { init: _jsuri2['default'] };
 module.exports = exports['default'];
 
-},{"jsuri":3}],12:[function(_dereq_,module,exports){
+},{"jsuri":2}],11:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1666,20 +1555,20 @@ var count = 0;
  */
 function XdmRpc($, config, bindings) {
 
-  var self,
-      id,
-      target,
-      remoteOrigin,
-      channel,
-      mixin,
-      localKey,
-      remoteKey,
-      addonKey,
-      w = window,
-      loc = w.location.toString(),
-      locals = bindings.local || {},
-      remotes = bindings.remote || [],
-      localOrigin = getBaseUrl(loc);
+  var self;
+  var id;
+  var target;
+  var remoteOrigin;
+  var channel;
+  var mixin;
+  var localKey;
+  var remoteKey;
+  var addonKey;
+  var w = window;
+  var loc = w.location.toString();
+  var locals = bindings.local || {};
+  var remotes = bindings.remote || [];
+  var localOrigin = getBaseUrl(loc);
 
   // A hub through which all async callbacks for remote requests are parked until invoked from a response
   var nexus = (function () {
@@ -1839,11 +1728,11 @@ function XdmRpc($, config, bindings) {
   function receive(e) {
     try {
       // Extract message payload from the event
-      var payload = JSON.parse(e.data),
-          pid = payload.i,
-          pchannel = payload.c,
-          ptype = payload.t,
-          pmessage = payload.m;
+      var payload = JSON.parse(e.data);
+      var pid = payload.i;
+      var pchannel = payload.c;
+      var ptype = payload.t;
+      var pmessage = payload.m;
 
       // if the iframe has potentially been reloaded. re-attach the source contentWindow object
       if (e.source !== target && e.origin.toLowerCase() === remoteOrigin && pchannel === channel) {
@@ -1857,12 +1746,12 @@ function XdmRpc($, config, bindings) {
 
       if (ptype === 'request') {
         // If the payload type is request, this is an incoming method invocation
-        var name = pmessage.n,
-            args = pmessage.a,
-            local = locals[name],
-            done,
-            fail,
-            async;
+        var name = pmessage.n;
+        var args = pmessage.a;
+        var local = locals[name];
+        var done;
+        var fail;
+        var async;
         if (local) {
           // The message name matches a locally defined RPC method, so inspect and invoke it according
           // Create responders for each response type
@@ -1920,9 +1809,9 @@ function XdmRpc($, config, bindings) {
     // Add a method to this instance that will convert from 'rpc.method(args..., done?, fail?)'-style
     // invocations to a postMessage event via the 'send' function
     return function () {
-      var args = [].slice.call(arguments),
-          done,
-          fail;
+      var args = [].slice.call(arguments);
+      var done;
+      var fail;
       // Pops the last arg off the args list if it's a function
       function popFn() {
         if ($.isFunction(args[args.length - 1])) {
@@ -1945,7 +1834,9 @@ function XdmRpc($, config, bindings) {
   // post-message request events, tracking async callbacks as necessary.
   $.each(remotes, function (methodName, v) {
     // If remotes were specified as an array rather than a map, promote v to methodName
-    if (typeof methodName === 'number') methodName = v;
+    if (typeof methodName === 'number') {
+      methodName = v;
+    }
     self[methodName] = bridge(methodName);
   });
 
@@ -2035,9 +1926,9 @@ function XdmRpc($, config, bindings) {
     if (!config.container) {
       throw new Error('config.container must be defined');
     }
-    var iframe = document.createElement('iframe'),
-        id = 'easyXDM_' + config.container + '_provider',
-        windowName = '';
+    var iframe = document.createElement('iframe');
+    var id = 'easyXDM_' + config.container + '_provider';
+    var windowName = '';
 
     if (config.uiParams) {
       windowName = _uiParams2['default'].encode(config.uiParams);
@@ -2056,18 +1947,24 @@ function XdmRpc($, config, bindings) {
   }
 
   function debug() {
-    if (XdmRpc.debug) log.apply(w, ['DEBUG:'].concat([].slice.call(arguments)));
+    if (XdmRpc.debug) {
+      log.apply(w, ['DEBUG:'].concat([].slice.call(arguments)));
+    }
   }
 
   function log() {
     var log = $.log || w.AJS && w.AJS.log;
-    if (log) log.apply(w, arguments);
+    if (log) {
+      log.apply(w, arguments);
+    }
   }
 
   function logError() {
     // $.error seems to do the same thing as $.log in client console
     var error = w.AJS && w.AJS.error;
-    if (error) error.apply(w, arguments);
+    if (error) {
+      error.apply(w, arguments);
+    }
   }
 
   // Immediately start listening for events
@@ -2081,11 +1978,11 @@ function XdmRpc($, config, bindings) {
 exports['default'] = XdmRpc;
 module.exports = exports['default'];
 
-},{"../host/util":35,"./events":8,"./jwt":9,"./ui-params":10,"./uri":11}],13:[function(_dereq_,module,exports){
+},{"../host/util":35,"./events":7,"./jwt":8,"./ui-params":9,"./uri":10}],12:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2107,55 +2004,55 @@ var _channels = {};
 // between bridges, and potentially between add-ons.
 
 exports['default'] = function () {
-    var self = {
-        _emitEvent: function _emitEvent(event) {
-            _dollar2['default'].each(_channels[event.source.key], function (id, channel) {
-                channel.bus._emitEvent(event);
-            });
-        },
-        remove: function remove(xdm) {
-            var channel = _channels[xdm.addonKey][xdm.id];
-            if (channel) {
-                channel.bus.offAny(channel.listener);
-            }
-            delete _channels[xdm.addonKey][xdm.id];
-            return this;
-        },
-        init: function init(config, xdm) {
-            if (!_channels[xdm.addonKey]) {
-                _channels[xdm.addonKey] = {};
-            }
-            var channel = _channels[xdm.addonKey][xdm.id] = {
-                bus: xdm.events,
-                listener: function listener() {
-                    var event = arguments[arguments.length - 1];
-                    var trace = event.trace = event.trace || {};
-                    var traceKey = xdm.id + '|addon';
-                    if (!trace[traceKey]) {
-                        // Only forward an event once in this listener
-                        trace[traceKey] = true;
-                        self._emitEvent(event);
-                    }
-                }
-            };
-            channel.bus.onAny(channel.listener); //forward add-on events.
-
-            // Remove reference to destroyed iframes such as closed dialogs.
-            channel.bus.on('ra.iframe.destroy', function () {
-                self.remove(xdm);
-            });
+  var self = {
+    _emitEvent: function _emitEvent(event) {
+      _dollar2['default'].each(_channels[event.source.key], function (id, channel) {
+        channel.bus._emitEvent(event);
+      });
+    },
+    remove: function remove(xdm) {
+      var channel = _channels[xdm.addonKey][xdm.id];
+      if (channel) {
+        channel.bus.offAny(channel.listener);
+      }
+      delete _channels[xdm.addonKey][xdm.id];
+      return this;
+    },
+    init: function init(config, xdm) {
+      if (!_channels[xdm.addonKey]) {
+        _channels[xdm.addonKey] = {};
+      }
+      var channel = _channels[xdm.addonKey][xdm.id] = {
+        bus: xdm.events,
+        listener: function listener() {
+          var event = arguments[arguments.length - 1];
+          var trace = event.trace = event.trace || {};
+          var traceKey = xdm.id + '|addon';
+          if (!trace[traceKey]) {
+            // Only forward an event once in this listener
+            trace[traceKey] = true;
+            self._emitEvent(event);
+          }
         }
-    };
-    return self;
+      };
+      channel.bus.onAny(channel.listener); //forward add-on events.
+
+      // Remove reference to destroyed iframes such as closed dialogs.
+      channel.bus.on('ra.iframe.destroy', function () {
+        self.remove(xdm);
+      });
+    }
+  };
+  return self;
 };
 
 module.exports = exports['default'];
 
-},{"./dollar":22,"./rpc":33}],14:[function(_dereq_,module,exports){
+},{"./dollar":21,"./rpc":33}],13:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2186,90 +2083,90 @@ var THRESHOLD = 20000;
 var TRIMPPRECISION = 100;
 
 function time() {
-    return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
+  return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
 }
 
 function Analytics(addonKey, moduleKey) {
-    var metrics = {};
-    this.addonKey = addonKey;
-    this.moduleKey = moduleKey;
-    this.iframePerformance = {
-        start: function start() {
-            metrics.startLoading = time();
-        },
-        end: function end() {
-            var value = time() - metrics.startLoading;
-            proto.track('iframe.performance.load', {
-                addonKey: addonKey,
-                moduleKey: moduleKey,
-                value: value > THRESHOLD ? 'x' : Math.ceil(value / TRIMPPRECISION)
-            });
-            delete metrics.startLoading;
-        },
-        timeout: function timeout() {
-            proto.track('iframe.performance.timeout', {
-                addonKey: addonKey,
-                moduleKey: moduleKey
-            });
-            //track an end event during a timeout so we always have complete start / end data.
-            this.end();
-        },
-        // User clicked cancel button during loading
-        cancel: function cancel() {
-            proto.track('iframe.performance.cancel', {
-                addonKey: addonKey,
-                moduleKey: moduleKey
-            });
-        }
-    };
+  var metrics = {};
+  this.addonKey = addonKey;
+  this.moduleKey = moduleKey;
+  this.iframePerformance = {
+    start: function start() {
+      metrics.startLoading = time();
+    },
+    end: function end() {
+      var value = time() - metrics.startLoading;
+      proto.track('iframe.performance.load', {
+        addonKey: addonKey,
+        moduleKey: moduleKey,
+        value: value > THRESHOLD ? 'x' : Math.ceil(value / TRIMPPRECISION)
+      });
+      delete metrics.startLoading;
+    },
+    timeout: function timeout() {
+      proto.track('iframe.performance.timeout', {
+        addonKey: addonKey,
+        moduleKey: moduleKey
+      });
+      //track an end event during a timeout so we always have complete start / end data.
+      this.end();
+    },
+    // User clicked cancel button during loading
+    cancel: function cancel() {
+      proto.track('iframe.performance.cancel', {
+        addonKey: addonKey,
+        moduleKey: moduleKey
+      });
+    }
+  };
 }
 
 var proto = Analytics.prototype;
 
 proto.getKey = function () {
-    return this.addonKey + ':' + this.moduleKey;
+  return this.addonKey + ':' + this.moduleKey;
 };
 
 proto.track = function (name, data) {
-    var prefixedName = 'connect.addon.' + name;
-    if (AJS.Analytics) {
-        AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
-    } else if (AJS.trigger) {
-        // BTF fallback
-        AJS.trigger('analyticsEvent', {
-            name: prefixedName,
-            data: data
-        });
-    } else {
-        return false;
-    }
+  var prefixedName = 'connect.addon.' + name;
+  if (AJS.Analytics) {
+    AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
+  } else if (AJS.trigger) {
+    // BTF fallback
+    AJS.trigger('analyticsEvent', {
+      name: prefixedName,
+      data: data
+    });
+  } else {
+    return false;
+  }
 
-    return true;
+  return true;
 };
 
 proto.trackBridgeMethod = function (name) {
-    if (_dollar2['default'].inArray(name, BRIDGEMETHODBLACKLIST) !== -1) {
-        return false;
-    }
-    this.track('bridge.invokemethod', {
-        name: name,
-        addonKey: this.addonKey,
-        moduleKey: this.moduleKey
-    });
+  if (_dollar2['default'].inArray(name, BRIDGEMETHODBLACKLIST) !== -1) {
+    return false;
+  }
+  this.track('bridge.invokemethod', {
+    name: name,
+    addonKey: this.addonKey,
+    moduleKey: this.moduleKey
+  });
 };
 
 exports['default'] = {
-    get: function get(addonKey, moduleKey) {
-        return new Analytics(addonKey, moduleKey);
-    }
+  get: function get(addonKey, moduleKey) {
+    return new Analytics(addonKey, moduleKey);
+  }
 };
 module.exports = exports['default'];
 
-},{"./dollar":22}],15:[function(_dereq_,module,exports){
+},{"./dollar":21}],14:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2283,66 +2180,66 @@ var _commonUri = _dereq_('../common/uri');
 var _commonUri2 = _interopRequireDefault(_commonUri);
 
 /**
-* Utility methods for rendering connect addons in AUI components
-*/
+ * Utility methods for rendering connect addons in AUI components
+ */
 
 function getWebItemPluginKey(target) {
-    var cssClass = target.attr('class');
-    var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
-    return _dollar2['default'].isArray(m) ? m[1] : false;
+  var cssClass = target.attr('class');
+  var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
+  return _dollar2['default'].isArray(m) ? m[1] : false;
 }
 function getWebItemModuleKey(target) {
-    var cssClass = target.attr('class');
-    var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
-    return _dollar2['default'].isArray(m) ? m[1] : false;
+  var cssClass = target.attr('class');
+  var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
+  return _dollar2['default'].isArray(m) ? m[1] : false;
 }
 
 function getOptionsForWebItem(target) {
-    var moduleKey = getWebItemModuleKey(target),
-        type = target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-    return window._AP[type + 'Options'][moduleKey] || {};
+  var moduleKey = getWebItemModuleKey(target);
+  var type = target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
+  return window._AP[type + 'Options'][moduleKey] || {};
 }
 
 function contextFromUrl(url) {
-    var pairs = new _commonUri2['default'].init(url).queryPairs;
-    var obj = {};
-    _dollar2['default'].each(pairs, function (key, value) {
-        obj[value[0]] = value[1];
-    });
-    return obj;
+  var pairs = new _commonUri2['default'].init(url).queryPairs;
+  var obj = {};
+  _dollar2['default'].each(pairs, function (key, value) {
+    obj[value[0]] = value[1];
+  });
+  return obj;
 }
 
 function eventHandler(action, selector, callback) {
 
-    function domEventHandler(event) {
-        event.preventDefault();
-        var $el = (0, _dollar2['default'])(event.target).closest(selector),
-            href = $el.attr('href'),
-            url = new _commonUri2['default'].init(href),
-            options = {
-            bindTo: $el,
-            header: $el.text(),
-            width: url.getQueryParamValue('width'),
-            height: url.getQueryParamValue('height'),
-            cp: url.getQueryParamValue('cp'),
-            key: getWebItemPluginKey($el),
-            productContext: contextFromUrl(href)
-        };
-        callback(href, options, event.type);
-    }
+  function domEventHandler(event) {
+    event.preventDefault();
+    var $el = (0, _dollar2['default'])(event.target).closest(selector);
+    var href = $el.attr('href');
+    var url = new _commonUri2['default'].init(href);
+    var options = {
+      bindTo: $el,
+      header: $el.text(),
+      width: url.getQueryParamValue('width'),
+      height: url.getQueryParamValue('height'),
+      cp: url.getQueryParamValue('cp'),
+      key: getWebItemPluginKey($el),
+      productContext: contextFromUrl(href)
+    };
+    callback(href, options, event.type);
+  }
 
-    (0, _dollar2['default'])(window.document).on(action, selector, domEventHandler);
+  (0, _dollar2['default'])(window.document).on(action, selector, domEventHandler);
 }
 
 exports['default'] = {
-    eventHandler: eventHandler,
-    getOptionsForWebItem: getOptionsForWebItem,
-    getWebItemPluginKey: getWebItemPluginKey,
-    getWebItemModuleKey: getWebItemModuleKey
+  eventHandler: eventHandler,
+  getOptionsForWebItem: getOptionsForWebItem,
+  getWebItemPluginKey: getWebItemPluginKey,
+  getWebItemModuleKey: getWebItemModuleKey
 };
 module.exports = exports['default'];
 
-},{"../common/uri":11,"./dollar":22}],16:[function(_dereq_,module,exports){
+},{"../common/uri":10,"./dollar":21}],15:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2383,36 +2280,36 @@ function contentDiv(ns) {
 }
 
 /**
-* @name Options
-* @class
-* @property {String}  ns            module key
-* @property {String}  src           url of the iframe
-* @property {String}  w             width of the iframe
-* @property {String}  h             height of the iframe
-* @property {String}  dlg           is a dialog (disables the resizer)
-* @property {String}  simpleDlg     deprecated, looks to be set when a confluence macro editor is being rendered as a dialog
-* @property {Boolean} general       is a page that can be resized
-* @property {String}  productCtx    context to pass back to the server (project id, space id, etc)
-* @property {String}  key           addon key from the descriptor
-* @property {String}  uid           id of the current user
-* @property {String}  ukey          user key
-* @property {String}  data.timeZone timezone of the current user
-* @property {String}  cp            context path
-*/
+ * @name Options
+ * @class
+ * @property {String}  ns            module key
+ * @property {String}  src           url of the iframe
+ * @property {String}  w             width of the iframe
+ * @property {String}  h             height of the iframe
+ * @property {String}  dlg           is a dialog (disables the resizer)
+ * @property {String}  simpleDlg     deprecated, looks to be set when a confluence macro editor is being rendered as a dialog
+ * @property {Boolean} general       is a page that can be resized
+ * @property {String}  productCtx    context to pass back to the server (project id, space id, etc)
+ * @property {String}  key           addon key from the descriptor
+ * @property {String}  uid           id of the current user
+ * @property {String}  ukey          user key
+ * @property {String}  data.timeZone timezone of the current user
+ * @property {String}  cp            context path
+ */
 
 /**
-* @param {Options} options These values come from the velocity template and can be overridden using uiParams
-*/
+ * @param {Options} options These values come from the velocity template and can be overridden using uiParams
+ */
 function create(options) {
   if (typeof options.uiParams !== 'object') {
     options.uiParams = _commonUiParams2['default'].fromUrl(options.src);
   }
 
-  var ns = options.ns,
-      contentId = 'embedded-' + ns,
-      channelId = 'channel-' + ns,
-      initWidth = options.w || '100%',
-      initHeight = options.h || '0';
+  var ns = options.ns;
+  var contentId = 'embedded-' + ns;
+  var channelId = 'channel-' + ns;
+  var initWidth = options.w || '100%';
+  var initHeight = options.h || '0';
 
   if (typeof options.uiParams !== 'object') {
     options.uiParams = {};
@@ -2476,11 +2373,11 @@ exports['default'] = function (options) {
 ;
 module.exports = exports['default'];
 
-},{"../common/ui-params":10,"./analytics":14,"./dollar":22,"./rpc":33,"./util":35}],17:[function(_dereq_,module,exports){
+},{"../common/ui-params":9,"./analytics":13,"./dollar":21,"./rpc":33,"./util":35}],16:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2508,202 +2405,202 @@ var dialog;
 var dialogId;
 
 var buttons = {
-    submit: _button2['default'].submit({
-        done: closeDialog
-    }),
-    cancel: _button2['default'].cancel({
-        done: closeDialog
-    })
+  submit: _button2['default'].submit({
+    done: closeDialog
+  }),
+  cancel: _button2['default'].cancel({
+    done: closeDialog
+  })
 };
 
 function keyPressListener(e) {
-    if (e.keyCode === 27 && dialog && dialog.hide) {
-        dialog.hide();
-        (0, _dollar2['default'])(document).unbind('keydown', keyPressListener);
-    }
+  if (e.keyCode === 27 && dialog && dialog.hide) {
+    dialog.hide();
+    (0, _dollar2['default'])(document).unbind('keydown', keyPressListener);
+  }
 };
 
 function createDialogElement(options, $nexus, chromeless) {
-    var $el = (0, _dollar2['default'])('#' + options.id);
-    var extraClasses = ['ap-aui-dialog2'];
+  var $el = (0, _dollar2['default'])('#' + options.id);
+  var extraClasses = ['ap-aui-dialog2'];
 
-    if (chromeless) {
-        extraClasses.push('ap-aui-dialog2-chromeless');
+  if (chromeless) {
+    extraClasses.push('ap-aui-dialog2-chromeless');
+  }
+
+  if ($el.length === 0) {
+    $el = (0, _dollar2['default'])(aui.dialog.dialog2({
+      id: options.id,
+      titleText: options.header,
+      titleId: options.titleId,
+      size: options.size,
+      extraClasses: extraClasses,
+      removeOnHide: true,
+      footerActionContent: true,
+      modal: true
+    }));
+  } else {
+    $el = (0, _dollar2['default'])($el[0]);
+    $el.find('.aui-dialog2-header-main').text(options.header);
+    if (extraClasses) {
+      $el.addClass(extraClasses.join(' '));
     }
+  }
 
-    if ($el.length === 0) {
-        $el = (0, _dollar2['default'])(aui.dialog.dialog2({
-            id: options.id,
-            titleText: options.header,
-            titleId: options.titleId,
-            size: options.size,
-            extraClasses: extraClasses,
-            removeOnHide: true,
-            footerActionContent: true,
-            modal: true
-        }));
-    } else {
-        $el = (0, _dollar2['default'])($el[0]);
-        $el.find('.aui-dialog2-header-main').text(options.header);
-        if (extraClasses) {
-            $el.addClass(extraClasses.join(' '));
-        }
+  if (chromeless) {
+    $el.find('header, footer').hide();
+  } else {
+    buttons.submit.setText(options.submitText);
+    buttons.cancel.setText(options.cancelText);
+    //soy templates don't support sending objects, so make the template and bind them.
+    var footer = $el.find('.aui-dialog2-footer-actions');
+    footer.find('button').remove();
+    footer.append(buttons.submit.$el, buttons.cancel.$el);
+    $nexus.data('ra.dialog.buttons', buttons);
+  }
+
+  function handler(button) {
+    // ignore clicks on disabled links
+    if (button.isEnabled()) {
+      button.$el.trigger('ra.dialog.click', button.dispatch);
     }
+  }
 
-    if (chromeless) {
-        $el.find('header, footer').hide();
-    } else {
-        buttons.submit.setText(options.submitText);
-        buttons.cancel.setText(options.cancelText);
-        //soy templates don't support sending objects, so make the template and bind them.
-        var footer = $el.find('.aui-dialog2-footer-actions');
-        footer.find('button').remove();
-        footer.append(buttons.submit.$el, buttons.cancel.$el);
-        $nexus.data('ra.dialog.buttons', buttons);
-    }
-
-    function handler(button) {
-        // ignore clicks on disabled links
-        if (button.isEnabled()) {
-            button.$el.trigger('ra.dialog.click', button.dispatch);
-        }
-    }
-
-    _dollar2['default'].each(buttons, function (i, button) {
-        button.$el.click(function () {
-            handler(button);
-        });
+  _dollar2['default'].each(buttons, function (i, button) {
+    button.$el.click(function () {
+      handler(button);
     });
+  });
 
-    return $el;
+  return $el;
 }
 
 function displayDialogContent($container, options) {
-    $container.append('<div id="embedded-' + options.ns + '" class="ap-dialog-container ap-content"/>');
+  $container.append('<div id="embedded-' + options.ns + '" class="ap-dialog-container ap-content"/>');
 }
 
 function parseDimension(value, viewport) {
-    if (typeof value === 'string') {
-        var percent = value.indexOf('%') === value.length - 1;
-        value = parseInt(value, 10);
-        if (percent) {
-            value = value / 100 * viewport;
-        }
+  if (typeof value === 'string') {
+    var percent = value.indexOf('%') === value.length - 1;
+    value = parseInt(value, 10);
+    if (percent) {
+      value = value / 100 * viewport;
     }
-    return value;
+  }
+  return value;
 }
 
 function closeDialog() {
-    if ($nexus) {
-        // Signal the XdmRpc for the dialog's iframe to clean up
+  if ($nexus) {
+    // Signal the XdmRpc for the dialog's iframe to clean up
 
-        $nexus.find('iframe').trigger('ra.iframe.destroy').removeData('ra.dialog.buttons').unbind();
-        // Clear the nexus handle to allow subsequent dialogs to open
-        $nexus = null;
-    }
-    dialog.hide();
+    $nexus.find('iframe').trigger('ra.iframe.destroy').removeData('ra.dialog.buttons').unbind();
+    // Clear the nexus handle to allow subsequent dialogs to open
+    $nexus = null;
+  }
+  dialog.hide();
 }
 
 exports['default'] = {
-    id: dialogId,
+  id: dialogId,
 
-    getButton: function getButton(name) {
-        var buttons = $nexus ? $nexus.data('ra.dialog.buttons') : null;
-        return name && buttons ? buttons[name] : buttons;
-    },
+  getButton: function getButton(name) {
+    var buttons = $nexus ? $nexus.data('ra.dialog.buttons') : null;
+    return name && buttons ? buttons[name] : buttons;
+  },
 
-    /**
-    * Constructs a new AUI dialog. The dialog has a single content panel containing a single iframe.
-    * The iframe's content is either created by loading [options.src] as the iframe url. Or fetching the content from the server by add-on key + module key.
-    *
-    * @param {Object} options Options to configure the behaviour and appearance of the dialog.
-    * @param {String} [options.header='Remotable Plugins Dialog Title']  Dialog header.
-    * @param {String} [options.headerClass='ap-dialog-header'] CSS class to apply to dialog header.
-    * @param {String|Number} [options.width='50%'] width of the dialog, expressed as either absolute pixels (eg 800) or percent (eg 50%)
-    * @param {String|Number} [options.height='50%'] height of the dialog, expressed as either absolute pixels (eg 600) or percent (eg 50%)
-    * @param {String} [options.id] ID attribute to assign to the dialog. Default to 'ap-dialog-n' where n is an autoincrementing id.
-    */
-    create: function create(options, showLoadingIndicator) {
-        var defaultOptions = {
-            // These options really _should_ be provided by the caller, or else the dialog is pretty pointless
-            width: '50%',
-            height: '50%'
-        };
-        var dialogId = options.id || 'ap-dialog-' + (idSeq += 1);
-        var mergedOptions = _dollar2['default'].extend(true, { id: dialogId }, defaultOptions, options, { uiParams: { isDialog: true, isInlineAddon: true } });
-        var dialogElement;
+  /**
+   * Constructs a new AUI dialog. The dialog has a single content panel containing a single iframe.
+   * The iframe's content is either created by loading [options.src] as the iframe url. Or fetching the content from the server by add-on key + module key.
+   *
+   * @param {Object} options Options to configure the behaviour and appearance of the dialog.
+   * @param {String} [options.header='Remotable Plugins Dialog Title']  Dialog header.
+   * @param {String} [options.headerClass='ap-dialog-header'] CSS class to apply to dialog header.
+   * @param {String|Number} [options.width='50%'] width of the dialog, expressed as either absolute pixels (eg 800) or percent (eg 50%)
+   * @param {String|Number} [options.height='50%'] height of the dialog, expressed as either absolute pixels (eg 600) or percent (eg 50%)
+   * @param {String} [options.id] ID attribute to assign to the dialog. Default to 'ap-dialog-n' where n is an autoincrementing id.
+   */
+  create: function create(options, showLoadingIndicator) {
+    var defaultOptions = {
+      // These options really _should_ be provided by the caller, or else the dialog is pretty pointless
+      width: '50%',
+      height: '50%'
+    };
+    var dialogId = options.id || 'ap-dialog-' + (idSeq += 1);
+    var mergedOptions = _dollar2['default'].extend(true, { id: dialogId }, defaultOptions, options, { uiParams: { isDialog: true, isInlineAddon: true } });
+    var dialogElement;
 
-        // patch for an old workaround where people would make 100% height / width dialogs.
-        if (mergedOptions.width === '100%' && mergedOptions.height === '100%') {
-            mergedOptions.size = 'maximum';
-        }
+    // patch for an old workaround where people would make 100% height / width dialogs.
+    if (mergedOptions.width === '100%' && mergedOptions.height === '100%') {
+      mergedOptions.size = 'maximum';
+    }
 
-        mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
-        mergedOptions.h = parseDimension(mergedOptions.height, $global.height());
+    mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
+    mergedOptions.h = parseDimension(mergedOptions.height, $global.height());
 
-        $nexus = (0, _dollar2['default'])('<div />').addClass('ap-servlet-placeholder ap-container').attr('id', 'ap-' + options.ns).bind('ra.dialog.close', closeDialog);
+    $nexus = (0, _dollar2['default'])('<div />').addClass('ap-servlet-placeholder ap-container').attr('id', 'ap-' + options.ns).bind('ra.dialog.close', closeDialog);
 
-        if (options.chrome) {
-            dialogElement = createDialogElement(mergedOptions, $nexus);
-        } else {
-            dialogElement = createDialogElement(mergedOptions, $nexus, true);
-        }
+    if (options.chrome) {
+      dialogElement = createDialogElement(mergedOptions, $nexus);
+    } else {
+      dialogElement = createDialogElement(mergedOptions, $nexus, true);
+    }
 
-        if (options.size) {
-            mergedOptions.w = '100%';
-            mergedOptions.h = '100%';
-        } else {
-            AJS.layer(dialogElement).changeSize(mergedOptions.w, mergedOptions.h);
-            dialogElement.removeClass('aui-dialog2-medium'); // this class has a min-height so must be removed.
-        }
+    if (options.size) {
+      mergedOptions.w = '100%';
+      mergedOptions.h = '100%';
+    } else {
+      AJS.layer(dialogElement).changeSize(mergedOptions.w, mergedOptions.h);
+      dialogElement.removeClass('aui-dialog2-medium'); // this class has a min-height so must be removed.
+    }
 
-        dialogElement.find('.aui-dialog2-content').append($nexus);
-        dialog = AJS.dialog2(dialogElement);
+    dialogElement.find('.aui-dialog2-content').append($nexus);
+    dialog = AJS.dialog2(dialogElement);
 
-        dialog.on('hide', closeDialog);
-        // ESC key closes the dialog
-        (0, _dollar2['default'])(document).on('keydown', keyPressListener);
+    dialog.on('hide', closeDialog);
+    // ESC key closes the dialog
+    (0, _dollar2['default'])(document).on('keydown', keyPressListener);
 
-        _dollar2['default'].each(buttons, function (name, button) {
-            button.click(function () {
-                button.dispatch(true);
-            });
-        });
+    _dollar2['default'].each(buttons, function (name, button) {
+      button.click(function () {
+        button.dispatch(true);
+      });
+    });
 
-        displayDialogContent($nexus, mergedOptions);
+    displayDialogContent($nexus, mergedOptions);
 
-        if (showLoadingIndicator !== false) {
-            $nexus.append(_statusHelper2['default'].createStatusMessages());
-        }
+    if (showLoadingIndicator !== false) {
+      $nexus.append(_statusHelper2['default'].createStatusMessages());
+    }
 
-        //difference between a webitem and opening from js.
-        if (options.src) {
-            (0, _create3['default'])(mergedOptions);
-        }
+    //difference between a webitem and opening from js.
+    if (options.src) {
+      (0, _create3['default'])(mergedOptions);
+    }
 
-        // give the dialog iframe focus so it can capture keypress events, etc.
-        // the 'iframe' selector needs to be specified, otherwise Firefox won't focus the iframe
-        dialogElement.on('ra.iframe.create', 'iframe', function () {
-            this.focus();
-        });
+    // give the dialog iframe focus so it can capture keypress events, etc.
+    // the 'iframe' selector needs to be specified, otherwise Firefox won't focus the iframe
+    dialogElement.on('ra.iframe.create', 'iframe', function () {
+      this.focus();
+    });
 
-        var existingNode = (0, _dollar2['default'])('#' + dialogElement.attr('id'));
-        if (existingNode.length === 0) {
-            dialog.show();
-        }
+    var existingNode = (0, _dollar2['default'])('#' + dialogElement.attr('id'));
+    if (existingNode.length === 0) {
+      dialog.show();
+    }
 
-        return dialog;
-    },
+    return dialog;
+  },
 
-    close: closeDialog
+  close: closeDialog
 };
 module.exports = exports['default'];
 
-},{"../create":16,"../dollar":22,"../status-helper":34,"./button":19}],18:[function(_dereq_,module,exports){
+},{"../create":15,"../dollar":21,"../status-helper":34,"./button":18}],17:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2725,50 +2622,50 @@ var _dollar = _dereq_('../dollar');
 var _dollar2 = _interopRequireDefault(_dollar);
 
 exports['default'] = function () {
-    var action = 'click';
-    var selector = '.ap-dialog';
+  var action = 'click';
+  var selector = '.ap-dialog';
 
-    function callback(href, options) {
-        var webItemOptions = _content2['default'].getOptionsForWebItem(options.bindTo);
-        var moduleKey = _content2['default'].getWebItemModuleKey(options.bindTo);
-        var addonKey = _content2['default'].getWebItemPluginKey(options.bindTo);
+  function callback(href, options) {
+    var webItemOptions = _content2['default'].getOptionsForWebItem(options.bindTo);
+    var moduleKey = _content2['default'].getWebItemModuleKey(options.bindTo);
+    var addonKey = _content2['default'].getWebItemPluginKey(options.bindTo);
 
-        _dollar2['default'].extend(options, webItemOptions);
+    _dollar2['default'].extend(options, webItemOptions);
 
-        if (!options.ns) {
-            options.ns = moduleKey;
-        }
-
-        if (!options.container) {
-            options.container = options.ns;
-        }
-
-        // webitem target options can sometimes be sent as strings.
-        if (typeof options.chrome === 'string') {
-            options.chrome = options.chrome.toLowerCase() === 'false' ? false : true;
-        }
-
-        //default chrome to be true for backwards compatibility with webitems
-        if (options.chrome === undefined) {
-            options.chrome = true;
-        }
-
-        (0, _factory2['default'])({
-            key: addonKey,
-            moduleKey: moduleKey
-        }, options, options.productContext);
+    if (!options.ns) {
+      options.ns = moduleKey;
     }
 
-    _content2['default'].eventHandler(action, selector, callback);
+    if (!options.container) {
+      options.container = options.ns;
+    }
+
+    // webitem target options can sometimes be sent as strings.
+    if (typeof options.chrome === 'string') {
+      options.chrome = options.chrome.toLowerCase() === 'false' ? false : true;
+    }
+
+    //default chrome to be true for backwards compatibility with webitems
+    if (options.chrome === undefined) {
+      options.chrome = true;
+    }
+
+    (0, _factory2['default'])({
+      key: addonKey,
+      moduleKey: moduleKey
+    }, options, options.productContext);
+  }
+
+  _content2['default'].eventHandler(action, selector, callback);
 };
 
 module.exports = exports['default'];
 
-},{"../content":15,"../dollar":22,"./api":17,"./factory":20}],19:[function(_dereq_,module,exports){
+},{"../content":14,"../dollar":21,"./api":16,"./factory":19}],18:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2778,71 +2675,71 @@ var _dollar = _dereq_('../dollar');
 var _dollar2 = _interopRequireDefault(_dollar);
 
 function Button(options) {
-    this.$el = (0, _dollar2['default'])('<button />').text(options.text).addClass('aui-button aui-button-' + options.type).addClass(options.additionalClasses);
+  this.$el = (0, _dollar2['default'])('<button />').text(options.text).addClass('aui-button aui-button-' + options.type).addClass(options.additionalClasses);
 
-    this.isEnabled = function () {
-        return !(this.$el.attr('aria-disabled') === 'true');
-    };
+  this.isEnabled = function () {
+    return !(this.$el.attr('aria-disabled') === 'true');
+  };
 
-    this.setEnabled = function (enabled) {
-        //cannot disable a noDisable button
-        if (options.noDisable === true) {
-            return false;
-        }
-        this.$el.attr('aria-disabled', !enabled);
-        return true;
-    };
+  this.setEnabled = function (enabled) {
+    //cannot disable a noDisable button
+    if (options.noDisable === true) {
+      return false;
+    }
+    this.$el.attr('aria-disabled', !enabled);
+    return true;
+  };
 
-    this.setEnabled(true);
+  this.setEnabled(true);
 
-    this.click = function (listener) {
-        if (listener) {
-            this.$el.unbind('ra.dialog.click');
-            this.$el.bind('ra.dialog.click', listener);
-        } else {
-            this.dispatch(true);
-        }
-    };
+  this.click = function (listener) {
+    if (listener) {
+      this.$el.unbind('ra.dialog.click');
+      this.$el.bind('ra.dialog.click', listener);
+    } else {
+      this.dispatch(true);
+    }
+  };
 
-    this.dispatch = function (result) {
-        var name = result ? 'done' : 'fail';
-        options.actions && options.actions[name] && options.actions[name]();
-    };
+  this.dispatch = function (result) {
+    var name = result ? 'done' : 'fail';
+    options.actions && options.actions[name] && options.actions[name]();
+  };
 
-    this.setText = function (text) {
-        if (text) {
-            this.$el.text(text);
-        }
-    };
+  this.setText = function (text) {
+    if (text) {
+      this.$el.text(text);
+    }
+  };
 }
 
 exports['default'] = {
-    submit: function submit(actions) {
-        return new Button({
-            type: 'primary',
-            text: 'Submit',
-            additionalClasses: 'ap-dialog-submit',
-            actions: actions
-        });
-    },
+  submit: function submit(actions) {
+    return new Button({
+      type: 'primary',
+      text: 'Submit',
+      additionalClasses: 'ap-dialog-submit',
+      actions: actions
+    });
+  },
 
-    cancel: function cancel(actions) {
-        return new Button({
-            type: 'link',
-            text: 'Cancel',
-            noDisable: true,
-            additionalClasses: 'ap-dialog-cancel',
-            actions: actions
-        });
-    }
+  cancel: function cancel(actions) {
+    return new Button({
+      type: 'link',
+      text: 'Cancel',
+      noDisable: true,
+      additionalClasses: 'ap-dialog-cancel',
+      actions: actions
+    });
+  }
 };
 module.exports = exports['default'];
 
-},{"../dollar":22}],20:[function(_dereq_,module,exports){
+},{"../dollar":21}],19:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2857,65 +2754,65 @@ var _dollar2 = _interopRequireDefault(_dollar);
 
 //might rename this, it opens a dialog by first working out the url (used for javascript opening a dialog).
 /**
-* opens a dialog by sending the add-on and module keys back to the server for signing.
-* Used by dialog-pages, confluence macros and opening from javascript.
-* @param {Object} options for passing to AP.create
-* @param {Object} dialog options (width, height, etc)
-* @param {String} productContextJson pass context back to the server
-*/
+ * opens a dialog by sending the add-on and module keys back to the server for signing.
+ * Used by dialog-pages, confluence macros and opening from javascript.
+ * @param {Object} options for passing to AP.create
+ * @param {Object} dialog options (width, height, etc)
+ * @param {String} productContextJson pass context back to the server
+ */
 
 exports['default'] = function (options, dialogOptions, productContext) {
-    var promise;
-    var container;
-    var uiParams = _dollar2['default'].extend({ isDialog: 1 }, options.uiParams);
+  var promise;
+  var container;
+  var uiParams = _dollar2['default'].extend({ isDialog: 1 }, options.uiParams);
 
-    _api2['default'].create({
-        id: options.id,
-        ns: options.moduleKey || options.key,
-        chrome: dialogOptions.chrome || options.chrome,
-        header: dialogOptions.header,
-        width: dialogOptions.width,
-        height: dialogOptions.height,
-        size: dialogOptions.size,
-        submitText: dialogOptions.submitText,
-        cancelText: dialogOptions.cancelText
-    }, false);
+  _api2['default'].create({
+    id: options.id,
+    ns: options.moduleKey || options.key,
+    chrome: dialogOptions.chrome || options.chrome,
+    header: dialogOptions.header,
+    width: dialogOptions.width,
+    height: dialogOptions.height,
+    size: dialogOptions.size,
+    submitText: dialogOptions.submitText,
+    cancelText: dialogOptions.cancelText
+  }, false);
 
-    container = (0, _dollar2['default'])('.ap-dialog-container');
-    if (options.url) {
-        throw new Error('Cannot retrieve dialog content by URL');
-    }
+  container = (0, _dollar2['default'])('.ap-dialog-container');
+  if (options.url) {
+    throw new Error('Cannot retrieve dialog content by URL');
+  }
 
-    promise = window._AP.contentResolver.resolveByParameters({
-        addonKey: options.key,
-        moduleKey: options.moduleKey,
-        productContext: productContext,
-        uiParams: uiParams
-    });
+  promise = window._AP.contentResolver.resolveByParameters({
+    addonKey: options.key,
+    moduleKey: options.moduleKey,
+    productContext: productContext,
+    uiParams: uiParams
+  });
 
-    promise.done(function (data) {
-        var dialogHtml = (0, _dollar2['default'])(data);
-        dialogHtml.addClass('ap-dialog-container');
-        container.replaceWith(dialogHtml);
-    }).fail(function (xhr, status, ex) {
-        var title = (0, _dollar2['default'])('<p class="title" />').text('Unable to load add-on content. Please try again later.');
-        var msg = status + (ex ? ': ' + ex.toString() : '');
-        container.html('<div class="aui-message error ap-aui-message"></div>');
-        container.find('.error').text(msg);
-        container.find('.error').prepend(title);
-        AJS.log(msg);
-    });
+  promise.done(function (data) {
+    var dialogHtml = (0, _dollar2['default'])(data);
+    dialogHtml.addClass('ap-dialog-container');
+    container.replaceWith(dialogHtml);
+  }).fail(function (xhr, status, ex) {
+    var title = (0, _dollar2['default'])('<p class="title" />').text('Unable to load add-on content. Please try again later.');
+    var msg = status + (ex ? ': ' + ex.toString() : '');
+    container.html('<div class="aui-message error ap-aui-message"></div>');
+    container.find('.error').text(msg);
+    container.find('.error').prepend(title);
+    AJS.log(msg);
+  });
 
-    return _api2['default'];
+  return _api2['default'];
 };
 
 module.exports = exports['default'];
 
-},{"../dollar":22,"./api":17}],21:[function(_dereq_,module,exports){
+},{"../dollar":21,"./api":16}],20:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2933,73 +2830,73 @@ var _dollar = _dereq_('../dollar');
 var _dollar2 = _interopRequireDefault(_dollar);
 
 exports['default'] = function () {
-    return {
-        stubs: ['dialogMessage'],
+  return {
+    stubs: ['dialogMessage'],
 
-        init: function init(state, xdm) {
-            // fallback for old connect p2 plugin.
-            if (state.dlg === '1') {
-                xdm.uiParams.isDialog = true;
-            }
+    init: function init(state, xdm) {
+      // fallback for old connect p2 plugin.
+      if (state.dlg === '1') {
+        xdm.uiParams.isDialog = true;
+      }
 
-            if (xdm.uiParams.isDialog) {
-                var buttons = _api2['default'].getButton();
-                if (buttons) {
-                    _dollar2['default'].each(buttons, function (name, button) {
-                        button.click(function (e, callback) {
-                            if (xdm.isActive() && xdm.buttonListenerBound) {
-                                xdm.dialogMessage(name, callback);
-                            } else {
-                                callback(true);
-                            }
-                        });
-                    });
-                }
-            }
-        },
-
-        internals: {
-            dialogListenerBound: function dialogListenerBound() {
-                this.buttonListenerBound = true;
-            },
-
-            setDialogButtonEnabled: function setDialogButtonEnabled(name, enabled) {
-                _api2['default'].getButton(name).setEnabled(enabled);
-            },
-
-            isDialogButtonEnabled: function isDialogButtonEnabled(name, callback) {
-                var button = _api2['default'].getButton(name);
-                callback(button ? button.isEnabled() : void 0);
-            },
-
-            createDialog: function createDialog(dialogOptions) {
-                var xdmOptions = {
-                    key: this.addonKey
-                };
-
-                //open by key or url. This can be simplified when opening via url is removed.
-                if (dialogOptions.key) {
-                    xdmOptions.moduleKey = dialogOptions.key;
-                } else if (dialogOptions.url) {
-                    throw new Error('Cannot open dialog by URL, please use module key');
-                }
-
-                if ((0, _dollar2['default'])('.aui-dialog2 :visible').length !== 0) {
-                    throw new Error('Cannot open dialog when a layer is already visible');
-                }
-
-                (0, _factory2['default'])(xdmOptions, dialogOptions, this.productContext);
-            },
-            closeDialog: function closeDialog() {
-                _api2['default'].close();
-            }
+      if (xdm.uiParams.isDialog) {
+        var buttons = _api2['default'].getButton();
+        if (buttons) {
+          _dollar2['default'].each(buttons, function (name, button) {
+            button.click(function (e, callback) {
+              if (xdm.isActive() && xdm.buttonListenerBound) {
+                xdm.dialogMessage(name, callback);
+              } else {
+                callback(true);
+              }
+            });
+          });
         }
-    };
+      }
+    },
+
+    internals: {
+      dialogListenerBound: function dialogListenerBound() {
+        this.buttonListenerBound = true;
+      },
+
+      setDialogButtonEnabled: function setDialogButtonEnabled(name, enabled) {
+        _api2['default'].getButton(name).setEnabled(enabled);
+      },
+
+      isDialogButtonEnabled: function isDialogButtonEnabled(name, callback) {
+        var button = _api2['default'].getButton(name);
+        callback(button ? button.isEnabled() : void 0);
+      },
+
+      createDialog: function createDialog(dialogOptions) {
+        var xdmOptions = {
+          key: this.addonKey
+        };
+
+        //open by key or url. This can be simplified when opening via url is removed.
+        if (dialogOptions.key) {
+          xdmOptions.moduleKey = dialogOptions.key;
+        } else if (dialogOptions.url) {
+          throw new Error('Cannot open dialog by URL, please use module key');
+        }
+
+        if ((0, _dollar2['default'])('.aui-dialog2 :visible').length !== 0) {
+          throw new Error('Cannot open dialog when a layer is already visible');
+        }
+
+        (0, _factory2['default'])(xdmOptions, dialogOptions, this.productContext);
+      },
+      closeDialog: function closeDialog() {
+        _api2['default'].close();
+      }
+    }
+  };
 };
 
 module.exports = exports['default'];
 
-},{"../dollar":22,"./api":17,"./factory":20}],22:[function(_dereq_,module,exports){
+},{"../dollar":21,"./api":16,"./factory":19}],21:[function(_dereq_,module,exports){
 /**
  * The iframe-side code exposes a jquery-like implementation via _dollar.
  * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
@@ -3013,30 +2910,141 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = AJS.$;
 module.exports = exports["default"];
 
-},{}],23:[function(_dereq_,module,exports){
+},{}],22:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
 exports["default"] = function () {
-    return {
-        internals: {
-            getLocation: function getLocation() {
-                return window.location.href;
-            }
-        }
-    };
+  return {
+    internals: {
+      getLocation: function getLocation() {
+        return window.location.href;
+      }
+    }
+  };
 };
 
 module.exports = exports["default"];
 
-},{}],24:[function(_dereq_,module,exports){
+},{}],23:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _addons = _dereq_('./addons');
+
+var _addons2 = _interopRequireDefault(_addons);
+
+var _content = _dereq_('./content');
+
+var _content2 = _interopRequireDefault(_content);
+
+var _create = _dereq_('./create');
+
+var _create2 = _interopRequireDefault(_create);
+
+var _dialogApi = _dereq_('./dialog/api');
+
+var _dialogApi2 = _interopRequireDefault(_dialogApi);
+
+var _dialogBinder = _dereq_('./dialog/binder');
+
+var _dialogBinder2 = _interopRequireDefault(_dialogBinder);
+
+var _dialogRpc = _dereq_('./dialog/rpc');
+
+var _dialogRpc2 = _interopRequireDefault(_dialogRpc);
+
+var _env = _dereq_('./env');
+
+var _env2 = _interopRequireDefault(_env);
+
+var _inlineDialogRpc = _dereq_('./inline-dialog/rpc');
+
+var _inlineDialogRpc2 = _interopRequireDefault(_inlineDialogRpc);
+
+var _inlineDialogBinder = _dereq_('./inline-dialog/binder');
+
+var _inlineDialogBinder2 = _interopRequireDefault(_inlineDialogBinder);
+
+var _loadingIndicator = _dereq_('./loading-indicator');
+
+var _loadingIndicator2 = _interopRequireDefault(_loadingIndicator);
+
+var _messagesRpc = _dereq_('./messages/rpc');
+
+var _messagesRpc2 = _interopRequireDefault(_messagesRpc);
+
+var _resize = _dereq_('./resize');
+
+var _resize2 = _interopRequireDefault(_resize);
+
+var _rpc = _dereq_('./rpc');
+
+var _rpc2 = _interopRequireDefault(_rpc);
+
+var _statusHelper = _dereq_('./status-helper');
+
+var _statusHelper2 = _interopRequireDefault(_statusHelper);
+
+var _commonUiParams = _dereq_('../common/ui-params');
+
+var _commonUiParams2 = _interopRequireDefault(_commonUiParams);
+
+var _commonUri = _dereq_('../common/uri');
+
+var _commonUri2 = _interopRequireDefault(_commonUri);
+
+var _propagateRpc = _dereq_('./propagate/rpc');
+
+var _propagateRpc2 = _interopRequireDefault(_propagateRpc);
+
+/**
+ * Private namespace for host-side code.
+ * @type {*|{}}
+ * @private
+ * @deprecated use AMD instead of global namespaces. The only thing that should be on _AP is _AP.define and _AP.require.
+ */
+if (!window._AP) {
+  window._AP = {};
+}
+
+AJS.toInit(_dialogBinder2['default']);
+AJS.toInit(_inlineDialogBinder2['default']);
+
+_rpc2['default'].extend(_addons2['default']);
+_rpc2['default'].extend(_dialogRpc2['default']);
+_rpc2['default'].extend(_env2['default']);
+_rpc2['default'].extend(_inlineDialogRpc2['default']);
+_rpc2['default'].extend(_loadingIndicator2['default']);
+_rpc2['default'].extend(_messagesRpc2['default']);
+_rpc2['default'].extend(_resize2['default']);
+_rpc2['default'].extend(_propagateRpc2['default']);
+
+exports['default'] = {
+  extend: _rpc2['default'].extend,
+  init: _rpc2['default'].init,
+  uiParams: _commonUiParams2['default'],
+  create: _create2['default'],
+  _uriHelper: _commonUri2['default'],
+  _statusHelper: _statusHelper2['default'],
+  webItemHelper: _content2['default'],
+  dialog: _dialogApi2['default']
+};
+module.exports = exports['default'];
+
+},{"../common/ui-params":9,"../common/uri":10,"./addons":12,"./content":14,"./create":15,"./dialog/api":16,"./dialog/binder":17,"./dialog/rpc":20,"./env":22,"./inline-dialog/binder":24,"./inline-dialog/rpc":25,"./loading-indicator":28,"./messages/rpc":30,"./propagate/rpc":31,"./resize":32,"./rpc":33,"./status-helper":34}],24:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3054,33 +3062,33 @@ var _dollar = _dereq_('../dollar');
 var _dollar2 = _interopRequireDefault(_dollar);
 
 exports['default'] = function () {
-    var inlineDialogTrigger = '.ap-inline-dialog';
-    var action = 'click mouseover mouseout';
+  var inlineDialogTrigger = '.ap-inline-dialog';
+  var action = 'click mouseover mouseout';
 
-    function callback(href, options, eventType) {
-        var webItemOptions = _content2['default'].getOptionsForWebItem(options.bindTo);
-        _dollar2['default'].extend(options, webItemOptions);
-        if (options.onHover !== 'true' && eventType !== 'click') {
-            return;
-        }
-
-        // don't repeatedly open if already visible as dozens of mouse-over events are fired in quick succession
-        if (options.onHover === true && options.bindTo.hasClass('active')) {
-            return;
-        }
-        (0, _simple2['default'])(href, options).show();
+  function callback(href, options, eventType) {
+    var webItemOptions = _content2['default'].getOptionsForWebItem(options.bindTo);
+    _dollar2['default'].extend(options, webItemOptions);
+    if (options.onHover !== 'true' && eventType !== 'click') {
+      return;
     }
 
-    _content2['default'].eventHandler(action, inlineDialogTrigger, callback);
+    // don't repeatedly open if already visible as dozens of mouse-over events are fired in quick succession
+    if (options.onHover === true && options.bindTo.hasClass('active')) {
+      return;
+    }
+    (0, _simple2['default'])(href, options).show();
+  }
+
+  _content2['default'].eventHandler(action, inlineDialogTrigger, callback);
 };
 
 module.exports = exports['default'];
 
-},{"../content":15,"../dollar":22,"./simple":26}],25:[function(_dereq_,module,exports){
+},{"../content":14,"../dollar":21,"./simple":26}],25:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3090,53 +3098,53 @@ var _dollar = _dereq_('../dollar');
 var _dollar2 = _interopRequireDefault(_dollar);
 
 function getInlineDialog($content) {
-    return $content.closest('.contents').data('inlineDialog');
+  return $content.closest('.contents').data('inlineDialog');
 }
 
 function showInlineDialog($content) {
-    getInlineDialog($content).show();
+  getInlineDialog($content).show();
 }
 
 function resizeInlineDialog($content, width, height) {
-    $content.closest('.contents').css({
-        width: width,
-        height: height
-    });
-    refreshInlineDialog($content);
+  $content.closest('.contents').css({
+    width: width,
+    height: height
+  });
+  refreshInlineDialog($content);
 }
 
 function refreshInlineDialog($content) {
-    getInlineDialog($content).refresh();
+  getInlineDialog($content).refresh();
 }
 
 function _hideInlineDialog($content) {
-    getInlineDialog($content).hide();
+  getInlineDialog($content).hide();
 }
 
 exports['default'] = function () {
-    return {
-        init: function init(state, xdm) {
-            if (xdm.uiParams.isInlineDialog) {
-                (0, _dollar2['default'])(xdm.iframe).closest('.ap-container').on('resized', function (e, dimensions) {
-                    resizeInlineDialog((0, _dollar2['default'])(xdm.iframe), dimensions.width, dimensions.height);
-                });
-            }
-        },
-        internals: {
-            hideInlineDialog: function hideInlineDialog() {
-                _hideInlineDialog((0, _dollar2['default'])(this.iframe));
-            }
-        }
-    };
+  return {
+    init: function init(state, xdm) {
+      if (xdm.uiParams.isInlineDialog) {
+        (0, _dollar2['default'])(xdm.iframe).closest('.ap-container').on('resized', function (e, dimensions) {
+          resizeInlineDialog((0, _dollar2['default'])(xdm.iframe), dimensions.width, dimensions.height);
+        });
+      }
+    },
+    internals: {
+      hideInlineDialog: function hideInlineDialog() {
+        _hideInlineDialog((0, _dollar2['default'])(this.iframe));
+      }
+    }
+  };
 };
 
 module.exports = exports['default'];
 
-},{"../dollar":22}],26:[function(_dereq_,module,exports){
+},{"../dollar":21}],26:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3150,88 +3158,88 @@ var _content = _dereq_('../content');
 var _content2 = _interopRequireDefault(_content);
 
 exports['default'] = function (contentUrl, options) {
-    var $inlineDialog;
+  var $inlineDialog;
 
-    // Find the web-item that was clicked, we'll be needing its ID.
-    if (!options.bindTo || !options.bindTo.jquery) {
-        return;
-    }
+  // Find the web-item that was clicked, we'll be needing its ID.
+  if (!options.bindTo || !options.bindTo.jquery) {
+    return;
+  }
 
-    var webItem = options.bindTo.hasClass('ap-inline-dialog') ? options.bindTo : options.bindTo.closest('.ap-inline-dialog');
-    var itemId = webItem.attr('id');
-    if (!itemId) {
-        return;
-    }
+  var webItem = options.bindTo.hasClass('ap-inline-dialog') ? options.bindTo : options.bindTo.closest('.ap-inline-dialog');
+  var itemId = webItem.attr('id');
+  if (!itemId) {
+    return;
+  }
 
-    function displayInlineDialog(content, trigger, showInlineDialog) {
-        trigger = (0, _dollar2['default'])(trigger); // sometimes it's not jQuery. Lets make it jQuery.
-        content.data('inlineDialog', $inlineDialog);
-        var pluginKey = _content2['default'].getWebItemPluginKey(trigger);
-        var moduleKey = _content2['default'].getWebItemModuleKey(trigger);
-        var promise = window._AP.contentResolver.resolveByParameters({
-            addonKey: pluginKey,
-            moduleKey: moduleKey,
-            isInlineDialog: true,
-            productContext: options.productContext,
-            uiParams: {
-                isInlineDialog: true
-            }
+  function displayInlineDialog(content, trigger, showInlineDialog) {
+    trigger = (0, _dollar2['default'])(trigger); // sometimes it's not jQuery. Lets make it jQuery.
+    content.data('inlineDialog', $inlineDialog);
+    var pluginKey = _content2['default'].getWebItemPluginKey(trigger);
+    var moduleKey = _content2['default'].getWebItemModuleKey(trigger);
+    var promise = window._AP.contentResolver.resolveByParameters({
+      addonKey: pluginKey,
+      moduleKey: moduleKey,
+      isInlineDialog: true,
+      productContext: options.productContext,
+      uiParams: {
+        isInlineDialog: true
+      }
+    });
+
+    promise.done(function (data) {
+      content.empty().append(data);
+      // if target options contain width and height. set it.
+      if (options.width || options.height) {
+        content.css({
+          width: options.width,
+          height: options.height
         });
+      }
+    }).fail(function (xhr, status, ex) {
+      var title = (0, _dollar2['default'])('<p class="title" />').text('Unable to load add-on content. Please try again later.');
+      content.html('<div class="aui-message error ap-aui-message"></div>');
+      content.find('.error').append(title);
+      var msg = status + (ex ? ': ' + ex.toString() : '');
+      content.find('.error').text(msg);
+      AJS.log(msg);
+    }).always(function () {
+      showInlineDialog();
+    });
+  }
 
-        promise.done(function (data) {
-            content.empty().append(data);
-            // if target options contain width and height. set it.
-            if (options.width || options.height) {
-                content.css({
-                    width: options.width,
-                    height: options.height
-                });
-            }
-        }).fail(function (xhr, status, ex) {
-            var title = (0, _dollar2['default'])('<p class="title" />').text('Unable to load add-on content. Please try again later.');
-            content.html('<div class="aui-message error ap-aui-message"></div>');
-            content.find('.error').append(title);
-            var msg = status + (ex ? ': ' + ex.toString() : '');
-            content.find('.error').text(msg);
-            AJS.log(msg);
-        }).always(function () {
-            showInlineDialog();
-        });
+  var dialogElementIdentifier = 'ap-inline-dialog-content-' + itemId;
+
+  $inlineDialog = (0, _dollar2['default'])(document.getElementById('inline-dialog-' + dialogElementIdentifier));
+
+  if ($inlineDialog.length !== 0) {
+    $inlineDialog.remove();
+  }
+
+  //Create the AUI inline dialog with a unique ID.
+  $inlineDialog = AJS.InlineDialog(options.bindTo,
+  //assign unique id to inline Dialog
+  dialogElementIdentifier, displayInlineDialog, options);
+
+  return {
+    id: $inlineDialog.attr('id'),
+
+    show: function show() {
+      $inlineDialog.show();
+    },
+
+    hide: function hide() {
+      $inlineDialog.hide();
     }
-
-    var dialogElementIdentifier = 'ap-inline-dialog-content-' + itemId;
-
-    $inlineDialog = (0, _dollar2['default'])(document.getElementById('inline-dialog-' + dialogElementIdentifier));
-
-    if ($inlineDialog.length !== 0) {
-        $inlineDialog.remove();
-    }
-
-    //Create the AUI inline dialog with a unique ID.
-    $inlineDialog = AJS.InlineDialog(options.bindTo,
-    //assign unique id to inline Dialog
-    dialogElementIdentifier, displayInlineDialog, options);
-
-    return {
-        id: $inlineDialog.attr('id'),
-
-        show: function show() {
-            $inlineDialog.show();
-        },
-
-        hide: function hide() {
-            $inlineDialog.hide();
-        }
-    };
+  };
 };
 
 module.exports = exports['default'];
 
-},{"../content":15,"../dollar":22}],27:[function(_dereq_,module,exports){
+},{"../content":14,"../dollar":21}],27:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3245,37 +3253,37 @@ var _commonJwt = _dereq_('../common/jwt');
 var _commonJwt2 = _interopRequireDefault(_commonJwt);
 
 function updateUrl(config) {
-    var promise = _dollar2['default'].Deferred(function (defer) {
-        var contentPromise = window._AP.contentResolver.resolveByParameters({
-            addonKey: config.addonKey,
-            moduleKey: config.moduleKey,
-            productContext: config.productContext,
-            uiParams: config.uiParams,
-            width: config.width,
-            height: config.height,
-            classifier: 'json'
-        });
-
-        contentPromise.done(function (data) {
-            var values = JSON.parse(data);
-            defer.resolve(values.src);
-        });
+  var promise = _dollar2['default'].Deferred(function (defer) {
+    var contentPromise = window._AP.contentResolver.resolveByParameters({
+      addonKey: config.addonKey,
+      moduleKey: config.moduleKey,
+      productContext: config.productContext,
+      uiParams: config.uiParams,
+      width: config.width,
+      height: config.height,
+      classifier: 'json'
     });
 
-    return promise;
+    contentPromise.done(function (data) {
+      var values = JSON.parse(data);
+      defer.resolve(values.src);
+    });
+  });
+
+  return promise;
 }
 
 exports['default'] = {
-    updateUrl: updateUrl,
-    isExpired: _commonJwt2['default'].isJwtExpired
+  updateUrl: updateUrl,
+  isExpired: _commonJwt2['default'].isJwtExpired
 };
 module.exports = exports['default'];
 
-},{"../common/jwt":9,"./dollar":22}],28:[function(_dereq_,module,exports){
+},{"../common/jwt":8,"./dollar":21}],28:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3293,51 +3301,51 @@ var _statusHelper = _dereq_('./status-helper');
 var _statusHelper2 = _interopRequireDefault(_statusHelper);
 
 exports['default'] = function () {
-    return {
-        init: function init(state, xdm) {
-            var $home = (0, _dollar2['default'])(xdm.iframe).closest('.ap-container');
-            _statusHelper2['default'].showLoadingStatus($home, 0);
+  return {
+    init: function init(state, xdm) {
+      var $home = (0, _dollar2['default'])(xdm.iframe).closest('.ap-container');
+      _statusHelper2['default'].showLoadingStatus($home, 0);
 
-            $home.find('.ap-load-timeout a.ap-btn-cancel').click(function () {
-                _statusHelper2['default'].showLoadErrorStatus($home);
-                if (xdm.analytics && xdm.analytics.iframePerformance) {
-                    xdm.analytics.iframePerformance.cancel();
-                }
-            });
-
-            xdm.timeout = setTimeout(function () {
-                xdm.timeout = null;
-                _statusHelper2['default'].showloadTimeoutStatus($home);
-                // if inactive, the iframe has been destroyed by the product.
-                if (xdm.isActive() && xdm.analytics && xdm.analytics.iframePerformance) {
-                    xdm.analytics.iframePerformance.timeout();
-                }
-            }, 20000);
-        },
-
-        internals: {
-            init: function init() {
-                if (this.analytics && this.analytics.iframePerformance) {
-                    this.analytics.iframePerformance.end();
-                }
-                var $home = (0, _dollar2['default'])(this.iframe).closest('.ap-container');
-                _statusHelper2['default'].showLoadedStatus($home);
-
-                clearTimeout(this.timeout);
-                // Let the integration tests know the iframe has loaded.
-                $home.find('.ap-content').addClass('iframe-init');
-            }
+      $home.find('.ap-load-timeout a.ap-btn-cancel').click(function () {
+        _statusHelper2['default'].showLoadErrorStatus($home);
+        if (xdm.analytics && xdm.analytics.iframePerformance) {
+          xdm.analytics.iframePerformance.cancel();
         }
-    };
+      });
+
+      xdm.timeout = setTimeout(function () {
+        xdm.timeout = null;
+        _statusHelper2['default'].showloadTimeoutStatus($home);
+        // if inactive, the iframe has been destroyed by the product.
+        if (xdm.isActive() && xdm.analytics && xdm.analytics.iframePerformance) {
+          xdm.analytics.iframePerformance.timeout();
+        }
+      }, 20000);
+    },
+
+    internals: {
+      init: function init() {
+        if (this.analytics && this.analytics.iframePerformance) {
+          this.analytics.iframePerformance.end();
+        }
+        var $home = (0, _dollar2['default'])(this.iframe).closest('.ap-container');
+        _statusHelper2['default'].showLoadedStatus($home);
+
+        clearTimeout(this.timeout);
+        // Let the integration tests know the iframe has loaded.
+        $home.find('.ap-content').addClass('iframe-init');
+      }
+    }
+  };
 };
 
 module.exports = exports['default'];
 
-},{"./dollar":22,"./rpc":33,"./status-helper":34}],29:[function(_dereq_,module,exports){
+},{"./dollar":21,"./rpc":33,"./status-helper":34}],29:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3350,68 +3358,68 @@ var MESSAGE_BAR_ID = 'ac-message-container';
 var MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
 
 function validateMessageId(msgId) {
-    return msgId.search(/^ap\-message\-[0-9]+$/) == 0;
+  return msgId.search(/^ap\-message\-[0-9]+$/) === 0;
 }
 
 function getMessageBar() {
-    var msgBar = (0, _dollar2['default'])('#' + MESSAGE_BAR_ID);
+  var msgBar = (0, _dollar2['default'])('#' + MESSAGE_BAR_ID);
 
-    if (msgBar.length < 1) {
-        msgBar = (0, _dollar2['default'])('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
-    }
-    return msgBar;
+  if (msgBar.length < 1) {
+    msgBar = (0, _dollar2['default'])('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
+  }
+  return msgBar;
 }
 
 function filterMessageOptions(options) {
-    var i;
-    var key;
-    var copy = {};
-    var allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
+  var i;
+  var key;
+  var copy = {};
+  var allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
 
-    for (i in allowed) {
-        key = allowed[i];
-        if (key in options) {
-            copy[key] = options[key];
-        }
+  for (i in allowed) {
+    key = allowed[i];
+    if (key in options) {
+      copy[key] = options[key];
     }
+  }
 
-    return copy;
+  return copy;
 }
 
 exports['default'] = {
-    showMessage: function showMessage(name, title, bodyHTML, options) {
-        var msgBar = getMessageBar();
+  showMessage: function showMessage(name, title, bodyHTML, options) {
+    var msgBar = getMessageBar();
 
-        options = filterMessageOptions(options);
-        _dollar2['default'].extend(options, {
-            title: title,
-            body: AJS.escapeHtml(bodyHTML)
-        });
+    options = filterMessageOptions(options);
+    _dollar2['default'].extend(options, {
+      title: title,
+      body: AJS.escapeHtml(bodyHTML)
+    });
 
-        if (_dollar2['default'].inArray(name, MESSAGE_TYPES) < 0) {
-            throw 'Invalid message type. Must be: ' + MESSAGE_TYPES.join(', ');
-        }
-        if (validateMessageId(options.id)) {
-            AJS.messages[name](msgBar, options);
-            // Calculate the left offset based on the content width.
-            // This ensures the message always stays in the centre of the window.
-            msgBar.css('margin-left', '-' + msgBar.innerWidth() / 2 + 'px');
-        }
-    },
-
-    clearMessage: function clearMessage(id) {
-        if (validateMessageId(id)) {
-            (0, _dollar2['default'])('#' + id).remove();
-        }
+    if (_dollar2['default'].inArray(name, MESSAGE_TYPES) < 0) {
+      throw 'Invalid message type. Must be: ' + MESSAGE_TYPES.join(', ');
     }
+    if (validateMessageId(options.id)) {
+      AJS.messages[name](msgBar, options);
+      // Calculate the left offset based on the content width.
+      // This ensures the message always stays in the centre of the window.
+      msgBar.css('margin-left', '-' + msgBar.innerWidth() / 2 + 'px');
+    }
+  },
+
+  clearMessage: function clearMessage(id) {
+    if (validateMessageId(id)) {
+      (0, _dollar2['default'])('#' + id).remove();
+    }
+  }
 };
 module.exports = exports['default'];
 
-},{"../dollar":22}],30:[function(_dereq_,module,exports){
+},{"../dollar":21}],30:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3421,17 +3429,17 @@ var _api = _dereq_('./api');
 var _api2 = _interopRequireDefault(_api);
 
 exports['default'] = function () {
-    return {
-        internals: {
-            showMessage: function showMessage(name, title, body, options) {
-                return _api2['default'].showMessage(name, title, body, options);
-            },
+  return {
+    internals: {
+      showMessage: function showMessage(name, title, body, options) {
+        return _api2['default'].showMessage(name, title, body, options);
+      },
 
-            clearMessage: function clearMessage(id) {
-                return _api2['default'].clearMessage(id);
-            }
-        }
-    };
+      clearMessage: function clearMessage(id) {
+        return _api2['default'].clearMessage(id);
+      }
+    }
+  };
 };
 
 module.exports = exports['default'];
@@ -3440,7 +3448,7 @@ module.exports = exports['default'];
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3455,28 +3463,28 @@ var _commonDomEventsJs2 = _interopRequireDefault(_commonDomEventsJs);
  */
 
 exports['default'] = function () {
-    'use strict';
+  'use strict';
 
-    return {
-        init: function init(state, xdm) {
-            if (state.uiParams.isGeneral) {
-                _commonDomEventsJs2['default'].bindListeners(xdm.channel, xdm.propagateToPlugin);
-            }
-        },
-        internals: {
-            propagateToHost: _commonDomEventsJs2['default'].receiveEvent
-        },
-        stubs: ['propagateToPlugin']
-    };
+  return {
+    init: function init(state, xdm) {
+      if (state.uiParams.isGeneral) {
+        _commonDomEventsJs2['default'].bindListeners(xdm.channel, xdm.propagateToPlugin);
+      }
+    },
+    internals: {
+      propagateToHost: _commonDomEventsJs2['default'].receiveEvent
+    },
+    stubs: ['propagateToPlugin']
+  };
 };
 
 module.exports = exports['default'];
 
-},{"../../common/dom-events.js":7}],32:[function(_dereq_,module,exports){
+},{"../../common/dom-events.js":6}],32:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3490,60 +3498,60 @@ var _rpc = _dereq_('./rpc');
 var _rpc2 = _interopRequireDefault(_rpc);
 
 exports['default'] = function () {
-    var debounce = AJS.debounce || _dollar2['default'].debounce;
-    return {
-        init: function init(config, xdm) {
-            xdm.resize = debounce(function resize($, width, height) {
-                $(this.iframe).css({
-                    width: width,
-                    height: height
-                });
-                var nexus = $(this.iframe).closest('.ap-container');
-                nexus.trigger('resized', {
-                    width: width,
-                    height: height
-                });
-            });
-        },
+  var debounce = AJS.debounce || _dollar2['default'].debounce;
+  return {
+    init: function init(config, xdm) {
+      xdm.resize = debounce(function resize($, width, height) {
+        $(this.iframe).css({
+          width: width,
+          height: height
+        });
+        var nexus = $(this.iframe).closest('.ap-container');
+        nexus.trigger('resized', {
+          width: width,
+          height: height
+        });
+      });
+    },
 
-        internals: {
-            resize: function resize(width, height) {
-                this.resize(_dollar2['default'], width, height);
-            },
+    internals: {
+      resize: function resize(width, height) {
+        this.resize(_dollar2['default'], width, height);
+      },
 
-            sizeToParent: debounce(function () {
-                function resizeHandler(iframe) {
-                    var height = (0, _dollar2['default'])(document).height() - (0, _dollar2['default'])('#header > nav').outerHeight() - (0, _dollar2['default'])('#footer').outerHeight() - 20;
-                    (0, _dollar2['default'])(iframe).css({
-                        width: '100%',
-                        height: height + 'px'
-                    });
-                }
-                // sizeToParent is only available for general-pages
-                if (this.uiParams.isGeneral) {
-                    // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
-                    (0, _dollar2['default'])(this.iframe).addClass('full-size-general-page');
-                    (0, _dollar2['default'])(window).on('resize', function () {
-                        resizeHandler(this.iframe);
-                    });
-                    resizeHandler(this.iframe);
-                } else {
-                    // This is only here to support integration testing
-                    // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-                    (0, _dollar2['default'])(this.iframe).addClass('full-size-general-page-fail');
-                }
-            })
+      sizeToParent: debounce(function () {
+        function resizeHandler(iframe) {
+          var height = (0, _dollar2['default'])(document).height() - (0, _dollar2['default'])('#header > nav').outerHeight() - (0, _dollar2['default'])('#footer').outerHeight() - 20;
+          (0, _dollar2['default'])(iframe).css({
+            width: '100%',
+            height: height + 'px'
+          });
         }
-    };
+        // sizeToParent is only available for general-pages
+        if (this.uiParams.isGeneral) {
+          // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
+          (0, _dollar2['default'])(this.iframe).addClass('full-size-general-page');
+          (0, _dollar2['default'])(window).on('resize', function () {
+            resizeHandler(this.iframe);
+          });
+          resizeHandler(this.iframe);
+        } else {
+          // This is only here to support integration testing
+          // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
+          (0, _dollar2['default'])(this.iframe).addClass('full-size-general-page-fail');
+        }
+      })
+    }
+  };
 };
 
 module.exports = exports['default'];
 
-},{"./dollar":22,"./rpc":33}],33:[function(_dereq_,module,exports){
+},{"./dollar":21,"./rpc":33}],33:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3574,75 +3582,75 @@ var internals = {};
 var inits = [];
 
 exports['default'] = {
-    extend: function extend(config) {
-        if (isFn(config)) {
-            config = config();
-        }
-
-        _extend(apis, config.apis);
-        _extend(internals, config.internals);
-        stubs = stubs.concat(config.stubs || []);
-
-        var init = config.init;
-
-        if (isFn(init)) {
-            inits.push(init);
-        }
-
-        return config.apis;
-    },
-
-    // init connect host side
-    // options = things that go to all init functions
-    init: function init(options, xdmConfig) {
-        var remoteUrl = new _commonUri2['default'].init(xdmConfig.remote);
-        var remoteJwt = remoteUrl.getQueryParamValue('jwt');
-        var promise;
-
-        options = options || {};
-        // add stubs for each public api
-        each(apis, function (method) {
-            stubs.push(method);
-        });
-
-        // refresh JWT tokens as required.
-        if (remoteJwt && _jwtKeepAlive2['default'].isExpired(remoteJwt)) {
-            promise = _jwtKeepAlive2['default'].updateUrl({
-                addonKey: xdmConfig.remoteKey,
-                moduleKey: options.ns,
-                productContext: options.productContext || {},
-                uiParams: xdmConfig.uiParams,
-                width: xdmConfig.props.width,
-                height: xdmConfig.props.height
-            });
-        }
-
-        _dollar2['default'].when(promise).always(function (src) {
-            // if the promise resolves to a new url. update it.
-            if (src) {
-                xdmConfig.remote = src;
-            }
-            // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
-            var rpc = new _commonXdmRpc2['default'](_dollar2['default'], xdmConfig, { remote: stubs, local: _dollar2['default'].extend({}, internals) });
-
-            rpcCollection[rpc.id] = rpc;
-            each(inits, function (_, init) {
-                try {
-                    init(_extend({}, options), rpc);
-                } catch (ex) {
-                    console.log(ex);
-                }
-            });
-        });
+  extend: function extend(config) {
+    if (isFn(config)) {
+      config = config();
     }
+
+    _extend(apis, config.apis);
+    _extend(internals, config.internals);
+    stubs = stubs.concat(config.stubs || []);
+
+    var init = config.init;
+
+    if (isFn(init)) {
+      inits.push(init);
+    }
+
+    return config.apis;
+  },
+
+  // init connect host side
+  // options = things that go to all init functions
+  init: function init(options, xdmConfig) {
+    var remoteUrl = new _commonUri2['default'].init(xdmConfig.remote);
+    var remoteJwt = remoteUrl.getQueryParamValue('jwt');
+    var promise;
+
+    options = options || {};
+    // add stubs for each public api
+    each(apis, function (method) {
+      stubs.push(method);
+    });
+
+    // refresh JWT tokens as required.
+    if (remoteJwt && _jwtKeepAlive2['default'].isExpired(remoteJwt)) {
+      promise = _jwtKeepAlive2['default'].updateUrl({
+        addonKey: xdmConfig.remoteKey,
+        moduleKey: options.ns,
+        productContext: options.productContext || {},
+        uiParams: xdmConfig.uiParams,
+        width: xdmConfig.props.width,
+        height: xdmConfig.props.height
+      });
+    }
+
+    _dollar2['default'].when(promise).always(function (src) {
+      // if the promise resolves to a new url. update it.
+      if (src) {
+        xdmConfig.remote = src;
+      }
+      // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
+      var rpc = new _commonXdmRpc2['default'](_dollar2['default'], xdmConfig, { remote: stubs, local: _dollar2['default'].extend({}, internals) });
+
+      rpcCollection[rpc.id] = rpc;
+      each(inits, function (_, init) {
+        try {
+          init(_extend({}, options), rpc);
+        } catch (ex) {
+          console.log(ex);
+        }
+      });
+    });
+  }
 };
 module.exports = exports['default'];
 
-},{"../common/uri":11,"../common/xdm-rpc":12,"./dollar":22,"./jwt-keep-alive":27}],34:[function(_dereq_,module,exports){
+},{"../common/uri":10,"../common/xdm-rpc":11,"./dollar":21,"./jwt-keep-alive":27}],34:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3656,102 +3664,102 @@ var _dollar2 = _interopRequireDefault(_dollar);
  */
 
 var statuses = {
-    loading: {
-        descriptionHtml: '<div class="small-spinner"></div>Loading add-on...'
-    },
-    'load-timeout': {
-        descriptionHtml: '<div class="small-spinner"></div>Add-on is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?'
-    },
+  loading: {
+    descriptionHtml: '<div class="small-spinner"></div>Loading add-on...'
+  },
+  'load-timeout': {
+    descriptionHtml: '<div class="small-spinner"></div>Add-on is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?'
+  },
 
-    'load-error': {
-        descriptionHtml: 'Add-on failed to load.'
-    }
+  'load-error': {
+    descriptionHtml: 'Add-on failed to load.'
+  }
 };
 
 function hideStatuses($home) {
-    // If there's a pending timer to show the loading status, kill it.
-    if ($home.data('loadingStatusTimer')) {
-        clearTimeout($home.data('loadingStatusTimer'));
-        $home.removeData('loadingStatusTimer');
-    }
-    $home.find('.ap-status').addClass('hidden');
+  // If there's a pending timer to show the loading status, kill it.
+  if ($home.data('loadingStatusTimer')) {
+    clearTimeout($home.data('loadingStatusTimer'));
+    $home.removeData('loadingStatusTimer');
+  }
+  $home.find('.ap-status').addClass('hidden');
 }
 
 function showStatus($home, status) {
-    hideStatuses($home);
-    $home.closest('.ap-container').removeClass('hidden');
-    $home.find('.ap-stats').removeClass('hidden');
-    $home.find('.ap-' + status).removeClass('hidden');
-    /* setTimout fixes bug in AUI spinner positioning */
-    setTimeout(function () {
-        var spinner = $home.find('.small-spinner', '.ap-' + status);
-        if (spinner.length && spinner.spin) {
-            spinner.spin({ lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1 });
-        }
-    }, 10);
+  hideStatuses($home);
+  $home.closest('.ap-container').removeClass('hidden');
+  $home.find('.ap-stats').removeClass('hidden');
+  $home.find('.ap-' + status).removeClass('hidden');
+  /* setTimout fixes bug in AUI spinner positioning */
+  setTimeout(function () {
+    var spinner = $home.find('.small-spinner', '.ap-' + status);
+    if (spinner.length && spinner.spin) {
+      spinner.spin({ lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1 });
+    }
+  }, 10);
 }
 
 //when an addon has loaded. Hide the status bar.
 function showLoadedStatus($home) {
-    hideStatuses($home);
+  hideStatuses($home);
 }
 
 function showLoadingStatus($home, delay) {
-    if (!delay) {
-        showStatus($home, 'loading');
-    } else {
-        // Wait a second before showing loading status.
-        var timer = setTimeout(showStatus.bind(null, $home, 'loading'), delay);
-        $home.data('loadingStatusTimer', timer);
-    }
+  if (!delay) {
+    showStatus($home, 'loading');
+  } else {
+    // Wait a second before showing loading status.
+    var timer = setTimeout(showStatus.bind(null, $home, 'loading'), delay);
+    $home.data('loadingStatusTimer', timer);
+  }
 }
 
 function showloadTimeoutStatus($home) {
-    showStatus($home, 'load-timeout');
+  showStatus($home, 'load-timeout');
 }
 
 function showLoadErrorStatus($home) {
-    showStatus($home, 'load-error');
+  showStatus($home, 'load-error');
 }
 
 function createStatusMessages() {
-    var i;
-    var stats = (0, _dollar2['default'])('<div class="ap-stats" />');
+  var i;
+  var stats = (0, _dollar2['default'])('<div class="ap-stats" />');
 
-    for (i in statuses) {
-        var status = (0, _dollar2['default'])('<div class="ap-' + i + ' ap-status hidden" />');
-        status.append('<small>' + statuses[i].descriptionHtml + '</small>');
-        stats.append(status);
-    }
-    return stats;
+  for (i in statuses) {
+    var status = (0, _dollar2['default'])('<div class="ap-' + i + ' ap-status hidden" />');
+    status.append('<small>' + statuses[i].descriptionHtml + '</small>');
+    stats.append(status);
+  }
+  return stats;
 }
 
 exports['default'] = {
-    createStatusMessages: createStatusMessages,
-    showLoadingStatus: showLoadingStatus,
-    showloadTimeoutStatus: showloadTimeoutStatus,
-    showLoadErrorStatus: showLoadErrorStatus,
-    showLoadedStatus: showLoadedStatus
+  createStatusMessages: createStatusMessages,
+  showLoadingStatus: showLoadingStatus,
+  showloadTimeoutStatus: showloadTimeoutStatus,
+  showLoadErrorStatus: showLoadErrorStatus,
+  showLoadedStatus: showLoadedStatus
 };
 module.exports = exports['default'];
 
-},{"./dollar":22}],35:[function(_dereq_,module,exports){
+},{"./dollar":21}],35:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 function escapeSelector(s) {
-    if (!s) {
-        throw new Error('No selector to escape');
-    }
-    return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
+  if (!s) {
+    throw new Error('No selector to escape');
+  }
+  return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
 }
 
 exports['default'] = { escapeSelector: escapeSelector };
 module.exports = exports['default'];
 
-},{}]},{},[1])(1)
+},{}]},{},[23])(23)
 });
 
 
