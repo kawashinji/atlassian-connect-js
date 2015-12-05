@@ -9,7 +9,7 @@
   },
   "scripts": {
     "prepublish": "gulp",
-    "test": "karma start --single-run && karma start karma.iframe.conf --single-run"
+    "test": "karma start test/karma.conf.js --single-run && karma start test/karma.iframe.conf --single-run"
   },
   "devDependencies": {
     "babel-core": "^5.8.34",
@@ -29,11 +29,15 @@
     "karma": "^0.13.15",
     "karma-browserify": "^4.1.2",
     "karma-chrome-launcher": "^0.2.1",
+    "karma-firefox-launcher": "~0.1",
+    "karma-safari-launcher": "~0.1",
+    "karma-ie-launcher": "^0.2.0",
     "karma-cli": "0.1.1",
     "karma-junit-reporter": "^0.3.8",
     "karma-qunit": "^0.1.4",
     "karma-sinon": "^1.0.4",
     "karma-webpack": "1.7.0",
+    "karma-html2js-preprocessor": "~0.1",
     "lodash": "^3.7.0",
     "node-libs-browser": "^0.5.2",
     "qunitjs": "^1.18.0",

@@ -57,7 +57,10 @@ module.exports = function(config) {
       require("karma-webpack"),
       'karma-qunit',
       'karma-sinon',
-      'karma-chrome-launcher'
+      'karma-chrome-launcher',
+      'karma-firefox-launcher',
+      'karma-safari-launcher',
+      'karma-ie-launcher'
     ],
     // web server port
     port: 9876,
@@ -85,7 +88,7 @@ module.exports = function(config) {
     // - PhantomJS
     // - IE (only Windows)
     //browsers: ['Chrome', 'Safari', 'Firefox', 'Opera', 'IE11 - Win7', 'IE10 - Win7', 'IE9 - Win7'],
-    browsers: ['Chrome'],
+    browsers: ['Chrome', 'Safari', 'Firefox', 'IE11 - Win7'],
 
 
     // If browser does not capture in given timeout [ms], kill it

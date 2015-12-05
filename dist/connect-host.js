@@ -1520,10 +1520,6 @@ var _uiParams = _dereq_('./ui-params');
 
 var _uiParams2 = _interopRequireDefault(_uiParams);
 
-var _hostUtil = _dereq_('../host/util');
-
-var _hostUtil2 = _interopRequireDefault(_hostUtil);
-
 // Capture some common values and symbol aliases
 var count = 0;
 
@@ -1978,7 +1974,7 @@ function XdmRpc($, config, bindings) {
 exports['default'] = XdmRpc;
 module.exports = exports['default'];
 
-},{"../host/util":35,"./events":7,"./jwt":8,"./ui-params":9,"./uri":10}],12:[function(_dereq_,module,exports){
+},{"./events":7,"./jwt":8,"./ui-params":9,"./uri":10}],12:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

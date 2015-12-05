@@ -2,7 +2,6 @@ import events from './events';
 import jwt from './jwt';
 import uri from './uri';
 import uiParams from './ui-params';
-import util from '../host/util';
 
 // Capture some common values and symbol aliases
 var count = 0;
