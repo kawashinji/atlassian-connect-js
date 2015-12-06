@@ -1,6 +1,9 @@
 import analytics from 'src/host/analytics'
 import $ from 'src/common/dollar'
 
+// needed for number functions (isFinite) in IE11
+import 'babel-core/polyfill';
+
 QUnit.module("Analytics", {
 
     setup: function() {

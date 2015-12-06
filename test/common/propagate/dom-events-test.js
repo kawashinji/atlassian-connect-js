@@ -1,9 +1,28 @@
 import events from "src/common/dom-events";
 
+var getMouseEvent = function() {
+    var event;
+    //This is true only for IE,firefox
+    if(document.createEvent){
+        // To create a mouse event , first we need to create an event and then initialize it.
+        event = document.createEvent("MouseEvent");
+        event.initMouseEvent("click",true,true,window,0,0,0,0,0,false,false,false,false,0,null);
+    }
+    else{
+     event = new MouseEvent('click', {
+            'view': window,
+            'bubbles': true,
+            'cancelable': true
+        });
+    }
+    return event;
+};
+
 QUnit.module("Propagate", {
     setup: function () {
     },
     teardown: function () {
+      events.unbindListeners();
     }
 });
 
@@ -35,21 +54,21 @@ QUnit.test("only ESC is allowed as key press", function (assert) {
 });
 
 QUnit.test("bound listeners only propagate supported events", function (assert) {
-    assert.expect(1);
+    var done = assert.async();
     events.bindListeners("test-channel", function (key, name, data) {
         assert.ok(name, "click");
     });
-
-    document.dispatchEvent(new MouseEvent("click"));
+    document.dispatchEvent(getMouseEvent());
+    done();
 });
 
 QUnit.test("bound listeners only propagate events to other channels", function (assert) {
-
+    var done = assert.async();
     events.bindListeners("test-channel", function (key, name, data) {
         assert.ok(name, "click");
     });
 
-    var event = new MouseEvent("click");
+    var event = getMouseEvent();
 
     // Same channel - expect no propagation (+0)
     event.channelKey = "test-channel";
@@ -64,18 +83,25 @@ QUnit.test("bound listeners only propagate events to other channels", function (
     document.dispatchEvent(event);
 
     assert.expect(2);
+    done();
 });
 
 QUnit.test("bound listeners with multiple channels", function (assert) {
-
+    var done = assert.async(),
+    totalAssertions = 5,
+    callbackCounter = 0;
     var tester = function (key, name, data) {
         assert.ok(name, "click");
+        callbackCounter++;
+        if(callbackCounter === totalAssertions) {
+            done();
+        }
     };
 
     events.bindListeners("test-channel-1", tester);
     events.bindListeners("test-channel-2", tester);
 
-    var event = new MouseEvent("click");
+    var event = getMouseEvent();
 
     // No match - expect propagation to all channels (+2)
     event.channelKey = "test-channel";
@@ -89,7 +115,7 @@ QUnit.test("bound listeners with multiple channels", function (assert) {
     delete event.channelKey;
     document.dispatchEvent(event);
 
-    assert.expect(5);
+    assert.expect(totalAssertions);
 });
 
 QUnit.test("create event with supported mouse event type", function (assert) {
