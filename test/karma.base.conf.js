@@ -3,10 +3,12 @@
 
 var envify = require('envify/custom'),
     webpack = require('webpack'),
-    path = require('path');
+    path = require('path'),
+    customLaunchers = require('../build/configs/saucelabs-launchers'),
+    saucelabs = process.env.SAUCE_LABS || false;
 
 module.exports = function(config) {
-  return {
+  var karmaConfig = {
     // base path, that will be used to resolve files and exclude
     basePath: '../',
 
@@ -99,4 +101,18 @@ module.exports = function(config) {
     // if true, it capture browsers, run tests and exit
     singleRun: false
   };
+
+  if(saucelabs) {
+    karmaConfig.reporters.push('saucelabs');
+    karmaConfig.plugins.push('karma-sauce-launcher');
+    karmaConfig.captureTimeout = 120000;
+    karmaConfig.singleRun = true;
+    karmaConfig.sauceLabs = {
+        testName: 'Connect JS unit tests'
+    };
+    karmaConfig.customLaunchers = customLaunchers;
+    karmaConfig.browsers = Object.keys(customLaunchers);
+    karmaConfig.concurrency = 5;
+  }
+  return karmaConfig;
 };
