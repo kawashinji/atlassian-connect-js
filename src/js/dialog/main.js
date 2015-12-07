@@ -73,7 +73,7 @@
                 else {
                     //soy templates don't support sending objects, so make the template and bind them.
                     $buttonContainer = $el.find('.aui-dialog2-footer-actions');
-                    $buttonContainer.empty();  // TODO - why is this needed? Is the container reused? dT
+                    $buttonContainer.empty();
                 }
 
                 $buttonContainer.append(buttons.submit.$el, buttons.cancel.$el);

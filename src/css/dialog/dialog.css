@@ -43,17 +43,3 @@
     /* Override the aui selector that assumes the last-child is the footer */
     border-radius: 0;
 }
-
-/*
-   TODO - less hacky way of overriding the above rule which makes the header bar disappear due to its negative
-   margin-top value in AUI. dT
- */
-.aui-dialog2-maximum.ap-aui-dialog2.aui-layer.ap-header-controls {
-    top: 69px;
-}
-
-/* TODO - confirm if overriding the EXISTING header is the best approach. It seems more semantically correct,
-but makes my job harder. dT*/
-.ap-header-controls .aui-dialog2-header {
-    height: 50px;
-}

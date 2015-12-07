@@ -8,22 +8,24 @@
      */
     define("ac/dialog/header-controls", [], function() {
 
+        // Note: This can use Soy if it eventually moves to AUI. dT
+        var markup =
+            '<div class="header-title-container" class="aui-item expanded">' +
+            '<div>' +
+            '<span class="header-title"></span>' +
+            '</div>' +
+            '</div>' +
+            '<div class="header-control-panel" class="aui-item"></div>';
+
         return {
 
             // This method is not intended for the public API - it's only in a separate JS file to split some code out
             // of main.js.
             create: function(options) {
 
-                // TODO This should use Soy and eventually move to AUI. dT
-                var markup =
-                    '<div class="header-title-container" class="aui-item expanded">' +
-                        '<div>' +
-                            '<span class="header-title"></span>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="header-control-panel" class="aui-item"></div>';
-
                 var $header = $(markup);
+
+                // Using .text() here escapes any HTML in the header string.
                 $header.find('.header-title').text(options.header || '');
 
                 return {
