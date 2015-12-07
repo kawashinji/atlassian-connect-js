@@ -70,7 +70,6 @@
                     $container.addClass('aui-group').empty().append(hc.$el);
                     $buttonContainer = $container.find('.header-control-panel');
 
-                    // Note: this will alter buttons of other Connect dialogs on this page until ACJS-91 is fixed.
                     buttons.submit.$el.addClass('aui-icon aui-icon-small aui-iconfont-success');
                     buttons.cancel.$el.addClass('aui-icon aui-icon-small aui-iconfont-close-dialog');
                 }
@@ -125,6 +124,12 @@
                 // Clear the nexus handle to allow subsequent dialogs to open
                 $nexus = null;
             }
+
+            // Until ACJS-91 is fixed, buttons are shared across all Connect dialogs on a page so we need
+            // to undo any changes to them.
+            buttons.submit.$el.removeClass('aui-icon aui-icon-small aui-iconfont-success');
+            buttons.cancel.$el.removeClass('aui-icon aui-icon-small aui-iconfont-close-dialog');
+
             dialog.hide();
         }
 
