@@ -11,9 +11,9 @@
         // Note: This can use Soy if it eventually moves to AUI. dT
         var markup =
             '<div class="header-title-container" class="aui-item expanded">' +
-            '<div>' +
-            '<span class="header-title"></span>' +
-            '</div>' +
+                '<div>' +
+                    '<span class="header-title"></span>' +
+                '</div>' +
             '</div>' +
             '<div class="header-control-panel" class="aui-item"></div>';
 
