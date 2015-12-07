@@ -69,6 +69,10 @@
                     var $container = $el.find('header');
                     $container.addClass('aui-group').empty().append(hc.$el);
                     $buttonContainer = $container.find('.header-control-panel');
+
+                    // Note: this will alter buttons of other Connect dialogs on this page until ACJS-91 is fixed.
+                    buttons.submit.$el.addClass('aui-icon aui-icon-small aui-iconfont-success');
+                    buttons.cancel.$el.addClass('aui-icon aui-icon-small aui-iconfont-close-dialog');
                 }
                 else {
                     //soy templates don't support sending objects, so make the template and bind them.
