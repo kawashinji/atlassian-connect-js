@@ -920,7 +920,7 @@ var $;
 exports['default'] = $;
 
 module.exports = exports['default'];
-},{"../plugin/dollar":15}],6:[function(_dereq_,module,exports){
+},{"../plugin/dollar":14}],6:[function(_dereq_,module,exports){
 'use strict';
 /**
  * Common methods for propagating DOM events between host/plugin iframes
@@ -939,9 +939,12 @@ var SUPPORTED_KEYBOARD_EVENTS = ['keydown', 'keyup'];
 var ALLOWED_KEYCODES = [27 // ESCAPE
 ];
 
+var boundEvents = {};
+
 exports['default'] = {
   // Public API
   bindListeners: bindListeners,
+  unbindListeners: unbindListeners,
   receiveEvent: receiveEvent,
 
   // Visible for testing only
@@ -952,6 +955,31 @@ exports['default'] = {
   createEvent: createEvent
 };
 
+function _attachEvents(callback) {
+  if (boundEvents.length > 0) {
+    log('events already bound');
+    return false;
+  }
+
+  var events = [].concat(SUPPORTED_MOUSE_EVENTS, SUPPORTED_KEYBOARD_EVENTS);
+  events.forEach(function (event) {
+    boundEvents[event] = callback;
+    document.addEventListener(event, callback);
+  });
+}
+
+function _sanitizeEvent(e) {
+  var sanitizedEvent;
+  if (e.keyCode) {
+    if (isAllowedKeyCode(e.keyCode)) {
+      sanitizedEvent = sanitiseKeyboardEvent(e);
+    }
+  } else {
+    sanitizedEvent = sanitiseMouseEvent(e);
+  }
+  return sanitizedEvent;
+}
+
 /**
  * Bind listeners to the document to propagate events to the rpc endpoint
  *
@@ -959,25 +987,21 @@ exports['default'] = {
  * @param {function} endpoint The rpc endpoint to send events to
  */
 function bindListeners(channelKey, endpoint) {
-  SUPPORTED_MOUSE_EVENTS.forEach(function (mouseEvent) {
-    document.addEventListener(mouseEvent, function (e) {
-      if (e.channelKey === channelKey) {
-        return;
-      }
-      endpoint(channelKey, e.type, sanitiseMouseEvent(e));
-    });
+  _attachEvents(function (e) {
+    var sanitized = _sanitizeEvent(e);
+    if (e.channelKey === channelKey) {
+      return;
+    }
+    endpoint(channelKey, e.type, sanitized);
   });
-  SUPPORTED_KEYBOARD_EVENTS.forEach(function (keyboardEvent) {
-    document.addEventListener(keyboardEvent, function (e) {
-      if (e.channelKey === channelKey) {
-        return;
-      }
-      // We don't want to send all keystrokes to addon pages (that would be bad)
-      if (isAllowedKeyCode(e.keyCode)) {
-        endpoint(channelKey, e.type, sanitiseKeyboardEvent(e));
-      }
-    });
+}
+
+function unbindListeners() {
+  var eventNames = Object.getOwnPropertyNames(boundEvents);
+  eventNames.forEach(function (e) {
+    document.removeEventListener(e, boundEvents[e]);
   });
+  boundEvents = {};
 }
 
 /**
@@ -1520,10 +1544,6 @@ var _uiParams = _dereq_('./ui-params');
 
 var _uiParams2 = _interopRequireDefault(_uiParams);
 
-var _hostUtil = _dereq_('../host/util');
-
-var _hostUtil2 = _interopRequireDefault(_hostUtil);
-
 // Capture some common values and symbol aliases
 var count = 0;
 
@@ -1978,23 +1998,7 @@ function XdmRpc($, config, bindings) {
 exports['default'] = XdmRpc;
 module.exports = exports['default'];
 
-},{"../host/util":12,"./events":7,"./jwt":8,"./ui-params":9,"./uri":10}],12:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-function escapeSelector(s) {
-  if (!s) {
-    throw new Error('No selector to escape');
-  }
-  return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
-}
-
-exports['default'] = { escapeSelector: escapeSelector };
-module.exports = exports['default'];
-
-},{}],13:[function(_dereq_,module,exports){
+},{"./events":7,"./jwt":8,"./ui-params":9,"./uri":10}],12:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2162,7 +2166,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/base64":4,"../common/events":7,"../common/ui-params":9,"../common/uri":10,"../common/xdm-rpc":11,"./dialog":14,"./dollar":15,"./env":16,"./events":17,"./inline-dialog":19,"./messages":20,"./resize_listener":22,"./rpc":23,"./util":24}],14:[function(_dereq_,module,exports){
+},{"../common/base64":4,"../common/events":7,"../common/ui-params":9,"../common/uri":10,"../common/xdm-rpc":11,"./dialog":13,"./dollar":14,"./env":15,"./events":16,"./inline-dialog":18,"./messages":19,"./resize_listener":21,"./rpc":22,"./util":23}],13:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2454,7 +2458,7 @@ _rpc2['default'].extend(function (remote) {
 exports['default'] = _exports;
 module.exports = exports['default'];
 
-},{"../common/ui-params":9,"../common/uri":10,"./dollar":15,"./rpc":23}],15:[function(_dereq_,module,exports){
+},{"../common/ui-params":9,"../common/uri":10,"./dollar":14,"./rpc":22}],14:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2545,7 +2549,7 @@ function $(sel, context) {
 exports['default'] = extend($, _util2['default']);
 module.exports = exports['default'];
 
-},{"./util":24}],16:[function(_dereq_,module,exports){
+},{"./util":23}],15:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2688,7 +2692,7 @@ exports['default'] = _dollar2['default'].extend(apis, {
 });
 module.exports = exports['default'];
 
-},{"../common/ui-params":9,"./dollar":15,"./rpc":23}],17:[function(_dereq_,module,exports){
+},{"../common/ui-params":9,"./dollar":14,"./rpc":22}],16:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2819,7 +2823,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
 });
 module.exports = exports['default'];
 
-},{"./dollar":15,"./rpc":23}],18:[function(_dereq_,module,exports){
+},{"./dollar":14,"./rpc":22}],17:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2908,7 +2912,7 @@ window.AP = AP;
 exports['default'] = AP;
 module.exports = exports['default'];
 
-},{"../common/base64":4,"../common/events":7,"../common/jwt":8,"../common/ui-params":9,"../common/uri":10,"../common/xdm-rpc":11,"./amd":13,"./dialog":14,"./dollar":15,"./env":16,"./events":17,"./inline-dialog":19,"./messages":20,"./propagate.js":21,"./rpc":23,"./util":24}],19:[function(_dereq_,module,exports){
+},{"../common/base64":4,"../common/events":7,"../common/jwt":8,"../common/ui-params":9,"../common/uri":10,"../common/xdm-rpc":11,"./amd":12,"./dialog":13,"./dollar":14,"./env":15,"./events":16,"./inline-dialog":18,"./messages":19,"./propagate.js":20,"./rpc":22,"./util":23}],18:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2957,7 +2961,7 @@ _rpc2['default'].extend(function (remote) {
 exports['default'] = _exports;
 module.exports = exports['default'];
 
-},{"./dollar":15,"./rpc":23}],20:[function(_dereq_,module,exports){
+},{"./dollar":14,"./rpc":22}],19:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3139,7 +3143,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
  */
 module.exports = exports['default'];
 
-},{"./dollar":15,"./rpc":23}],21:[function(_dereq_,module,exports){
+},{"./dollar":14,"./rpc":22}],20:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3173,7 +3177,7 @@ exports['default'] = _rpc2['default'].extend(function (remote) {
 });
 module.exports = exports['default'];
 
-},{"../common/dom-events.js":6,"./rpc":23}],22:[function(_dereq_,module,exports){
+},{"../common/dom-events.js":6,"./rpc":22}],21:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3271,7 +3275,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./dollar":15}],23:[function(_dereq_,module,exports){
+},{"./dollar":14}],22:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3341,7 +3345,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../common/xdm-rpc":11,"./dollar":15}],24:[function(_dereq_,module,exports){
+},{"../common/xdm-rpc":11,"./dollar":14}],23:[function(_dereq_,module,exports){
 // universal iterator utility
 'use strict';
 
@@ -3471,7 +3475,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{}]},{},[18])(18)
+},{}]},{},[17])(17)
 });
 
 
