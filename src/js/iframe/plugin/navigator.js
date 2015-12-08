@@ -8,6 +8,7 @@ AP.define("navigator", ["_dollar", "_rpc"],
      * AP.require('navigator', function(navigator){
      *   navigator.go('dashboard');
      * });
+     * ```
      *
      * Note: This API is currently only implemented for Confluence.
      *
@@ -36,6 +37,7 @@ AP.define("navigator", ["_dollar", "_rpc"],
              * @memberof module:Navigator#
              * @param {String} target The type of page to navigate to.
              * @param {Object} context Specific information that identifies the page to navigate to.
+             * @noDemo
              * @example
              * AP.require('navigator', function(navigator){
              *   navigator.go('contentview', {contentId: '12345'});
@@ -50,7 +52,7 @@ AP.define("navigator", ["_dollar", "_rpc"],
              * @name reload
              * @method
              * @memberof module:Navigator#
-             * @param none
+             * @noDemo
              * @example
              * AP.require('navigator', function(navigator){
              *   navigator.reload();
