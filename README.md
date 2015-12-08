@@ -37,6 +37,21 @@ To run tests over the built distribution instead of the source files:
 
     grunt test-dist
 
+Running tests with saucelabs
+----------------------------
+
+Tests are automatically run in saucelabs from Bamboo. They run using all supported browsers. You can run these yourself as follows:
+
+Set your saucelabs credentials using the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables.
+
+Then run the tests using:
+
+    SAUCE_LABS=true npm test
+
+Alternatively you can enter suacelabs credentials at run time with:
+
+    SAUCE_LABS=true SAUCE_USERNAME=XXXXX SAUCE_ACCESS_KEY=XXXXX npm test
+
 Linting && Coding Style Checks
 ------------------------------
 
