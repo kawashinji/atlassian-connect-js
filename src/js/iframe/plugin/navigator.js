@@ -1,4 +1,20 @@
-AP.define("navigator", ["_dollar", "_rpc"], function ($, rpc) {
+AP.define("navigator", ["_dollar", "_rpc"],
+
+    /**
+     * The Navigator API allows your add-on to change the current page using Javascript.
+     *
+     * ### Example ###
+     * ```
+     * AP.require('navigator', function(navigator){
+     *   navigator.go('dashboard');
+     * });
+     *
+     * Note: This API is currently only implemented for Confluence.
+     *
+     * @exports Navigator
+     */
+
+    function ($, rpc) {
     "use strict";
     return rpc.extend(function (remote) {
         var exports = {
@@ -14,7 +30,7 @@ AP.define("navigator", ["_dollar", "_rpc"], function ($, rpc) {
              */
 
             /**
-             * Navigates the user from the current page to the specified page. This call is made from within your Iframe, out to the parent page.
+             * Navigates the user from the current page to the specified page. This call is made from within your iframe, out to the parent page.
              * @name go
              * @method
              * @memberof module:Navigator#

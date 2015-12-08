@@ -2,7 +2,7 @@
     "use strict";
     define("ac/navigator-browser", function () {
         /*
-         This module decouples the low level browser actions from the navigator API.
+         * This module decouples the low level browser actions from the navigator API.
          */
 
         var reloadBrowserPage = function () {

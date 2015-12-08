@@ -11,7 +11,7 @@
                         navigator.reload();
                     }
                 },
-                stubs: ["go"]
+                stubs: ["go", "reload"]
             };
         });
     });

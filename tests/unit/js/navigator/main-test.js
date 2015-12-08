@@ -21,7 +21,7 @@ require(['ac/navigator', 'ac/navigator-browser'], function (navigator, browser) 
         navigator.go("dashboard");
 
         ok(browser.goToUrl.called, "Tried to navigate");
-        ok(browser.goToUrl.calledWith("http://test.com/wiki"), "Navigated to dashboard");
+        ok(browser.goToUrl.calledWith("http://test.com/wiki/"), "Navigated to dashboard");
     });
 
     test("Navigate to page", function () {
@@ -63,7 +63,7 @@ require(['ac/navigator', 'ac/navigator-browser'], function (navigator, browser) 
         try {
             navigator.go("blah", {id: 1234});
         } catch(error) {
-            equal(error, "Unrecognised url target")
+            equal(error, "The URL target blah is not available. Valid targets are: dashboard,contentview,contentedit,spaceadmin,spaceview,userprofile")
         }
     });
 });

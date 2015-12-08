@@ -13,7 +13,7 @@
 
         var go = function (target, context) {
             if (target in routes) {
-                context = (typeof context === 'undefined') ? {} : context;
+                context = context || {};
                 browser.goToUrl(buildUrl(routes[target], context));
             } else {
                 throw "The URL target " + target + " is not available. Valid targets are: " + Object.keys(routes).toString();
@@ -25,16 +25,11 @@
         };
 
         var buildUrl = function (urlTemplate, context) {
-            var concreteUrl;
-
-            if (context) {
-                concreteUrl = baseUrl + uri.parse(urlTemplate).expand(context);
-            } else {
-                // some locations don't need any context, eg to go to the dashboard
-                concreteUrl = baseUrl + urlTemplate;
+            if (!urlTemplate.startsWith("/")) {
+                urlTemplate = "/" + urlTemplate;
             }
 
-            return concreteUrl;
+            return baseUrl + uri.parse(urlTemplate).expand(context);
         };
 
         return {
