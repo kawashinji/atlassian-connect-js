@@ -1,8 +1,8 @@
-(function(define, AJS){
+(function (define, AJS) {
     "use strict";
-    define("ac/navigator", ["connect-host", "ac/navigator/navigator-routes", "ac/navigator-browser", "_uritemplate"], function(connect, navigatorRoutes, browser, uri) {
+    define("ac/navigator", ["connect-host", "ac/navigator/navigator-routes", "ac/navigator-browser", "_uritemplate"], function (connect, navigatorRoutes, browser, uri) {
 
-        if(!AJS.Confluence) {
+        if (!AJS.Confluence) {
             console.error('The navigator API is currently only implemented in Confluence.');
             return;
         }
@@ -16,11 +16,11 @@
                 context = (typeof context === 'undefined') ? {} : context;
                 browser.goToUrl(buildUrl(routes[target], context));
             } else {
-                throw "Unrecognised url target";
+                throw "The URL target " + target + " is not available. Valid targets are: " + Object.keys(routes).toString();
             }
         };
 
-        var reload = function() {
+        var reload = function () {
             browser.reloadBrowserPage();
         };
 

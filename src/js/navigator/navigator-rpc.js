@@ -1,6 +1,6 @@
-(function(require){
+(function (require) {
     "use strict";
-    require(["connect-host", "ac/navigator"], function(connect, navigator) {
+    require(["connect-host", "ac/navigator"], function (connect, navigator) {
         connect.extend(function () {
             return {
                 internals: {

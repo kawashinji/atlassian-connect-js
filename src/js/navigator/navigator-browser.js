@@ -1,15 +1,15 @@
-(function(define){
+(function (define) {
     "use strict";
-    define("ac/navigator-browser", function() {
+    define("ac/navigator-browser", function () {
         /*
-        This module decouples the low level browser actions from the navigator API.
+         This module decouples the low level browser actions from the navigator API.
          */
 
-        var reloadBrowserPage = function() {
+        var reloadBrowserPage = function () {
             location.reload();
         };
 
-        var goToUrl = function(location) {
+        var goToUrl = function (location) {
             document.location = location;
         };
 
