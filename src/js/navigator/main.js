@@ -29,7 +29,7 @@
         };
 
         var buildUrl = function (urlTemplate, context) {
-            if (!urlTemplate.startsWith("/")) {
+            if (urlTemplate.indexOf("/") !== 0) {
                 urlTemplate = "/" + urlTemplate;
             }
 
