@@ -2,26 +2,19 @@ import simpleInlineDialog from 'src/host/inline-dialog/simple'
 import dollar from 'src/common/dollar'
 
 var INLINE_DIALOG_SELECTOR = '.aui-inline-dialog';
-var FIXTURE_ID = 'inline-dialog-fixture';
+var FIXTURE_CLASS = 'inline-dialog-fixture';
+function webitemPlaceholder(pluginKey, moduleKey) {
+    var fullKey = pluginKey + '__' + moduleKey;
+    return AJS.$('<a id="' + fullKey + '" class="' + FIXTURE_CLASS + ' ap-inline-dialog ap-plugin-key-' + pluginKey + ' ap-module-key-' + fullKey + '"></a>');
+
+}
+var webItemInstance;
 
 QUnit.module("Inline Dialog Simple", {
     setup: function() {
-        var inlineDialogMock = $('<div id="ap-acmodule-foo"></div>');
-        this.store = {
-            contextPath: window.AJS.contextPath,
-            inlineDialog: window.AJS.InlineDialog
-        };
         AJS.contextPath = function() { return ""; };
-        var $content = $('<div class="' + INLINE_DIALOG_SELECTOR + '"><div class="ap-content"></div></div>');
-        $('<div id="' + FIXTURE_ID + '">').append($content).appendTo('body');
-
-        this.showPopupMock = sinon.spy();
-
-        window.AJS.InlineDialog = sinon.stub().yields(
-            inlineDialogMock,
-            $('<a class="ap-plugin-key-addon ap-module-key-addon__module">link</a>'),
-            this.showPopupMock)
-        .returns(inlineDialogMock);
+        webItemInstance = webitemPlaceholder('plugin-key', 'module-key');
+        AJS.$("#qunit-fixture").append(webItemInstance);
 
         // content resolver that would usually be implemented by the product.
         var contentResolverPromise = this.contentResolverPromise =  {
@@ -37,10 +30,8 @@ QUnit.module("Inline Dialog Simple", {
     },
     teardown: function() {
         //restore _AP.create to it's default state.
-        this.showPopupMock.reset();
-        window.AJS.InlineDialog = this.store.inlineDialog;
-
-        $('#' + FIXTURE_ID).remove();
+        $('.' + FIXTURE_CLASS).remove();
+        $('.aui-inline-dialog').remove();
     }
 });
 
@@ -48,21 +39,24 @@ QUnit.module("Inline Dialog Simple", {
 QUnit.test("Inline dialog creates an inline dialog", function(assert) {
     var href = "someurl";
     var options = {
-        bindTo: $("<div id='acmodule-foo' class='ap-inline-dialog'></div>")
+        bindTo: webItemInstance
     };
     simpleInlineDialog(href, options);
-    assert.ok(AJS.InlineDialog.calledOnce);
+    assert.equal(AJS.$(".aui-inline-dialog").length, 0);
+    webItemInstance.click();
+    assert.equal(AJS.$(".aui-inline-dialog").length, 1);
 });
 
 QUnit.test("Inline dialog passes context params if specified", function(assert) {
     var href = "someurl";
     var options = {
-        bindTo: $("<div id='acmodule-foo' class='ap-inline-dialog'></div>"),
+        bindTo: webItemInstance,
         productContext: {
             'page.id': '1234'
         }
     };
     simpleInlineDialog(href, options);
+    webItemInstance.click();
     assert.ok(window._AP.contentResolver.resolveByParameters.args[0][0].productContext);
     assert.equal(window._AP.contentResolver.resolveByParameters.args[0][0].productContext["page.id"], '1234');
 });
@@ -70,11 +64,11 @@ QUnit.test("Inline dialog passes context params if specified", function(assert) 
 QUnit.test("Inline dialog returns the inline dialog id", function(assert) {
     var href = "someurl";
     var options = {
-        bindTo: $("<div id='irrelevent_id' class='ap-inline-dialog'></div>")
+        bindTo: webItemInstance
     };
 
     var inlineDialog = simpleInlineDialog(href, options);
-    assert.equal(inlineDialog.id, "ap-acmodule-foo");
+    assert.equal(inlineDialog.id, "inline-dialog-ap-inline-dialog-content-" + webItemInstance.attr('id'));
 });
 
 QUnit.test("Inline dialog bails if no element to bind to", function(assert) {
@@ -85,14 +79,15 @@ QUnit.test("Inline dialog bails if no element to bind to", function(assert) {
 
 QUnit.test("Inline dialog bails if bind target is not a jQuery object", function(assert) {
     var options = {
-        bindTo: $("<div id='acmodule-foo' class='ap-inline-dialog'></div>")[0]
+        bindTo: webItemInstance[0]
     };
     assert.ok(!simpleInlineDialog("someurl", options));
 });
 
 QUnit.test("Inline dialog bails if web-item ID is not found", function(assert) {
+    webItemInstance.attr('id', null);
     var options = {
-        bindTo: $("<div class='ap-inline-dialog'></div>")
-    };
+        bindTo: webItemInstance
+    };  
     assert.ok(!simpleInlineDialog("someurl", options));
 });

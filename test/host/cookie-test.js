@@ -1,79 +1,42 @@
 import cookie from 'src/host/cookie/api'
 
-var SEPARATOR = '$$';
+function clearCookies(){
+    document.cookie.split(";").forEach(function(c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
+}
 
 QUnit.module("Cookie", {
     setup: function() {
-        this.default_AJSCookie = window.AJS.Cookie;
-        window.AJS.Cookie = {
-            save: sinon.spy(),
-            read: sinon.spy(),
-            erase: sinon.spy()
-        };
+        clearCookies();
     },
     teardown: function() {
-        window.AJS.Cookie = this.default_AJSCookie;
-        document.cookie = "";
+        clearCookies();
     },
 });
 
-QUnit.test("saveCookie calls AJS.Cookie.save", function(assert){
-    cookie.saveCookie('addonKey', 'name', 'value', 1);
-    assert.ok(window.AJS.Cookie.save.calledOnce);
+QUnit.test("saveCookie saves a cookie with the add-on key prefix", function(assert){
+    var cookieValue = "some value";
+    cookie.saveCookie('addonKey', 'name', cookieValue);
+    assert.ok(document.cookie.search(/addonKey\$\$name/) > 0);
 });
 
-QUnit.test("saveCookie prefixes the cookie with the add-on key", function(assert){
+QUnit.test("readCookie reads the cookie", function(assert){
+    var done = assert.async();
     var cookieName = "myCookie",
         cookieValue = "some value";
 
     cookie.saveCookie('addonKey', cookieName, cookieValue);
-    assert.equal(window.AJS.Cookie.save.args[0][0], 'addonKey' + SEPARATOR + cookieName);
+    cookie.readCookie('addonKey', cookieName, (value) => {
+        assert.equal(cookieValue, value);
+        done();
+    });
 });
 
-QUnit.test("readCookie calls AJS.Cookie.read", function(assert){
-    cookie.readCookie('addonKey', "something");
-    assert.ok(window.AJS.Cookie.read.calledOnce);
-});
-
-QUnit.test("readCookie prefixes the cookie with the add-on key", function(assert){
+QUnit.test("eraseCookie erases the cookie", function(assert){
     var cookieName = "myCookie",
         cookieValue = "some value";
-        cookie.readCookie('addonKey', cookieName);
-    assert.ok(window.AJS.Cookie.read.args[0][0], 'addonKey' + SEPARATOR + cookieName);
-});
-
-QUnit.test("readCookie runs the callback function", function(assert){
-    var cookieName = "myCookie",
-        cookieValue = "some value",
-        callback = sinon.spy();
-
-    cookie.readCookie('addonKey', cookieName, callback);
-    assert.ok(callback.calledOnce);
-});
-
-QUnit.test("readCookie callback contains cookie value", function(assert){
-    var cookieName = "myCookie",
-        cookieValue = "some value",
-        callback = sinon.spy();
-
-    // mock away AJS.Cookie as we assume AUI works.
-    window.AJS.Cookie.read = sinon.stub()
-        .withArgs('addonKey' + SEPARATOR + cookieName)
-        .returns(cookieValue);
-
-    cookie.readCookie('addonKey', cookieName, callback);
-    assert.equal(callback.args[0][0], cookieValue);
-});
-
-QUnit.test("eraseCookie calls JS.Cookie.erase", function(assert){
-    cookie.eraseCookie('addonKey', "abc");
-    assert.ok(window.AJS.Cookie.erase.calledOnce);
-});
-
-QUnit.test("eraseCookie prefixes the cookie with the add-on key", function(assert){
-    var cookieName = "myCookie",
-        cookieValue = "some value";
-
+    cookie.saveCookie('addonKey', cookieName, cookieValue);
+    assert.ok(document.cookie.search(/addonKey\$\$myCookie/) > 0);
     cookie.eraseCookie('addonKey', cookieName);
-    assert.equal(window.AJS.Cookie.erase.args[0], 'addonKey' + SEPARATOR + cookieName);
+    assert.ok(document.cookie.search(/addonKey\$\$myCookie/) < 0);
+    
 });

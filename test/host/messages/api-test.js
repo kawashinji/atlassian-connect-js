@@ -7,26 +7,43 @@ QUnit.module("Messages Main", {
     },
     teardown: function() {
         $('#qunit-fixture-messages').remove();
+        $("#ac-message-container").remove();
     }
 });
 
-QUnit.test("showMessage calls to AUI", function(assert) {
-    window.AJS.messages = {info: sinon.spy()};
-    var msg = messages.showMessage("info", "my title", "some body", {id: 'ap-message-2'});
-    assert.ok(window.AJS.messages.info.calledOnce,"AJS.messages.info called");
-    delete AJS.messages;
+QUnit.test("showMessage creates a valid AUI message", function(assert) {
+    var title = "my title";
+    var type = "info";
+    var body = "some body";
+    var messageId = "ap-message-2";
+    messages.showMessage(type, title, body, {id: messageId});
+    var message = AJS.$(".aui-message");
+    assert.ok(message.hasClass(type));
+    assert.equal(message.find('.title').text(), title);
+    assert.equal(AJS.$(".aui-message:contains(" + body + ")").length, 1);
+    assert.equal(AJS.$(".aui-message:contains(" + body + ")").length, 1);
+    assert.equal(AJS.$(".aui-message#" + messageId).length, 1);
 });
 
 QUnit.test("clearMessage removes valid elements from the dom", function (assert) {
+    var title = "my title";
+    var type = "info";
+    var body = "some body";
     var messageId = "ap-message-222";
-    $("#qunit-fixture-messages").append('<div id="' + messageId + '" />');
+    messages.showMessage(type, title, body, {id: messageId});
+    assert.equal(AJS.$(".aui-message").length, 1);
     messages.clearMessage(messageId);
-    assert.equal($('#' + messageId).length, 0);
+    assert.equal(AJS.$(".aui-message").length, 0);
 });
 
 QUnit.test("clearMessage only removes valid messages", function (assert) {
-    var messageId = "somethinginvalid";
-    $("#qunit-fixture-messages").append('<div id="' + messageId + '" />');
-    messages.clearMessage(messageId);
-    assert.equal($('#' + messageId).length, 1);
+    var fakeMessageId = "somethinginvalid";
+    var title = "my title";
+    var type = "info";
+    var body = "some body";
+    var messageId = "ap-message-222";
+    messages.showMessage(type, title, body, {id: messageId});
+    assert.equal(AJS.$(".aui-message").length, 1);
+    messages.clearMessage(fakeMessageId);
+    assert.equal(AJS.$(".aui-message").length, 1);
 });
