@@ -2,26 +2,7 @@ import dialogFactory from 'src/host/dialog/factory'
 
 QUnit.module("Dialog Factory", {
     setup: function(){
-        // this.dialogSpy = {
-        //     show: sinon.spy(),
-        //     on: sinon.spy(),
-        //     remove: sinon.spy(),
-        //     hide: sinon.spy()
-        // };
-        // this.layerSpy = {
-        //     changeSize: sinon.spy()
-        // };
-
-        // this.store = {
-        //     layer: window.AJS.layer,
-        //     dialog2: window.AJS.dialog2
-        // };
-
-        // AJS.dialog2 = sinon.stub().returns(this.dialogSpy);
-        // AJS.layer = sinon.stub().returns(this.layerSpy);
-
         this.server = sinon.fakeServer.create();
-        // AJS.contextPath = sinon.stub().returns("");
 
         // content resolver that would usually be implemented by the product.
         var contentResolverPromise = this.contentResolverPromise =  {
