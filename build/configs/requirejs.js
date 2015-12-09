@@ -155,7 +155,6 @@
                 {
                     name: rootSource('.tmp/amd-stubs/connect-host-navigator'),
                     include: [
-                        'navigator/navigator-routes',
                         'navigator/navigator-browser',
                         'navigator/main',
                         'navigator/navigator-rpc'

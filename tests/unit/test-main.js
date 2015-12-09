@@ -26,7 +26,6 @@ var tests = [],
     'ac/dialog': 'dialog/main',
     'ac/dialog/dialog-factory': 'dialog/dialog-factory',
     'ac/navigator': 'navigator/main',
-    'ac/navigator/navigator-routes': 'navigator/navigator-routes',
     'ac/navigator-browser': 'navigator/navigator-browser',
     'connect-host': '../../dist/connect-host'
   };
@@ -157,7 +156,6 @@ requirejs.config({
         '_ap',
         'connect-host',
         'ac/navigator-browser',
-        'ac/navigator/navigator-routes',
         '_uritemplate'
       ]
     },
