@@ -9,7 +9,7 @@ module.exports = {
         },
         files: {
             '.tmp/host.js': '<%= paths.tmp %>' + 'host-debug.js',
-            '.tmp/all.js': '<%= paths.tmp %>' + 'all-debug.js',
+            '.tmp/all.js': '<%= paths.tmp %>' + 'all-debug.js'
         }
     }
 };

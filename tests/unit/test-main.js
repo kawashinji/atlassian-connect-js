@@ -4,6 +4,7 @@ var tests = [],
     'aui-atlassian': '../../bower_components/aui/src/js/atlassian',
     '_ap': 'iframe/host/_ap',
     '_dollar': 'iframe/host/_dollar',
+    '_uritemplate': 'iframe/_uritemplate',
     '_uri': 'iframe/_uri',
     'host/_status_helper': 'iframe/host/_status_helper',
     'host/_util': 'iframe/host/_util',
@@ -24,6 +25,8 @@ var tests = [],
     'create': 'iframe/host/create',
     'ac/dialog': 'dialog/main',
     'ac/dialog/dialog-factory': 'dialog/dialog-factory',
+    'ac/navigator': 'navigator/main',
+    'ac/navigator-browser': 'navigator/navigator-browser',
     'connect-host': '../../dist/connect-host'
   };
 
@@ -146,6 +149,14 @@ requirejs.config({
         '_ap',
         '_dollar',
         'ac/dialog'
+      ]
+    },
+    'ac/navigator': {
+      deps: [
+        '_ap',
+        'connect-host',
+        'ac/navigator-browser',
+        '_uritemplate'
       ]
     },
     'iframe/host/_rpc': {

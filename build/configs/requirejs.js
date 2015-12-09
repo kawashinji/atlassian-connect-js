@@ -32,6 +32,7 @@
         '_ap': 'iframe/host/_ap',
         '_dollar': 'iframe/host/_dollar',
         '_uri': 'iframe/_uri',
+        '_uritemplate': 'iframe/_uritemplate',
         'host/_status_helper': 'iframe/host/_status_helper',
         '_util': 'iframe/host/_util',
         '_rpc': 'iframe/host/_rpc',
@@ -60,6 +61,7 @@
         'loading-indicator',
         'content',
         '_uri',
+        '_uritemplate',
         'host/_addons',
         '_base64',
         'analytics/analytics',
@@ -146,6 +148,17 @@
                         'dialog/dialog-factory',
                         'dialog/dialog-rpc',
                         'dialog/binder'
+                    ],
+                    exclude: [
+                        rootSource('.tmp/amd-stubs/connect-host')
+                    ]
+                },
+                {
+                    name: rootSource('.tmp/amd-stubs/connect-host-navigator'),
+                    include: [
+                        'navigator/navigator-browser',
+                        'navigator/main',
+                        'navigator/navigator-rpc'
                     ],
                     exclude: [
                         rootSource('.tmp/amd-stubs/connect-host')
