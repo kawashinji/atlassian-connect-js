@@ -1,6 +1,12 @@
 (function(define, require, AJS, $){
     "use strict";
-    define("ac/dialog", ["connect-host", "ac/dialog/button"], function(connect, dialogButton) {
+    define("ac/dialog", [
+        "connect-host",
+        "ac/dialog/button",
+        "ac/dialog/header-controls"], function(
+        connect,
+        dialogButton,
+        headerControls) {
 
         var $global = $(window);
         var idSeq = 0;
@@ -48,8 +54,32 @@
             } else {
                 buttons.submit.setText(options.submitText);
                 buttons.cancel.setText(options.cancelText);
-                //soy templates don't support sending objects, so make the template and bind them.
-                $el.find('.aui-dialog2-footer-actions').empty().append(buttons.submit.$el, buttons.cancel.$el);
+
+                // TODO - once the API for pluggable buttons is supported we'll delegate to it here. dT
+                // The buttonContainer will probably end up being the 'controlBar.$el' element.
+                var $buttonContainer;
+
+                if (options.size === 'maximum') {
+                    // Replace the default AUI dialog header with the markup required for a File-Viewer-like L&F.
+
+                    // The dialog itself needs an extra class so that the top and margin-top styles can be overridden.
+                    $el.addClass('ap-header-controls');
+
+                    var hc = headerControls.create(options);
+                    var $container = $el.find('header');
+                    $container.addClass('aui-group').empty().append(hc.$el);
+                    $buttonContainer = $container.find('.header-control-panel');
+
+                    buttons.submit.$el.addClass('aui-icon aui-icon-small aui-iconfont-success');
+                    buttons.cancel.$el.addClass('aui-icon aui-icon-small aui-iconfont-close-dialog');
+                }
+                else {
+                    //soy templates don't support sending objects, so make the template and bind them.
+                    $buttonContainer = $el.find('.aui-dialog2-footer-actions');
+                    $buttonContainer.empty();
+                }
+
+                $buttonContainer.append(buttons.submit.$el, buttons.cancel.$el);
             }
 
             $el.find('.aui-dialog2-content').append($nexus);
@@ -94,6 +124,12 @@
                 // Clear the nexus handle to allow subsequent dialogs to open
                 $nexus = null;
             }
+
+            // Until ACJS-91 is fixed, buttons are shared across all Connect dialogs on a page so we need
+            // to undo any changes to them.
+            buttons.submit.$el.removeClass('aui-icon aui-icon-small aui-iconfont-success');
+            buttons.cancel.$el.removeClass('aui-icon aui-icon-small aui-iconfont-close-dialog');
+
             dialog.hide();
         }
 
@@ -131,13 +167,22 @@
                     mergedOptions.size = "maximum";
                 }
 
+                // Alias 'fullscreen' to 'maximum'.
+                if (mergedOptions.size === 'fullscreen') {
+                    mergedOptions.size = 'maximum';
+                }
+                if (mergedOptions.size === 'maximum' &&
+                    mergedOptions.chrome !== false) {
+                    mergedOptions.chrome = true; // chrome is forced in fullscreen mode.
+                }
+
                 mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
                 mergedOptions.h = parseDimension(mergedOptions.height, $global.height());
 
                 $nexus = $("<div />").addClass("ap-servlet-placeholder ap-container").attr('id', 'ap-' + options.ns)
                 .bind("ra.dialog.close", closeDialog);
 
-                if(options.chrome){
+                if (mergedOptions.chrome){
                     dialogElement = createDialogElement(mergedOptions, $nexus);
 
                 } else {
