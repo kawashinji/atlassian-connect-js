@@ -1,6 +1,20 @@
 Atlassian Connect JS
 ===
 
+-------
+
+HIC SVNT DRACONES
+
+![Dragon](Dragon.png)
+
+The master branch of ACJS is currently undergoing reorganisation and clean-up
+
+Any feature work for JIRA or Confluence should target release/3.0.0-do-not-delete
+
+The information below is not guaranteed to be correct, please see the README in the aforementioned branch
+
+-------
+
 The javascript library which backs [Atlassian Connect](http://connect.atlassian.com).
 
 Requirements
