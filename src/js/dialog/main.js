@@ -158,26 +158,6 @@
             }
         }
 
-        function addButtonToOpenDialog(button) {
-            // dialogs have an id of ap-dialog-# where # is a number.
-            var dialogElement = $($.find('[id^="ap-dialog"]').filter(function(element){
-                return element.id.search(/\d$/) != -1;
-            }));
-
-            // add the button to the chrome footer
-            $(dialogElement.find('.aui-dialog2-footer-actions')).prepend(button.$el);
-        }
-
-        function setUpButtonHandlers(button) {
-            button.$el.click(function() {
-                button.$el.trigger("ra.dialog.click", button.dispatch);
-            });
-
-            button.click(function () {
-                button.dispatch(true);
-            });
-        }
-
         return {
             getButton: function(name){
                 var buttons = $nexus ? $nexus.data('ra.dialog.buttons') : null;
@@ -191,12 +171,13 @@
                     actions: {} // is this required?,
                 });
 
-                addButtonToOpenDialog(button);
+                dialog.$el.find('.aui-dialog2-footer-actions').prepend(button.$el);
 
                 buttons[name] = button;
-                $nexus.data('ra.dialog.buttons', buttons);
 
-                setUpButtonHandlers(button);
+                button.$el.click(function() {
+                    button.$el.trigger("ra.dialog.click", button.dispatch);
+                });
             },
 
             /**
