@@ -3,18 +3,23 @@ import dialogFactory from 'src/host/dialog/factory'
 QUnit.module("Dialog Factory", {
     setup: function(){
         this.server = sinon.fakeServer.create();
-
         // content resolver that would usually be implemented by the product.
-        var contentResolverPromise = this.contentResolverPromise =  {
-            done: sinon.stub().returns($.Deferred().promise()),
-            fail: sinon.stub().returns($.Deferred().promise())
-        };
+        // returns the same as the p2 plugin rest api response
+        var contentResolverPromise = this.contentResolverPromise = $.Deferred().promise(function(options){
+            var d = $.Deferred();
+            var fullKey = options.addonKey + '__' + options.moduleKey;
+            var container = AJS.$('<div class="ap-container" id="ap-' + fullKey + '">');
+            container.append('<div class="ap-content" data-test="testing" id="embedded-' + fullKey + '">');
+            d.resolve(container);
+            return d.promise();
+        });
+        this.contentResolverSpy = sinon.spy(this, 'contentResolverPromise');
         this.store = {};
         window._AP = window._AP || {};
         this.store.contentResolver = window._AP.contentResolver;
 
         window._AP.contentResolver = {
-            resolveByParameters: sinon.stub().returns(this.contentResolverPromise)
+            resolveByParameters: this.contentResolverSpy
         };
 
     },
@@ -48,8 +53,7 @@ QUnit.test("content resolver is passed addon key", function(assert){
         id: 'dialogid'
     },
     {}, "");
-
-    assert.equal(window._AP.contentResolver.resolveByParameters.args[0][0].addonKey, 'somekey');
+    assert.equal(this.contentResolverSpy.args[0][0].addonKey, 'somekey');
 });
 
 
@@ -85,4 +89,17 @@ QUnit.test("content resolver is passed uiParams", function(assert){
     {}, "");
 
     assert.ok(typeof window._AP.contentResolver.resolveByParameters.args[0][0].uiParams === "object");
+});
+
+QUnit.test("dialog factory mounts content resolver response to the dom", function(assert){
+    dialogFactory({
+        key: 'somekey',
+        moduleKey: 'somemodulekey',
+        id: 'dialogid'
+    },
+    {}, "");
+
+    var content = AJS.$("#embedded-somekey__somemodulekey");
+    assert.equal(content.length, 1);
+    assert.equal(content.data('test'), 'testing');
 });
