@@ -60,10 +60,6 @@
                             throw new Error('Cannot open dialog by URL, please use module key');
                         }
 
-                        if($(".aui-dialog2 :visible").length !== 0) {
-                            throw new Error('Cannot open dialog when a layer is already visible');
-                        }
-
                         dialogFactory(xdmOptions, dialogOptions, this.productContext);
 
                     },

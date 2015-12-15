@@ -10,18 +10,27 @@
 
         var $global = $(window);
         var idSeq = 0;
+
+        // Stack of dialogs. The classic scenario is opening a full-screen editor dialog from a
+        // smaller modal dialog. Stacking overlapping dialogs is not encouraged, design-wise.
+        var dialogs = [];
+
+        // References for the currently-active dialog, cached in this scope to avoid having to pass them
+        // around from function to function.
         var $nexus;
         var dialog;
-        var dialogId;
+        var buttons;
 
-        var buttons = {
-            submit: dialogButton.submit({
-                done: closeDialog
-            }),
-            cancel: dialogButton.cancel({
-                done: closeDialog
-            })
-        };
+        function createButtons() {
+            return {
+                submit: dialogButton.submit({
+                    done: closeDialog
+                }),
+                cancel: dialogButton.cancel({
+                    done: closeDialog
+                })
+            };
+        }
 
         var keyPressListener = function(e){
             if(e.keyCode === 27 && dialog && dialog.hide){
@@ -30,10 +39,11 @@
             }
         };
 
-        function createDialogElement(options, $nexus, chromeless){
+        function createDialogElement(options){
             var $el,
             extraClasses = ['ap-aui-dialog2'];
 
+            var chromeless = !options.chrome;
             if(chromeless){
                 extraClasses.push('ap-aui-dialog2-chromeless');
             }
@@ -116,6 +126,13 @@
         }
 
         function closeDialog() {
+            // Stop this callback being re-invoked from the hide binding when dialog.hide() is called below.
+            if (dialog.isClosing) {
+                return;
+            }
+            dialog.isClosing = true;
+
+            // Unbind and unassign singletons.
             if ($nexus) {
                 // Signal the XdmRpc for the dialog's iframe to clean up
                 $nexus.trigger("ra.iframe.destroy")
@@ -124,13 +141,21 @@
                 // Clear the nexus handle to allow subsequent dialogs to open
                 $nexus = null;
             }
-
-            // Until ACJS-91 is fixed, buttons are shared across all Connect dialogs on a page so we need
-            // to undo any changes to them.
-            buttons.submit.$el.removeClass('aui-icon aui-icon-small aui-iconfont-success');
-            buttons.cancel.$el.removeClass('aui-icon aui-icon-small aui-iconfont-close-dialog');
+            buttons = null;
 
             dialog.hide();
+
+            if (dialog !== dialogs.pop()) {
+                throw Error('The dialog being closed must be the last dialog to be opened.')
+            }
+
+            // The new class-level dialog var will be the next dialog in the stack.
+            dialog = dialogs[dialogs.length - 1];
+            if (dialog) {
+                // Re-assign singletons.
+                $nexus = dialog.$el.find('.ap-servlet-placeholder');
+                buttons = $nexus.data('ra.dialog.buttons');
+            }
         }
 
         function addButtonToOpenDialog(button) {
@@ -154,7 +179,6 @@
         }
 
         return {
-            id: dialogId,
             getButton: function(name){
                 var buttons = $nexus ? $nexus.data('ra.dialog.buttons') : null;
                 return (name) && (buttons) ? buttons[name] : buttons;
@@ -214,15 +238,16 @@
                 mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
                 mergedOptions.h = parseDimension(mergedOptions.height, $global.height());
 
-                $nexus = $("<div />").addClass("ap-servlet-placeholder ap-container").attr('id', 'ap-' + options.ns)
-                .bind("ra.dialog.close", closeDialog);
+                // Assign the singleton $nexus and buttons vars.
+                $nexus = $("<div />")
+                                .addClass("ap-servlet-placeholder ap-container")
+                                .attr('id', 'ap-' + options.ns)
+                                .bind("ra.dialog.close", closeDialog);
 
-                if (mergedOptions.chrome){
-                    dialogElement = createDialogElement(mergedOptions, $nexus);
+                buttons = createButtons();
 
-                } else {
-                    dialogElement = createDialogElement(mergedOptions, $nexus, true);
-                }
+                dialogElement = createDialogElement(mergedOptions, buttons);
+                dialogElement.find('.aui-dialog2-content').append($nexus);
 
                 if(options.size){
                     mergedOptions.w = "100%";
@@ -233,6 +258,7 @@
                 }
 
                 dialog = AJS.dialog2(dialogElement);
+                dialogs.push(dialog);
                 dialog.on("hide", closeDialog);
                 // ESC key closes the dialog
                 $(document).on("keydown", keyPressListener);
