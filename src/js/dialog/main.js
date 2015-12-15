@@ -219,7 +219,7 @@
                     },
                     dialogId = options.id || "ap-dialog-" + (idSeq += 1),
                     mergedOptions = $.extend({id: dialogId}, defaultOptions, options, {dlg: 1}),
-                    dialogElement;
+                    $dialogEl;
 
                 // patch for an old workaround where people would make 100% height / width dialogs.
                 if(mergedOptions.width === "100%" && mergedOptions.height === "100%"){
@@ -246,18 +246,18 @@
 
                 buttons = createButtons();
 
-                dialogElement = createDialogElement(mergedOptions, buttons);
-                dialogElement.find('.aui-dialog2-content').append($nexus);
+                $dialogEl = createDialogElement(mergedOptions, buttons);
+                $dialogEl.find('.aui-dialog2-content').append($nexus);
 
                 if(options.size){
                     mergedOptions.w = "100%";
                     mergedOptions.h = "100%";
                 } else {
-                    AJS.layer(dialogElement).changeSize(mergedOptions.w, mergedOptions.h);
-                    dialogElement.removeClass('aui-dialog2-medium'); // this class has a min-height so must be removed.
+                    AJS.layer($dialogEl).changeSize(mergedOptions.w, mergedOptions.h);
+                    $dialogEl.removeClass('aui-dialog2-medium'); // this class has a min-height so must be removed.
                 }
 
-                dialog = AJS.dialog2(dialogElement);
+                dialog = AJS.dialog2($dialogEl);
                 dialogs.push(dialog);
                 dialog.on("hide", closeDialog);
                 // ESC key closes the dialog
@@ -282,7 +282,7 @@
 
                 // give the dialog iframe focus so it can capture keypress events, etc.
                 // the 'iframe' selector needs to be specified, otherwise Firefox won't focus the iframe
-                dialogElement.on('ra.iframe.create', 'iframe', function () {
+                $dialogEl.on('ra.iframe.create', 'iframe', function () {
                     this.focus();
                 });
 
