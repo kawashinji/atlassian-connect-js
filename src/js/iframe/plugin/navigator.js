@@ -16,7 +16,7 @@ AP.define("navigator", ["_dollar", "_rpc"],
             /**
              * @class Navigator~target
              * @property {String}        contentview        The view page for pages and blogs. Takes a `contentId` to identify the content.
-             * @property {String}        contentedit        The edit page for pages and blogs. Takes a `draftId` to identify the content and a `shareToken` to allow editing.
+             * @property {String}        contentedit        The edit page for pages and blogs. Takes a `contentType` and a `contentId` to identify the content.
              * @property {String}        spaceview          The space view page. Takes a `spaceKey` to identify the space.
              * @property {String}        spacetools         The space tools page. Takes a `spaceKey` to identify the space.
              * @property {String}        dashboard          The dashboard of Confluence.
@@ -26,8 +26,7 @@ AP.define("navigator", ["_dollar", "_rpc"],
             /**
              * @class Navigator~context
              * @property {String}        contentId          Identifies a piece of content. Required for the contentview target.
-             * @property {String}        shareToken         A token required to access a draft piece of content. Required for the contentedit target.
-             * @property {String}        draftId            Identifies a draft piece of content. Required for the contentedit target.
+             * @property {String}        contentType        Identifies the type of content. Can be either 'page' or 'blogpost'. Required for the contentedit target.
              * @property {String}        spaceKey           Identifies a space. Required for the spaceview and spacetools targets.
              * @property {String}        username           Identifies a user. Required for the userprofile target.
              */

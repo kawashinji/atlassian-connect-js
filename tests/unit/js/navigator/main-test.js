@@ -13,7 +13,7 @@ require(['ac/navigator', 'ac/navigator-browser'], function (navigator, browser) 
             navigator.setRoutes({
                 "dashboard"    : "",
                 "contentview"  : "/pages/viewpage.action?pageId={contentId}",
-                "contentedit"  : "/pages/resumedraft.action?draftId={draftId}&draftShareId={shareToken}",
+                "contentedit"  : "/pages/edit{contentType}.action?pageId={contentId}",
                 "spacetools"   : "/spaces/viewspacesummary.action?key={spaceKey}",
                 "spaceview"    : "/display/{spaceKey}",
                 "userprofile"  : "/display/~{username}"
@@ -42,10 +42,10 @@ require(['ac/navigator', 'ac/navigator-browser'], function (navigator, browser) 
     });
 
     test("Navigate to edit page", function () {
-        navigator.go("contentedit", {draftId: 1234, shareToken: 5678});
+        navigator.go("contentedit", {contentType: "page", contentId: 1234});
 
         ok(browser.goToUrl.called, "Tried to navigate");
-        ok(browser.goToUrl.calledWith("http://test.com/wiki/pages/resumedraft.action?draftId=1234&draftShareId=5678"), "Navigated to content view");
+        ok(browser.goToUrl.calledWith("http://test.com/wiki/pages/editpage.action?pageId=1234"), "Navigated to content edit");
     });
 
     test("Navigate to space", function () {
