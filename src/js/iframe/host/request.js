@@ -5,7 +5,7 @@
         var xhrProperties = ["status", "statusText", "responseText"],
             xhrHeaders = ["Content-Type", "ETag"],
             requestHeadersWhitelist = [
-                "If-Match", "If-None-Match"
+                "If-Match", "If-None-Match", "X-ExperimentalApi"
             ],
             contextPath = null;
 
