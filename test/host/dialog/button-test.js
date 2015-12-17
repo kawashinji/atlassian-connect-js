@@ -98,10 +98,14 @@ QUnit.test("click binds an event to ra.dialog.click if passed a function", funct
     ok(spy.calledOnce);
 });
 
-
-
 QUnit.test("setText changes the button text", function(assert) {
     var button = dialogButton.submit();
     button.setText('abc123');
     assert.equal(button.$el.text(), 'abc123');
+});
+
+QUnit.test("dialog buttons are torn down", function(assert) {
+    dialogButton.submit().setText('12345');
+    var button = dialogButton.submit();
+    assert.equal(button.$el.text(), "Submit");
 });

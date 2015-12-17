@@ -14,7 +14,6 @@ QUnit.test("dialog options.id sets the dialog id", function(assert) {
     var dialog = simpleDialog.create({
         id: dialogId
     });
-
     assert.equal(dialog.$el.attr('id'), dialogId);
 });
 
@@ -157,4 +156,22 @@ QUnit.test("dialog with a cancel button can set the text", function(assert){
         cancelText: "some cancel text"
     });
     assert.equal(dialog.$el.find(".ap-dialog-cancel").text(), "some cancel text");
+});
+
+QUnit.test("dialog buttons are refreshed between dialogs", function(assert) {
+    var dialog1 = simpleDialog.create({
+        id: "my-dialog",
+        chrome: true,
+        submitText: "Submit 1"
+    });
+    dialog1.$el.find(".ap-dialog-submit").data('some','something');
+    assert.equal(dialog1.$el.find(".ap-dialog-submit").data('some'), 'something');
+    simpleDialog.close();
+
+    var dialog2 = simpleDialog.create({
+        id: "my-dialog",
+        chrome: true,
+        submitText: "Submit 2"
+    });
+    assert.notEqual(dialog2.$el.find(".ap-dialog-submit").data('some'), 'something');
 });
