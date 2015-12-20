@@ -106,8 +106,25 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
         },
         {}, "");
         ok(typeof window._AP.contentResolver.resolveByParameters.args[0][0].uiParams === "object");
-
-
     });
+
+    test("customOptions is passed uiParams", function(){
+        var customData = {
+            settings: {
+                id: 123,
+                user: 'Some User'
+            },
+            key: 'value'
+        }
+        dialogFactory({
+            key: 'somekey',
+            moduleKey: 'somemodulekey',
+            id: 'dialogid'
+        },
+        {
+            customData: customData
+        }, "");
+        deepEqual(window._AP.contentResolver.resolveByParameters.args[0][0].uiParams.customData, customData)
+    });    
 
 });
