@@ -269,6 +269,7 @@
 
                 dialog.show();
 
+                return dialog;
             },
             close: closeDialog
         };
