@@ -6,7 +6,7 @@
    these internals later.
  */
 
-.ap-header-controls .aui-dialog2-header {
+.ap-header-controls.aui-dialog2 .aui-dialog2-header {
     background-color: #000;
     border-radius: 0;
     height: 50px;
