@@ -31,7 +31,6 @@ var xdmMockInlineDialog;
             inlineDialog.hide();
             ok(xdmMockInlineDialog.hideInlineDialog.calledOnce);
         });
-
     });
 
 })();

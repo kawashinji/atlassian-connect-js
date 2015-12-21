@@ -13,7 +13,7 @@
         return function(options, dialogOptions, productContext) {
             var promise,
             container,
-            uiParams = $.extend({isDialog: 1}, options.uiParams);
+            uiParams = $.extend({isDialog: 1}, options.uiParams, {customData: dialogOptions.customData});
 
             dialog.create({
                 id: options.id,

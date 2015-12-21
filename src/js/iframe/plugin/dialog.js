@@ -39,7 +39,17 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
 
 
       exports = {
-
+        /**
+         * Returns the data Object passed to the dialog at creation.
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
+         *   var myDataVariable = dialog.customData.myDataVariable;
+         * });
+         *
+         * @return {Object} Data Object passed to the dialog on creation.
+         */        
+        data: uiParams.customData,
         /**
          * @class Dialog~DialogOptions
          * @property {String}        key         The module key of the page you want to open as a dialog
@@ -50,6 +60,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
          * @property {String}        header      (optional) text to display in the header if opening a dialog with chrome.
          * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
          * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
+         * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
          */
 
         /**
