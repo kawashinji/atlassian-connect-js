@@ -2,31 +2,39 @@
     "use strict";
     require(["connect-host", "ac/dialog/dialog-factory", "ac/dialog"], function (connect, dialogFactory, dialogMain) {
 
+        var xdmHolder;
+
+        function initializeButtonCallbacks() {
+            var buttons = dialogMain.getButton();
+            if(buttons){
+                $.each(buttons, function(name, button) {
+                    button.click(function (e, callback) {
+                        if(xdmHolder.isActive() && xdmHolder.buttonListenerBound){
+                            xdmHolder.dialogMessage(name, callback);
+                        } else {
+                            callback(true);
+                        }
+                    });
+                });
+            }
+        }
+
         connect.extend(function () {
             return {
                 stubs: ["dialogMessage"],
                 init: function(state, xdm){
+                    xdmHolder = xdm;
                     // fallback for old connect p2 plugin.
                     if(state.dlg === "1"){
                         xdm.uiParams.isDialog = true;
                     }
 
                     if(xdm.uiParams.isDialog){
-                        var buttons = dialogMain.getButton();
-                        if(buttons){
-                            $.each(buttons, function(name, button) {
-                                button.click(function (e, callback) {
-                                    if(xdm.isActive() && xdm.buttonListenerBound){
-                                        xdm.dialogMessage(name, callback);
-                                    } else {
-                                        callback(true);
-                                    }
-                                });
-                            });
-                        }
+                        initializeButtonCallbacks();
                     }
                 },
                 internals: {
+                    initializeButtonCallbacks: initializeButtonCallbacks,
                     dialogListenerBound: function(){
                         this.buttonListenerBound = true;
                     },
@@ -36,6 +44,9 @@
                     isDialogButtonEnabled: function (name, callback) {
                         var button =  dialogMain.getButton(name);
                         callback(button ? button.isEnabled() : void 0);
+                    },
+                    createButton: function(name, options) {
+                        dialogMain.createButton(name, options);
                     },
                     createDialog: function (dialogOptions) {
                         var xdmOptions = {

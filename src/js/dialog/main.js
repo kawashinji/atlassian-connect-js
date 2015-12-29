@@ -133,11 +133,46 @@
             dialog.hide();
         }
 
+        function addButtonToOpenDialog(button) {
+            // dialogs have an id of ap-dialog-# where # is a number.
+            var dialogElement = $($.find('[id^="ap-dialog"]').filter(function(element){
+                return element.id.search(/\d$/) != -1;
+            }));
+
+            // add the button to the chrome footer
+            $(dialogElement.find('.aui-dialog2-footer-actions')).prepend(button.$el);
+        }
+
+        function setUpButtonHandlers(button) {
+            button.$el.click(function() {
+                button.$el.trigger("ra.dialog.click", button.dispatch);
+            });
+
+            button.click(function () {
+                button.dispatch(true);
+            });
+        }
+
         return {
             id: dialogId,
             getButton: function(name){
                 var buttons = $nexus ? $nexus.data('ra.dialog.buttons') : null;
                 return (name) && (buttons) ? buttons[name] : buttons;
+            },
+            createButton: function(name, options) {
+                var button = new dialogButton.button({
+                    type: 'secondary',
+                    text: name,
+                    additionalClasses: 'ap-dialog-custom-button',
+                    actions: {} // is this required?,
+                });
+
+                addButtonToOpenDialog(button);
+
+                buttons[name] = button;
+                $nexus.data('ra.dialog.buttons', buttons);
+
+                setUpButtonHandlers(button);
             },
 
             /**
