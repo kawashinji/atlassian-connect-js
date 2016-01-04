@@ -2,15 +2,15 @@
     "use strict";
     require(["connect-host", "ac/dialog/dialog-factory", "ac/dialog"], function (connect, dialogFactory, dialogMain) {
 
-        var xdmHolder;
-
         function initializeButtonCallbacks() {
             var buttons = dialogMain.getButton();
-            if(buttons){
+            if (buttons) {
+                // Assumes that button events are only triggered on the currently-active dialog.
+                var xdm = dialogMain._getActiveDialog().xdm;
                 $.each(buttons, function(name, button) {
                     button.click(function (e, callback) {
-                        if(xdmHolder.isActive() && xdmHolder.buttonListenerBound){
-                            xdmHolder.dialogMessage(name, callback);
+                        if (xdm.isActive() && xdm.buttonListenerBound) {
+                            xdm.dialogMessage(name, callback);
                         } else {
                             callback(true);
                         }
@@ -23,7 +23,9 @@
             return {
                 stubs: ["dialogMessage"],
                 init: function(state, xdm){
-                    xdmHolder = xdm;
+                    // We cache the xdm in the active dialog so that it's available for button bindings.
+                    dialogMain._getActiveDialog().xdm = xdm;
+
                     // fallback for old connect p2 plugin.
                     if(state.dlg === "1"){
                         xdm.uiParams.isDialog = true;

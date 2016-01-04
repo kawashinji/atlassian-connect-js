@@ -145,7 +145,8 @@
 
             dialog.hide();
 
-            if (dialog !== dialogs.pop()) {
+            var closedDialog = dialogs.pop();
+            if (dialog !== closedDialog) {
                 throw Error('The dialog being closed must be the last dialog to be opened.')
             }
 
@@ -159,6 +160,9 @@
         }
 
         return {
+            _getActiveDialog: function () {
+                return dialog;
+            },
             getButton: function(name){
                 var buttons = $nexus ? $nexus.data('ra.dialog.buttons') : null;
                 return (name) && (buttons) ? buttons[name] : buttons;
