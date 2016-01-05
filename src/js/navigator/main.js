@@ -1,15 +1,8 @@
 (function (define, AJS) {
     "use strict";
     define("ac/navigator", ["connect-host", "ac/navigator-browser", "_uritemplate"], function (connect, browser, uri) {
-
-        if (!AJS.Confluence) {
-            AJS.error('The navigator API is currently only implemented in Confluence.');
-            return;
-        }
-
         // ACJS-77: Migrate _uriTemplateHelper to use urijs.
-        var baseUrl = AJS.General.getBaseUrl(),
-            routes = {};
+        var routes = {};
 
         var go = function (target, context) {
             if(Object.getOwnPropertyNames(routes).length === 0) {
@@ -33,7 +26,7 @@
                 urlTemplate = "/" + urlTemplate;
             }
 
-            return baseUrl + uri.parse(urlTemplate).expand(context);
+            return AJS.contextPath() + uri.parse(urlTemplate).expand(context);
         };
         
         var setRoutes = function(r) {
