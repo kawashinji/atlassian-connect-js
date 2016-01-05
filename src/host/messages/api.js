@@ -21,12 +21,14 @@ function filterMessageOptions(options) {
   var key;
   var copy = {};
   var allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
-
-  for (i in allowed) {
-    key = allowed[i];
-    if (key in options) {
-      copy[key] = options[key];
+  if(typeof options === "object"){
+    for (i in allowed) {
+      key = allowed[i];
+      if (key in options) {
+        copy[key] = options[key];
+      }
     }
+
   }
 
   return copy;
@@ -35,7 +37,6 @@ function filterMessageOptions(options) {
 export default {
   showMessage(name, title, bodyHTML, options) {
     var msgBar = getMessageBar();
-
     options = filterMessageOptions(options);
     $.extend(options, {
       title: title,

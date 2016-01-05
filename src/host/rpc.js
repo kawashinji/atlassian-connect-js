@@ -61,6 +61,7 @@ export default {
       if (src) {
         xdmConfig.remote = src;
       }
+      xdmConfig.moduleKey = options.ns;
       // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
       var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internals)});
 

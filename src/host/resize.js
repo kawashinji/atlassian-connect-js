@@ -19,32 +19,34 @@ export default function () {
     },
 
     internals: {
-      resize(width, height) {
-        this.resize($, width, height);
-      },
+      'env': {
+        resize(width, height) {
+          this.resize($, width, height);
+        },
 
-      sizeToParent: debounce(function () {
-        function resizeHandler(iframe) {
-          var height = $(document).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 20;
-          $(iframe).css({
-            width: '100%',
-            height: height + 'px'
-          });
-        }
-        // sizeToParent is only available for general-pages
-        if (this.uiParams.isGeneral) {
-          // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
-          $(this.iframe).addClass('full-size-general-page');
-          $(window).on('resize', function () {
+        sizeToParent: debounce(function () {
+          function resizeHandler(iframe) {
+            var height = $(document).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 20;
+            $(iframe).css({
+              width: '100%',
+              height: height + 'px'
+            });
+          }
+          // sizeToParent is only available for general-pages
+          if (this.uiParams.isGeneral) {
+            // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
+            $(this.iframe).addClass('full-size-general-page');
+            $(window).on('resize', function () {
+              resizeHandler(this.iframe);
+            });
             resizeHandler(this.iframe);
-          });
-          resizeHandler(this.iframe);
-        } else {
-          // This is only here to support integration testing
-          // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-          $(this.iframe).addClass('full-size-general-page-fail');
-        }
-      })
+          } else {
+            // This is only here to support integration testing
+            // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
+            $(this.iframe).addClass('full-size-general-page-fail');
+          }
+        })
+      }
     }
   };
 }
