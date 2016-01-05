@@ -86,7 +86,7 @@ set the `maven.parameters` bamboo variable to `-Datlassian.connect-js.version=yo
 
 Releasing a new version
 ------------------------
-1. Add a new version in [Atlassian Connect JS Releases](https://extranet.atlassian.com/display/ECO/Atlassian+Connect+JS+Releases).
+1. Add a new version in [Atlassian Connect JS Releases](https://extranet.atlassian.com/display/ECO/ACJS+-+Releases).
 2. Update `package.json` with the new version number.
 3. After merging, create a new tag with the version number.
 4. Update `package.json` in your `atlassian-connect` branch to match the new version and raise a PR.
