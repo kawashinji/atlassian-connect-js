@@ -3,6 +3,9 @@
     define("ac/navigator", ["connect-host", "ac/navigator-browser", "_uritemplate"], function (connect, browser, uri) {
         // ACJS-77: Migrate _uriTemplateHelper to use urijs.
         var routes = {};
+        var contextFunction = function () {
+            return {"target": "unknown"}
+        };
 
         var go = function (target, context) {
             if(Object.getOwnPropertyNames(routes).length === 0) {
@@ -28,15 +31,25 @@
 
             return AJS.contextPath() + uri.parse(urlTemplate).expand(context);
         };
-        
+
         var setRoutes = function(r) {
             routes = r;
+        };
+
+        var setContextFunction = function (r) {
+            contextFunction = r;
+        };
+
+        var getCurrent = function (callback) {
+            callback(contextFunction());
         };
 
         return {
             go: go,
             reload: reload,
-            setRoutes: setRoutes
+            setRoutes: setRoutes,
+            getCurrent: getCurrent,
+            setContextFunction: setContextFunction
         };
     });
 })(define, AJS);

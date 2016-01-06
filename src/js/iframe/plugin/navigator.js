@@ -63,13 +63,29 @@ AP.define("navigator", ["_dollar", "_rpc"],
              */
             reload: function () {
                 remote.reload();
+            },
+
+            /**
+             *
+             * Returns the context of the current page within the host application.
+             *
+             * @name getCurrent
+             * @method
+             * @memberof module:Navigator#
+             * @noDemo
+             * @example
+             * AP.require('navigator', function(navigator){
+             *   var context = navigator.getCurrent();
+             * });
+             */
+            getCurrent: function(callback) {
+                remote.getCurrent(callback);
             }
 
         };
 
         return {
-            apis: exports,
-            stubs: ["to", "reload"]
+            apis: exports
         };
 
     });
