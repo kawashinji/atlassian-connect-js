@@ -1,7 +1,7 @@
 {
   "name": "atlassian-connect-js",
   "description": "Atlassian Connect javascript lib",
-  "version": "3.1.9",
+  "version": "3.1.11",
   "dependencies": {
     "qunitjs": "~1.17.0",
     "grunt": "~0.4.5",
@@ -43,5 +43,6 @@
   "scripts": {
     "postinstall": "node ./build/bin/npm-postinstall.js",
     "test": "node ./build/bin/npm-test.js"
-  }
+  },
+  "license": " Apache-2.0"
 }
