@@ -5,4 +5,8 @@ function escapeSelector(s) {
   return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
 }
 
-export default {escapeSelector}
+var defer = window.requestAnimationFrame || function (f) {
+  setTimeout(f,10);
+};
+
+export default {escapeSelector, defer}
