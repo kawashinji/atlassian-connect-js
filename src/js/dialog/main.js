@@ -126,6 +126,10 @@
         }
 
         function closeDialog() {
+            if (!dialog || dialogs.length === 0) {
+                throw Error("Can't close dialog: no dialogs are currently open");
+            }
+
             // Stop this callback being re-invoked from the hide binding when dialog.hide() is called below.
             if (dialog.isClosing) {
                 return;
@@ -200,9 +204,12 @@
 
                 // We don't support multiple copies of the same dialog being open at the same time.
                 var nexusId = 'ap-' + options.ns;
-                if ($('#' + nexusId).length > 0) {
-                    throw new Error("Can't create dialog. A dialog is already open with namespace: " + options.ns);
-                }
+                // This is a workaround because just using $('#' + nexusId) doesn't work in unit tests. :/
+                dialogs.forEach(function (dialog) {
+                    if (dialog.$el.find('#' + nexusId).length > 0) {
+                        throw new Error("Can't create dialog. A dialog is already open with namespace: " + options.ns);
+                    }
+                });
 
                 var defaultOptions = {
                         // These options really _should_ be provided by the caller, or else the dialog is pretty pointless

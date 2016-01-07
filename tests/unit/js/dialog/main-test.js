@@ -32,6 +32,16 @@ require(['ac/dialog'], function(simpleDialog) {
             // clean up mock
             window.AJS.dialog2 = this.store.dialog2;
             window.AJS.layer = this.store.layer;
+
+            // Ensure that the dialog stack is cleared after each test.
+            var dialogsRemain = true;
+            while (dialogsRemain) {
+                try {
+                    simpleDialog.close();
+                } catch (e) {
+                    dialogsRemain = false;
+                }
+            }
         }
     });
     
@@ -110,6 +120,48 @@ require(['ac/dialog'], function(simpleDialog) {
         simpleDialog.close();
 
         ok(this.dialogSpy.hide.calledOnce, "Dialog close was called");
+    });
+
+    test("Dialog close before dialog created throws error", function(){
+        try {
+            simpleDialog.close();
+            ok(false, 'Error should be thrown when calling close before any dialogs created.');
+        } catch (e) {
+            // Expected to be thrown.
+            ok(true, 'Error was thrown as expected.')
+        }
+    });
+
+    test("Dialog close after dialog stack empty throws error", function(){
+        simpleDialog.create({
+            id: "my-dialog",
+            chrome: true
+        });
+        simpleDialog.close();
+
+        try {
+            simpleDialog.close();
+            ok(false, 'Error should be thrown when calling close after last dialog closed.');
+        } catch (e) {
+            // Expected to be thrown.
+            ok(true, 'Error was thrown as expected.')
+        }
+    });
+
+    test("Dialog opened multiple times without closing", function(){
+        simpleDialog.create({
+            id: "my-dialog"
+        });
+
+        try {
+            simpleDialog.create({
+                id: "my-dialog"
+            });
+            ok(false, 'Error should be thrown when opening same dialog multiple times.');
+        } catch (e) {
+            // Expected to be thrown.
+            ok(true, 'Error was thrown as expected.')
+        }
     });
 
     test("Focuses on iframe creation", function() {

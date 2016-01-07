@@ -1,6 +1,8 @@
 
 require(['ac/dialog/dialog-factory'], function(dialogFactory) {
 
+    var dialog;
+    
     module("Dialog Factory", {
         setup: function(){
             var localDialogSpy = this.dialogSpy = {
@@ -46,6 +48,16 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
             window.AJS.dialog2 = this.store.dialog2;
             window.AJS.layer = this.store.layer;
             AJS.contextPath = null;
+
+            // Ensure that the dialog stack is cleared after each test.
+            var dialogsRemain = true;
+            while (dialogsRemain) {
+                try {
+                    dialog.close();
+                } catch (e) {
+                    dialogsRemain = false;
+                }
+            }
         }
     });
 
@@ -53,7 +65,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
         this.server.respondWith("GET", /.*somekey\/somemodulekey/,
         [200, { "Content-Type": "text/html" }, 'This is the <span id="my-span">content</span>']);
 
-        dialogFactory({
+        dialog = dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
             id: 'dialogid'
@@ -67,7 +79,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
 
 
     test("content resolver is passed addon key", function(){
-        dialogFactory({
+        dialog = dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
             id: 'dialogid'
@@ -79,7 +91,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
 
 
     test("content resolver is passed module key", function(){
-        dialogFactory({
+        dialog = dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
             id: 'dialogid'
@@ -91,7 +103,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
 
     test("content resolver is passed product Context", function(){
         var productContext = {a: 'a'};
-        dialogFactory({
+        dialog = dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
             id: 'dialogid'
@@ -103,7 +115,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
     });
 
     test("content resolver is passed uiParams", function(){
-        dialogFactory({
+        dialog = dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
             id: 'dialogid'
@@ -119,8 +131,8 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
                 user: 'Some User'
             },
             key: 'value'
-        }
-        dialogFactory({
+        };
+        dialog = dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
             id: 'dialogid'
