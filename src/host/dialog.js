@@ -2,6 +2,22 @@ import EventDispatcher from './event-dispatcher';
 import dialogRenderer from './dialog/renderer';
 import create from './create';
 
+function isConnectDialog($el) {
+  return ($el && $el.hasClass('ap-aui-dialog2'));
+}
+
+function keyPressListener(e) {
+  var topLayer;
+  if(e.keyCode === 27) {
+    topLayer = AJS.LayerManager.global.getTopLayer();
+    if(isConnectDialog(topLayer)) {
+      getActiveDialog().hide();
+    }
+  }
+}
+
+$(document).on('keydown', keyPressListener);
+
 EventDispatcher.on('dialog-button-click', function($el){
   var buttonOptions = $el.data('options');
   console.log('button options?', buttonOptions, $el);
