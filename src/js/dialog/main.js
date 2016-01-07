@@ -198,6 +198,12 @@
             */
             create: function(options, showLoadingIndicator) {
 
+                // We don't support multiple copies of the same dialog being open at the same time.
+                var nexusId = 'ap-' + options.ns;
+                if ($('#' + nexusId).length > 0) {
+                    throw new Error("Can't create dialog. A dialog is already open with namespace: " + options.ns);
+                }
+
                 var defaultOptions = {
                         // These options really _should_ be provided by the caller, or else the dialog is pretty pointless
                         width: "50%",
@@ -227,7 +233,7 @@
                 // Assign the singleton $nexus and buttons vars.
                 $nexus = $("<div />")
                                 .addClass("ap-servlet-placeholder ap-container")
-                                .attr('id', 'ap-' + options.ns)
+                                .attr('id', nexusId)
                                 .bind("ra.dialog.close", closeDialog);
 
                 buttons = createButtons();
