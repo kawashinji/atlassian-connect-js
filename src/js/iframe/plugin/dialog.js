@@ -265,7 +265,6 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
          */
         createButton: function(name, options) {
           remote.createButton(name, options);
-          remote.initializeButtonCallbacks();
           return this.getButton(name);
         }
       };
@@ -297,8 +296,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
           "isDialogButtonEnabled",
           "createDialog",
           "closeDialog",
-          "createButton",
-          "initializeButtonCallbacks"
+          "createButton"
         ],
 
         init: function() {

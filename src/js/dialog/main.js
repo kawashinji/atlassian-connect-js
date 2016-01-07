@@ -164,8 +164,8 @@
                 return dialog;
             },
             getButton: function(name){
-                var buttons = $nexus ? $nexus.data('ra.dialog.buttons') : null;
-                return (name) && (buttons) ? buttons[name] : buttons;
+                var buttons = $nexus && $nexus.data('ra.dialog.buttons') || {};
+                return name ? buttons[name] : buttons;
             },
             createButton: function(name, options) {
                 var button = new dialogButton.button({
@@ -182,6 +182,8 @@
                 button.$el.click(function() {
                     button.$el.trigger("ra.dialog.click", button.dispatch);
                 });
+
+                return button;
             },
 
             /**

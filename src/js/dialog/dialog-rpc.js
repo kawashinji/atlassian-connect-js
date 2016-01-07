@@ -2,21 +2,16 @@
     "use strict";
     require(["connect-host", "ac/dialog/dialog-factory", "ac/dialog"], function (connect, dialogFactory, dialogMain) {
 
-        function initializeButtonCallbacks() {
-            var buttons = dialogMain.getButton();
-            if (buttons) {
-                // Assumes that button events are only triggered on the currently-active dialog.
-                var xdm = dialogMain._getActiveDialog().xdm;
-                $.each(buttons, function(name, button) {
-                    button.click(function (e, callback) {
-                        if (xdm.isActive() && xdm.buttonListenerBound) {
-                            xdm.dialogMessage(name, callback);
-                        } else {
-                            callback(true);
-                        }
-                    });
-                });
-            }
+        function initializeButtonCallback(name, button) {
+            // Assumes that button events are only triggered on the currently-active dialog.
+            var xdm = dialogMain._getActiveDialog().xdm;
+            button.click(function (e, callback) {
+                if (xdm.isActive() && xdm.buttonListenerBound) {
+                    xdm.dialogMessage(name, callback);
+                } else {
+                    callback(true);
+                }
+            });
         }
 
         connect.extend(function () {
@@ -31,12 +26,13 @@
                         xdm.uiParams.isDialog = true;
                     }
 
-                    if(xdm.uiParams.isDialog){
-                        initializeButtonCallbacks();
+                    if (xdm.uiParams.isDialog) {
+                        $.each(dialogMain.getButton(), function(name, button) {
+                            initializeButtonCallback(name, button);
+                        });
                     }
                 },
                 internals: {
-                    initializeButtonCallbacks: initializeButtonCallbacks,
                     dialogListenerBound: function(){
                         this.buttonListenerBound = true;
                     },
@@ -48,7 +44,8 @@
                         callback(button ? button.isEnabled() : void 0);
                     },
                     createButton: function(name, options) {
-                        dialogMain.createButton(name, options);
+                        var button = dialogMain.createButton(name, options);
+                        initializeButtonCallback(name, button);
                     },
                     createDialog: function (dialogOptions) {
                         var xdmOptions = {
