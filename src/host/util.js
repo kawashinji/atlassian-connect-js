@@ -1,3 +1,5 @@
+import _ from './underscore';
+
 function escapeSelector(s) {
   if (!s) {
     throw new Error('No selector to escape');
@@ -5,8 +7,29 @@ function escapeSelector(s) {
   return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
 }
 
-var defer = window.requestAnimationFrame || function (f) {
-  setTimeout(f,10);
-};
+function stringToDimension(value) {
+  var percent = false,
+    unit = 'px';  
 
-export default {escapeSelector, defer}
+  if(_.isString(value)) {
+    percent = value.indexOf('%') === value.length - 1;
+    value = parseInt(value, 10);
+    if (percent) {
+      unit = '%';
+    }
+  }
+
+  if(!isNaN(value)) {
+    return value + unit;
+  }
+}
+
+function getIframeByExtensionId(id) {
+  return $("iframe#" + id);
+}
+
+export default {
+  escapeSelector,
+  stringToDimension,
+  getIframeByExtensionId
+};

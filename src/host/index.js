@@ -3,9 +3,9 @@ import simpleXDM from 'simple-xdm/dist/host';
 // import content from './content';
 import create from './create';
 import dialog from './dialog';
+import env from './env';
 // import dialogBinder from './dialog/binder';
 // import dialogRpc from './dialog/rpc';
-// import env from './env';
 // import inlineDialog from './inline-dialog/rpc';
 // import inlineDialogBinder from './inline-dialog/binder';
 // import loadingIndicator from './loading-indicator';
@@ -29,6 +29,7 @@ if (!window._AP) {
 
 simpleXDM.defineModule('messages', messages);
 simpleXDM.defineModule('dialog', dialog);
+simpleXDM.defineModule('env', env);
 // AJS.toInit(dialogBinder);
 // AJS.toInit(inlineDialogBinder);
 
