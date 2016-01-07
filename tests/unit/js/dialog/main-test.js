@@ -1,13 +1,16 @@
 require(['ac/dialog'], function(simpleDialog) {
 
+    var localDialogSpy;
+
     module("Main Dialog", {
         setup: function(){
-            this.dialogSpy = {
+            localDialogSpy = this.dialogSpy = {
                 show: sinon.spy(),
                 on: sinon.spy(),
                 remove: sinon.spy(),
                 hide: sinon.spy()
             };
+
             this.layerSpy = {
                 changeSize: sinon.spy()
             };
@@ -17,7 +20,11 @@ require(['ac/dialog'], function(simpleDialog) {
                 dialog2: window.AJS.dialog2
             };
 
-            AJS.dialog2 = sinon.stub().returns(this.dialogSpy);
+            // Until ac/dialog gets refactored, we need dialog.$el to be set.
+            AJS.dialog2 = function($el) {
+                localDialogSpy.$el = $el;
+                return localDialogSpy;
+            };
             AJS.layer = sinon.stub().returns(this.layerSpy);
 
         },
@@ -29,7 +36,7 @@ require(['ac/dialog'], function(simpleDialog) {
     });
     
     function dialogElement() {
-        return AJS.dialog2.args[0][0];
+        return localDialogSpy.$el;
     }
 
     test("dialog options.id sets the dialog id", function() {
