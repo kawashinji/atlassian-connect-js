@@ -49,7 +49,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
          *
          * @return {Object} Data Object passed to the dialog on creation.
          */        
-        data: uiParams.customData,
+        customData: uiParams.customData,
         /**
          * @class Dialog~DialogOptions
          * @property {String}        key         The module key of the page you want to open as a dialog
