@@ -171,8 +171,7 @@
                 var button = new dialogButton.button({
                     type: 'secondary',
                     text: name,
-                    additionalClasses: 'ap-dialog-custom-button',
-                    actions: {} // is this required?,
+                    additionalClasses: 'ap-dialog-custom-button'
                 });
 
                 dialog.$el.find('.aui-dialog2-footer-actions').prepend(button.$el);
