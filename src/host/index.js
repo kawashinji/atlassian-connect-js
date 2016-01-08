@@ -1,5 +1,5 @@
 import simpleXDM from 'simple-xdm/dist/host';
-// import addons from './addons';
+import events from './events';
 // import content from './content';
 import create from './create';
 import dialog from './dialog';
@@ -30,6 +30,7 @@ if (!window._AP) {
 simpleXDM.defineModule('messages', messages);
 simpleXDM.defineModule('dialog', dialog);
 simpleXDM.defineModule('env', env);
+simpleXDM.defineModule('events', events);
 // AJS.toInit(dialogBinder);
 // AJS.toInit(inlineDialogBinder);
 
