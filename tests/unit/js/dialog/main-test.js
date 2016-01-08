@@ -164,18 +164,21 @@ require(['ac/dialog'], function(simpleDialog) {
     });
 
     test("Multiple dialogs can be opened", function(){
-        simpleDialog.create({
+        var dialog1 = simpleDialog.create({
             ns: "my-dialog-1"
         });
-        simpleDialog.create({
+        var dialog2 = simpleDialog.create({
             ns: "my-dialog-2"
         });
+        equal(dialog1.$el.attr('id'), "ap-dialog-1");
+        equal(dialog2.$el.attr('id'), "ap-dialog-2");
 
         // Close and reopen the second dialog
         simpleDialog.close();
-        simpleDialog.create({
+        var dialog3 = simpleDialog.create({
             ns: "my-dialog-2"
         });
+        equal(dialog3.$el.attr('id'), "ap-dialog-3");
 
         // Close two dialogs - this would throw if two dialogs were not open.
         simpleDialog.close();
