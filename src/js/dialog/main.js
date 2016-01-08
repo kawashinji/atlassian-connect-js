@@ -183,7 +183,9 @@
                 buttons[name] = button;
 
                 button.$el.click(function() {
-                    button.$el.trigger("ra.dialog.click", button.dispatch);
+                    if (button.isEnabled()) {
+                        button.$el.trigger("ra.dialog.click", button.dispatch);
+                    }
                 });
 
                 return button;

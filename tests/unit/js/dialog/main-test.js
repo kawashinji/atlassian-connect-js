@@ -268,5 +268,18 @@ require(['ac/dialog'], function(simpleDialog) {
         equal(dialogElement().find(".ap-dialog-cancel").text(), "some cancel text");
     });
 
+    test("new button can be added to dialog", function(){
+        simpleDialog.create({
+            id: "my-dialog"
+        });
+        var createdButton = simpleDialog.createButton('Click me');
+        var $el = createdButton.$el;
+        equal($el.text(), 'Click me');
+        ok($el.hasClass('aui-button-secondary'));
+        ok($el.hasClass('ap-dialog-custom-button'));
+
+        var foundButton = simpleDialog.getButton('Click me');
+        equal(createdButton, foundButton, "The created button should be present in the dialog's button collection.");
+    });
 
 });
