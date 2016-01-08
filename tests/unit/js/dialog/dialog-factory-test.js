@@ -2,15 +2,10 @@
 require(['ac/dialog/dialog-factory'], function(dialogFactory) {
 
     var dialog;
-    
+    var dialogSpy;
+
     module("Dialog Factory", {
         setup: function(){
-            var localDialogSpy = this.dialogSpy = {
-                show: sinon.spy(),
-                on: sinon.spy(),
-                remove: sinon.spy(),
-                hide: sinon.spy()
-            };
             this.layerSpy = {
                 changeSize: sinon.spy()
             };
@@ -22,9 +17,16 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
 
             // Until ac/dialog gets refactored, we need dialog.$el to be set.
             AJS.dialog2 = function($el) {
-                localDialogSpy.$el = $el;
-                return localDialogSpy;
+                dialogSpy = {
+                    show: sinon.spy(),
+                    on: sinon.spy(),
+                    remove: sinon.spy(),
+                    hide: sinon.spy(),
+                    $el: $el
+                };
+                return dialogSpy;
             };
+
             AJS.layer = sinon.stub().returns(this.layerSpy);
 
             this.server = sinon.fakeServer.create();
@@ -72,8 +74,8 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
         },
         {}, "");
 
-        equal(this.dialogSpy.$el.attr('id'), "dialogid", "Dialog element was created");
-        ok(this.dialogSpy.show.calledOnce, "Dialog was shown");
+        equal(dialogSpy.$el.attr('id'), "dialogid", "Dialog element was created");
+        ok(dialogSpy.show.calledOnce, "Dialog was shown");
 
     });
 

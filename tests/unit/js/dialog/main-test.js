@@ -1,16 +1,9 @@
 require(['ac/dialog'], function(simpleDialog) {
 
-    var localDialogSpy;
+    var dialogSpy;
 
     module("Main Dialog", {
         setup: function(){
-            localDialogSpy = this.dialogSpy = {
-                show: sinon.spy(),
-                on: sinon.spy(),
-                remove: sinon.spy(),
-                hide: sinon.spy()
-            };
-
             this.layerSpy = {
                 changeSize: sinon.spy()
             };
@@ -22,8 +15,14 @@ require(['ac/dialog'], function(simpleDialog) {
 
             // Until ac/dialog gets refactored, we need dialog.$el to be set.
             AJS.dialog2 = function($el) {
-                localDialogSpy.$el = $el;
-                return localDialogSpy;
+                dialogSpy = {
+                    show: sinon.spy(),
+                    on: sinon.spy(),
+                    remove: sinon.spy(),
+                    hide: sinon.spy(),
+                    $el: $el
+                };
+                return dialogSpy;
             };
             AJS.layer = sinon.stub().returns(this.layerSpy);
 
@@ -46,7 +45,7 @@ require(['ac/dialog'], function(simpleDialog) {
     });
     
     function dialogElement() {
-        return localDialogSpy.$el;
+        return dialogSpy.$el;
     }
 
     test("dialog options.id sets the dialog id", function() {
@@ -119,7 +118,7 @@ require(['ac/dialog'], function(simpleDialog) {
         });
         simpleDialog.close();
 
-        ok(this.dialogSpy.hide.calledOnce, "Dialog close was called");
+        ok(dialogSpy.hide.calledOnce, "Dialog close was called");
     });
 
     test("Dialog close before dialog created throws error", function(){
@@ -162,6 +161,27 @@ require(['ac/dialog'], function(simpleDialog) {
             // Expected to be thrown.
             ok(true, 'Error was thrown as expected.')
         }
+    });
+
+    test("Multiple dialogs can be opened", function(){
+        simpleDialog.create({
+            ns: "my-dialog-1"
+        });
+        simpleDialog.create({
+            ns: "my-dialog-2"
+        });
+
+        // Close and reopen the second dialog
+        simpleDialog.close();
+        simpleDialog.create({
+            ns: "my-dialog-2"
+        });
+
+        // Close two dialogs - this would throw if two dialogs were not open.
+        simpleDialog.close();
+        simpleDialog.close();
+
+        ok(true, 'Dialogs should be opened and closed without errors');
     });
 
     test("Focuses on iframe creation", function() {
