@@ -1,13 +1,9 @@
 require(['ac/dialog'], function(simpleDialog) {
 
+    var dialogSpy;
+
     module("Main Dialog", {
         setup: function(){
-            this.dialogSpy = {
-                show: sinon.spy(),
-                on: sinon.spy(),
-                remove: sinon.spy(),
-                hide: sinon.spy()
-            };
             this.layerSpy = {
                 changeSize: sinon.spy()
             };
@@ -17,7 +13,17 @@ require(['ac/dialog'], function(simpleDialog) {
                 dialog2: window.AJS.dialog2
             };
 
-            AJS.dialog2 = sinon.stub().returns(this.dialogSpy);
+            // Until ac/dialog gets refactored, we need dialog.$el to be set.
+            AJS.dialog2 = function($el) {
+                dialogSpy = {
+                    show: sinon.spy(),
+                    on: sinon.spy(),
+                    remove: sinon.spy(),
+                    hide: sinon.spy(),
+                    $el: $el
+                };
+                return dialogSpy;
+            };
             AJS.layer = sinon.stub().returns(this.layerSpy);
 
         },
@@ -25,11 +31,21 @@ require(['ac/dialog'], function(simpleDialog) {
             // clean up mock
             window.AJS.dialog2 = this.store.dialog2;
             window.AJS.layer = this.store.layer;
+
+            // Ensure that the dialog stack is cleared after each test.
+            var dialogsRemain = true;
+            while (dialogsRemain) {
+                try {
+                    simpleDialog.close();
+                } catch (e) {
+                    dialogsRemain = false;
+                }
+            }
         }
     });
     
     function dialogElement() {
-        return AJS.dialog2.args[0][0];
+        return dialogSpy.$el;
     }
 
     test("dialog options.id sets the dialog id", function() {
@@ -102,7 +118,73 @@ require(['ac/dialog'], function(simpleDialog) {
         });
         simpleDialog.close();
 
-        ok(this.dialogSpy.hide.calledOnce, "Dialog close was called");
+        ok(dialogSpy.hide.calledOnce, "Dialog close was called");
+    });
+
+    test("Dialog close before dialog created throws error", function(){
+        try {
+            simpleDialog.close();
+            ok(false, 'Error should be thrown when calling close before any dialogs created.');
+        } catch (e) {
+            // Expected to be thrown.
+            ok(true, 'Error was thrown as expected.')
+        }
+    });
+
+    test("Dialog close after dialog stack empty throws error", function(){
+        simpleDialog.create({
+            id: "my-dialog",
+            chrome: true
+        });
+        simpleDialog.close();
+
+        try {
+            simpleDialog.close();
+            ok(false, 'Error should be thrown when calling close after last dialog closed.');
+        } catch (e) {
+            // Expected to be thrown.
+            ok(true, 'Error was thrown as expected.')
+        }
+    });
+
+    test("Dialog opened multiple times without closing", function(){
+        simpleDialog.create({
+            id: "my-dialog"
+        });
+
+        try {
+            simpleDialog.create({
+                id: "my-dialog"
+            });
+            ok(false, 'Error should be thrown when opening same dialog multiple times.');
+        } catch (e) {
+            // Expected to be thrown.
+            ok(true, 'Error was thrown as expected.')
+        }
+    });
+
+    test("Multiple dialogs can be opened", function(){
+        var dialog1 = simpleDialog.create({
+            ns: "my-dialog-1"
+        });
+        var dialog2 = simpleDialog.create({
+            ns: "my-dialog-2"
+        });
+        equal(dialog1.$el.attr('id'), "ap-dialog-1");
+        equal(dialog2.$el.attr('id'), "ap-dialog-2");
+
+        // Close and reopen the second dialog
+        simpleDialog.close();
+        var dialog3 = simpleDialog.create({
+            ns: "my-dialog-2"
+        });
+        equal(dialog3.$el.attr('id'), "ap-dialog-3");
+
+        // Close two dialogs - this would throw if two dialogs were not open.
+        simpleDialog.close();
+        simpleDialog.close();
+
+        ok(true, 'Dialogs should be opened and closed without errors');
     });
 
     test("Focuses on iframe creation", function() {
@@ -189,5 +271,18 @@ require(['ac/dialog'], function(simpleDialog) {
         equal(dialogElement().find(".ap-dialog-cancel").text(), "some cancel text");
     });
 
+    test("new button can be added to dialog", function(){
+        simpleDialog.create({
+            id: "my-dialog"
+        });
+        var createdButton = simpleDialog.createButton('Click me');
+        var $el = createdButton.$el;
+        equal($el.text(), 'Click me');
+        ok($el.hasClass('aui-button-secondary'));
+        ok($el.hasClass('ap-dialog-custom-button'));
+
+        var foundButton = simpleDialog.getButton('Click me');
+        equal(createdButton, foundButton, "The created button should be present in the dialog's button collection.");
+    });
 
 });

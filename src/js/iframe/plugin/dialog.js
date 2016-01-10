@@ -258,6 +258,14 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
               return !!result;
             }
           };
+        },
+        /**
+         * @class Dialog~DialogButton
+         * @description Creates a dialog button that can be controlled with javascript
+         */
+        createButton: function(name, options) {
+          remote.createButton(name, options);
+          return this.getButton(name);
         }
       };
 
@@ -287,7 +295,8 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
           "setDialogButtonEnabled",
           "isDialogButtonEnabled",
           "createDialog",
-          "closeDialog"
+          "closeDialog",
+          "createButton"
         ],
 
         init: function() {
