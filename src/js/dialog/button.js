@@ -46,6 +46,7 @@
         }
 
         return {
+            button: button,
             submit: function(actions){
                 return new button({
                     type: 'primary',

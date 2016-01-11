@@ -15,7 +15,7 @@
             container,
             uiParams = $.extend({isDialog: 1}, options.uiParams, {customData: dialogOptions.customData});
 
-            dialog.create({
+            var createdDialog = dialog.create({
                 id: options.id,
                 ns: options.moduleKey || options.key,
                 chrome: dialogOptions.chrome || options.chrome,
@@ -27,7 +27,7 @@
                 cancelText: dialogOptions.cancelText
             }, false);
 
-            container = $('.ap-dialog-container');
+            container = createdDialog.$el.find('.ap-dialog-container');
             if(options.url){
                 throw new Error('Cannot retrieve dialog content by URL');
             }
