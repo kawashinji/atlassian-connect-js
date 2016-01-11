@@ -293,6 +293,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
         init: function() {
           if (isDialog) {
             window.addEventListener('keydown', function(event) {
+              console.log("foo");
               if (event.keyCode === 27) {
                 exports.close();
               }

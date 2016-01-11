@@ -156,7 +156,10 @@
                 var defaultOptions = {
                         // These options really _should_ be provided by the caller, or else the dialog is pretty pointless
                         width: "50%",
-                        height: "50%"
+                        height: "50%",
+
+                        // default values
+                        closeOnEscape: true
                     },
                     dialogId = options.id || "ap-dialog-" + (idSeq += 1),
                     mergedOptions = $.extend({id: dialogId}, defaultOptions, options, {dlg: 1}),
@@ -199,8 +202,10 @@
 
                 dialog = AJS.dialog2(dialogElement);
                 dialog.on("hide", closeDialog);
-                // ESC key closes the dialog
-                $(document).on("keydown", keyPressListener);
+                if(mergedOptions.closeOnEscape) {
+                    // ESC key closes the dialog
+                    $(document).on("keydown", keyPressListener);
+                }
 
                 $.each(buttons, function(name, button) {
                     button.click(function () {
