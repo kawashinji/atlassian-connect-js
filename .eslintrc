@@ -15,6 +15,7 @@
     "quotes": [2, "single"]
   },
   "globals": {
-    "AJS": true
+    "AJS": true,
+    "aui": true
   }
 }

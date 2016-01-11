@@ -14,6 +14,7 @@ var watch = require('gulp-watch');
 var watchify = require('watchify');
 var concat = require('gulp-concat');
 var minifyCSS = require('gulp-minify-css');
+var eslint = require('gulp-eslint');
 
 function build(entryModule, distModule, options) {
     var bundler = browserify(entryModule, {
@@ -83,6 +84,12 @@ function buildCss(options) {
     return g;
 }
 
+function lintJS() {
+  return gulp.src('**/*.js')
+    .pipe(eslint())
+    .pipe(eslint.format());
+}
+
 gulp.task('plugin:build', buildPlugin);
 gulp.task('plugin:watch', buildPlugin.bind(null, {watch: true}));
 
@@ -92,7 +99,9 @@ gulp.task('host:watch', buildHost.bind(null, {watch: true}));
 gulp.task('css:build', buildCss);
 gulp.task('css:minify', buildCss.bind(null, {minify: true}));
 
+gulp.task('lint', lintJS);
+
 gulp.task('watch', ['plugin:watch', 'host:watch']);
-gulp.task('build', ['plugin:build', 'host:build']);
+gulp.task('build', ['lint', 'plugin:build', 'host:build']);
 
 gulp.task('default', ['build', 'css:minify']);
