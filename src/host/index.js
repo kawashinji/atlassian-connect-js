@@ -8,11 +8,9 @@ import env from './extensions/env';
 // import dialogRpc from './dialog/rpc';
 // import inlineDialog from './inline-dialog/rpc';
 // import inlineDialogBinder from './inline-dialog/binder';
-// import loadingIndicator from './loading-indicator';
+import loadingIndicator from './components/loading-indicator';
 import messages from './extensions/messages';
 // import resize from './resize';
-
-// import statusHelper from './status-helper';
 // import uiParams from '../common/ui-params';
 // import uri from '../common/uri';
 // import propagator from './propagate/rpc';

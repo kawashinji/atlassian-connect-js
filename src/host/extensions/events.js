@@ -8,7 +8,7 @@ import EventDispatcher from '../event-dispatcher';
 var _channels = {};
 
 // create holding object under _channels.
-EventDispatcher.register('create-extension', (data) => {
+EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
   if(!_.isObject(_channels[data.addon_key])) {
     _channels[data.addon_key] = {
       _any: []
