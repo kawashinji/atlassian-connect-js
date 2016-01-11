@@ -1,6 +1,6 @@
-import EventDispatcher from './event-dispatcher';
-import dialogRenderer from './dialog/renderer';
-import create from './create';
+import EventDispatcher from '../event-dispatcher';
+import dialogRenderer from '../dialog/renderer';
+import create from '../create';
 
 function isConnectDialog($el) {
   return ($el && $el.hasClass('ap-aui-dialog2'));

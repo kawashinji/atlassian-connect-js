@@ -1,5 +1,5 @@
-import EventDispatcher from './event-dispatcher';
-import util from './util';
+import EventDispatcher from '../event-dispatcher';
+import util from '../util';
 
 function hideInlineDialog(data){
   var iframe = util.getIframeByExtensionId(data.extension_id);
@@ -10,6 +10,6 @@ EventDispatcher.register("inline-dialog-hide", hideInlineDialog);
 
 export default {
   hide: function(callback){
-    EventDispatcher.dispatch("inline-dialog-hide", {extension_id: callback._context.extension_id});
+    InlineDialogActions.hide(callback._context.extension_id);
   }
 };

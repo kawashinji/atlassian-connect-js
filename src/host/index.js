@@ -1,15 +1,15 @@
 import simpleXDM from 'simple-xdm/dist/host';
-import events from './events';
+import events from './extensions/events';
 // import content from './content';
 import create from './create';
-import dialog from './dialog';
-import env from './env';
+import dialog from './extensions/dialog';
+import env from './extensions/env';
 // import dialogBinder from './dialog/binder';
 // import dialogRpc from './dialog/rpc';
 // import inlineDialog from './inline-dialog/rpc';
 // import inlineDialogBinder from './inline-dialog/binder';
 // import loadingIndicator from './loading-indicator';
-import messages from './messages';
+import messages from './extensions/messages';
 // import resize from './resize';
 
 // import statusHelper from './status-helper';

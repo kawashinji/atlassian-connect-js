@@ -1,5 +1,5 @@
-import $ from './dollar';
-import _ from './underscore';
+import $ from '../dollar';
+import _ from '../underscore';
 
 var MESSAGE_BAR_ID = 'ac-message-container';
 var MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
