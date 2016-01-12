@@ -247,7 +247,7 @@
 
                 buttons = createButtons();
 
-                $dialogEl = createDialogElement(mergedOptions, buttons);
+                $dialogEl = createDialogElement(mergedOptions);
                 $dialogEl.find('.aui-dialog2-content').append($nexus);
 
                 if(options.size){
