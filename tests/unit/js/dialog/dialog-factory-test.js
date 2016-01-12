@@ -143,6 +143,21 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
             customData: customData
         }, "");
         deepEqual(window._AP.contentResolver.resolveByParameters.args[0][0].uiParams.customData, customData)
-    });    
+    });
+
+    test("chrome: false option is honoured", function(){
+        this.server.respondWith("GET", /.*somekey\/somemodulekey/,
+            [200, { "Content-Type": "text/html" }, 'This is the <span id="my-span">content</span>']);
+
+        dialog = dialogFactory({
+                key: 'somekey',
+                moduleKey: 'somemodulekey',
+                id: 'dialogid',
+                chrome: false
+            },
+            {}, "");
+
+        ok(dialogSpy.$el.hasClass('ap-aui-dialog2-chromeless'));
+    });
 
 });
