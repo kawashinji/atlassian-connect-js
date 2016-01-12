@@ -145,7 +145,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
         deepEqual(window._AP.contentResolver.resolveByParameters.args[0][0].uiParams.customData, customData)
     });
 
-    test("chrome: false option is honoured", function(){
+    test("chrome: false option is honoured for fullscreen dialogs", function(){
         this.server.respondWith("GET", /.*somekey\/somemodulekey/,
             [200, { "Content-Type": "text/html" }, 'This is the <span id="my-span">content</span>']);
 
@@ -153,7 +153,39 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
                 key: 'somekey',
                 moduleKey: 'somemodulekey',
                 id: 'dialogid',
+                size: "fullscreen",
                 chrome: false
+            },
+            {}, "");
+
+        ok(dialogSpy.$el.hasClass('ap-aui-dialog2-chromeless'));
+    });
+
+    test("chrome: true option is honoured for fullscreen dialogs", function(){
+        this.server.respondWith("GET", /.*somekey\/somemodulekey/,
+            [200, { "Content-Type": "text/html" }, 'This is the <span id="my-span">content</span>']);
+
+        dialog = dialogFactory({
+                key: 'somekey',
+                moduleKey: 'somemodulekey',
+                id: 'dialogid',
+                size: "fullscreen",
+                chrome: true
+            },
+            {}, "");
+
+        ok(!dialogSpy.$el.hasClass('ap-aui-dialog2-chromeless'));
+    });
+
+    test("chrome: undefined option defaults to false for fullscreen dialogs", function(){
+        this.server.respondWith("GET", /.*somekey\/somemodulekey/,
+            [200, { "Content-Type": "text/html" }, 'This is the <span id="my-span">content</span>']);
+
+        dialog = dialogFactory({
+                key: 'somekey',
+                moduleKey: 'somemodulekey',
+                id: 'dialogid',
+                size: "fullscreen"
             },
             {}, "");
 
