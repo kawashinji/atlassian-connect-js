@@ -2,7 +2,7 @@
 * pub/sub for extension state (created, destroyed, initialized)
 * taken from hipchat webcore
 **/
-import _ from './underscore';
+import _ from '../underscore';
 import {EventEmitter} from 'events';
 
 class EventDispatcher extends EventEmitter {

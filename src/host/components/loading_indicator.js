@@ -1,18 +1,17 @@
-import EventDispatcher from '../event-dispatcher';
-import LoadingIndicatorActions from '../actions/loading-indicator';
+import EventDispatcher from 'dispatchers/event_dispatcher';
+import LoadingIndicatorActions from 'actions/loading_indicator_actions';
 import $ from '../dollar';
 import util from '../util';
 
-const LOADING_INDICATOR_CLASS = 'ap-loading-indicator';
+const LOADING_INDICATOR_CLASS = 'ap-status-indicator';
 
 const LOADING_STATUSES = {
-  loading: '<div class="small-spinner"></div>Loading add-on...',
-  'load-timeout': '<div class="small-spinner"></div>Add-on is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?',
+  loading: '<div class="ap-loading"><div class="small-spinner"></div>Loading add-on...</div>',
+  'load-timeout': '<div class="ap-load-timeout><div class="small-spinner"></div>Add-on is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?</div>',
   'load-error': 'Add-on failed to load.'
 };
 
-// const LOADING_TIMEOUT = 12000;
-const LOADING_TIMEOUT = 12;
+const LOADING_TIMEOUT = 12000;
 
 class LoadingIndicator {
   constructor () {
@@ -46,18 +45,17 @@ class LoadingIndicator {
   }
 
   cancelled($iframeContainer, extensionId){
-    var status = $(LOADING_STATUSES['load-error']);
-    this._loadingContainer($iframeContainer).empty().append(status);
+    var status = LOADING_STATUSES['load-error'];
+    this._loadingContainer($iframeContainer).empty().text(status);
   }
   
   timeout($iframeContainer, extensionId){
-    var status = $(LOADING_STATUSES['load-timeout']);
-    debugger;
-    status.find("a.ap-btn-cancel").click(function () {
-      debugger;
+    var status = $(LOADING_STATUSES['load-timeout']),
+    container = this._loadingContainer($iframeContainer);
+    container.empty().append(status);
+    $("a.ap-btn-cancel", container).click(function () {
       LoadingIndicatorActions.cancelled($iframeContainer, extensionId);
     });
-    this._loadingContainer($iframeContainer).empty().append(status);
     delete this._stateRegistry[extensionId];
   }
 }
@@ -68,7 +66,7 @@ EventDispatcher.register('create-iframe', (data) => {
   LoadingComponent.show(data.$el, data.extension_id);
 });
 EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
-  LoadingComponent.hide(util.getIframeByExtensionId(data.extension_id), data.extension_id);
+  LoadingComponent.hide(data.$el, data.extension_id);
 });
 EventDispatcher.register('iframe-bridge-timeout', (data) => {
   LoadingComponent.timeout(data.$el, data.extension_id);

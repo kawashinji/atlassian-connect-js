@@ -1,5 +1,5 @@
 import $ from '../dollar';
-import EventDispatcher from '../event-dispatcher';
+import EventDispatcher from 'dispatchers/event_dispatcher';
 
 function buttonClick(e){
   EventDispatcher.dispatch('dialog-button-click', $(e.target));

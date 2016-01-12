@@ -1,5 +1,5 @@
 import $ from '../dollar';
-import CookieUtils from '../utils/cookie';
+import CookieUtils from 'utils/cookie_utils';
 import util from '../util';
 
 function prefixCookieFromCallback(callback, name) {

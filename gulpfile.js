@@ -18,6 +18,7 @@ var minifyCSS = require('gulp-minify-css');
 function build(entryModule, distModule, options) {
     var bundler = browserify(entryModule, {
       debug: true,
+      paths: ['src/host'],
       standalone: options.standalone || distModule
     }).transform(babelify)
       .transform(envify(options.env || {}))

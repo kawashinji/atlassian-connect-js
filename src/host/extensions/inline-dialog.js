@@ -1,4 +1,4 @@
-import EventDispatcher from '../event-dispatcher';
+import EventDispatcher from 'dispatchers/event_dispatcher';
 import util from '../util';
 
 function hideInlineDialog(data){
