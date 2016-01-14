@@ -12,14 +12,7 @@ module.exports = function () {
     runKarma({
       action: 'run',
       singleRun: true,
-      browsers: ["PhantomJS"],
-      reporters: ["junit", "dots"],
-      plugins: [
-        'karma-junit-reporter',
-        'karma-jasmine',
-        'karma-webpack',
-        'karma-phantomjs-launcher'
-      ]
+      reporters: ["junit", "dots"]
     }, done);
   };
 };

@@ -104,3 +104,4 @@ gulp.task('build', ['plugin:build', 'host:build']);
 gulp.task('default', ['build', 'css:minify']);
 
 gulp.task('karma', getTask('karma'));
+gulp.task('karma-ci', getTask('karma-ci'));

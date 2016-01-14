@@ -59,8 +59,8 @@ module.exports = function(config) {
         'karma-webpack',
         'karma-chrome-launcher',
         // 'karma-phantomjs-launcher',
-        // 'karma-firefox-launcher',
-        // 'karma-ie-launcher',
+        'karma-firefox-launcher',
+        'karma-ie-launcher',
         'karma-nyan-reporter'
     ],
     frameworks: ['jasmine'],
@@ -93,7 +93,7 @@ module.exports = function(config) {
     // - IE (only Windows)
     //browsers: ['Chrome', 'Safari', 'Firefox', 'Opera', 'IE11 - Win7', 'IE10 - Win7', 'IE9 - Win7'],
     // browsers: ['Chrome', 'Safari', 'Firefox', 'IE11 - Win7'],
-    browsers: ['Chrome'],
+    browsers: ['Chrome', 'Firefox'],
 
 
     // If browser does not capture in given timeout [ms], kill it
