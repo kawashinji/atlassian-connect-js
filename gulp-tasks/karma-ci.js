@@ -12,7 +12,8 @@ module.exports = function () {
     runKarma({
       action: 'run',
       singleRun: true,
-      reporters: ["junit", "dots"]
+      reporters: ["junit", "dots"],
+      browsers: ["Chrome"]
     }, done);
   };
 };
