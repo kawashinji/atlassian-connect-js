@@ -2,6 +2,7 @@ import WebItemActions from 'actions/webitem_actions';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import InlineDialogComponent from 'components/inline_dialog';
 import WebItemUtils from 'utils/webitem';
+import IframeComponent from 'components/iframe';
 
 const ITEM_NAME = 'inline-dialog';
 const SELECTOR = ".ap-inline-dialog";
@@ -26,10 +27,12 @@ class InlineDialogWebItem {
     var $target = $(data.event.target),
       attr = {id: $target.data(WEBITEM_UID_KEY)};
 
+    var $iframeContainer = IframeComponent.simpleXdmExtension(data.extension);
     var inlineDialog = InlineDialogComponent.render(attr);
     inlineDialog.attr('open', '');
     inlineDialog.insertAfter($target);
-    WebItemActions.createIframe(inlineDialog.find(".aui-inline-dialog-contents"));
+    // AUI modifies the dom after insertion. Thus the content must be appended afterwards.
+    inlineDialog.find(".aui-inline-dialog-contents").append($iframeContainer);
   }
 
   createIfNotExists(data) {
@@ -42,17 +45,12 @@ class InlineDialogWebItem {
     }
   }
 
-  createIframe(data) {
-    debugger;
-  }
-
 }
 
 let inlineDialogInstance = new InlineDialogWebItem();
 let webitem = inlineDialogInstance.getWebItem();
 EventDispatcher.register("before:webitem-invoked:" + webitem.name, inlineDialogInstance.createIfNotExists);
 EventDispatcher.register("webitem-invoked:" + webitem.name, inlineDialogInstance.triggered);
-EventDispatcher.register("after:webitem-invoked:" + webitem.name, inlineDialogInstance.createIframe);
 WebItemActions.addWebItem(webitem);
 
 export default inlineDialogInstance;

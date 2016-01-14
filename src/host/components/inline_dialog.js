@@ -6,7 +6,10 @@ class InlineDialog {
   }
 
   render(attributes){
-    return $("<aui-inline-dialog />").attr(attributes || {});
+    var $el = $("<aui-inline-dialog />");
+    $el.attr(attributes || {});
+    $el.addClass("ap-inline-dialog-container");
+    return $el;
   }
 
 }

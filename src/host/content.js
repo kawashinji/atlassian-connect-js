@@ -1,3 +1,4 @@
+// LEGACY!
 import $ from './dollar';
 import uri from '../common/uri';
 
@@ -5,22 +6,6 @@ import uri from '../common/uri';
  * Utility methods for rendering connect addons in AUI components
  */
 
-function getWebItemPluginKey(target) {
-  var cssClass = target.attr('class');
-  var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
-  return $.isArray(m) ? m[1] : false;
-}
-function getWebItemModuleKey(target) {
-  var cssClass = target.attr('class');
-  var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
-  return $.isArray(m) ? m[1] : false;
-}
-
-function getOptionsForWebItem(target) {
-  var moduleKey = getWebItemModuleKey(target);
-  var type = target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-  return window._AP[type + 'Options'][moduleKey] || {};
-}
 
 function contextFromUrl(url) {
   var pairs = new uri.init(url).queryPairs;

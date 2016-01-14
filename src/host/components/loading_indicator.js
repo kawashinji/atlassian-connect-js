@@ -62,17 +62,17 @@ class LoadingIndicator {
 
 var LoadingComponent = new LoadingIndicator();
 
-EventDispatcher.register('create-iframe', (data) => {
-  LoadingComponent.show(data.$el, data.extension_id);
+EventDispatcher.register('iframe-create', (data) => {
+  LoadingComponent.show(data.$el, data.extension.id);
 });
 EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
-  LoadingComponent.hide(data.$el, data.extension_id);
+  LoadingComponent.hide(data.$el, data.id);
 });
 EventDispatcher.register('iframe-bridge-timeout', (data) => {
-  LoadingComponent.timeout(data.$el, data.extension_id);
+  LoadingComponent.timeout(data.$el, data.id);
 });
 EventDispatcher.register('iframe-bridge-cancelled', (data) => {
-  LoadingComponent.cancelled(data.$el, data.extension_id);
+  LoadingComponent.cancelled(data.$el, data.id);
 });
 
 export default LoadingComponent;

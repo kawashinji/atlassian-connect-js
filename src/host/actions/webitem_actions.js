@@ -1,6 +1,6 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import WebItemComponent from 'components/webitem';
-import Creator from '../create';
+import WebItemUtils from 'utils/webitem';
 
 export default {
   addWebItem: (potentialWebItem) => {
@@ -18,18 +18,14 @@ export default {
   },
 
   webitemInvoked: (webitem, event) => {
-   EventDispatcher.dispatch("webitem-invoked:" + webitem.name, {webitem, event});
-  },
-  createIframe: ($el) => {
-    var simpleXdmExtension = {
-      addon_key: 'some-addon-key',
-      key: 'some-key',
-      url: 'http://www.example.com',
-      options: {}
+    var $target = $(event.target),
+    extension = {
+      addon_key: WebItemUtils.getExtensionKey($target),
+      key: WebItemUtils.getKey($target),
+      url: $target.attr('href')
     };
 
-    var iframeContainer = Creator(simpleXdmExtension);
-    urgh.appendTo($el);
+    EventDispatcher.dispatch("webitem-invoked:" + webitem.name, {webitem, event, extension});
   }
 
 };
