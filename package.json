@@ -9,7 +9,7 @@
   },
   "scripts": {
     "prepublish": "gulp",
-    "test": "karma start test/karma.conf.js --single-run && karma start test/karma.iframe.conf --single-run"
+    "test": "gulp test"
   },
   "devDependencies": {
     "babel-core": "^5.8.34",

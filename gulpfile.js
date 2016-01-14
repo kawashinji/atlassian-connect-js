@@ -15,6 +15,11 @@ var watchify = require('watchify');
 var concat = require('gulp-concat');
 var minifyCSS = require('gulp-minify-css');
 
+
+function getTask(task) {
+    return require('./gulp-tasks/' + task)(gulp);
+}
+
 function build(entryModule, distModule, options) {
     var bundler = browserify(entryModule, {
       debug: true,
@@ -97,3 +102,5 @@ gulp.task('watch', ['plugin:watch', 'host:watch']);
 gulp.task('build', ['plugin:build', 'host:build']);
 
 gulp.task('default', ['build', 'css:minify']);
+
+gulp.task('karma', getTask('karma'));
