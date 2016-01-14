@@ -2,6 +2,7 @@ import $ from '../dollar';
 import _ from '../underscore';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import WebItemActions from 'actions/webitem_actions';
+import WebItemUtils from 'utils/webitem';
 
 class WebItem {
 
@@ -18,28 +19,30 @@ class WebItem {
     });
   }
 
-  setWebItem(name, selector, triggers, callback) {
-    this._webitems[name] = {
-      name,
-      selector,
-      triggers,
-      callback
+  setWebItem(potentialWebItem) {
+    return this._webitems[potentialWebItem.name] = {
+      name: potentialWebItem.name,
+      selector: potentialWebItem.selector,
+      triggers: potentialWebItem.triggers
     };
 
   }
 
-  _addTriggers (webitem) {
-    var onTriggers = "";
-    if(_.isArray(webitem.triggers)) {
-      onTriggers = webitem.triggers.join(" ");
-    } else if (_.isString(webitem.triggers)) {
-      onTriggers = webitem.triggers.trim();
-    }
-
+  _removeTriggers(webitem) {
+    var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
     $(() => {
-      $(selector).on(onTriggers, (e) => {
+      $("body").off(onTriggers, webitem.selector, this._webitems[webitem.name]._on);
+    });
+    delete this._webitems[webitem.name]._on;
+  }
+
+  _addTriggers (webitem) {
+    var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
+    webitem._on = (e) => {
         WebItemActions.webitemInvoked(webitem, e);
-      });
+    };
+    $(() => {
+      $("body").on(onTriggers, webitem.selector, webitem._on);
     });
   }
 
@@ -47,6 +50,8 @@ class WebItem {
 
 var webItemInstance = new WebItem();
 
-EventDispatcher.register("webitem-added", webItemInstance._addTriggers);
+EventDispatcher.register("webitem-added", (data) => {
+  webItemInstance._addTriggers(data.webitem);
+});
 
 module.exports = webItemInstance;

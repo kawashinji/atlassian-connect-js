@@ -1,5 +1,12 @@
 var envify = require('envify/custom'),
-    webpack = require('webpack');
+    webpack = require('webpack'),
+    path = require("path"),
+    fs = require('graceful-fs');
+
+var cwd = process.cwd();
+var getDirs = (srcpath) => fs.readdirSync(srcpath).filter((file) => fs.statSync(path.join(srcpath, file)).isDirectory());
+var base = cwd + '/src/host';
+
 
 module.exports = function(config) {
   var baseConfig = require('./karma.base.conf.js')(config);
@@ -13,5 +20,8 @@ module.exports = function(config) {
   ];
   baseConfig.webpack.module.loaders.push({test: /(?:\/src\/host\/.*?\.js|\/spec\/tests\/.*?\.js)$/, loader: "babel-loader?cacheDirectory"});
   baseConfig.webpack.plugins.push(new webpack.DefinePlugin({'process.env.ENV': '"host"'}));
+
+  getDirs(base).forEach((root) => baseConfig.webpack.resolve.alias[root] = `${base}/${root}`);
+
   config.set(baseConfig);
 };

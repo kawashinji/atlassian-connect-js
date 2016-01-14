@@ -117,5 +117,7 @@ module.exports = function(config) {
     karmaConfig.browsers = Object.keys(customLaunchers);
     karmaConfig.concurrency = 5;
   }
+
   return karmaConfig;
 };
+
