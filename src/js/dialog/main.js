@@ -10,18 +10,27 @@
 
         var $global = $(window);
         var idSeq = 0;
+
+        // Stack of dialogs. The classic scenario is opening a full-screen editor dialog from a
+        // smaller modal dialog. Stacking overlapping dialogs is not encouraged, design-wise.
+        var dialogs = [];
+
+        // References for the currently-active dialog, cached in this scope to avoid having to pass them
+        // around from function to function.
         var $nexus;
         var dialog;
-        var dialogId;
+        var buttons;
 
-        var buttons = {
-            submit: dialogButton.submit({
-                done: closeDialog
-            }),
-            cancel: dialogButton.cancel({
-                done: closeDialog
-            })
-        };
+        function createButtons() {
+            return {
+                submit: dialogButton.submit({
+                    done: closeDialog
+                }),
+                cancel: dialogButton.cancel({
+                    done: closeDialog
+                })
+            };
+        }
 
         var keyPressListener = function(e){
             if(e.keyCode === 27 && dialog && dialog.hide){
@@ -30,10 +39,11 @@
             }
         };
 
-        function createDialogElement(options, $nexus, chromeless){
+        function createDialogElement(options){
             var $el,
             extraClasses = ['ap-aui-dialog2'];
 
+            var chromeless = !options.chrome;
             if(chromeless){
                 extraClasses.push('ap-aui-dialog2-chromeless');
             }
@@ -116,6 +126,17 @@
         }
 
         function closeDialog() {
+            if (!dialog || dialogs.length === 0) {
+                throw Error("Can't close dialog: no dialogs are currently open");
+            }
+
+            // Stop this callback being re-invoked from the hide binding when dialog.hide() is called below.
+            if (dialog.isClosing) {
+                return;
+            }
+            dialog.isClosing = true;
+
+            // Unbind and unassign singletons.
             if ($nexus) {
                 // Signal the XdmRpc for the dialog's iframe to clean up
                 $nexus.trigger("ra.iframe.destroy")
@@ -124,20 +145,50 @@
                 // Clear the nexus handle to allow subsequent dialogs to open
                 $nexus = null;
             }
-
-            // Until ACJS-91 is fixed, buttons are shared across all Connect dialogs on a page so we need
-            // to undo any changes to them.
-            buttons.submit.$el.removeClass('aui-icon aui-icon-small aui-iconfont-success');
-            buttons.cancel.$el.removeClass('aui-icon aui-icon-small aui-iconfont-close-dialog');
+            buttons = null;
 
             dialog.hide();
+
+            var closedDialog = dialogs.pop();
+            if (dialog !== closedDialog) {
+                throw Error('The dialog being closed must be the last dialog to be opened.')
+            }
+
+            // The new class-level dialog var will be the next dialog in the stack.
+            dialog = dialogs[dialogs.length - 1];
+            if (dialog) {
+                // Re-assign singletons.
+                $nexus = dialog.$el.find('.ap-servlet-placeholder');
+                buttons = $nexus.data('ra.dialog.buttons');
+            }
         }
 
         return {
-            id: dialogId,
+            _getActiveDialog: function () {
+                return dialog;
+            },
             getButton: function(name){
-                var buttons = $nexus ? $nexus.data('ra.dialog.buttons') : null;
-                return (name) && (buttons) ? buttons[name] : buttons;
+                var buttons = $nexus && $nexus.data('ra.dialog.buttons') || {};
+                return name ? buttons[name] : buttons;
+            },
+            createButton: function(name, options) {
+                var button = new dialogButton.button({
+                    type: 'secondary',
+                    text: name,
+                    additionalClasses: 'ap-dialog-custom-button'
+                });
+
+                dialog.$el.find('.aui-dialog2-footer-actions').prepend(button.$el);
+
+                buttons[name] = button;
+
+                button.$el.click(function() {
+                    if (button.isEnabled()) {
+                        button.$el.trigger("ra.dialog.click", button.dispatch);
+                    }
+                });
+
+                return button;
             },
 
             /**
@@ -153,6 +204,15 @@
             */
             create: function(options, showLoadingIndicator) {
 
+                // We don't support multiple copies of the same dialog being open at the same time.
+                var nexusId = 'ap-' + options.ns;
+                // This is a workaround because just using $('#' + nexusId) doesn't work in unit tests. :/
+                dialogs.forEach(function (dialog) {
+                    if (dialog.$el.find('#' + nexusId).length > 0) {
+                        throw new Error("Can't create dialog. A dialog is already open with namespace: " + options.ns);
+                    }
+                });
+
                 var defaultOptions = {
                         // These options really _should_ be provided by the caller, or else the dialog is pretty pointless
                         width: "50%",
@@ -163,7 +223,7 @@
                     },
                     dialogId = options.id || "ap-dialog-" + (idSeq += 1),
                     mergedOptions = $.extend({id: dialogId}, defaultOptions, options, {dlg: 1}),
-                    dialogElement;
+                    $dialogEl;
 
                 // patch for an old workaround where people would make 100% height / width dialogs.
                 if(mergedOptions.width === "100%" && mergedOptions.height === "100%"){
@@ -182,25 +242,27 @@
                 mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
                 mergedOptions.h = parseDimension(mergedOptions.height, $global.height());
 
-                $nexus = $("<div />").addClass("ap-servlet-placeholder ap-container").attr('id', 'ap-' + options.ns)
-                .bind("ra.dialog.close", closeDialog);
+                // Assign the singleton $nexus and buttons vars.
+                $nexus = $("<div />")
+                                .addClass("ap-servlet-placeholder ap-container")
+                                .attr('id', nexusId)
+                                .bind("ra.dialog.close", closeDialog);
 
-                if (mergedOptions.chrome){
-                    dialogElement = createDialogElement(mergedOptions, $nexus);
+                buttons = createButtons();
 
-                } else {
-                    dialogElement = createDialogElement(mergedOptions, $nexus, true);
-                }
+                $dialogEl = createDialogElement(mergedOptions);
+                $dialogEl.find('.aui-dialog2-content').append($nexus);
 
                 if(options.size){
                     mergedOptions.w = "100%";
                     mergedOptions.h = "100%";
                 } else {
-                    AJS.layer(dialogElement).changeSize(mergedOptions.w, mergedOptions.h);
-                    dialogElement.removeClass('aui-dialog2-medium'); // this class has a min-height so must be removed.
+                    AJS.layer($dialogEl).changeSize(mergedOptions.w, mergedOptions.h);
+                    $dialogEl.removeClass('aui-dialog2-medium'); // this class has a min-height so must be removed.
                 }
 
-                dialog = AJS.dialog2(dialogElement);
+                dialog = AJS.dialog2($dialogEl);
+                dialogs.push(dialog);
                 dialog.on("hide", closeDialog);
                 if(mergedOptions.closeOnEscape) {
                     // ESC key closes the dialog
@@ -226,12 +288,13 @@
 
                 // give the dialog iframe focus so it can capture keypress events, etc.
                 // the 'iframe' selector needs to be specified, otherwise Firefox won't focus the iframe
-                dialogElement.on('ra.iframe.create', 'iframe', function () {
+                $dialogEl.on('ra.iframe.create', 'iframe', function () {
                     this.focus();
                 });
 
                 dialog.show();
 
+                return dialog;
             },
             close: closeDialog
         };

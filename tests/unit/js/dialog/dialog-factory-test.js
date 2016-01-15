@@ -1,14 +1,11 @@
 
 require(['ac/dialog/dialog-factory'], function(dialogFactory) {
 
+    var dialog;
+    var dialogSpy;
+
     module("Dialog Factory", {
         setup: function(){
-            this.dialogSpy = {
-                show: sinon.spy(),
-                on: sinon.spy(),
-                remove: sinon.spy(),
-                hide: sinon.spy()
-            };
             this.layerSpy = {
                 changeSize: sinon.spy()
             };
@@ -18,7 +15,18 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
                 dialog2: window.AJS.dialog2
             };
 
-            AJS.dialog2 = sinon.stub().returns(this.dialogSpy);
+            // Until ac/dialog gets refactored, we need dialog.$el to be set.
+            AJS.dialog2 = function($el) {
+                dialogSpy = {
+                    show: sinon.spy(),
+                    on: sinon.spy(),
+                    remove: sinon.spy(),
+                    hide: sinon.spy(),
+                    $el: $el
+                };
+                return dialogSpy;
+            };
+
             AJS.layer = sinon.stub().returns(this.layerSpy);
 
             this.server = sinon.fakeServer.create();
@@ -42,6 +50,16 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
             window.AJS.dialog2 = this.store.dialog2;
             window.AJS.layer = this.store.layer;
             AJS.contextPath = null;
+
+            // Ensure that the dialog stack is cleared after each test.
+            var dialogsRemain = true;
+            while (dialogsRemain) {
+                try {
+                    dialog.close();
+                } catch (e) {
+                    dialogsRemain = false;
+                }
+            }
         }
     });
 
@@ -49,21 +67,21 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
         this.server.respondWith("GET", /.*somekey\/somemodulekey/,
         [200, { "Content-Type": "text/html" }, 'This is the <span id="my-span">content</span>']);
 
-        dialogFactory({
+        dialog = dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
             id: 'dialogid'
         },
         {}, "");
 
-        equal(AJS.dialog2.args[0][0].attr('id'), "dialogid", "Dialog element was created");
-        ok(this.dialogSpy.show.calledOnce, "Dialog was shown");
+        equal(dialogSpy.$el.attr('id'), "dialogid", "Dialog element was created");
+        ok(dialogSpy.show.calledOnce, "Dialog was shown");
 
     });
 
 
     test("content resolver is passed addon key", function(){
-        dialogFactory({
+        dialog = dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
             id: 'dialogid'
@@ -75,7 +93,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
 
 
     test("content resolver is passed module key", function(){
-        dialogFactory({
+        dialog = dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
             id: 'dialogid'
@@ -87,7 +105,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
 
     test("content resolver is passed product Context", function(){
         var productContext = {a: 'a'};
-        dialogFactory({
+        dialog = dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
             id: 'dialogid'
@@ -99,7 +117,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
     });
 
     test("content resolver is passed uiParams", function(){
-        dialogFactory({
+        dialog = dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
             id: 'dialogid'
@@ -115,8 +133,8 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
                 user: 'Some User'
             },
             key: 'value'
-        }
-        dialogFactory({
+        };
+        dialog = dialogFactory({
             key: 'somekey',
             moduleKey: 'somemodulekey',
             id: 'dialogid'
