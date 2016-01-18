@@ -36,6 +36,7 @@ class LoadingIndicator {
     if (spinner.length && spinner.spin) {
       spinner.spin({lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1});
     }
+    return container;
   }
 
   hide($iframeContainer, extensionId){
@@ -57,6 +58,7 @@ class LoadingIndicator {
       LoadingIndicatorActions.cancelled($iframeContainer, extensionId);
     });
     delete this._stateRegistry[extensionId];
+    return container;
   }
 }
 
