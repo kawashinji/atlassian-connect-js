@@ -167,7 +167,10 @@
             _getActiveDialog: function () {
                 return dialog;
             },
-            getButton: function(name){
+            isCloseOnEscape: function () {
+                return $nexus && $nexus.data('ra.dialog.closeOnEscape');
+            },
+            getButton: function (name) {
                 var buttons = $nexus && $nexus.data('ra.dialog.buttons') || {};
                 return name ? buttons[name] : buttons;
             },
@@ -264,9 +267,16 @@
                 dialog = AJS.dialog2($dialogEl);
                 dialogs.push(dialog);
                 dialog.on("hide", closeDialog);
+
+                $nexus.data('ra.dialog.closeOnEscape', mergedOptions.closeOnEscape);
+
                 if(mergedOptions.closeOnEscape) {
                     // ESC key closes the dialog
-                    $(document).on("keydown", keyPressListener);
+                    $(document).on("keydown", function (event) {
+                        if(mergedOptions.closeOnEscape) {
+                            keyPressListener(event);
+                        }
+                    });
                 }
 
                 $.each(buttons, function(name, button) {
@@ -304,10 +314,10 @@
 
 AJS.toInit(function ($) {
 
-    (function(require, AJS){
-        if(typeof window._AP !== "undefined"){
+    (function (require, AJS) {
+        if (typeof window._AP !== "undefined") {
             //_AP.dialog global fallback.
-            require(['ac/dialog'], function(dialog){
+            require(['ac/dialog'], function (dialog) {
                 _AP.Dialog = dialog;
             });
         }
