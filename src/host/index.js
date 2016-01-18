@@ -1,3 +1,4 @@
+import EventDispatcher from 'dispatchers/event_dispatcher';
 import simpleXDM from 'simple-xdm/dist/host';
 import jwtActions from 'actions/jwt_actions';
 
@@ -12,6 +13,7 @@ import env from './extensions/env';
 // import inlineDialogBinder from './inline-dialog/binder';
 import loadingIndicator from './components/loading_indicator';
 import messages from './extensions/messages';
+import ExtensionActions from 'actions/extension_actions';
 // import resize from './resize';
 // import uiParams from '../common/ui-params';
 // import uri from '../common/uri';
@@ -41,11 +43,18 @@ simpleXDM.defineModule('events', events);
 // rpc.extend(resize);
 // rpc.extend(propagator);
 
+EventDispatcher.register("extension-define-custom", function(data){
+  simpleXDM.defineModule(data.name, data.methods);
+});
+
 export default {
   registerContentResolver: {
     resolveByExtension: (callback) => {
       jwtActions.registerContentResolver({callback: callback});
     }
+  },
+  defineExtension: (name, methods) => {
+    ExtensionActions.defineCustomExtension(name, methods);
   },
   // extend: rpc.extend,
   // init: rpc.init,
