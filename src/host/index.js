@@ -1,4 +1,6 @@
 import simpleXDM from 'simple-xdm/dist/host';
+import jwtActions from 'actions/jwt_actions';
+
 import events from './extensions/events';
 // import content from './content';
 import create from './create';
@@ -29,8 +31,6 @@ simpleXDM.defineModule('messages', messages);
 simpleXDM.defineModule('dialog', dialog);
 simpleXDM.defineModule('env', env);
 simpleXDM.defineModule('events', events);
-// AJS.toInit(dialogBinder);
-// AJS.toInit(inlineDialogBinder);
 
 // rpc.extend(addons);
 // rpc.extend(dialogRpc);
@@ -42,6 +42,11 @@ simpleXDM.defineModule('events', events);
 // rpc.extend(propagator);
 
 export default {
+  registerContentResolver: {
+    resolveByExtension: (callback) => {
+      jwtActions.registerContentResolver({callback: callback});
+    }
+  },
   // extend: rpc.extend,
   // init: rpc.init,
   // uiParams,
@@ -50,4 +55,4 @@ export default {
   // _statusHelper: statusHelper,
   // webItemHelper: content,
   // dialog: dialog
-}
+};
