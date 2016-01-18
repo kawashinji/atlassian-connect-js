@@ -12,7 +12,8 @@ function _getJwt(urlStr) {
 }
 
 function hasJwt(url) {
-  return (_getJwt(url).length !== 0);
+  var jwt = _getJwt(url);
+  return (jwt && _getJwt(url).length !== 0);
   
 }
 

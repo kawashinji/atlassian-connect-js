@@ -1,6 +1,5 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import $ from '../dollar';
-import util from '../util';
 import urlUtil from 'utils/url';
 import JwtActions from 'actions/jwt_actions';
 import IframeActions from 'actions/iframe_actions';
@@ -25,7 +24,6 @@ class IframeContainer {
   createExtension(extension) {
     var $iframe,
       $container = this._renderContainer();
-
     if(urlUtil.hasJwt(extension.url) && urlUtil.isJwtExpired(extension.url)){
       this._urlContainerRegistry[extension.id] = $container;
       JwtActions.requestRefreshUrl({extension, resolver: this._contentResolver});
