@@ -15,8 +15,8 @@ EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
     };
   }
 
-  if(!_.isObject(_channels[data.addon_key][data.extension_id])) {
-    _channels[data.addon_key][data.extension_id] = {};
+  if(!_.isObject(_channels[data.addon_key][data.id])) {
+    _channels[data.addon_key][data.id] = {};
   }
 });
 
