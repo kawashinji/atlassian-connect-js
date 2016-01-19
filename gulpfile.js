@@ -39,7 +39,7 @@ function build(entryModule, distModule, options) {
             .pipe(buffer())
             .pipe(sourcemaps.init({loadMaps: true}))
                 .pipe(derequire())
-            .pipe(replace(/define\(\[\]/, 'define("connect-host",[]'))
+            .pipe(replace(/define\(\[\]/, 'define("' + distModule + '",[]'))
             .pipe(sourcemaps.write('./'))
             .pipe(gulp.dest('./dist'));
     }
