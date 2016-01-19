@@ -14,7 +14,7 @@ var watch = require('gulp-watch');
 var watchify = require('watchify');
 var concat = require('gulp-concat');
 var minifyCSS = require('gulp-minify-css');
-
+var replace = require('gulp-replace');
 
 function getTask(task) {
     return require('./gulp-tasks/' + task)(gulp);
@@ -39,6 +39,7 @@ function build(entryModule, distModule, options) {
             .pipe(buffer())
             .pipe(sourcemaps.init({loadMaps: true}))
                 .pipe(derequire())
+            .pipe(replace(/define\(\[\]/, 'define("connect-host",[]'))
             .pipe(sourcemaps.write('./'))
             .pipe(gulp.dest('./dist'));
     }
