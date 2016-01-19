@@ -6,6 +6,7 @@ import simpleXDM from 'simple-xdm/dist/host';
 import urlUtil from 'utils/url';
 
 const CONTAINER_CLASSES = ["ap-container"];
+const DEFAULT_IFRAME_ATTRIBUTES = {width: "100%"};
 
 class Iframe {
   constructor () {
@@ -28,7 +29,8 @@ class Iframe {
   }
 
   _renderIframe(attributes){
-    return $("<iframe />").attr(attributes || {});
+    var attrs = $.extend({}, DEFAULT_IFRAME_ATTRIBUTES, attributes);
+    return $("<iframe />").attr(attrs);
   }
 }
 

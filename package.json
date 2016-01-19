@@ -23,7 +23,6 @@
     "gulp-concat": "^2.5.2",
     "gulp-derequire": "^2.1.0",
     "gulp-minify-css": "^1.1.1",
-    "gulp-replace": "^0.5.4",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-util": "^3.0.4",
     "gulp-watch": "^4.2.4",
