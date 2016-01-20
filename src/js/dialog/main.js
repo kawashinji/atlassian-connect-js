@@ -232,8 +232,10 @@
                     mergedOptions.size = 'maximum';
                 }
                 if (mergedOptions.size === 'maximum' &&
-                    mergedOptions.chrome !== false) {
-                    mergedOptions.chrome = true; // chrome is forced in fullscreen mode.
+                    typeof mergedOptions.chrome === 'undefined') {
+                    // ACJS-129 This default will be set to true in a future release and then, depending on design intention,
+                    // it might be hard-coded to be true (with no opt-out by setting chrome:false in the dialog options)
+                    mergedOptions.chrome = false;
                 }
 
                 mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
@@ -247,7 +249,7 @@
 
                 buttons = createButtons();
 
-                $dialogEl = createDialogElement(mergedOptions, buttons);
+                $dialogEl = createDialogElement(mergedOptions);
                 $dialogEl.find('.aui-dialog2-content').append($nexus);
 
                 if(options.size){

@@ -31,7 +31,8 @@ AJS.toInit(function ($) {
                     }
 
                     //default chrome to be true for backwards compatibility with webitems
-                    if(options.chrome === undefined){
+                    // ACJS-129 Keep chrome as opt-in for 'maximum' dialogs.
+                    if(options.chrome === undefined && options.size !== 'maximum'){
                       options.chrome = true;
                     }
 
