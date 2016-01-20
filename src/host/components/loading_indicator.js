@@ -22,9 +22,9 @@ class LoadingIndicator {
     return $iframeContainer.find('.' + LOADING_INDICATOR_CLASS);
   }
 
-  show($iframeContainer, extensionId) {
-    this._stateRegistry[extensionId] = setTimeout(() => {
-      LoadingIndicatorActions.timeout($iframeContainer, extensionId);
+  show($iframeContainer, extension) {
+    this._stateRegistry[extension.id] = setTimeout(() => {
+      LoadingIndicatorActions.timeout($iframeContainer, extension);
     }, LOADING_TIMEOUT);
     var container = this._loadingContainer($iframeContainer);
     if(!container.length) {
@@ -65,16 +65,16 @@ class LoadingIndicator {
 var LoadingComponent = new LoadingIndicator();
 
 EventDispatcher.register('iframe-create', (data) => {
-  LoadingComponent.show(data.$el, data.extension.id);
+  LoadingComponent.show(data.$el, data.extension);
 });
 EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
-  LoadingComponent.hide(data.$el, data.id);
+  LoadingComponent.hide(data.$el, data.extension.id);
 });
 EventDispatcher.register('iframe-bridge-timeout', (data) => {
-  LoadingComponent.timeout(data.$el, data.id);
+  LoadingComponent.timeout(data.$el, data.extension.id);
 });
 EventDispatcher.register('iframe-bridge-cancelled', (data) => {
-  LoadingComponent.cancelled(data.$el, data.id);
+  LoadingComponent.cancelled(data.$el, data.extension.id);
 });
 
 export default LoadingComponent;

@@ -18,7 +18,10 @@ class IframeContainer {
   }
 
   _insertIframe($container, extension) {
-    $container.append(IframeComponent.simpleXdmExtension(extension));
+    var simpleExtension = IframeComponent.simpleXdmExtension(extension);
+    $container.append(simpleExtension.$el);
+    IframeActions.notifyIframeCreated(simpleExtension.$el, simpleExtension.extension);
+
   }
 
   createExtension(extension) {
@@ -30,6 +33,7 @@ class IframeContainer {
     } else {
       this._insertIframe($container, extension);
     }
+
     return $container;
   }
   resolverResponse(data) {

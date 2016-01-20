@@ -9,14 +9,14 @@ var _channels = {};
 
 // create holding object under _channels.
 EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
-  if(!_.isObject(_channels[data.addon_key])) {
-    _channels[data.addon_key] = {
+  if(!_.isObject(_channels[data.extension.addon_key])) {
+    _channels[data.extension.addon_key] = {
       _any: []
     };
   }
 
-  if(!_.isObject(_channels[data.addon_key][data.id])) {
-    _channels[data.addon_key][data.id] = {};
+  if(!_.isObject(_channels[data.extension.addon_key][data.extension.id])) {
+    _channels[data.extension.addon_key][data.extension.id] = {};
   }
 });
 

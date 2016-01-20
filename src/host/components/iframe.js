@@ -17,15 +17,14 @@ class Iframe {
     var $iframe,
       iframeAttributes = simpleXDM.create(extension, function(extension_id){
         extension.id = extension_id;
-        EventDispatcher.dispatch("iframe-bridge-estabilshed", $.extend({
-          $el: $iframe
-        }, extension));
+        EventDispatcher.dispatch("iframe-bridge-estabilshed", {
+          $el: $iframe,
+          extension
+        });
       });
     extension.id = iframeAttributes.id;
     $iframe = this._renderIframe(iframeAttributes);
-    // $container.append($iframe);
-    // IframeActions.notifyIframeCreated($container, extension.id, extension);
-    return $iframe;
+    return {$el: $iframe, extension};
   }
 
   _renderIframe(attributes){

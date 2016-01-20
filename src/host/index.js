@@ -1,3 +1,4 @@
+import AnalyticsDispatcher from 'dispatchers/analytics_dispatcher';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import simpleXDM from 'simple-xdm/dist/host';
 import jwtActions from 'actions/jwt_actions';
@@ -8,6 +9,7 @@ import env from './extensions/env';
 import loadingIndicator from './components/loading_indicator';
 import messages from './extensions/messages';
 import ExtensionActions from 'actions/extension_actions';
+
 // import propagator from './propagate/rpc';
 
 /**
@@ -29,6 +31,15 @@ simpleXDM.defineModule('events', events);
 
 EventDispatcher.register("extension-define-custom", function(data){
   simpleXDM.defineModule(data.name, data.methods);
+});
+
+simpleXDM.registerRequestNotifier(function(data){
+  AnalyticsDispatcher.dispatch('bridge.invokemethod', {
+    module: data.module,
+    fn: data.fn,
+    addonKey: data.addon_key,
+    moduleKey: data.key
+  });
 });
 
 export default {
