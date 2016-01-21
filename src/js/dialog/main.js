@@ -270,14 +270,13 @@
                 dialogs.push(dialog);
                 dialog.on("hide", closeDialog);
 
+                // store it here so the client side handler can also check this value
                 $nexus.data('ra.dialog.closeOnEscape', mergedOptions.closeOnEscape);
 
                 if(mergedOptions.closeOnEscape) {
                     // ESC key closes the dialog
                     $(document).on("keydown", function (event) {
-                        if(mergedOptions.closeOnEscape) {
-                            keyPressListener(event);
-                        }
+                        keyPressListener(event);
                     });
                 }
 

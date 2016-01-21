@@ -61,7 +61,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
          * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
          * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
          * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
-         * @property {Boolean}       closeOnEscape (optional) if true will close the dialog when ESC is pressed (default true).
+         * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC will close the dialog (default is true).
          */
 
         /**
@@ -138,6 +138,36 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
           this.getButton(buttonName).bind(listener);
         },
 
+
+        /**
+         * Query a button for it's current state.
+         * @memberOf Dialog~DialogButton
+         * @param {Function} callback function to receive the button state.
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
+             *   dialog.getButton('submit').isEnabled(function(enabled){
+             *     if(enabled){
+             *       //button is enabled
+             *     }
+             *   });
+             * });
+         */
+
+        /**
+         * Queries the value of the 'closeOnEscape' property.  If this property is true
+         * then the dialog should close it ESC is pressed.
+         * @param {Function} callback function to receive the 'closeOnEscape' value.
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
+             *   dialog.isCloseOnEscape(function(enabled){
+             *     if(enabled){
+             *       //close on escape is true
+             *     }
+             *   });
+             * });
+         */
         isCloseOnEscape: function(callback) {
           remote.isCloseOnEscape(callback);
         },
