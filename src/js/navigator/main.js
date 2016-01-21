@@ -8,7 +8,7 @@
         };
 
         var go = function (target, context) {
-            if(Object.getOwnPropertyNames(routes).length === 0) {
+            if (Object.getOwnPropertyNames(routes).length === 0) {
                 AJS.error("No routes defined");
                 return;
             }
@@ -37,12 +37,16 @@
         };
 
         var setContextFunction = function (newContextFunction) {
-            contextFunction = newContextFunction;
+            if (typeof newContextFunction === 'function') {
+                contextFunction = newContextFunction;
+            } else {
+                throw new Error("invalid context function specified");
+            }
         };
 
         var getCurrent = function (callback) {
-            if (!callback || typeof callback !== "function") {
-                throw new Error("callback function not specified")
+            if (typeof callback !== "function") {
+                throw new Error("invalid callback function specified")
             }
 
             if (typeof contextFunction === "function") {
