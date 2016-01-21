@@ -243,10 +243,11 @@ require(['ac/dialog'], function(simpleDialog) {
         equal(dialogElement().find(".ap-dialog-cancel").length, 1);
     });
 
-    test("fullscreen dialogs contain submit and cancel buttons in the header", function(){
+    test("fullscreen dialogs with chrome contain submit and cancel buttons in the header", function(){
         simpleDialog.create({
             id: "my-dialog",
-            size: 'fullscreen'
+            size: 'fullscreen',
+            chrome: true
         });
 
         equal(dialogElement().find("header .ap-dialog-submit").length, 1);

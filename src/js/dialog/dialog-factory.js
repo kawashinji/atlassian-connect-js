@@ -15,10 +15,15 @@
             container,
             uiParams = $.extend({isDialog: 1}, options.uiParams, {customData: dialogOptions.customData});
 
+            var chrome = dialogOptions.chrome;
+            if (typeof chrome === 'undefined') {
+                chrome = options.chrome;
+            }
+
             var createdDialog = dialog.create({
                 id: options.id,
                 ns: options.moduleKey || options.key,
-                chrome: dialogOptions.chrome || options.chrome,
+                chrome: chrome,
                 header: dialogOptions.header,
                 width: dialogOptions.width,
                 height: dialogOptions.height,
