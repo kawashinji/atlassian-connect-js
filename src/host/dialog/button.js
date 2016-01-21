@@ -1,10 +1,17 @@
 import $ from '../dollar';
+import EventDispatcher from 'dispatchers/event_dispatcher';
+
+function buttonClick(e){
+  EventDispatcher.dispatch('dialog-button-click', $(e.target));
+}
 
 function Button(options) {
   this.$el = $('<button />')
       .text(options.text)
       .addClass('aui-button aui-button-' + options.type)
-      .addClass(options.additionalClasses);
+      .addClass(options.additionalClasses)
+      .data('options',options)
+      .click(buttonClick);
 
   this.isEnabled = function () {
     return !(this.$el.attr('aria-disabled') === 'true');
@@ -21,20 +28,6 @@ function Button(options) {
 
   this.setEnabled(true);
 
-  this.click = function (listener) {
-    if (listener) {
-      this.$el.unbind('ra.dialog.click');
-      this.$el.bind('ra.dialog.click', listener);
-    } else {
-      this.dispatch(true);
-    }
-  };
-
-  this.dispatch = function (result) {
-    var name = result ? 'done' : 'fail';
-    options.actions && options.actions[name] && options.actions[name]();
-  };
-
   this.setText = function (text) {
     if (text) {
       this.$el.text(text);
@@ -44,22 +37,12 @@ function Button(options) {
 }
 
 export default {
-  submit(actions) {
-    return new Button({
-      type: 'primary',
-      text: 'Submit',
-      additionalClasses: 'ap-dialog-submit',
-      actions: actions
-    });
-  },
-
-  cancel(actions) {
-    return new Button({
+  render (text, options){
+    var defaults = {
       type: 'link',
-      text: 'Cancel',
-      noDisable: true,
-      additionalClasses: 'ap-dialog-cancel',
-      actions: actions
-    });
+      additionalClasses: 'ap-dialog-button'
+    };
+
+    return new Button($.extend({text}, defaults, options));
   }
 }

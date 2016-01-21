@@ -10,7 +10,7 @@
   },
   "scripts": {
     "prepublish": "gulp",
-    "test": "karma start test/karma.conf.js --single-run && karma start test/karma.iframe.conf --single-run"
+    "test": "gulp karma-ci"
   },
   "devDependencies": {
     "babel-core": "^5.8.34",
@@ -28,22 +28,27 @@
     "gulp-sourcemaps": "^1.5.2",
     "gulp-util": "^3.0.4",
     "gulp-watch": "^4.2.4",
+    "jasmine-core": "^2.4.1",
     "karma": "^0.13.15",
     "karma-browserify": "^4.1.2",
-    "karma-chrome-launcher": "^0.2.1",
+    "karma-chrome-launcher": "^0.1.5",
     "karma-cli": "0.1.1",
-    "karma-firefox-launcher": "~0.1",
+    "karma-firefox-launcher": "~0.1.3",
     "karma-html2js-preprocessor": "~0.1",
-    "karma-ie-launcher": "^0.2.0",
-    "karma-junit-reporter": "^0.3.8",
-    "karma-qunit": "^0.1.4",
-    "karma-safari-launcher": "~0.1",
+    "karma-jasmine": "^0.3.5",
+    "karma-jasmine-ajax": "^0.1.12",
+    "karma-junit-reporter": "^0.2.2",
+    "karma-nyan-reporter": "0.0.60",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "karma-safari-launcher": "^0.1.1",
     "karma-sauce-launcher": "^0.3.0",
     "karma-sinon": "^1.0.4",
+    "karma-sourcemap-loader": "^0.3.5",
     "karma-webpack": "1.7.0",
     "lodash": "^3.7.0",
     "node-libs-browser": "^0.5.2",
     "qunitjs": "^1.18.0",
+    "run-sequence": "^1.0.2",
     "sinon": "^1.14.1",
     "unreachable-branch-transform": "^0.5.0",
     "vinyl-buffer": "^1.0.0",
@@ -53,8 +58,9 @@
   },
   "dependencies": {
     "base-64": "^0.1.0",
+    "events": "^1.1.0",
     "jsuri": "^1.3.1",
-    "simple-xdm": "^0.2.4",
+    "simple-xdm": "0.2.7",
     "utf8": "^2.1.0"
   },
   "optionalDependencies": {

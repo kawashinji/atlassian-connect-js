@@ -16,9 +16,14 @@ var concat = require('gulp-concat');
 var minifyCSS = require('gulp-minify-css');
 var eslint = require('gulp-eslint');
 
+function getTask(task) {
+    return require('./gulp-tasks/' + task)(gulp);
+}
+
 function build(entryModule, distModule, options) {
     var bundler = browserify(entryModule, {
       debug: true,
+      paths: ['src/host'],
       standalone: options.standalone || distModule
     }).transform(babelify)
       .transform(envify(options.env || {}))
@@ -105,3 +110,6 @@ gulp.task('watch', ['plugin:watch', 'host:watch']);
 gulp.task('build', ['lint', 'plugin:build', 'host:build']);
 
 gulp.task('default', ['build', 'css:minify']);
+
+gulp.task('karma', getTask('karma'));
+gulp.task('karma-ci', getTask('karma-ci'));

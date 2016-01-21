@@ -169,6 +169,306 @@
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
 },{}],2:[function(_dereq_,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+function EventEmitter() {
+  this._events = this._events || {};
+  this._maxListeners = this._maxListeners || undefined;
+}
+module.exports = EventEmitter;
+
+// Backwards-compat with node 0.10.x
+EventEmitter.EventEmitter = EventEmitter;
+
+EventEmitter.prototype._events = undefined;
+EventEmitter.prototype._maxListeners = undefined;
+
+// By default EventEmitters will print a warning if more than 10 listeners are
+// added to it. This is a useful default which helps finding memory leaks.
+EventEmitter.defaultMaxListeners = 10;
+
+// Obviously not all Emitters should be limited to 10. This function allows
+// that to be increased. Set to zero for unlimited.
+EventEmitter.prototype.setMaxListeners = function(n) {
+  if (!isNumber(n) || n < 0 || isNaN(n))
+    throw TypeError('n must be a positive number');
+  this._maxListeners = n;
+  return this;
+};
+
+EventEmitter.prototype.emit = function(type) {
+  var er, handler, len, args, i, listeners;
+
+  if (!this._events)
+    this._events = {};
+
+  // If there is no 'error' event listener then throw.
+  if (type === 'error') {
+    if (!this._events.error ||
+        (isObject(this._events.error) && !this._events.error.length)) {
+      er = arguments[1];
+      if (er instanceof Error) {
+        throw er; // Unhandled 'error' event
+      }
+      throw TypeError('Uncaught, unspecified "error" event.');
+    }
+  }
+
+  handler = this._events[type];
+
+  if (isUndefined(handler))
+    return false;
+
+  if (isFunction(handler)) {
+    switch (arguments.length) {
+      // fast cases
+      case 1:
+        handler.call(this);
+        break;
+      case 2:
+        handler.call(this, arguments[1]);
+        break;
+      case 3:
+        handler.call(this, arguments[1], arguments[2]);
+        break;
+      // slower
+      default:
+        args = Array.prototype.slice.call(arguments, 1);
+        handler.apply(this, args);
+    }
+  } else if (isObject(handler)) {
+    args = Array.prototype.slice.call(arguments, 1);
+    listeners = handler.slice();
+    len = listeners.length;
+    for (i = 0; i < len; i++)
+      listeners[i].apply(this, args);
+  }
+
+  return true;
+};
+
+EventEmitter.prototype.addListener = function(type, listener) {
+  var m;
+
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  if (!this._events)
+    this._events = {};
+
+  // To avoid recursion in the case that type === "newListener"! Before
+  // adding it to the listeners, first emit "newListener".
+  if (this._events.newListener)
+    this.emit('newListener', type,
+              isFunction(listener.listener) ?
+              listener.listener : listener);
+
+  if (!this._events[type])
+    // Optimize the case of one listener. Don't need the extra array object.
+    this._events[type] = listener;
+  else if (isObject(this._events[type]))
+    // If we've already got an array, just append.
+    this._events[type].push(listener);
+  else
+    // Adding the second element, need to change to array.
+    this._events[type] = [this._events[type], listener];
+
+  // Check for listener leak
+  if (isObject(this._events[type]) && !this._events[type].warned) {
+    if (!isUndefined(this._maxListeners)) {
+      m = this._maxListeners;
+    } else {
+      m = EventEmitter.defaultMaxListeners;
+    }
+
+    if (m && m > 0 && this._events[type].length > m) {
+      this._events[type].warned = true;
+      console.error('(node) warning: possible EventEmitter memory ' +
+                    'leak detected. %d listeners added. ' +
+                    'Use emitter.setMaxListeners() to increase limit.',
+                    this._events[type].length);
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
+    }
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+EventEmitter.prototype.once = function(type, listener) {
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  var fired = false;
+
+  function g() {
+    this.removeListener(type, g);
+
+    if (!fired) {
+      fired = true;
+      listener.apply(this, arguments);
+    }
+  }
+
+  g.listener = listener;
+  this.on(type, g);
+
+  return this;
+};
+
+// emits a 'removeListener' event iff the listener was removed
+EventEmitter.prototype.removeListener = function(type, listener) {
+  var list, position, length, i;
+
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  if (!this._events || !this._events[type])
+    return this;
+
+  list = this._events[type];
+  length = list.length;
+  position = -1;
+
+  if (list === listener ||
+      (isFunction(list.listener) && list.listener === listener)) {
+    delete this._events[type];
+    if (this._events.removeListener)
+      this.emit('removeListener', type, listener);
+
+  } else if (isObject(list)) {
+    for (i = length; i-- > 0;) {
+      if (list[i] === listener ||
+          (list[i].listener && list[i].listener === listener)) {
+        position = i;
+        break;
+      }
+    }
+
+    if (position < 0)
+      return this;
+
+    if (list.length === 1) {
+      list.length = 0;
+      delete this._events[type];
+    } else {
+      list.splice(position, 1);
+    }
+
+    if (this._events.removeListener)
+      this.emit('removeListener', type, listener);
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.removeAllListeners = function(type) {
+  var key, listeners;
+
+  if (!this._events)
+    return this;
+
+  // not listening for removeListener, no need to emit
+  if (!this._events.removeListener) {
+    if (arguments.length === 0)
+      this._events = {};
+    else if (this._events[type])
+      delete this._events[type];
+    return this;
+  }
+
+  // emit removeListener for all listeners on all events
+  if (arguments.length === 0) {
+    for (key in this._events) {
+      if (key === 'removeListener') continue;
+      this.removeAllListeners(key);
+    }
+    this.removeAllListeners('removeListener');
+    this._events = {};
+    return this;
+  }
+
+  listeners = this._events[type];
+
+  if (isFunction(listeners)) {
+    this.removeListener(type, listeners);
+  } else if (listeners) {
+    // LIFO order
+    while (listeners.length)
+      this.removeListener(type, listeners[listeners.length - 1]);
+  }
+  delete this._events[type];
+
+  return this;
+};
+
+EventEmitter.prototype.listeners = function(type) {
+  var ret;
+  if (!this._events || !this._events[type])
+    ret = [];
+  else if (isFunction(this._events[type]))
+    ret = [this._events[type]];
+  else
+    ret = this._events[type].slice();
+  return ret;
+};
+
+EventEmitter.prototype.listenerCount = function(type) {
+  if (this._events) {
+    var evlistener = this._events[type];
+
+    if (isFunction(evlistener))
+      return 1;
+    else if (evlistener)
+      return evlistener.length;
+  }
+  return 0;
+};
+
+EventEmitter.listenerCount = function(emitter, type) {
+  return emitter.listenerCount(type);
+};
+
+function isFunction(arg) {
+  return typeof arg === 'function';
+}
+
+function isNumber(arg) {
+  return typeof arg === 'number';
+}
+
+function isObject(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+
+function isUndefined(arg) {
+  return arg === void 0;
+}
+
+},{}],3:[function(_dereq_,module,exports){
 /*!
  * jsUri
  * https://github.com/derek-watson/jsUri
@@ -630,7 +930,681 @@
   }
 }(this));
 
-},{}],3:[function(_dereq_,module,exports){
+},{}],4:[function(_dereq_,module,exports){
+(function (global){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.host = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _xdmrpc = _dereq_('./xdmrpc');
+
+var _xdmrpc2 = _interopRequireDefault(_xdmrpc);
+
+var _commonUtil = _dereq_('../common/util');
+
+var _commonUtil2 = _interopRequireDefault(_commonUtil);
+
+var Connect = (function () {
+  function Connect() {
+    _classCallCheck(this, Connect);
+
+    this._xdm = new _xdmrpc2['default']();
+  }
+
+  /**
+   * Send a message to iframes matching the targetSpec. This message is added to
+   *  a message queue for delivery to ensure the message is received if an iframe 
+   *  has not yet loaded
+   * 
+   * @param type The name of the event type
+   * @param targetSpec The spec to match against extensions when sending this event
+   * @param event The event payload
+   * @param callback A callback to be executed when the remote iframe calls its callback
+   */
+
+  _createClass(Connect, [{
+    key: 'dispatch',
+    value: function dispatch(type, targetSpec, event, callback) {
+      this._xdm.queueEvent(type, targetSpec, event, callback);
+      return this.getExtensions(targetSpec);
+    }
+
+    /**
+     * Send a message to iframes matching the targetSpec immediately. This message will 
+     *  only be sent to iframes that are already open, and will not be delivered if none
+     *  are currently open.
+     * 
+     * @param type The name of the event type
+     * @param targetSpec The spec to match against extensions when sending this event
+     * @param event The event payload
+     */
+  }, {
+    key: 'broadcast',
+    value: function broadcast(type, targetSpec, event) {
+      this._xdm.dispatch(type, targetSpec, event, null, null);
+      return this.getExtensions(targetSpec);
+    }
+  }, {
+    key: '_createId',
+    value: function _createId(extension) {
+      if (!extension.addon_key || !extension.key) {
+        throw Error('Extensions require addon_key and key');
+      }
+      return extension.addon_key + '__' + extension.key + '__' + _commonUtil2['default'].randomString();
+    }
+
+    /**
+    * Creates a new iframed module, without actually creating the DOM element.
+    * The iframe attributes are passed to the 'setupCallback', which is responsible for creating
+    * the DOM element and returning the window reference.
+    *
+    * @param extension The extension definition. Example:
+    *   {
+    *     addon_key: 'my-addon',
+    *     key: 'my-module',
+    *     url: 'https://example.com/my-module',
+    *     options: { autoresize: false }
+    *   }
+    *
+    * @param initCallback The optional initCallback is called when the bridge between host and iframe is established.
+    **/
+  }, {
+    key: 'create',
+    value: function create(extension, initCallback) {
+      var extension_id = this.registerExtension(extension, initCallback);
+
+      var data = {
+        extension_id: extension_id,
+        api: this._xdm.getApiSpec(),
+        origin: _commonUtil2['default'].locationOrigin(),
+        options: extension.options || {}
+      };
+
+      return {
+        id: extension_id,
+        name: JSON.stringify(data),
+        src: extension.url
+      };
+    }
+  }, {
+    key: 'registerRequestNotifier',
+    value: function registerRequestNotifier(callback) {
+      this._xdm.registerRequestNotifier(callback);
+    }
+  }, {
+    key: 'registerExtension',
+    value: function registerExtension(extension, initCallback) {
+      var extension_id = this._createId(extension);
+      this._xdm.registerExtension(extension_id, {
+        extension: extension,
+        initCallback: initCallback
+      });
+      return extension_id;
+    }
+  }, {
+    key: 'defineModule',
+    value: function defineModule(moduleName, module) {
+      this._xdm.defineAPIModule(module, moduleName);
+    }
+  }, {
+    key: 'defineGlobals',
+    value: function defineGlobals(module) {
+      this._xdm.defineAPIModule(module);
+    }
+  }, {
+    key: 'getExtensions',
+    value: function getExtensions(filter) {
+      return this._xdm.getRegisteredExtensions(filter);
+    }
+  }, {
+    key: 'unregisterExtension',
+    value: function unregisterExtension(filter) {
+      return this._xdm.unregisterExtension(filter);
+    }
+  }]);
+
+  return Connect;
+})();
+
+module.exports = new Connect();
+
+},{"../common/util":3,"./xdmrpc":4}],2:[function(_dereq_,module,exports){
+"use strict";
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var _util = _dereq_('./util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var PostMessage = (function () {
+  function PostMessage(data) {
+    _classCallCheck(this, PostMessage);
+
+    var d = data || {};
+    this._registerListener(d.listenOn);
+  }
+
+  // listen for postMessage events (defaults to window).
+
+  _createClass(PostMessage, [{
+    key: "_registerListener",
+    value: function _registerListener(listenOn) {
+      if (!listenOn || !listenOn.addEventListener) {
+        listenOn = window;
+      }
+      listenOn.addEventListener("message", _util2["default"]._bind(this, this._receiveMessage), false);
+    }
+  }, {
+    key: "_receiveMessage",
+    value: function _receiveMessage(event) {
+      var extensionId = event.data.eid,
+          reg = undefined;
+
+      if (extensionId && this._registeredExtensions) {
+        reg = this._registeredExtensions[extensionId];
+      }
+
+      if (!this._checkOrigin(event, reg)) {
+        return false;
+      }
+
+      var handler = this._messageHandlers[event.data.type];
+      if (handler) {
+        handler.call(this, event, reg);
+      }
+    }
+  }]);
+
+  return PostMessage;
+})();
+
+module.exports = PostMessage;
+
+},{"./util":3}],3:[function(_dereq_,module,exports){
+"use strict";
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var LOG_PREFIX = "[Simple-XDM] ";
+
+var Util = (function () {
+  function Util() {
+    _classCallCheck(this, Util);
+  }
+
+  _createClass(Util, [{
+    key: "locationOrigin",
+    value: function locationOrigin() {
+      if (!window.location.origin) {
+        return window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+      } else {
+        return window.location.origin;
+      }
+    }
+  }, {
+    key: "randomString",
+    value: function randomString() {
+      return Math.floor(Math.random() * 1000000000).toString(16);
+    }
+  }, {
+    key: "isString",
+    value: function isString(str) {
+      return typeof str === "string" || str instanceof String;
+    }
+
+    // might be un-needed
+  }, {
+    key: "argumentsToArray",
+    value: function argumentsToArray(arrayLike) {
+      var array = [];
+      for (var i = 0; i < arrayLike.length; i++) {
+        array.push(arrayLike[i]);
+      }
+      return array;
+    }
+  }, {
+    key: "hasCallback",
+    value: function hasCallback(args) {
+      var length = args.length;
+      return length > 0 && typeof args[length - 1] === 'function';
+    }
+  }, {
+    key: "error",
+    value: function error(msg) {
+      if (window.console) {
+        console.error(LOG_PREFIX + msg);
+      }
+    }
+  }, {
+    key: "warn",
+    value: function warn(msg) {
+      if (window.console) {
+        console.warn(LOG_PREFIX + msg);
+      }
+    }
+  }, {
+    key: "_bind",
+    value: function _bind(thisp, fn) {
+      if (Function.prototype.bind) {
+        return fn.bind(thisp);
+      }
+      return function () {
+        return fn.apply(thisp, arguments);
+      };
+    }
+  }, {
+    key: "each",
+    value: function each(o, it) {
+      var l;
+      var k;
+      if (o) {
+        l = o.length;
+        if (l != null && typeof o !== 'function') {
+          k = 0;
+          while (k < l) {
+            if (it.call(o[k], k, o[k]) === false) {
+              break;
+            }
+            k += 1;
+          }
+        } else {
+          for (k in o) {
+            if (o.hasOwnProperty(k)) {
+              if (it.call(o[k], k, o[k]) === false) {
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+  }, {
+    key: "extend",
+    value: function extend(dest) {
+      var args = arguments;
+      var srcs = [].slice.call(args, 1, args.length);
+      srcs.forEach(function (source) {
+        Object.getOwnPropertyNames(source).forEach(function (name) {
+          dest[name] = source[name];
+        });
+      });
+      return dest;
+    }
+  }]);
+
+  return Util;
+})();
+
+module.exports = new Util();
+
+},{}],4:[function(_dereq_,module,exports){
+/**
+* Postmessage format:
+*
+* Initialization
+* --------------
+* {
+*   type: 'init',
+*   eid: 'my-addon__my-module-xyz'  // the extension identifier, unique across iframes
+* }
+*
+* Request
+* -------
+* {
+*   type: 'req',
+*   eid: 'my-addon__my-module-xyz',  // the extension identifier, unique for iframe
+*   mid: 'xyz',  // a unique message identifier, required for callbacks
+*   mod: 'cookie',  // the module name
+*   fn: 'read',  // the method name
+*   args: [arguments]  // the method arguments
+* }
+*
+* Response
+* --------
+* {
+*   type: 'resp'
+*   eid: 'my-addon__my-module-xyz',  // the extension identifier, unique for iframe
+*   mid: 'xyz',  // a unique message identifier, obtained from the request
+*   args: [arguments]  // the callback arguments
+* }
+*
+* Event
+* -----
+* {
+*   type: 'evt',
+*   etyp: 'some-event',
+*   evnt: { ... }  // the event data
+*   mid: 'xyz', // a unique message identifier for the event
+* }
+**/
+
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _commonUtil = _dereq_('../common/util');
+
+var _commonUtil2 = _interopRequireDefault(_commonUtil);
+
+var _commonPostmessage = _dereq_('../common/postmessage');
+
+var _commonPostmessage2 = _interopRequireDefault(_commonPostmessage);
+
+var VALID_EVENT_TIME_MS = 30000; //30 seconds
+
+var XDMRPC = (function (_PostMessage) {
+  _inherits(XDMRPC, _PostMessage);
+
+  function XDMRPC(config) {
+    _classCallCheck(this, XDMRPC);
+
+    config = config || {};
+    _get(Object.getPrototypeOf(XDMRPC.prototype), 'constructor', this).call(this, config);
+    this._registeredExtensions = config.extensions || {};
+    this._registeredAPIModules = {};
+    this._pendingCallbacks = {};
+    this._pendingEvents = {};
+    this._messageHandlers = {
+      init: this._handleInit,
+      req: this._handleRequest,
+      resp: this._handleResponse,
+      event_query: this._handleEventQuery,
+      broadcast: this._handleBroadcast
+    };
+  }
+
+  _createClass(XDMRPC, [{
+    key: '_handleInit',
+    value: function _handleInit(event, reg) {
+      this._registeredExtensions[reg.extension_id].source = event.source;
+      if (reg.initCallback) {
+        reg.initCallback(event.data.eid);
+        delete reg.initCallback;
+      }
+    }
+  }, {
+    key: '_handleResponse',
+    value: function _handleResponse(event) {
+      var data = event.data;
+      var pendingCallback = this._pendingCallbacks[data.mid];
+      if (pendingCallback) {
+        delete this._pendingCallbacks[data.mid];
+        pendingCallback.apply(window, data.args);
+      }
+    }
+  }, {
+    key: 'registerRequestNotifier',
+    value: function registerRequestNotifier(cb) {
+      this._registeredRequestNotifier = cb;
+    }
+  }, {
+    key: '_handleRequest',
+    value: function _handleRequest(event, reg) {
+      function sendResponse() {
+        var args = _commonUtil2['default'].argumentsToArray(arguments);
+        event.source.postMessage({
+          mid: event.data.mid,
+          type: 'resp',
+          args: args
+        }, reg.extension.url);
+      }
+
+      var data = event.data;
+      var module = this._registeredAPIModules[data.mod];
+      if (module) {
+        var method = module[data.fn];
+        if (method) {
+          var methodArgs = data.args;
+          sendResponse._context = this.getRegisteredExtensions(reg.extension)[0];
+          methodArgs.push(sendResponse);
+          method.apply(module, methodArgs);
+          if (this._registeredRequestNotifier) {
+            this._registeredRequestNotifier.call(null, {
+              module: data.mod,
+              fn: data.fn,
+              type: data.type,
+              addon_key: reg.extension.addon_key,
+              key: reg.extension.key,
+              extension_id: reg.extension_id
+            });
+          }
+        }
+      }
+    }
+  }, {
+    key: '_handleBroadcast',
+    value: function _handleBroadcast(event, reg) {
+      var event_data = event.data;
+      var targetSpec = function targetSpec(r) {
+        return r.extension.addon_key === reg.extension.addon_key && r.extension_id !== reg.extension_id;
+      };
+      this.dispatch(event_data.etyp, targetSpec, event_data.evnt, null, null);
+    }
+  }, {
+    key: 'defineAPIModule',
+    value: function defineAPIModule(module, moduleName) {
+      if (moduleName) {
+        this._registeredAPIModules[moduleName] = module;
+      } else {
+        this._registeredAPIModules._globals = module;
+      }
+      return this._registeredAPIModules;
+    }
+  }, {
+    key: '_fullKey',
+    value: function _fullKey(targetSpec) {
+      var key = targetSpec.addon_key || 'global';
+      if (targetSpec.key) {
+        key = key + '@@' + targetSpec.key;
+      }
+
+      return key;
+    }
+  }, {
+    key: 'queueEvent',
+    value: function queueEvent(type, targetSpec, event, callback) {
+      var loaded_frame,
+          targets = this._findRegistrations(targetSpec);
+
+      loaded_frame = targets.some(function (target) {
+        return target.registered_events !== undefined;
+      }, this);
+
+      if (loaded_frame) {
+        this.dispatch(type, targetSpec, event, callback);
+      } else {
+        this._pendingEvents[this._fullKey(targetSpec)] = {
+          type: type,
+          targetSpec: targetSpec,
+          event: event,
+          callback: callback,
+          time: new Date().getTime(),
+          uid: _commonUtil2['default'].randomString()
+        };
+      }
+    }
+  }, {
+    key: '_handleEventQuery',
+    value: function _handleEventQuery(message, extension) {
+      var _this = this;
+
+      var executed = {};
+      var now = new Date().getTime();
+      var keys = Object.keys(this._pendingEvents);
+      keys.forEach(function (index) {
+        var element = _this._pendingEvents[index];
+        if (now - element.time <= VALID_EVENT_TIME_MS) {
+          executed[index] = element;
+          element.targetSpec.addon_key = extension.extension.addon_key;
+          element.targetSpec.key = extension.extension.key;
+          _this.dispatch(element.type, element.targetSpec, element.event, element.callback, message.source);
+        }
+        delete _this._pendingEvents[index];
+      });
+
+      this._registeredExtensions[extension.extension_id].registered_events = message.data.args;
+
+      return executed;
+    }
+  }, {
+    key: 'dispatch',
+    value: function dispatch(type, targetSpec, event, callback, source) {
+      function sendEvent(reg, evnt) {
+        if (reg.source) {
+          var mid;
+          if (callback) {
+            mid = _commonUtil2['default'].randomString();
+            this._pendingCallbacks[mid] = callback;
+          }
+
+          reg.source.postMessage({
+            type: 'evt',
+            mid: mid,
+            etyp: type,
+            evnt: evnt
+          }, reg.extension.url);
+        } else {
+          throw "Cannot send post message without a source";
+        }
+      }
+
+      var registrations = this._findRegistrations(targetSpec || {});
+      registrations.forEach(function (reg) {
+        if (source) {
+          reg.source = source;
+        }
+        _commonUtil2['default']._bind(this, sendEvent)(reg, event);
+      }, this);
+    }
+  }, {
+    key: '_findRegistrations',
+    value: function _findRegistrations(targetSpec) {
+      var _this2 = this;
+
+      if (this._registeredExtensions.length === 0) {
+        _commonUtil2['default'].error('no registered extensions', this._registeredExtensions);
+        return [];
+      }
+      var keys = Object.getOwnPropertyNames(targetSpec);
+      var registrations = Object.getOwnPropertyNames(this._registeredExtensions).map(function (key) {
+        return _this2._registeredExtensions[key];
+      });
+
+      if (targetSpec instanceof Function) {
+        return registrations.filter(targetSpec);
+      } else {
+        return registrations.filter(function (reg) {
+          return keys.every(function (key) {
+            return reg.extension[key] === targetSpec[key];
+          });
+        });
+      }
+    }
+  }, {
+    key: 'registerExtension',
+    value: function registerExtension(extension_id, data) {
+      // delete duplicate registrations
+      if (data.extension.addon_key && data.extension.key) {
+        var existingView = this._findRegistrations({
+          addon_key: data.extension.addon_key,
+          key: data.extension.key
+        });
+        if (existingView.length !== 0) {
+          delete this._registeredExtensions[existingView[0].extension_id];
+        }
+      }
+      data.extension_id = extension_id;
+      this._registeredExtensions[extension_id] = data;
+    }
+  }, {
+    key: 'getApiSpec',
+    value: function getApiSpec() {
+      var that = this;
+      function createModule(moduleName) {
+        var module = that._registeredAPIModules[moduleName];
+        if (!module) {
+          throw new Error("unregistered API module: " + moduleName);
+        }
+        return Object.getOwnPropertyNames(module).reduce(function (accumulator, functionName) {
+          if (typeof module[functionName] === 'function') {
+            accumulator[functionName] = {}; // could hold function metadata, empty for now
+          }
+          return accumulator;
+        }, {});
+      }
+
+      return Object.getOwnPropertyNames(this._registeredAPIModules).reduce(function (accumulator, moduleName) {
+        accumulator[moduleName] = createModule(moduleName);
+        return accumulator;
+      }, {});
+    }
+
+    // validate origin of postMessage
+  }, {
+    key: '_checkOrigin',
+    value: function _checkOrigin(event, reg) {
+      var no_source_types = ['init', 'event_query'];
+      var isNoSourceType = reg && !reg.source && no_source_types.indexOf(event.data.type) > -1;
+      var sourceTypeMatches = reg && event.source === reg.source;
+      var hasExtensionUrl = reg && reg.extension.url.indexOf(event.origin) === 0;
+      var isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches);
+      if (!isValidOrigin) {
+        _commonUtil2['default'].warn("Failed to validate origin: " + event.origin);
+      }
+      return isValidOrigin;
+    }
+  }, {
+    key: 'getRegisteredExtensions',
+    value: function getRegisteredExtensions(filter) {
+      if (filter) {
+        return this._findRegistrations(filter);
+      }
+      return this._registeredExtensions;
+    }
+  }, {
+    key: 'unregisterExtension',
+    value: function unregisterExtension(filter) {
+      var registrations = this._findRegistrations(filter);
+      if (registrations.length !== 0) {
+        registrations.forEach(function (registration) {
+          delete this._registeredExtensions[registration.extension_id];
+        }, this);
+      }
+    }
+  }]);
+
+  return XDMRPC;
+})(_commonPostmessage2['default']);
+
+module.exports = XDMRPC;
+
+},{"../common/postmessage":2,"../common/util":3}]},{},[1])(1)
+});
+
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
+},{}],5:[function(_dereq_,module,exports){
 (function (global){
 /*! https://mths.be/utf8js v2.0.0 by @mathias */
 ;(function(root) {
@@ -879,7 +1853,1314 @@
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],4:[function(_dereq_,module,exports){
+},{}],6:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
+  _util2['default'].getIframeByExtensionId(data.context.extension_id).css({
+    width: _util2['default'].stringToDimension(data.width),
+    height: _util2['default'].stringToDimension(data.height)
+  });
+});
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-size-to-parent', function (data) {
+  var height = $(document).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 20;
+  _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: '100%', height: height + 'px', context: data.context });
+});
+
+$(window).on('resize', function (e) {
+  _dispatchersEvent_dispatcher2['default'].dispatch('host-window-resize', e);
+});
+
+module.exports = {
+  iframeResize: function iframeResize(width, height, context) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: width, height: height, context: context });
+  },
+  sizeToParent: function sizeToParent(context) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-size-to-parent', { context: context });
+  }
+};
+
+},{"../util":26,"dispatchers/event_dispatcher":18}],7:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+module.exports = {
+  defineCustomExtension: function defineCustomExtension(name, methods) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('extension-define-custom', { name: name, methods: methods });
+  }
+};
+
+},{"dispatchers/event_dispatcher":18}],8:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+module.exports = {
+  notifyIframeCreated: function notifyIframeCreated($el, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-create', { $el: $el, extension: extension });
+  }
+};
+
+},{"../util":26,"dispatchers/event_dispatcher":18}],9:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+module.exports = {
+  registerContentResolver: function registerContentResolver(data) {
+    _dispatchersEvent_dispatcher2['default'].dispatch("content-resolver-register-by-extension", data);
+  },
+  requestRefreshUrl: function requestRefreshUrl(data) {
+    if (!data.resolver) {
+      throw Error("ACJS: No content resolver supplied");
+    }
+    var promise = data.resolver.call(null, _underscore2['default'].extend({ classifier: 'json' }, data.extension));
+    promise.done(function (promiseData) {
+      var values = {};
+      if (_underscore2['default'].isObject(promiseData)) {
+        values = promiseData;
+      } else if (_underscore2['default'].isString(promiseData)) {
+        try {
+          values = JSON.parse(promiseData);
+        } catch (e) {
+          console.error("ACJS: invalid response from content resolver");
+        }
+      }
+      _dispatchersEvent_dispatcher2['default'].dispatch("jwt-url-refreshed", { extension: data.extension, url: values.url });
+    });
+    _dispatchersEvent_dispatcher2['default'].dispatch("jwt-url-refresh-request", { data: data });
+  }
+
+};
+
+},{"../underscore":25,"dispatchers/event_dispatcher":18}],10:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+exports['default'] = {
+  timeout: function timeout($el, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-timeout', { $el: $el, extension: extension });
+  },
+  cancelled: function cancelled($el, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-cancelled', { $el: $el, extension: extension });
+  }
+};
+module.exports = exports['default'];
+
+},{"dispatchers/event_dispatcher":18}],11:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _actionsIframe_actions = _dereq_('actions/iframe_actions');
+
+var _actionsIframe_actions2 = _interopRequireDefault(_actionsIframe_actions);
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
+
+var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
+
+var _utilsUrl = _dereq_('utils/url');
+
+var _utilsUrl2 = _interopRequireDefault(_utilsUrl);
+
+var CONTAINER_CLASSES = ["ap-container"];
+var DEFAULT_IFRAME_ATTRIBUTES = { width: "100%" };
+
+var Iframe = (function () {
+  function Iframe() {
+    _classCallCheck(this, Iframe);
+
+    this._stateRegistry = {};
+  }
+
+  _createClass(Iframe, [{
+    key: 'simpleXdmExtension',
+    value: function simpleXdmExtension(extension) {
+      var $iframe,
+          iframeAttributes = _simpleXdmDistHost2['default'].create(extension, function (extension_id) {
+        extension.id = extension_id;
+        _dispatchersEvent_dispatcher2['default'].dispatch("iframe-bridge-estabilshed", {
+          $el: $iframe,
+          extension: extension
+        });
+      });
+      extension.id = iframeAttributes.id;
+      $iframe = this._renderIframe(iframeAttributes);
+      return { $el: $iframe, extension: extension };
+    }
+  }, {
+    key: '_renderIframe',
+    value: function _renderIframe(attributes) {
+      var attrs = _dollar2['default'].extend({}, DEFAULT_IFRAME_ATTRIBUTES, attributes);
+      return (0, _dollar2['default'])("<iframe />").attr(attrs);
+    }
+  }]);
+
+  return Iframe;
+})();
+
+var IframeComponent = new Iframe();
+
+exports['default'] = IframeComponent;
+module.exports = exports['default'];
+
+},{"../dollar":19,"../util":26,"actions/iframe_actions":8,"dispatchers/event_dispatcher":18,"simple-xdm/dist/host":4,"utils/url":28}],12:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _utilsUrl = _dereq_('utils/url');
+
+var _utilsUrl2 = _interopRequireDefault(_utilsUrl);
+
+var _actionsJwt_actions = _dereq_('actions/jwt_actions');
+
+var _actionsJwt_actions2 = _interopRequireDefault(_actionsJwt_actions);
+
+var _actionsIframe_actions = _dereq_('actions/iframe_actions');
+
+var _actionsIframe_actions2 = _interopRequireDefault(_actionsIframe_actions);
+
+var _componentsIframe = _dereq_('components/iframe');
+
+var _componentsIframe2 = _interopRequireDefault(_componentsIframe);
+
+var CONTAINER_CLASSES = ["ap-container"];
+
+var IframeContainer = (function () {
+  function IframeContainer() {
+    _classCallCheck(this, IframeContainer);
+
+    this._urlContainerRegistry = {};
+    this._contentResolver = false;
+  }
+
+  _createClass(IframeContainer, [{
+    key: 'setContentResolver',
+    value: function setContentResolver(callback) {
+      this._contentResolver = callback;
+    }
+  }, {
+    key: '_insertIframe',
+    value: function _insertIframe($container, extension) {
+      var simpleExtension = _componentsIframe2['default'].simpleXdmExtension(extension);
+      $container.append(simpleExtension.$el);
+      _actionsIframe_actions2['default'].notifyIframeCreated(simpleExtension.$el, simpleExtension.extension);
+    }
+  }, {
+    key: 'createExtension',
+    value: function createExtension(extension) {
+      var $iframe,
+          $container = this._renderContainer();
+      if (_utilsUrl2['default'].hasJwt(extension.url) && _utilsUrl2['default'].isJwtExpired(extension.url)) {
+        this._urlContainerRegistry[extension.id] = $container;
+        _actionsJwt_actions2['default'].requestRefreshUrl({ extension: extension, resolver: this._contentResolver });
+      } else {
+        this._insertIframe($container, extension);
+      }
+
+      return $container;
+    }
+  }, {
+    key: 'resolverResponse',
+    value: function resolverResponse(data) {
+      var extension = data.extension;
+      var $container = this._urlContainerRegistry[extension.id];
+      extension.url = data.url;
+      this._insertIframe($container, extension);
+      delete this._urlContainerRegistry[extension.id];
+    }
+  }, {
+    key: '_renderContainer',
+    value: function _renderContainer(attributes) {
+      var container = (0, _dollar2['default'])("<div />").attr(attributes || {});
+      container.addClass(CONTAINER_CLASSES.join(" "));
+      return container;
+    }
+  }]);
+
+  return IframeContainer;
+})();
+
+var IframeContainerComponent = new IframeContainer();
+_dispatchersEvent_dispatcher2['default'].register("content-resolver-register-by-extension", function (data) {
+  IframeContainerComponent.setContentResolver(data.callback);
+});
+
+_dispatchersEvent_dispatcher2['default'].register("jwt-url-refreshed", function (data) {
+  IframeContainerComponent.resolverResponse(data);
+});
+
+exports['default'] = IframeContainerComponent;
+module.exports = exports['default'];
+
+},{"../dollar":19,"actions/iframe_actions":8,"actions/jwt_actions":9,"components/iframe":11,"dispatchers/event_dispatcher":18,"utils/url":28}],13:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _actionsLoading_indicator_actions = _dereq_('actions/loading_indicator_actions');
+
+var _actionsLoading_indicator_actions2 = _interopRequireDefault(_actionsLoading_indicator_actions);
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var LOADING_INDICATOR_CLASS = 'ap-status-indicator';
+
+var LOADING_STATUSES = {
+  loading: '<div class="ap-loading"><div class="small-spinner"></div>Loading add-on...</div>',
+  'load-timeout': '<div class="ap-load-timeout><div class="small-spinner"></div>Add-on is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?</div>',
+  'load-error': 'Add-on failed to load.'
+};
+
+var LOADING_TIMEOUT = 12000;
+
+var LoadingIndicator = (function () {
+  function LoadingIndicator() {
+    _classCallCheck(this, LoadingIndicator);
+
+    this._stateRegistry = {};
+  }
+
+  _createClass(LoadingIndicator, [{
+    key: '_loadingContainer',
+    value: function _loadingContainer($iframeContainer) {
+      return $iframeContainer.find('.' + LOADING_INDICATOR_CLASS);
+    }
+  }, {
+    key: 'show',
+    value: function show($iframeContainer, extension) {
+      this._stateRegistry[extension.id] = setTimeout(function () {
+        _actionsLoading_indicator_actions2['default'].timeout($iframeContainer, extension);
+      }, LOADING_TIMEOUT);
+      var container = this._loadingContainer($iframeContainer);
+      if (!container.length) {
+        container = (0, _dollar2['default'])('<div />').addClass(LOADING_INDICATOR_CLASS);
+        container.appendTo($iframeContainer);
+      }
+      container.append(LOADING_STATUSES.loading);
+      var spinner = container.find('.small-spinner');
+      if (spinner.length && spinner.spin) {
+        spinner.spin({ lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1 });
+      }
+      return container;
+    }
+  }, {
+    key: 'hide',
+    value: function hide($iframeContainer, extensionId) {
+      clearTimeout(this._stateRegistry[extensionId]);
+      delete this._stateRegistry[extensionId];
+      this._loadingContainer($iframeContainer).hide();
+    }
+  }, {
+    key: 'cancelled',
+    value: function cancelled($iframeContainer, extensionId) {
+      var status = LOADING_STATUSES['load-error'];
+      this._loadingContainer($iframeContainer).empty().text(status);
+    }
+  }, {
+    key: 'timeout',
+    value: function timeout($iframeContainer, extensionId) {
+      var status = (0, _dollar2['default'])(LOADING_STATUSES['load-timeout']),
+          container = this._loadingContainer($iframeContainer);
+      container.empty().append(status);
+      (0, _dollar2['default'])("a.ap-btn-cancel", container).click(function () {
+        _actionsLoading_indicator_actions2['default'].cancelled($iframeContainer, extensionId);
+      });
+      delete this._stateRegistry[extensionId];
+      return container;
+    }
+  }]);
+
+  return LoadingIndicator;
+})();
+
+var LoadingComponent = new LoadingIndicator();
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
+  LoadingComponent.show(data.$el, data.extension);
+});
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
+  LoadingComponent.hide(data.$el, data.extension.id);
+});
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-timeout', function (data) {
+  LoadingComponent.timeout(data.$el, data.extension.id);
+});
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', function (data) {
+  LoadingComponent.cancelled(data.$el, data.extension.id);
+});
+
+exports['default'] = LoadingComponent;
+module.exports = exports['default'];
+
+},{"../dollar":19,"../util":26,"actions/loading_indicator_actions":10,"dispatchers/event_dispatcher":18}],14:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dollar = _dereq_('./dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _componentsIframe_container = _dereq_('components/iframe_container');
+
+var _componentsIframe_container2 = _interopRequireDefault(_componentsIframe_container);
+
+function create(extension) {
+  var simpleXdmExtension = {
+    addon_key: extension.addon_key,
+    key: extension.key,
+    url: extension.url,
+    options: extension.options
+  };
+  return _componentsIframe_container2['default'].createExtension(simpleXdmExtension);
+
+  // return IframeComponent.simpleXdmExtension(simpleXdmExtension);
+}
+
+module.exports = create;
+
+},{"./dollar":19,"components/iframe_container":12,"dispatchers/event_dispatcher":18}],15:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+function buttonClick(e) {
+  _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-click', (0, _dollar2['default'])(e.target));
+}
+
+function Button(options) {
+  this.$el = (0, _dollar2['default'])('<button />').text(options.text).addClass('aui-button aui-button-' + options.type).addClass(options.additionalClasses).data('options', options).click(buttonClick);
+
+  this.isEnabled = function () {
+    return !(this.$el.attr('aria-disabled') === 'true');
+  };
+
+  this.setEnabled = function (enabled) {
+    //cannot disable a noDisable button
+    if (options.noDisable === true) {
+      return false;
+    }
+    this.$el.attr('aria-disabled', !enabled);
+    return true;
+  };
+
+  this.setEnabled(true);
+
+  this.setText = function (text) {
+    if (text) {
+      this.$el.text(text);
+    }
+  };
+}
+
+exports['default'] = {
+  render: function render(text, options) {
+    var defaults = {
+      type: 'link',
+      additionalClasses: 'ap-dialog-button'
+    };
+
+    return new Button(_dollar2['default'].extend({ text: text }, defaults, options));
+  }
+};
+module.exports = exports['default'];
+
+},{"../dollar":19,"dispatchers/event_dispatcher":18}],16:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _button = _dereq_('./button');
+
+var _button2 = _interopRequireDefault(_button);
+
+function createDialogElement(content, options, chromeless) {
+  var extraClasses = ['ap-aui-dialog2'];
+
+  if (chromeless) {
+    extraClasses.push('ap-aui-dialog2-chromeless');
+  }
+
+  var $el = (0, _dollar2['default'])(aui.dialog.dialog2({
+    id: options.id,
+    titleText: options.header,
+    titleId: options.titleId,
+    size: options.size,
+    extraClasses: extraClasses,
+    removeOnHide: true,
+    footerActionContent: '<button>a</button><button>b</button>',
+    modal: true
+  }));
+  $el.find('.aui-dialog2-content').append(content);
+
+  if (chromeless) {
+    $el.find('header, footer').hide();
+  } else {
+    var submit = _button2['default'].render(options.submitText || 'submit', { type: 'primary' });
+    var cancel = _button2['default'].render(options.cancelText || 'cancel');
+
+    // buttons.submit.setText(options.submitText);
+    // buttons.cancel.setText(options.cancelText);
+    //soy templates don't support sending objects, so make the template and bind them.
+    var footer = $el.find('.aui-dialog2-footer-actions');
+    footer.find('button').remove();
+    footer.append(submit.$el, cancel.$el);
+    // $nexus.data('ra.dialog.buttons', buttons);
+  }
+
+  // function handler(button) {
+  //   // ignore clicks on disabled links
+  //   if (button.isEnabled()) {
+  //     button.$el.trigger('ra.dialog.click', button.dispatch);
+  //   }
+  // }
+
+  // $.each(buttons, function (i, button) {
+  //   button.$el.click(function () {
+  //     handler(button);
+  //   });
+  // });
+
+  return $el;
+}
+
+module.exports = {
+  render: createDialogElement
+};
+
+},{"../dollar":19,"./button":15}],17:[function(_dereq_,module,exports){
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var EVENT_NAME_PREFIX = "connect.addon.";
+
+/**
+ * Timings beyond 20 seconds (connect's load timeout) will be clipped to an X.
+ * @const
+ * @type {int}
+ */
+var LOADING_TIME_THRESHOLD = 20000;
+
+/**
+ * Trim extra zeros from the load time.
+ * @const
+ * @type {int}
+ */
+var LOADING_TIME_TRIMP_PRECISION = 100;
+
+var AnalyticsDispatcher = (function () {
+  function AnalyticsDispatcher() {
+    _classCallCheck(this, AnalyticsDispatcher);
+
+    this._addons = {};
+  }
+
+  _createClass(AnalyticsDispatcher, [{
+    key: '_track',
+    value: function _track(name, data) {
+      var w = window,
+          prefixedName = EVENT_NAME_PREFIX + name;
+
+      if (w.AJS.Analytics) {
+        w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
+      } else if (w.AJS.trigger) {
+        // BTF fallback
+        AJS.trigger('analyticsEvent', {
+          name: prefixedName,
+          data: data
+        });
+      } else {
+        return false;
+      }
+      return true;
+    }
+  }, {
+    key: '_time',
+    value: function _time() {
+      return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
+    }
+  }, {
+    key: 'trackLoadingStarted',
+    value: function trackLoadingStarted(extension) {
+      extension.startLoading = this._time();
+      this._addons[extension.id] = extension;
+    }
+  }, {
+    key: 'trackLoadingEnded',
+    value: function trackLoadingEnded(extension) {
+      var value = this._time() - this._addons[extension.id].startLoading;
+      this._track('iframe.performance.load', {
+        addonKey: extension.addon_key,
+        moduleKey: extension.key,
+        value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil(value / LOADING_TIME_TRIMP_PRECISION)
+      });
+    }
+  }, {
+    key: 'trackLoadingTimeout',
+    value: function trackLoadingTimeout(extension) {
+      this._track('iframe.performance.timeout', {
+        addonKey: extension.addon_key,
+        moduleKey: extension.key
+      });
+      //track an end event during a timeout so we always have complete start / end data.
+      this.trackLoadingEnded(extension);
+    }
+  }, {
+    key: 'trackLoadingCancel',
+    value: function trackLoadingCancel(extension) {
+      this._track('iframe.performance.cancel', {
+        addonKey: extension.addon_key,
+        moduleKey: extension.key
+      });
+    }
+  }, {
+    key: 'dispatch',
+    value: function dispatch(name, data) {
+      this._track(name, data);
+    }
+  }]);
+
+  return AnalyticsDispatcher;
+})();
+
+var analytics = new AnalyticsDispatcher();
+_dispatchersEvent_dispatcher2['default'].register("iframe-create", function (data) {
+  analytics.trackLoadingStarted(data.extension);
+});
+_dispatchersEvent_dispatcher2['default'].register("iframe-bridge-estabilshed", function (data) {
+  analytics.trackLoadingEnded(data.extension);
+});
+_dispatchersEvent_dispatcher2['default'].register("iframe-bridge-timeout", function (data) {
+  analytics.trackLoadingTimeout(data.extension);
+});
+_dispatchersEvent_dispatcher2['default'].register("iframe-bridge-cancelled", function (data) {
+  analytics.trackLoadingCancel(data.extension);
+});
+
+module.exports = analytics;
+
+},{"dispatchers/event_dispatcher":18}],18:[function(_dereq_,module,exports){
+/**
+* pub/sub for extension state (created, destroyed, initialized)
+* taken from hipchat webcore
+**/
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var _events = _dereq_('events');
+
+var EventDispatcher = (function (_EventEmitter) {
+  _inherits(EventDispatcher, _EventEmitter);
+
+  function EventDispatcher() {
+    _classCallCheck(this, EventDispatcher);
+
+    _get(Object.getPrototypeOf(EventDispatcher.prototype), 'constructor', this).call(this);
+    this.setMaxListeners(20);
+  }
+
+  _createClass(EventDispatcher, [{
+    key: 'dispatch',
+    value: function dispatch(action) {
+      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      this.emit.apply(this, ["before:" + action].concat(args));
+      this.emit.apply(this, arguments);
+      this.emit.apply(this, ["after:" + action].concat(args));
+    }
+  }, {
+    key: 'registerOnce',
+    value: function registerOnce(action, callback) {
+      var _this = this;
+
+      if (_underscore2['default'].isString(action)) {
+        this.once(action, callback);
+      } else if (_underscore2['default'].isObject(action)) {
+        _underscore2['default'].keys(action).forEach(function (val, key) {
+          _this.once(key, val);
+        }, this);
+      }
+    }
+  }, {
+    key: 'register',
+    value: function register(action, callback) {
+      var _this2 = this;
+
+      if (_underscore2['default'].isString(action)) {
+        this.on(action, callback);
+      } else if (_underscore2['default'].isObject(action)) {
+        _underscore2['default'].keys(action).forEach(function (val, key) {
+          _this2.on(key, val);
+        }, this);
+      }
+    }
+  }, {
+    key: 'unregister',
+    value: function unregister(action, callback) {
+      var _this3 = this;
+
+      if (_underscore2['default'].isString(action)) {
+        this.removeListener(action, callback);
+      } else if (_underscore2['default'].isObject(action)) {
+        _underscore2['default'].keys(action).forEach(function (val, key) {
+          _this3.removeListener(key, val);
+        }, this);
+      }
+    }
+  }]);
+
+  return EventDispatcher;
+})(_events.EventEmitter);
+
+module.exports = new EventDispatcher();
+
+},{"../underscore":25,"events":2}],19:[function(_dereq_,module,exports){
+/**
+ * The iframe-side code exposes a jquery-like implementation via _dollar.
+ * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
+ * to code that runs on host and iframe.
+ */
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = AJS.$;
+module.exports = exports["default"];
+
+},{}],20:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _dialogRenderer = _dereq_('../dialog/renderer');
+
+var _dialogRenderer2 = _interopRequireDefault(_dialogRenderer);
+
+var _create = _dereq_('../create');
+
+var _create2 = _interopRequireDefault(_create);
+
+function isConnectDialog($el) {
+  return $el && $el.hasClass('ap-aui-dialog2');
+}
+
+function keyPressListener(e) {
+  var topLayer;
+  if (e.keyCode === 27) {
+    topLayer = AJS.LayerManager.global.getTopLayer();
+    if (isConnectDialog(topLayer)) {
+      getActiveDialog().hide();
+    }
+  }
+}
+
+$(document).on('keydown', keyPressListener);
+
+_dispatchersEvent_dispatcher2['default'].on('dialog-button-click', function ($el) {
+  var buttonOptions = $el.data('options');
+  console.log('button options?', buttonOptions, $el);
+  getActiveDialog().hide();
+});
+
+function getActiveDialog() {
+  return AJS.dialog2(AJS.LayerManager.global.getTopLayer());
+}
+
+function closeDialog(data) {
+  _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close', data);
+}
+
+function dialogIframe(options, context) {
+  return (0, _create2['default'])({
+    addon_key: context.extension.addon_key,
+    key: options.key,
+    // url: options.url
+    url: 'http://cwhittington:8000/iframe-dialog-content.html'
+  });
+}
+
+module.exports = {
+  create: function create(options, callback) {
+    var iframe = dialogIframe(options, callback._context);
+    var dialogDOM = _dialogRenderer2['default'].render(iframe, options, options.chrome);
+
+    var dialog = AJS.dialog2(dialogDOM);
+    dialog.show();
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-open', {
+      $el: iframe,
+      $dialog: dialog
+    });
+
+    dialog.on('hide', closeDialog);
+  },
+  close: function close(data) {
+    closeDialog();
+  },
+  isDialog: true,
+  onDialogMessage: function onDialogMessage(message, listener) {},
+  getButton: function getButton(name, callback) {
+    callback({
+      name: name
+      // bind: function(){
+      //   console.log('called!');
+      // },
+      // disable: function(){}
+    });
+  }
+};
+
+},{"../create":14,"../dialog/renderer":16,"dispatchers/event_dispatcher":18}],21:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _actionsEnv_actions = _dereq_('actions/env_actions');
+
+var _actionsEnv_actions2 = _interopRequireDefault(_actionsEnv_actions);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var debounce = AJS.debounce || _dollar2['default'].debounce;
+
+exports['default'] = {
+  getLocation: function getLocation(callback) {
+    callback(window.location.href);
+  },
+  resize: debounce(function (width, height, callback) {
+    _actionsEnv_actions2['default'].iframeResize(width, height, callback._context);
+  }),
+
+  sizeToParent: debounce(function (callback) {
+    // sizeToParent is only available for general-pages
+    if (callback._context.extension.options.isGeneral) {
+      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
+      _util2['default'].getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
+      _dispatchersEvent_dispatcher2['default'].register('host-window-resize', function (data) {
+        _actionsEnv_actions2['default'].sizeToParent(callback._context);
+      });
+      _actionsEnv_actions2['default'].sizeToParent(callback._context);
+    } else {
+      // This is only here to support integration testing
+      // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
+      (0, _dollar2['default'])(this.iframe).addClass('full-size-general-page-fail');
+    }
+  })
+};
+module.exports = exports['default'];
+
+},{"../dollar":19,"../util":26,"actions/env_actions":6,"dispatchers/event_dispatcher":18}],22:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+// Note that if it's desireable to publish host-level events to add-ons, this would be a good place to wire
+// up host listeners and publish to each add-on, rather than using each XdmRpc.events object directly.
+
+var _channels = {};
+
+// create holding object under _channels.
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
+  if (!_underscore2['default'].isObject(_channels[data.extension.addon_key])) {
+    _channels[data.extension.addon_key] = {
+      _any: []
+    };
+  }
+
+  if (!_underscore2['default'].isObject(_channels[data.extension.addon_key][data.extension.id])) {
+    _channels[data.extension.addon_key][data.extension.id] = {};
+  }
+});
+
+exports['default'] = {
+  emit: function emit(name) {
+    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
+    }
+
+    var callback = _underscore2['default'].last(args);
+    args = _underscore2['default'].first(args, -1);
+
+    var extensions = _channels[callback._context.extension.addon_key],
+        extensionIds = _underscore2['default'].without(_underscore2['default'].keys(extensions), '_any'),
+        events = [].concat(extensions._any);
+
+    extensionIds.forEach(function (extensionId) {
+      var listeners = extensions[extensionId][name];
+      if (_underscore2['default'].isArray(listeners)) {
+        events = events.concat(listeners);
+      }
+    }, this);
+
+    events.forEach(function (event) {
+      try {
+        event.apply(null, args);
+      } catch (e) {
+        console.error(e.stack || e.message || e);
+      }
+    }, this);
+  },
+  off: function off(name, callback) {
+    var all = _channels[callback._context.extension.addon_key][callback._context.extension_id][name];
+    if (all) {
+      var i = _dollar2['default'].inArray(callback, all);
+      if (i >= 0) {
+        all.splice(i, 1);
+      }
+    }
+  },
+  offAll: function offAll(name) {},
+  offAny: function offAny(name) {},
+  on: function on(name, callback) {
+    var addonKey = callback._context.extension.addon_key,
+        extensionId = callback._context.extension_id;
+
+    if (!_underscore2['default'].isArray(_channels[addonKey][extensionId][name])) {
+      _channels[addonKey][extensionId][name] = [];
+    }
+    _channels[addonKey][extensionId][name].push(callback);
+  },
+  onAny: function onAny(callback) {
+    _channels[addonKey]._any.push(callback);
+  },
+  once: function once(name, callback) {
+    var _this = this,
+        _arguments = arguments;
+
+    var interceptor = function interceptor() {
+      _this.off(name, interceptor);
+      callback.apply(null, _arguments);
+    };
+    interceptor._context = callback._context;
+    this.on(name, interceptor);
+  }
+
+};
+module.exports = exports['default'];
+
+},{"../dollar":19,"../underscore":25,"dispatchers/event_dispatcher":18}],23:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var MESSAGE_BAR_ID = 'ac-message-container';
+var MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
+var messageId = 0;
+
+function validateMessageId(msgId) {
+  return msgId.search(/^ap\-message\-[0-9]+$/) === 0;
+}
+
+function getMessageBar() {
+  var msgBar = (0, _dollar2['default'])('#' + MESSAGE_BAR_ID);
+
+  if (msgBar.length < 1) {
+    msgBar = (0, _dollar2['default'])('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
+  }
+  return msgBar;
+}
+
+function filterMessageOptions(options) {
+  var i;
+  var key;
+  var copy = {};
+  var allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
+  if (_underscore2['default'].isObject(options)) {
+    for (i in allowed) {
+      key = allowed[i];
+      if (key in options) {
+        copy[key] = options[key];
+      }
+    }
+  }
+  return copy;
+}
+
+function showMessage(name, title, bodyHTML, options) {
+  var msgBar = getMessageBar();
+  options = filterMessageOptions(options);
+  _dollar2['default'].extend(options, {
+    title: title,
+    body: AJS.escapeHtml(bodyHTML)
+  });
+
+  if (_dollar2['default'].inArray(name, MESSAGE_TYPES) < 0) {
+    throw 'Invalid message type. Must be: ' + MESSAGE_TYPES.join(', ');
+  }
+  if (validateMessageId(options.id)) {
+    AJS.messages[name](msgBar, options);
+    // Calculate the left offset based on the content width.
+    // This ensures the message always stays in the centre of the window.
+    msgBar.css('margin-left', '-' + msgBar.innerWidth() / 2 + 'px');
+  }
+}
+
+var toExport = {
+  clear: function clear(id) {
+    if (validateMessageId(id)) {
+      (0, _dollar2['default'])('#' + id).remove();
+    }
+  }
+};
+
+MESSAGE_TYPES.forEach(function (messageType) {
+  toExport[messageType] = function (title, body, options, callback) {
+    if (options._context) {
+      options = {};
+    }
+    messageId++;
+    options.id = 'ap-message-' + messageId;
+    return showMessage(messageType, title, body, options);
+  };
+}, undefined);
+
+exports['default'] = toExport;
+module.exports = exports['default'];
+
+},{"../dollar":19,"../underscore":25}],24:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersAnalytics_dispatcher = _dereq_('dispatchers/analytics_dispatcher');
+
+var _dispatchersAnalytics_dispatcher2 = _interopRequireDefault(_dispatchersAnalytics_dispatcher);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
+
+var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
+
+var _actionsJwt_actions = _dereq_('actions/jwt_actions');
+
+var _actionsJwt_actions2 = _interopRequireDefault(_actionsJwt_actions);
+
+var _extensionsEvents = _dereq_('./extensions/events');
+
+var _extensionsEvents2 = _interopRequireDefault(_extensionsEvents);
+
+var _create = _dereq_('./create');
+
+var _create2 = _interopRequireDefault(_create);
+
+var _extensionsDialog = _dereq_('./extensions/dialog');
+
+var _extensionsDialog2 = _interopRequireDefault(_extensionsDialog);
+
+var _extensionsEnv = _dereq_('./extensions/env');
+
+var _extensionsEnv2 = _interopRequireDefault(_extensionsEnv);
+
+var _componentsLoading_indicator = _dereq_('./components/loading_indicator');
+
+var _componentsLoading_indicator2 = _interopRequireDefault(_componentsLoading_indicator);
+
+var _extensionsMessages = _dereq_('./extensions/messages');
+
+var _extensionsMessages2 = _interopRequireDefault(_extensionsMessages);
+
+var _actionsExtension_actions = _dereq_('actions/extension_actions');
+
+var _actionsExtension_actions2 = _interopRequireDefault(_actionsExtension_actions);
+
+// import propagator from './propagate/rpc';
+
+/**
+ * Private namespace for host-side code.
+ * @type {*|{}}
+ * @private
+ * @deprecated use AMD instead of global namespaces. The only thing that should be on _AP is _AP.define and _AP.require.
+ */
+if (!window._AP) {
+  window._AP = {};
+}
+
+_simpleXdmDistHost2['default'].defineModule('messages', _extensionsMessages2['default']);
+_simpleXdmDistHost2['default'].defineModule('dialog', _extensionsDialog2['default']);
+_simpleXdmDistHost2['default'].defineModule('env', _extensionsEnv2['default']);
+_simpleXdmDistHost2['default'].defineModule('events', _extensionsEvents2['default']);
+
+// rpc.extend(propagator);
+
+_dispatchersEvent_dispatcher2['default'].register("extension-define-custom", function (data) {
+  _simpleXdmDistHost2['default'].defineModule(data.name, data.methods);
+});
+
+_simpleXdmDistHost2['default'].registerRequestNotifier(function (data) {
+  _dispatchersAnalytics_dispatcher2['default'].dispatch('bridge.invokemethod', {
+    module: data.module,
+    fn: data.fn,
+    addonKey: data.addon_key,
+    moduleKey: data.key
+  });
+});
+
+exports['default'] = {
+  registerContentResolver: {
+    resolveByExtension: function resolveByExtension(callback) {
+      _actionsJwt_actions2['default'].registerContentResolver({ callback: callback });
+    }
+  },
+  defineExtension: function defineExtension(name, methods) {
+    _actionsExtension_actions2['default'].defineCustomExtension(name, methods);
+  },
+  create: _create2['default']
+};
+module.exports = exports['default'];
+
+},{"./components/loading_indicator":13,"./create":14,"./extensions/dialog":20,"./extensions/env":21,"./extensions/events":22,"./extensions/messages":23,"actions/extension_actions":7,"actions/jwt_actions":9,"dispatchers/analytics_dispatcher":17,"dispatchers/event_dispatcher":18,"simple-xdm/dist/host":4}],25:[function(_dereq_,module,exports){
+// AUI includes underscore and exposes it globally.
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = window._;
+module.exports = exports["default"];
+
+},{}],26:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _underscore = _dereq_('./underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+function escapeSelector(s) {
+  if (!s) {
+    throw new Error('No selector to escape');
+  }
+  return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
+}
+
+function stringToDimension(value) {
+  var percent = false,
+      unit = 'px';
+
+  if (_underscore2['default'].isString(value)) {
+    percent = value.indexOf('%') === value.length - 1;
+    value = parseInt(value, 10);
+    if (percent) {
+      unit = '%';
+    }
+  }
+
+  if (!isNaN(value)) {
+    return value + unit;
+  }
+}
+
+function getIframeByExtensionId(id) {
+  return $("iframe#" + id);
+}
+
+exports['default'] = {
+  escapeSelector: escapeSelector,
+  stringToDimension: stringToDimension,
+  getIframeByExtensionId: getIframeByExtensionId
+};
+module.exports = exports['default'];
+
+},{"./underscore":25}],27:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -895,489 +3176,6 @@ var _base642 = _interopRequireDefault(_base64);
 var _utf8 = _dereq_('utf8');
 
 var _utf82 = _interopRequireDefault(_utf8);
-
-exports['default'] = {
-  encode: function encode(string) {
-    return _base642['default'].encode(_utf82['default'].encode(string));
-  },
-  decode: function decode(string) {
-    return _utf82['default'].decode(_base642['default'].decode(string));
-  }
-};
-module.exports = exports['default'];
-
-},{"base-64":1,"utf8":3}],5:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-var $;
-{
-  $ = _dereq_('../host/dollar');
-}
-
-exports['default'] = $;
-
-module.exports = exports['default'];
-},{"../host/dollar":21}],6:[function(_dereq_,module,exports){
-'use strict';
-/**
- * Common methods for propagating DOM events between host/plugin iframes
- */
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-var w = window;
-var log = w.AJS && w.AJS.log || w.console && w.console.log || function () {};
-
-var SUPPORTED_MOUSE_EVENTS = ['click'];
-
-var SUPPORTED_KEYBOARD_EVENTS = ['keydown', 'keyup'];
-
-var ALLOWED_KEYCODES = [27 // ESCAPE
-];
-
-var boundEvents = {};
-
-exports['default'] = {
-  // Public API
-  bindListeners: bindListeners,
-  unbindListeners: unbindListeners,
-  receiveEvent: receiveEvent,
-
-  // Visible for testing only
-  constructLegacyModifierString: constructLegacyModifierString,
-  supportedMouseEvents: SUPPORTED_MOUSE_EVENTS,
-  supportedKeyboardEvents: SUPPORTED_KEYBOARD_EVENTS,
-  isAllowedKeyCode: isAllowedKeyCode,
-  createEvent: createEvent
-};
-
-function _attachEvents(callback) {
-  if (boundEvents.length > 0) {
-    log('events already bound');
-    return false;
-  }
-
-  var events = [].concat(SUPPORTED_MOUSE_EVENTS, SUPPORTED_KEYBOARD_EVENTS);
-  events.forEach(function (event) {
-    boundEvents[event] = callback;
-    document.addEventListener(event, callback);
-  });
-}
-
-function _sanitizeEvent(e) {
-  var sanitizedEvent;
-  if (e.keyCode) {
-    if (isAllowedKeyCode(e.keyCode)) {
-      sanitizedEvent = sanitiseKeyboardEvent(e);
-    }
-  } else {
-    sanitizedEvent = sanitiseMouseEvent(e);
-  }
-  return sanitizedEvent;
-}
-
-/**
- * Bind listeners to the document to propagate events to the rpc endpoint
- *
- * @param {String} channelKey The unique key that identifies the rpc channel the listeners are bound to
- * @param {function} endpoint The rpc endpoint to send events to
- */
-function bindListeners(channelKey, endpoint) {
-  _attachEvents(function (e) {
-    var sanitized = _sanitizeEvent(e);
-    if (e.channelKey === channelKey) {
-      return;
-    }
-    endpoint(channelKey, e.type, sanitized);
-  });
-}
-
-function unbindListeners() {
-  var eventNames = Object.getOwnPropertyNames(boundEvents);
-  eventNames.forEach(function (e) {
-    document.removeEventListener(e, boundEvents[e]);
-  });
-  boundEvents = {};
-}
-
-/**
- * Receive a DOM event from the remote and dispatch to this page,
- * unless we have already seen it.
- *
- * @param {String} channelKey The channel identifier
- * @param {String} eventName The event received
- * @param {EventInit} eventData The data to attach to the event
- */
-function receiveEvent(channelKey, eventName, eventData) {
-  var event = createEvent(channelKey, eventName, eventData);
-  if (!event) {
-    return;
-  }
-
-  dispatchEvent(event);
-}
-
-/**
- * Return a sanitised data object that can be used to re-create
- * a synthetic click event
- *
- * @param {MouseEvent} mouseEvent The event to sanitise
- * @return {MouseEventInit} Sanitised data suitable for sending between iframes
- */
-function sanitiseMouseEvent(mouseEvent) {
-  return {
-    bubbles: true,
-    cancelable: true,
-    button: mouseEvent.button,
-    ctrlKey: mouseEvent.ctrlKey,
-    shiftKey: mouseEvent.shiftKey,
-    altKey: mouseEvent.altKey,
-    metaKey: mouseEvent.metaKey
-  };
-}
-
-/**
- * Return a sanitised data object that can be used to
- * re-create a synthetic keyboard event.
- *
- * @param {KeyboardEvent} keyboardEvent The event to sanitise
- * @return {KeyboardEventInit} Sanities data suitable for sending between iframes
- */
-function sanitiseKeyboardEvent(keyboardEvent) {
-  return {
-    bubbles: true,
-    cancelable: true,
-    key: keyboardEvent.key,
-    code: keyboardEvent.code,
-    keyCode: keyboardEvent.keyCode,
-    ctrlKey: keyboardEvent.ctrlKey,
-    shiftKey: keyboardEvent.shiftKey,
-    altKey: keyboardEvent.altKey,
-    metaKey: keyboardEvent.metaKey,
-    locale: null
-  };
-}
-
-/**
- * Create a synthetic DOM event using the provided data
- *
- * The returned event will include a param <code>channelKey</code> that can be
- * used to identify which channel the event was received on.
- *
- * @param {String} channelKey The key for the channel the event was received on
- * @param {String} eventName The name of the event to create
- * @param {KeyboardEventInit|MouseEventInit} eventData The data to create the event with
- *
- * @returns {KeyboardEvent|MouseEvent} The constructed synthetic event
- */
-function createEvent(channelKey, eventName, eventData) {
-  eventData.view = window;
-
-  var event = undefined;
-  if (SUPPORTED_MOUSE_EVENTS.indexOf(eventName) > -1) {
-    if (typeof window.Event === 'function') {
-      event = new MouseEvent(eventName, eventData);
-    } else {
-      // To support older browsers
-      // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
-      event = document.createEvent('MouseEvent');
-      event.initMouseEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, 0, 0, 0, 0, 0, eventData.ctrlKey, eventData.altKey, eventData.shiftKey, eventData.metaKey, eventData.button, null);
-    }
-  } else if (SUPPORTED_KEYBOARD_EVENTS.indexOf(eventName) > -1) {
-    if (typeof window.Event === 'function') {
-      event = new KeyboardEvent(eventName, eventData);
-    } else {
-      // To support older browsers
-      // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
-      event = document.createEvent('KeyboardEvent');
-      event.initKeyboardEvent(eventName, eventData.bubbles, eventData.cancelable, eventData.view, eventData.key, 0, constructLegacyModifierString(eventData), false, eventData.locale);
-    }
-  } else {
-    log('Event ' + eventName + ' not supported');
-  }
-
-  if (event) {
-    event.channelKey = channelKey;
-  }
-  return event;
-}
-
-/**
- * Dispatch the given event to the current document
- *
- * Includes some AUI-specific dispatch if AUI is detected to ensure dialogs work correctly etc.
- *
- * @param event The event to dispatch
- */
-function dispatchEvent(event) {
-  document.body.dispatchEvent(event);
-
-  if (AJS && event.type === 'click') {
-    // If AJS is present we should fire the event on dialog curtains
-    // if they exist, to ensure AUI dialogs etc. are dismissed.
-    var blanket = AJS.$('.aui-blanket');
-    if (blanket.length > 0 && blanket[0]) {
-      blanket[0].dispatchEvent(event);
-    }
-  }
-}
-
-/**
- * Construct the legacy DOM L3 key modifier string required for pre-L4 keyboard event initialisation
- * @see https://msdn.microsoft.com/en-us/library/ff975297%28v=vs.85%29.aspx
- *
- * @param {KeyboardEventInit} eventData The data to create the modifier string from
- * @returns {String} The modifier string (e.g. "Ctr,Shift")
- */
-function constructLegacyModifierString(eventData) {
-  var result = [];
-  if (eventData.shiftKey) {
-    result.push('Shift');
-  }
-  if (eventData.ctrlKey) {
-    result.push('Ctrl');
-  }
-  if (eventData.metaKey) {
-    result.push('Meta');
-  }
-  if (eventData.altKey) {
-    result.push('Alt');
-  }
-  return result.join(',');
-}
-
-/**
- * Determine if the provided keycode is allowed to be propagated between iframes
- *
- * @param {Number} keyCode The keycode to test
- *
- * @returns {boolean} Whether the provided keycode is allowed to be propagated between iframes
- */
-function isAllowedKeyCode(keyCode) {
-  return ALLOWED_KEYCODES.indexOf(keyCode) > -1;
-}
-module.exports = exports['default'];
-
-},{}],7:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('./dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var w = window;
-var log = w.AJS && w.AJS.log || w.console && w.console.log || function () {};
-
-/**
- * A simple pub/sub event bus capable of running on either side of the XDM bridge with no external
- * JS lib dependencies.
- *
- * @param {String} key The key of the event source
- * @param {String} origin The origin of the event source
- * @constructor
- */
-function Events(key, origin) {
-  this._key = key;
-  this._origin = origin;
-  this._events = {};
-  this._any = [];
-}
-
-var proto = Events.prototype;
-
-/**
- * Subscribes a callback to an event name.
- *
- * @param {String} name The event name to subscribe the listener to
- * @param {Function} listener A listener callback to subscribe to the event name
- * @returns {Events} This Events instance
- */
-proto.on = function (name, listener) {
-  if (name && listener) {
-    this._listeners(name).push(listener);
-  }
-  return this;
-};
-
-/**
- * Subscribes a callback to an event name, removing the it once fired.
- *
- * @param {String} name The event name to subscribe the listener to
- * @param {Function}listener A listener callback to subscribe to the event name
- * @returns {Events} This Events instance
- */
-proto.once = function (name, listener) {
-  var self = this;
-  var interceptor = function interceptor() {
-    self.off(name, interceptor);
-    listener.apply(null, arguments);
-  };
-  this.on(name, interceptor);
-  return this;
-};
-
-/**
- * Subscribes a callback to all events, regardless of name.
- *
- * @param {Function} listener A listener callback to subscribe for any event name
- * @returns {Events} This Events instance
- */
-proto.onAny = function (listener) {
-  this._any.push(listener);
-  return this;
-};
-
-/**
- * Unsubscribes a callback to an event name.
- *
- * @param {String} name The event name to unsubscribe the listener from
- * @param {Function} listener The listener callback to unsubscribe from the event name
- * @returns {Events} This Events instance
- */
-proto.off = function (name, listener) {
-  var all = this._events[name];
-  if (all) {
-    var i = _dollar2['default'].inArray(listener, all);
-    if (i >= 0) {
-      all.splice(i, 1);
-    }
-    if (all.length === 0) {
-      delete this._events[name];
-    }
-  }
-  return this;
-};
-
-/**
- * Unsubscribes all callbacks from an event name, or unsubscribes all event-name-specific listeners
- * if no name if given.
- *
- * @param {String} [name] The event name to unsubscribe all listeners from
- * @returns {Events} This Events instance
- */
-proto.offAll = function (name) {
-  if (name) {
-    delete this._events[name];
-  } else {
-    this._events = {};
-  }
-  return this;
-};
-
-/**
- * Unsubscribes a callback from the set of 'any' event listeners.
- *
- * @param {Function} listener A listener callback to unsubscribe from any event name
- * @returns {Events} This Events instance
- */
-proto.offAny = function (listener) {
-  var any = this._any;
-  var i = _dollar2['default'].inArray(listener, any);
-  if (i >= 0) {
-    any.splice(i, 1);
-  }
-  return this;
-};
-
-/**
- * Emits an event on this bus, firing listeners by name as well as all 'any' listeners. Arguments following the
- * name parameter are captured and passed to listeners.  The last argument received by all listeners after the
- * unpacked arguments array will be the fired event object itself, which can be useful for reacting to event
- * metadata (e.g. the bus's namespace).
- *
- * @param {String} name The name of event to emit
- * @param {Array.<String>} args 0 or more additional data arguments to deliver with the event
- * @returns {Events} This Events instance
- */
-proto.emit = function (name) {
-  return this._emitEvent(this._event.apply(this, arguments));
-};
-
-/**
- * Creates an opaque event object from an argument list containing at least a name, and optionally additional
- * event payload arguments.
- *
- * @param {String} name The name of event to emit
- * @param {Array.<String>} args 0 or more additional data arguments to deliver with the event
- * @returns {Object} A new event object
- * @private
- */
-proto._event = function (name) {
-  return {
-    name: name,
-    args: [].slice.call(arguments, 1),
-    attrs: {},
-    source: {
-      key: this._key,
-      origin: this._origin
-    }
-  };
-};
-
-/**
- * Emits a previously-constructed event object to all listeners.
- *
- * @param {Object} event The event object to emit
- * @param {String} event.name The name of the event
- * @param {Object} event.source Metadata about the original source of the event, containing key and origin
- * @param {Array} event.args The args passed to emit, to be delivered to listeners
- * @returns {Events} This Events instance
- * @private
- */
-proto._emitEvent = function (event) {
-  var args = event.args.concat(event);
-  fire(this._listeners(event.name), args);
-  fire(this._any, [event.name].concat(args));
-  return this;
-};
-
-/**
- * Returns an array of listeners by event name, creating a new name array if none are found.
- *
- * @param {String} name The event name for which listeners should be returned
- * @returns {Array} An array of listeners; empty if none are registered
- * @private
- */
-proto._listeners = function (name) {
-  return this._events[name] = this._events[name] || [];
-};
-
-// Internal helper for firing an event to an array of listeners
-function fire(listeners, args) {
-  for (var i = 0; i < listeners.length; ++i) {
-    try {
-      listeners[i].apply(null, args);
-    } catch (e) {
-      log(e.stack || e.message || e);
-    }
-  }
-}
-
-exports['default'] = { Events: Events };
-module.exports = exports['default'];
-
-},{"./dollar":5}],8:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _base64 = _dereq_('./base64');
-
-var _base642 = _interopRequireDefault(_base64);
 
 function parseJwtIssuer(jwt) {
   return parseJwtClaims(jwt)['iss'];
@@ -1402,7 +3200,7 @@ function parseJwtClaims(jwt) {
     throw 'Invalid JWT: encoded claims must be neither null nor empty-string.';
   }
 
-  var claimsString = _base642['default'].decode.call(window, encodedClaims);
+  var claimsString = _utf82['default'].decode(_base642['default'].decode.call(window, encodedClaims));
   return JSON.parse(claimsString);
 }
 
@@ -1432,83 +3230,8 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./base64":4}],9:[function(_dereq_,module,exports){
+},{"base-64":1,"utf8":5}],28:[function(_dereq_,module,exports){
 'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _base64 = _dereq_('./base64');
-
-var _base642 = _interopRequireDefault(_base64);
-
-var _uri = _dereq_('./uri');
-
-var _uri2 = _interopRequireDefault(_uri);
-
-/**
- * These are passed into the main host create statement and can override
- * any options inside the velocity template.
- * Additionally these are accessed by the js inside the client iframe to check if we are in a dialog.
- */
-
-exports['default'] = {
-  /**
-   * Encode options for transport
-   */
-  encode: function encode(options) {
-    if (options) {
-      var str = JSON.stringify(options);
-      return _base642['default'].encode.call(window, str);
-    }
-  },
-  /**
-   * return ui params from a Url
-   **/
-  fromUrl: function fromUrl(url) {
-    var params = new _uri2['default'].init(url).getQueryParamValue('ui-params');
-    return this.decode(params);
-  },
-  /**
-   * returns ui params from window.name
-   */
-  fromWindowName: function fromWindowName(w, param) {
-    w = w || window;
-    var decoded = this.decode(w.name);
-
-    if (!param) {
-      return decoded;
-    }
-    return decoded ? decoded[param] : undefined;
-  },
-  /**
-   * Decode a base64 encoded json string containing ui params
-   */
-  decode: function decode(params) {
-    var obj = {};
-    if (params && params.length > 0) {
-      try {
-        obj = JSON.parse(_base642['default'].decode.call(window, params));
-      } catch (e) {
-        if (console && console.log) {
-          console.log('Cannot decode passed ui params', params);
-        }
-      }
-    }
-    return obj;
-  }
-};
-module.exports = exports['default'];
-
-},{"./base64":4,"./uri":10}],10:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -1516,2270 +3239,31 @@ var _jsuri = _dereq_('jsuri');
 
 var _jsuri2 = _interopRequireDefault(_jsuri);
 
-exports['default'] = { init: _jsuri2['default'] };
-module.exports = exports['default'];
+var _utilsJwt = _dereq_('utils/jwt');
 
-},{"jsuri":2}],11:[function(_dereq_,module,exports){
-'use strict';
+var _utilsJwt2 = _interopRequireDefault(_utilsJwt);
 
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _events = _dereq_('./events');
-
-var _events2 = _interopRequireDefault(_events);
-
-var _jwt = _dereq_('./jwt');
-
-var _jwt2 = _interopRequireDefault(_jwt);
-
-var _uri = _dereq_('./uri');
-
-var _uri2 = _interopRequireDefault(_uri);
-
-var _uiParams = _dereq_('./ui-params');
-
-var _uiParams2 = _interopRequireDefault(_uiParams);
-
-// Capture some common values and symbol aliases
-var count = 0;
-
-/**
- * Sets up cross-iframe remote procedure calls.
- * If this is called from a parent window, iframe is created and an RPC interface for communicating with it is set up.
- * If this is called from within the iframe, an RPC interface for communicating with the parent is set up.
- *
- * Calling a remote function is done with the signature:
- *     fn(data..., doneCallback, failCallback)
- * doneCallback is called after the remote function executed successfully.
- * failCallback is called after the remote function throws an exception.
- * doneCallback and failCallback are optional.
- *
- * @param {Object} $ jquery or jquery-like utility
- * @param {Object} config Configuration parameters
- * @param {String} config.remoteKey The remote peer's add-on key (host only)
- * @param {String} config.remote The src of remote iframe (host only)
- * @param {String} config.container The id of element to which the generated iframe is appended (host only)
- * @param {Object} config.props Additional attributes to add to iframe element (host only)
- * @param {String} config.channel Channel (host only); deprecated
- * @param {Object} bindings RPC method stubs and implementations
- * @param {Object} bindings.local Local function implementations - functions that exist in the current context.
- *    XdmRpc exposes these functions so that they can be invoked by code running in the other side of the iframe.
- * @param {Array} bindings.remote Names of functions which exist on the other side of the iframe.
- *    XdmRpc creates stubs to these functions that can be invoked from the current page.
- * @returns XdmRpc instance
- * @constructor
- */
-function XdmRpc($, config, bindings) {
-
-  var self;
-  var id;
-  var target;
-  var remoteOrigin;
-  var channel;
-  var mixin;
-  var localKey;
-  var remoteKey;
-  var addonKey;
-  var w = window;
-  var loc = w.location.toString();
-  var locals = bindings.local || {};
-  var remotes = bindings.remote || [];
-  var localOrigin = getBaseUrl(loc);
-
-  // A hub through which all async callbacks for remote requests are parked until invoked from a response
-  var nexus = (function () {
-    var callbacks = {};
-    return {
-      // Registers a callback of a given type by uid
-      add: function add(uid, done, fail) {
-        callbacks[uid] = {
-          done: done || null,
-          fail: fail || null,
-          async: !!done
-        };
-      },
-      // Invokes callbacks for a response of a given type by uid if registered, then removes all handlers for the uid
-      invoke: function invoke(type, uid, arg) {
-        var handled;
-        if (callbacks[uid]) {
-          if (callbacks[uid][type]) {
-            // If the intended callback exists, invoke it and mark the response as handled
-            callbacks[uid][type](arg);
-            handled = true;
-          } else {
-            // Only mark other calls as handled if they weren't expecting a callback and didn't fail
-            handled = !callbacks[uid].async && type !== 'fail';
-          }
-          delete callbacks[uid];
-        }
-        return handled;
-      }
-    };
-  })();
-
-  // Use the config and enviroment to construct the core of the new XdmRpc instance.
-  //
-  // Note: The xdm_e|c|p variables that appear in an iframe URL are used to pass message to the XdmRpc bridge
-  // when running inside an add-on iframe.  Their names are holdovers from easyXDM, which was used prior
-  // to building this proprietary library (which was done both to greatly reduce the total amount of JS
-  // needed to drive the postMessage-based RPC communication, and to allow us to extend its capabilities).
-  //
-  // AC-451 describes how we can reduce/improve these (and other) iframe url parameters, but until that is
-  // addressed, here's a brief description of each:
-  //
-  //  - xdm_e contains the base url of the host app; it's presence indicates that the XdmRpc is running in
-  //    an add-on iframe
-  //  - xdm_c contains a unique channel name; this is a holdover from easyXDM that was used to distinguish
-  //    postMessage events between multiple iframes with identical xdm_e values, though this may now be
-  //    redundant with the current internal implementation of the XdmRpc and should be considered for removal
-  if (!/xdm_e/.test(loc)) {
-    // Host-side constructor branch
-
-    // if there is already an iframe created. Destroy it. It's an old version.
-
-    $(document.getElementById(config.container)).find('iframe').trigger('ra.iframe.destroy');
-
-    var iframe = createIframe(config);
-    target = iframe.contentWindow;
-    localKey = param(config.remote, 'oauth_consumer_key') || param(config.remote, 'jwt');
-    remoteKey = config.remoteKey;
-    addonKey = remoteKey;
-    remoteOrigin = getBaseUrl(config.remote).toLowerCase();
-    channel = config.channel;
-    // Define the host-side mixin
-    mixin = {
-      isHost: true,
-      iframe: iframe,
-      uiParams: config.uiParams,
-      destroy: function destroy() {
-        window.clearTimeout(self.timeout); //clear the iframe load time.
-        // Unbind postMessage handler when destroyed
-        unbind();
-        // Then remove the iframe, if it still exists
-        if (self.iframe) {
-          $(self.iframe).remove();
-          delete self.iframe;
-        }
-      },
-      isActive: function isActive() {
-        // Host-side instances are only active as long as the iframe they communicate with still exists in the DOM
-        return $.contains(document.documentElement, self.iframe);
-      }
-    };
-    $(iframe).on('ra.iframe.destroy', mixin.destroy);
-  } else {
-    // Add-on-side constructor branch
-    target = w.parent;
-    localKey = 'local'; // Would be better to make this the add-on key, but it's not readily available at this time
-
-    // identify the add-on by unique key: first try JWT issuer claim and fall back to OAuth1 consumer key
-    var jwtParam = param(loc, 'jwt');
-    remoteKey = jwtParam ? _jwt2['default'].parseJwtIssuer(jwtParam) : param(loc, 'oauth_consumer_key');
-
-    // if the authentication method is 'none' then it is valid to have no jwt and no oauth in the url
-    // but equally we don't trust this iframe as far as we can throw it, so assign it a random id
-    // in order to prevent it from talking to any other iframe
-    if (null === remoteKey) {
-      remoteKey = Math.random(); // unpredictable and unsecured, like an oauth consumer key
-    }
-
-    addonKey = localKey;
-    remoteOrigin = param(loc, 'xdm_e').toLowerCase();
-    channel = param(loc, 'xdm_c');
-    // Define the add-on-side mixin
-    mixin = {
-      isHost: false,
-      isActive: function isActive() {
-        // Add-on-side instances are always active, as they must always have a parent window peer
-        return true;
-      }
-    };
-  }
-
-  id = addonKey + '|' + (count += 1);
-
-  // Create the actual XdmRpc instance, and apply the context-sensitive mixin
-  self = $.extend({
-    id: id,
-    remoteOrigin: remoteOrigin,
-    channel: channel,
-    addonKey: addonKey
-  }, mixin);
-
-  // Sends a message of a specific type to the remote peer via a post-message event
-  function send(sid, type, message) {
-    try {
-      target.postMessage(JSON.stringify({
-        c: channel,
-        i: sid,
-        t: type,
-        m: message
-      }), remoteOrigin);
-    } catch (ex) {
-      log(errmsg(ex));
-    }
-  }
-
-  // Sends a request with a specific remote method name, args, and optional callbacks
-  function sendRequest(methodName, args, done, fail) {
-    // Generate a random ID for this remote invocation
-    var sid = Math.floor(Math.random() * 1000000000).toString(16);
-    // Register any callbacks with the nexus so they can be invoked when a response is received
-    nexus.add(sid, done, fail);
-    // Send a request to the remote, where:
-    //  - n is the name of the remote function
-    //  - a is an array of the (hopefully) serializable, non-callback arguments to this method
-    send(sid, 'request', { n: methodName, a: args });
-  }
-
-  function sendDone(sid, message) {
-    send(sid, 'done', message);
-  }
-
-  function sendFail(sid, message) {
-    send(sid, 'fail', message);
-  }
-
-  // Handles an normalized, incoming post-message event
-  function receive(e) {
-    try {
-      // Extract message payload from the event
-      var payload = JSON.parse(e.data);
-      var pid = payload.i;
-      var pchannel = payload.c;
-      var ptype = payload.t;
-      var pmessage = payload.m;
-
-      // if the iframe has potentially been reloaded. re-attach the source contentWindow object
-      if (e.source !== target && e.origin.toLowerCase() === remoteOrigin && pchannel === channel) {
-        target = e.source;
-      }
-
-      // If the payload doesn't match our expected event signature, assume its not part of the xdm-rpc protocol
-      if (e.source !== target || e.origin.toLowerCase() !== remoteOrigin || pchannel !== channel) {
-        return;
-      }
-
-      if (ptype === 'request') {
-        // If the payload type is request, this is an incoming method invocation
-        var name = pmessage.n;
-        var args = pmessage.a;
-        var local = locals[name];
-        var done;
-        var fail;
-        var async;
-        if (local) {
-          // The message name matches a locally defined RPC method, so inspect and invoke it according
-          // Create responders for each response type
-          done = function (message) {
-            sendDone(pid, message);
-          };
-          fail = function (message) {
-            sendFail(pid, message);
-          };
-          // The local method is considered async if it accepts more arguments than the message has sent;
-          // the additional arguments are filled in with the above async responder callbacks;
-          // TODO: consider specifying args somehow in the remote stubs so that non-callback args can be
-          //       verified before sending a request to fail fast at the callsite
-          async = (args ? args.length : 0) < local.length;
-          var context = locals;
-          if (self.isHost === true) {
-            context = self;
-            if (context.analytics) {
-              context.analytics.trackBridgeMethod(name);
-            }
-          } else {
-            context.isHost = false;
-          }
-          try {
-            if (async) {
-              // If async, apply the method with the responders added to the args list
-              local.apply(context, args.concat([done, fail]));
-            } else {
-              // Otherwise, immediately respond with the result
-              done(local.apply(context, args));
-            }
-          } catch (ex) {
-            // If the invocation threw an error, invoke the fail responder callback with it
-            fail(errmsg(ex));
-            logError(ex);
-          }
-        } else {
-          // No such local rpc method name found
-          debug('Unhandled request:', payload);
-        }
-      } else if (ptype === 'done' || ptype === 'fail') {
-        // The payload is of a response type, so try to invoke the appropriate callback via the nexus registry
-        if (!nexus.invoke(ptype, pid, pmessage)) {
-          // The nexus didn't find an appropriate reponse callback to invoke
-          debug('Unhandled response:', ptype, pid, pmessage);
-        }
-      }
-    } catch (ex) {
-      log(errmsg(ex));
-    }
-  }
-
-  // Creates a bridging invocation function for a remote method
-  function bridge(methodName) {
-    // Add a method to this instance that will convert from 'rpc.method(args..., done?, fail?)'-style
-    // invocations to a postMessage event via the 'send' function
-    return function () {
-      var args = [].slice.call(arguments);
-      var done;
-      var fail;
-      // Pops the last arg off the args list if it's a function
-      function popFn() {
-        if ($.isFunction(args[args.length - 1])) {
-          return args.pop();
-        }
-      }
-      // Remove done/fail callbacks from the args list
-      fail = popFn();
-      done = popFn();
-      if (!done) {
-        // Set the done cb to the value of the fail cb if only one callback fn was given
-        done = fail;
-        fail = undefined;
-      }
-      sendRequest(methodName, args, done, fail);
-    };
-  }
-
-  // For each remote method, generate a like-named interceptor on this instance that converts invocations to
-  // post-message request events, tracking async callbacks as necessary.
-  $.each(remotes, function (methodName, v) {
-    // If remotes were specified as an array rather than a map, promote v to methodName
-    if (typeof methodName === 'number') {
-      methodName = v;
-    }
-    self[methodName] = bridge(methodName);
-  });
-
-  // Create and attach a local event emitter for bridged pub/sub
-  var bus = self.events = new _events2['default'].Events(localKey, localOrigin);
-  // Attach an any-listener to forward all locally-originating events to the remote peer
-  bus.onAny(function () {
-    // The actual event object is the last argument passed to any listener
-    var event = arguments[arguments.length - 1];
-    var trace = event.trace = event.trace || {};
-    var traceKey = self.id + '|xdm';
-    if (self.isHost && !trace[traceKey] && event.source.channel !== self.id || !self.isHost && event.source.key === localKey) {
-      // Only forward an event once in this listener
-      trace[traceKey] = true;
-      // Clone the event and forward without tracing info, to avoid leaking host-side iframe topology to add-ons
-      event = $.extend({}, event);
-      delete event.trace;
-      debug('Forwarding ' + (self.isHost ? 'host' : 'addon') + ' event:', event);
-      sendRequest('_event', [event]);
-    }
-  });
-  // Define our own reserved local to receive remote events
-  locals._event = function (event) {
-    // Reset/ignore any tracing info that may have come across the bridge
-    delete event.trace;
-    if (this.isHost) {
-      // When the running on the host-side, forcibly reset the event's key and origin fields, to prevent spoofing by
-      // untrusted add-ons; also include the host-side XdmRpc instance id to tag the event with this particular
-      // instance of the host/add-on relationship
-      event.source = {
-        channel: this.id || id, // Note: the term channel here != the deprecated xdm channel param
-        key: this.addonKey,
-        origin: this.remoteOrigin || remoteOrigin
-      };
-    }
-    debug('Receiving as ' + (this.isHost ? 'host' : 'addon') + ' event:', event);
-    // Emit the event on the local bus
-    bus._emitEvent(event);
-  };
-
-  // Handles incoming postMessages from this XdmRpc instance's remote peer
-  function postMessageHandler(e) {
-    if (self.isActive()) {
-      // Normalize and forward the event message to the receiver logic
-      receive(e.originalEvent ? e.originalEvent : e);
-    } else {
-      // If inactive (due to the iframe element having disappeared from the DOM), force cleanup of this callback
-      unbind();
-    }
-  }
-
-  // Starts listening for window messaging events
-  function bind() {
-    $(window).bind('message', postMessageHandler);
-  }
-
-  // Stops listening for window messaging events
-  function unbind() {
-    $(window).unbind('message', postMessageHandler);
-  }
-
-  // Crudely extracts a query param value from a url by name
-  function param(url, name) {
-    return new _uri2['default'].init(url).getQueryParamValue(name);
-  }
-
-  // Determines a base url consisting of protocol+domain+port from a given url string
-  function getBaseUrl(url) {
-    return new _uri2['default'].init(url).origin();
-  }
-
-  // Appends a map of query parameters to a base url
-  function toUrl(base, params) {
-    var url = new _uri2['default'].init(base);
-    $.each(params, function (k, v) {
-      url.addQueryParam(k, v);
-    });
-    return url.toString();
-  }
-
-  // Creates an iframe element from a config option consisting of the following values:
-  //  - container:  the parent element of the new iframe
-  //  - remote:     the src url of the new iframe
-  //  - props:      a map of additional HTML attributes for the new iframe
-  //  - channel:    deprecated
-  function createIframe(config) {
-    if (!config.container) {
-      throw new Error('config.container must be defined');
-    }
-    var iframe = document.createElement('iframe');
-    var id = 'easyXDM_' + config.container + '_provider';
-    var windowName = '';
-
-    if (config.uiParams) {
-      windowName = _uiParams2['default'].encode(config.uiParams);
-    }
-    $.extend(iframe, { id: id, name: windowName, frameBorder: '0' }, config.props);
-    //$.extend will not add the attribute rel.
-    iframe.setAttribute('rel', 'nofollow');
-    $(document.getElementById(config.container)).append(iframe);
-    $(iframe).trigger('ra.iframe.create');
-    iframe.src = config.remote;
-    return iframe;
-  }
-
-  function errmsg(ex) {
-    return ex.message || ex.toString();
-  }
-
-  function debug() {
-    if (XdmRpc.debug) {
-      log.apply(w, ['DEBUG:'].concat([].slice.call(arguments)));
-    }
-  }
-
-  function log() {
-    var log = $.log || w.AJS && w.AJS.log;
-    if (log) {
-      log.apply(w, arguments);
-    }
-  }
-
-  function logError() {
-    // $.error seems to do the same thing as $.log in client console
-    var error = w.AJS && w.AJS.error;
-    if (error) {
-      error.apply(w, arguments);
-    }
-  }
-
-  // Immediately start listening for events
-  bind();
-
-  return self;
+function isJwtExpired(urlStr) {
+  var jwtStr = _getJwt(urlStr);
+  return _utilsJwt2['default'].isJwtExpired(jwtStr);
 }
 
-//  XdmRpc.debug = true;
+function _getJwt(urlStr) {
+  var url = new _jsuri2['default'](urlStr);
+  return url.getQueryParamValue('jwt');
+}
 
-exports['default'] = XdmRpc;
-module.exports = exports['default'];
+function hasJwt(url) {
+  var jwt = _getJwt(url);
+  return jwt && _getJwt(url).length !== 0;
+}
 
-},{"./events":7,"./jwt":8,"./ui-params":9,"./uri":10}],12:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('./dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _rpc = _dereq_('./rpc');
-
-var _rpc2 = _interopRequireDefault(_rpc);
-
-// Note that if it's desireable to publish host-level events to add-ons, this would be a good place to wire
-// up host listeners and publish to each add-on, rather than using each XdmRpc.events object directly.
-
-var _channels = {};
-
-// Tracks all channels (iframes with an XDM bridge) for a given add-on key, managing event propagation
-// between bridges, and potentially between add-ons.
-
-exports['default'] = function () {
-  var self = {
-    _emitEvent: function _emitEvent(event) {
-      _dollar2['default'].each(_channels[event.source.key], function (id, channel) {
-        channel.bus._emitEvent(event);
-      });
-    },
-    remove: function remove(xdm) {
-      var channel = _channels[xdm.addonKey][xdm.id];
-      if (channel) {
-        channel.bus.offAny(channel.listener);
-      }
-      delete _channels[xdm.addonKey][xdm.id];
-      return this;
-    },
-    init: function init(config, xdm) {
-      if (!_channels[xdm.addonKey]) {
-        _channels[xdm.addonKey] = {};
-      }
-      var channel = _channels[xdm.addonKey][xdm.id] = {
-        bus: xdm.events,
-        listener: function listener() {
-          var event = arguments[arguments.length - 1];
-          var trace = event.trace = event.trace || {};
-          var traceKey = xdm.id + '|addon';
-          if (!trace[traceKey]) {
-            // Only forward an event once in this listener
-            trace[traceKey] = true;
-            self._emitEvent(event);
-          }
-        }
-      };
-      channel.bus.onAny(channel.listener); //forward add-on events.
-
-      // Remove reference to destroyed iframes such as closed dialogs.
-      channel.bus.on('ra.iframe.destroy', function () {
-        self.remove(xdm);
-      });
-    }
-  };
-  return self;
+module.exports = {
+  hasJwt: hasJwt,
+  isJwtExpired: isJwtExpired
 };
 
-module.exports = exports['default'];
-
-},{"./dollar":21,"./rpc":33}],13:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('./dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-/**
- * Blacklist certain bridge functions from being sent to analytics
- * @const
- * @type {Array}
- */
-var BRIDGEMETHODBLACKLIST = ['resize', 'init'];
-
-/**
- * Timings beyond 20 seconds (connect's load timeout) will be clipped to an X.
- * @const
- * @type {int}
- */
-var THRESHOLD = 20000;
-
-/**
- * Trim extra zeros from the load time.
- * @const
- * @type {int}
- */
-var TRIMPPRECISION = 100;
-
-function time() {
-  return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
-}
-
-function Analytics(addonKey, moduleKey) {
-  var metrics = {};
-  this.addonKey = addonKey;
-  this.moduleKey = moduleKey;
-  this.iframePerformance = {
-    start: function start() {
-      metrics.startLoading = time();
-    },
-    end: function end() {
-      var value = time() - metrics.startLoading;
-      proto.track('iframe.performance.load', {
-        addonKey: addonKey,
-        moduleKey: moduleKey,
-        value: value > THRESHOLD ? 'x' : Math.ceil(value / TRIMPPRECISION)
-      });
-      delete metrics.startLoading;
-    },
-    timeout: function timeout() {
-      proto.track('iframe.performance.timeout', {
-        addonKey: addonKey,
-        moduleKey: moduleKey
-      });
-      //track an end event during a timeout so we always have complete start / end data.
-      this.end();
-    },
-    // User clicked cancel button during loading
-    cancel: function cancel() {
-      proto.track('iframe.performance.cancel', {
-        addonKey: addonKey,
-        moduleKey: moduleKey
-      });
-    }
-  };
-}
-
-var proto = Analytics.prototype;
-
-proto.getKey = function () {
-  return this.addonKey + ':' + this.moduleKey;
-};
-
-proto.track = function (name, data) {
-  var prefixedName = 'connect.addon.' + name;
-  if (AJS.Analytics) {
-    AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
-  } else if (AJS.trigger) {
-    // BTF fallback
-    AJS.trigger('analyticsEvent', {
-      name: prefixedName,
-      data: data
-    });
-  } else {
-    return false;
-  }
-
-  return true;
-};
-
-proto.trackBridgeMethod = function (name) {
-  if (_dollar2['default'].inArray(name, BRIDGEMETHODBLACKLIST) !== -1) {
-    return false;
-  }
-  this.track('bridge.invokemethod', {
-    name: name,
-    addonKey: this.addonKey,
-    moduleKey: this.moduleKey
-  });
-};
-
-exports['default'] = {
-  get: function get(addonKey, moduleKey) {
-    return new Analytics(addonKey, moduleKey);
-  }
-};
-module.exports = exports['default'];
-
-},{"./dollar":21}],14:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('./dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _commonUri = _dereq_('../common/uri');
-
-var _commonUri2 = _interopRequireDefault(_commonUri);
-
-/**
- * Utility methods for rendering connect addons in AUI components
- */
-
-function getWebItemPluginKey(target) {
-  var cssClass = target.attr('class');
-  var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
-  return _dollar2['default'].isArray(m) ? m[1] : false;
-}
-function getWebItemModuleKey(target) {
-  var cssClass = target.attr('class');
-  var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
-  return _dollar2['default'].isArray(m) ? m[1] : false;
-}
-
-function getOptionsForWebItem(target) {
-  var moduleKey = getWebItemModuleKey(target);
-  var type = target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-  return window._AP[type + 'Options'][moduleKey] || {};
-}
-
-function contextFromUrl(url) {
-  var pairs = new _commonUri2['default'].init(url).queryPairs;
-  var obj = {};
-  _dollar2['default'].each(pairs, function (key, value) {
-    obj[value[0]] = value[1];
-  });
-  return obj;
-}
-
-function eventHandler(action, selector, callback) {
-
-  function domEventHandler(event) {
-    event.preventDefault();
-    var $el = (0, _dollar2['default'])(event.target).closest(selector);
-    var href = $el.attr('href');
-    var url = new _commonUri2['default'].init(href);
-    var options = {
-      bindTo: $el,
-      header: $el.text(),
-      width: url.getQueryParamValue('width'),
-      height: url.getQueryParamValue('height'),
-      cp: url.getQueryParamValue('cp'),
-      key: getWebItemPluginKey($el),
-      productContext: contextFromUrl(href)
-    };
-    callback(href, options, event.type);
-  }
-
-  (0, _dollar2['default'])(window.document).on(action, selector, domEventHandler);
-}
-
-exports['default'] = {
-  eventHandler: eventHandler,
-  getOptionsForWebItem: getOptionsForWebItem,
-  getWebItemPluginKey: getWebItemPluginKey,
-  getWebItemModuleKey: getWebItemModuleKey
-};
-module.exports = exports['default'];
-
-},{"../common/uri":10,"./dollar":21}],15:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('./dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _analytics = _dereq_('./analytics');
-
-var _analytics2 = _interopRequireDefault(_analytics);
-
-var _rpc = _dereq_('./rpc');
-
-var _rpc2 = _interopRequireDefault(_rpc);
-
-var _commonUiParams = _dereq_('../common/ui-params');
-
-var _commonUiParams2 = _interopRequireDefault(_commonUiParams);
-
-var _util = _dereq_('./util');
-
-var _util2 = _interopRequireDefault(_util);
-
-var defer = window.requestAnimationFrame || function (f) {
-  setTimeout(f, 10);
-};
-
-function contentDiv(ns) {
-  if (!ns) {
-    throw new Error('ns undefined');
-  }
-  return (0, _dollar2['default'])(document.getElementById('embedded-' + ns));
-}
-
-/**
- * @name Options
- * @class
- * @property {String}  ns            module key
- * @property {String}  src           url of the iframe
- * @property {String}  w             width of the iframe
- * @property {String}  h             height of the iframe
- * @property {String}  dlg           is a dialog (disables the resizer)
- * @property {String}  simpleDlg     deprecated, looks to be set when a confluence macro editor is being rendered as a dialog
- * @property {Boolean} general       is a page that can be resized
- * @property {String}  productCtx    context to pass back to the server (project id, space id, etc)
- * @property {String}  key           addon key from the descriptor
- * @property {String}  uid           id of the current user
- * @property {String}  ukey          user key
- * @property {String}  data.timeZone timezone of the current user
- * @property {String}  cp            context path
- */
-
-/**
- * @param {Options} options These values come from the velocity template and can be overridden using uiParams
- */
-function create(options) {
-  if (typeof options.uiParams !== 'object') {
-    options.uiParams = _commonUiParams2['default'].fromUrl(options.src);
-  }
-
-  var ns = options.ns;
-  var contentId = 'embedded-' + ns;
-  var channelId = 'channel-' + ns;
-  var initWidth = options.w || '100%';
-  var initHeight = options.h || '0';
-
-  if (typeof options.uiParams !== 'object') {
-    options.uiParams = {};
-  }
-
-  if (!!options.general) {
-    options.uiParams.isGeneral = true;
-  }
-
-  var xdmOptions = {
-    remote: options.src,
-    remoteKey: options.key,
-    container: contentId,
-    channel: channelId,
-    props: { width: initWidth, height: initHeight },
-    uiParams: options.uiParams
-  };
-
-  if (options.productCtx && !options.productContext) {
-    options.productContext = JSON.parse(options.productCtx);
-  }
-
-  _rpc2['default'].extend({
-    init: function init(opts, xdm) {
-      xdm.analytics = _analytics2['default'].get(xdm.addonKey, ns);
-      xdm.analytics.iframePerformance.start();
-      xdm.productContext = options.productContext;
-    }
-  });
-
-  _rpc2['default'].init(options, xdmOptions);
-}
-
-exports['default'] = function (options) {
-
-  var attemptCounter = 0;
-  function doCreate() {
-    //If the element we are going to append the iframe to doesn't exist in the dom (yet). Wait for it to appear.
-    if (contentDiv(options.ns).length === 0 && attemptCounter < 10) {
-      setTimeout(function () {
-        attemptCounter++;
-        doCreate();
-      }, 50);
-      return;
-    }
-
-    // create the new iframe
-    create(options);
-  }
-
-  if (AJS.$.isReady) {
-    // if the dom is ready then this is being run during an ajax update;
-    // in that case, defer creation until the next event loop tick to ensure
-    // that updates to the desired container node's parents have completed
-    defer(doCreate);
-  } else {
-    (0, _dollar2['default'])(doCreate);
-  }
-};
-
-;
-module.exports = exports['default'];
-
-},{"../common/ui-params":9,"./analytics":13,"./dollar":21,"./rpc":33,"./util":35}],16:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _create2 = _dereq_('../create');
-
-var _create3 = _interopRequireDefault(_create2);
-
-var _button = _dereq_('./button');
-
-var _button2 = _interopRequireDefault(_button);
-
-var _statusHelper = _dereq_('../status-helper');
-
-var _statusHelper2 = _interopRequireDefault(_statusHelper);
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var $global = (0, _dollar2['default'])(window);
-var idSeq = 0;
-var $nexus;
-var dialog;
-var dialogId;
-
-var buttons = {
-  submit: _button2['default'].submit({
-    done: closeDialog
-  }),
-  cancel: _button2['default'].cancel({
-    done: closeDialog
-  })
-};
-
-function keyPressListener(e) {
-  if (e.keyCode === 27 && dialog && dialog.hide) {
-    dialog.hide();
-    (0, _dollar2['default'])(document).unbind('keydown', keyPressListener);
-  }
-};
-
-function createDialogElement(options, $nexus, chromeless) {
-  var $el = (0, _dollar2['default'])('#' + options.id);
-  var extraClasses = ['ap-aui-dialog2'];
-
-  if (chromeless) {
-    extraClasses.push('ap-aui-dialog2-chromeless');
-  }
-
-  if ($el.length === 0) {
-    $el = (0, _dollar2['default'])(aui.dialog.dialog2({
-      id: options.id,
-      titleText: options.header,
-      titleId: options.titleId,
-      size: options.size,
-      extraClasses: extraClasses,
-      removeOnHide: true,
-      footerActionContent: true,
-      modal: true
-    }));
-  } else {
-    $el = (0, _dollar2['default'])($el[0]);
-    $el.find('.aui-dialog2-header-main').text(options.header);
-    if (extraClasses) {
-      $el.addClass(extraClasses.join(' '));
-    }
-  }
-
-  if (chromeless) {
-    $el.find('header, footer').hide();
-  } else {
-    buttons.submit.setText(options.submitText);
-    buttons.cancel.setText(options.cancelText);
-    //soy templates don't support sending objects, so make the template and bind them.
-    var footer = $el.find('.aui-dialog2-footer-actions');
-    footer.find('button').remove();
-    footer.append(buttons.submit.$el, buttons.cancel.$el);
-    $nexus.data('ra.dialog.buttons', buttons);
-  }
-
-  function handler(button) {
-    // ignore clicks on disabled links
-    if (button.isEnabled()) {
-      button.$el.trigger('ra.dialog.click', button.dispatch);
-    }
-  }
-
-  _dollar2['default'].each(buttons, function (i, button) {
-    button.$el.click(function () {
-      handler(button);
-    });
-  });
-
-  return $el;
-}
-
-function displayDialogContent($container, options) {
-  $container.append('<div id="embedded-' + options.ns + '" class="ap-dialog-container ap-content"/>');
-}
-
-function parseDimension(value, viewport) {
-  if (typeof value === 'string') {
-    var percent = value.indexOf('%') === value.length - 1;
-    value = parseInt(value, 10);
-    if (percent) {
-      value = value / 100 * viewport;
-    }
-  }
-  return value;
-}
-
-function closeDialog() {
-  if ($nexus) {
-    // Signal the XdmRpc for the dialog's iframe to clean up
-
-    $nexus.find('iframe').trigger('ra.iframe.destroy').removeData('ra.dialog.buttons').unbind();
-    // Clear the nexus handle to allow subsequent dialogs to open
-    $nexus = null;
-  }
-  dialog.hide();
-}
-
-exports['default'] = {
-  id: dialogId,
-
-  getButton: function getButton(name) {
-    var buttons = $nexus ? $nexus.data('ra.dialog.buttons') : null;
-    return name && buttons ? buttons[name] : buttons;
-  },
-
-  /**
-   * Constructs a new AUI dialog. The dialog has a single content panel containing a single iframe.
-   * The iframe's content is either created by loading [options.src] as the iframe url. Or fetching the content from the server by add-on key + module key.
-   *
-   * @param {Object} options Options to configure the behaviour and appearance of the dialog.
-   * @param {String} [options.header='Remotable Plugins Dialog Title']  Dialog header.
-   * @param {String} [options.headerClass='ap-dialog-header'] CSS class to apply to dialog header.
-   * @param {String|Number} [options.width='50%'] width of the dialog, expressed as either absolute pixels (eg 800) or percent (eg 50%)
-   * @param {String|Number} [options.height='50%'] height of the dialog, expressed as either absolute pixels (eg 600) or percent (eg 50%)
-   * @param {String} [options.id] ID attribute to assign to the dialog. Default to 'ap-dialog-n' where n is an autoincrementing id.
-   */
-  create: function create(options, showLoadingIndicator) {
-    var defaultOptions = {
-      // These options really _should_ be provided by the caller, or else the dialog is pretty pointless
-      width: '50%',
-      height: '50%'
-    };
-    var dialogId = options.id || 'ap-dialog-' + (idSeq += 1);
-    var mergedOptions = _dollar2['default'].extend(true, { id: dialogId }, defaultOptions, options, { uiParams: { isDialog: true, isInlineAddon: true } });
-    var dialogElement;
-
-    // patch for an old workaround where people would make 100% height / width dialogs.
-    if (mergedOptions.width === '100%' && mergedOptions.height === '100%') {
-      mergedOptions.size = 'maximum';
-    }
-
-    mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
-    mergedOptions.h = parseDimension(mergedOptions.height, $global.height());
-
-    $nexus = (0, _dollar2['default'])('<div />').addClass('ap-servlet-placeholder ap-container').attr('id', 'ap-' + options.ns).bind('ra.dialog.close', closeDialog);
-
-    if (options.chrome) {
-      dialogElement = createDialogElement(mergedOptions, $nexus);
-    } else {
-      dialogElement = createDialogElement(mergedOptions, $nexus, true);
-    }
-
-    if (options.size) {
-      mergedOptions.w = '100%';
-      mergedOptions.h = '100%';
-    } else {
-      AJS.layer(dialogElement).changeSize(mergedOptions.w, mergedOptions.h);
-      dialogElement.removeClass('aui-dialog2-medium'); // this class has a min-height so must be removed.
-    }
-
-    dialogElement.find('.aui-dialog2-content').append($nexus);
-    dialog = AJS.dialog2(dialogElement);
-
-    dialog.on('hide', closeDialog);
-    // ESC key closes the dialog
-    (0, _dollar2['default'])(document).on('keydown', keyPressListener);
-
-    _dollar2['default'].each(buttons, function (name, button) {
-      button.click(function () {
-        button.dispatch(true);
-      });
-    });
-
-    displayDialogContent($nexus, mergedOptions);
-
-    if (showLoadingIndicator !== false) {
-      $nexus.append(_statusHelper2['default'].createStatusMessages());
-    }
-
-    //difference between a webitem and opening from js.
-    if (options.src) {
-      (0, _create3['default'])(mergedOptions);
-    }
-
-    // give the dialog iframe focus so it can capture keypress events, etc.
-    // the 'iframe' selector needs to be specified, otherwise Firefox won't focus the iframe
-    dialogElement.on('ra.iframe.create', 'iframe', function () {
-      this.focus();
-    });
-
-    var existingNode = (0, _dollar2['default'])('#' + dialogElement.attr('id'));
-    if (existingNode.length === 0) {
-      dialog.show();
-    }
-
-    return dialog;
-  },
-
-  close: closeDialog
-};
-module.exports = exports['default'];
-
-},{"../create":15,"../dollar":21,"../status-helper":34,"./button":18}],17:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _content = _dereq_('../content');
-
-var _content2 = _interopRequireDefault(_content);
-
-var _api = _dereq_('./api');
-
-var _api2 = _interopRequireDefault(_api);
-
-var _factory = _dereq_('./factory');
-
-var _factory2 = _interopRequireDefault(_factory);
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-exports['default'] = function () {
-  var action = 'click';
-  var selector = '.ap-dialog';
-
-  function callback(href, options) {
-    var webItemOptions = _content2['default'].getOptionsForWebItem(options.bindTo);
-    var moduleKey = _content2['default'].getWebItemModuleKey(options.bindTo);
-    var addonKey = _content2['default'].getWebItemPluginKey(options.bindTo);
-
-    _dollar2['default'].extend(options, webItemOptions);
-
-    if (!options.ns) {
-      options.ns = moduleKey;
-    }
-
-    if (!options.container) {
-      options.container = options.ns;
-    }
-
-    // webitem target options can sometimes be sent as strings.
-    if (typeof options.chrome === 'string') {
-      options.chrome = options.chrome.toLowerCase() === 'false' ? false : true;
-    }
-
-    //default chrome to be true for backwards compatibility with webitems
-    if (options.chrome === undefined) {
-      options.chrome = true;
-    }
-
-    (0, _factory2['default'])({
-      key: addonKey,
-      moduleKey: moduleKey
-    }, options, options.productContext);
-  }
-
-  _content2['default'].eventHandler(action, selector, callback);
-};
-
-module.exports = exports['default'];
-
-},{"../content":14,"../dollar":21,"./api":16,"./factory":19}],18:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-function Button(options) {
-  this.$el = (0, _dollar2['default'])('<button />').text(options.text).addClass('aui-button aui-button-' + options.type).addClass(options.additionalClasses);
-
-  this.isEnabled = function () {
-    return !(this.$el.attr('aria-disabled') === 'true');
-  };
-
-  this.setEnabled = function (enabled) {
-    //cannot disable a noDisable button
-    if (options.noDisable === true) {
-      return false;
-    }
-    this.$el.attr('aria-disabled', !enabled);
-    return true;
-  };
-
-  this.setEnabled(true);
-
-  this.click = function (listener) {
-    if (listener) {
-      this.$el.unbind('ra.dialog.click');
-      this.$el.bind('ra.dialog.click', listener);
-    } else {
-      this.dispatch(true);
-    }
-  };
-
-  this.dispatch = function (result) {
-    var name = result ? 'done' : 'fail';
-    options.actions && options.actions[name] && options.actions[name]();
-  };
-
-  this.setText = function (text) {
-    if (text) {
-      this.$el.text(text);
-    }
-  };
-}
-
-exports['default'] = {
-  submit: function submit(actions) {
-    return new Button({
-      type: 'primary',
-      text: 'Submit',
-      additionalClasses: 'ap-dialog-submit',
-      actions: actions
-    });
-  },
-
-  cancel: function cancel(actions) {
-    return new Button({
-      type: 'link',
-      text: 'Cancel',
-      noDisable: true,
-      additionalClasses: 'ap-dialog-cancel',
-      actions: actions
-    });
-  }
-};
-module.exports = exports['default'];
-
-},{"../dollar":21}],19:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _api = _dereq_('./api');
-
-var _api2 = _interopRequireDefault(_api);
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-//might rename this, it opens a dialog by first working out the url (used for javascript opening a dialog).
-/**
- * opens a dialog by sending the add-on and module keys back to the server for signing.
- * Used by dialog-pages, confluence macros and opening from javascript.
- * @param {Object} options for passing to AP.create
- * @param {Object} dialog options (width, height, etc)
- * @param {String} productContextJson pass context back to the server
- */
-
-exports['default'] = function (options, dialogOptions, productContext) {
-  var promise;
-  var container;
-  var uiParams = _dollar2['default'].extend({ isDialog: 1 }, options.uiParams);
-
-  _api2['default'].create({
-    id: options.id,
-    ns: options.moduleKey || options.key,
-    chrome: dialogOptions.chrome || options.chrome,
-    header: dialogOptions.header,
-    width: dialogOptions.width,
-    height: dialogOptions.height,
-    size: dialogOptions.size,
-    submitText: dialogOptions.submitText,
-    cancelText: dialogOptions.cancelText
-  }, false);
-
-  container = (0, _dollar2['default'])('.ap-dialog-container');
-  if (options.url) {
-    throw new Error('Cannot retrieve dialog content by URL');
-  }
-
-  promise = window._AP.contentResolver.resolveByParameters({
-    addonKey: options.key,
-    moduleKey: options.moduleKey,
-    productContext: productContext,
-    uiParams: uiParams
-  });
-
-  promise.done(function (data) {
-    var dialogHtml = (0, _dollar2['default'])(data);
-    dialogHtml.addClass('ap-dialog-container');
-    container.replaceWith(dialogHtml);
-  }).fail(function (xhr, status, ex) {
-    var title = (0, _dollar2['default'])('<p class="title" />').text('Unable to load add-on content. Please try again later.');
-    var msg = status + (ex ? ': ' + ex.toString() : '');
-    container.html('<div class="aui-message error ap-aui-message"></div>');
-    container.find('.error').text(msg);
-    container.find('.error').prepend(title);
-    AJS.log(msg);
-  });
-
-  return _api2['default'];
-};
-
-module.exports = exports['default'];
-
-},{"../dollar":21,"./api":16}],20:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _api = _dereq_('./api');
-
-var _api2 = _interopRequireDefault(_api);
-
-var _factory = _dereq_('./factory');
-
-var _factory2 = _interopRequireDefault(_factory);
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-exports['default'] = function () {
-  return {
-    stubs: ['dialogMessage'],
-
-    init: function init(state, xdm) {
-      // fallback for old connect p2 plugin.
-      if (state.dlg === '1') {
-        xdm.uiParams.isDialog = true;
-      }
-
-      if (xdm.uiParams.isDialog) {
-        var buttons = _api2['default'].getButton();
-        if (buttons) {
-          _dollar2['default'].each(buttons, function (name, button) {
-            button.click(function (e, callback) {
-              if (xdm.isActive() && xdm.buttonListenerBound) {
-                xdm.dialogMessage(name, callback);
-              } else {
-                callback(true);
-              }
-            });
-          });
-        }
-      }
-    },
-
-    internals: {
-      dialogListenerBound: function dialogListenerBound() {
-        this.buttonListenerBound = true;
-      },
-
-      setDialogButtonEnabled: function setDialogButtonEnabled(name, enabled) {
-        _api2['default'].getButton(name).setEnabled(enabled);
-      },
-
-      isDialogButtonEnabled: function isDialogButtonEnabled(name, callback) {
-        var button = _api2['default'].getButton(name);
-        callback(button ? button.isEnabled() : void 0);
-      },
-
-      createDialog: function createDialog(dialogOptions) {
-        var xdmOptions = {
-          key: this.addonKey
-        };
-
-        //open by key or url. This can be simplified when opening via url is removed.
-        if (dialogOptions.key) {
-          xdmOptions.moduleKey = dialogOptions.key;
-        } else if (dialogOptions.url) {
-          throw new Error('Cannot open dialog by URL, please use module key');
-        }
-
-        if ((0, _dollar2['default'])('.aui-dialog2 :visible').length !== 0) {
-          throw new Error('Cannot open dialog when a layer is already visible');
-        }
-
-        (0, _factory2['default'])(xdmOptions, dialogOptions, this.productContext);
-      },
-      closeDialog: function closeDialog() {
-        _api2['default'].close();
-      }
-    }
-  };
-};
-
-module.exports = exports['default'];
-
-},{"../dollar":21,"./api":16,"./factory":19}],21:[function(_dereq_,module,exports){
-/**
- * The iframe-side code exposes a jquery-like implementation via _dollar.
- * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
- * to code that runs on host and iframe.
- */
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = AJS.$;
-module.exports = exports["default"];
-
-},{}],22:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-exports["default"] = function () {
-  return {
-    internals: {
-      getLocation: function getLocation() {
-        return window.location.href;
-      }
-    }
-  };
-};
-
-module.exports = exports["default"];
-
-},{}],23:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _addons = _dereq_('./addons');
-
-var _addons2 = _interopRequireDefault(_addons);
-
-var _content = _dereq_('./content');
-
-var _content2 = _interopRequireDefault(_content);
-
-var _create = _dereq_('./create');
-
-var _create2 = _interopRequireDefault(_create);
-
-var _dialogApi = _dereq_('./dialog/api');
-
-var _dialogApi2 = _interopRequireDefault(_dialogApi);
-
-var _dialogBinder = _dereq_('./dialog/binder');
-
-var _dialogBinder2 = _interopRequireDefault(_dialogBinder);
-
-var _dialogRpc = _dereq_('./dialog/rpc');
-
-var _dialogRpc2 = _interopRequireDefault(_dialogRpc);
-
-var _env = _dereq_('./env');
-
-var _env2 = _interopRequireDefault(_env);
-
-var _inlineDialogRpc = _dereq_('./inline-dialog/rpc');
-
-var _inlineDialogRpc2 = _interopRequireDefault(_inlineDialogRpc);
-
-var _inlineDialogBinder = _dereq_('./inline-dialog/binder');
-
-var _inlineDialogBinder2 = _interopRequireDefault(_inlineDialogBinder);
-
-var _loadingIndicator = _dereq_('./loading-indicator');
-
-var _loadingIndicator2 = _interopRequireDefault(_loadingIndicator);
-
-var _messagesRpc = _dereq_('./messages/rpc');
-
-var _messagesRpc2 = _interopRequireDefault(_messagesRpc);
-
-var _resize = _dereq_('./resize');
-
-var _resize2 = _interopRequireDefault(_resize);
-
-var _rpc = _dereq_('./rpc');
-
-var _rpc2 = _interopRequireDefault(_rpc);
-
-var _statusHelper = _dereq_('./status-helper');
-
-var _statusHelper2 = _interopRequireDefault(_statusHelper);
-
-var _commonUiParams = _dereq_('../common/ui-params');
-
-var _commonUiParams2 = _interopRequireDefault(_commonUiParams);
-
-var _commonUri = _dereq_('../common/uri');
-
-var _commonUri2 = _interopRequireDefault(_commonUri);
-
-var _propagateRpc = _dereq_('./propagate/rpc');
-
-var _propagateRpc2 = _interopRequireDefault(_propagateRpc);
-
-/**
- * Private namespace for host-side code.
- * @type {*|{}}
- * @private
- * @deprecated use AMD instead of global namespaces. The only thing that should be on _AP is _AP.define and _AP.require.
- */
-if (!window._AP) {
-  window._AP = {};
-}
-
-AJS.toInit(_dialogBinder2['default']);
-AJS.toInit(_inlineDialogBinder2['default']);
-
-_rpc2['default'].extend(_addons2['default']);
-_rpc2['default'].extend(_dialogRpc2['default']);
-_rpc2['default'].extend(_env2['default']);
-_rpc2['default'].extend(_inlineDialogRpc2['default']);
-_rpc2['default'].extend(_loadingIndicator2['default']);
-_rpc2['default'].extend(_messagesRpc2['default']);
-_rpc2['default'].extend(_resize2['default']);
-_rpc2['default'].extend(_propagateRpc2['default']);
-
-exports['default'] = {
-  extend: _rpc2['default'].extend,
-  init: _rpc2['default'].init,
-  uiParams: _commonUiParams2['default'],
-  create: _create2['default'],
-  _uriHelper: _commonUri2['default'],
-  _statusHelper: _statusHelper2['default'],
-  webItemHelper: _content2['default'],
-  dialog: _dialogApi2['default']
-};
-module.exports = exports['default'];
-
-},{"../common/ui-params":9,"../common/uri":10,"./addons":12,"./content":14,"./create":15,"./dialog/api":16,"./dialog/binder":17,"./dialog/rpc":20,"./env":22,"./inline-dialog/binder":24,"./inline-dialog/rpc":25,"./loading-indicator":28,"./messages/rpc":30,"./propagate/rpc":31,"./resize":32,"./rpc":33,"./status-helper":34}],24:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _content = _dereq_('../content');
-
-var _content2 = _interopRequireDefault(_content);
-
-var _simple = _dereq_('./simple');
-
-var _simple2 = _interopRequireDefault(_simple);
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-exports['default'] = function () {
-  var inlineDialogTrigger = '.ap-inline-dialog';
-  var action = 'click mouseover mouseout';
-
-  function callback(href, options, eventType) {
-    var webItemOptions = _content2['default'].getOptionsForWebItem(options.bindTo);
-    _dollar2['default'].extend(options, webItemOptions);
-    if (options.onHover !== 'true' && eventType !== 'click') {
-      return;
-    }
-
-    // don't repeatedly open if already visible as dozens of mouse-over events are fired in quick succession
-    if (options.onHover === true && options.bindTo.hasClass('active')) {
-      return;
-    }
-    (0, _simple2['default'])(href, options).show();
-  }
-
-  _content2['default'].eventHandler(action, inlineDialogTrigger, callback);
-};
-
-module.exports = exports['default'];
-
-},{"../content":14,"../dollar":21,"./simple":26}],25:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-function getInlineDialog($content) {
-  return $content.closest('.contents').data('inlineDialog');
-}
-
-function showInlineDialog($content) {
-  getInlineDialog($content).show();
-}
-
-function resizeInlineDialog($content, width, height) {
-  $content.closest('.contents').css({
-    width: width,
-    height: height
-  });
-  refreshInlineDialog($content);
-}
-
-function refreshInlineDialog($content) {
-  getInlineDialog($content).refresh();
-}
-
-function _hideInlineDialog($content) {
-  getInlineDialog($content).hide();
-}
-
-exports['default'] = function () {
-  return {
-    init: function init(state, xdm) {
-      if (xdm.uiParams.isInlineDialog) {
-        (0, _dollar2['default'])(xdm.iframe).closest('.ap-container').on('resized', function (e, dimensions) {
-          resizeInlineDialog((0, _dollar2['default'])(xdm.iframe), dimensions.width, dimensions.height);
-        });
-      }
-    },
-    internals: {
-      hideInlineDialog: function hideInlineDialog() {
-        _hideInlineDialog((0, _dollar2['default'])(this.iframe));
-      }
-    }
-  };
-};
-
-module.exports = exports['default'];
-
-},{"../dollar":21}],26:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _content = _dereq_('../content');
-
-var _content2 = _interopRequireDefault(_content);
-
-exports['default'] = function (contentUrl, options) {
-  var $inlineDialog;
-
-  // Find the web-item that was clicked, we'll be needing its ID.
-  if (!options.bindTo || !options.bindTo.jquery) {
-    return;
-  }
-
-  var webItem = options.bindTo.hasClass('ap-inline-dialog') ? options.bindTo : options.bindTo.closest('.ap-inline-dialog');
-  var itemId = webItem.attr('id');
-  if (!itemId) {
-    return;
-  }
-
-  function displayInlineDialog(content, trigger, showInlineDialog) {
-    trigger = (0, _dollar2['default'])(trigger); // sometimes it's not jQuery. Lets make it jQuery.
-    content.data('inlineDialog', $inlineDialog);
-    var pluginKey = _content2['default'].getWebItemPluginKey(trigger);
-    var moduleKey = _content2['default'].getWebItemModuleKey(trigger);
-    var promise = window._AP.contentResolver.resolveByParameters({
-      addonKey: pluginKey,
-      moduleKey: moduleKey,
-      isInlineDialog: true,
-      productContext: options.productContext,
-      uiParams: {
-        isInlineDialog: true
-      }
-    });
-
-    promise.done(function (data) {
-      content.empty().append(data);
-      // if target options contain width and height. set it.
-      if (options.width || options.height) {
-        content.css({
-          width: options.width,
-          height: options.height
-        });
-      }
-    }).fail(function (xhr, status, ex) {
-      var title = (0, _dollar2['default'])('<p class="title" />').text('Unable to load add-on content. Please try again later.');
-      content.html('<div class="aui-message error ap-aui-message"></div>');
-      content.find('.error').append(title);
-      var msg = status + (ex ? ': ' + ex.toString() : '');
-      content.find('.error').text(msg);
-      AJS.log(msg);
-    }).always(function () {
-      showInlineDialog();
-    });
-  }
-
-  var dialogElementIdentifier = 'ap-inline-dialog-content-' + itemId;
-
-  $inlineDialog = (0, _dollar2['default'])(document.getElementById('inline-dialog-' + dialogElementIdentifier));
-
-  if ($inlineDialog.length !== 0) {
-    $inlineDialog.remove();
-  }
-
-  //Create the AUI inline dialog with a unique ID.
-  $inlineDialog = AJS.InlineDialog(options.bindTo,
-  //assign unique id to inline Dialog
-  dialogElementIdentifier, displayInlineDialog, options);
-
-  return {
-    id: $inlineDialog.attr('id'),
-
-    show: function show() {
-      $inlineDialog.show();
-    },
-
-    hide: function hide() {
-      $inlineDialog.hide();
-    }
-  };
-};
-
-module.exports = exports['default'];
-
-},{"../content":14,"../dollar":21}],27:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('./dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _commonJwt = _dereq_('../common/jwt');
-
-var _commonJwt2 = _interopRequireDefault(_commonJwt);
-
-function updateUrl(config) {
-  var promise = _dollar2['default'].Deferred(function (defer) {
-    var contentPromise = window._AP.contentResolver.resolveByParameters({
-      addonKey: config.addonKey,
-      moduleKey: config.moduleKey,
-      productContext: config.productContext,
-      uiParams: config.uiParams,
-      width: config.width,
-      height: config.height,
-      classifier: 'json'
-    });
-
-    contentPromise.done(function (data) {
-      var values = JSON.parse(data);
-      defer.resolve(values.src);
-    });
-  });
-
-  return promise;
-}
-
-exports['default'] = {
-  updateUrl: updateUrl,
-  isExpired: _commonJwt2['default'].isJwtExpired
-};
-module.exports = exports['default'];
-
-},{"../common/jwt":8,"./dollar":21}],28:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('./dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _rpc = _dereq_('./rpc');
-
-var _rpc2 = _interopRequireDefault(_rpc);
-
-var _statusHelper = _dereq_('./status-helper');
-
-var _statusHelper2 = _interopRequireDefault(_statusHelper);
-
-exports['default'] = function () {
-  return {
-    init: function init(state, xdm) {
-      var $home = (0, _dollar2['default'])(xdm.iframe).closest('.ap-container');
-      _statusHelper2['default'].showLoadingStatus($home, 0);
-
-      $home.find('.ap-load-timeout a.ap-btn-cancel').click(function () {
-        _statusHelper2['default'].showLoadErrorStatus($home);
-        if (xdm.analytics && xdm.analytics.iframePerformance) {
-          xdm.analytics.iframePerformance.cancel();
-        }
-      });
-
-      xdm.timeout = setTimeout(function () {
-        xdm.timeout = null;
-        _statusHelper2['default'].showloadTimeoutStatus($home);
-        // if inactive, the iframe has been destroyed by the product.
-        if (xdm.isActive() && xdm.analytics && xdm.analytics.iframePerformance) {
-          xdm.analytics.iframePerformance.timeout();
-        }
-      }, 20000);
-    },
-
-    internals: {
-      init: function init() {
-        if (this.analytics && this.analytics.iframePerformance) {
-          this.analytics.iframePerformance.end();
-        }
-        var $home = (0, _dollar2['default'])(this.iframe).closest('.ap-container');
-        _statusHelper2['default'].showLoadedStatus($home);
-
-        clearTimeout(this.timeout);
-        // Let the integration tests know the iframe has loaded.
-        $home.find('.ap-content').addClass('iframe-init');
-      }
-    }
-  };
-};
-
-module.exports = exports['default'];
-
-},{"./dollar":21,"./rpc":33,"./status-helper":34}],29:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var MESSAGE_BAR_ID = 'ac-message-container';
-var MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
-
-function validateMessageId(msgId) {
-  return msgId.search(/^ap\-message\-[0-9]+$/) === 0;
-}
-
-function getMessageBar() {
-  var msgBar = (0, _dollar2['default'])('#' + MESSAGE_BAR_ID);
-
-  if (msgBar.length < 1) {
-    msgBar = (0, _dollar2['default'])('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
-  }
-  return msgBar;
-}
-
-function filterMessageOptions(options) {
-  var i;
-  var key;
-  var copy = {};
-  var allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
-
-  for (i in allowed) {
-    key = allowed[i];
-    if (key in options) {
-      copy[key] = options[key];
-    }
-  }
-
-  return copy;
-}
-
-exports['default'] = {
-  showMessage: function showMessage(name, title, bodyHTML, options) {
-    var msgBar = getMessageBar();
-
-    options = filterMessageOptions(options);
-    _dollar2['default'].extend(options, {
-      title: title,
-      body: AJS.escapeHtml(bodyHTML)
-    });
-
-    if (_dollar2['default'].inArray(name, MESSAGE_TYPES) < 0) {
-      throw 'Invalid message type. Must be: ' + MESSAGE_TYPES.join(', ');
-    }
-    if (validateMessageId(options.id)) {
-      AJS.messages[name](msgBar, options);
-      // Calculate the left offset based on the content width.
-      // This ensures the message always stays in the centre of the window.
-      msgBar.css('margin-left', '-' + msgBar.innerWidth() / 2 + 'px');
-    }
-  },
-
-  clearMessage: function clearMessage(id) {
-    if (validateMessageId(id)) {
-      (0, _dollar2['default'])('#' + id).remove();
-    }
-  }
-};
-module.exports = exports['default'];
-
-},{"../dollar":21}],30:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _api = _dereq_('./api');
-
-var _api2 = _interopRequireDefault(_api);
-
-exports['default'] = function () {
-  return {
-    internals: {
-      showMessage: function showMessage(name, title, body, options) {
-        return _api2['default'].showMessage(name, title, body, options);
-      },
-
-      clearMessage: function clearMessage(id) {
-        return _api2['default'].clearMessage(id);
-      }
-    }
-  };
-};
-
-module.exports = exports['default'];
-
-},{"./api":29}],31:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _commonDomEventsJs = _dereq_('../../common/dom-events.js');
-
-var _commonDomEventsJs2 = _interopRequireDefault(_commonDomEventsJs);
-
-/**
- * Acts as a broker to send DOM events to plugins. Events may originate in the host,
- * or be received from plugin panels.
- */
-
-exports['default'] = function () {
-  'use strict';
-
-  return {
-    init: function init(state, xdm) {
-      if (state.uiParams.isGeneral) {
-        _commonDomEventsJs2['default'].bindListeners(xdm.channel, xdm.propagateToPlugin);
-      }
-    },
-    internals: {
-      propagateToHost: _commonDomEventsJs2['default'].receiveEvent
-    },
-    stubs: ['propagateToPlugin']
-  };
-};
-
-module.exports = exports['default'];
-
-},{"../../common/dom-events.js":6}],32:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('./dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _rpc = _dereq_('./rpc');
-
-var _rpc2 = _interopRequireDefault(_rpc);
-
-exports['default'] = function () {
-  var debounce = AJS.debounce || _dollar2['default'].debounce;
-  return {
-    init: function init(config, xdm) {
-      xdm.resize = debounce(function resize($, width, height) {
-        $(this.iframe).css({
-          width: width,
-          height: height
-        });
-        var nexus = $(this.iframe).closest('.ap-container');
-        nexus.trigger('resized', {
-          width: width,
-          height: height
-        });
-      });
-    },
-
-    internals: {
-      resize: function resize(width, height) {
-        this.resize(_dollar2['default'], width, height);
-      },
-
-      sizeToParent: debounce(function () {
-        function resizeHandler(iframe) {
-          var height = (0, _dollar2['default'])(document).height() - (0, _dollar2['default'])('#header > nav').outerHeight() - (0, _dollar2['default'])('#footer').outerHeight() - 20;
-          (0, _dollar2['default'])(iframe).css({
-            width: '100%',
-            height: height + 'px'
-          });
-        }
-        // sizeToParent is only available for general-pages
-        if (this.uiParams.isGeneral) {
-          // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
-          (0, _dollar2['default'])(this.iframe).addClass('full-size-general-page');
-          (0, _dollar2['default'])(window).on('resize', function () {
-            resizeHandler(this.iframe);
-          });
-          resizeHandler(this.iframe);
-        } else {
-          // This is only here to support integration testing
-          // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-          (0, _dollar2['default'])(this.iframe).addClass('full-size-general-page-fail');
-        }
-      })
-    }
-  };
-};
-
-module.exports = exports['default'];
-
-},{"./dollar":21,"./rpc":33}],33:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('./dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _commonXdmRpc = _dereq_('../common/xdm-rpc');
-
-var _commonXdmRpc2 = _interopRequireDefault(_commonXdmRpc);
-
-var _jwtKeepAlive = _dereq_('./jwt-keep-alive');
-
-var _jwtKeepAlive2 = _interopRequireDefault(_jwtKeepAlive);
-
-var _commonUri = _dereq_('../common/uri');
-
-var _commonUri2 = _interopRequireDefault(_commonUri);
-
-var each = _dollar2['default'].each;
-var _extend = _dollar2['default'].extend;
-var isFn = _dollar2['default'].isFunction;
-var rpcCollection = [];
-var apis = {};
-var stubs = [];
-var internals = {};
-var inits = [];
-
-exports['default'] = {
-  extend: function extend(config) {
-    if (isFn(config)) {
-      config = config();
-    }
-
-    _extend(apis, config.apis);
-    _extend(internals, config.internals);
-    stubs = stubs.concat(config.stubs || []);
-
-    var init = config.init;
-
-    if (isFn(init)) {
-      inits.push(init);
-    }
-
-    return config.apis;
-  },
-
-  // init connect host side
-  // options = things that go to all init functions
-  init: function init(options, xdmConfig) {
-    var remoteUrl = new _commonUri2['default'].init(xdmConfig.remote);
-    var remoteJwt = remoteUrl.getQueryParamValue('jwt');
-    var promise;
-
-    options = options || {};
-    // add stubs for each public api
-    each(apis, function (method) {
-      stubs.push(method);
-    });
-
-    // refresh JWT tokens as required.
-    if (remoteJwt && _jwtKeepAlive2['default'].isExpired(remoteJwt)) {
-      promise = _jwtKeepAlive2['default'].updateUrl({
-        addonKey: xdmConfig.remoteKey,
-        moduleKey: options.ns,
-        productContext: options.productContext || {},
-        uiParams: xdmConfig.uiParams,
-        width: xdmConfig.props.width,
-        height: xdmConfig.props.height
-      });
-    }
-
-    _dollar2['default'].when(promise).always(function (src) {
-      // if the promise resolves to a new url. update it.
-      if (src) {
-        xdmConfig.remote = src;
-      }
-      // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
-      var rpc = new _commonXdmRpc2['default'](_dollar2['default'], xdmConfig, { remote: stubs, local: _dollar2['default'].extend({}, internals) });
-
-      rpcCollection[rpc.id] = rpc;
-      each(inits, function (_, init) {
-        try {
-          init(_extend({}, options), rpc);
-        } catch (ex) {
-          console.log(ex);
-        }
-      });
-    });
-  }
-};
-module.exports = exports['default'];
-
-},{"../common/uri":10,"../common/xdm-rpc":11,"./dollar":21,"./jwt-keep-alive":27}],34:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('./dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-/**
- * Methods for showing the status of a connect-addon (loading, time'd-out etc)
- */
-
-var statuses = {
-  loading: {
-    descriptionHtml: '<div class="small-spinner"></div>Loading add-on...'
-  },
-  'load-timeout': {
-    descriptionHtml: '<div class="small-spinner"></div>Add-on is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?'
-  },
-
-  'load-error': {
-    descriptionHtml: 'Add-on failed to load.'
-  }
-};
-
-function hideStatuses($home) {
-  // If there's a pending timer to show the loading status, kill it.
-  if ($home.data('loadingStatusTimer')) {
-    clearTimeout($home.data('loadingStatusTimer'));
-    $home.removeData('loadingStatusTimer');
-  }
-  $home.find('.ap-status').addClass('hidden');
-}
-
-function showStatus($home, status) {
-  hideStatuses($home);
-  $home.closest('.ap-container').removeClass('hidden');
-  $home.find('.ap-stats').removeClass('hidden');
-  $home.find('.ap-' + status).removeClass('hidden');
-  /* setTimout fixes bug in AUI spinner positioning */
-  setTimeout(function () {
-    var spinner = $home.find('.small-spinner', '.ap-' + status);
-    if (spinner.length && spinner.spin) {
-      spinner.spin({ lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1 });
-    }
-  }, 10);
-}
-
-//when an addon has loaded. Hide the status bar.
-function showLoadedStatus($home) {
-  hideStatuses($home);
-}
-
-function showLoadingStatus($home, delay) {
-  if (!delay) {
-    showStatus($home, 'loading');
-  } else {
-    // Wait a second before showing loading status.
-    var timer = setTimeout(showStatus.bind(null, $home, 'loading'), delay);
-    $home.data('loadingStatusTimer', timer);
-  }
-}
-
-function showloadTimeoutStatus($home) {
-  showStatus($home, 'load-timeout');
-}
-
-function showLoadErrorStatus($home) {
-  showStatus($home, 'load-error');
-}
-
-function createStatusMessages() {
-  var i;
-  var stats = (0, _dollar2['default'])('<div class="ap-stats" />');
-
-  for (i in statuses) {
-    var status = (0, _dollar2['default'])('<div class="ap-' + i + ' ap-status hidden" />');
-    status.append('<small>' + statuses[i].descriptionHtml + '</small>');
-    stats.append(status);
-  }
-  return stats;
-}
-
-exports['default'] = {
-  createStatusMessages: createStatusMessages,
-  showLoadingStatus: showLoadingStatus,
-  showloadTimeoutStatus: showloadTimeoutStatus,
-  showLoadErrorStatus: showLoadErrorStatus,
-  showLoadedStatus: showLoadedStatus
-};
-module.exports = exports['default'];
-
-},{"./dollar":21}],35:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-function escapeSelector(s) {
-  if (!s) {
-    throw new Error('No selector to escape');
-  }
-  return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
-}
-
-exports['default'] = { escapeSelector: escapeSelector };
-module.exports = exports['default'];
-
-},{}]},{},[23])(23)
+},{"jsuri":3,"utils/jwt":27}]},{},[24])(24)
 });
 
 

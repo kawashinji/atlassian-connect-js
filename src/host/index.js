@@ -1,20 +1,16 @@
-import addons from './addons';
-import content from './content';
+import AnalyticsDispatcher from 'dispatchers/analytics_dispatcher';
+import EventDispatcher from 'dispatchers/event_dispatcher';
+import simpleXDM from 'simple-xdm/dist/host';
+import jwtActions from 'actions/jwt_actions';
+import events from './extensions/events';
 import create from './create';
-import dialog from './dialog/api';
-import dialogBinder from './dialog/binder';
-import dialogRpc from './dialog/rpc';
-import env from './env';
-import inlineDialog from './inline-dialog/rpc';
-import inlineDialogBinder from './inline-dialog/binder';
-import loadingIndicator from './loading-indicator';
-import messages from './messages/rpc';
-import resize from './resize';
-import rpc from './rpc';
-import statusHelper from './status-helper';
-import uiParams from '../common/ui-params';
-import uri from '../common/uri';
-import propagator from './propagate/rpc';
+import dialog from './extensions/dialog';
+import env from './extensions/env';
+import loadingIndicator from './components/loading_indicator';
+import messages from './extensions/messages';
+import ExtensionActions from 'actions/extension_actions';
+
+// import propagator from './propagate/rpc';
 
 /**
  * Private namespace for host-side code.
@@ -26,25 +22,34 @@ if (!window._AP) {
   window._AP = {};
 }
 
-AJS.toInit(dialogBinder);
-AJS.toInit(inlineDialogBinder);
+simpleXDM.defineModule('messages', messages);
+simpleXDM.defineModule('dialog', dialog);
+simpleXDM.defineModule('env', env);
+simpleXDM.defineModule('events', events);
 
-rpc.extend(addons);
-rpc.extend(dialogRpc);
-rpc.extend(env);
-rpc.extend(inlineDialog);
-rpc.extend(loadingIndicator);
-rpc.extend(messages);
-rpc.extend(resize);
-rpc.extend(propagator);
+// rpc.extend(propagator);
+
+EventDispatcher.register("extension-define-custom", function(data){
+  simpleXDM.defineModule(data.name, data.methods);
+});
+
+simpleXDM.registerRequestNotifier(function(data){
+  AnalyticsDispatcher.dispatch('bridge.invokemethod', {
+    module: data.module,
+    fn: data.fn,
+    addonKey: data.addon_key,
+    moduleKey: data.key
+  });
+});
 
 export default {
-  extend: rpc.extend,
-  init: rpc.init,
-  uiParams,
-  create,
-  _uriHelper: uri,
-  _statusHelper: statusHelper,
-  webItemHelper: content,
-  dialog: dialog
-}
+  registerContentResolver: {
+    resolveByExtension: (callback) => {
+      jwtActions.registerContentResolver({callback: callback});
+    }
+  },
+  defineExtension: (name, methods) => {
+    ExtensionActions.defineCustomExtension(name, methods);
+  },  
+  create
+};
