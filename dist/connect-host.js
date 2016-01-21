@@ -956,10 +956,37 @@ var Connect = (function () {
     this._xdm = new _xdmrpc2['default']();
   }
 
+  /**
+   * Send a message to iframes matching the targetSpec. This message is added to
+   *  a message queue for delivery to ensure the message is received if an iframe 
+   *  has not yet loaded
+   * 
+   * @param type The name of the event type
+   * @param targetSpec The spec to match against extensions when sending this event
+   * @param event The event payload
+   * @param callback A callback to be executed when the remote iframe calls its callback
+   */
+
   _createClass(Connect, [{
     key: 'dispatch',
     value: function dispatch(type, targetSpec, event, callback) {
       this._xdm.queueEvent(type, targetSpec, event, callback);
+      return this.getExtensions(targetSpec);
+    }
+
+    /**
+     * Send a message to iframes matching the targetSpec immediately. This message will 
+     *  only be sent to iframes that are already open, and will not be delivered if none
+     *  are currently open.
+     * 
+     * @param type The name of the event type
+     * @param targetSpec The spec to match against extensions when sending this event
+     * @param event The event payload
+     */
+  }, {
+    key: 'broadcast',
+    value: function broadcast(type, targetSpec, event) {
+      this._xdm.dispatch(type, targetSpec, event, null, null);
       return this.getExtensions(targetSpec);
     }
   }, {
@@ -980,7 +1007,8 @@ var Connect = (function () {
     *   {
     *     addon_key: 'my-addon',
     *     key: 'my-module',
-    *     url: 'https://example.com/my-module'
+    *     url: 'https://example.com/my-module',
+    *     options: { autoresize: false }
     *   }
     *
     * @param initCallback The optional initCallback is called when the bridge between host and iframe is established.
@@ -993,7 +1021,8 @@ var Connect = (function () {
       var data = {
         extension_id: extension_id,
         api: this._xdm.getApiSpec(),
-        origin: window.location.origin
+        origin: _commonUtil2['default'].locationOrigin(),
+        options: extension.options || {}
       };
 
       return {
@@ -1001,6 +1030,11 @@ var Connect = (function () {
         name: JSON.stringify(data),
         src: extension.url
       };
+    }
+  }, {
+    key: 'registerRequestNotifier',
+    value: function registerRequestNotifier(callback) {
+      this._xdm.registerRequestNotifier(callback);
     }
   }, {
     key: 'registerExtension',
@@ -1097,11 +1131,11 @@ var PostMessage = (function () {
 module.exports = PostMessage;
 
 },{"./util":3}],3:[function(_dereq_,module,exports){
-'use strict';
+"use strict";
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var LOG_PREFIX = "[Simple-XDM] ";
 
@@ -1111,14 +1145,28 @@ var Util = (function () {
   }
 
   _createClass(Util, [{
-    key: 'randomString',
+    key: "locationOrigin",
+    value: function locationOrigin() {
+      if (!window.location.origin) {
+        return window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+      } else {
+        return window.location.origin;
+      }
+    }
+  }, {
+    key: "randomString",
     value: function randomString() {
       return Math.floor(Math.random() * 1000000000).toString(16);
+    }
+  }, {
+    key: "isString",
+    value: function isString(str) {
+      return typeof str === "string" || str instanceof String;
     }
 
     // might be un-needed
   }, {
-    key: 'argumentsToArray',
+    key: "argumentsToArray",
     value: function argumentsToArray(arrayLike) {
       var array = [];
       for (var i = 0; i < arrayLike.length; i++) {
@@ -1127,27 +1175,27 @@ var Util = (function () {
       return array;
     }
   }, {
-    key: 'hasCallback',
+    key: "hasCallback",
     value: function hasCallback(args) {
       var length = args.length;
       return length > 0 && typeof args[length - 1] === 'function';
     }
   }, {
-    key: 'error',
+    key: "error",
     value: function error(msg) {
       if (window.console) {
         console.error(LOG_PREFIX + msg);
       }
     }
   }, {
-    key: 'warn',
+    key: "warn",
     value: function warn(msg) {
       if (window.console) {
         console.warn(LOG_PREFIX + msg);
       }
     }
   }, {
-    key: '_bind',
+    key: "_bind",
     value: function _bind(thisp, fn) {
       if (Function.prototype.bind) {
         return fn.bind(thisp);
@@ -1157,7 +1205,7 @@ var Util = (function () {
       };
     }
   }, {
-    key: 'each',
+    key: "each",
     value: function each(o, it) {
       var l;
       var k;
@@ -1183,7 +1231,7 @@ var Util = (function () {
       }
     }
   }, {
-    key: 'extend',
+    key: "extend",
     value: function extend(dest) {
       var args = arguments;
       var srcs = [].slice.call(args, 1, args.length);
@@ -1246,7 +1294,7 @@ module.exports = new Util();
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -1280,7 +1328,8 @@ var XDMRPC = (function (_PostMessage) {
       init: this._handleInit,
       req: this._handleRequest,
       resp: this._handleResponse,
-      event_query: this._handleEventQuery
+      event_query: this._handleEventQuery,
+      broadcast: this._handleBroadcast
     };
   }
 
@@ -1304,6 +1353,11 @@ var XDMRPC = (function (_PostMessage) {
       }
     }
   }, {
+    key: 'registerRequestNotifier',
+    value: function registerRequestNotifier(cb) {
+      this._registeredRequestNotifier = cb;
+    }
+  }, {
     key: '_handleRequest',
     value: function _handleRequest(event, reg) {
       function sendResponse() {
@@ -1324,16 +1378,36 @@ var XDMRPC = (function (_PostMessage) {
           sendResponse._context = this.getRegisteredExtensions(reg.extension)[0];
           methodArgs.push(sendResponse);
           method.apply(module, methodArgs);
+          if (this._registeredRequestNotifier) {
+            this._registeredRequestNotifier.call(null, {
+              module: data.mod,
+              fn: data.fn,
+              type: data.type,
+              addon_key: reg.extension.addon_key,
+              key: reg.extension.key,
+              extension_id: reg.extension_id
+            });
+          }
         }
       }
     }
   }, {
+    key: '_handleBroadcast',
+    value: function _handleBroadcast(event, reg) {
+      var event_data = event.data;
+      var targetSpec = function targetSpec(r) {
+        return r.extension.addon_key === reg.extension.addon_key && r.extension_id !== reg.extension_id;
+      };
+      this.dispatch(event_data.etyp, targetSpec, event_data.evnt, null, null);
+    }
+  }, {
     key: 'defineAPIModule',
     value: function defineAPIModule(module, moduleName) {
-      if (!moduleName) {
+      if (moduleName) {
+        this._registeredAPIModules[moduleName] = module;
+      } else {
         this._registeredAPIModules._globals = module;
       }
-      this._registeredAPIModules[moduleName] = module;
       return this._registeredAPIModules;
     }
   }, {
@@ -1436,11 +1510,15 @@ var XDMRPC = (function (_PostMessage) {
         return _this2._registeredExtensions[key];
       });
 
-      return registrations.filter(function (reg) {
-        return keys.every(function (key) {
-          return reg.extension[key] === targetSpec[key];
+      if (targetSpec instanceof Function) {
+        return registrations.filter(targetSpec);
+      } else {
+        return registrations.filter(function (reg) {
+          return keys.every(function (key) {
+            return reg.extension[key] === targetSpec[key];
+          });
         });
-      });
+      }
     }
   }, {
     key: 'registerExtension',
@@ -1813,7 +1891,7 @@ module.exports = {
   }
 };
 
-},{"../util":25,"dispatchers/event_dispatcher":17}],7:[function(_dereq_,module,exports){
+},{"../util":26,"dispatchers/event_dispatcher":18}],7:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1828,7 +1906,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":17}],8:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":18}],8:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1842,12 +1920,12 @@ var _util = _dereq_('../util');
 var _util2 = _interopRequireDefault(_util);
 
 module.exports = {
-  notifyIframeCreated: function notifyIframeCreated($el, extension_id, extension) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-create', { $el: $el, extension_id: extension_id, extension: extension });
+  notifyIframeCreated: function notifyIframeCreated($el, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-create', { $el: $el, extension: extension });
   }
 };
 
-},{"../util":25,"dispatchers/event_dispatcher":17}],9:[function(_dereq_,module,exports){
+},{"../util":26,"dispatchers/event_dispatcher":18}],9:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1887,7 +1965,7 @@ module.exports = {
 
 };
 
-},{"../underscore":24,"dispatchers/event_dispatcher":17}],10:[function(_dereq_,module,exports){
+},{"../underscore":25,"dispatchers/event_dispatcher":18}],10:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1901,16 +1979,16 @@ var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
 var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
 
 exports['default'] = {
-  timeout: function timeout($el, extension_id) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-timeout', { $el: $el, extension_id: extension_id });
+  timeout: function timeout($el, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-timeout', { $el: $el, extension: extension });
   },
-  cancelled: function cancelled($el, extension_id) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-cancelled', { $el: $el, extension_id: extension_id });
+  cancelled: function cancelled($el, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-cancelled', { $el: $el, extension: extension });
   }
 };
 module.exports = exports['default'];
 
-},{"dispatchers/event_dispatcher":17}],11:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":18}],11:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1963,15 +2041,14 @@ var Iframe = (function () {
       var $iframe,
           iframeAttributes = _simpleXdmDistHost2['default'].create(extension, function (extension_id) {
         extension.id = extension_id;
-        _dispatchersEvent_dispatcher2['default'].dispatch("iframe-bridge-estabilshed", _dollar2['default'].extend({
-          $el: $iframe
-        }, extension));
+        _dispatchersEvent_dispatcher2['default'].dispatch("iframe-bridge-estabilshed", {
+          $el: $iframe,
+          extension: extension
+        });
       });
       extension.id = iframeAttributes.id;
       $iframe = this._renderIframe(iframeAttributes);
-      // $container.append($iframe);
-      // IframeActions.notifyIframeCreated($container, extension.id, extension);
-      return $iframe;
+      return { $el: $iframe, extension: extension };
     }
   }, {
     key: '_renderIframe',
@@ -1989,7 +2066,7 @@ var IframeComponent = new Iframe();
 exports['default'] = IframeComponent;
 module.exports = exports['default'];
 
-},{"../dollar":18,"../util":25,"actions/iframe_actions":8,"dispatchers/event_dispatcher":17,"simple-xdm/dist/host":4,"utils/url":27}],12:[function(_dereq_,module,exports){
+},{"../dollar":19,"../util":26,"actions/iframe_actions":8,"dispatchers/event_dispatcher":18,"simple-xdm/dist/host":4,"utils/url":28}],12:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2044,7 +2121,9 @@ var IframeContainer = (function () {
   }, {
     key: '_insertIframe',
     value: function _insertIframe($container, extension) {
-      $container.append(_componentsIframe2['default'].simpleXdmExtension(extension));
+      var simpleExtension = _componentsIframe2['default'].simpleXdmExtension(extension);
+      $container.append(simpleExtension.$el);
+      _actionsIframe_actions2['default'].notifyIframeCreated(simpleExtension.$el, simpleExtension.extension);
     }
   }, {
     key: 'createExtension',
@@ -2057,6 +2136,7 @@ var IframeContainer = (function () {
       } else {
         this._insertIframe($container, extension);
       }
+
       return $container;
     }
   }, {
@@ -2092,7 +2172,7 @@ _dispatchersEvent_dispatcher2['default'].register("jwt-url-refreshed", function 
 exports['default'] = IframeContainerComponent;
 module.exports = exports['default'];
 
-},{"../dollar":18,"actions/iframe_actions":8,"actions/jwt_actions":9,"components/iframe":11,"dispatchers/event_dispatcher":17,"utils/url":27}],13:[function(_dereq_,module,exports){
+},{"../dollar":19,"actions/iframe_actions":8,"actions/jwt_actions":9,"components/iframe":11,"dispatchers/event_dispatcher":18,"utils/url":28}],13:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2145,9 +2225,9 @@ var LoadingIndicator = (function () {
     }
   }, {
     key: 'show',
-    value: function show($iframeContainer, extensionId) {
-      this._stateRegistry[extensionId] = setTimeout(function () {
-        _actionsLoading_indicator_actions2['default'].timeout($iframeContainer, extensionId);
+    value: function show($iframeContainer, extension) {
+      this._stateRegistry[extension.id] = setTimeout(function () {
+        _actionsLoading_indicator_actions2['default'].timeout($iframeContainer, extension);
       }, LOADING_TIMEOUT);
       var container = this._loadingContainer($iframeContainer);
       if (!container.length) {
@@ -2194,22 +2274,22 @@ var LoadingIndicator = (function () {
 var LoadingComponent = new LoadingIndicator();
 
 _dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
-  LoadingComponent.show(data.$el, data.extension.id);
+  LoadingComponent.show(data.$el, data.extension);
 });
 _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
-  LoadingComponent.hide(data.$el, data.id);
+  LoadingComponent.hide(data.$el, data.extension.id);
 });
 _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-timeout', function (data) {
-  LoadingComponent.timeout(data.$el, data.id);
+  LoadingComponent.timeout(data.$el, data.extension.id);
 });
 _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', function (data) {
-  LoadingComponent.cancelled(data.$el, data.id);
+  LoadingComponent.cancelled(data.$el, data.extension.id);
 });
 
 exports['default'] = LoadingComponent;
 module.exports = exports['default'];
 
-},{"../dollar":18,"../util":25,"actions/loading_indicator_actions":10,"dispatchers/event_dispatcher":17}],14:[function(_dereq_,module,exports){
+},{"../dollar":19,"../util":26,"actions/loading_indicator_actions":10,"dispatchers/event_dispatcher":18}],14:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2240,7 +2320,7 @@ function create(extension) {
 
 module.exports = create;
 
-},{"./dollar":18,"components/iframe_container":12,"dispatchers/event_dispatcher":17}],15:[function(_dereq_,module,exports){
+},{"./dollar":19,"components/iframe_container":12,"dispatchers/event_dispatcher":18}],15:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2298,7 +2378,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":18,"dispatchers/event_dispatcher":17}],16:[function(_dereq_,module,exports){
+},{"../dollar":19,"dispatchers/event_dispatcher":18}],16:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2365,7 +2445,127 @@ module.exports = {
   render: createDialogElement
 };
 
-},{"../dollar":18,"./button":15}],17:[function(_dereq_,module,exports){
+},{"../dollar":19,"./button":15}],17:[function(_dereq_,module,exports){
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var EVENT_NAME_PREFIX = "connect.addon.";
+
+/**
+ * Timings beyond 20 seconds (connect's load timeout) will be clipped to an X.
+ * @const
+ * @type {int}
+ */
+var LOADING_TIME_THRESHOLD = 20000;
+
+/**
+ * Trim extra zeros from the load time.
+ * @const
+ * @type {int}
+ */
+var LOADING_TIME_TRIMP_PRECISION = 100;
+
+var AnalyticsDispatcher = (function () {
+  function AnalyticsDispatcher() {
+    _classCallCheck(this, AnalyticsDispatcher);
+
+    this._addons = {};
+  }
+
+  _createClass(AnalyticsDispatcher, [{
+    key: '_track',
+    value: function _track(name, data) {
+      var w = window,
+          prefixedName = EVENT_NAME_PREFIX + name;
+
+      if (w.AJS.Analytics) {
+        w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
+      } else if (w.AJS.trigger) {
+        // BTF fallback
+        AJS.trigger('analyticsEvent', {
+          name: prefixedName,
+          data: data
+        });
+      } else {
+        return false;
+      }
+      return true;
+    }
+  }, {
+    key: '_time',
+    value: function _time() {
+      return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
+    }
+  }, {
+    key: 'trackLoadingStarted',
+    value: function trackLoadingStarted(extension) {
+      extension.startLoading = this._time();
+      this._addons[extension.id] = extension;
+    }
+  }, {
+    key: 'trackLoadingEnded',
+    value: function trackLoadingEnded(extension) {
+      var value = this._time() - this._addons[extension.id].startLoading;
+      this._track('iframe.performance.load', {
+        addonKey: extension.addon_key,
+        moduleKey: extension.key,
+        value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil(value / LOADING_TIME_TRIMP_PRECISION)
+      });
+    }
+  }, {
+    key: 'trackLoadingTimeout',
+    value: function trackLoadingTimeout(extension) {
+      this._track('iframe.performance.timeout', {
+        addonKey: extension.addon_key,
+        moduleKey: extension.key
+      });
+      //track an end event during a timeout so we always have complete start / end data.
+      this.trackLoadingEnded(extension);
+    }
+  }, {
+    key: 'trackLoadingCancel',
+    value: function trackLoadingCancel(extension) {
+      this._track('iframe.performance.cancel', {
+        addonKey: extension.addon_key,
+        moduleKey: extension.key
+      });
+    }
+  }, {
+    key: 'dispatch',
+    value: function dispatch(name, data) {
+      this._track(name, data);
+    }
+  }]);
+
+  return AnalyticsDispatcher;
+})();
+
+var analytics = new AnalyticsDispatcher();
+_dispatchersEvent_dispatcher2['default'].register("iframe-create", function (data) {
+  analytics.trackLoadingStarted(data.extension);
+});
+_dispatchersEvent_dispatcher2['default'].register("iframe-bridge-estabilshed", function (data) {
+  analytics.trackLoadingEnded(data.extension);
+});
+_dispatchersEvent_dispatcher2['default'].register("iframe-bridge-timeout", function (data) {
+  analytics.trackLoadingTimeout(data.extension);
+});
+_dispatchersEvent_dispatcher2['default'].register("iframe-bridge-cancelled", function (data) {
+  analytics.trackLoadingCancel(data.extension);
+});
+
+module.exports = analytics;
+
+},{"dispatchers/event_dispatcher":18}],18:[function(_dereq_,module,exports){
 /**
 * pub/sub for extension state (created, destroyed, initialized)
 * taken from hipchat webcore
@@ -2455,7 +2655,7 @@ var EventDispatcher = (function (_EventEmitter) {
 
 module.exports = new EventDispatcher();
 
-},{"../underscore":24,"events":2}],18:[function(_dereq_,module,exports){
+},{"../underscore":25,"events":2}],19:[function(_dereq_,module,exports){
 /**
  * The iframe-side code exposes a jquery-like implementation via _dollar.
  * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
@@ -2469,7 +2669,7 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = AJS.$;
 module.exports = exports["default"];
 
-},{}],19:[function(_dereq_,module,exports){
+},{}],20:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2555,7 +2755,7 @@ module.exports = {
   }
 };
 
-},{"../create":14,"../dialog/renderer":16,"dispatchers/event_dispatcher":17}],20:[function(_dereq_,module,exports){
+},{"../create":14,"../dialog/renderer":16,"dispatchers/event_dispatcher":18}],21:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2608,7 +2808,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":18,"../util":25,"actions/env_actions":6,"dispatchers/event_dispatcher":17}],21:[function(_dereq_,module,exports){
+},{"../dollar":19,"../util":26,"actions/env_actions":6,"dispatchers/event_dispatcher":18}],22:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2636,14 +2836,14 @@ var _channels = {};
 
 // create holding object under _channels.
 _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
-  if (!_underscore2['default'].isObject(_channels[data.addon_key])) {
-    _channels[data.addon_key] = {
+  if (!_underscore2['default'].isObject(_channels[data.extension.addon_key])) {
+    _channels[data.extension.addon_key] = {
       _any: []
     };
   }
 
-  if (!_underscore2['default'].isObject(_channels[data.addon_key][data.id])) {
-    _channels[data.addon_key][data.id] = {};
+  if (!_underscore2['default'].isObject(_channels[data.extension.addon_key][data.extension.id])) {
+    _channels[data.extension.addon_key][data.extension.id] = {};
   }
 });
 
@@ -2713,7 +2913,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":18,"../underscore":24,"dispatchers/event_dispatcher":17}],22:[function(_dereq_,module,exports){
+},{"../dollar":19,"../underscore":25,"dispatchers/event_dispatcher":18}],23:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2804,7 +3004,7 @@ MESSAGE_TYPES.forEach(function (messageType) {
 exports['default'] = toExport;
 module.exports = exports['default'];
 
-},{"../dollar":18,"../underscore":24}],23:[function(_dereq_,module,exports){
+},{"../dollar":19,"../underscore":25}],24:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2812,6 +3012,10 @@ Object.defineProperty(exports, '__esModule', {
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersAnalytics_dispatcher = _dereq_('dispatchers/analytics_dispatcher');
+
+var _dispatchersAnalytics_dispatcher2 = _interopRequireDefault(_dispatchersAnalytics_dispatcher);
 
 var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
 
@@ -2876,6 +3080,15 @@ _dispatchersEvent_dispatcher2['default'].register("extension-define-custom", fun
   _simpleXdmDistHost2['default'].defineModule(data.name, data.methods);
 });
 
+_simpleXdmDistHost2['default'].registerRequestNotifier(function (data) {
+  _dispatchersAnalytics_dispatcher2['default'].dispatch('bridge.invokemethod', {
+    module: data.module,
+    fn: data.fn,
+    addonKey: data.addon_key,
+    moduleKey: data.key
+  });
+});
+
 exports['default'] = {
   registerContentResolver: {
     resolveByExtension: function resolveByExtension(callback) {
@@ -2889,7 +3102,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./components/loading_indicator":13,"./create":14,"./extensions/dialog":19,"./extensions/env":20,"./extensions/events":21,"./extensions/messages":22,"actions/extension_actions":7,"actions/jwt_actions":9,"dispatchers/event_dispatcher":17,"simple-xdm/dist/host":4}],24:[function(_dereq_,module,exports){
+},{"./components/loading_indicator":13,"./create":14,"./extensions/dialog":20,"./extensions/env":21,"./extensions/events":22,"./extensions/messages":23,"actions/extension_actions":7,"actions/jwt_actions":9,"dispatchers/analytics_dispatcher":17,"dispatchers/event_dispatcher":18,"simple-xdm/dist/host":4}],25:[function(_dereq_,module,exports){
 // AUI includes underscore and exposes it globally.
 "use strict";
 
@@ -2899,7 +3112,7 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = window._;
 module.exports = exports["default"];
 
-},{}],25:[function(_dereq_,module,exports){
+},{}],26:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2947,7 +3160,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./underscore":24}],26:[function(_dereq_,module,exports){
+},{"./underscore":25}],27:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3017,7 +3230,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"base-64":1,"utf8":5}],27:[function(_dereq_,module,exports){
+},{"base-64":1,"utf8":5}],28:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3050,7 +3263,7 @@ module.exports = {
   isJwtExpired: isJwtExpired
 };
 
-},{"jsuri":3,"utils/jwt":26}]},{},[23])(23)
+},{"jsuri":3,"utils/jwt":27}]},{},[24])(24)
 });
 
 
