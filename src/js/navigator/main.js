@@ -15,8 +15,7 @@
             }
 
             if (Object.getOwnPropertyNames(routes).length === 0) {
-                AJS.error("No routes defined");
-                return;
+                throw new Error("No routes defined");
             }
             if (target in routes) {
                 context = context || {};
