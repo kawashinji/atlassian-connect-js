@@ -22,19 +22,24 @@ describe("Dialog Webitem", () => {
 
   describe("rendering", () => {
 
-    beforeEach((done) => {
+    it("renders a dialog", (done) => {
+      EventDispatcher.registerOnce("after:webitem-invoked:dialog", function(){
+        expect($(".aui-dialog2").length).toBe(1);
+        done();
+      });
       $(function(){
         $(".ap-dialog").click();
-        done();
       });
     });
 
-    it("renders a dialog", () => {
-      expect($(".aui-dialog2").length).toBe(1);
-    });
-
-    it("contains and iframe", () => {
-      expect($(".aui-dialog2 iframe").length).toBe(1);
+    it("contains and iframe", (done) => {
+      EventDispatcher.registerOnce("after:webitem-invoked:dialog", function(){
+        expect($(".aui-dialog2 iframe").length).toBe(1);
+        done();
+      });
+      $(function(){
+        $(".ap-dialog").click();
+      });
     });
 
   });

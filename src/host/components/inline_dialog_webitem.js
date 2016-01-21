@@ -2,7 +2,7 @@ import WebItemActions from 'actions/webitem_actions';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import InlineDialogComponent from 'components/inline_dialog';
 import WebItemUtils from 'utils/webitem';
-import IframeComponent from 'components/iframe';
+import IframeContainer from 'components/iframe_container';
 
 const ITEM_NAME = 'inline-dialog';
 const SELECTOR = ".ap-inline-dialog";
@@ -27,7 +27,7 @@ class InlineDialogWebItem {
     var $target = $(data.event.target),
       attr = {id: $target.data(WEBITEM_UID_KEY)};
 
-    var $iframeContainer = IframeComponent.simpleXdmExtension(data.extension);
+    var $iframeContainer = IframeContainer.createExtension(data.extension);
     var inlineDialog = InlineDialogComponent.render(attr);
     inlineDialog.attr('open', '');
     inlineDialog.insertAfter($target);

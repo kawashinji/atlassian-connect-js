@@ -1,7 +1,7 @@
 import WebItemActions from 'actions/webitem_actions';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import WebItemUtils from 'utils/webitem';
-import IframeComponent from 'components/iframe';
+import IframeContainer from 'components/iframe_container';
 import DialogComponent from 'components/dialog';
 
 const ITEM_NAME = 'dialog';
@@ -27,9 +27,8 @@ class DialogWebItem {
       options = {
         id: $target.data(WEBITEM_UID_KEY),
         title: 'some title',
-        $content: IframeComponent.simpleXdmExtension(data.extension)
+        $content: IframeContainer.createExtension(data.extension)
       };
-
     var dialog = DialogComponent.render(options);
     dialog.insertAfter($target);
     // AUI modifies the dom after insertion. Thus the content must be appended afterwards.

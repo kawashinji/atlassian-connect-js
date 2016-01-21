@@ -22,20 +22,25 @@ describe("Inline Dialog Webitem", () => {
 
   describe("rendering", () => {
 
-    beforeEach((done) => {
+    it("renders an inline dialog", (done) => {
+      EventDispatcher.registerOnce("after:webitem-invoked:inline-dialog", function(){
+        expect($("aui-inline-dialog").length).toBe(1);
+        expect($(".ap-inline-dialog-container").length).toEqual(1);
+        done();
+      });
       $(function(){
         $(".ap-inline-dialog").click();
-        done();
       });
     });
 
-    it("renders an inline dialog", () => {
-      expect($("aui-inline-dialog").length).toBe(1);
-      expect($(".ap-inline-dialog-container").length).toEqual(1);
-    });
-
-    it("contains and iframe", () => {
-      expect($("aui-inline-dialog iframe").length).toBe(1);
+    it("contains and iframe", (done) => {
+      EventDispatcher.registerOnce("after:webitem-invoked:inline-dialog", function(){
+        expect($("aui-inline-dialog iframe").length).toBe(1);
+        done();
+      });
+      $(function(){
+        $(".ap-inline-dialog").click();
+      });
     });
 
   });
