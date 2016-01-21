@@ -32,16 +32,24 @@
             return AJS.contextPath() + uri.parse(urlTemplate).expand(context);
         };
 
-        var setRoutes = function(r) {
-            routes = r;
+        var setRoutes = function (newRoutes) {
+            routes = newRoutes;
         };
 
-        var setContextFunction = function (r) {
-            contextFunction = r;
+        var setContextFunction = function (newContextFunction) {
+            contextFunction = newContextFunction;
         };
 
         var getCurrent = function (callback) {
-            callback(contextFunction());
+            if (!callback || typeof callback !== "function") {
+                throw new Error("callback function not specified")
+            }
+
+            if (typeof contextFunction === "function") {
+                callback(contextFunction());
+            } else {
+                callback({"target": "unknown", "context": {}})
+            }
         };
 
         return {
