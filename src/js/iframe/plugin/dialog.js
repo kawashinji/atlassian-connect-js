@@ -138,22 +138,6 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
           this.getButton(buttonName).bind(listener);
         },
 
-
-        /**
-         * Query a button for it's current state.
-         * @memberOf Dialog~DialogButton
-         * @param {Function} callback function to receive the button state.
-         * @noDemo
-         * @example
-         * AP.require('dialog', function(dialog){
-             *   dialog.getButton('submit').isEnabled(function(enabled){
-             *     if(enabled){
-             *       //button is enabled
-             *     }
-             *   });
-             * });
-         */
-
         /**
          * Queries the value of the 'closeOnEscape' property.  If this property is true
          * then the dialog should close it ESC is pressed.
