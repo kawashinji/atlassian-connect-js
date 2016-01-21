@@ -48,12 +48,7 @@
             if (typeof callback !== "function") {
                 throw new Error("invalid callback function specified")
             }
-
-            if (typeof contextFunction === "function") {
-                callback(contextFunction());
-            } else {
-                callback({"target": "unknown", "context": {}})
-            }
+            callback(contextFunction());
         };
 
         return {
