@@ -140,7 +140,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
 
         /**
          * Queries the value of the 'closeOnEscape' property.  If this property is true
-         * then the dialog should close it ESC is pressed.
+         * then the dialog should close if ESC is pressed.
          * @param {Function} callback function to receive the 'closeOnEscape' value.
          * @noDemo
          * @example
