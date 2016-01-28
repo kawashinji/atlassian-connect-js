@@ -9,6 +9,8 @@ import env from './extensions/env';
 import loadingIndicator from './components/loading_indicator';
 import messages from './extensions/messages';
 import ExtensionActions from 'actions/extension_actions';
+import DomEventActions from 'actions/dom_event_actions';
+import _ from 'underscore';
 
 // import propagator from './propagate/rpc';
 
@@ -43,6 +45,20 @@ simpleXDM.registerRequestNotifier(function(data){
 });
 
 export default {
+  onKeyEvent: (extension_id, key, modifiers, callback) => {
+    DomEventActions.registerKeyEvent({extension_id, key, modifiers, callback});
+  },
+  offKeyEvent: (extension_id, key, modifiers, callback) => {
+    DomEventActions.unregisterKeyEvent({extension_id, key, modifiers, callback});
+  },
+  onIframeEstablished: (callback) => {
+    EventDispatcher.register("after:iframe-bridge-estabilshed", function(data) {
+      callback.call(null, {
+        $el: data.$el,
+        extension: _.pick(data.extension, ["id", "addon_key", "id", "key", "options", "url"])
+      });
+    });
+  },
   registerContentResolver: {
     resolveByExtension: (callback) => {
       jwtActions.registerContentResolver({callback: callback});
