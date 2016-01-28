@@ -17,23 +17,23 @@ var minifyCSS = require('gulp-minify-css');
 var eslint = require('gulp-eslint');
 
 function getTask(task) {
-    return require('./gulp-tasks/' + task)(gulp);
+  return require('./gulp-tasks/' + task)(gulp);
 }
 
 function build(entryModule, distModule, options) {
-    var bundler = browserify(entryModule, {
-      debug: true,
-      paths: ['src/host'],
-      standalone: options.standalone || distModule
-    }).transform(babelify)
+  var bundler = browserify(entryModule, {
+    debug: true,
+    paths: ['src/host'],
+    standalone: options.standalone || distModule
+  }).transform(babelify)
       .transform(envify(options.env || {}))
       .transform(unreachableBranch);
 
-    function rebundle() {
-        return bundler.bundle()
+  function rebundle() {
+    return bundler.bundle()
             .on('error', function (err) {
-                gutil.log(gutil.colors.red('Browserify error'), err.message);
-                this.emit('end');
+              gutil.log(gutil.colors.red('Browserify error'), err.message);
+              this.emit('end');
             })
             .pipe(source(distModule + '.js'))
             .pipe(buffer())
@@ -41,52 +41,52 @@ function build(entryModule, distModule, options) {
                 .pipe(derequire())
             .pipe(sourcemaps.write('./'))
             .pipe(gulp.dest('./dist'));
-    }
+  }
 
-    if (options.watch) {
-        bundler = watchify(bundler);
+  if (options.watch) {
+    bundler = watchify(bundler);
 
-        bundler.on('update', function () {
-            gutil.log('Rebundling', gutil.colors.blue(entryModule));
-            rebundle(bundler, options);
-        });
-    }
+    bundler.on('update', function () {
+      gutil.log('Rebundling', gutil.colors.blue(entryModule));
+      rebundle(bundler, options);
+    });
+  }
 
-    gutil.log('Bundling', gutil.colors.blue(entryModule));
-    return rebundle(bundler, options);
+  gutil.log('Bundling', gutil.colors.blue(entryModule));
+  return rebundle(bundler, options);
 }
 
 function buildPlugin(options) {
-    options = options || {};
-    return build('./src/plugin/index.js', 'plugin', {
-        standalone: 'AP',
-        env: {ENV: 'plugin'},
-        watch: options.watch
-    });
+  options = options || {};
+  return build('./src/plugin/index.js', 'plugin', {
+    standalone: 'AP',
+    env: {ENV: 'plugin'},
+    watch: options.watch
+  });
 }
 
 function buildHost(options) {
-    options = options || {};
-    return build('./src/host/index.js', 'connect-host', {
-        env: {ENV: 'host'},
-        watch: options.watch
-    });
+  options = options || {};
+  return build('./src/host/index.js', 'connect-host', {
+    env: {ENV: 'host'},
+    watch: options.watch
+  });
 }
 
 function buildCss(options) {
-    options = options || {};
-    options.dest = options.dest || 'dist';
+  options = options || {};
+  options.dest = options.dest || 'dist';
 
-    var g = gulp.src('src/css/**/*.css')
+  var g = gulp.src('src/css/**/*.css')
     .pipe(concat('connect-host.css'))
     .pipe(gulp.dest(options.dest));
 
-    if(options.minify){
-        g.pipe(concat('connect-host.min.css'))
+  if(options.minify){
+    g.pipe(concat('connect-host.min.css'))
         .pipe(minifyCSS())
         .pipe(gulp.dest(options.dest));
-    }
-    return g;
+  }
+  return g;
 }
 
 function lintJS() {

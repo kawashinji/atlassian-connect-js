@@ -6,7 +6,7 @@ function hideInlineDialog(data){
   iframe.closest('.aui-inline-dialog2')[0].hide();
 }
 
-EventDispatcher.register("inline-dialog-hide", hideInlineDialog);
+EventDispatcher.register('inline-dialog-hide', hideInlineDialog);
 
 export default {
   hide: function(callback){

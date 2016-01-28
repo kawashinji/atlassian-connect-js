@@ -5,7 +5,7 @@ import JwtActions from 'actions/jwt_actions';
 import IframeActions from 'actions/iframe_actions';
 import IframeComponent from 'components/iframe';
 
-const CONTAINER_CLASSES = ["ap-container"];
+const CONTAINER_CLASSES = ['ap-container'];
 
 class IframeContainer {
   constructor () {
@@ -25,8 +25,8 @@ class IframeContainer {
   }
 
   createExtension(extension) {
-    var $iframe,
-      $container = this._renderContainer();
+    var $iframe;
+    var $container = this._renderContainer();
     if(urlUtil.hasJwt(extension.url) && urlUtil.isJwtExpired(extension.url)){
       this._urlContainerRegistry[extension.id] = $container;
       JwtActions.requestRefreshUrl({extension, resolver: this._contentResolver});
@@ -45,19 +45,19 @@ class IframeContainer {
   }
 
   _renderContainer(attributes){
-    var container = $("<div />").attr(attributes || {});
-    container.addClass(CONTAINER_CLASSES.join(" "));
+    var container = $('<div />').attr(attributes || {});
+    container.addClass(CONTAINER_CLASSES.join(' '));
     return container;
   }
 
 }
 
 var IframeContainerComponent = new IframeContainer();
-EventDispatcher.register("content-resolver-register-by-extension", function(data){
+EventDispatcher.register('content-resolver-register-by-extension', function(data){
   IframeContainerComponent.setContentResolver(data.callback);
 });
 
-EventDispatcher.register("jwt-url-refreshed", function(data) {
+EventDispatcher.register('jwt-url-refreshed', function(data) {
   IframeContainerComponent.resolverResponse(data);
 });
 

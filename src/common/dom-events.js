@@ -161,8 +161,7 @@ function createEvent(channelKey, eventName, eventData) {
   if (SUPPORTED_MOUSE_EVENTS.indexOf(eventName) > -1) {
     if (typeof window.Event === 'function') {
       event = new MouseEvent(eventName, eventData);
-    }
-    else {
+    } else {
       // To support older browsers
       // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
       event = document.createEvent('MouseEvent');
@@ -172,12 +171,10 @@ function createEvent(channelKey, eventName, eventData) {
           eventData.ctrlKey, eventData.altKey, eventData.shiftKey,
           eventData.metaKey, eventData.button, null);
     }
-  }
-  else if (SUPPORTED_KEYBOARD_EVENTS.indexOf(eventName) > -1) {
+  } else if (SUPPORTED_KEYBOARD_EVENTS.indexOf(eventName) > -1) {
     if (typeof window.Event === 'function') {
       event = new KeyboardEvent(eventName, eventData);
-    }
-    else {
+    } else {
       // To support older browsers
       // (e.g. IE - https://msdn.microsoft.com/en-us/library/dn905219%28v=vs.85%29.aspx)
       event = document.createEvent('KeyboardEvent');
@@ -186,8 +183,7 @@ function createEvent(channelKey, eventName, eventData) {
           eventData.key, 0, constructLegacyModifierString(eventData),
           false, eventData.locale);
     }
-  }
-  else {
+  } else {
     log('Event ' + eventName + ' not supported');
   }
 

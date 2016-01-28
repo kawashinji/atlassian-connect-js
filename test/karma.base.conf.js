@@ -1,11 +1,11 @@
 // Karma configuration
 // Generated on Wed Oct 16 2013 15:12:27 GMT+1100 (EST)
 
-var envify = require('envify/custom'),
-    webpack = require('webpack'),
-    path = require('path'),
-    customLaunchers = require('../build/configs/saucelabs-launchers'),
-    saucelabs = process.env.SAUCE_LABS || false;
+var envify = require('envify/custom');
+var webpack = require('webpack');
+var path = require('path');
+var customLaunchers = require('../build/configs/saucelabs-launchers');
+var saucelabs = process.env.SAUCE_LABS || false;
 
 module.exports = function(config) {
   var karmaConfig = {
@@ -56,7 +56,7 @@ module.exports = function(config) {
     },
 
     plugins: [
-      require("karma-webpack"),
+      require('karma-webpack'),
       'karma-qunit',
       'karma-sinon',
       'karma-chrome-launcher',
@@ -108,7 +108,7 @@ module.exports = function(config) {
     karmaConfig.captureTimeout = 120000;
     karmaConfig.singleRun = true;
     karmaConfig.sauceLabs = {
-        testName: 'Connect JS unit tests'
+      testName: 'Connect JS unit tests'
     };
     karmaConfig.customLaunchers = customLaunchers;
     karmaConfig.browsers = Object.keys(customLaunchers);

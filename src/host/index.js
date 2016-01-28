@@ -29,7 +29,7 @@ simpleXDM.defineModule('events', events);
 
 // rpc.extend(propagator);
 
-EventDispatcher.register("extension-define-custom", function(data){
+EventDispatcher.register('extension-define-custom', function(data){
   simpleXDM.defineModule(data.name, data.methods);
 });
 
@@ -50,6 +50,6 @@ export default {
   },
   defineExtension: (name, methods) => {
     ExtensionActions.defineCustomExtension(name, methods);
-  },  
+  },
   create
 };

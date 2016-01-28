@@ -1,29 +1,29 @@
 import create from 'src/host/create';
 
-describe("Create", () => {
+describe('Create', () => {
   var extensionConfig = {
     addon_key: 'addon-key',
     key: 'module-key',
     url: '/iframe-content.html',
     options: {
-        isGeneral: true
+      isGeneral: true
     }, //options to send to the iframe
     data: { //data to stay on the host side
-        pageType: 'general',
-        productCtx: '{}',
-        uid: 'someUserId'
+      pageType: 'general',
+      productCtx: '{}',
+      uid: 'someUserId'
     }
   };
 
 
-  it("returns an iframe container node", () => {
+  it('returns an iframe container node', () => {
     var container = create(extensionConfig);
     expect(container.length).toEqual(1);
     expect(container.hasClass('ap-container')).toBe(true);
     expect(container.find('iframe').length).toEqual(1);
   });
 
-  describe("iframe has attribute", () => {
+  describe('iframe has attribute', () => {
     var iframe = create(extensionConfig).find('iframe');
     it('src', () => {
       expect(iframe.attr('src')).toContain(extensionConfig.url);

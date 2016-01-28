@@ -6,27 +6,29 @@ class Dialog {
   }
 
   _renderHeaderCloseBtn(options) {
-    var $close = $("<a />").addClass("aui-dialog2-header-close");
-    var $closeBtn = $("<span />").addClass("aui-icon aui-icon-small aui-iconfont-close-dialog").text("Close");
+    var $close = $('<a />').addClass('aui-dialog2-header-close');
+    var $closeBtn = $('<span />').addClass('aui-icon aui-icon-small aui-iconfont-close-dialog').text('Close');
     $close.append($closeBtn);
     return $close;
   }
 
   _renderHeader(options){
-    var $header, $title, $secondary;
+    var $header;
+    var $title;
+    var $secondary;
 
-    $header = $("<header />").addClass("aui-dialog2-header");
+    $header = $('<header />').addClass('aui-dialog2-header');
     if(options.title) {
-        $title = $("<h2 />").addClass("aui-dialog2-header-main");
-        $title.text(options.title);
-        $header.append($title);
+      $title = $('<h2 />').addClass('aui-dialog2-header-main');
+      $title.text(options.title);
+      $header.append($title);
     }
     $header.append(this._renderHeaderCloseBtn());
     return $header;
   }
 
   _renderContent($content){
-    var $el = $("<div />").addClass("aui-dialog2-content");
+    var $el = $('<div />').addClass('aui-dialog2-content');
     if($content) {
       $el.append($content);
     }
@@ -34,14 +36,16 @@ class Dialog {
   }
 
   _renderFooter(options) {
-    var $actions, $footer, $hint;
-    $footer = $("<footer />").addClass("aui-dialog2-footer");
+    var $actions;
+    var $footer;
+    var $hint;
+    $footer = $('<footer />').addClass('aui-dialog2-footer');
     if(options.actions) {
       $actions = this._renderFooterActions(options.actions);
       $footer.append($actions);
     }
     if(options.hint) {
-      $hint = $("<div />").addClass("aui-dialog2-footer-hint").text(options.hint);
+      $hint = $('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
       $footer.append($hint);
     }
     return $footer;
@@ -49,7 +53,7 @@ class Dialog {
 
   _renderFooterActions(actions) {
     //either an array or object (for 1 button)
-    return $("<button />");
+    return $('<button />');
   }
 
   /**
@@ -62,10 +66,10 @@ class Dialog {
   }
   **/
   render(options){
-    var $dialog = $("<section />").attr({
-      role: "dialog",
+    var $dialog = $('<section />').attr({
+      role: 'dialog',
       id: options.id});
-    $dialog.addClass("aui-layer aui-dialog2 aui-dialog2-medium");
+    $dialog.addClass('aui-layer aui-dialog2 aui-dialog2-medium');
 
     //header
     $dialog.append(this._renderHeader(options.title));

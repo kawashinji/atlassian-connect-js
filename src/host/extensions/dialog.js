@@ -29,7 +29,7 @@ function getActiveDialog(){
 }
 
 function closeDialog(data){
-   EventDispatcher.dispatch('dialog-close', data);
+  EventDispatcher.dispatch('dialog-close', data);
 }
 
 function dialogIframe(options, context) {
@@ -45,7 +45,7 @@ module.exports = {
   create: function(options, callback) {
     var iframe = dialogIframe(options, callback._context);
     var dialogDOM = dialogRenderer.render(iframe, options, options.chrome);
-    
+
     var dialog = AJS.dialog2(dialogDOM);
     dialog.show();
     EventDispatcher.dispatch('dialog-open', {

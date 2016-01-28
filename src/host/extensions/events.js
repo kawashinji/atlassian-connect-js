@@ -25,9 +25,9 @@ export default {
     var callback = _.last(args);
     args = _.first(args, -1);
 
-    let extensions = _channels[callback._context.extension.addon_key],
-      extensionIds = _.without(_.keys(extensions), '_any'),
-      events = [].concat(extensions._any);
+    let extensions = _channels[callback._context.extension.addon_key];
+    let extensionIds = _.without(_.keys(extensions), '_any');
+    let events = [].concat(extensions._any);
 
     extensionIds.forEach((extensionId) => {
       var listeners = extensions[extensionId][name];
@@ -60,8 +60,8 @@ export default {
 
   },
   on: function (name, callback){
-    var addonKey = callback._context.extension.addon_key,
-      extensionId = callback._context.extension_id;
+    var addonKey = callback._context.extension.addon_key;
+    var extensionId = callback._context.extension_id;
 
     if(!_.isArray(_channels[addonKey][extensionId][name])) {
       _channels[addonKey][extensionId][name] = [];
