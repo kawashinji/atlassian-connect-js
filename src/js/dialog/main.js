@@ -43,7 +43,8 @@
             var $el,
             extraClasses = ['ap-aui-dialog2'];
 
-            var chromeless = !options.chrome;
+            // Fullscreen dialogs always have chrome.
+            var chromeless = options.size !== 'fullscreen' && !options.chrome;
             if(chromeless){
                 extraClasses.push('ap-aui-dialog2-chromeless');
             }
@@ -69,7 +70,7 @@
                 // The buttonContainer will probably end up being the 'controlBar.$el' element.
                 var $buttonContainer;
 
-                if (options.size === 'maximum') {
+                if (options.size === 'fullscreen') {
                     // Replace the default AUI dialog header with the markup required for a File-Viewer-like L&F.
 
                     // The dialog itself needs an extra class so that the top and margin-top styles can be overridden.
@@ -233,10 +234,6 @@
                     mergedOptions.size = "maximum";
                 }
 
-                // Alias 'fullscreen' to 'maximum'.
-                if (mergedOptions.size === 'fullscreen') {
-                    mergedOptions.size = 'maximum';
-                }
                 if (mergedOptions.size === 'maximum' &&
                     typeof mergedOptions.chrome === 'undefined') {
                     // ACJS-129 This default will be set to true in a future release and then, depending on design intention,
