@@ -1,6 +1,6 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 
-const EVENT_NAME_PREFIX = "connect.addon.";
+const EVENT_NAME_PREFIX = 'connect.addon.';
 
 /**
  * Timings beyond 20 seconds (connect's load timeout) will be clipped to an X.
@@ -24,19 +24,19 @@ class AnalyticsDispatcher {
   }
 
   _track(name, data) {
-    var w = window,
-      prefixedName = EVENT_NAME_PREFIX + name;
+    var w = window;
+    var prefixedName = EVENT_NAME_PREFIX + name;
 
     if(w.AJS.Analytics){
       w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
     } else if(w.AJS.trigger) {
       // BTF fallback
       AJS.trigger('analyticsEvent', {
-          name: prefixedName,
-          data: data
+        name: prefixedName,
+        data: data
       });
     } else {
-        return false;
+      return false;
     }
     return true;
   }
@@ -53,16 +53,16 @@ class AnalyticsDispatcher {
   trackLoadingEnded(extension) {
     var value = this._time() - this._addons[extension.id].startLoading;
     this._track('iframe.performance.load', {
-        addonKey: extension.addon_key,
-        moduleKey: extension.key,
-        value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil((value) / LOADING_TIME_TRIMP_PRECISION)
+      addonKey: extension.addon_key,
+      moduleKey: extension.key,
+      value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil((value) / LOADING_TIME_TRIMP_PRECISION)
     });
   }
 
   trackLoadingTimeout(extension) {
     this._track('iframe.performance.timeout', {
-        addonKey: extension.addon_key,
-        moduleKey: extension.key
+      addonKey: extension.addon_key,
+      moduleKey: extension.key
     });
     //track an end event during a timeout so we always have complete start / end data.
     this.trackLoadingEnded(extension);
@@ -70,8 +70,8 @@ class AnalyticsDispatcher {
 
   trackLoadingCancel(extension) {
     this._track('iframe.performance.cancel', {
-        addonKey: extension.addon_key,
-        moduleKey: extension.key
+      addonKey: extension.addon_key,
+      moduleKey: extension.key
     });
   }
 
@@ -81,16 +81,16 @@ class AnalyticsDispatcher {
 }
 
 var analytics = new AnalyticsDispatcher();
-EventDispatcher.register("iframe-create", function(data) {
+EventDispatcher.register('iframe-create', function(data) {
   analytics.trackLoadingStarted(data.extension);
 });
-EventDispatcher.register("iframe-bridge-estabilshed", function(data) {
+EventDispatcher.register('iframe-bridge-estabilshed', function(data) {
   analytics.trackLoadingEnded(data.extension);
 });
-EventDispatcher.register("iframe-bridge-timeout", function (data) {
+EventDispatcher.register('iframe-bridge-timeout', function (data) {
   analytics.trackLoadingTimeout(data.extension);
 });
-EventDispatcher.register("iframe-bridge-cancelled", function(data) {
+EventDispatcher.register('iframe-bridge-cancelled', function(data) {
   analytics.trackLoadingCancel(data.extension);
 });
 

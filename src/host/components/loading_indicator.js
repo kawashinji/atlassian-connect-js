@@ -49,12 +49,12 @@ class LoadingIndicator {
     var status = LOADING_STATUSES['load-error'];
     this._loadingContainer($iframeContainer).empty().text(status);
   }
-  
+
   timeout($iframeContainer, extensionId){
-    var status = $(LOADING_STATUSES['load-timeout']),
-    container = this._loadingContainer($iframeContainer);
+    var status = $(LOADING_STATUSES['load-timeout']);
+    var container = this._loadingContainer($iframeContainer);
     container.empty().append(status);
-    $("a.ap-btn-cancel", container).click(function () {
+    $('a.ap-btn-cancel', container).click(function () {
       LoadingIndicatorActions.cancelled($iframeContainer, extensionId);
     });
     delete this._stateRegistry[extensionId];

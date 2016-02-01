@@ -8,8 +8,8 @@ function escapeSelector(s) {
 }
 
 function stringToDimension(value) {
-  var percent = false,
-    unit = 'px';  
+  var percent = false;
+  var unit = 'px';
 
   if(_.isString(value)) {
     percent = value.indexOf('%') === value.length - 1;
@@ -25,7 +25,7 @@ function stringToDimension(value) {
 }
 
 function getIframeByExtensionId(id) {
-  return $("iframe#" + id);
+  return $('iframe#' + id);
 }
 
 export default {

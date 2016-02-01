@@ -14,7 +14,7 @@ function _getJwt(urlStr) {
 function hasJwt(url) {
   var jwt = _getJwt(url);
   return (jwt && _getJwt(url).length !== 0);
-  
+
 }
 
 module.exports = {

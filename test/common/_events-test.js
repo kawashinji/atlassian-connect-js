@@ -12,7 +12,7 @@ QUnit.test('emits basic events', function (assert) {
   bus.on('foo', spy);
   bus.emit('foo');
 
-  assert.ok(spy.calledOnce, "Spy was called");
+  assert.ok(spy.calledOnce, 'Spy was called');
 });
 
 QUnit.test('emits events with arbitrary arguments', function(assert) {
@@ -22,7 +22,7 @@ QUnit.test('emits events with arbitrary arguments', function(assert) {
   bus.on('foo', spy);
   bus.emit('foo', 1, 2, 3);
 
-  assert.ok(spy.withArgs(1, 2, 3), "Args were passed to spy");
+  assert.ok(spy.withArgs(1, 2, 3), 'Args were passed to spy');
 });
 
 QUnit.test('emits events with an event object as the last argument', function(assert) {
@@ -106,7 +106,7 @@ QUnit.test('fires an "onAny" listener with all expected arguments', function(ass
   bus.onAny(spy);
   bus.emit('foo', 1, 2, 3);
 
-  assert.ok(spy.withArgs(1, 2, 3), "Args were passed to spy");
+  assert.ok(spy.withArgs(1, 2, 3), 'Args were passed to spy');
   var event = spy.firstCall.args[4];
   assert.equal(typeof event, 'object');
   assert.equal(event.name, 'foo');

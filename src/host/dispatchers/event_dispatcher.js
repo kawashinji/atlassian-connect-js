@@ -13,9 +13,9 @@ class EventDispatcher extends EventEmitter {
   }
 
   dispatch(action, ...args) {
-    this.emit.apply(this, ["before:" + action].concat(args));
+    this.emit.apply(this, ['before:' + action].concat(args));
     this.emit.apply(this, arguments);
-    this.emit.apply(this, ["after:" + action].concat(args));
+    this.emit.apply(this, ['after:' + action].concat(args));
   }
 
   registerOnce(action, callback) {

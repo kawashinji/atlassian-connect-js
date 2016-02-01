@@ -31,7 +31,7 @@ class WebItem {
   _removeTriggers(webitem) {
     var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
     $(() => {
-      $("body").off(onTriggers, webitem.selector, this._webitems[webitem.name]._on);
+      $('body').off(onTriggers, webitem.selector, this._webitems[webitem.name]._on);
     });
     delete this._webitems[webitem.name]._on;
   }
@@ -39,10 +39,10 @@ class WebItem {
   _addTriggers (webitem) {
     var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
     webitem._on = (e) => {
-        WebItemActions.webitemInvoked(webitem, e);
+      WebItemActions.webitemInvoked(webitem, e);
     };
     $(() => {
-      $("body").on(onTriggers, webitem.selector, webitem._on);
+      $('body').on(onTriggers, webitem.selector, webitem._on);
     });
   }
 
@@ -50,7 +50,7 @@ class WebItem {
 
 var webItemInstance = new WebItem();
 
-EventDispatcher.register("webitem-added", (data) => {
+EventDispatcher.register('webitem-added', (data) => {
   webItemInstance._addTriggers(data.webitem);
 });
 

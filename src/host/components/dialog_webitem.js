@@ -5,9 +5,9 @@ import IframeContainer from 'components/iframe_container';
 import DialogComponent from 'components/dialog';
 
 const ITEM_NAME = 'dialog';
-const SELECTOR = ".ap-dialog";
-const TRIGGERS = ["click"];
-const WEBITEM_UID_KEY = "dialog-target-uid";
+const SELECTOR = '.ap-dialog';
+const TRIGGERS = ['click'];
+const WEBITEM_UID_KEY = 'dialog-target-uid';
 
 class DialogWebItem {
   constructor(){
@@ -23,12 +23,12 @@ class DialogWebItem {
   }
 
   triggered(data) {
-    var $target = $(data.event.target),
-      options = {
-        id: $target.data(WEBITEM_UID_KEY),
-        title: 'some title',
-        $content: IframeContainer.createExtension(data.extension)
-      };
+    var $target = $(data.event.target);
+    var options = {
+      id: $target.data(WEBITEM_UID_KEY),
+      title: 'some title',
+      $content: IframeContainer.createExtension(data.extension)
+    };
     var dialog = DialogComponent.render(options);
     dialog.insertAfter($target);
     // AUI modifies the dom after insertion. Thus the content must be appended afterwards.
@@ -36,8 +36,8 @@ class DialogWebItem {
   }
 
   createIfNotExists(data) {
-      var $target = $(data.event.target),
-      uid = $target.data(WEBITEM_UID_KEY);
+    var $target = $(data.event.target);
+    var uid = $target.data(WEBITEM_UID_KEY);
 
     if(!uid) {
       uid = WebItemUtils.uniqueId();
@@ -49,8 +49,8 @@ class DialogWebItem {
 
 let dialogInstance = new DialogWebItem();
 let webitem = dialogInstance.getWebItem();
-EventDispatcher.register("webitem-invoked:" + webitem.name, dialogInstance.triggered);
-EventDispatcher.register("before:webitem-invoked:" + webitem.name, dialogInstance.createIfNotExists);
+EventDispatcher.register('webitem-invoked:' + webitem.name, dialogInstance.triggered);
+EventDispatcher.register('before:webitem-invoked:' + webitem.name, dialogInstance.createIfNotExists);
 
 WebItemActions.addWebItem(webitem);
 export default dialogInstance;

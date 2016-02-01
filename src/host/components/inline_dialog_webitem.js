@@ -5,9 +5,9 @@ import WebItemUtils from 'utils/webitem';
 import IframeContainer from 'components/iframe_container';
 
 const ITEM_NAME = 'inline-dialog';
-const SELECTOR = ".ap-inline-dialog";
-const TRIGGERS = ["click", "hover"];
-const WEBITEM_UID_KEY = "inline-dialog-target-uid";
+const SELECTOR = '.ap-inline-dialog';
+const TRIGGERS = ['click', 'hover'];
+const WEBITEM_UID_KEY = 'inline-dialog-target-uid';
 
 class InlineDialogWebItem {
   constructor(){
@@ -24,20 +24,20 @@ class InlineDialogWebItem {
   }
 
   triggered(data) {
-    var $target = $(data.event.target),
-      attr = {id: $target.data(WEBITEM_UID_KEY)};
+    var $target = $(data.event.target);
+    var attr = {id: $target.data(WEBITEM_UID_KEY)};
 
     var $iframeContainer = IframeContainer.createExtension(data.extension);
     var inlineDialog = InlineDialogComponent.render(attr);
     inlineDialog.attr('open', '');
     inlineDialog.insertAfter($target);
     // AUI modifies the dom after insertion. Thus the content must be appended afterwards.
-    inlineDialog.find(".aui-inline-dialog-contents").append($iframeContainer);
+    inlineDialog.find('.aui-inline-dialog-contents').append($iframeContainer);
   }
 
   createIfNotExists(data) {
-      var $target = $(data.event.target),
-      uid = $target.data(WEBITEM_UID_KEY);
+    var $target = $(data.event.target);
+    var uid = $target.data(WEBITEM_UID_KEY);
 
     if(!uid) {
       uid = WebItemUtils.uniqueId();
@@ -49,8 +49,8 @@ class InlineDialogWebItem {
 
 let inlineDialogInstance = new InlineDialogWebItem();
 let webitem = inlineDialogInstance.getWebItem();
-EventDispatcher.register("before:webitem-invoked:" + webitem.name, inlineDialogInstance.createIfNotExists);
-EventDispatcher.register("webitem-invoked:" + webitem.name, inlineDialogInstance.triggered);
+EventDispatcher.register('before:webitem-invoked:' + webitem.name, inlineDialogInstance.createIfNotExists);
+EventDispatcher.register('webitem-invoked:' + webitem.name, inlineDialogInstance.triggered);
 WebItemActions.addWebItem(webitem);
 
 export default inlineDialogInstance;
