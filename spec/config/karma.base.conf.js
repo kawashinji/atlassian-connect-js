@@ -65,7 +65,7 @@ module.exports = function(config) {
       'karma-jasmine',
       'karma-webpack',
       'karma-chrome-launcher',
-      'karma-phantomjs-launcher',
+        // 'karma-phantomjs-launcher',
       'karma-firefox-launcher',
       'karma-ie-launcher',
       'karma-nyan-reporter'
@@ -98,7 +98,9 @@ module.exports = function(config) {
     // - Safari (only Mac)
     // - PhantomJS
     // - IE (only Windows)
-    browsers: ['Chrome'],
+    //browsers: ['Chrome', 'Safari', 'Firefox', 'Opera', 'IE11 - Win7', 'IE10 - Win7', 'IE9 - Win7'],
+    // browsers: ['Chrome', 'Safari', 'Firefox', 'IE11 - Win7'],
+    browsers: ['Chrome', 'Firefox'],
 
 
     // If browser does not capture in given timeout [ms], kill it
@@ -137,7 +139,6 @@ module.exports = function(config) {
     karmaConfig.plugins.push('karma-coverage');
     karmaConfig.coverageReporter.reporters.push({type: 'html', dir: 'coverage/', subdir: '.'});
     karmaConfig.coverageReporter.reporters.push({type: 'json', dir: 'coverage/', subdir: '.'});
-    karmaConfig.browsers = ['Chrome'];
   }
 
   return karmaConfig;
