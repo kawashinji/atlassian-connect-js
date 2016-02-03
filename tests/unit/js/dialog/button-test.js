@@ -43,7 +43,7 @@ require(['ac/dialog/button'], function(dialogButton) {
         var button = dialogButton.submit();
         button.setEnabled(false);
         ok(!button.isEnabled());
-    });
+    });  
 
     test("Cancel Button is set to a link button", function() {
         var button = dialogButton.cancel();
@@ -86,6 +86,30 @@ require(['ac/dialog/button'], function(dialogButton) {
     test("Buttons are enabled by default", function() {
         var button = dialogButton.submit();
         ok(button.isEnabled());
+    });
+
+    test("Submit button is not hidden as default", function() {
+        var button = dialogButton.submit();
+        ok(!button.isHidden());
+    }); 
+
+    test("setHidden(true) hides a button", function() {
+        var button = dialogButton.submit();
+        button.setHidden(true);
+        ok(button.isHidden());
+    });
+
+    test("setHidden(false) shows a button", function() {
+        var button = dialogButton.submit();
+        button.$el.css('display', "none");
+        button.setHidden(false);
+        ok(!button.isHidden());
+    });
+
+    test("Cancel button cannot be hidden", function() {
+        var button = dialogButton.cancel();
+        button.setHidden(true);
+        ok(!button.isHidden());
     });
 
     test("click binds an event to ra.dialog.click if passed a function", function() {

@@ -39,10 +39,17 @@
                     setDialogButtonEnabled: function (name, enabled) {
                         dialogMain.getButton(name).setEnabled(enabled);
                     },
+                    setDialogButtonHidden: function (name, enabled) {
+                        dialogMain.getButton(name).setHidden(enabled);
+                    },                    
                     isDialogButtonEnabled: function (name, callback) {
                         var button =  dialogMain.getButton(name);
                         callback(button ? button.isEnabled() : void 0);
                     },
+                    isDialogButtonHidden: function (name, callback) {
+                        var button =  dialogMain.getButton(name);
+                        callback(button ? button.isHidden() : void 0);
+                    },                    
                     createButton: function(name, options) {
                         var button = dialogMain.createButton(name, options);
                         initializeButtonCallback(name, button);

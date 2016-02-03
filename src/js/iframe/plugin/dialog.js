@@ -210,6 +210,47 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
               remote.isDialogButtonEnabled(name, callback);
             },
             /**
+             * Sets the button state to hidden
+             * @memberOf Dialog~DialogButton
+             * @noDemo
+             * @example
+             * AP.require('dialog', function(dialog){
+             *   dialog.getButton('submit').hide();
+             * });
+             */       
+            hide: function(callback) {
+              remote.setDialogButtonHidden(name, true);
+            },
+            /**
+             * Sets the button state to visible
+             * @memberOf Dialog~DialogButton
+             * @noDemo
+             * @example
+             * AP.require('dialog', function(dialog){
+             *   dialog.getButton('submit').show();
+             * });
+             */                   
+            show: function(callback) {
+              remote.setDialogButtonHidden(name, false);
+            }, 
+            /**
+             * Query a button for it's current hidden/visible state.
+             * @memberOf Dialog~DialogButton
+             * @param {Function} callback function to receive the button state.
+             * @noDemo
+             * @example
+             * AP.require('dialog', function(dialog){
+             *   dialog.getButton('submit').isHidden(function(hidden){
+             *     if(hidden){
+             *       //button is hidden
+             *     }
+             *   });
+             * });
+             */            
+            isHidden: function(callback) {
+              remote.isDialogButtonHidden(name, callback);
+            }       
+            /**
              * Registers a function to be called when the button is clicked.
              * @memberOf Dialog~DialogButton
              * @param {Function} callback function to be triggered on click or programatically.
@@ -293,7 +334,9 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
         stubs: [
           "dialogListenerBound",
           "setDialogButtonEnabled",
+          "setDialogButtonHidden",
           "isDialogButtonEnabled",
+          "isDialogButtonHidden",
           "createDialog",
           "closeDialog",
           "createButton"
