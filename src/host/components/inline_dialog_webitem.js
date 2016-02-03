@@ -29,10 +29,10 @@ class InlineDialogWebItem {
 
     var $iframeContainer = IframeContainer.createExtension(data.extension);
     var inlineDialog = InlineDialogComponent.render(attr);
+    // AUI modifies the dom after insertion. Thus the content must be appended afterwards.
+    inlineDialog.find(':first-child').append($iframeContainer);
     inlineDialog.attr('open', '');
     inlineDialog.insertAfter($target);
-    // AUI modifies the dom after insertion. Thus the content must be appended afterwards.
-    inlineDialog.find('.aui-inline-dialog-contents').append($iframeContainer);
   }
 
   createIfNotExists(data) {
