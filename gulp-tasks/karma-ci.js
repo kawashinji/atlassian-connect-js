@@ -11,8 +11,7 @@ module.exports = function () {
 
     runKarma({
       action: 'run',
-      singleRun: true,
-      browsers: ['Chrome']
+      singleRun: true
     }, done);
   };
 };
