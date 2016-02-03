@@ -235,9 +235,6 @@
                     mergedOptions.chrome = false;
                 }
 
-                mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
-                mergedOptions.h = parseDimension(mergedOptions.height, $global.height());
-
                 // Assign the singleton $nexus and buttons vars.
                 $nexus = $("<div />")
                                 .addClass("ap-servlet-placeholder ap-container")
@@ -249,11 +246,11 @@
                 $dialogEl = createDialogElement(mergedOptions);
                 $dialogEl.find('.aui-dialog2-content').append($nexus);
 
-                if(options.size){
-                    mergedOptions.w = "100%";
-                    mergedOptions.h = "100%";
-                } else {
-                    AJS.layer($dialogEl).changeSize(mergedOptions.w, mergedOptions.h);
+                if (!options.size) {
+                    var widthPx = parseDimension(mergedOptions.width, $global.width());
+                    var heightPx = parseDimension(mergedOptions.height, $global.height());
+
+                    AJS.layer($dialogEl).changeSize(widthPx, heightPx);
                     $dialogEl.removeClass('aui-dialog2-medium'); // this class has a min-height so must be removed.
                 }
 
