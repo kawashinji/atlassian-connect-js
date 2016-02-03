@@ -246,11 +246,16 @@
                 $dialogEl = createDialogElement(mergedOptions);
                 $dialogEl.find('.aui-dialog2-content').append($nexus);
 
-                if (!options.size) {
-                    var widthPx = parseDimension(mergedOptions.width, $global.width());
-                    var heightPx = parseDimension(mergedOptions.height, $global.height());
+                // Set the mergedOptions.w and h properties in case they're needed in the _AP.create call below.
+                // See iframe/host/create.js for how w and h are used.
+                if (options.size) {
+                    mergedOptions.w = "100%";
+                    mergedOptions.h = "100%";
+                } else {
+                    mergedOptions.w = parseDimension(mergedOptions.width, $global.width());
+                    mergedOptions.h = parseDimension(mergedOptions.height, $global.height());
 
-                    AJS.layer($dialogEl).changeSize(widthPx, heightPx);
+                    AJS.layer($dialogEl).changeSize(mergedOptions.w, mergedOptions.h);
                     $dialogEl.removeClass('aui-dialog2-medium'); // this class has a min-height so must be removed.
                 }
 
