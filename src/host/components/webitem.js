@@ -40,6 +40,7 @@ class WebItem {
     var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
     webitem._on = (e) => {
       WebItemActions.webitemInvoked(webitem, e);
+      e.preventDefault();
     };
     $(() => {
       $('body').on(onTriggers, webitem.selector, webitem._on);
