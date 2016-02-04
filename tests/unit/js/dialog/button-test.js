@@ -101,7 +101,7 @@ require(['ac/dialog/button'], function(dialogButton) {
 
     test("setHidden(false) shows a button", function() {
         var button = dialogButton.submit();
-        button.$el.css('display', "none");
+        button.$el.hide();
         button.setHidden(false);
         ok(!button.isHidden());
     });

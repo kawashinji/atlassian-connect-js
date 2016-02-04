@@ -193,7 +193,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
               });
             },
             /**
-             * Query a button for it's current state.
+             * Query a button for its current state.
              * @memberOf Dialog~DialogButton
              * @param {Function} callback function to receive the button state.
              * @noDemo
@@ -234,7 +234,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
               remote.setDialogButtonHidden(name, false);
             }, 
             /**
-             * Query a button for it's current hidden/visible state.
+             * Query a button for its current hidden/visible state.
              * @memberOf Dialog~DialogButton
              * @param {Function} callback function to receive the button state.
              * @noDemo
