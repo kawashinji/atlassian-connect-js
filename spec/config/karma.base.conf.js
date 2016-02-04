@@ -6,6 +6,7 @@ var webpack = require('webpack');
 var path = require('path');
 var customLaunchers = require('../../build/configs/saucelabs-launchers');
 var saucelabs = process.env.SAUCE_LABS || false;
+var coverage = process.env.COVERAGE || false;
 
 module.exports = function(config) {
   var karmaConfig = {
@@ -39,6 +40,8 @@ module.exports = function(config) {
       },
       module: {
         loaders: [
+        ],
+        postLoaders: [
         ]
       },
       plugins: [
@@ -47,11 +50,15 @@ module.exports = function(config) {
 
     // test results reporter to use
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-    reporters: ['progress', 'junit'],
+    reporters: ['progress', 'dots', 'junit'],
     junitReporter: {
       outputFile: 'test/test-reports/karma-results.xml',
       useBrowserName: false,
       suite: ''
+    },
+    coverageReporter: {
+      reporters: [
+      ]
     },
 
     plugins: [
@@ -116,6 +123,22 @@ module.exports = function(config) {
     karmaConfig.customLaunchers = customLaunchers;
     karmaConfig.browsers = Object.keys(customLaunchers);
     karmaConfig.concurrency = 5;
+  }
+
+  if(coverage == 'true') {
+    karmaConfig.webpack.module.postLoaders.push(
+      {
+        test: /\/src\/host\/.*?\.js$/,
+        loader: 'istanbul-instrumenter'
+      }
+    );
+    karmaConfig['webpackMiddleware'] = {
+      noInfo: true
+    };
+    karmaConfig.reporters.push('coverage');
+    karmaConfig.plugins.push('karma-coverage');
+    karmaConfig.coverageReporter.reporters.push({type: 'html', dir: 'coverage/', subdir: '.'});
+    karmaConfig.coverageReporter.reporters.push({type: 'json', dir: 'coverage/', subdir: '.'});
   }
 
   return karmaConfig;
