@@ -25,7 +25,7 @@ function stringToDimension(value) {
 }
 
 function getIframeByExtensionId(id) {
-  return $('iframe#' + id);
+  return $('iframe#' + escapeSelector(id));
 }
 
 export default {
