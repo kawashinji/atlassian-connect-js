@@ -1221,9 +1221,7 @@ var _util = _dereq_('../util');
 var _util2 = _interopRequireDefault(_util);
 
 _dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
-  var iframe = _util2['default'].getIframeByExtensionId(data.context.extension_id);
-  debugger;
-  iframe.css({
+  _util2['default'].getIframeByExtensionId(data.context.extension_id).css({
     width: _util2['default'].stringToDimension(data.width),
     height: _util2['default'].stringToDimension(data.height)
   });
