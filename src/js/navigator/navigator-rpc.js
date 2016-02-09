@@ -9,9 +9,12 @@
                     },
                     reload: function () {
                         navigator.reload();
+                    },
+                    getCurrent: function (callback) {
+                        navigator.getCurrent(callback);
                     }
                 },
-                stubs: ["go", "reload"]
+                stubs: ["go", "reload", "getCurrent"]
             };
         });
     });
