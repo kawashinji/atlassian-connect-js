@@ -209,7 +209,10 @@ var _consumerOptions = _dereq_('./consumer-options');
 var _consumerOptions2 = _interopRequireDefault(_consumerOptions);
 
 //map AP.env.getUser to AP.user.getUser for compatibility.
-AP._hostModules.env.getUser = AP._hostModules.user.getUser;
+if (AP._hostModules.user) {
+  AP._hostModules.env.getUser = AP._hostModules.user.getUser;
+}
+AP._hostModules._dollar = _dollar2['default'];
 
 (0, _dollar2['default'])(function () {
   console.log('sizetoparent?', _consumerOptions2['default'].get('sizeToParent'));

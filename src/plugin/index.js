@@ -5,7 +5,10 @@ import $ from './dollar';
 import consumerOptions from './consumer-options';
 
 //map AP.env.getUser to AP.user.getUser for compatibility.
-AP._hostModules.env.getUser = AP._hostModules.user.getUser;
+if(AP._hostModules.user) {
+  AP._hostModules.env.getUser = AP._hostModules.user.getUser;  
+}
+AP._hostModules._dollar = $;
 
 $(function(){
   console.log('sizetoparent?', consumerOptions.get('sizeToParent'));
