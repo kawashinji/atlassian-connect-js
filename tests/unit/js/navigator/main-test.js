@@ -72,7 +72,7 @@ require(['ac/navigator', 'ac/navigator-browser'], function (navigator, browser) 
         try {
             navigator.go("blah", {id: 1234});
         } catch(error) {
-            equal(error, "The URL target blah is not available. Valid targets are: dashboard,contentview,contentedit,spacetools,spaceview,userprofile")
+            equal(error, "Error: The URL target blah is not available. Valid targets are: dashboard,contentview,contentedit,spacetools,spaceview,userprofile")
         }
     });
 });

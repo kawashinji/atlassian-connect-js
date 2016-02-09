@@ -50,12 +50,15 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
          * @return {Object} Data Object passed to the dialog on creation.
          */        
         customData: uiParams.customData,
+
         /**
          * @class Dialog~DialogOptions
+         * @description The options supplied to a [dialog.create()](module-Dialog.html) call.
+         *
          * @property {String}        key         The module key of the page you want to open as a dialog
-         * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or maximum (full screen).
-         * @property {Number|String} width       overrides size, define the width as a percentage (append a % to the number) or pixels.
-         * @property {Number|String} height      overrides size, define the height as a percentage (append a % to the number) or pixels.
+         * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or fullscreen (with chrome).
+         * @property {Number|String} width       if size is not set, define the width as a percentage (append a % to the number) or pixels.
+         * @property {Number|String} height      if size is not set, define the height as a percentage (append a % to the number) or pixels.
          * @property {Boolean}       chrome      (optional) opens the dialog with heading and buttons.
          * @property {String}        header      (optional) text to display in the header if opening a dialog with chrome.
          * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
