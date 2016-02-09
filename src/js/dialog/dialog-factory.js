@@ -29,7 +29,8 @@
                 height: dialogOptions.height,
                 size: dialogOptions.size,
                 submitText: dialogOptions.submitText,
-                cancelText: dialogOptions.cancelText
+                cancelText: dialogOptions.cancelText,
+                closeOnEscape: dialogOptions.closeOnEscape
             }, false);
 
             container = createdDialog.$el.find('.ap-dialog-container');

@@ -168,7 +168,10 @@
             _getActiveDialog: function () {
                 return dialog;
             },
-            getButton: function(name){
+            isCloseOnEscape: function () {
+                return $nexus && $nexus.data('ra.dialog.closeOnEscape');
+            },
+            getButton: function (name) {
                 var buttons = $nexus && $nexus.data('ra.dialog.buttons') || {};
                 return name ? buttons[name] : buttons;
             },
@@ -217,7 +220,10 @@
                 var defaultOptions = {
                         // These options really _should_ be provided by the caller, or else the dialog is pretty pointless
                         width: "50%",
-                        height: "50%"
+                        height: "50%",
+
+                        // default values
+                        closeOnEscape: true
                     },
                     dialogId = options.id || "ap-dialog-" + (idSeq += 1),
                     mergedOptions = $.extend({id: dialogId}, defaultOptions, options, {dlg: 1}),
@@ -262,8 +268,16 @@
                 dialog = AJS.dialog2($dialogEl);
                 dialogs.push(dialog);
                 dialog.on("hide", closeDialog);
-                // ESC key closes the dialog
-                $(document).on("keydown", keyPressListener);
+
+                // store it here so the client side handler can also check this value
+                $nexus.data('ra.dialog.closeOnEscape', mergedOptions.closeOnEscape);
+
+                if(mergedOptions.closeOnEscape) {
+                    // ESC key closes the dialog
+                    $(document).on("keydown", function (event) {
+                        keyPressListener(event);
+                    });
+                }
 
                 $.each(buttons, function(name, button) {
                     button.click(function () {
@@ -300,10 +314,10 @@
 
 AJS.toInit(function ($) {
 
-    (function(require, AJS){
-        if(typeof window._AP !== "undefined"){
+    (function (require, AJS) {
+        if (typeof window._AP !== "undefined") {
             //_AP.dialog global fallback.
-            require(['ac/dialog'], function(dialog){
+            require(['ac/dialog'], function (dialog) {
                 _AP.Dialog = dialog;
             });
         }

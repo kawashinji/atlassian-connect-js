@@ -64,6 +64,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
          * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
          * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
          * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
+         * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC will close the dialog (default is true).
          */
 
         /**
@@ -139,6 +140,25 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
         onDialogMessage: function(buttonName, listener) {
           this.getButton(buttonName).bind(listener);
         },
+
+        /**
+         * Queries the value of the 'closeOnEscape' property.  If this property is true
+         * then the dialog should close if ESC is pressed.
+         * @param {Function} callback function to receive the 'closeOnEscape' value.
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
+             *   dialog.isCloseOnEscape(function(enabled){
+             *     if(enabled){
+             *       //close on escape is true
+             *     }
+             *   });
+             * });
+         */
+        isCloseOnEscape: function(callback) {
+          remote.isCloseOnEscape(callback);
+        },
+
         /**
          * Returns the button that was requested (either cancel or submit)
          * @returns {Dialog~DialogButton}
@@ -297,6 +317,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
           "dialogListenerBound",
           "setDialogButtonEnabled",
           "isDialogButtonEnabled",
+          "isCloseOnEscape",
           "createDialog",
           "closeDialog",
           "createButton"
@@ -305,9 +326,11 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
         init: function() {
           if (isDialog) {
             window.addEventListener('keydown', function(event) {
-              if (event.keyCode === 27) {
-                exports.close();
-              }
+              exports.isCloseOnEscape(function(closeOnEscape) {
+                if (closeOnEscape && event.keyCode === 27) {
+                  exports.close();
+                }
+              });
             });
           }
         }

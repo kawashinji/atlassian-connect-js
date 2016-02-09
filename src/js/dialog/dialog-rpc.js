@@ -47,6 +47,9 @@
                         var button = dialogMain.createButton(name, options);
                         initializeButtonCallback(name, button);
                     },
+                    isCloseOnEscape: function (callback) {
+                        callback(dialogMain.isCloseOnEscape());
+                    },
                     createDialog: function (dialogOptions) {
                         var xdmOptions = {
                             key: this.addonKey
