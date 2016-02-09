@@ -15,7 +15,7 @@ export default {
 
   sizeToParent: debounce(function (callback) {
     // sizeToParent is only available for general-pages
-    if (callback._context.extension.options.isGeneral) {
+    if (callback._context.extension.options.isFullPage) {
       // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
       util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
       EventDispatcher.register('host-window-resize', (data) => {
