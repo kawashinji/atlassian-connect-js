@@ -58,8 +58,8 @@ function build(entryModule, distModule, options) {
 
 function buildPlugin(options) {
   options = options || {};
-  return build('./src/plugin/index.js', 'plugin', {
-    standalone: 'AP',
+  return build('./src/plugin/index.js', 'plugin-compat', {
+    standalone: 'APCompat',
     env: {ENV: 'plugin'},
     watch: options.watch
   });
