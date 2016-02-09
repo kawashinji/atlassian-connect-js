@@ -3,7 +3,7 @@
         test("defineSetExperimentalHeader fails when not passed a function", function() {
             var f = 'foo';
             throws(function() {
-                request.defineSetExperimentalHeader(f);
+                request.setExperimentify(f);
             }, new Error("func must be a function"), "An error was raised");
         });
 
@@ -13,8 +13,8 @@
                 return headers;
             }
 
-            request.defineSetExperimentalHeader(f);
-            ok(true, "Should pass without throwing an error.")
+            request.setExperimentify(f);
+            ok(true, "Should pass without throwing an error.");
         })
     });
 })();

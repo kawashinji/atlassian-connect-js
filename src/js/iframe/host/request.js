@@ -8,11 +8,11 @@
                 "If-Match", "If-None-Match"
             ],
             contextPath = null,
-            setExperimentalHeader = null;
+            experimentify = null;
 
-        function defineSetExperimentalHeader(func) {
+        function setExperimentify(func) {
             if ($.isFunction(func)) {
-                setExperimentalHeader = func;
+                experimentify = func;
             } else {
                 throw new Error("func must be a function");
             }
@@ -73,10 +73,10 @@
 
                         // Set experimental API header
                         if (args.experimental === true) {
-                            if ($.isFunction(setExperimentalHeader)) {
-                                ajaxOptions.headers = setExperimentalHeader(ajaxOptions.headers);
+                            if ($.isFunction(experimentify)) {
+                                ajaxOptions = experimentify(ajaxOptions);
                             } else {
-                                throw new Error("Experimental api is not supported.");
+                                console.log("Experimental api is not supported.");
                             }
                         }
 
@@ -88,7 +88,7 @@
         });
 
         return {
-            defineSetExperimentalHeader: defineSetExperimentalHeader
+            setExperimentify: setExperimentify
         }
 
     });

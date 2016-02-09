@@ -52,7 +52,8 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
   * @property {Object}    headers       an object containing headers to set; supported headers are: Accept
   * @property {Function}  success       a callback function executed on a 200 success status code
   * @property {Function}  error         a callback function executed when a HTTP status error code is returned
-  * @property {Boolean}   experimental  if 'X-ExperimentalApi' is required in the header of the request
+  * @property {Boolean}   experimental  if the experimental is set to true, the developer acknowledges that the API endpoint which is being
+  *                                     called may be in beta state, and thus may also have a shorter deprecation cycle than stable APIs.
   */
 
 
