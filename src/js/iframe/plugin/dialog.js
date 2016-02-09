@@ -272,7 +272,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
              */
             isHidden: function(callback) {
               remote.isDialogButtonHidden(name, callback);
-            }
+            },
             /**
              * Registers a function to be called when the button is clicked.
              * @memberOf Dialog~DialogButton
