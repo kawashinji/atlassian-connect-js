@@ -63,13 +63,50 @@ AP.define("navigator", ["_dollar", "_rpc"],
              */
             reload: function () {
                 remote.reload();
+            },
+
+            /**
+             *
+             * Returns the context of the current page within the host application.
+             *
+             * This method will provide a context object to the passed in callback.  This context object
+             * will contain information about the page currently open in the host application.
+             *
+             * The object will contain a target, which can be used when calling the <pre>go</pre> method, and
+             * a context map containing in formation about the opened page.
+             *
+             * Currently this method supports two contexts in Confluence only:
+             *
+             * <strong>contentview</strong> - The host application is currently viewing a page, blog post or
+             * other content.
+             *
+             * <strong>contentedit</strong> - the host application is currently editing a page, blog post or
+             * other content.
+             *
+             * @name getCurrent
+             * @method
+             * @memberof module:Navigator#
+             * @noDemo
+             * @example
+             * AP.require('navigator', function(navigator){
+             *   var context = navigator.getCurrent();
+             *   // context will be:
+             *   // {
+             *   //   "target": "contentview",
+             *   //   "context": {
+             *   //     "contentId": 1234
+             *   //     "contentType": "page"
+             *   // }
+             * });
+             */
+            getCurrent: function(callback) {
+                remote.getCurrent(callback);
             }
 
         };
 
         return {
-            apis: exports,
-            stubs: ["to", "reload"]
+            apis: exports
         };
 
     });
