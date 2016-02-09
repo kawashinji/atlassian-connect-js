@@ -84,6 +84,7 @@ var _util = _dereq_('./util');
 var _util2 = _interopRequireDefault(_util);
 
 var _each = _util2['default'].each,
+    extend = _util2['default'].extend,
     document = window.document;
 
 function $(sel, context) {
@@ -93,26 +94,25 @@ function $(sel, context) {
   var els = [];
   if (sel) {
     if (typeof sel === 'string') {
-      var results = context.querySelectorAll(sel),
-          arr_results = Array.prototype.slice.call(results);
-      Array.prototype.push.apply(els, arr_results);
+      var results = context.querySelectorAll(sel);
+      _each(results, function (i, v) {
+        els.push(v);
+      });
     } else if (sel.nodeType === 1) {
       els.push(sel);
     } else if (sel === window) {
       els.push(sel);
-    } else if (typeof sel === 'function') {
-      onDomLoad(sel);
     }
   }
 
-  _util2['default'].extend(els, {
+  extend(els, {
     each: function each(it) {
       _each(this, it);
       return this;
     },
     bind: function bind(name, callback) {
       this.each(function (i, el) {
-        this.bind(el, name, callback);
+        _util2['default'].bind(el, name, callback);
       });
     },
     attr: function attr(k) {
@@ -158,35 +158,7 @@ function $(sel, context) {
   return els;
 }
 
-function binder(std, odd) {
-  std += 'EventListener';
-  odd += 'Event';
-  return function (el, e, fn) {
-    if (el[std]) {
-      el[std](e, fn, false);
-    } else if (el[odd]) {
-      el[odd]('on' + e, fn);
-    }
-  };
-}
-
-$.bind = binder('add', 'attach');
-$.unbind = binder('remove', 'detach');
-
-function onDomLoad(func) {
-  var w = window,
-      readyState = w.document.readyState;
-
-  if (readyState === "interactive" || readyState === "complete") {
-    func.call(w);
-  } else {
-    $.bind(w, "load", function () {
-      func.call(w);
-    });
-  }
-}
-
-exports['default'] = $;
+exports['default'] = extend($, _util2['default']);
 module.exports = exports['default'];
 
 },{"./util":4}],3:[function(_dereq_,module,exports){
@@ -214,140 +186,131 @@ if (AP._hostModules.user) {
 }
 AP._hostModules._dollar = _dollar2['default'];
 
-(0, _dollar2['default'])(function () {
-  console.log('sizetoparent?', _consumerOptions2['default'].get('sizeToParent'));
-  if (_consumerOptions2['default'].get('sizeToParent') === true) {
-    AP.env.sizeToParent();
-  }
-});
+if (_consumerOptions2['default'].get('sizeToParent') === true) {
+  AP.env.sizeToParent();
+}
 
 },{"./consumer-options":1,"./dollar":2,"./util":4}],4:[function(_dereq_,module,exports){
 // universal iterator utility
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-  value: true
+    value: true
 });
 function each(o, it) {
-  var l;
-  var k;
-  if (o) {
-    l = o.length;
-    if (l != null && typeof o !== 'function') {
-      k = 0;
-      while (k < l) {
-        if (it.call(o[k], k, o[k]) === false) {
-          break;
+    var l;
+    var k;
+    if (o) {
+        l = o.length;
+        if (l != null && typeof o !== 'function') {
+            k = 0;
+            while (k < l) {
+                if (it.call(o[k], k, o[k]) === false) break;
+                k += 1;
+            }
+        } else {
+            for (k in o) {
+                if (o.hasOwnProperty(k)) {
+                    if (it.call(o[k], k, o[k]) === false) break;
+                }
+            }
         }
-        k += 1;
-      }
-    } else {
-      for (k in o) {
-        if (o.hasOwnProperty(k)) {
-          if (it.call(o[k], k, o[k]) === false) {
-            break;
-          }
-        }
-      }
     }
-  }
 }
 
 function binder(std, odd) {
-  std += 'EventListener';
-  odd += 'Event';
-  return function (el, e, fn) {
-    if (el[std]) {
-      el[std](e, fn, false);
-    } else if (el[odd]) {
-      el[odd]('on' + e, fn);
-    }
-  };
+    std += 'EventListener';
+    odd += 'Event';
+    return function (el, e, fn) {
+        if (el[std]) {
+            el[std](e, fn, false);
+        } else if (el[odd]) {
+            el[odd]('on' + e, fn);
+        }
+    };
 }
 
 function log() {
-  var console = this.console;
-  if (console && console.log) {
-    var args = [].slice.call(arguments);
-    if (console.log.apply) {
-      console.log.apply(console, args);
-    } else {
-      for (var i = 0, l = args.length; i < l; i += 1) {
-        args[i] = JSON.stringify(args[i]);
-      }
-      console.log(args.join(' '));
+    var console = this.console;
+    if (console && console.log) {
+        var args = [].slice.call(arguments);
+        if (console.log.apply) {
+            console.log.apply(console, args);
+        } else {
+            for (var i = 0, l = args.length; i < l; i += 1) {
+                args[i] = JSON.stringify(args[i]);
+            }
+            console.log(args.join(' '));
+        }
+        return true;
     }
-    return true;
-  }
 }
 
 function decodeQueryComponent(encodedURI) {
-  return encodedURI == null ? null : decodeURIComponent(encodedURI.replace(/\+/g, '%20'));
+    return encodedURI == null ? null : decodeURIComponent(encodedURI.replace(/\+/g, '%20'));
 }
 
 exports['default'] = {
-  each: each,
-  log: log,
-  decodeQueryComponent: decodeQueryComponent,
-  bind: binder('add', 'attach'),
-  unbind: binder('remove', 'detach'),
+    each: each,
+    log: log,
+    decodeQueryComponent: decodeQueryComponent,
+    bind: binder('add', 'attach'),
+    unbind: binder('remove', 'detach'),
 
-  extend: function extend(dest) {
-    var args = arguments;
-    var srcs = [].slice.call(args, 1, args.length);
-    each(srcs, function (i, src) {
-      each(src, function (k, v) {
-        dest[k] = v;
-      });
-    });
-    return dest;
-  },
+    extend: function extend(dest) {
+        var args = arguments;
+        var srcs = [].slice.call(args, 1, args.length);
+        each(srcs, function (i, src) {
+            each(src, function (k, v) {
+                dest[k] = v;
+            });
+        });
+        return dest;
+    },
 
-  trim: function trim(s) {
-    return s && s.replace(/^\s+|\s+$/g, '');
-  },
+    trim: function trim(s) {
+        return s && s.replace(/^\s+|\s+$/g, '');
+    },
 
-  debounce: function debounce(fn, wait) {
-    var timeout;
-    return function () {
-      var ctx = this;
-      var args = [].slice.call(arguments);
-      function later() {
-        timeout = null;
-        fn.apply(ctx, args);
-      }
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-      timeout = setTimeout(later, wait || 50);
-    };
-  },
+    debounce: function debounce(fn, wait) {
+        var timeout;
+        return function () {
+            var ctx = this;
+            var args = [].slice.call(arguments);
+            function later() {
+                timeout = null;
+                fn.apply(ctx, args);
+            }
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+            timeout = setTimeout(later, wait || 50);
+        };
+    },
 
-  inArray: function inArray(value, array, fromIndex) {
-    //optimisation for all browsers after IE8
-    if (Array.prototype.indexOf) {
-      return Array.prototype.indexOf.call(array, value, fromIndex);
+    inArray: function inArray(value, array, fromIndex) {
+        //optimisation for all browsers after IE8
+        if (Array.prototype.indexOf) {
+            return Array.prototype.indexOf.call(array, value, fromIndex);
+        }
+
+        var k = fromIndex >>> 0,
+            len = array.length >>> 0;
+        for (; k < len; k += 1) {
+            if (array[k] === value) return k;
+        }
+        return -1;
+    },
+
+    isFunction: function isFunction(fn) {
+        return typeof fn === 'function';
+    },
+
+    handleError: function handleError(err) {
+        if (!log.apply(this, err && err.message ? [err, err.message] : [err])) {
+            throw err;
+        }
     }
-
-    var k = fromIndex >>> 0;
-    var len = array.length >>> 0;
-    for (; k < len; k += 1) {
-      if (array[k] === value) {
-        return k;
-      }
-    }
-    return -1;
-  },
-
-  isFunction: function isFunction(fn) {
-    return typeof fn === 'function';
-  },
-
-  handleError: function handleError(err) {
-    if (!log.apply(this, err && err.message ? [err, err.message] : [err])) {
-      throw err;
-    }
-  }
 };
 module.exports = exports['default'];
 

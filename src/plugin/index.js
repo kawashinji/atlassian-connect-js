@@ -10,9 +10,6 @@ if(AP._hostModules.user) {
 }
 AP._hostModules._dollar = $;
 
-$(function(){
-  console.log('sizetoparent?', consumerOptions.get('sizeToParent'));
-  if(consumerOptions.get('sizeToParent') === true) {
-    AP.env.sizeToParent();
-  }
-});
+if(consumerOptions.get('sizeToParent') === true) {
+  AP.env.sizeToParent();
+}

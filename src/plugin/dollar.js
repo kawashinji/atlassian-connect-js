@@ -1,6 +1,7 @@
-import Util from './util';
+import util from './util';
 
-var each = Util.each,
+var each = util.each,
+    extend = util.extend,
     document = window.document;
 
 function $(sel, context) {
@@ -10,28 +11,25 @@ function $(sel, context) {
   var els = [];
   if (sel) {
     if (typeof sel === 'string') {
-      var results = context.querySelectorAll(sel),
-        arr_results = Array.prototype.slice.call(results);
-      Array.prototype.push.apply(els, arr_results);
+      var results = context.querySelectorAll(sel);
+      each(results, function (i, v) { els.push(v); });
     }
     else if (sel.nodeType === 1) {
       els.push(sel);
     }
     else if (sel === window) {
       els.push(sel);
-    } else if (typeof sel === 'function') {
-      onDomLoad(sel);
     }
   }
 
-  Util.extend(els, {
+  extend(els, {
     each: function (it) {
       each(this, it);
       return this;
     },
     bind: function (name, callback) {
       this.each(function (i, el) {
-        this.bind(el, name, callback);
+        util.bind(el, name, callback);
       });
     },
     attr: function (k) {
@@ -78,32 +76,4 @@ function $(sel, context) {
   return els;
 }
 
-function binder(std, odd) {
-  std += 'EventListener';
-  odd += 'Event';
-  return function (el, e, fn) {
-    if (el[std]) {
-      el[std](e, fn, false);
-    } else if (el[odd]) {
-      el[odd]('on' + e, fn);
-    }
-  };
-}
-
-$.bind = binder('add', 'attach');
-$.unbind = binder('remove', 'detach');
-
-function onDomLoad(func) {
-  var w = window,
-    readyState = w.document.readyState;
-
-  if (readyState === "interactive" || readyState === "complete") {
-    func.call(w);
-  } else {
-    $.bind(w, "load", function(){
-      func.call(w);
-    });
-  }
-}
-
-export default $;
+export default extend($, util);
