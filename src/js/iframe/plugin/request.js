@@ -44,14 +44,15 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
   * @name RequestProperties
   * @description An object containing the options of a {@link Request}
   * @class
-  * @property {String}    url         the url to request from the host application, relative to the host's context path
-  * @property {String}    type        the HTTP method name; defaults to 'GET'
-  * @property {Boolean}   cache       if the request should be cached. Default is true.
-  * @property {String}    data        the string entity body of the request; required if type is 'POST' or 'PUT'
-  * @property {String}    contentType the content-type string value of the entity body, above; required when data is supplied
-  * @property {Object}    headers     an object containing headers to set; supported headers are: Accept
-  * @property {Function}  success     a callback function executed on a 200 success status code
-  * @property {Function}  error       a callback function executed when a HTTP status error code is returned
+  * @property {String}    url           the url to request from the host application, relative to the host's context path
+  * @property {String}    type          the HTTP method name; defaults to 'GET'
+  * @property {Boolean}   cache         if the request should be cached. Default is true.
+  * @property {String}    data          the string entity body of the request; required if type is 'POST' or 'PUT'
+  * @property {String}    contentType   the content-type string value of the entity body, above; required when data is supplied
+  * @property {Object}    headers       an object containing headers to set; supported headers are: Accept
+  * @property {Function}  success       a callback function executed on a 200 success status code
+  * @property {Function}  error         a callback function executed when a HTTP status error code is returned
+  * @property {Boolean}   experimental  if 'X-ExperimentalApi' is required in the header of the request
   */
 
 

@@ -7,7 +7,16 @@
             requestHeadersWhitelist = [
                 "If-Match", "If-None-Match"
             ],
-            contextPath = null;
+            contextPath = null,
+            setExperimentalHeader = null;
+
+        function defineSetExperimentalHeader(func) {
+            if ($.isFunction(func)) {
+                setExperimentalHeader = func;
+            } else {
+                throw new Error("func must be a function");
+            }
+        }
 
         _AP.extend(function () {
             return {
@@ -61,12 +70,26 @@
                                 ajaxOptions.headers[header] = headers[header.toLowerCase()];
                             }
                         });
+
+                        // Set experimental API header
+                        if (args.experimental === true) {
+                            if ($.isFunction(setExperimentalHeader)) {
+                                ajaxOptions.headers = setExperimentalHeader(ajaxOptions.headers);
+                            } else {
+                                throw new Error("Experimental api is not supported.");
+                            }
+                        }
+
                         $.ajax(ajaxOptions).then(done, fail);
                     }
 
                 }
             };
         });
+
+        return {
+            defineSetExperimentalHeader: defineSetExperimentalHeader
+        }
 
     });
 })(define, AJS, AJS.$);
