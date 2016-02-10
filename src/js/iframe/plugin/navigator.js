@@ -86,6 +86,7 @@ AP.define("navigator", ["_dollar", "_rpc"],
              * @name getLocation
              * @method
              * @memberof module:Navigator#
+             * @param {Function} callback function (location) {...}
              * @noDemo
              * @example
              * AP.require('navigator', function(navigator){
