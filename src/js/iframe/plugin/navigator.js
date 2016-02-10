@@ -83,24 +83,26 @@ AP.define("navigator", ["_dollar", "_rpc"],
              * <strong>contentedit</strong> - the host application is currently editing a page, blog post or
              * other content.
              *
-             * @name getCurrent
+             * @name getLocation
              * @method
              * @memberof module:Navigator#
+             * @param {Function} callback function (location) {...}
              * @noDemo
              * @example
              * AP.require('navigator', function(navigator){
-             *   var context = navigator.getCurrent();
-             *   // context will be:
-             *   // {
-             *   //   "target": "contentview",
-             *   //   "context": {
-             *   //     "contentId": 1234
-             *   //     "contentType": "page"
-             *   // }
+             *   navigator.getLocation(function (location) {
+             *     // location will be:
+             *     // {
+             *     //   "target": "contentview",
+             *     //   "context": {
+             *     //     "contentId": 1234
+             *     //     "contentType": "page"
+             *     // }
+             *   });
              * });
              */
-            getCurrent: function(callback) {
-                remote.getCurrent(callback);
+            getLocation: function(callback) {
+                remote.getLocation(callback);
             }
 
         };
