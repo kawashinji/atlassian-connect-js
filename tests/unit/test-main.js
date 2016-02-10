@@ -27,7 +27,8 @@ var tests = [],
     'ac/dialog/dialog-factory': 'dialog/dialog-factory',
     'ac/navigator': 'navigator/main',
     'ac/navigator-browser': 'navigator/navigator-browser',
-    'connect-host': '../../dist/connect-host'
+    'connect-host': '../../dist/connect-host',
+    'ac/request': 'iframe/host/request'
   };
 
 for (var file in window.__karma__.files) {
@@ -206,6 +207,12 @@ requirejs.config({
         ]
     },
     'iframe/host/main':{
+        deps: [
+        '_ap',
+        '_dollar'
+        ]
+    },
+    'iframe/host/request':{
         deps: [
         '_ap',
         '_dollar'
