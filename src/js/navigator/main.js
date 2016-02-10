@@ -49,7 +49,7 @@
             }
         };
 
-        var getCurrent = function (callback) {
+        var getLocation = function (callback) {
             if (typeof callback !== "function") {
                 throw new Error("invalid callback function specified")
             }
@@ -60,7 +60,7 @@
             go: go,
             reload: reload,
             setRoutes: setRoutes,
-            getCurrent: getCurrent,
+            getLocation: getLocation,
             setContextFunction: setContextFunction
         };
     });

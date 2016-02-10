@@ -10,11 +10,11 @@
                     reload: function () {
                         navigator.reload();
                     },
-                    getCurrent: function (callback) {
-                        navigator.getCurrent(callback);
+                    getLocation: function (callback) {
+                        navigator.getLocation(callback);
                     }
                 },
-                stubs: ["go", "reload", "getCurrent"]
+                stubs: ["go", "reload", "getLocation"]
             };
         });
     });
