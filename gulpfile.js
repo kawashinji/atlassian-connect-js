@@ -58,7 +58,7 @@ function build(entryModule, distModule, options) {
 
 function buildPlugin(options) {
   options = options || {};
-  return build('./src/plugin/index.js', 'plugin-compat', {
+  return build('./src/plugin/index.js', 'iframe-compat', {
     standalone: 'APCompat',
     env: {ENV: 'plugin'},
     watch: options.watch

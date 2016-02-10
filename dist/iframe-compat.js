@@ -180,10 +180,6 @@ var _consumerOptions = _dereq_('./consumer-options');
 
 var _consumerOptions2 = _interopRequireDefault(_consumerOptions);
 
-//map AP.env.getUser to AP.user.getUser for compatibility.
-if (AP._hostModules.user) {
-  AP._hostModules.env.getUser = AP._hostModules.user.getUser;
-}
 AP._hostModules._dollar = _dollar2['default'];
 
 if (_consumerOptions2['default'].get('sizeToParent') === true) {
@@ -318,4 +314,4 @@ module.exports = exports['default'];
 });
 
 
-//# sourceMappingURL=plugin-compat.js.map
+//# sourceMappingURL=iframe-compat.js.map

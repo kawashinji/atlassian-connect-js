@@ -4,10 +4,6 @@ import util from './util';
 import $ from './dollar';
 import consumerOptions from './consumer-options';
 
-//map AP.env.getUser to AP.user.getUser for compatibility.
-if(AP._hostModules.user) {
-  AP._hostModules.env.getUser = AP._hostModules.user.getUser;  
-}
 AP._hostModules._dollar = $;
 
 if(consumerOptions.get('sizeToParent') === true) {
