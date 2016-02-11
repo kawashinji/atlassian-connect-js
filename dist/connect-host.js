@@ -1192,10 +1192,6 @@ var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
 
 var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
 
-var _util = _dereq_('../util');
-
-var _util2 = _interopRequireDefault(_util);
-
 module.exports = {
   registerKeyEvent: function registerKeyEvent(data) {
     _simpleXdmDistHost2['default'].registerKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
@@ -1207,7 +1203,7 @@ module.exports = {
   }
 };
 
-},{"../util":26,"dispatchers/event_dispatcher":18,"simple-xdm/dist/host":29}],6:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":18,"simple-xdm/dist/host":29}],6:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1254,17 +1250,13 @@ var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
 
 var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
 
-var _util = _dereq_('../util');
-
-var _util2 = _interopRequireDefault(_util);
-
 module.exports = {
   notifyIframeCreated: function notifyIframeCreated($el, extension) {
     _dispatchersEvent_dispatcher2['default'].dispatch('iframe-create', { $el: $el, extension: extension });
   }
 };
 
-},{"../util":26,"dispatchers/event_dispatcher":18}],8:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":18}],8:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2146,6 +2138,9 @@ exports['default'] = {
   defineModule: function defineModule(name, methods) {
     _actionsModule_actions2['default'].defineCustomModule(name, methods);
   },
+  broadcastEvent: function broadcastEvent(type, targetSpec, event) {
+    EventActions.broadcast(type, targetSpec, event);
+  },
   create: _create2['default']
 };
 module.exports = exports['default'];
@@ -2895,13 +2890,6 @@ var Util = (function () {
       return Array.prototype.slice.call(arrayLike);
     }
   }, {
-    key: "argumentNames",
-    value: function argumentNames(fn) {
-      return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
-      .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
-      .match(/([^\s,]+)/g) || [];
-    }
-  }, {
     key: "hasCallback",
     value: function hasCallback(args) {
       var length = args.length;
@@ -3021,8 +3009,6 @@ module.exports = new Util();
 
 'use strict';
 
-var _bind = Function.prototype.bind;
-
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -3105,35 +3091,7 @@ var XDMRPC = (function (_PostMessage) {
       var data = event.data;
       var module = this._registeredAPIModules[data.mod];
       if (module) {
-        var fnName = data.fn;
-        if (data._cls) {
-          (function () {
-            var Cls = module[data._cls];
-            if (fnName === 'constructor') {
-              if (!Cls._construct) {
-                Cls._instances = {};
-                Cls._construct = function (_id) {
-                  for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-                    args[_key - 1] = arguments[_key];
-                  }
-
-                  // debugger;
-                  var inst = new (_bind.apply(Cls.constructor, [null].concat(args)))();
-                  Cls._instances[_id] = inst;
-                  return inst;
-                };
-              }
-              module = Cls;
-              fnName = '_construct';
-              data.args.unshift(data._id);
-            } else {
-              module = Cls._instances[data._id];
-            }
-            // sendResponse._context = this.getRegisteredExtensions(reg.extension)[0];
-            // sendResponse._context._id =
-          })();
-        }
-        var method = module[fnName];
+        var method = module[data.fn];
         if (method) {
           var methodArgs = data.args;
           sendResponse._context = this.getRegisteredExtensions(reg.extension)[0];
@@ -3388,25 +3346,12 @@ var XDMRPC = (function (_PostMessage) {
         if (!module) {
           throw new Error("unregistered API module: " + moduleName);
         }
-        function getModuleDefinition(mod) {
-          return Object.getOwnPropertyNames(mod).reduce(function (accumulator, memberName) {
-            var member = mod[memberName];
-            switch (typeof member) {
-              case 'function':
-                accumulator[memberName] = {
-                  args: _commonUtil2['default'].argumentNames(member)
-                };
-                break;
-              case 'object':
-                if (member.hasOwnProperty('constructor')) {
-                  accumulator[memberName] = getModuleDefinition(member);
-                }
-                break;
-            }
-            return accumulator;
-          }, {});
-        }
-        return getModuleDefinition(module);
+        return Object.getOwnPropertyNames(module).reduce(function (accumulator, functionName) {
+          if (typeof module[functionName] === 'function') {
+            accumulator[functionName] = {}; // could hold function metadata, empty for now
+          }
+          return accumulator;
+        }, {});
       }
       return Object.getOwnPropertyNames(this._registeredAPIModules).reduce(function (accumulator, moduleName) {
         accumulator[moduleName] = createModule(moduleName);

@@ -66,6 +66,9 @@ export default {
   },
   defineModule: (name, methods) => {
     ModuleActions.defineCustomModule(name, methods);
-  },  
+  },
+  broadcastEvent: (type, targetSpec, event) => {
+    EventActions.broadcast(type, targetSpec, event);
+  },
   create
 };
