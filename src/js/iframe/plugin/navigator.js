@@ -102,13 +102,14 @@ AP.define("navigator", ["_dollar", "_rpc"],
              * });
              */
             getLocation: function(callback) {
-                remote.getLocation(callback);
+                remote.getContext(callback);
             }
 
         };
 
         return {
-            apis: exports
+            apis: exports,
+            stubs: ['getContext']
         };
 
     });
