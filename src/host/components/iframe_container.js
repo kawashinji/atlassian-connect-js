@@ -27,7 +27,7 @@ class IframeContainer {
   createExtension(extension) {
     var $iframe;
     var $container = this._renderContainer();
-    if(urlUtil.hasJwt(extension.url) && urlUtil.isJwtExpired(extension.url)){
+    if(!extension.url || (urlUtil.hasJwt(extension.url) && urlUtil.isJwtExpired(extension.url))){
       this._urlContainerRegistry[extension.id] = $container;
       JwtActions.requestRefreshUrl({extension, resolver: this._contentResolver});
     } else {

@@ -1,5 +1,6 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import $ from '../dollar';
+import _ from '../underscore';
 
 class Dialog {
   constructor () {
@@ -53,7 +54,10 @@ class Dialog {
 
   _renderFooterActions(actions) {
     //either an array or object (for 1 button)
-    return $('<button />');
+    if (!_.isArray(actions)) {
+      actions = [actions];
+    }
+    return actions.map(action => $('<button />').text(action));
   }
 
   /**
@@ -72,11 +76,16 @@ class Dialog {
     $dialog.addClass('aui-layer aui-dialog2 aui-dialog2-medium');
 
     //header
-    $dialog.append(this._renderHeader(options.title));
+    $dialog.append(this._renderHeader({
+      title: options.title
+    }));
     //content
     $dialog.append(this._renderContent(options.$content));
     //footer
-    $dialog.append(this._renderFooter({hint: options.hint}));
+    $dialog.append(this._renderFooter({
+      actions: options.actions,
+      hint: options.hint
+    }));
     return $dialog;
   }
 

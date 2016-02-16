@@ -2,7 +2,7 @@ import $ from '../dollar';
 import _ from '../underscore';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 
-// Note that if it's desireable to publish host-level events to add-ons, this would be a good place to wire
+// Note that if it's desirable to publish host-level events to add-ons, this would be a good place to wire
 // up host listeners and publish to each add-on, rather than using each XdmRpc.events object directly.
 
 var _channels = {};
@@ -69,6 +69,7 @@ export default {
     _channels[addonKey][extensionId][name].push(callback);
   },
   onAny: function(callback){
+    var addonKey = callback._context.extension.addon_key;
     _channels[addonKey]._any.push(callback);
   },
   once: function (name, callback){

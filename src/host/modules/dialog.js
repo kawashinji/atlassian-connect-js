@@ -1,15 +1,17 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
-import dialogRenderer from '../dialog/renderer';
-import create from '../create';
+import DialogComponent from 'components/dialog';
+import IframeContainer from 'components/iframe_container';
+
+const DLGID_PREFIX = 'ap-dialog-';
+const _dialogs = {};
 
 function isConnectDialog($el) {
   return ($el && $el.hasClass('ap-aui-dialog2'));
 }
 
 function keyPressListener(e) {
-  var topLayer;
   if(e.keyCode === 27) {
-    topLayer = AJS.LayerManager.global.getTopLayer();
+    let topLayer = AJS.LayerManager.global.getTopLayer();
     if(isConnectDialog(topLayer)) {
       getActiveDialog().hide();
     }
@@ -19,7 +21,7 @@ function keyPressListener(e) {
 $(document).on('keydown', keyPressListener);
 
 EventDispatcher.on('dialog-button-click', function($el){
-  var buttonOptions = $el.data('options');
+  const buttonOptions = $el.data('options');
   console.log('button options?', buttonOptions, $el);
   getActiveDialog().hide();
 });
@@ -30,34 +32,57 @@ function getActiveDialog(){
 
 function closeDialog(data){
   EventDispatcher.dispatch('dialog-close', data);
+  const dialog = getActiveDialog();
+  const _id = dialog.$el.attr('id').replace(DLGID_PREFIX, '');
+  _dialogs[_id]._destroy();
+  dialog.hide();
 }
 
 function dialogIframe(options, context) {
-  return create({
+  return IframeContainer.createExtension({
     addon_key: context.extension.addon_key,
     key: options.key,
-    // url: options.url
-    url: 'http://cwhittington:8000/iframe-dialog-content.html'
+    url: options.url,
+    options: {
+      customData: options.customData
+    }
   });
 }
 
-module.exports = {
-  create: function(options, callback) {
-    var iframe = dialogIframe(options, callback._context);
-    var dialogDOM = dialogRenderer.render(iframe, options, options.chrome);
-
-    var dialog = AJS.dialog2(dialogDOM);
+class Dialog {
+  constructor(options, callback) {
+    const _id = callback._id;
+    options.id = DLGID_PREFIX + _id;
+    const $iframeContainer = dialogIframe(options, callback._context);
+    const dialogDOM = DialogComponent.render({
+      $content: $iframeContainer,
+      title: options.title,
+      hint: options.hint,
+      actions: ['submit', 'cancel'],
+      id: options.id
+    });
+    const dialog = AJS.dialog2(dialogDOM);
     dialog.show();
     EventDispatcher.dispatch('dialog-open', {
-      $el: iframe,
+      $el: $iframeContainer,
       $dialog: dialog
     });
+    dialog.on('hide', function () {
+      closeDialog();
+    });
+    _dialogs[_id] = this;
+  }
+  on(event, callback) {
+    EventDispatcher.register('dialog-' + event, callback);
+  }
+}
 
-    dialog.on('hide', closeDialog);
+module.exports = {
+  create: {
+    constructor: Dialog,
+    on: Dialog.prototype.on
   },
-  close: function(data){
-    closeDialog();
-  },
+  close: closeDialog,
   isDialog: true,
   onDialogMessage: function (message, listener) {
 
