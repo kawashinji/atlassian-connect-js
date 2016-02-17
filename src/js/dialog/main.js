@@ -49,11 +49,16 @@
                 extraClasses.push('ap-aui-dialog2-chromeless');
             }
 
+            var auiSize = options.size;
+            if (auiSize === 'fullscreen') {
+                auiSize = 'maximum';
+            }
+
             $el = $(aui.dialog.dialog2({
                 id: options.id,
                 titleText: options.header,
                 titleId: options.titleId,
-                size: options.size,
+                size: auiSize,
                 extraClasses: extraClasses,
                 removeOnHide: true,
                 footerActionContent: true,

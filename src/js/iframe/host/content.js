@@ -15,6 +15,11 @@ define("host/content", ["_dollar", "_uri"], function ($, uri) {
         var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
         return $.isArray(m) ? m[1] : false;
     }
+    function getWebItemTargetKey(target){
+        var cssClass = target.attr('class');
+        var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
+        return $.isArray(m) ? m[1] : false;
+    }
 
     function getOptionsForWebItem(target){
         var moduleKey = getWebItemModuleKey(target),
@@ -58,7 +63,8 @@ define("host/content", ["_dollar", "_uri"], function ($, uri) {
         eventHandler: eventHandler,
         getOptionsForWebItem: getOptionsForWebItem,
         getWebItemPluginKey: getWebItemPluginKey,
-        getWebItemModuleKey: getWebItemModuleKey
+        getWebItemModuleKey: getWebItemModuleKey,
+        getWebItemTargetKey: getWebItemTargetKey
     };
 
 

@@ -11,6 +11,20 @@
         * @param {String} productContextJson pass context back to the server
         */
         return function(options, dialogOptions, productContext) {
+
+            // Look up options from a commonly-defined Dialog module.
+            if (dialogOptions.dialogKey) {
+                var allDialogModules = window._AP.dialogModules;
+                var addonModules = allDialogModules && allDialogModules[options.key];
+                var module = addonModules && addonModules[dialogOptions.dialogKey];
+                if (module) {
+                    console.log('module =');
+                    console.log(module);
+
+                    dialogOptions = $.extend({}, dialogOptions, module.options);
+                }
+            }
+
             var promise,
             container,
             uiParams = $.extend({isDialog: 1}, options.uiParams, {customData: dialogOptions.customData});

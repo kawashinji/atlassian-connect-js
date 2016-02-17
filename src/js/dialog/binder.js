@@ -16,7 +16,10 @@ AJS.toInit(function ($) {
                     moduleKey = connect.webItemHelper.getWebItemModuleKey(options.bindTo),
                     addonKey = connect.webItemHelper.getWebItemPluginKey(options.bindTo);
 
-                    $.extend(options, webItemOptions);
+                    $.extend(options, webItemOptions, {
+                        // The key of the common dialog module this item targets - may be blank
+                        dialogKey: connect.webItemHelper.getWebItemTargetKey(options.bindTo)
+                    });
 
                     if (!options.ns) {
                         options.ns = moduleKey;
