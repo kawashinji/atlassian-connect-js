@@ -18,10 +18,7 @@
                 var addonModules = allDialogModules && allDialogModules[options.key];
                 var module = addonModules && addonModules[dialogOptions.dialogKey];
                 if (module) {
-                    console.log('module =');
-                    console.log(module);
-
-                    dialogOptions = $.extend({}, dialogOptions, module.options);
+                    $.extend(dialogOptions, module.options);
                 }
             }
 

@@ -5,20 +5,20 @@
 define("host/content", ["_dollar", "_uri"], function ($, uri) {
     "use strict";
 
-    function getWebItemPluginKey(target){
+    function getKeyFromClass(target, pattern){
         var cssClass = target.attr('class');
-        var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
+        var m = cssClass ? cssClass.match(pattern) : null;
         return $.isArray(m) ? m[1] : false;
+    }
+
+    function getWebItemPluginKey(target){
+        return getKeyFromClass(target, /ap-plugin-key-([^\s]*)/);
     }
     function getWebItemModuleKey(target){
-        var cssClass = target.attr('class');
-        var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
-        return $.isArray(m) ? m[1] : false;
+        return getKeyFromClass(target, /ap-module-key-([^\s]*)/);
     }
     function getWebItemTargetKey(target){
-        var cssClass = target.attr('class');
-        var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
-        return $.isArray(m) ? m[1] : false;
+        return getKeyFromClass(target, /ap-target-key-([^\s]*)/);
     }
 
     function getOptionsForWebItem(target){
