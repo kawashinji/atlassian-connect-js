@@ -1274,13 +1274,27 @@ var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
 
 var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
 
+var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
+
+var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
+
 module.exports = {
   notifyIframeCreated: function notifyIframeCreated($el, extension) {
     _dispatchersEvent_dispatcher2['default'].dispatch('iframe-create', { $el: $el, extension: extension });
+  },
+  notifyIframeDestroyed: function notifyIframeDestroyed(extension_id) {
+    var extension = _simpleXdmDistHost2['default'].getExtensions({
+      extension_id: extension_id
+    });
+    if (extension.length === 1) {
+      extension = extension[0];
+    }
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-destroyed', { extension: extension });
+    _simpleXdmDistHost2['default'].unregisterExtension({ extension_id: extension_id });
   }
 };
 
-},{"dispatchers/event_dispatcher":19}],9:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":19,"simple-xdm/dist/host":30}],9:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2111,6 +2125,10 @@ var _actionsEvent_actions = _dereq_('actions/event_actions');
 
 var _actionsEvent_actions2 = _interopRequireDefault(_actionsEvent_actions);
 
+var _actionsIframe_actions = _dereq_('actions/iframe_actions');
+
+var _actionsIframe_actions2 = _interopRequireDefault(_actionsIframe_actions);
+
 // import propagator from './propagate/rpc';
 
 /**
@@ -2158,6 +2176,9 @@ exports['default'] = {
       });
     });
   },
+  destroy: function destroy(extension_id) {
+    _actionsIframe_actions2['default'].notifyIframeDestroyed({ extension_id: extension_id });
+  },
   registerContentResolver: {
     resolveByExtension: function resolveByExtension(callback) {
       _actionsJwt_actions2['default'].registerContentResolver({ callback: callback });
@@ -2173,7 +2194,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./components/loading_indicator":14,"./create":15,"./modules/dialog":22,"./modules/env":23,"./modules/events":24,"./modules/messages":25,"actions/dom_event_actions":5,"actions/event_actions":7,"actions/jwt_actions":9,"actions/module_actions":11,"dispatchers/analytics_dispatcher":18,"dispatchers/event_dispatcher":19,"simple-xdm/dist/host":30,"underscore":26}],22:[function(_dereq_,module,exports){
+},{"./components/loading_indicator":14,"./create":15,"./modules/dialog":22,"./modules/env":23,"./modules/events":24,"./modules/messages":25,"actions/dom_event_actions":5,"actions/event_actions":7,"actions/iframe_actions":8,"actions/jwt_actions":9,"actions/module_actions":11,"dispatchers/analytics_dispatcher":18,"dispatchers/event_dispatcher":19,"simple-xdm/dist/host":30,"underscore":26}],22:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
