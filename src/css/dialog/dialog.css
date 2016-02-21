@@ -3,11 +3,8 @@
     background-color: #f5f5f5;
 }
 
-.ap-dialog-container .ap-container {
-    height: 100%;
-}
-
-.ap-aui-dialog2 div {
+[id^="ap-dialog-"],
+[id^="ap-dialog-"] div {
     height: 100%;
 }
 
@@ -16,13 +13,12 @@
     position: absolute; /* go over the top of the bottom bar when visible */
 }
 
-/* add new aui dialog size of maximum */
-.aui-dialog2-maximum.ap-aui-dialog2.aui-layer {
+/* add new aui dialog size of fullscreen */
+[id^="ap-dialog-"].aui-dialog2-fullscreen {
     top: 0;
-    height: 100%;
 }
 
-.ap-aui-dialog2 .aui-dialog2-content {
+[id^="ap-dialog-"] .aui-dialog2-content {
 	padding:0;
 
     /* in chrome'd dialogs - fixes scrollbars added by iframes with scrollbars pushing the width out */
@@ -33,11 +29,11 @@
     will-change: opacity, visibility;
 }
 
-.ap-aui-dialog2 iframe {
+[id^="ap-dialog-"] iframe {
     display:block;
 }
 
-.ap-aui-dialog2.ap-aui-dialog2-chromeless .aui-dialog2-content {
+[id^="ap-dialog-"].aui-dialog2-chromeless .aui-dialog2-content {
     background-color:transparent;
 
     /* Override the aui selector that assumes the last-child is the footer */

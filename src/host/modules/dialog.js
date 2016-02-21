@@ -3,17 +3,21 @@ import DialogComponent from 'components/dialog';
 import IframeContainer from 'components/iframe_container';
 
 const DLGID_PREFIX = 'ap-dialog-';
+const DLGID_REXEXP = new RegExp(`^${DLGID_PREFIX}[0-9A-fa-f]+$`);
 const _dialogs = {};
 
-function isConnectDialog($el) {
-  return ($el && $el.hasClass('ap-aui-dialog2'));
+function getActiveDialog() {
+  const $el = AJS.LayerManager.global.getTopLayer();
+  if ($el && DLGID_REXEXP.test($el.attr('id'))) {
+    return AJS.dialog2($el);
+  }
 }
 
 function keyPressListener(e) {
   if(e.keyCode === 27) {
-    let topLayer = AJS.LayerManager.global.getTopLayer();
-    if(isConnectDialog(topLayer)) {
-      getActiveDialog().hide();
+    const dialog = getActiveDialog();
+    if (dialog) {
+      dialog.hide();
     }
   }
 }
@@ -23,19 +27,21 @@ function keyPressListener(e) {
 EventDispatcher.on('dialog-button-click', function($el){
   const buttonOptions = $el.data('options');
   console.log('button options?', buttonOptions, $el);
-  getActiveDialog().hide();
+  const dialog = getActiveDialog();
+  if (dialog) {
+    dialog.hide();
+  }
 });
 
-function getActiveDialog(){
-  return AJS.dialog2(AJS.LayerManager.global.getTopLayer());
-}
-
-function closeDialog(data){
+function closeDialog(data) {
   EventDispatcher.dispatch('dialog-close', data);
   const dialog = getActiveDialog();
-  const _id = dialog.$el.attr('id').replace(DLGID_PREFIX, '');
-  _dialogs[_id]._destroy();
-  dialog.hide();
+  if (dialog) {
+    const _id = dialog.$el.attr('id').replace(DLGID_PREFIX, '');
+    _dialogs[_id]._destroy();
+    delete _dialogs[_id];
+    dialog.hide();
+  }
 }
 
 function dialogIframe(options, context) {
@@ -54,14 +60,38 @@ class Dialog {
     const _id = callback._id;
     options.id = DLGID_PREFIX + _id;
     const $iframeContainer = dialogIframe(options, callback._context);
-    const dialogDOM = DialogComponent.render({
+    const actions = [
+      {
+        name: 'submit',
+        text: options.submitText || 'submit',
+        type: 'primary'
+      },
+      {
+        name: 'cancel',
+        text: options.cancelText || 'cancel',
+        type: 'link'
+      }
+    ];
+    if (options.size === 'x-large') {
+      options.size = 'xlarge';
+    } else if (options.width === '100%' && options.height === '100%') {
+      options.size = 'fullscreen';
+    } else if (!options.width && !options.height) {
+      options.size = 'medium';
+    }
+    const $el = DialogComponent.render({
       $content: $iframeContainer,
-      title: options.title,
+      size: options.size,
+      chrome: options.chrome,
+      header: options.header,
       hint: options.hint,
-      actions: ['submit', 'cancel'],
+      actions: actions,
       id: options.id
     });
-    const dialog = AJS.dialog2(dialogDOM);
+    const dialog = AJS.dialog2($el);
+    if (!options.size || options.size === 'fullscreen') {
+      AJS.layer($el).changeSize(options.width, options.height);
+    }
     dialog.show();
     EventDispatcher.dispatch('dialog-open', {
       $el: $iframeContainer,
@@ -77,23 +107,51 @@ class Dialog {
   }
 }
 
+class Button {
+  constructor (name) {
+    const dialog = getActiveDialog();
+    if (dialog) {
+      this.$el = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
+        return $(this).data('name') === name;
+      });
+    }
+  }
+  bind (callback) {
+    this.$el && this.$el.click(callback);
+  }
+  enable () {
+    this.$el && this.$el.attr('aria-disabled', false);
+  }
+  disable () {
+    this.$el && this.$el.attr('aria-disabled', true);
+  }
+  isEnabled (callback) {
+    callback(this.$el && this.$el.attr('aria-disabled'));
+  }
+  toggle () {
+    this.$el && this.$el.attr('aria-disabled', !this.$el.attr('aria-disabled'));
+  }
+  trigger () {
+    this.$el && this.$el.click();
+  }
+}
+
 module.exports = {
   create: {
     constructor: Dialog,
     on: Dialog.prototype.on
   },
   close: closeDialog,
-  isDialog: true,
   onDialogMessage: function (message, listener) {
 
   },
-  getButton: function(name, callback){
-    callback({
-      name: name
-      // bind: function(){
-      //   console.log('called!');
-      // },
-      // disable: function(){}
-    });
+  getButton: {
+    constructor: Button,
+    enable: Button.prototype.enable,
+    disable: Button.prototype.disable,
+    toggle: Button.prototype.toggle,
+    isEnabled: Button.prototype.isEnabled,
+    bind: Button.prototype.bind,
+    trigger: Button.prototype.trigger
   }
 };

@@ -7,21 +7,16 @@ class Dialog {
   }
 
   _renderHeaderCloseBtn(options) {
-    var $close = $('<a />').addClass('aui-dialog2-header-close');
-    var $closeBtn = $('<span />').addClass('aui-icon aui-icon-small aui-iconfont-close-dialog').text('Close');
+    const $close = $('<a />').addClass('aui-dialog2-header-close');
+    const $closeBtn = $('<span />').addClass('aui-icon aui-icon-small aui-iconfont-close-dialog').text('Close');
     $close.append($closeBtn);
     return $close;
   }
 
   _renderHeader(options){
-    var $header;
-    var $title;
-    var $secondary;
-
-    $header = $('<header />').addClass('aui-dialog2-header');
-    if(options.title) {
-      $title = $('<h2 />').addClass('aui-dialog2-header-main');
-      $title.text(options.title);
+    const $header = $('<header />').addClass('aui-dialog2-header');
+    if(options.header) {
+      const $title = $('<h2 />').addClass('aui-dialog2-header-main').text(options.header);
       $header.append($title);
     }
     $header.append(this._renderHeaderCloseBtn());
@@ -29,7 +24,7 @@ class Dialog {
   }
 
   _renderContent($content){
-    var $el = $('<div />').addClass('aui-dialog2-content');
+    const $el = $('<div />').addClass('aui-dialog2-content');
     if($content) {
       $el.append($content);
     }
@@ -37,27 +32,32 @@ class Dialog {
   }
 
   _renderFooter(options) {
-    var $actions;
-    var $footer;
-    var $hint;
-    $footer = $('<footer />').addClass('aui-dialog2-footer');
+    const $footer = $('<footer />').addClass('aui-dialog2-footer');
     if(options.actions) {
-      $actions = this._renderFooterActions(options.actions);
+      const $actions = this._renderFooterActions(options.actions);
       $footer.append($actions);
     }
     if(options.hint) {
-      $hint = $('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
+      const $hint = $('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
       $footer.append($hint);
     }
     return $footer;
   }
 
   _renderFooterActions(actions) {
-    //either an array or object (for 1 button)
-    if (!_.isArray(actions)) {
-      actions = [actions];
-    }
-    return actions.map(action => $('<button />').text(action));
+    const $actions = $('<div />').addClass('aui-dialog2-footer-actions');
+    $actions.append([...actions].map(action => {
+      const $button = $('<button />').addClass('aui-button').text(action.text);
+      $button.data('name', action.name);
+      $button.click(function (e) {
+        EventDispatcher.dispatch('dialog-button-click', $(e.target));
+      });
+      if (['primary', 'link'].includes(action.type)) {
+        $button.addClass('aui-button-' + action.type);
+      }
+      return $button;
+    }));
+    return $actions;
   }
 
   /**
@@ -70,27 +70,31 @@ class Dialog {
   }
   **/
   render(options){
-    var $dialog = $('<section />').attr({
+    const $dialog = $('<section />').attr({
       role: 'dialog',
-      id: options.id});
-    $dialog.addClass('aui-layer aui-dialog2 aui-dialog2-medium');
-
-    //header
-    $dialog.append(this._renderHeader({
-      title: options.title
-    }));
-    //content
+      id: options.id
+    });
+    $dialog.data('aui-remove-on-hide', true);
+    $dialog.addClass('aui-layer aui-dialog2');
+    if (['small', 'medium', 'large', 'xlarge', 'fullscreen'].includes(options.size)) {
+      $dialog.addClass('aui-dialog2-' + options.size);
+    }
     $dialog.append(this._renderContent(options.$content));
-    //footer
-    $dialog.append(this._renderFooter({
-      actions: options.actions,
-      hint: options.hint
-    }));
+    if (options.chrome) {
+      $dialog.prepend(this._renderHeader({
+        title: options.title
+      }));
+      $dialog.append(this._renderFooter({
+        actions: options.actions,
+        hint: options.hint
+      }));
+    } else {
+      $dialog.addClass('aui-dialog2-chromeless');
+    }
     return $dialog;
   }
-
 }
 
-var DialogComponent = new Dialog();
+const DialogComponent = new Dialog();
 
 export default DialogComponent;
