@@ -2225,7 +2225,7 @@ function keyPressListener(e) {
   }
 }
 
-$(document).on('keydown', keyPressListener);
+// $(document).on('keydown', keyPressListener);
 
 _dispatchersEvent_dispatcher2['default'].on('dialog-button-click', function ($el) {
   var buttonOptions = $el.data('options');
