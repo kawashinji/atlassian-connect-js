@@ -1224,11 +1224,11 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (dat
 });
 
 _dispatchersEvent_dispatcher2['default'].register('iframe-size-to-parent', function (data) {
-  var height = $(document).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 20;
+  var height = AJS.$(document).height() - AJS.$('#header > nav').outerHeight() - AJS.$('#footer').outerHeight() - 20;
   _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: '100%', height: height + 'px', context: data.context });
 });
 
-$(window).on('resize', function (e) {
+AJS.$(window).on('resize', function (e) {
   _dispatchersEvent_dispatcher2['default'].dispatch('host-window-resize', e);
 });
 
@@ -2577,7 +2577,7 @@ function stringToDimension(value) {
 }
 
 function getIframeByExtensionId(id) {
-  return $('iframe#' + escapeSelector(id));
+  return AJS.$('iframe#' + escapeSelector(id));
 }
 
 exports['default'] = {

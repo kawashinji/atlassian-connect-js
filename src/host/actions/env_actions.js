@@ -9,11 +9,11 @@ EventDispatcher.register('iframe-resize', function(data){
 });
 
 EventDispatcher.register('iframe-size-to-parent', function(data){
-  var height = $(document).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 20;
+  var height = AJS.$(document).height() - AJS.$('#header > nav').outerHeight() - AJS.$('#footer').outerHeight() - 20;
   EventDispatcher.dispatch('iframe-resize', {width: '100%', height: height + 'px', context: data.context});
 });
 
-$(window).on('resize', function (e) {
+AJS.$(window).on('resize', function (e) {
   EventDispatcher.dispatch('host-window-resize', e);
 });
 
