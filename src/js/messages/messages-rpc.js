@@ -9,6 +9,9 @@
                     },
                     clearMessage: function (id) {
                         return messages.clearMessage(id);
+                    },
+                    onClose: function (id, callback) {
+                        return messages.onClose(id, callback);
                     }
                 }
             };
