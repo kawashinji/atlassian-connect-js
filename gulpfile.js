@@ -107,7 +107,7 @@ gulp.task('css:minify', buildCss.bind(null, {minify: true}));
 gulp.task('lint', lintJS);
 
 gulp.task('watch', ['plugin:watch', 'host:watch']);
-gulp.task('build', ['lint', 'plugin:build', 'host:build']);
+gulp.task('build', ['lint', /*'plugin:build',*/ 'host:build']);
 
 gulp.task('default', ['build', 'css:minify']);
 
