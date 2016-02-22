@@ -56,6 +56,27 @@ function ($, rpc) {
             remote.clearMessage(id);
         }
 
+        /**
+         * Trigger an event when a message is closed
+         * @name onClose
+         * @method
+         * @memberof module:messages#
+         * @param    {String}    id  The id that was returned when the message was created.
+         * @param    {Function}  callback  The function that is run when the event is triggered
+         * @example
+         * AP.require("messages", function(messages){
+        *   //create a message
+        *   var message = messages.info('title', 'body');
+        *   messages.onClose(message, function() {
+        *       console.log(message, ' has been closed!');
+        *   });
+        * });
+         */
+
+        apis.onClose = function (id, callback) {
+            remote.onClose(id, callback);
+        }
+
         return {
             /**
             * Show a generic message
@@ -154,7 +175,7 @@ function ($, rpc) {
             */
 
             apis: apis,
-            stubs: ['showMessage', 'clearMessage']
+            stubs: ['showMessage', 'clearMessage', 'onClose']
         };
     });
 
