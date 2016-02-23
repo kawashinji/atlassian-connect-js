@@ -10,12 +10,15 @@ require(['ac/navigator', 'ac/navigator-browser'], function (navigator, browser) 
 
             // this dependency is usually set by the confluence specific code in the Atlassian-Connect project
             navigator.setRoutes({
-                "dashboard"    : "",
-                "contentview"  : "/pages/viewpage.action?pageId={contentId}",
-                "contentedit"  : "/pages/edit{contentType}.action?pageId={contentId}",
-                "spacetools"   : "/spaces/viewspacesummary.action?key={spaceKey}",
-                "spaceview"    : "/display/{spaceKey}",
-                "userprofile"  : "/display/~{username}"
+                "attachmentview" : "/pages/viewpage.action?pageId={contentId}&preview=/{contentId}/{attachmentId}",
+                "dashboard"      : "",
+                "contentview"    : "/pages/viewpage.action?pageId={contentId}",
+                "contentedit"    : "/pages/edit{contentType}.action?pageId={contentId}",
+                "questionview"   : "/questions/{questionId}",
+                "sitesearch"     : "/dosearchsite.action?queryString={query}",
+                "spacetools"     : "/spaces/viewspacesummary.action?key={spaceKey}",
+                "spaceview"      : "/display/{spaceKey}",
+                "userprofile"    : "/display/~{username}"
             });
         }
     });
@@ -68,11 +71,32 @@ require(['ac/navigator', 'ac/navigator-browser'], function (navigator, browser) 
         ok(browser.goToUrl.calledWith("/wiki/display/~admin"), "Navigated to user profile");
     });
 
+    test("Navigate to search results", function() {
+        navigator.go("sitesearch", { query: "test"});
+
+        ok(browser.goToUrl.called, "Tried to navigate");
+        ok(browser.goToUrl.calledWith("/wiki/dosearchsite.action?queryString=test"), "Navigated to search results");
+    });
+
+    test("Navigate to attachment", function () {
+        navigator.go("attachmentview", {contentId: 1234, attachmentId:4321});
+
+        ok(browser.goToUrl.called, "Tried to navigate");
+        ok(browser.goToUrl.calledWith("/wiki/pages/viewpage.action?pageId=1234&preview=/1234/4321"), "Navigated to attachment view");
+    });
+
+    test("Navigate to question", function() {
+        navigator.go("questionview", { questionId: 1670905879});
+
+        ok(browser.goToUrl.called, "Tried to navigate");
+        ok(browser.goToUrl.calledWith("/wiki/questions/1670905879"), "Navigated to question");
+    });
+
     test("Unrecognised target", function () {
         try {
             navigator.go("blah", {id: 1234});
         } catch(error) {
-            equal(error, "Error: The URL target blah is not available. Valid targets are: dashboard,contentview,contentedit,spacetools,spaceview,userprofile")
+            equal(error, "Error: The URL target blah is not available. Valid targets are: attachmentview,dashboard,contentview,contentedit,questionview,sitesearch,spacetools,spaceview,userprofile")
         }
     });
 });
