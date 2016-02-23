@@ -1217,15 +1217,19 @@ var _util = _dereq_('../util');
 var _util2 = _interopRequireDefault(_util);
 
 _dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
-  _util2['default'].getIframeByExtensionId(data.context.extension_id).css({
-    width: _util2['default'].stringToDimension(data.width),
-    height: _util2['default'].stringToDimension(data.height)
+  var width = _util2['default'].stringToDimension(data.width);
+  var height = _util2['default'].stringToDimension(data.height);
+  data.$el.css({
+    width: width,
+    height: height
   });
+  data.$el.trigger('resized', { width: width, height: height });
 });
 
 _dispatchersEvent_dispatcher2['default'].register('iframe-size-to-parent', function (data) {
   var height = AJS.$(document).height() - AJS.$('#header > nav').outerHeight() - AJS.$('#footer').outerHeight() - 20;
-  _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: '100%', height: height + 'px', context: data.context });
+  var $el = _util2['default'].getIframeByExtensionId(data.context.extension_id);
+  _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: '100%', height: height + 'px', $el: $el });
 });
 
 AJS.$(window).on('resize', function (e) {
@@ -1234,7 +1238,8 @@ AJS.$(window).on('resize', function (e) {
 
 module.exports = {
   iframeResize: function iframeResize(width, height, context) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: width, height: height, context: context });
+    var $el = _util2['default'].getIframeByExtensionId(context.extension_id);
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: width, height: height, $el: $el });
   },
   sizeToParent: function sizeToParent(context) {
     _dispatchersEvent_dispatcher2['default'].dispatch('iframe-size-to-parent', { context: context });
