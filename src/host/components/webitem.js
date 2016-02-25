@@ -3,7 +3,7 @@ import _ from '../underscore';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import WebItemActions from 'actions/webitem_actions';
 import WebItemUtils from 'utils/webitem';
-import InlineDialogWebitem from 'components/inline_dialog_webitem';
+
 class WebItem {
 
   constructor() {
@@ -57,4 +57,4 @@ EventDispatcher.register('webitem-added', (data) => {
   webItemInstance._addTriggers(data.webitem);
 });
 
-module.exports = webItemInstance;
+export default webItemInstance;

@@ -1881,6 +1881,10 @@ module.exports = exports['default'];
 },{"../dollar":24,"../util":31,"actions/loading_indicator_actions":10,"dispatchers/event_dispatcher":23}],18:[function(_dereq_,module,exports){
 'use strict';
 
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1906,10 +1910,6 @@ var _actionsWebitem_actions2 = _interopRequireDefault(_actionsWebitem_actions);
 var _utilsWebitem = _dereq_('utils/webitem');
 
 var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
-
-var _componentsInline_dialog_webitem = _dereq_('components/inline_dialog_webitem');
-
-var _componentsInline_dialog_webitem2 = _interopRequireDefault(_componentsInline_dialog_webitem);
 
 var WebItem = (function () {
   function WebItem() {
@@ -1973,9 +1973,10 @@ _dispatchersEvent_dispatcher2['default'].register('webitem-added', function (dat
   webItemInstance._addTriggers(data.webitem);
 });
 
-module.exports = webItemInstance;
+exports['default'] = webItemInstance;
+module.exports = exports['default'];
 
-},{"../dollar":24,"../underscore":30,"actions/webitem_actions":12,"components/inline_dialog_webitem":16,"dispatchers/event_dispatcher":23,"utils/webitem":34}],19:[function(_dereq_,module,exports){
+},{"../dollar":24,"../underscore":30,"actions/webitem_actions":12,"dispatchers/event_dispatcher":23,"utils/webitem":34}],19:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2424,9 +2425,9 @@ var _actionsIframe_actions = _dereq_('actions/iframe_actions');
 
 var _actionsIframe_actions2 = _interopRequireDefault(_actionsIframe_actions);
 
-var _componentsWebitem = _dereq_('components/webitem');
+var _componentsInline_dialog_webitem = _dereq_('components/inline_dialog_webitem');
 
-var _componentsWebitem2 = _interopRequireDefault(_componentsWebitem);
+var _componentsInline_dialog_webitem2 = _interopRequireDefault(_componentsInline_dialog_webitem);
 
 // import propagator from './propagate/rpc';
 
@@ -2493,7 +2494,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./components/loading_indicator":17,"./create":19,"./modules/dialog":26,"./modules/env":27,"./modules/events":28,"./modules/messages":29,"actions/dom_event_actions":5,"actions/event_actions":7,"actions/iframe_actions":8,"actions/jwt_actions":9,"actions/module_actions":11,"components/webitem":18,"dispatchers/analytics_dispatcher":22,"dispatchers/event_dispatcher":23,"simple-xdm/dist/host":35,"underscore":30}],26:[function(_dereq_,module,exports){
+},{"./components/loading_indicator":17,"./create":19,"./modules/dialog":26,"./modules/env":27,"./modules/events":28,"./modules/messages":29,"actions/dom_event_actions":5,"actions/event_actions":7,"actions/iframe_actions":8,"actions/jwt_actions":9,"actions/module_actions":11,"components/inline_dialog_webitem":16,"dispatchers/analytics_dispatcher":22,"dispatchers/event_dispatcher":23,"simple-xdm/dist/host":35,"underscore":30}],26:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
