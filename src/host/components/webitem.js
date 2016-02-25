@@ -57,6 +57,4 @@ EventDispatcher.register('webitem-added', (data) => {
   webItemInstance._addTriggers(data.webitem);
 });
 
-WebItemActions.addWebItem(InlineDialogWebitem.getWebItem());
-
 module.exports = webItemInstance;

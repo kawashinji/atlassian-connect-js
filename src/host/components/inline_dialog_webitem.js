@@ -52,5 +52,6 @@ let inlineDialogInstance = new InlineDialogWebItem();
 let webitem = inlineDialogInstance.getWebItem();
 EventDispatcher.register('before:webitem-invoked:' + webitem.name, inlineDialogInstance.createIfNotExists);
 EventDispatcher.register('webitem-invoked:' + webitem.name, inlineDialogInstance.triggered);
+WebItemActions.addWebItem(webitem);
 
 export default inlineDialogInstance;

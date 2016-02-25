@@ -1756,6 +1756,7 @@ var inlineDialogInstance = new InlineDialogWebItem();
 var webitem = inlineDialogInstance.getWebItem();
 _dispatchersEvent_dispatcher2['default'].register('before:webitem-invoked:' + webitem.name, inlineDialogInstance.createIfNotExists);
 _dispatchersEvent_dispatcher2['default'].register('webitem-invoked:' + webitem.name, inlineDialogInstance.triggered);
+_actionsWebitem_actions2['default'].addWebItem(webitem);
 
 exports['default'] = inlineDialogInstance;
 module.exports = exports['default'];
@@ -1971,8 +1972,6 @@ _dispatchersEvent_dispatcher2['default'].register('webitem-added', function (dat
   console.log('triggered webitem-added', data);
   webItemInstance._addTriggers(data.webitem);
 });
-
-_actionsWebitem_actions2['default'].addWebItem(_componentsInline_dialog_webitem2['default'].getWebItem());
 
 module.exports = webItemInstance;
 
