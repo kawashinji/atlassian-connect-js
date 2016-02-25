@@ -20,7 +20,7 @@ class Flag {
 
     _flags[_id] = this;
 
-    $(document).on('aui-flag-close', function (e) {
+    $(document).on('aui-flag-close', (e) => {
       if (e.target.id === _id) {
         EventDispatcher.dispatch('flag-close', {id: _id});
         _flags[_id]._destroy();
@@ -31,7 +31,7 @@ class Flag {
 
   on(event, callback) {
     const id = this.flag.id;
-    EventDispatcher.register('flag-' + event, function (data) {
+    EventDispatcher.register('flag-' + event, (data) => {
       if (data.id === id) {
         callback();
       }
@@ -43,7 +43,7 @@ class Flag {
   }
 }
 
-module.exports = {
+export default {
   create: {
     constructor: Flag,
     on: Flag.prototype.on,
