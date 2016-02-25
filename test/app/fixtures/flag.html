@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <title>Flag</title>
+  <meta http-equiv="content-type" value="text/html;utf-8">
+  <link rel="stylesheet" href="//aui-cdn.atlassian.com/aui-adg/5.7.34/css/aui.css" />
+  <link rel="stylesheet" href="//aui-cdn.atlassian.com/aui-adg/5.7.34/css/aui-experimental.css" />
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script src="//aui-cdn.atlassian.com/aui-adg/5.9.5/js/aui.js"></script>
+  <script src="http://aui-cdn.atlassian.com/aui-adg/5.9.5/js/aui-experimental.js"></script>
+  <script src="/dist/iframe.js"></script>
+</head>
+<body style="background: white;">
+  <section class="aui-page-panel-content">
+    <h1>Flag</h1><br>
+    <button class="aui-button flag" id="info" data-type="info" data-title="Info flag" data-body="Body text of info">Info Flag</button>
+    <button class="aui-button flag" id="warning" data-type="warning" data-title="Warning flag" data-body="Body text of warning">Warning Flag</button>
+    <button class="aui-button flag" id="success" data-type="success" data-title="Success flag" data-body="Body text of success">Success Flag</button>
+    <button class="aui-button flag" id="error" data-type="error" data-title="Error flag" data-body="Body text of error">Error Flag</button>
+    <button class="aui-button flag" id="never-close" data-type="info" data-title="Never close" data-body="This flag will never close" data-close="never">Never Close Flag</button>
+    <button class="aui-button flag" id="auto-close" data-type="info" data-title="Auto close" data-body="This flag will auto close" data-close="auto">Auto Close Flag</button>
+    <button class="aui-button flag" id="on-close" data-type="info" data-title="On close" data-body="Alert appears when this flag closes">On Close Event Flag</button>
+  </section>
+
+  <script>
+  $('.flag').click(function(){
+    var options = {
+      title: $(this).data('title'),
+      type: $(this).data('type'),
+      body: $(this).data('body'),
+      close: $(this).data('close') ? $(this).data('close') : 'manual'
+    }
+    var flag = AP.flag.create(options);
+
+    if ($(this).attr('id') === 'on-close') {
+      flag.on('close', function(e) {
+        alert('Flag has closed!');
+      })
+    }
+  });
+  </script>
+
+</body>
+</html>

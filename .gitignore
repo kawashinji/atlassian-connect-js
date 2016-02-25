@@ -16,3 +16,4 @@ npm-debug.log
 reports
 bower_components
 test/test-reports
+selenium-debug.log

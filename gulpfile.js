@@ -15,6 +15,7 @@ var watchify = require('watchify');
 var concat = require('gulp-concat');
 var minifyCSS = require('gulp-minify-css');
 var eslint = require('gulp-eslint');
+var clean = require('gulp-clean');
 
 function getTask(task) {
   return require('./gulp-tasks/' + task)(gulp);
@@ -40,7 +41,7 @@ function build(entryModule, distModule, options) {
             .pipe(sourcemaps.init({loadMaps: true}))
                 .pipe(derequire())
             .pipe(sourcemaps.write('./'))
-            .pipe(gulp.dest('./dist'));
+            .pipe(gulp.dest(options.dest || './dist'));
   }
 
   if (options.watch) {
@@ -69,7 +70,8 @@ function buildHost(options) {
   options = options || {};
   return build('./src/host/index.js', 'connect-host', {
     env: {ENV: 'host'},
-    watch: options.watch
+    watch: options.watch,
+    dest: options.dest
   });
 }
 
@@ -95,6 +97,19 @@ function lintJS() {
     .pipe(eslint.format());
 }
 
+function testSetup() {
+  buildHost({dest: './test/app/dist'});
+  buildCss({dest: './test/app/dist'});
+  return gulp
+    .src('./node_modules/simple-xdm/dist/iframe.js')
+    .pipe(gulp.dest('test/app/dist'));
+}
+
+function testClean() {
+  return gulp.src('./test/app/dist', {read: false})
+    .pipe(clean());
+}
+
 gulp.task('plugin:build', buildPlugin);
 gulp.task('plugin:watch', buildPlugin.bind(null, {watch: true}));
 
@@ -106,10 +121,20 @@ gulp.task('css:minify', buildCss.bind(null, {minify: true}));
 
 gulp.task('lint', lintJS);
 
-gulp.task('watch', ['plugin:watch', 'host:watch']);
+gulp.task('watch', ['host:watch']);
 gulp.task('build', ['lint', /*'plugin:build',*/ 'host:build']);
 
 gulp.task('default', ['build', 'css:minify']);
 
 gulp.task('karma', getTask('karma'));
 gulp.task('karma-ci', getTask('karma-ci'));
+
+gulp.task('test:setup', testSetup);
+gulp.task('test:clean', ['test:setup', 'server:stop'] ,testClean);
+
+gulp.task('server:start', ['test:setup'], getTask('test-server').start);
+gulp.task('server:stop', ['server:start', 'nightwatch'], getTask('test-server').stop);
+
+gulp.task('nightwatch', ['test:setup', 'server:start'], getTask('nightwatch'));
+
+gulp.task('test:integration', ['nightwatch', 'server:stop', 'test:clean']);
