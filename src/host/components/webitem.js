@@ -3,7 +3,7 @@ import _ from '../underscore';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import WebItemActions from 'actions/webitem_actions';
 import WebItemUtils from 'utils/webitem';
-
+import InlineDialogWebitem from 'components/inline_dialog_webitem';
 class WebItem {
 
   constructor() {
@@ -39,6 +39,7 @@ class WebItem {
   _addTriggers (webitem) {
     var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
     webitem._on = (e) => {
+      console.log('webitem on', webitem, onTriggers);
       WebItemActions.webitemInvoked(webitem, e);
       e.preventDefault();
     };
@@ -52,7 +53,10 @@ class WebItem {
 var webItemInstance = new WebItem();
 
 EventDispatcher.register('webitem-added', (data) => {
+  console.log('triggered webitem-added', data);
   webItemInstance._addTriggers(data.webitem);
 });
+
+WebItemActions.addWebItem(InlineDialogWebitem.getWebItem());
 
 module.exports = webItemInstance;
