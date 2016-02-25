@@ -13,6 +13,7 @@ import DomEventActions from 'actions/dom_event_actions';
 import _ from 'underscore';
 import EventActions from 'actions/event_actions';
 import IframeActions from 'actions/iframe_actions';
+import WebItemComponent from 'components/webitem';
 // import propagator from './propagate/rpc';
 
 /**
