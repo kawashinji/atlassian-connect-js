@@ -16,7 +16,8 @@ var xdmMockMessages;
     xdmMockMessages = {
         init: function() {},
         clearMessage: sinon.spy(),
-        showMessage: sinon.spy()
+        showMessage: sinon.spy(),
+        onClose: sinon.spy()
     };
 
     context(["_rpc", "messages"], function(_rpc, messages) {
@@ -48,6 +49,14 @@ var xdmMockMessages;
             messages.clear();
             ok(xdmMockMessages.clearMessage.calledOnce);
         });
+
+        test('onClose calls remote onClose', function () {
+            var message = messages.generic('my title', 'mybody');
+            messages.onClose(message, function() {
+                console.log('test');
+            });
+            ok(xdmMockMessages.onClose.calledOnce);
+        })
 
 
     });
