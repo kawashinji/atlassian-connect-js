@@ -49,9 +49,6 @@ class Dialog {
     $actions.append([...actions].map(action => {
       const $button = $('<button />').addClass('aui-button').text(action.text);
       $button.data('name', action.name);
-      $button.click(function (e) {
-        EventDispatcher.dispatch('dialog-button-click', $(e.target));
-      });
       if (['primary', 'link'].includes(action.type)) {
         $button.addClass('aui-button-' + action.type);
       }

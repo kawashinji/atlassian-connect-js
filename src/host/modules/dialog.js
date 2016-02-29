@@ -1,5 +1,6 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import DialogComponent from 'components/dialog';
+import DialogActions from 'actions/dialog_actions';
 import IframeContainer from 'components/iframe_container';
 
 const DLGID_PREFIX = 'ap-dialog-';
@@ -15,34 +16,32 @@ function getActiveDialog() {
 
 function keyPressListener(e) {
   if(e.keyCode === 27) {
-    const dialog = getActiveDialog();
-    if (dialog) {
-      dialog.hide();
-    }
+    DialogActions.close();
   }
 }
 
 // $(document).on('keydown', keyPressListener);
 
-EventDispatcher.on('dialog-button-click', function($el){
+EventDispatcher.register('dialog-button-click', function ($el) {
   const buttonOptions = $el.data('options');
   console.log('button options?', buttonOptions, $el);
-  const dialog = getActiveDialog();
-  if (dialog) {
-    dialog.hide();
-  }
+  DialogActions.close();
 });
 
 function closeDialog(data) {
-  EventDispatcher.dispatch('dialog-close', data);
   const dialog = getActiveDialog();
   if (dialog) {
     const _id = dialog.$el.attr('id').replace(DLGID_PREFIX, '');
     _dialogs[_id]._destroy();
     delete _dialogs[_id];
-    dialog.hide();
+    if (!data.isHiding) {
+      dialog.off('hide');
+      dialog.hide();
+    }
   }
 }
+
+EventDispatcher.register('dialog-close', closeDialog);
 
 function dialogIframe(options, context) {
   return IframeContainer.createExtension({
@@ -88,17 +87,17 @@ class Dialog {
       actions: actions,
       id: options.id
     });
+    $el.find('.aui-dialog2-footer-actions .aui-button').click(function (e) {
+      EventDispatcher.dispatch('dialog-button-click', $(e.target));
+    });
     const dialog = AJS.dialog2($el);
     if (!options.size || options.size === 'fullscreen') {
       AJS.layer($el).changeSize(options.width, options.height);
     }
     dialog.show();
-    EventDispatcher.dispatch('dialog-open', {
-      $el: $iframeContainer,
-      $dialog: dialog
-    });
+    DialogActions.open();
     dialog.on('hide', function () {
-      closeDialog();
+      DialogActions.close({isHiding: true});
     });
     _dialogs[_id] = this;
   }
@@ -129,7 +128,7 @@ class Button {
     callback(this.$el && this.$el.attr('aria-disabled'));
   }
   toggle () {
-    this.$el && this.$el.attr('aria-disabled', !this.$el.attr('aria-disabled'));
+    this.$el && this.$el.attr('aria-disabled', this.$el.attr('aria-disabled') !== 'true');
   }
   trigger () {
     this.$el && this.$el.click();
@@ -141,7 +140,9 @@ module.exports = {
     constructor: Dialog,
     on: Dialog.prototype.on
   },
-  close: closeDialog,
+  close: function (data) {
+    DialogActions.close(data);
+  },
   onDialogMessage: function (message, listener) {
 
   },
