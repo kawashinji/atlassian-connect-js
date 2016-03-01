@@ -25,6 +25,7 @@ function keyPressListener(e) {
 EventDispatcher.register('dialog-button-click', function ($el) {
   const buttonOptions = $el.data('options');
   console.log('button options?', buttonOptions, $el);
+  // todo: button listeners
   DialogActions.close();
 });
 
@@ -32,9 +33,10 @@ function closeDialog(data) {
   const dialog = getActiveDialog();
   if (dialog) {
     const _id = dialog.$el.attr('id').replace(DLGID_PREFIX, '');
+    _dialogs[_id].onClose.forEach(cb => cb());
     _dialogs[_id]._destroy();
     delete _dialogs[_id];
-    if (!data.isHiding) {
+    if (!data || !data.isHiding) {
       dialog.off('hide');
       dialog.hide();
     }
@@ -58,6 +60,7 @@ class Dialog {
   constructor(options, callback) {
     const _id = callback._id;
     options.id = DLGID_PREFIX + _id;
+    this.onClose = [];
     const $iframeContainer = dialogIframe(options, callback._context);
     const actions = [
       {
@@ -87,8 +90,11 @@ class Dialog {
       actions: actions,
       id: options.id
     });
-    $el.find('.aui-dialog2-footer-actions .aui-button').click(function (e) {
-      EventDispatcher.dispatch('dialog-button-click', $(e.target));
+    $el.find('.aui-dialog2-footer-actions .aui-button').click(function () {
+      const $el = $(this);
+      if ($el.attr('aria-disabled') !== 'true') {
+        DialogActions.buttonClick($el);
+      }
     });
     const dialog = AJS.dialog2($el);
     if (!options.size || options.size === 'fullscreen') {
@@ -102,12 +108,18 @@ class Dialog {
     _dialogs[_id] = this;
   }
   on(event, callback) {
-    EventDispatcher.register('dialog-' + event, callback);
+    // 'close' is the only documented event name
+    // otherwise I would have gone for a more generic onTriggers[event] = [...callbacks]
+    if (event === 'close') {
+      if ($.isFunction(callback)) {
+        this.onClose.push(callback);
+      }
+    }
   }
 }
 
 class Button {
-  constructor (name) {
+  constructor(name) {
     const dialog = getActiveDialog();
     if (dialog) {
       this.$el = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
@@ -115,22 +127,22 @@ class Button {
       });
     }
   }
-  bind (callback) {
+  bind(callback) {
     this.$el && this.$el.click(callback);
   }
-  enable () {
+  enable() {
     this.$el && this.$el.attr('aria-disabled', false);
   }
-  disable () {
+  disable() {
     this.$el && this.$el.attr('aria-disabled', true);
   }
-  isEnabled (callback) {
+  isEnabled(callback) {
     callback(this.$el && this.$el.attr('aria-disabled'));
   }
-  toggle () {
+  toggle() {
     this.$el && this.$el.attr('aria-disabled', this.$el.attr('aria-disabled') !== 'true');
   }
-  trigger () {
+  trigger() {
     this.$el && this.$el.click();
   }
 }
@@ -143,9 +155,20 @@ module.exports = {
   close: function (data) {
     DialogActions.close(data);
   },
-  onDialogMessage: function (message, listener) {
-
-  },
+  onDialogMessage: // AJS.deprecate.fn(
+    function (buttonName, callback) {
+      const button = new Button(buttonName);
+      button.bind(callback);
+    },
+/*
+    'AP.dialog.onDialogMessage()',
+    {
+      deprecationType: 'API',
+      alternativeName:'AP.dialog.getButton().bind()',
+      sinceVersion:'ACJS 5.0'
+    }
+  ),
+*/
   getButton: {
     constructor: Button,
     enable: Button.prototype.enable,
