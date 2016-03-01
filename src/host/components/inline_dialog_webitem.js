@@ -6,7 +6,7 @@ import IframeContainer from 'components/iframe_container';
 import $ from '../dollar';
 const ITEM_NAME = 'inline-dialog';
 const SELECTOR = '.ap-inline-dialog';
-const TRIGGERS = ['hover', 'click'];
+const TRIGGERS = ['mouseover', 'click'];
 const WEBITEM_UID_KEY = 'inline-dialog-target-uid';
 
 class InlineDialogWebItem {
@@ -25,7 +25,7 @@ class InlineDialogWebItem {
 
   _createInlineDialog(data){
     var attr = {id: data.id};
-    // attr["data-aui-responds-to"] = "toggle";
+    attr["data-aui-responds-to"] = "toggle";
     var $iframeContainer = IframeContainer.createExtension(data.extension);
     var inlineDialog = InlineDialogComponent.render(attr);
     // AUI modifies the dom after insertion. Thus the content must be appended afterwards.

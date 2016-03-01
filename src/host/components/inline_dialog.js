@@ -5,6 +5,9 @@ import $ from '../dollar';
 class InlineDialog {
   constructor () {
   }
+  _renderContainer(){
+    return $("<div />").addClass("aui-inline-dialog-contents");
+  }
   render(attributes){
     var $el = $('<aui-inline-dialog />');
     $el.attr(attributes || {});
@@ -12,11 +15,15 @@ class InlineDialog {
     $el.on("aui-layer-show", function(e){
       console.log('aui layer show', e);
     });
-    $el.on("aui-layer-hide", function(e) {
-      // e.preventDefault();
-      console.log('aui layer hide', e);
-      // InlineDialogActions.hideTriggered(extension_id, $el);
-    });
+    // $el.on("aui-layer-hide", function(e) {
+    //   if(e.currentTarget.id === attributes.id){
+    //     e.preventDefault();
+    //   }
+    //   // 
+    //   console.log('aui layer hide', e);
+    //   // InlineDialogActions.hideTriggered(extension_id, $el);
+    // });
+    // $el.append(this._renderContainer());
     return $el;
   }
 

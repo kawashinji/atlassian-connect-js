@@ -1666,6 +1666,11 @@ var InlineDialog = (function () {
   }
 
   _createClass(InlineDialog, [{
+    key: '_renderContainer',
+    value: function _renderContainer() {
+      return (0, _dollar2['default'])("<div />").addClass("aui-inline-dialog-contents");
+    }
+  }, {
     key: 'render',
     value: function render(attributes) {
       var $el = (0, _dollar2['default'])('<aui-inline-dialog />');
@@ -1674,11 +1679,15 @@ var InlineDialog = (function () {
       $el.on("aui-layer-show", function (e) {
         console.log('aui layer show', e);
       });
-      $el.on("aui-layer-hide", function (e) {
-        // e.preventDefault();
-        console.log('aui layer hide', e);
-        // InlineDialogActions.hideTriggered(extension_id, $el);
-      });
+      // $el.on("aui-layer-hide", function(e) {
+      //   if(e.currentTarget.id === attributes.id){
+      //     e.preventDefault();
+      //   }
+      //   //
+      //   console.log('aui layer hide', e);
+      //   // InlineDialogActions.hideTriggered(extension_id, $el);
+      // });
+      // $el.append(this._renderContainer());
       return $el;
     }
   }]);
@@ -1730,7 +1739,7 @@ var _dollar2 = _interopRequireDefault(_dollar);
 
 var ITEM_NAME = 'inline-dialog';
 var SELECTOR = '.ap-inline-dialog';
-var TRIGGERS = ['hover', 'click'];
+var TRIGGERS = ['mouseover', 'click'];
 var WEBITEM_UID_KEY = 'inline-dialog-target-uid';
 
 var InlineDialogWebItem = (function () {
@@ -1754,7 +1763,7 @@ var InlineDialogWebItem = (function () {
     key: '_createInlineDialog',
     value: function _createInlineDialog(data) {
       var attr = { id: data.id };
-      // attr["data-aui-responds-to"] = "toggle";
+      attr["data-aui-responds-to"] = "toggle";
       var $iframeContainer = _componentsIframe_container2['default'].createExtension(data.extension);
       var inlineDialog = _componentsInline_dialog2['default'].render(attr);
       // AUI modifies the dom after insertion. Thus the content must be appended afterwards.
