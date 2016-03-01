@@ -1203,7 +1203,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":23,"simple-xdm/dist/host":35}],6:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":24,"simple-xdm/dist/host":36}],6:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1246,7 +1246,7 @@ module.exports = {
   }
 };
 
-},{"../util":31,"dispatchers/event_dispatcher":23}],7:[function(_dereq_,module,exports){
+},{"../util":32,"dispatchers/event_dispatcher":24}],7:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1270,7 +1270,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":23,"simple-xdm/dist/host":35}],8:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":24,"simple-xdm/dist/host":36}],8:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1299,7 +1299,25 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":23,"simple-xdm/dist/host":35}],9:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":24,"simple-xdm/dist/host":36}],9:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+module.exports = {
+  hide: function hide(extension_id) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-hide', { extension_id: extension_id });
+  },
+  hideTriggered: function hideTriggered(extension_id, $el) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
+  }
+};
+
+},{"dispatchers/event_dispatcher":24}],10:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1339,7 +1357,7 @@ module.exports = {
 
 };
 
-},{"../underscore":30,"dispatchers/event_dispatcher":23}],10:[function(_dereq_,module,exports){
+},{"../underscore":31,"dispatchers/event_dispatcher":24}],11:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1362,7 +1380,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"dispatchers/event_dispatcher":23}],11:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":24}],12:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1384,7 +1402,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":23}],12:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":24}],13:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1433,7 +1451,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"components/webitem":18,"dispatchers/event_dispatcher":23,"utils/webitem":34}],13:[function(_dereq_,module,exports){
+},{"components/webitem":19,"dispatchers/event_dispatcher":24,"utils/webitem":35}],14:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1511,7 +1529,7 @@ var IframeComponent = new Iframe();
 exports['default'] = IframeComponent;
 module.exports = exports['default'];
 
-},{"../dollar":24,"../util":31,"actions/iframe_actions":8,"dispatchers/event_dispatcher":23,"simple-xdm/dist/host":35,"utils/url":33}],14:[function(_dereq_,module,exports){
+},{"../dollar":25,"../util":32,"actions/iframe_actions":8,"dispatchers/event_dispatcher":24,"simple-xdm/dist/host":36,"utils/url":34}],15:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1617,7 +1635,7 @@ _dispatchersEvent_dispatcher2['default'].register('jwt-url-refreshed', function 
 exports['default'] = IframeContainerComponent;
 module.exports = exports['default'];
 
-},{"../dollar":24,"actions/iframe_actions":8,"actions/jwt_actions":9,"components/iframe":13,"dispatchers/event_dispatcher":23,"utils/url":33}],15:[function(_dereq_,module,exports){
+},{"../dollar":25,"actions/iframe_actions":8,"actions/jwt_actions":10,"components/iframe":14,"dispatchers/event_dispatcher":24,"utils/url":34}],16:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1634,6 +1652,10 @@ var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
 
 var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
 
+var _actionsInline_dialog_actions = _dereq_('actions/inline_dialog_actions');
+
+var _actionsInline_dialog_actions2 = _interopRequireDefault(_actionsInline_dialog_actions);
+
 var _dollar = _dereq_('../dollar');
 
 var _dollar2 = _interopRequireDefault(_dollar);
@@ -1644,17 +1666,19 @@ var InlineDialog = (function () {
   }
 
   _createClass(InlineDialog, [{
-    key: '_renderContainer',
-    value: function _renderContainer() {
-      return (0, _dollar2['default'])("<div />").addClass("aui-inline-dialog-contents");
-    }
-  }, {
     key: 'render',
     value: function render(attributes) {
       var $el = (0, _dollar2['default'])('<aui-inline-dialog />');
       $el.attr(attributes || {});
       $el.addClass('ap-inline-dialog-container');
-      $el.append(this._renderContainer());
+      $el.on("aui-layer-show", function (e) {
+        console.log('aui layer show', e);
+      });
+      $el.on("aui-layer-hide", function (e) {
+        // e.preventDefault();
+        console.log('aui layer hide', e);
+        // InlineDialogActions.hideTriggered(extension_id, $el);
+      });
       return $el;
     }
   }]);
@@ -1667,7 +1691,7 @@ var InlineDialogComponent = new InlineDialog();
 exports['default'] = InlineDialogComponent;
 module.exports = exports['default'];
 
-},{"../dollar":24,"dispatchers/event_dispatcher":23}],16:[function(_dereq_,module,exports){
+},{"../dollar":25,"actions/inline_dialog_actions":9,"dispatchers/event_dispatcher":24}],17:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1700,9 +1724,13 @@ var _componentsIframe_container = _dereq_('components/iframe_container');
 
 var _componentsIframe_container2 = _interopRequireDefault(_componentsIframe_container);
 
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
 var ITEM_NAME = 'inline-dialog';
 var SELECTOR = '.ap-inline-dialog';
-var TRIGGERS = ['click', 'hover'];
+var TRIGGERS = ['hover', 'click'];
 var WEBITEM_UID_KEY = 'inline-dialog-target-uid';
 
 var InlineDialogWebItem = (function () {
@@ -1723,23 +1751,45 @@ var InlineDialogWebItem = (function () {
       return this._inlineDialogWebItemSpec;
     }
   }, {
-    key: 'triggered',
-    value: function triggered(data) {
-      console.log('triggered!', data);
-      var $target = $(data.event.target);
-      var attr = { id: $target.data(WEBITEM_UID_KEY) };
-
+    key: '_createInlineDialog',
+    value: function _createInlineDialog(data) {
+      var attr = { id: data.id };
+      // attr["data-aui-responds-to"] = "toggle";
       var $iframeContainer = _componentsIframe_container2['default'].createExtension(data.extension);
       var inlineDialog = _componentsInline_dialog2['default'].render(attr);
       // AUI modifies the dom after insertion. Thus the content must be appended afterwards.
-      inlineDialog.find(':first-child').append($iframeContainer);
+      inlineDialog.insertAfter(data.$target);
+      var newlyInsertedDialog = document.getElementById(data.id);
+      (0, _dollar2['default'])(newlyInsertedDialog).one("aui-layer-show", function (e) {
+        (0, _dollar2['default'])(this).find(':first-child').append($iframeContainer);
+      });
       inlineDialog.attr('open', '');
-      inlineDialog.insertAfter($target);
+    }
+  }, {
+    key: 'triggered',
+    value: function triggered(data) {
+
+      var $target = (0, _dollar2['default'])(data.event.target);
+      var webitemId = $target.data(WEBITEM_UID_KEY);
+      console.log('triggered!', data, webitemId);
+      var existingInlineDialog = document.getElementById(webitemId);
+      if (!existingInlineDialog) {
+        this._createInlineDialog({
+          id: webitemId,
+          extension: data.extension,
+          $target: $target
+        });
+      } else {
+        console.log('should show');
+        (0, _dollar2['default'])(existingInlineDialog).attr('open', '');
+        // $(existingInlineDialog).show();
+        // $(existingInlineDialog).attr('aria-hidden', false);
+      }
     }
   }, {
     key: 'createIfNotExists',
     value: function createIfNotExists(data) {
-      var $target = $(data.event.target);
+      var $target = (0, _dollar2['default'])(data.event.target);
       var uid = $target.data(WEBITEM_UID_KEY);
 
       if (!uid) {
@@ -1754,14 +1804,18 @@ var InlineDialogWebItem = (function () {
 
 var inlineDialogInstance = new InlineDialogWebItem();
 var webitem = inlineDialogInstance.getWebItem();
-_dispatchersEvent_dispatcher2['default'].register('before:webitem-invoked:' + webitem.name, inlineDialogInstance.createIfNotExists);
-_dispatchersEvent_dispatcher2['default'].register('webitem-invoked:' + webitem.name, inlineDialogInstance.triggered);
+_dispatchersEvent_dispatcher2['default'].register('before:webitem-invoked:' + webitem.name, function (data) {
+  inlineDialogInstance.createIfNotExists(data);
+});
+_dispatchersEvent_dispatcher2['default'].register('webitem-invoked:' + webitem.name, function (data) {
+  inlineDialogInstance.triggered(data);
+});
 _actionsWebitem_actions2['default'].addWebItem(webitem);
 
 exports['default'] = inlineDialogInstance;
 module.exports = exports['default'];
 
-},{"actions/webitem_actions":12,"components/iframe_container":14,"components/inline_dialog":15,"dispatchers/event_dispatcher":23,"utils/webitem":34}],17:[function(_dereq_,module,exports){
+},{"../dollar":25,"actions/webitem_actions":13,"components/iframe_container":15,"components/inline_dialog":16,"dispatchers/event_dispatcher":24,"utils/webitem":35}],18:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1878,7 +1932,7 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', fun
 exports['default'] = LoadingComponent;
 module.exports = exports['default'];
 
-},{"../dollar":24,"../util":31,"actions/loading_indicator_actions":10,"dispatchers/event_dispatcher":23}],18:[function(_dereq_,module,exports){
+},{"../dollar":25,"../util":32,"actions/loading_indicator_actions":11,"dispatchers/event_dispatcher":24}],19:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1976,7 +2030,7 @@ _dispatchersEvent_dispatcher2['default'].register('webitem-added', function (dat
 exports['default'] = webItemInstance;
 module.exports = exports['default'];
 
-},{"../dollar":24,"../underscore":30,"actions/webitem_actions":12,"dispatchers/event_dispatcher":23,"utils/webitem":34}],19:[function(_dereq_,module,exports){
+},{"../dollar":25,"../underscore":31,"actions/webitem_actions":13,"dispatchers/event_dispatcher":24,"utils/webitem":35}],20:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2007,7 +2061,7 @@ function create(extension) {
 
 module.exports = create;
 
-},{"./dollar":24,"components/iframe_container":14,"dispatchers/event_dispatcher":23}],20:[function(_dereq_,module,exports){
+},{"./dollar":25,"components/iframe_container":15,"dispatchers/event_dispatcher":24}],21:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2065,7 +2119,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":24,"dispatchers/event_dispatcher":23}],21:[function(_dereq_,module,exports){
+},{"../dollar":25,"dispatchers/event_dispatcher":24}],22:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2132,7 +2186,7 @@ module.exports = {
   render: createDialogElement
 };
 
-},{"../dollar":24,"./button":20}],22:[function(_dereq_,module,exports){
+},{"../dollar":25,"./button":21}],23:[function(_dereq_,module,exports){
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -2252,7 +2306,7 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', fun
 
 module.exports = analytics;
 
-},{"dispatchers/event_dispatcher":23}],23:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":24}],24:[function(_dereq_,module,exports){
 /**
 * pub/sub for extension state (created, destroyed, initialized)
 * taken from hipchat webcore
@@ -2342,7 +2396,7 @@ var EventDispatcher = (function (_EventEmitter) {
 
 module.exports = new EventDispatcher();
 
-},{"../underscore":30,"events":2}],24:[function(_dereq_,module,exports){
+},{"../underscore":31,"events":2}],25:[function(_dereq_,module,exports){
 /**
  * The iframe-side code exposes a jquery-like implementation via _dollar.
  * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
@@ -2356,7 +2410,7 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = AJS.$;
 module.exports = exports["default"];
 
-},{}],25:[function(_dereq_,module,exports){
+},{}],26:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2494,7 +2548,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./components/loading_indicator":17,"./create":19,"./modules/dialog":26,"./modules/env":27,"./modules/events":28,"./modules/messages":29,"actions/dom_event_actions":5,"actions/event_actions":7,"actions/iframe_actions":8,"actions/jwt_actions":9,"actions/module_actions":11,"components/inline_dialog_webitem":16,"dispatchers/analytics_dispatcher":22,"dispatchers/event_dispatcher":23,"simple-xdm/dist/host":35,"underscore":30}],26:[function(_dereq_,module,exports){
+},{"./components/loading_indicator":18,"./create":20,"./modules/dialog":27,"./modules/env":28,"./modules/events":29,"./modules/messages":30,"actions/dom_event_actions":5,"actions/event_actions":7,"actions/iframe_actions":8,"actions/jwt_actions":10,"actions/module_actions":12,"components/inline_dialog_webitem":17,"dispatchers/analytics_dispatcher":23,"dispatchers/event_dispatcher":24,"simple-xdm/dist/host":36,"underscore":31}],27:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2580,7 +2634,7 @@ module.exports = {
   }
 };
 
-},{"../create":19,"../dialog/renderer":21,"dispatchers/event_dispatcher":23}],27:[function(_dereq_,module,exports){
+},{"../create":20,"../dialog/renderer":22,"dispatchers/event_dispatcher":24}],28:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2633,7 +2687,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":24,"../util":31,"actions/env_actions":6,"dispatchers/event_dispatcher":23}],28:[function(_dereq_,module,exports){
+},{"../dollar":25,"../util":32,"actions/env_actions":6,"dispatchers/event_dispatcher":24}],29:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2738,7 +2792,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":24,"../underscore":30,"dispatchers/event_dispatcher":23}],29:[function(_dereq_,module,exports){
+},{"../dollar":25,"../underscore":31,"dispatchers/event_dispatcher":24}],30:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2829,7 +2883,7 @@ MESSAGE_TYPES.forEach(function (messageType) {
 exports['default'] = toExport;
 module.exports = exports['default'];
 
-},{"../dollar":24,"../underscore":30}],30:[function(_dereq_,module,exports){
+},{"../dollar":25,"../underscore":31}],31:[function(_dereq_,module,exports){
 // AUI includes underscore and exposes it globally.
 "use strict";
 
@@ -2839,7 +2893,7 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = window._;
 module.exports = exports["default"];
 
-},{}],31:[function(_dereq_,module,exports){
+},{}],32:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2887,7 +2941,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./underscore":30}],32:[function(_dereq_,module,exports){
+},{"./underscore":31}],33:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2957,7 +3011,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"base-64":1,"utf8":4}],33:[function(_dereq_,module,exports){
+},{"base-64":1,"utf8":4}],34:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2990,7 +3044,7 @@ module.exports = {
   isJwtExpired: isJwtExpired
 };
 
-},{"jsuri":3,"utils/jwt":32}],34:[function(_dereq_,module,exports){
+},{"jsuri":3,"utils/jwt":33}],35:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3042,7 +3096,7 @@ module.exports = {
   getOptionsForWebItem: getOptionsForWebItem
 };
 
-},{"../underscore":30}],35:[function(_dereq_,module,exports){
+},{"../underscore":31}],36:[function(_dereq_,module,exports){
 (function (global){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.host = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 'use strict';
@@ -3817,7 +3871,7 @@ module.exports = XDMRPC;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}]},{},[25])(25)
+},{}]},{},[26])(26)
 });
 
 
