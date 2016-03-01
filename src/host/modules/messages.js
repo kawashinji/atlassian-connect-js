@@ -1,84 +1,85 @@
 import $ from '../dollar';
-import _ from '../underscore';
+import EventDispatcher from 'dispatchers/event_dispatcher';
+import FlagComponent from 'components/flag';
+import FlagActions from 'actions/flag_actions';
 
-const MESSAGE_BAR_ID = 'ac-message-container';
 const MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
-const MSGID_PREFIX = 'ap-message-';
 const _messages = {};
+const MSGID_PREFIX = 'ap-message-';
+const AUTO_CLOSE_TIME = 5000;
 
-function validateMessageId(msgId) {
-  return msgId.search(/^ap\-message\-[0-9A-Fa-f]+$/) === 0;
-}
 
-function getMessageBar() {
-  let $msgBar = $('#' + MESSAGE_BAR_ID);
+let messageClasses = {};
 
-  if ($msgBar.length < 1) {
-    $msgBar = $('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
-  }
-  return $msgBar;
-}
-
-function filterMessageOptions(options) {
-  const copy = {};
-  const allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
-  if(_.isObject(options)){
-    allowed.forEach(key => {
-      if (key in options) {
-        copy[key] = options[key];
-      }
-    })
-  }
-  return copy;
-}
-
-function showMessage(name, title, body, options) {
-  const $msgBar = getMessageBar();
-  options = filterMessageOptions(options);
-  $.extend(options, {
-    title: title,
-    body: AJS.escapeHtml(body)
-  });
-
-  if ($.inArray(name, MESSAGE_TYPES) < 0) {
-    throw 'Invalid message type. Must be: ' + MESSAGE_TYPES.join(', ');
-  }
-  if (validateMessageId(options.id)) {
-    AJS.messages[name]($msgBar, options);
-    // Calculate the left offset based on the content width.
-    // This ensures the message always stays in the centre of the window.
-    $msgBar.css('margin-left', '-' + $msgBar.innerWidth() / 2 + 'px');
-  }
-}
-
-$(document).on('aui-message-close', function (e, $msg) {
-  const _id = $msg.attr('id').replace(MSGID_PREFIX, '');
+$(document).on('aui-flag-close', (e) => {
+  const _id = e.target.id;
   if (_messages[_id]) {
+    FlagActions.close(_id);
     _messages[_id]._destroy();
+    delete _messages[_id];
   }
 });
 
 var toExport = {
   clear(msg) {
     const id = MSGID_PREFIX + msg._id;
-    if (validateMessageId(id)) {
-      $('#' + id).closeMessage();
-    }
+    if (_messages[id])
+      _messages[id].close();
+  },
+  onClose(msg, callback) {
+    const id = MSGID_PREFIX + msg._id;
+    if (_messages[id])
+      _messages[id].on('close', callback);
   }
 };
 
 MESSAGE_TYPES.forEach((messageType) => {
-  toExport[messageType] = {
-    constructor: function(title, body, options, callback) {
+  messageClasses[messageType] = class extends FlagComponent{
+    constructor(title, body, options, callback) {
       if(options._context) {
         callback = options;
         options = {};
       }
-      const _id = callback._id;
-      options.id = MSGID_PREFIX + _id;
-      showMessage(messageType, title, body, options);
-      _messages[_id] = this;
+
+      let flagOptions = {
+        type: messageType,
+        title: title,
+        body: AJS.escapeHtml(body)
+      };
+
+      if (options.closeable === false) {
+        flagOptions.close = 'never';
+      }
+
+      super(flagOptions, callback, MSGID_PREFIX);
+      _messages[this.flag.id] = this;
+
+      if (options.fadeout) {
+        const delay = isNaN(options.delay) ? AUTO_CLOSE_TIME : options.delay;
+        this.setFadeOut(delay);
+      }
     }
+
+    setFadeOut(delay) {
+      const thisMessage = this;
+      $(thisMessage.flag).addClass('aui-will-close');
+
+      setTimeout(function() {
+        thisMessage.close();
+      }, delay)
+    }
+  };
+
+  const deprecatedMessageConstructor = AJS.deprecate.construct(messageClasses[messageType], 'AP.messages',
+    {
+      alternativeName:'AP.flag',
+      removeInVersion: 'ACJS 5.x',
+      sinceVersion:'ACJS 5.0'
+    }
+  );
+
+  toExport[messageType] = {
+    constructor: deprecatedMessageConstructor
   };
 }, this);
 
