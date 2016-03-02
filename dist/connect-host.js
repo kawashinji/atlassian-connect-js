@@ -1614,8 +1614,10 @@ var IframeContainer = (function () {
     value: function resolverResponse(data) {
       var extension = data.extension;
       var $container = this._urlContainerRegistry[extension.id];
-      extension.url = data.url;
-      this._insertIframe($container, extension);
+      if ($container) {
+        extension.url = data.url;
+        this._insertIframe($container, extension);
+      }
       delete this._urlContainerRegistry[extension.id];
     }
   }, {
@@ -1745,6 +1747,10 @@ var _componentsInline_dialog = _dereq_('components/inline_dialog');
 
 var _componentsInline_dialog2 = _interopRequireDefault(_componentsInline_dialog);
 
+var _componentsWebitem = _dereq_('components/webitem');
+
+var _componentsWebitem2 = _interopRequireDefault(_componentsWebitem);
+
 var _utilsWebitem = _dereq_('utils/webitem');
 
 var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
@@ -1812,6 +1818,10 @@ var InlineDialogWebItem = (function () {
     key: 'opened',
     value: function opened(data) {
       console.log('opened!', data);
+      _componentsWebitem2['default'].requestContent(data.extension).then(function (data) {
+        console.log('request content responded', arguments);
+        data.$el.empty().append(data);
+      });
     }
   }, {
     key: 'createIfNotExists',
@@ -1845,7 +1855,7 @@ _actionsWebitem_actions2['default'].addWebItem(webitem);
 exports['default'] = inlineDialogInstance;
 module.exports = exports['default'];
 
-},{"../dollar":25,"actions/webitem_actions":13,"components/iframe_container":15,"components/inline_dialog":16,"dispatchers/event_dispatcher":24,"utils/webitem":35}],18:[function(_dereq_,module,exports){
+},{"../dollar":25,"actions/webitem_actions":13,"components/iframe_container":15,"components/inline_dialog":16,"components/webitem":19,"dispatchers/event_dispatcher":24,"utils/webitem":35}],18:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2000,9 +2010,22 @@ var WebItem = (function () {
     _classCallCheck(this, WebItem);
 
     this._webitems = {};
+    this._contentResolver = function () {};
   }
 
   _createClass(WebItem, [{
+    key: 'setContentResolver',
+    value: function setContentResolver(resolver) {
+      this._contentResolver = resolver;
+    }
+  }, {
+    key: 'requestContent',
+    value: function requestContent(extension) {
+      if (extension.addon_key && extension.key) {
+        return this._contentResolver.call(null, _underscore2['default'].extend({ classifier: 'json' }, extension));
+      }
+    }
+  }, {
     key: 'getWebItemsBySelector',
     value: function getWebItemsBySelector(selector) {
       _underscore2['default'].find(this._webitems, function (obj) {
@@ -2055,6 +2078,10 @@ var webItemInstance = new WebItem();
 _dispatchersEvent_dispatcher2['default'].register('webitem-added', function (data) {
   console.log('triggered webitem-added', data);
   webItemInstance._addTriggers(data.webitem);
+});
+
+_dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-extension', function (data) {
+  webItemInstance.setContentResolver(data.callback);
 });
 
 exports['default'] = webItemInstance;

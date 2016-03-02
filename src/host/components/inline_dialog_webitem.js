@@ -1,6 +1,7 @@
 import WebItemActions from 'actions/webitem_actions';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import InlineDialogComponent from 'components/inline_dialog';
+import WebitemComponent from 'components/webitem';
 import WebItemUtils from 'utils/webitem';
 import IframeContainer from 'components/iframe_container';
 import $ from '../dollar';
@@ -52,6 +53,11 @@ class InlineDialogWebItem {
 
   opened(data){
     console.log('opened!', data);
+    WebitemComponent.requestContent(data.extension).then(function(data){
+      console.log('request content responded', arguments);
+      data.$el.empty().append(data);
+    });
+    
   }
 
   createIfNotExists(data) {
