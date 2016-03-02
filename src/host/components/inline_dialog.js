@@ -8,22 +8,35 @@ class InlineDialog {
   _renderContainer(){
     return $("<div />").addClass("aui-inline-dialog-contents");
   }
-  render(attributes){
-    var $el = $('<aui-inline-dialog />');
-    $el.attr(attributes || {});
-    $el.addClass('ap-inline-dialog-container');
-    $el.on("aui-layer-show", function(e){
-      console.log('aui layer show', e);
+  _displayInlineDialog(data){
+    InlineDialogActions.created({
+      $el: data.$el,
+      trigger: data.trigger,
+      extension: data.extension
     });
-    // $el.on("aui-layer-hide", function(e) {
-    //   if(e.currentTarget.id === attributes.id){
-    //     e.preventDefault();
-    //   }
-    //   // 
-    //   console.log('aui layer hide', e);
-    //   // InlineDialogActions.hideTriggered(extension_id, $el);
-    // });
-    // $el.append(this._renderContainer());
+  }
+  render(data){
+    var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
+
+    if ($inlineDialog.length !== 0) {
+        $inlineDialog.remove();
+    }
+
+    var $el = AJS.InlineDialog(
+        data.bindTo,
+        //assign unique id to inline Dialog
+        data.id,
+        ($placeholder, trigger, showInlineDialog) => {
+          $placeholder.append(data.$content);
+          this._displayInlineDialog({
+            extension: data.extension,
+            $el: $placeholder,
+            trigger: trigger
+          });
+          showInlineDialog();
+        },
+        data.dialogOptions
+    );
     return $el;
   }
 

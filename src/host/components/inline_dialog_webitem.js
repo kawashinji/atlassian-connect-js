@@ -24,37 +24,34 @@ class InlineDialogWebItem {
   }
 
   _createInlineDialog(data){
-    var attr = {id: data.id};
-    attr["data-aui-responds-to"] = "toggle";
     var $iframeContainer = IframeContainer.createExtension(data.extension);
-    var inlineDialog = InlineDialogComponent.render(attr);
-    // AUI modifies the dom after insertion. Thus the content must be appended afterwards.
-    inlineDialog.insertAfter(data.$target);
-    let newlyInsertedDialog = document.getElementById(data.id);
-    $(newlyInsertedDialog).one("aui-layer-show", function(e){
-      $(this).find(':first-child').append($iframeContainer);
+    var $inlineDialog = InlineDialogComponent.render({
+      extension: data.extension,
+      id: data.id,
+      bindTo: data.$target,
+      $content: $iframeContainer,
+      dialogOptions: {} // fill this with dialog options.
     });
-    inlineDialog.attr('open', '');
+    return $inlineDialog;
   }
 
   triggered(data) {
-    
     var $target = $(data.event.target);
-    var webitemId = $target.data(WEBITEM_UID_KEY);
-    console.log('triggered!', data, webitemId);
-    var existingInlineDialog = document.getElementById(webitemId);
-    if(!existingInlineDialog){
-      this._createInlineDialog({
-        id: webitemId,
-        extension: data.extension,
-        $target: $target
-      });
-    } else {
-      console.log('should show');
-      $(existingInlineDialog).attr('open', '');
-      // $(existingInlineDialog).show();
-      // $(existingInlineDialog).attr('aria-hidden', false);
+    if(!$target.hasClass('ap-inline-dialog')){
+      $target = $target.closest('.ap-inline-dialog');
     }
+    var webitemId = $target.data(WEBITEM_UID_KEY);
+
+    var $inlineDialog = this._createInlineDialog({
+      id: webitemId,
+      extension: data.extension,
+      $target: $target
+    });
+    $inlineDialog.show();
+  }
+
+  opened(data){
+    console.log('opened!', data);
   }
 
   createIfNotExists(data) {
@@ -76,6 +73,9 @@ EventDispatcher.register('before:webitem-invoked:' + webitem.name, function(data
 });
 EventDispatcher.register('webitem-invoked:' + webitem.name, function(data){
   inlineDialogInstance.triggered(data);
+});
+EventDispatcher.register('inline-dialog-opened', function(data){
+  inlineDialogInstance.opened(data);
 });
 WebItemActions.addWebItem(webitem);
 

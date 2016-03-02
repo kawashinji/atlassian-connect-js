@@ -1314,6 +1314,13 @@ module.exports = {
   },
   hideTriggered: function hideTriggered(extension_id, $el) {
     _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
+  },
+  created: function created(data) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-opened', {
+      $el: data.$el,
+      trigger: data.trigger,
+      extension: data.extension
+    });
   }
 };
 
@@ -1671,23 +1678,36 @@ var InlineDialog = (function () {
       return (0, _dollar2['default'])("<div />").addClass("aui-inline-dialog-contents");
     }
   }, {
-    key: 'render',
-    value: function render(attributes) {
-      var $el = (0, _dollar2['default'])('<aui-inline-dialog />');
-      $el.attr(attributes || {});
-      $el.addClass('ap-inline-dialog-container');
-      $el.on("aui-layer-show", function (e) {
-        console.log('aui layer show', e);
+    key: '_displayInlineDialog',
+    value: function _displayInlineDialog(data) {
+      _actionsInline_dialog_actions2['default'].created({
+        $el: data.$el,
+        trigger: data.trigger,
+        extension: data.extension
       });
-      // $el.on("aui-layer-hide", function(e) {
-      //   if(e.currentTarget.id === attributes.id){
-      //     e.preventDefault();
-      //   }
-      //   //
-      //   console.log('aui layer hide', e);
-      //   // InlineDialogActions.hideTriggered(extension_id, $el);
-      // });
-      // $el.append(this._renderContainer());
+    }
+  }, {
+    key: 'render',
+    value: function render(data) {
+      var _this = this;
+
+      var $inlineDialog = (0, _dollar2['default'])(document.getElementById('inline-dialog-' + data.id));
+
+      if ($inlineDialog.length !== 0) {
+        $inlineDialog.remove();
+      }
+
+      var $el = AJS.InlineDialog(data.bindTo,
+      //assign unique id to inline Dialog
+      data.id, function ($placeholder, trigger, showInlineDialog) {
+        $placeholder.append(data.$content);
+        _this._displayInlineDialog({
+          extension: data.extension,
+          $el: $placeholder,
+          trigger: trigger
+        });
+        showInlineDialog();
+      }, data.dialogOptions);
       return $el;
     }
   }]);
@@ -1762,38 +1782,36 @@ var InlineDialogWebItem = (function () {
   }, {
     key: '_createInlineDialog',
     value: function _createInlineDialog(data) {
-      var attr = { id: data.id };
-      attr["data-aui-responds-to"] = "toggle";
       var $iframeContainer = _componentsIframe_container2['default'].createExtension(data.extension);
-      var inlineDialog = _componentsInline_dialog2['default'].render(attr);
-      // AUI modifies the dom after insertion. Thus the content must be appended afterwards.
-      inlineDialog.insertAfter(data.$target);
-      var newlyInsertedDialog = document.getElementById(data.id);
-      (0, _dollar2['default'])(newlyInsertedDialog).one("aui-layer-show", function (e) {
-        (0, _dollar2['default'])(this).find(':first-child').append($iframeContainer);
+      var $inlineDialog = _componentsInline_dialog2['default'].render({
+        extension: data.extension,
+        id: data.id,
+        bindTo: data.$target,
+        $content: $iframeContainer,
+        dialogOptions: {} // fill this with dialog options.
       });
-      inlineDialog.attr('open', '');
+      return $inlineDialog;
     }
   }, {
     key: 'triggered',
     value: function triggered(data) {
-
       var $target = (0, _dollar2['default'])(data.event.target);
-      var webitemId = $target.data(WEBITEM_UID_KEY);
-      console.log('triggered!', data, webitemId);
-      var existingInlineDialog = document.getElementById(webitemId);
-      if (!existingInlineDialog) {
-        this._createInlineDialog({
-          id: webitemId,
-          extension: data.extension,
-          $target: $target
-        });
-      } else {
-        console.log('should show');
-        (0, _dollar2['default'])(existingInlineDialog).attr('open', '');
-        // $(existingInlineDialog).show();
-        // $(existingInlineDialog).attr('aria-hidden', false);
+      if (!$target.hasClass('ap-inline-dialog')) {
+        $target = $target.closest('.ap-inline-dialog');
       }
+      var webitemId = $target.data(WEBITEM_UID_KEY);
+
+      var $inlineDialog = this._createInlineDialog({
+        id: webitemId,
+        extension: data.extension,
+        $target: $target
+      });
+      $inlineDialog.show();
+    }
+  }, {
+    key: 'opened',
+    value: function opened(data) {
+      console.log('opened!', data);
     }
   }, {
     key: 'createIfNotExists',
@@ -1818,6 +1836,9 @@ _dispatchersEvent_dispatcher2['default'].register('before:webitem-invoked:' + we
 });
 _dispatchersEvent_dispatcher2['default'].register('webitem-invoked:' + webitem.name, function (data) {
   inlineDialogInstance.triggered(data);
+});
+_dispatchersEvent_dispatcher2['default'].register('inline-dialog-opened', function (data) {
+  inlineDialogInstance.opened(data);
 });
 _actionsWebitem_actions2['default'].addWebItem(webitem);
 
