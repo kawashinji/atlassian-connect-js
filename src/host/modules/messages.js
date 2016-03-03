@@ -44,7 +44,7 @@ MESSAGE_TYPES.forEach((messageType) => {
       let flagOptions = {
         type: messageType,
         title: title,
-        body: AJS.escapeHtml(body)
+        body: body
       };
 
       if (options.closeable === false) {
