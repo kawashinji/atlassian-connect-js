@@ -8,6 +8,7 @@ import dialog from './modules/dialog';
 import env from './modules/env';
 import loadingIndicator from './components/loading_indicator';
 import messages from './modules/messages';
+import flag from './modules/flag';
 import ModuleActions from 'actions/module_actions';
 import DomEventActions from 'actions/dom_event_actions';
 import _ from 'underscore';
@@ -25,6 +26,7 @@ if (!window._AP) {
 }
 
 simpleXDM.defineModule('messages', messages);
+simpleXDM.defineModule('flag', flag);
 simpleXDM.defineModule('dialog', dialog);
 simpleXDM.defineModule('env', env);
 simpleXDM.defineModule('events', events);
