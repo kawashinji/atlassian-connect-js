@@ -52,6 +52,7 @@ function showMessage(name, title, body, options) {
 }
 
 const deprecatedShowMessage = AJS.deprecate.fn(showMessage, 'AP.messages', {
+  deprecationType: 'API',
   alternativeName:'AP.flag',
   sinceVersion:'ACJS 5.0'
 });
