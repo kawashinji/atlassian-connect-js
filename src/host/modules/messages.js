@@ -51,6 +51,11 @@ function showMessage(name, title, body, options) {
   }
 }
 
+const deprecatedShowMessage = AJS.deprecate.fn(showMessage, 'AP.messages', {
+  alternativeName:'AP.flag',
+  sinceVersion:'ACJS 5.0'
+});
+
 $(document).on('aui-message-close', function (e, $msg) {
   const _id = $msg.attr('id').replace(MSGID_PREFIX, '');
   if (_messages[_id]) {
@@ -76,7 +81,7 @@ MESSAGE_TYPES.forEach((messageType) => {
       }
       const _id = callback._id;
       options.id = MSGID_PREFIX + _id;
-      showMessage(messageType, title, body, options);
+      deprecatedShowMessage(messageType, title, body, options);
       _messages[_id] = this;
     }
   };
