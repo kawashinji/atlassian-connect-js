@@ -1818,9 +1818,9 @@ var InlineDialogWebItem = (function () {
     key: 'opened',
     value: function opened(data) {
       console.log('opened!', data);
-      _componentsWebitem2['default'].requestContent(data.extension).then(function (data) {
+      _componentsWebitem2['default'].requestContent(data.extension).then(function (content) {
         console.log('request content responded', arguments);
-        data.$el.empty().append(data);
+        data.$el.empty().append(content);
       });
     }
   }, {
@@ -2022,7 +2022,7 @@ var WebItem = (function () {
     key: 'requestContent',
     value: function requestContent(extension) {
       if (extension.addon_key && extension.key) {
-        return this._contentResolver.call(null, _underscore2['default'].extend({ classifier: 'json' }, extension));
+        return this._contentResolver.call(null, _underscore2['default'].extend({ classifier: 'raw' }, extension));
       }
     }
   }, {

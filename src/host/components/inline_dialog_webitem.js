@@ -53,9 +53,9 @@ class InlineDialogWebItem {
 
   opened(data){
     console.log('opened!', data);
-    WebitemComponent.requestContent(data.extension).then(function(data){
+    WebitemComponent.requestContent(data.extension).then(function(content){
       console.log('request content responded', arguments);
-      data.$el.empty().append(data);
+      data.$el.empty().append(content);
     });
     
   }
