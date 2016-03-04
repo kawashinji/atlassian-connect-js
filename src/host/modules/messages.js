@@ -60,6 +60,9 @@ const deprecatedShowMessage = AJS.deprecate.fn(showMessage, 'AP.messages', {
 $(document).on('aui-message-close', function (e, $msg) {
   const _id = $msg.attr('id').replace(MSGID_PREFIX, '');
   if (_messages[_id]) {
+    if ($.isFunction(_messages[_id].onCloseTrigger)) {
+      _messages[_id].onCloseTrigger();
+    }
     _messages[_id]._destroy();
   }
 });
@@ -69,6 +72,12 @@ var toExport = {
     const id = MSGID_PREFIX + msg._id;
     if (validateMessageId(id)) {
       $('#' + id).closeMessage();
+    }
+  },
+  onClose(msg, callback) {
+    const id = msg._id;
+    if (_messages[id]) {
+      _messages[id].onCloseTrigger = callback;
     }
   }
 };
