@@ -1763,6 +1763,10 @@ var _dollar = _dereq_('../dollar');
 
 var _dollar2 = _interopRequireDefault(_dollar);
 
+var _create = _dereq_('../create');
+
+var _create2 = _interopRequireDefault(_create);
+
 var ITEM_NAME = 'inline-dialog';
 var SELECTOR = '.ap-inline-dialog';
 var TRIGGERS = ['mouseover', 'click'];
@@ -1820,7 +1824,12 @@ var InlineDialogWebItem = (function () {
       console.log('opened!', data);
       _componentsWebitem2['default'].requestContent(data.extension).then(function (content) {
         console.log('request content responded', arguments);
-        data.$el.empty().append(content);
+        var contentData = JSON.parse(content);
+        contentData.options = {
+          autoresize: true
+        };
+        var addon = (0, _create2['default'])(content);
+        data.$el.empty().append(addon);
       });
     }
   }, {
@@ -1855,7 +1864,7 @@ _actionsWebitem_actions2['default'].addWebItem(webitem);
 exports['default'] = inlineDialogInstance;
 module.exports = exports['default'];
 
-},{"../dollar":25,"actions/webitem_actions":13,"components/iframe_container":15,"components/inline_dialog":16,"components/webitem":19,"dispatchers/event_dispatcher":24,"utils/webitem":35}],18:[function(_dereq_,module,exports){
+},{"../create":20,"../dollar":25,"actions/webitem_actions":13,"components/iframe_container":15,"components/inline_dialog":16,"components/webitem":19,"dispatchers/event_dispatcher":24,"utils/webitem":35}],18:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2022,7 +2031,7 @@ var WebItem = (function () {
     key: 'requestContent',
     value: function requestContent(extension) {
       if (extension.addon_key && extension.key) {
-        return this._contentResolver.call(null, _underscore2['default'].extend({ classifier: 'raw' }, extension));
+        return this._contentResolver.call(null, _underscore2['default'].extend({ classifier: 'json' }, extension));
       }
     }
   }, {

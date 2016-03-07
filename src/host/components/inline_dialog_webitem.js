@@ -5,6 +5,8 @@ import WebitemComponent from 'components/webitem';
 import WebItemUtils from 'utils/webitem';
 import IframeContainer from 'components/iframe_container';
 import $ from '../dollar';
+import create from '../create';
+
 const ITEM_NAME = 'inline-dialog';
 const SELECTOR = '.ap-inline-dialog';
 const TRIGGERS = ['mouseover', 'click'];
@@ -55,9 +57,13 @@ class InlineDialogWebItem {
     console.log('opened!', data);
     WebitemComponent.requestContent(data.extension).then(function(content){
       console.log('request content responded', arguments);
-      data.$el.empty().append(content);
+      var contentData = JSON.parse(content);
+      contentData.options = {
+        autoresize: true
+      };
+      var addon = create(content);
+      data.$el.empty().append(addon);
     });
-    
   }
 
   createIfNotExists(data) {

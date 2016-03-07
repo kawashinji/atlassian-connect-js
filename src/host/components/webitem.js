@@ -17,7 +17,7 @@ class WebItem {
 
   requestContent(extension) {
     if(extension.addon_key && extension.key) {
-      return this._contentResolver.call(null, _.extend({classifier: 'raw'}, extension));
+      return this._contentResolver.call(null, _.extend({classifier: 'json'}, extension));
     }
   }
 
