@@ -1,4 +1,7 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
+import DomEventActions from 'actions/dom_event_actions';
+import DialogActions from 'actions/dialog_actions';
+
 import $ from '../dollar';
 import _ from '../underscore';
 
@@ -93,5 +96,24 @@ class Dialog {
 }
 
 const DialogComponent = new Dialog();
+
+EventDispatcher.register("dialog-close", function(data){
+  DomEventActions.unregisterKeyEvent({
+    extension_id: data.extension_id,
+    key: 27,
+    callback: DialogActions.close
+  });
+});
+
+EventDispatcher.register("iframe-bridge-estabilshed", function(data){
+  DomEventActions.registerKeyEvent({
+    extension_id: data.extension.id,
+    key: 27,
+    callback: DialogActions.close
+  });
+});
+
+
+
 
 export default DialogComponent;

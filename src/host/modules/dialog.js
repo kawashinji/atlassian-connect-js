@@ -1,4 +1,3 @@
-import $ from '../dollar';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import DialogComponent from 'components/dialog';
 import DialogActions from 'actions/dialog_actions';
@@ -14,14 +13,6 @@ function getActiveDialog() {
     return AJS.dialog2($el);
   }
 }
-
-function keyPressListener(e) {
-  if(e.keyCode === 27) {
-    DialogActions.close();
-  }
-}
-
-// $(document).on('keydown', keyPressListener);
 
 EventDispatcher.register('before:dialog-button-click', function ($el) {
   $el.data('callbacks').forEach(cb => cb());
@@ -158,8 +149,8 @@ module.exports = {
     constructor: Dialog,
     on: Dialog.prototype.on
   },
-  close: function (data) {
-    DialogActions.close(data);
+  close: function (data, callback) {
+    DialogActions.close(callback._context.extension);
   },
   onDialogMessage: AJS.deprecate.fn(
     function (buttonName, callback) {
