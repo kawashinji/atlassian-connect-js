@@ -1,3 +1,4 @@
+import $ from '../dollar';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import DialogComponent from 'components/dialog';
 import DialogActions from 'actions/dialog_actions';
@@ -22,10 +23,10 @@ function keyPressListener(e) {
 
 // $(document).on('keydown', keyPressListener);
 
+EventDispatcher.register('before:dialog-button-click', function ($el) {
+  $el.data('callbacks').forEach(cb => cb());
+});
 EventDispatcher.register('dialog-button-click', function ($el) {
-  const buttonOptions = $el.data('options');
-  console.log('button options?', buttonOptions, $el);
-  // todo: button listeners
   DialogActions.close();
 });
 
@@ -108,8 +109,6 @@ class Dialog {
     _dialogs[_id] = this;
   }
   on(event, callback) {
-    // 'close' is the only documented event name
-    // otherwise I would have gone for a more generic onTriggers[event] = [...callbacks]
     if (event === 'close') {
       if ($.isFunction(callback)) {
         this.onClose.push(callback);
@@ -128,7 +127,14 @@ class Button {
     }
   }
   bind(callback) {
-    this.$el && this.$el.click(callback);
+    if ($.isFunction(callback)) {
+      let callbacks = this.$el.data('callbacks');
+      if (!callbacks) {
+        callbacks = [];
+        this.$el.data('callbacks', callbacks);
+      }
+      callbacks.push(callback);
+    }
   }
   enable() {
     this.$el && this.$el.attr('aria-disabled', false);
@@ -155,12 +161,11 @@ module.exports = {
   close: function (data) {
     DialogActions.close(data);
   },
-  onDialogMessage: // AJS.deprecate.fn(
+  onDialogMessage: AJS.deprecate.fn(
     function (buttonName, callback) {
       const button = new Button(buttonName);
       button.bind(callback);
     },
-/*
     'AP.dialog.onDialogMessage()',
     {
       deprecationType: 'API',
@@ -168,7 +173,6 @@ module.exports = {
       sinceVersion:'ACJS 5.0'
     }
   ),
-*/
   getButton: {
     constructor: Button,
     enable: Button.prototype.enable,
