@@ -75,7 +75,7 @@ AP.define("navigator", ["_dollar", "_rpc"],
              * will contain information about the page currently open in the host application.
              *
              * The object will contain a target, which can be used when calling the <i>go()</i> method (except 
-             * when the target is <i>contentcreate</i>) and a context map containing in formation about the opened page.
+             * when the target is <i>contentcreate</i>) and a context map containing information about the opened page.
              *
              * Currently this method supports the following contexts in Confluence only:
              *
@@ -92,8 +92,10 @@ AP.define("navigator", ["_dollar", "_rpc"],
              * @method
              * @memberof module:Navigator#
              * @param {Function} callback function (location) {...}
-             * @param {Navigator~target} target The following contexts are currently supported in Confluence (contentcreate, contentview. contentedit)
-             * @param {Navigator~context} context Specific information that identifies the current page within the host application.
+             * @param {Navigator~target} target The following contexts are currently supported for <i>getLocation()</i> in Confluence:
+             * `contentcreate`, `contentview` and `contentedit`.
+             * @param {Navigator~context} context Specific information that identifies the current page within the host application. 
+             * Contains `contentId` and `contentType`.
              * @noDemo
              * @example
              * AP.require('navigator', function(navigator){
