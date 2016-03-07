@@ -61,7 +61,7 @@ class InlineDialogWebItem {
       contentData.options = {
         autoresize: true
       };
-      var addon = create(content);
+      var addon = create(contentData);
       data.$el.empty().append(addon);
     });
   }

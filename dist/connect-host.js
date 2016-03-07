@@ -1239,7 +1239,7 @@ AJS.$(window).on('resize', function (e) {
 module.exports = {
   iframeResize: function iframeResize(width, height, context) {
     var $el = _util2['default'].getIframeByExtensionId(context.extension_id);
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: width, height: height, $el: $el });
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
   },
   sizeToParent: function sizeToParent(context) {
     _dispatchersEvent_dispatcher2['default'].dispatch('iframe-size-to-parent', { context: context });
@@ -1311,6 +1311,9 @@ var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dis
 module.exports = {
   hide: function hide(extension_id) {
     _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-hide', { extension_id: extension_id });
+  },
+  refresh: function refresh($el) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-refresh', { $el: $el });
   },
   hideTriggered: function hideTriggered(extension_id, $el) {
     _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
@@ -1669,12 +1672,42 @@ var _dollar = _dereq_('../dollar');
 
 var _dollar2 = _interopRequireDefault(_dollar);
 
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
 var InlineDialog = (function () {
   function InlineDialog() {
     _classCallCheck(this, InlineDialog);
   }
 
   _createClass(InlineDialog, [{
+    key: 'resize',
+    value: function resize(data) {
+      var width = _util2['default'].stringToDimension(data.width);
+      var height = _util2['default'].stringToDimension(data.height);
+      var $content = data.$el.find('.contents');
+      if ($content.length === 1) {
+        $content.css({
+          width: width,
+          height: height
+        });
+        _actionsInline_dialog_actions2['default'].refresh({
+          $el: $content
+        });
+      }
+    }
+  }, {
+    key: 'refresh',
+    value: function refresh($el) {
+      this._getInlineDialog($el).refresh();
+    }
+  }, {
+    key: '_getInineDialog',
+    value: function _getInineDialog($el) {
+      return AJS.InlineDialog($el);
+    }
+  }, {
     key: '_renderContainer',
     value: function _renderContainer() {
       return (0, _dollar2['default'])("<div />").addClass("aui-inline-dialog-contents");
@@ -1719,10 +1752,25 @@ var InlineDialog = (function () {
 
 var InlineDialogComponent = new InlineDialog();
 
+_dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
+  var container = data.$el.parent(".aui-inline-dialog");
+  if (container.length === 1) {
+    InlineDialogComponent.resize({
+      width: data.width,
+      height: data.height,
+      $el: container
+    });
+  }
+});
+
+_dispatchersEvent_dispatcher2['default'].register('inline-dialog-refresh', function (data) {
+  InlineDialogComponent.refresh(data.$el);
+});
+
 exports['default'] = InlineDialogComponent;
 module.exports = exports['default'];
 
-},{"../dollar":25,"actions/inline_dialog_actions":9,"dispatchers/event_dispatcher":24}],17:[function(_dereq_,module,exports){
+},{"../dollar":25,"../util":32,"actions/inline_dialog_actions":9,"dispatchers/event_dispatcher":24}],17:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1828,7 +1876,7 @@ var InlineDialogWebItem = (function () {
         contentData.options = {
           autoresize: true
         };
-        var addon = (0, _create2['default'])(content);
+        var addon = (0, _create2['default'])(contentData);
         data.$el.empty().append(addon);
       });
     }

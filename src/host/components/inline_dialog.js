@@ -1,9 +1,33 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import InlineDialogActions from 'actions/inline_dialog_actions';
 import $ from '../dollar';
+import util from '../util';
 
 class InlineDialog {
   constructor () {
+  }
+
+  resize(data){
+    var width = util.stringToDimension(data.width);
+    var height = util.stringToDimension(data.height);
+    var $content = data.$el.find('.contents');
+    if($content.length === 1){
+      $content.css({
+          width: width,
+          height: height
+      });
+      InlineDialogActions.refresh({
+        $el: $content
+      });
+    }
+  }
+
+  refresh($el){
+    this._getInlineDialog($el).refresh();
+  }
+
+  _getInineDialog($el) {
+    return AJS.InlineDialog($el);
   }
   _renderContainer(){
     return $("<div />").addClass("aui-inline-dialog-contents");
@@ -43,5 +67,20 @@ class InlineDialog {
 }
 
 var InlineDialogComponent = new InlineDialog();
+
+EventDispatcher.register('iframe-resize', function(data) {
+  var container = data.$el.parent(".aui-inline-dialog");
+  if(container.length === 1) {
+    InlineDialogComponent.resize({
+      width: data.width,
+      height: data.height,
+      $el: container
+    });
+  }
+});
+
+EventDispatcher.register('inline-dialog-refresh', function(data){
+  InlineDialogComponent.refresh(data.$el);
+});
 
 export default InlineDialogComponent;

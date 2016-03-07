@@ -24,7 +24,7 @@ AJS.$(window).on('resize', function (e) {
 module.exports = {
   iframeResize: function(width, height, context){
     var $el = util.getIframeByExtensionId(context.extension_id);
-    EventDispatcher.dispatch('iframe-resize', {width, height, $el});
+    EventDispatcher.dispatch('iframe-resize', {width, height, $el, extension: context.extension});
   },
   sizeToParent: function(context){
     EventDispatcher.dispatch('iframe-size-to-parent', {context});
