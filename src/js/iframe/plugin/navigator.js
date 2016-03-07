@@ -15,7 +15,9 @@ AP.define("navigator", ["_dollar", "_rpc"],
 
             /**
              * @class Navigator~target
-             * @property {String}        contentview        The view page for pages and blogs. Takes a `contentId` to identify the content.
+             * @property {String}        contentcreate      The first create page for pages and blogs. Takes a `contentType` and a `contentId` to identify the content.
+             * Cannot be used for navigation.
+             * @property {String}        contentview        The view page for pages and blogs. Takes a `contentType` and a `contentId` to identify the content.
              * @property {String}        contentedit        The edit page for pages and blogs. Takes a `contentType` and a `contentId` to identify the content.
              * @property {String}        spaceview          The space view page. Takes a `spaceKey` to identify the space.
              * @property {String}        spacetools         The space tools page. Takes a `spaceKey` to identify the space.
@@ -72,21 +74,26 @@ AP.define("navigator", ["_dollar", "_rpc"],
              * This method will provide a context object to the passed in callback.  This context object
              * will contain information about the page currently open in the host application.
              *
-             * The object will contain a target, which can be used when calling the <pre>go</pre> method, and
-             * a context map containing in formation about the opened page.
+             * The object will contain a target, which can be used when calling the <i>go()</i> method (except 
+             * when the target is <i>contentcreate</i>) and a context map containing in formation about the opened page.
              *
-             * Currently this method supports two contexts in Confluence only:
+             * Currently this method supports the following contexts in Confluence only:
+             *
+             * <strong>contentcreate</strong> - The host application is currently creating a page, blog post 
+             * or other content.
              *
              * <strong>contentview</strong> - The host application is currently viewing a page, blog post or
              * other content.
              *
-             * <strong>contentedit</strong> - the host application is currently editing a page, blog post or
+             * <strong>contentedit</strong> - The host application is currently editing a page, blog post or
              * other content.
              *
              * @name getLocation
              * @method
              * @memberof module:Navigator#
              * @param {Function} callback function (location) {...}
+             * @param {Navigator~target} target The following contexts are currently supported in Confluence (contentcreate, contentview. contentedit)
+             * @param {Navigator~context} context Specific information that identifies the current page within the host application.
              * @noDemo
              * @example
              * AP.require('navigator', function(navigator){
