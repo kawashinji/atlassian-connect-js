@@ -1,6 +1,7 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import DomEventActions from 'actions/dom_event_actions';
 import DialogActions from 'actions/dialog_actions';
+import IframeContainer from 'components/iframe_container';
 
 import $ from '../dollar';
 import _ from '../underscore';
@@ -37,7 +38,7 @@ class Dialog {
   _renderFooter(options) {
     const $footer = $('<footer />').addClass('aui-dialog2-footer');
     if(options.actions) {
-      const $actions = this._renderFooterActions(options.actions);
+      const $actions = this._renderFooterActions(options.actions, options.extension);
       $footer.append($actions);
     }
     if(options.hint) {
@@ -47,7 +48,7 @@ class Dialog {
     return $footer;
   }
 
-  _renderFooterActions(actions) {
+  _renderFooterActions(actions, extension) {
     const $actions = $('<div />').addClass('aui-dialog2-footer-actions');
     $actions.append([...actions].map(action => {
       const $button = $('<button />').addClass('aui-button').text(action.text);
@@ -55,6 +56,11 @@ class Dialog {
       if (['primary', 'link'].includes(action.type)) {
         $button.addClass('aui-button-' + action.type);
       }
+      $button.click(function () {
+        if ($button.attr('aria-disabled') !== 'true') {
+          DialogActions.buttonClick($button, extension);
+        }
+      });
       return $button;
     }));
     return $actions;
@@ -79,12 +85,21 @@ class Dialog {
     if (['small', 'medium', 'large', 'xlarge', 'fullscreen'].includes(options.size)) {
       $dialog.addClass('aui-dialog2-' + options.size);
     }
-    $dialog.append(this._renderContent(options.$content));
+    const $content = IframeContainer.createExtension({
+      addon_key: options.extension.addon_key,
+      key: options.key,
+      url: options.url,
+      options: {
+        customData: options.customData
+      }
+    });
+    $dialog.append(this._renderContent($content));
     if (options.chrome) {
       $dialog.prepend(this._renderHeader({
         title: options.title
       }));
       $dialog.append(this._renderFooter({
+        extension: options.extension,
         actions: options.actions,
         hint: options.hint
       }));
@@ -97,23 +112,25 @@ class Dialog {
 
 const DialogComponent = new Dialog();
 
-EventDispatcher.register("dialog-close", function(data){
-  DomEventActions.unregisterKeyEvent({
-    extension_id: data.extension_id,
-    key: 27,
-    callback: DialogActions.close
-  });
-});
-
-EventDispatcher.register("iframe-bridge-estabilshed", function(data){
+EventDispatcher.register('iframe-bridge-estabilshed', function(data){
   DomEventActions.registerKeyEvent({
     extension_id: data.extension.id,
     key: 27,
-    callback: DialogActions.close
+    callback: function () {
+      DialogActions.close(null, data.extension);
+    }
   });
 });
 
+EventDispatcher.register('dialog-close', function(data, extension){
+  DomEventActions.unregisterKeyEvent({
+    extension_id: extension.id,
+    key: 27
+  });
+});
 
-
+EventDispatcher.register('dialog-button-click', function ($el, extension) {
+  DialogActions.close(null, extension);
+});
 
 export default DialogComponent;

@@ -1,7 +1,6 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import DialogComponent from 'components/dialog';
 import DialogActions from 'actions/dialog_actions';
-import IframeContainer from 'components/iframe_container';
 
 const DLGID_PREFIX = 'ap-dialog-';
 const DLGID_REXEXP = new RegExp(`^${DLGID_PREFIX}[0-9A-fa-f]+$`);
@@ -15,17 +14,17 @@ function getActiveDialog() {
 }
 
 EventDispatcher.register('before:dialog-button-click', function ($el) {
-  $el.data('callbacks').forEach(cb => cb());
-});
-EventDispatcher.register('dialog-button-click', function ($el) {
-  DialogActions.close();
+  const callbacks = $el.data('callbacks');
+  if ($.isArray(callbacks)) {
+    callbacks.forEach(cb => cb());
+  }
 });
 
 function closeDialog(data) {
   const dialog = getActiveDialog();
   if (dialog) {
     const _id = dialog.$el.attr('id').replace(DLGID_PREFIX, '');
-    _dialogs[_id].onClose.forEach(cb => cb());
+    _dialogs[_id].onClose.forEach(cb => cb(data));
     _dialogs[_id]._destroy();
     delete _dialogs[_id];
     if (!data || !data.isHiding) {
@@ -37,23 +36,11 @@ function closeDialog(data) {
 
 EventDispatcher.register('dialog-close', closeDialog);
 
-function dialogIframe(options, context) {
-  return IframeContainer.createExtension({
-    addon_key: context.extension.addon_key,
-    key: options.key,
-    url: options.url,
-    options: {
-      customData: options.customData
-    }
-  });
-}
-
 class Dialog {
   constructor(options, callback) {
     const _id = callback._id;
     options.id = DLGID_PREFIX + _id;
     this.onClose = [];
-    const $iframeContainer = dialogIframe(options, callback._context);
     const actions = [
       {
         name: 'submit',
@@ -74,19 +61,16 @@ class Dialog {
       options.size = 'medium';
     }
     const $el = DialogComponent.render({
-      $content: $iframeContainer,
+      extension: callback._context.extension,
+      key: options.key,
+      url: options.url,
       size: options.size,
       chrome: options.chrome,
       header: options.header,
       hint: options.hint,
       actions: actions,
-      id: options.id
-    });
-    $el.find('.aui-dialog2-footer-actions .aui-button').click(function () {
-      const $el = $(this);
-      if ($el.attr('aria-disabled') !== 'true') {
-        DialogActions.buttonClick($el);
-      }
+      id: options.id,
+      customData: options.customData
     });
     const dialog = AJS.dialog2($el);
     if (!options.size || options.size === 'fullscreen') {
@@ -95,7 +79,7 @@ class Dialog {
     dialog.show();
     DialogActions.open();
     dialog.on('hide', function () {
-      DialogActions.close({isHiding: true});
+      DialogActions.close({isHiding: true}, callback._context.extension);
     });
     _dialogs[_id] = this;
   }
@@ -150,7 +134,7 @@ module.exports = {
     on: Dialog.prototype.on
   },
   close: function (data, callback) {
-    DialogActions.close(callback._context.extension);
+    DialogActions.close(data, callback._context.extension);
   },
   onDialogMessage: AJS.deprecate.fn(
     function (buttonName, callback) {
