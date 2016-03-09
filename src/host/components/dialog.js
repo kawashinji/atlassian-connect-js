@@ -137,7 +137,7 @@ class Dialog {
 
 const DialogComponent = new Dialog();
 
-EventDispatcher.register('iframe-bridge-estabilshed', function (data) {
+EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
   DomEventActions.registerKeyEvent({
     extension_id: data.extension.id,
     key: 27,
@@ -150,7 +150,7 @@ EventDispatcher.register('iframe-bridge-estabilshed', function (data) {
   });
 });
 
-EventDispatcher.register('dialog-close-active', function (data) {
+EventDispatcher.register('dialog-close-active', (data) => {
   DialogActions.close({
     customData: data.customData,
     dialog: getActiveDialog(),
@@ -158,7 +158,7 @@ EventDispatcher.register('dialog-close-active', function (data) {
   });
 });
 
-EventDispatcher.register('dialog-close', function (data) {
+EventDispatcher.register('dialog-close', (data) => {
   if (!data.isHiding) {
     data.dialog.off('hide');
     data.dialog.hide();
@@ -169,7 +169,17 @@ EventDispatcher.register('dialog-close', function (data) {
   });
 });
 
-EventDispatcher.register('dialog-button-click', function (data) {
+EventDispatcher.register('dialog-button-toggle', (data) => {
+  const dialog = getActiveDialog();
+  if (dialog) {
+    const $button = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
+      return $(this).data('name') === data.name;
+    });
+    $button.attr('aria-disabled', !data.enabled);
+  }
+});
+
+EventDispatcher.register('dialog-button-click', (data) => {
   DialogActions.close({
     dialog: getActiveDialog(),
     extension: data.extension

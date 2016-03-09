@@ -71,38 +71,39 @@ class Dialog {
 class Button {
   constructor(name) {
     this.name = name;
-    this.$el = $();
-    //const dialog = getActiveDialog();
-    //if (dialog) {
-    //  this.$el = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
-    //    return $(this).data('name') === name;
-    //  });
-    //}
+    this.enabled = true;
+    this.callbacks = [];
   }
   bind(callback) {
     if ($.isFunction(callback)) {
-      let callbacks = this.$el.data('callbacks');
-      if (!callbacks) {
-        callbacks = [];
-        this.$el.data('callbacks', callbacks);
-      }
-      callbacks.push(callback);
+      this.callbacks.push(callback);
     }
   }
   enable() {
-    this.$el && this.$el.attr('aria-disabled', false);
+    this.setState(true);
   }
   disable() {
-    this.$el && this.$el.attr('aria-disabled', true);
+    this.setState(false);
   }
   isEnabled(callback) {
-    callback(this.$el && this.$el.attr('aria-disabled'));
+    callback(this.enabled);
   }
   toggle() {
-    this.$el && this.$el.attr('aria-disabled', this.$el.attr('aria-disabled') !== 'true');
+    this.setState(!this.enabled);
+  }
+  setState(enabled) {
+    this.enabled = enabled;
+    DialogActions.toggleButton({
+      name: this.name,
+      enabled: this.enabled
+    });
   }
   trigger() {
-    this.$el && this.$el.click();
+    if (this.enabled) {
+      DialogActions.buttonClick({
+        name: this.name
+      });
+    }
   }
 }
 
