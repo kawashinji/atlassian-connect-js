@@ -8,11 +8,46 @@
                 "If-Match", "If-None-Match"
             ],
             contextPath = null,
-            experimentify = null;
+            experimentify = null,
+            addFileUploadHeader = null;
 
         function setExperimentify(func) {
             if ($.isFunction(func)) {
                 experimentify = func;
+            } else {
+                throw new Error("func must be a function");
+            }
+        }
+
+        function handleFile (ajaxOptions, file, url) {
+            if (!file instanceof File) {
+                throw new Error("file must be a File object")
+            }
+
+            ajaxOptions.contentType = false;
+            ajaxOptions.processData = false;
+
+            var formData = new FormData();
+            formData.append('file', file);
+
+            if (ajaxOptions.data) {
+                Object.keys(ajaxOptions.data).forEach(function (key) {
+                    formData.append(key, ajaxOptions.data[key]);
+                });
+            }
+
+            ajaxOptions.data = formData;
+
+            if ($.isFunction(addFileUploadHeader)) {
+                ajaxOptions = addFileUploadHeader(ajaxOptions, url)
+            }
+
+            return ajaxOptions;
+        }
+
+        function setAddFileUploadHeader (func) {
+            if ($.isFunction(func)) {
+                addFileUploadHeader = func;
             } else {
                 throw new Error("func must be a function");
             }
@@ -65,6 +100,11 @@
                                 "AP-Client-Key": this.addonKey
                             }
                         };
+
+                        if (args.file) {
+                            ajaxOptions = handleFile(ajaxOptions, args.file, args.url);
+                        }
+
                         $.each(requestHeadersWhitelist, function(index, header) {
                             if (headers[header.toLowerCase()]) {
                                 ajaxOptions.headers[header] = headers[header.toLowerCase()];
@@ -88,7 +128,8 @@
         });
 
         return {
-            setExperimentify: setExperimentify
+            setExperimentify: setExperimentify,
+            setAddFileUploadHeader: setAddFileUploadHeader
         }
 
     });

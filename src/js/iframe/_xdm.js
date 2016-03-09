@@ -168,12 +168,12 @@ if(this.AP){
     // Sends a message of a specific type to the remote peer via a post-message event
     function send(sid, type, message) {
       try {
-        target.postMessage(JSON.stringify({
+        target.postMessage({
           c: channel,
           i: sid,
           t: type,
           m: message
-        }), remoteOrigin);
+        }, remoteOrigin);
       } catch (ex) {
         log(errmsg(ex));
       }
@@ -203,7 +203,7 @@ if(this.AP){
     function receive(e) {
       try {
         // Extract message payload from the event
-        var payload = JSON.parse(e.data),
+        var payload = e.data,
             pid = payload.i, pchannel = payload.c, ptype = payload.t, pmessage = payload.m;
 
         // if the iframe has potentially been reloaded. re-attach the source contentWindow object
