@@ -1,13 +1,16 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 
 module.exports = {
-  open: function () {
+  open: () => {
     EventDispatcher.dispatch('dialog-open');
   },
-  close: function (data, extension) {
-    EventDispatcher.dispatch('dialog-close', data, extension);
+  close: (data) => {
+    EventDispatcher.dispatch('dialog-close', data);
   },
-  buttonClick: function ($el, extension) {
-    EventDispatcher.dispatch('dialog-button-click', $el, extension);
+  closeActive: (data) => {
+    EventDispatcher.dispatch('dialog-close-active', data);
+  },
+  buttonClick: ($el, extension) => {
+    EventDispatcher.dispatch('dialog-button-click', {$el, extension});
   }
 };

@@ -6,11 +6,23 @@ import IframeContainer from 'components/iframe_container';
 import $ from '../dollar';
 import _ from '../underscore';
 
+const DLGID_PREFIX = 'ap-dialog-';
+const DLGID_REXEXP = new RegExp(`^${DLGID_PREFIX}[0-9A-fa-f]+$`);
+
+function getActiveDialog() {
+  const $el = AJS.LayerManager.global.getTopLayer();
+  if ($el && DLGID_REXEXP.test($el.attr('id'))) {
+    const dialog = AJS.dialog2($el);
+    dialog._id = dialog.$el.attr('id').replace(DLGID_PREFIX, '');
+    return dialog;
+  }
+}
+
 class Dialog {
   constructor () {
   }
 
-  _renderHeaderCloseBtn(options) {
+  _renderHeaderCloseBtn() {
     const $close = $('<a />').addClass('aui-dialog2-header-close');
     const $closeBtn = $('<span />').addClass('aui-icon aui-icon-small aui-iconfont-close-dialog').text('Close');
     $close.append($closeBtn);
@@ -56,7 +68,7 @@ class Dialog {
       if (['primary', 'link'].includes(action.type)) {
         $button.addClass('aui-button-' + action.type);
       }
-      $button.click(function () {
+      $button.click(() => {
         if ($button.attr('aria-disabled') !== 'true') {
           DialogActions.buttonClick($button, extension);
         }
@@ -78,7 +90,7 @@ class Dialog {
   render(options){
     const $dialog = $('<section />').attr({
       role: 'dialog',
-      id: options.id
+      id: DLGID_PREFIX + options.id
     });
     $dialog.data('aui-remove-on-hide', true);
     $dialog.addClass('aui-layer aui-dialog2');
@@ -106,31 +118,62 @@ class Dialog {
     } else {
       $dialog.addClass('aui-dialog2-chromeless');
     }
-    return $dialog;
+    const dialog = AJS.dialog2($dialog);
+    dialog._id = options.id;
+    if (!options.size || options.size === 'fullscreen') {
+      AJS.layer($dialog).changeSize(options.width, options.height);
+    }
+    dialog.show();
+    DialogActions.open();
+    dialog.on('hide', () => {
+      DialogActions.close({
+        dialog,
+        isHiding: true,
+        extension: options.extension
+      });
+    });
   }
 }
 
 const DialogComponent = new Dialog();
 
-EventDispatcher.register('iframe-bridge-estabilshed', function(data){
+EventDispatcher.register('iframe-bridge-estabilshed', function (data) {
   DomEventActions.registerKeyEvent({
     extension_id: data.extension.id,
     key: 27,
-    callback: function () {
-      DialogActions.close(null, data.extension);
+    callback: () => {
+      DialogActions.close({
+        dialog: getActiveDialog(),
+        extension: data.extension
+      });
     }
   });
 });
 
-EventDispatcher.register('dialog-close', function(data, extension){
+EventDispatcher.register('dialog-close-active', function (data) {
+  DialogActions.close({
+    customData: data.customData,
+    dialog: getActiveDialog(),
+    extension: data.extension
+  });
+});
+
+EventDispatcher.register('dialog-close', function (data) {
+  if (!data.isHiding) {
+    data.dialog.off('hide');
+    data.dialog.hide();
+  }
   DomEventActions.unregisterKeyEvent({
-    extension_id: extension.id,
+    extension_id: data.extension.id,
     key: 27
   });
 });
 
-EventDispatcher.register('dialog-button-click', function ($el, extension) {
-  DialogActions.close(null, extension);
+EventDispatcher.register('dialog-button-click', function (data) {
+  DialogActions.close({
+    dialog: getActiveDialog(),
+    extension: data.extension
+  });
 });
 
 export default DialogComponent;

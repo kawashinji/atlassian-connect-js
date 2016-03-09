@@ -2,16 +2,7 @@ import EventDispatcher from 'dispatchers/event_dispatcher';
 import DialogComponent from 'components/dialog';
 import DialogActions from 'actions/dialog_actions';
 
-const DLGID_PREFIX = 'ap-dialog-';
-const DLGID_REXEXP = new RegExp(`^${DLGID_PREFIX}[0-9A-fa-f]+$`);
 const _dialogs = {};
-
-function getActiveDialog() {
-  const $el = AJS.LayerManager.global.getTopLayer();
-  if ($el && DLGID_REXEXP.test($el.attr('id'))) {
-    return AJS.dialog2($el);
-  }
-}
 
 EventDispatcher.register('before:dialog-button-click', function ($el) {
   const callbacks = $el.data('callbacks');
@@ -20,26 +11,18 @@ EventDispatcher.register('before:dialog-button-click', function ($el) {
   }
 });
 
-function closeDialog(data) {
-  const dialog = getActiveDialog();
+EventDispatcher.register('dialog-close', function (data) {
+  const dialog = data.dialog;
   if (dialog) {
-    const _id = dialog.$el.attr('id').replace(DLGID_PREFIX, '');
-    _dialogs[_id].onClose.forEach(cb => cb(data));
-    _dialogs[_id]._destroy();
-    delete _dialogs[_id];
-    if (!data || !data.isHiding) {
-      dialog.off('hide');
-      dialog.hide();
-    }
+    _dialogs[dialog._id].onClose.forEach(cb => cb(data.customData));
+    _dialogs[dialog._id]._destroy();
+    delete _dialogs[dialog._id];
   }
-}
-
-EventDispatcher.register('dialog-close', closeDialog);
+});
 
 class Dialog {
   constructor(options, callback) {
     const _id = callback._id;
-    options.id = DLGID_PREFIX + _id;
     this.onClose = [];
     const actions = [
       {
@@ -60,26 +43,19 @@ class Dialog {
     } else if (!options.width && !options.height) {
       options.size = 'medium';
     }
-    const $el = DialogComponent.render({
+    DialogComponent.render({
       extension: callback._context.extension,
       key: options.key,
       url: options.url,
       size: options.size,
+      width: options.width,
+      height: options.height,
       chrome: options.chrome,
       header: options.header,
       hint: options.hint,
       actions: actions,
-      id: options.id,
+      id: _id,
       customData: options.customData
-    });
-    const dialog = AJS.dialog2($el);
-    if (!options.size || options.size === 'fullscreen') {
-      AJS.layer($el).changeSize(options.width, options.height);
-    }
-    dialog.show();
-    DialogActions.open();
-    dialog.on('hide', function () {
-      DialogActions.close({isHiding: true}, callback._context.extension);
     });
     _dialogs[_id] = this;
   }
@@ -94,12 +70,14 @@ class Dialog {
 
 class Button {
   constructor(name) {
-    const dialog = getActiveDialog();
-    if (dialog) {
-      this.$el = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
-        return $(this).data('name') === name;
-      });
-    }
+    this.name = name;
+    this.$el = $();
+    //const dialog = getActiveDialog();
+    //if (dialog) {
+    //  this.$el = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
+    //    return $(this).data('name') === name;
+    //  });
+    //}
   }
   bind(callback) {
     if ($.isFunction(callback)) {
@@ -133,11 +111,14 @@ module.exports = {
     constructor: Dialog,
     on: Dialog.prototype.on
   },
-  close: function (data, callback) {
-    DialogActions.close(data, callback._context.extension);
+  close: (data, callback) => {
+    DialogActions.closeActive({
+      customData: data,
+      extension: callback._context.extension
+    });
   },
   onDialogMessage: AJS.deprecate.fn(
-    function (buttonName, callback) {
+    (buttonName, callback) => {
       const button = new Button(buttonName);
       button.bind(callback);
     },
