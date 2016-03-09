@@ -34,7 +34,7 @@ simpleXDM.defineModule('events', events);
 
 // rpc.extend(propagator);
 
-EventDispatcher.register("module-define-custom", function(data){
+EventDispatcher.register('module-define-custom', function(data){
   simpleXDM.defineModule(data.name, data.methods);
 });
 
@@ -55,10 +55,10 @@ export default {
     DomEventActions.unregisterKeyEvent({extension_id, key, modifiers, callback});
   },
   onIframeEstablished: (callback) => {
-    EventDispatcher.register("after:iframe-bridge-estabilshed", function(data) {
+    EventDispatcher.register('after:iframe-bridge-estabilshed', function(data) {
       callback.call(null, {
         $el: data.$el,
-        extension: _.pick(data.extension, ["id", "addon_key", "id", "key", "options", "url"])
+        extension: _.pick(data.extension, ['id', 'addon_key', 'id', 'key', 'options', 'url'])
       });
     });
   },
