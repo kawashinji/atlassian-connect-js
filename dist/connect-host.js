@@ -1192,10 +1192,6 @@ var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
 
 var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
 
-var _util = _dereq_('../util');
-
-var _util2 = _interopRequireDefault(_util);
-
 module.exports = {
   registerKeyEvent: function registerKeyEvent(data) {
     _simpleXdmDistHost2['default'].registerKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
@@ -1207,7 +1203,7 @@ module.exports = {
   }
 };
 
-},{"../util":26,"dispatchers/event_dispatcher":18,"simple-xdm/dist/host":29}],6:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":24,"simple-xdm/dist/host":36}],6:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1221,31 +1217,36 @@ var _util = _dereq_('../util');
 var _util2 = _interopRequireDefault(_util);
 
 _dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
-  _util2['default'].getIframeByExtensionId(data.context.extension_id).css({
-    width: _util2['default'].stringToDimension(data.width),
-    height: _util2['default'].stringToDimension(data.height)
+  var width = _util2['default'].stringToDimension(data.width);
+  var height = _util2['default'].stringToDimension(data.height);
+  data.$el.css({
+    width: width,
+    height: height
   });
+  data.$el.trigger('resized', { width: width, height: height });
 });
 
 _dispatchersEvent_dispatcher2['default'].register('iframe-size-to-parent', function (data) {
-  var height = $(document).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 20;
-  _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: '100%', height: height + 'px', context: data.context });
+  var height = AJS.$(document).height() - AJS.$('#header > nav').outerHeight() - AJS.$('#footer').outerHeight() - 20;
+  var $el = _util2['default'].getIframeByExtensionId(data.context.extension_id);
+  _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: '100%', height: height + 'px', $el: $el });
 });
 
-$(window).on('resize', function (e) {
+AJS.$(window).on('resize', function (e) {
   _dispatchersEvent_dispatcher2['default'].dispatch('host-window-resize', e);
 });
 
 module.exports = {
   iframeResize: function iframeResize(width, height, context) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: width, height: height, context: context });
+    var $el = _util2['default'].getIframeByExtensionId(context.extension_id);
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
   },
   sizeToParent: function sizeToParent(context) {
     _dispatchersEvent_dispatcher2['default'].dispatch('iframe-size-to-parent', { context: context });
   }
 };
 
-},{"../util":26,"dispatchers/event_dispatcher":18}],7:[function(_dereq_,module,exports){
+},{"../util":32,"dispatchers/event_dispatcher":24}],7:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1254,17 +1255,79 @@ var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
 
 var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
 
-var _util = _dereq_('../util');
+var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
 
-var _util2 = _interopRequireDefault(_util);
+var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
+
+module.exports = {
+  broadcast: function broadcast(type, targetSpec, event) {
+    _simpleXdmDistHost2['default'].dispatch(type, targetSpec, event);
+    _dispatchersEvent_dispatcher2['default'].dispatch('event-dispatch', {
+      type: type,
+      targetSpec: targetSpec,
+      event: event
+    });
+  }
+};
+
+},{"dispatchers/event_dispatcher":24,"simple-xdm/dist/host":36}],8:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
+
+var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
 
 module.exports = {
   notifyIframeCreated: function notifyIframeCreated($el, extension) {
     _dispatchersEvent_dispatcher2['default'].dispatch('iframe-create', { $el: $el, extension: extension });
+  },
+  notifyIframeDestroyed: function notifyIframeDestroyed(extension_id) {
+    var extension = _simpleXdmDistHost2['default'].getExtensions({
+      extension_id: extension_id
+    });
+    if (extension.length === 1) {
+      extension = extension[0];
+    }
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-destroyed', { extension: extension });
+    _simpleXdmDistHost2['default'].unregisterExtension({ extension_id: extension_id });
   }
 };
 
-},{"../util":26,"dispatchers/event_dispatcher":18}],8:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":24,"simple-xdm/dist/host":36}],9:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+module.exports = {
+  hide: function hide(extension_id) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-hide', { extension_id: extension_id });
+  },
+  refresh: function refresh($el) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-refresh', { $el: $el });
+  },
+  hideTriggered: function hideTriggered(extension_id, $el) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
+  },
+  created: function created(data) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-opened', {
+      $el: data.$el,
+      trigger: data.trigger,
+      extension: data.extension
+    });
+  }
+};
+
+},{"dispatchers/event_dispatcher":24}],10:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1304,7 +1367,7 @@ module.exports = {
 
 };
 
-},{"../underscore":25,"dispatchers/event_dispatcher":18}],9:[function(_dereq_,module,exports){
+},{"../underscore":31,"dispatchers/event_dispatcher":24}],11:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1327,7 +1390,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"dispatchers/event_dispatcher":18}],10:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":24}],12:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1349,7 +1412,56 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":18}],11:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":24}],13:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _componentsWebitem = _dereq_('components/webitem');
+
+var _componentsWebitem2 = _interopRequireDefault(_componentsWebitem);
+
+var _utilsWebitem = _dereq_('utils/webitem');
+
+var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
+
+exports['default'] = {
+  addWebItem: function addWebItem(potentialWebItem) {
+
+    var webitem = undefined;
+    var existing = _componentsWebitem2['default'].getWebItemsBySelector(potentialWebItem.selector);
+
+    if (existing) {
+      return false;
+    } else {
+      webitem = _componentsWebitem2['default'].setWebItem(potentialWebItem);
+      _dispatchersEvent_dispatcher2['default'].dispatch('webitem-added', { webitem: webitem });
+    }
+  },
+
+  webitemInvoked: function webitemInvoked(webitem, event) {
+    var $target = $(event.target);
+    var extension = {
+      addon_key: _utilsWebitem2['default'].getExtensionKey($target),
+      key: _utilsWebitem2['default'].getKey($target),
+      url: $target.attr('href')
+    };
+
+    _dispatchersEvent_dispatcher2['default'].dispatch('webitem-invoked:' + webitem.name, { webitem: webitem, event: event, extension: extension });
+  }
+
+};
+module.exports = exports['default'];
+
+},{"components/webitem":19,"dispatchers/event_dispatcher":24,"utils/webitem":35}],14:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1427,7 +1539,7 @@ var IframeComponent = new Iframe();
 exports['default'] = IframeComponent;
 module.exports = exports['default'];
 
-},{"../dollar":19,"../util":26,"actions/iframe_actions":7,"dispatchers/event_dispatcher":18,"simple-xdm/dist/host":29,"utils/url":28}],12:[function(_dereq_,module,exports){
+},{"../dollar":25,"../util":32,"actions/iframe_actions":8,"dispatchers/event_dispatcher":24,"simple-xdm/dist/host":36,"utils/url":34}],15:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1505,8 +1617,10 @@ var IframeContainer = (function () {
     value: function resolverResponse(data) {
       var extension = data.extension;
       var $container = this._urlContainerRegistry[extension.id];
-      extension.url = data.url;
-      this._insertIframe($container, extension);
+      if ($container) {
+        extension.url = data.url;
+        this._insertIframe($container, extension);
+      }
       delete this._urlContainerRegistry[extension.id];
     }
   }, {
@@ -1533,7 +1647,273 @@ _dispatchersEvent_dispatcher2['default'].register('jwt-url-refreshed', function 
 exports['default'] = IframeContainerComponent;
 module.exports = exports['default'];
 
-},{"../dollar":19,"actions/iframe_actions":7,"actions/jwt_actions":8,"components/iframe":11,"dispatchers/event_dispatcher":18,"utils/url":28}],13:[function(_dereq_,module,exports){
+},{"../dollar":25,"actions/iframe_actions":8,"actions/jwt_actions":10,"components/iframe":14,"dispatchers/event_dispatcher":24,"utils/url":34}],16:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _actionsInline_dialog_actions = _dereq_('actions/inline_dialog_actions');
+
+var _actionsInline_dialog_actions2 = _interopRequireDefault(_actionsInline_dialog_actions);
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var InlineDialog = (function () {
+  function InlineDialog() {
+    _classCallCheck(this, InlineDialog);
+  }
+
+  _createClass(InlineDialog, [{
+    key: 'resize',
+    value: function resize(data) {
+      var width = _util2['default'].stringToDimension(data.width);
+      var height = _util2['default'].stringToDimension(data.height);
+      var $content = data.$el.find('.contents');
+      if ($content.length === 1) {
+        $content.css({
+          width: width,
+          height: height
+        });
+        _actionsInline_dialog_actions2['default'].refresh(data.$el);
+      }
+    }
+  }, {
+    key: 'refresh',
+    value: function refresh($el) {
+      $el[0].popup.reset();
+    }
+  }, {
+    key: '_getInlineDialog',
+    value: function _getInlineDialog($el) {
+      return AJS.InlineDialog($el);
+    }
+  }, {
+    key: '_renderContainer',
+    value: function _renderContainer() {
+      return (0, _dollar2['default'])("<div />").addClass("aui-inline-dialog-contents");
+    }
+  }, {
+    key: '_displayInlineDialog',
+    value: function _displayInlineDialog(data) {
+      _actionsInline_dialog_actions2['default'].created({
+        $el: data.$el,
+        trigger: data.trigger,
+        extension: data.extension
+      });
+    }
+  }, {
+    key: 'render',
+    value: function render(data) {
+      var _this = this;
+
+      var $inlineDialog = (0, _dollar2['default'])(document.getElementById('inline-dialog-' + data.id));
+
+      if ($inlineDialog.length !== 0) {
+        $inlineDialog.remove();
+      }
+
+      var $el = AJS.InlineDialog(data.bindTo,
+      //assign unique id to inline Dialog
+      data.id, function ($placeholder, trigger, showInlineDialog) {
+        $placeholder.append(data.$content);
+        _this._displayInlineDialog({
+          extension: data.extension,
+          $el: $placeholder,
+          trigger: trigger
+        });
+        showInlineDialog();
+      }, data.dialogOptions);
+      return $el;
+    }
+  }]);
+
+  return InlineDialog;
+})();
+
+var InlineDialogComponent = new InlineDialog();
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
+  var container = data.$el.parents(".aui-inline-dialog");
+  if (container.length === 1) {
+    InlineDialogComponent.resize({
+      width: data.width,
+      height: data.height,
+      $el: container
+    });
+  }
+});
+
+_dispatchersEvent_dispatcher2['default'].register('inline-dialog-refresh', function (data) {
+  InlineDialogComponent.refresh(data.$el);
+});
+
+exports['default'] = InlineDialogComponent;
+module.exports = exports['default'];
+
+},{"../dollar":25,"../util":32,"actions/inline_dialog_actions":9,"dispatchers/event_dispatcher":24}],17:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _actionsWebitem_actions = _dereq_('actions/webitem_actions');
+
+var _actionsWebitem_actions2 = _interopRequireDefault(_actionsWebitem_actions);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _componentsInline_dialog = _dereq_('components/inline_dialog');
+
+var _componentsInline_dialog2 = _interopRequireDefault(_componentsInline_dialog);
+
+var _componentsWebitem = _dereq_('components/webitem');
+
+var _componentsWebitem2 = _interopRequireDefault(_componentsWebitem);
+
+var _utilsWebitem = _dereq_('utils/webitem');
+
+var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
+
+var _componentsIframe_container = _dereq_('components/iframe_container');
+
+var _componentsIframe_container2 = _interopRequireDefault(_componentsIframe_container);
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _create = _dereq_('../create');
+
+var _create2 = _interopRequireDefault(_create);
+
+var ITEM_NAME = 'inline-dialog';
+var SELECTOR = '.ap-inline-dialog';
+var TRIGGERS = ['mouseover', 'click'];
+var WEBITEM_UID_KEY = 'inline-dialog-target-uid';
+
+var InlineDialogWebItem = (function () {
+  function InlineDialogWebItem() {
+    _classCallCheck(this, InlineDialogWebItem);
+
+    this._inlineDialogWebItemSpec = {
+      name: ITEM_NAME,
+      selector: SELECTOR,
+      triggers: TRIGGERS
+    };
+    this._inlineDialogWebItems = {};
+  }
+
+  _createClass(InlineDialogWebItem, [{
+    key: 'getWebItem',
+    value: function getWebItem() {
+      return this._inlineDialogWebItemSpec;
+    }
+  }, {
+    key: '_createInlineDialog',
+    value: function _createInlineDialog(data) {
+      var $iframeContainer = _componentsIframe_container2['default'].createExtension(data.extension);
+      var $inlineDialog = _componentsInline_dialog2['default'].render({
+        extension: data.extension,
+        id: data.id,
+        bindTo: data.$target,
+        $content: $iframeContainer,
+        dialogOptions: {} // fill this with dialog options.
+      });
+      $inlineDialog;
+      return $inlineDialog;
+    }
+  }, {
+    key: 'triggered',
+    value: function triggered(data) {
+      var $target = (0, _dollar2['default'])(data.event.target);
+      if (!$target.hasClass('ap-inline-dialog')) {
+        $target = $target.closest('.ap-inline-dialog');
+      }
+      var webitemId = $target.data(WEBITEM_UID_KEY);
+
+      var $inlineDialog = this._createInlineDialog({
+        id: webitemId,
+        extension: data.extension,
+        $target: $target
+      });
+
+      $inlineDialog.show();
+    }
+  }, {
+    key: 'opened',
+    value: function opened(data) {
+      console.log('opened!', data);
+      _componentsWebitem2['default'].requestContent(data.extension).then(function (content) {
+        console.log('request content responded', arguments);
+        var contentData = JSON.parse(content);
+        contentData.options = {
+          autoresize: true,
+          widthinpx: true
+        };
+        var addon = (0, _create2['default'])(contentData);
+        data.$el.empty().append(addon);
+      });
+    }
+  }, {
+    key: 'createIfNotExists',
+    value: function createIfNotExists(data) {
+      var $target = (0, _dollar2['default'])(data.event.target);
+      var uid = $target.data(WEBITEM_UID_KEY);
+
+      if (!uid) {
+        uid = _utilsWebitem2['default'].uniqueId();
+        $target.data(WEBITEM_UID_KEY, uid);
+      }
+    }
+  }]);
+
+  return InlineDialogWebItem;
+})();
+
+var inlineDialogInstance = new InlineDialogWebItem();
+var webitem = inlineDialogInstance.getWebItem();
+_dispatchersEvent_dispatcher2['default'].register('before:webitem-invoked:' + webitem.name, function (data) {
+  inlineDialogInstance.createIfNotExists(data);
+});
+_dispatchersEvent_dispatcher2['default'].register('webitem-invoked:' + webitem.name, function (data) {
+  inlineDialogInstance.triggered(data);
+});
+_dispatchersEvent_dispatcher2['default'].register('inline-dialog-opened', function (data) {
+  inlineDialogInstance.opened(data);
+});
+_actionsWebitem_actions2['default'].addWebItem(webitem);
+
+exports['default'] = inlineDialogInstance;
+module.exports = exports['default'];
+
+},{"../create":20,"../dollar":25,"actions/webitem_actions":13,"components/iframe_container":15,"components/inline_dialog":16,"components/webitem":19,"dispatchers/event_dispatcher":24,"utils/webitem":35}],18:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1650,7 +2030,122 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', fun
 exports['default'] = LoadingComponent;
 module.exports = exports['default'];
 
-},{"../dollar":19,"../util":26,"actions/loading_indicator_actions":9,"dispatchers/event_dispatcher":18}],14:[function(_dereq_,module,exports){
+},{"../dollar":25,"../util":32,"actions/loading_indicator_actions":11,"dispatchers/event_dispatcher":24}],19:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _actionsWebitem_actions = _dereq_('actions/webitem_actions');
+
+var _actionsWebitem_actions2 = _interopRequireDefault(_actionsWebitem_actions);
+
+var _utilsWebitem = _dereq_('utils/webitem');
+
+var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
+
+var WebItem = (function () {
+  function WebItem() {
+    _classCallCheck(this, WebItem);
+
+    this._webitems = {};
+    this._contentResolver = function () {};
+  }
+
+  _createClass(WebItem, [{
+    key: 'setContentResolver',
+    value: function setContentResolver(resolver) {
+      this._contentResolver = resolver;
+    }
+  }, {
+    key: 'requestContent',
+    value: function requestContent(extension) {
+      if (extension.addon_key && extension.key) {
+        return this._contentResolver.call(null, _underscore2['default'].extend({ classifier: 'json' }, extension));
+      }
+    }
+  }, {
+    key: 'getWebItemsBySelector',
+    value: function getWebItemsBySelector(selector) {
+      _underscore2['default'].find(this._webitems, function (obj) {
+        if (obj.selector) {
+          return obj.selector.trim() === selector.trim();
+        }
+        return false;
+      });
+    }
+  }, {
+    key: 'setWebItem',
+    value: function setWebItem(potentialWebItem) {
+      return this._webitems[potentialWebItem.name] = {
+        name: potentialWebItem.name,
+        selector: potentialWebItem.selector,
+        triggers: potentialWebItem.triggers
+      };
+    }
+  }, {
+    key: '_removeTriggers',
+    value: function _removeTriggers(webitem) {
+      var _this = this;
+
+      var onTriggers = _utilsWebitem2['default'].sanitizeTriggers(webitem.triggers);
+      (0, _dollar2['default'])(function () {
+        (0, _dollar2['default'])('body').off(onTriggers, webitem.selector, _this._webitems[webitem.name]._on);
+      });
+      delete this._webitems[webitem.name]._on;
+    }
+  }, {
+    key: '_addTriggers',
+    value: function _addTriggers(webitem) {
+      var onTriggers = _utilsWebitem2['default'].sanitizeTriggers(webitem.triggers);
+      webitem._on = function (e) {
+        console.log('webitem on', webitem, onTriggers);
+        _actionsWebitem_actions2['default'].webitemInvoked(webitem, e);
+        e.preventDefault();
+      };
+      (0, _dollar2['default'])(function () {
+        (0, _dollar2['default'])('body').on(onTriggers, webitem.selector, webitem._on);
+      });
+    }
+  }]);
+
+  return WebItem;
+})();
+
+var webItemInstance = new WebItem();
+
+_dispatchersEvent_dispatcher2['default'].register('webitem-added', function (data) {
+  console.log('triggered webitem-added', data);
+  webItemInstance._addTriggers(data.webitem);
+});
+
+_dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-extension', function (data) {
+  webItemInstance.setContentResolver(data.callback);
+});
+
+exports['default'] = webItemInstance;
+module.exports = exports['default'];
+
+},{"../dollar":25,"../underscore":31,"actions/webitem_actions":13,"dispatchers/event_dispatcher":24,"utils/webitem":35}],20:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1681,7 +2176,7 @@ function create(extension) {
 
 module.exports = create;
 
-},{"./dollar":19,"components/iframe_container":12,"dispatchers/event_dispatcher":18}],15:[function(_dereq_,module,exports){
+},{"./dollar":25,"components/iframe_container":15,"dispatchers/event_dispatcher":24}],21:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1739,7 +2234,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":19,"dispatchers/event_dispatcher":18}],16:[function(_dereq_,module,exports){
+},{"../dollar":25,"dispatchers/event_dispatcher":24}],22:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1806,7 +2301,7 @@ module.exports = {
   render: createDialogElement
 };
 
-},{"../dollar":19,"./button":15}],17:[function(_dereq_,module,exports){
+},{"../dollar":25,"./button":21}],23:[function(_dereq_,module,exports){
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -1926,7 +2421,7 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', fun
 
 module.exports = analytics;
 
-},{"dispatchers/event_dispatcher":18}],18:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":24}],24:[function(_dereq_,module,exports){
 /**
 * pub/sub for extension state (created, destroyed, initialized)
 * taken from hipchat webcore
@@ -2016,7 +2511,7 @@ var EventDispatcher = (function (_EventEmitter) {
 
 module.exports = new EventDispatcher();
 
-},{"../underscore":25,"events":2}],19:[function(_dereq_,module,exports){
+},{"../underscore":31,"events":2}],25:[function(_dereq_,module,exports){
 /**
  * The iframe-side code exposes a jquery-like implementation via _dollar.
  * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
@@ -2030,7 +2525,7 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = AJS.$;
 module.exports = exports["default"];
 
-},{}],20:[function(_dereq_,module,exports){
+},{}],26:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2091,6 +2586,18 @@ var _underscore = _dereq_('underscore');
 
 var _underscore2 = _interopRequireDefault(_underscore);
 
+var _actionsEvent_actions = _dereq_('actions/event_actions');
+
+var _actionsEvent_actions2 = _interopRequireDefault(_actionsEvent_actions);
+
+var _actionsIframe_actions = _dereq_('actions/iframe_actions');
+
+var _actionsIframe_actions2 = _interopRequireDefault(_actionsIframe_actions);
+
+var _componentsInline_dialog_webitem = _dereq_('components/inline_dialog_webitem');
+
+var _componentsInline_dialog_webitem2 = _interopRequireDefault(_componentsInline_dialog_webitem);
+
 // import propagator from './propagate/rpc';
 
 /**
@@ -2138,6 +2645,9 @@ exports['default'] = {
       });
     });
   },
+  destroy: function destroy(extension_id) {
+    _actionsIframe_actions2['default'].notifyIframeDestroyed({ extension_id: extension_id });
+  },
   registerContentResolver: {
     resolveByExtension: function resolveByExtension(callback) {
       _actionsJwt_actions2['default'].registerContentResolver({ callback: callback });
@@ -2146,11 +2656,14 @@ exports['default'] = {
   defineModule: function defineModule(name, methods) {
     _actionsModule_actions2['default'].defineCustomModule(name, methods);
   },
+  broadcastEvent: function broadcastEvent(type, targetSpec, event) {
+    _actionsEvent_actions2['default'].broadcast(type, targetSpec, event);
+  },
   create: _create2['default']
 };
 module.exports = exports['default'];
 
-},{"./components/loading_indicator":13,"./create":14,"./modules/dialog":21,"./modules/env":22,"./modules/events":23,"./modules/messages":24,"actions/dom_event_actions":5,"actions/jwt_actions":8,"actions/module_actions":10,"dispatchers/analytics_dispatcher":17,"dispatchers/event_dispatcher":18,"simple-xdm/dist/host":29,"underscore":25}],21:[function(_dereq_,module,exports){
+},{"./components/loading_indicator":18,"./create":20,"./modules/dialog":27,"./modules/env":28,"./modules/events":29,"./modules/messages":30,"actions/dom_event_actions":5,"actions/event_actions":7,"actions/iframe_actions":8,"actions/jwt_actions":10,"actions/module_actions":12,"components/inline_dialog_webitem":17,"dispatchers/analytics_dispatcher":23,"dispatchers/event_dispatcher":24,"simple-xdm/dist/host":36,"underscore":31}],27:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2181,7 +2694,7 @@ function keyPressListener(e) {
   }
 }
 
-$(document).on('keydown', keyPressListener);
+// $(document).on('keydown', keyPressListener);
 
 _dispatchersEvent_dispatcher2['default'].on('dialog-button-click', function ($el) {
   var buttonOptions = $el.data('options');
@@ -2236,7 +2749,7 @@ module.exports = {
   }
 };
 
-},{"../create":14,"../dialog/renderer":16,"dispatchers/event_dispatcher":18}],22:[function(_dereq_,module,exports){
+},{"../create":20,"../dialog/renderer":22,"dispatchers/event_dispatcher":24}],28:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2273,7 +2786,7 @@ exports['default'] = {
 
   sizeToParent: debounce(function (callback) {
     // sizeToParent is only available for general-pages
-    if (callback._context.extension.options.isGeneral) {
+    if (callback._context.extension.options.isFullPage) {
       // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
       _util2['default'].getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
       _dispatchersEvent_dispatcher2['default'].register('host-window-resize', function (data) {
@@ -2289,7 +2802,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":19,"../util":26,"actions/env_actions":6,"dispatchers/event_dispatcher":18}],23:[function(_dereq_,module,exports){
+},{"../dollar":25,"../util":32,"actions/env_actions":6,"dispatchers/event_dispatcher":24}],29:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2394,7 +2907,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":19,"../underscore":25,"dispatchers/event_dispatcher":18}],24:[function(_dereq_,module,exports){
+},{"../dollar":25,"../underscore":31,"dispatchers/event_dispatcher":24}],30:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2485,7 +2998,7 @@ MESSAGE_TYPES.forEach(function (messageType) {
 exports['default'] = toExport;
 module.exports = exports['default'];
 
-},{"../dollar":19,"../underscore":25}],25:[function(_dereq_,module,exports){
+},{"../dollar":25,"../underscore":31}],31:[function(_dereq_,module,exports){
 // AUI includes underscore and exposes it globally.
 "use strict";
 
@@ -2495,7 +3008,7 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = window._;
 module.exports = exports["default"];
 
-},{}],26:[function(_dereq_,module,exports){
+},{}],32:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2533,7 +3046,7 @@ function stringToDimension(value) {
 }
 
 function getIframeByExtensionId(id) {
-  return $('iframe#' + escapeSelector(id));
+  return AJS.$('iframe#' + escapeSelector(id));
 }
 
 exports['default'] = {
@@ -2543,7 +3056,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./underscore":25}],27:[function(_dereq_,module,exports){
+},{"./underscore":31}],33:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2613,7 +3126,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"base-64":1,"utf8":4}],28:[function(_dereq_,module,exports){
+},{"base-64":1,"utf8":4}],34:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2646,7 +3159,59 @@ module.exports = {
   isJwtExpired: isJwtExpired
 };
 
-},{"jsuri":3,"utils/jwt":27}],29:[function(_dereq_,module,exports){
+},{"jsuri":3,"utils/jwt":33}],35:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+function sanitizeTriggers(triggers) {
+  var onTriggers;
+  if (_underscore2['default'].isArray(triggers)) {
+    onTriggers = triggers.join(' ');
+  } else if (_underscore2['default'].isString(triggers)) {
+    onTriggers = triggers.trim();
+  }
+  return onTriggers;
+}
+
+function uniqueId() {
+  return 'webitem-' + Math.floor(Math.random() * 1000000000).toString(16);
+}
+
+// LEGACY: get addon key by webitem for p2
+function getExtensionKey($target) {
+  var cssClass = $target.attr('class');
+  var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
+  return _underscore2['default'].isArray(m) ? m[1] : false;
+}
+
+// LEGACY: get module key by webitem for p2
+function getKey($target) {
+  var cssClass = $target.attr('class');
+  var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
+  return _underscore2['default'].isArray(m) ? m[1] : false;
+}
+
+// LEGACY - method for handling webitem options for p2
+function getOptionsForWebItem($target) {
+  var moduleKey = getKey($target);
+  var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
+  return window._AP[type + 'Options'][moduleKey] || {};
+}
+
+module.exports = {
+  sanitizeTriggers: sanitizeTriggers,
+  uniqueId: uniqueId,
+  getExtensionKey: getExtensionKey,
+  getKey: getKey,
+  getOptionsForWebItem: getOptionsForWebItem
+};
+
+},{"../underscore":31}],36:[function(_dereq_,module,exports){
 (function (global){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.host = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 'use strict';
@@ -3104,39 +3669,43 @@ var XDMRPC = (function (_PostMessage) {
 
       var data = event.data;
       var module = this._registeredAPIModules[data.mod];
+      var extension = this.getRegisteredExtensions(reg.extension)[0];
       if (module) {
         var fnName = data.fn;
         if (data._cls) {
           (function () {
             var Cls = module[data._cls];
+            var ns = data.mod + '-' + data._cls + '-';
+            sendResponse._id = data._id;
             if (fnName === 'constructor') {
               if (!Cls._construct) {
-                Cls._instances = {};
-                Cls._construct = function (_id) {
-                  for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-                    args[_key - 1] = arguments[_key];
+                Cls.constructor.prototype._destroy = function () {
+                  delete this._context._proxies[ns + this._id];
+                };
+                Cls._construct = function () {
+                  for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                    args[_key] = arguments[_key];
                   }
 
-                  // debugger;
                   var inst = new (_bind.apply(Cls.constructor, [null].concat(args)))();
-                  Cls._instances[_id] = inst;
+                  var callback = args[args.length - 1];
+                  inst._id = callback._id;
+                  inst._context = callback._context;
+                  inst._context._proxies[ns + inst._id] = inst;
                   return inst;
                 };
               }
               module = Cls;
               fnName = '_construct';
-              data.args.unshift(data._id);
             } else {
-              module = Cls._instances[data._id];
+              module = extension._proxies[ns + data._id];
             }
-            // sendResponse._context = this.getRegisteredExtensions(reg.extension)[0];
-            // sendResponse._context._id =
           })();
         }
         var method = module[fnName];
         if (method) {
           var methodArgs = data.args;
-          sendResponse._context = this.getRegisteredExtensions(reg.extension)[0];
+          sendResponse._context = extension;
           methodArgs.push(sendResponse);
           method.apply(module, methodArgs);
           if (this._registeredRequestNotifier) {
@@ -3317,6 +3886,7 @@ var XDMRPC = (function (_PostMessage) {
           delete this._registeredExtensions[existingView[0].extension_id];
         }
       }
+      data._proxies = {};
       data.extension_id = extension_id;
       this._registeredExtensions[extension_id] = data;
     }
@@ -3471,7 +4041,7 @@ module.exports = XDMRPC;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}]},{},[20])(20)
+},{}]},{},[26])(26)
 });
 
 

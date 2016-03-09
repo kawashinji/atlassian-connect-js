@@ -12,7 +12,10 @@ import flag from './modules/flag';
 import ModuleActions from 'actions/module_actions';
 import DomEventActions from 'actions/dom_event_actions';
 import _ from 'underscore';
+import EventActions from 'actions/event_actions';
+import IframeActions from 'actions/iframe_actions';
 
+import InlineDialogWebItemComponent from 'components/inline_dialog_webitem';
 // import propagator from './propagate/rpc';
 
 /**
@@ -33,7 +36,7 @@ simpleXDM.defineModule('events', events);
 
 // rpc.extend(propagator);
 
-EventDispatcher.register("module-define-custom", function(data){
+EventDispatcher.register('module-define-custom', function(data){
   simpleXDM.defineModule(data.name, data.methods);
 });
 
@@ -54,12 +57,15 @@ export default {
     DomEventActions.unregisterKeyEvent({extension_id, key, modifiers, callback});
   },
   onIframeEstablished: (callback) => {
-    EventDispatcher.register("after:iframe-bridge-estabilshed", function(data) {
+    EventDispatcher.register('after:iframe-bridge-estabilshed', function(data) {
       callback.call(null, {
         $el: data.$el,
-        extension: _.pick(data.extension, ["id", "addon_key", "id", "key", "options", "url"])
+        extension: _.pick(data.extension, ['id', 'addon_key', 'id', 'key', 'options', 'url'])
       });
     });
+  },
+  destroy: function(extension_id){
+    IframeActions.notifyIframeDestroyed({extension_id: extension_id});
   },
   registerContentResolver: {
     resolveByExtension: (callback) => {
@@ -68,6 +74,9 @@ export default {
   },
   defineModule: (name, methods) => {
     ModuleActions.defineCustomModule(name, methods);
-  },  
+  },
+  broadcastEvent: (type, targetSpec, event) => {
+    EventActions.broadcast(type, targetSpec, event);
+  },
   create
 };

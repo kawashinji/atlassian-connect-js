@@ -58,8 +58,8 @@ function build(entryModule, distModule, options) {
 
 function buildPlugin(options) {
   options = options || {};
-  return build('./src/plugin/index.js', 'plugin', {
-    standalone: 'AP',
+  return build('./src/plugin/index.js', 'iframe-compat', {
+    standalone: 'APCompat',
     env: {ENV: 'plugin'},
     watch: options.watch
   });
@@ -107,7 +107,7 @@ gulp.task('css:minify', buildCss.bind(null, {minify: true}));
 gulp.task('lint', lintJS);
 
 gulp.task('watch', ['plugin:watch', 'host:watch']);
-gulp.task('build', ['lint', /*'plugin:build',*/ 'host:build']);
+gulp.task('build', ['plugin:build', 'host:build']);
 
 gulp.task('default', ['build', 'css:minify']);
 

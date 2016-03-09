@@ -8,6 +8,17 @@ class WebItem {
 
   constructor() {
     this._webitems = {};
+    this._contentResolver = function(){};
+  }
+
+  setContentResolver(resolver) {
+    this._contentResolver = resolver;
+  }
+
+  requestContent(extension) {
+    if(extension.addon_key && extension.key) {
+      return this._contentResolver.call(null, _.extend({classifier: 'json'}, extension));
+    }
   }
 
   getWebItemsBySelector(selector) {
@@ -39,6 +50,7 @@ class WebItem {
   _addTriggers (webitem) {
     var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
     webitem._on = (e) => {
+      console.log('webitem on', webitem, onTriggers);
       WebItemActions.webitemInvoked(webitem, e);
       e.preventDefault();
     };
@@ -52,7 +64,13 @@ class WebItem {
 var webItemInstance = new WebItem();
 
 EventDispatcher.register('webitem-added', (data) => {
+  console.log('triggered webitem-added', data);
   webItemInstance._addTriggers(data.webitem);
 });
 
-module.exports = webItemInstance;
+EventDispatcher.register('content-resolver-register-by-extension', function(data){
+  webItemInstance.setContentResolver(data.callback);
+});
+
+
+export default webItemInstance;

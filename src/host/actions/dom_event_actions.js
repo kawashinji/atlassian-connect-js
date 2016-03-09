@@ -1,8 +1,6 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import SimpleXDM from 'simple-xdm/dist/host';
 
-import util from '../util';
-
 module.exports = {
   registerKeyEvent: function(data){
     SimpleXDM.registerKeyListener(data.extension_id, data.key, data.modifiers, data.callback);

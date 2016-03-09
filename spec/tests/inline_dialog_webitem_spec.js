@@ -71,6 +71,17 @@ describe('Inline Dialog Webitem', () => {
       });
     });
 
+    // it("opens, closes, and opens again", (done) => {
+    //   var spy = jasmine.createSpy('spy');
+    //   spyOn(WebItemActions, 'webitemInvoked');
+    //   $(function(){
+    //     $('.ap-inline-dialog').trigger('click');
+    //     expect($("aui-inline-dialog:visible").length).toEqual(1);
+        
+    //     done();
+    //   });
+    // });
+
   });
 
 

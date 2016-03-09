@@ -1,35 +1,7 @@
-import util from './util';
-import $ from './dollar';
-import _events from '../common/events';
-import base64 from '../common/base64';
-import uri from '../common/uri';
-import uiParams from '../common/ui-params';
-import xdm from '../common/xdm-rpc';
-import rpc from './rpc';
-import events from './events';
-import env from './env';
-
-import messages from './messages';
-import dialog from './dialog';
-import inlineDialog from './inline-dialog';
-import resize_listener from './resize_listener';
-// pre-populate all the old core modules for the old AP.require syntax.
+// import util from './util';
+// import $ from './dollar';
 
 var modules = {
-  '_util': {exports: util},
-  '_dollar': {exports: $},
-  '_events': {exports: _events},
-  '_base64': {exports: base64},
-  '_uri': {exports: uri},
-  '_ui-params': {exports: uiParams},
-  '_xdm': {exports: xdm},
-  '_rpc': {exports: rpc},
-  'events': {exports: events},
-  'env': {exports: env},
-  'messages': {exports: messages},
-  'dialog': {exports: dialog},
-  'inline-dialog': {exports: inlineDialog},
-  '_resize_listener': {exports: resize_listener}
 };
 
 function reqAll(deps, callback) {

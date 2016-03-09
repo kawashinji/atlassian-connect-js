@@ -25,7 +25,7 @@ function stringToDimension(value) {
 }
 
 function getIframeByExtensionId(id) {
-  return $('iframe#' + escapeSelector(id));
+  return AJS.$('iframe#' + escapeSelector(id));
 }
 
 export default {

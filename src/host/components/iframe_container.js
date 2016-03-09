@@ -39,8 +39,10 @@ class IframeContainer {
   resolverResponse(data) {
     var extension = data.extension;
     var $container = this._urlContainerRegistry[extension.id];
-    extension.url = data.url;
-    this._insertIframe($container, extension);
+    if($container){
+      extension.url = data.url;
+      this._insertIframe($container, extension);
+    }
     delete this._urlContainerRegistry[extension.id];
   }
 
