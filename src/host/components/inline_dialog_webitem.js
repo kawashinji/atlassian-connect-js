@@ -59,7 +59,8 @@ class InlineDialogWebItem {
       console.log('request content responded', arguments);
       var contentData = JSON.parse(content);
       contentData.options = {
-        autoresize: true
+        autoresize: true,
+        autoresizepx: true
       };
       var addon = create(contentData);
       data.$el.empty().append(addon);

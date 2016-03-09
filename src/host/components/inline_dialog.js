@@ -69,7 +69,7 @@ class InlineDialog {
 var InlineDialogComponent = new InlineDialog();
 
 EventDispatcher.register('iframe-resize', function(data) {
-  var container = data.$el.parent(".aui-inline-dialog");
+  var container = data.$el.parents(".aui-inline-dialog");
   if(container.length === 1) {
     InlineDialogComponent.resize({
       width: data.width,

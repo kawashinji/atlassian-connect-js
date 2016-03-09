@@ -1753,7 +1753,7 @@ var InlineDialog = (function () {
 var InlineDialogComponent = new InlineDialog();
 
 _dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
-  var container = data.$el.parent(".aui-inline-dialog");
+  var container = data.$el.parents(".aui-inline-dialog");
   if (container.length === 1) {
     InlineDialogComponent.resize({
       width: data.width,
@@ -1874,7 +1874,8 @@ var InlineDialogWebItem = (function () {
         console.log('request content responded', arguments);
         var contentData = JSON.parse(content);
         contentData.options = {
-          autoresize: true
+          autoresize: true,
+          autoresizepx: true
         };
         var addon = (0, _create2['default'])(contentData);
         data.$el.empty().append(addon);
@@ -3459,6 +3460,13 @@ var Util = (function () {
       return Array.prototype.slice.call(arrayLike);
     }
   }, {
+    key: "argumentNames",
+    value: function argumentNames(fn) {
+      return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
+      .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
+      .match(/([^\s,]+)/g) || [];
+    }
+  }, {
     key: "hasCallback",
     value: function hasCallback(args) {
       var length = args.length;
@@ -3578,6 +3586,8 @@ module.exports = new Util();
 
 'use strict';
 
+var _bind = Function.prototype.bind;
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -3659,11 +3669,43 @@ var XDMRPC = (function (_PostMessage) {
 
       var data = event.data;
       var module = this._registeredAPIModules[data.mod];
+      var extension = this.getRegisteredExtensions(reg.extension)[0];
       if (module) {
-        var method = module[data.fn];
+        var fnName = data.fn;
+        if (data._cls) {
+          (function () {
+            var Cls = module[data._cls];
+            var ns = data.mod + '-' + data._cls + '-';
+            sendResponse._id = data._id;
+            if (fnName === 'constructor') {
+              if (!Cls._construct) {
+                Cls.constructor.prototype._destroy = function () {
+                  delete this._context._proxies[ns + this._id];
+                };
+                Cls._construct = function () {
+                  for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                    args[_key] = arguments[_key];
+                  }
+
+                  var inst = new (_bind.apply(Cls.constructor, [null].concat(args)))();
+                  var callback = args[args.length - 1];
+                  inst._id = callback._id;
+                  inst._context = callback._context;
+                  inst._context._proxies[ns + inst._id] = inst;
+                  return inst;
+                };
+              }
+              module = Cls;
+              fnName = '_construct';
+            } else {
+              module = extension._proxies[ns + data._id];
+            }
+          })();
+        }
+        var method = module[fnName];
         if (method) {
           var methodArgs = data.args;
-          sendResponse._context = this.getRegisteredExtensions(reg.extension)[0];
+          sendResponse._context = extension;
           methodArgs.push(sendResponse);
           method.apply(module, methodArgs);
           if (this._registeredRequestNotifier) {
@@ -3844,6 +3886,7 @@ var XDMRPC = (function (_PostMessage) {
           delete this._registeredExtensions[existingView[0].extension_id];
         }
       }
+      data._proxies = {};
       data.extension_id = extension_id;
       this._registeredExtensions[extension_id] = data;
     }
@@ -3915,12 +3958,25 @@ var XDMRPC = (function (_PostMessage) {
         if (!module) {
           throw new Error("unregistered API module: " + moduleName);
         }
-        return Object.getOwnPropertyNames(module).reduce(function (accumulator, functionName) {
-          if (typeof module[functionName] === 'function') {
-            accumulator[functionName] = {}; // could hold function metadata, empty for now
-          }
-          return accumulator;
-        }, {});
+        function getModuleDefinition(mod) {
+          return Object.getOwnPropertyNames(mod).reduce(function (accumulator, memberName) {
+            var member = mod[memberName];
+            switch (typeof member) {
+              case 'function':
+                accumulator[memberName] = {
+                  args: _commonUtil2['default'].argumentNames(member)
+                };
+                break;
+              case 'object':
+                if (member.hasOwnProperty('constructor')) {
+                  accumulator[memberName] = getModuleDefinition(member);
+                }
+                break;
+            }
+            return accumulator;
+          }, {});
+        }
+        return getModuleDefinition(module);
       }
       return Object.getOwnPropertyNames(this._registeredAPIModules).reduce(function (accumulator, moduleName) {
         accumulator[moduleName] = createModule(moduleName);
