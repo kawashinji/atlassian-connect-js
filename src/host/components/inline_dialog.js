@@ -4,8 +4,6 @@ import $ from '../dollar';
 import util from '../util';
 
 class InlineDialog {
-  constructor () {
-  }
 
   resize(data){
     var width = util.stringToDimension(data.width);
@@ -16,17 +14,15 @@ class InlineDialog {
           width: width,
           height: height
       });
-      InlineDialogActions.refresh({
-        $el: $content
-      });
+      InlineDialogActions.refresh(data.$el);
     }
   }
 
   refresh($el){
-    this._getInlineDialog($el).refresh();
+    $el[0].popup.reset();
   }
 
-  _getInineDialog($el) {
+  _getInlineDialog($el) {
     return AJS.InlineDialog($el);
   }
   _renderContainer(){

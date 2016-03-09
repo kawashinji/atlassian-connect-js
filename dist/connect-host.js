@@ -1692,19 +1692,17 @@ var InlineDialog = (function () {
           width: width,
           height: height
         });
-        _actionsInline_dialog_actions2['default'].refresh({
-          $el: $content
-        });
+        _actionsInline_dialog_actions2['default'].refresh(data.$el);
       }
     }
   }, {
     key: 'refresh',
     value: function refresh($el) {
-      this._getInlineDialog($el).refresh();
+      $el[0].popup.reset();
     }
   }, {
-    key: '_getInineDialog',
-    value: function _getInineDialog($el) {
+    key: '_getInlineDialog',
+    value: function _getInlineDialog($el) {
       return AJS.InlineDialog($el);
     }
   }, {
@@ -1848,6 +1846,7 @@ var InlineDialogWebItem = (function () {
         $content: $iframeContainer,
         dialogOptions: {} // fill this with dialog options.
       });
+      $inlineDialog;
       return $inlineDialog;
     }
   }, {
@@ -1864,6 +1863,7 @@ var InlineDialogWebItem = (function () {
         extension: data.extension,
         $target: $target
       });
+
       $inlineDialog.show();
     }
   }, {
@@ -1875,7 +1875,7 @@ var InlineDialogWebItem = (function () {
         var contentData = JSON.parse(content);
         contentData.options = {
           autoresize: true,
-          autoresizepx: true
+          widthinpx: true
         };
         var addon = (0, _create2['default'])(contentData);
         data.$el.empty().append(addon);

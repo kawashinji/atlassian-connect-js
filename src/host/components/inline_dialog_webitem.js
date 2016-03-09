@@ -35,6 +35,7 @@ class InlineDialogWebItem {
       $content: $iframeContainer,
       dialogOptions: {} // fill this with dialog options.
     });
+    $inlineDialog
     return $inlineDialog;
   }
 
@@ -50,6 +51,7 @@ class InlineDialogWebItem {
       extension: data.extension,
       $target: $target
     });
+
     $inlineDialog.show();
   }
 
@@ -60,7 +62,7 @@ class InlineDialogWebItem {
       var contentData = JSON.parse(content);
       contentData.options = {
         autoresize: true,
-        autoresizepx: true
+        widthinpx: true
       };
       var addon = create(contentData);
       data.$el.empty().append(addon);
