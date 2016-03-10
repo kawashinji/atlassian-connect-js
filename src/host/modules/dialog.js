@@ -57,6 +57,7 @@ class Dialog {
       id: _id,
       customData: options.customData
     });
+    this.customData = options.customData;
     _dialogs[_id] = this;
   }
   on(event, callback) {
@@ -80,19 +81,25 @@ class Button {
     }
   }
   enable() {
-    this.setState(true);
+    this.setState({
+      enabled: true
+    });
   }
   disable() {
-    this.setState(false);
+    this.setState({
+      enabled: false
+    });
   }
   isEnabled(callback) {
     callback(this.enabled);
   }
   toggle() {
-    this.setState(!this.enabled);
+    this.setState({
+      enabled: !this.enabled
+    });
   }
-  setState(enabled) {
-    this.enabled = enabled;
+  setState(state) {
+    this.enabled = state.enabled;
     DialogActions.toggleButton({
       name: this.name,
       enabled: this.enabled
@@ -118,6 +125,12 @@ module.exports = {
       extension: callback._context.extension
     });
   },
+  getCustomData: (callback) => {
+    const dialog = _dialogs[callback._context.extension.options.dialogId];
+    if (dialog) {
+      callback(dialog.customData);
+    }
+  },
   onDialogMessage: AJS.deprecate.fn(
     (buttonName, callback) => {
       const button = new Button(buttonName);
@@ -127,7 +140,7 @@ module.exports = {
     {
       deprecationType: 'API',
       alternativeName:'AP.dialog.getButton().bind()',
-      sinceVersion:'ACJS 5.0'
+      sinceVersion:'ACJS 0.5'
     }
   ),
   getButton: {
