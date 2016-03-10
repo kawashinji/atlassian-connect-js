@@ -93,7 +93,7 @@ class Dialog {
       id: DLGID_PREFIX + options.id
     });
     $dialog.data('aui-remove-on-hide', true);
-    $dialog.addClass('aui-layer aui-dialog2');
+    $dialog.addClass('aui-layer aui-dialog2 ap-aui-dialog2');
     if (['small', 'medium', 'large', 'xlarge', 'fullscreen'].includes(options.size)) {
       $dialog.addClass('aui-dialog2-' + options.size);
     }

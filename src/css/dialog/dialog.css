@@ -3,8 +3,8 @@
     background-color: #f5f5f5;
 }
 
-[id^="ap-dialog-"],
-[id^="ap-dialog-"] div {
+.ap-aui-dialog2,
+.ap-aui-dialog2 div {
     height: 100%;
 }
 
@@ -14,11 +14,11 @@
 }
 
 /* add new aui dialog size of fullscreen */
-[id^="ap-dialog-"].aui-dialog2-fullscreen {
+.ap-aui-dialog2.aui-dialog2-fullscreen {
     top: 0;
 }
 
-[id^="ap-dialog-"] .aui-dialog2-content {
+.ap-aui-dialog2 .aui-dialog2-content {
 	padding:0;
 
     /* in chrome'd dialogs - fixes scrollbars added by iframes with scrollbars pushing the width out */
@@ -29,11 +29,11 @@
     will-change: opacity, visibility;
 }
 
-[id^="ap-dialog-"] iframe {
+.ap-aui-dialog2 iframe {
     display:block;
 }
 
-[id^="ap-dialog-"].aui-dialog2-chromeless .aui-dialog2-content {
+.ap-aui-dialog2.aui-dialog2-chromeless .aui-dialog2-content {
     background-color:transparent;
 
     /* Override the aui selector that assumes the last-child is the footer */
