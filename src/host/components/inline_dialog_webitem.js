@@ -56,9 +56,7 @@ class InlineDialogWebItem {
   }
 
   opened(data){
-    console.log('opened!', data);
     WebitemComponent.requestContent(data.extension).then(function(content){
-      console.log('request content responded', arguments);
       var contentData = JSON.parse(content);
       contentData.options = {
         autoresize: true,

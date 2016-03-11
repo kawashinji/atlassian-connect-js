@@ -50,7 +50,6 @@ class WebItem {
   _addTriggers (webitem) {
     var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
     webitem._on = (e) => {
-      console.log('webitem on', webitem, onTriggers);
       WebItemActions.webitemInvoked(webitem, e);
       e.preventDefault();
     };
@@ -64,7 +63,6 @@ class WebItem {
 var webItemInstance = new WebItem();
 
 EventDispatcher.register('webitem-added', (data) => {
-  console.log('triggered webitem-added', data);
   webItemInstance._addTriggers(data.webitem);
 });
 

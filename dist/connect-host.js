@@ -2016,9 +2016,7 @@ var InlineDialogWebItem = (function () {
   }, {
     key: 'opened',
     value: function opened(data) {
-      console.log('opened!', data);
       _componentsWebitem2['default'].requestContent(data.extension).then(function (content) {
-        console.log('request content responded', arguments);
         var contentData = JSON.parse(content);
         contentData.options = {
           autoresize: true,
@@ -2265,7 +2263,6 @@ var WebItem = (function () {
     value: function _addTriggers(webitem) {
       var onTriggers = _utilsWebitem2['default'].sanitizeTriggers(webitem.triggers);
       webitem._on = function (e) {
-        console.log('webitem on', webitem, onTriggers);
         _actionsWebitem_actions2['default'].webitemInvoked(webitem, e);
         e.preventDefault();
       };
@@ -2281,7 +2278,6 @@ var WebItem = (function () {
 var webItemInstance = new WebItem();
 
 _dispatchersEvent_dispatcher2['default'].register('webitem-added', function (data) {
-  console.log('triggered webitem-added', data);
   webItemInstance._addTriggers(data.webitem);
 });
 
@@ -2875,35 +2871,13 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
 var _underscore = _dereq_('../underscore');
 
 var _underscore2 = _interopRequireDefault(_underscore);
 
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+var _actionsEvent_actions = _dereq_('actions/event_actions');
 
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-// Note that if it's desirable to publish host-level events to add-ons, this would be a good place to wire
-// up host listeners and publish to each add-on, rather than using each XdmRpc.events object directly.
-
-var _channels = {};
-
-// create holding object under _channels.
-_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
-  if (!_underscore2['default'].isObject(_channels[data.extension.addon_key])) {
-    _channels[data.extension.addon_key] = {
-      _any: []
-    };
-  }
-
-  if (!_underscore2['default'].isObject(_channels[data.extension.addon_key][data.extension.id])) {
-    _channels[data.extension.addon_key][data.extension.id] = {};
-  }
-});
+var _actionsEvent_actions2 = _interopRequireDefault(_actionsEvent_actions);
 
 exports['default'] = {
   emit: function emit(name) {
@@ -2913,66 +2887,14 @@ exports['default'] = {
 
     var callback = _underscore2['default'].last(args);
     args = _underscore2['default'].first(args, -1);
-
-    var extensions = _channels[callback._context.extension.addon_key];
-    var extensionIds = _underscore2['default'].without(_underscore2['default'].keys(extensions), '_any');
-    var events = [].concat(extensions._any);
-
-    extensionIds.forEach(function (extensionId) {
-      var listeners = extensions[extensionId][name];
-      if (_underscore2['default'].isArray(listeners)) {
-        events = events.concat(listeners);
-      }
-    }, this);
-
-    events.forEach(function (event) {
-      try {
-        event.apply(null, args);
-      } catch (e) {
-        console.error(e.stack || e.message || e);
-      }
-    }, this);
-  },
-  off: function off(name, callback) {
-    var all = _channels[callback._context.extension.addon_key][callback._context.extension_id][name];
-    if (all) {
-      var i = _dollar2['default'].inArray(callback, all);
-      if (i >= 0) {
-        all.splice(i, 1);
-      }
-    }
-  },
-  offAll: function offAll(name) {},
-  offAny: function offAny(name) {},
-  on: function on(name, callback) {
-    var addonKey = callback._context.extension.addon_key;
-    var extensionId = callback._context.extension_id;
-
-    if (!_underscore2['default'].isArray(_channels[addonKey][extensionId][name])) {
-      _channels[addonKey][extensionId][name] = [];
-    }
-    _channels[addonKey][extensionId][name].push(callback);
-  },
-  onAny: function onAny(callback) {
-    var addonKey = callback._context.extension.addon_key;
-    _channels[addonKey]._any.push(callback);
-  },
-  once: function once(name, callback) {
-    var _this = this,
-        _arguments = arguments;
-
-    var interceptor = function interceptor() {
-      _this.off(name, interceptor);
-      callback.apply(null, _arguments);
-    };
-    interceptor._context = callback._context;
-    this.on(name, interceptor);
+    _actionsEvent_actions2['default'].broadcast(name, {
+      addon_key: callback._context.extension.addon_key
+    }, args);
   }
-
 };
 module.exports = exports['default'];
 
-},{"../dollar":25,"../underscore":32,"dispatchers/event_dispatcher":24}],30:[function(_dereq_,module,exports){
+},{"../underscore":32,"actions/event_actions":7}],30:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

@@ -161,7 +161,153 @@ function $(sel, context) {
 exports['default'] = extend($, _util2['default']);
 module.exports = exports['default'];
 
-},{"./util":4}],3:[function(_dereq_,module,exports){
+},{"./util":5}],3:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dollar = _dereq_('./dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+/**
+ * The Events module provides a mechanism for emitting and receiving events.
+ * <h3>Basic example</h3>
+ * ```
+ * //The following will create an alert message every time the event `customEvent` is triggered.
+ * AP.require('events', function(events){
+*   events.on('customEvent', function(){
+*       alert('event fired');
+*   });
+*   events.emit('customEvent');
+* });
+ * ```
+ * @name Events
+ * @module
+ */
+var events = {};
+var ANY_PREFIX = '_any';
+if (window.AP && window.AP.register) {
+  window.AP.register({
+    _any: function _any(data, callback, name) {
+      var any = events[ANY_PREFIX] || [];
+      var byName = events[name] || [];
+
+      any.forEach(function (handler) {
+        //clone dataa before modifying
+        var args = data.slice(0);
+        args.unshift(name);
+        args.push({
+          args: data,
+          name: name
+        });
+        handler.apply(null, args);
+      });
+      byName.forEach(function (handler) {
+        handler.apply(null, data);
+      });
+    }
+  });
+}
+
+exports['default'] = {
+  off: function off(name, listener) {
+    var index = events[name].indexOf(listener);
+    events[name].splice(index, 1);
+  },
+  offAll: function offAll(name) {
+    delete events[name];
+  },
+  offAny: function offAny(listener) {
+    this.off(ANY_PREFIX, listener);
+  },
+  on: function on(name, listener) {
+    if (!events[name]) {
+      events[name] = [];
+    }
+    events[name].push(listener);
+  },
+  onAny: function onAny(listener) {
+    this.on(ANY_PREFIX, listener);
+  },
+  once: function once(name, listener) {
+    this.on(name, function () {
+      listener.call(null, arguments);
+      this.off(name, listener);
+    });
+  }
+  /**
+   * Adds a listener for all occurrences of an event of a particular name.
+   * Listener arguments include any arguments passed to `events.emit`, followed by an object describing the complete event information.
+   * @name on
+   * @method
+   * @memberof module:Events#
+   * @param {String} name The event name to subscribe the listener to
+   * @param {Function} listener A listener callback to subscribe to the event name
+   */
+
+  /**
+   * Adds a listener for one occurrence of an event of a particular name.
+   * Listener arguments include any argument passed to `events.emit`, followed by an object describing the complete event information.
+   * @name once
+   * @method
+   * @memberof module:Events#
+   * @param {String} name The event name to subscribe the listener to
+   * @param {Function}listener A listener callback to subscribe to the event name
+   */
+
+  /**
+   * Adds a listener for all occurrences of any event, regardless of name.
+   * Listener arguments begin with the event name, followed by any arguments passed to `events.emit`, followed by an object describing the complete event information.
+   * @name onAny
+   * @method
+   * @memberof module:Events#
+   * @param {Function} listener A listener callback to subscribe for any event name
+   */
+
+  /**
+   * Removes a particular listener for an event.
+   * @name off
+   * @method
+   * @memberof module:Events#
+   * @param {String} name The event name to unsubscribe the listener from
+   * @param {Function} listener The listener callback to unsubscribe from the event name
+   */
+
+  /**
+   * Removes all listeners from an event name, or unsubscribes all event-name-specific listeners
+   * if no name if given.
+   * @name offAll
+   * @method
+   * @memberof module:Events#
+   * @param {String} [name] The event name to unsubscribe all listeners from
+   */
+
+  /**
+   * Removes an `any` event listener.
+   * @name offAny
+   * @method
+   * @memberof module:Events#
+   * @param {Function} listener A listener callback to unsubscribe from any event name
+   */
+
+  /**
+   * Emits an event on this bus, firing listeners by name as well as all 'any' listeners. Arguments following the
+   * name parameter are captured and passed to listeners.
+   * @name emit
+   * @method
+   * @memberof module:Events#
+   * @param {String} name The name of event to emit
+   * @param {String[]} args 0 or more additional data arguments to deliver with the event
+   */
+};
+module.exports = exports['default'];
+
+},{"./dollar":2}],4:[function(_dereq_,module,exports){
 //INSERT AMD STUBBER HERE!
 // import amd from './amd';
 'use strict';
@@ -180,13 +326,21 @@ var _consumerOptions = _dereq_('./consumer-options');
 
 var _consumerOptions2 = _interopRequireDefault(_consumerOptions);
 
+var _events = _dereq_('./events');
+
+var _events2 = _interopRequireDefault(_events);
+
 AP._hostModules._dollar = _dollar2['default'];
 
 if (_consumerOptions2['default'].get('sizeToParent') === true) {
   AP.env.sizeToParent();
 }
 
-},{"./consumer-options":1,"./dollar":2,"./util":4}],4:[function(_dereq_,module,exports){
+_dollar2['default'].each(_events2['default'], function (i, method) {
+  AP._hostModules.events[i] = AP.events[i] = method;
+});
+
+},{"./consumer-options":1,"./dollar":2,"./events":3,"./util":5}],5:[function(_dereq_,module,exports){
 // universal iterator utility
 'use strict';
 
@@ -310,7 +464,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{}]},{},[3])(3)
+},{}]},{},[4])(4)
 });
 
 
