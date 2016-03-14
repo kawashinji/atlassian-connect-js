@@ -18,17 +18,18 @@ var events = {};
 const ANY_PREFIX = '_any';
 if(window.AP && window.AP.register){
   window.AP.register({
-    _any: function(data, callback, name){
+    _any: function(data, callback){
+      var eventName = callback._context.eventName;
       var any = events[ANY_PREFIX] || [];
-      var byName = events[name] || [];
+      var byName = events[eventName] || [];
 
       any.forEach((handler) => {
         //clone dataa before modifying
         var args = data.slice(0);
-        args.unshift(name);
+        args.unshift(eventName);
         args.push({
           args: data,
-          name: name
+          name: eventName
         });
         handler.apply(null, args);
       });
