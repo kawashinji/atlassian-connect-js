@@ -58,7 +58,7 @@ function deprecateApi(fn, name, alternate, sinceVersion) {
     if (!called && typeof console !== 'undefined' && console.warn) {
       called = true;
       console.warn(`DEPRECATED API - ${name} has been deprecated since ACJS ${sinceVersion}` +
-        `and will be removed in a future release. Use ${alternate} instead.`);
+        ` and will be removed in a future release. Use ${alternate} instead.`);
     }
     fn(...args);
   }

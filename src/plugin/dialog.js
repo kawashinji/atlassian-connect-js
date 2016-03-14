@@ -39,7 +39,8 @@ const original_dialogCreate = AP._hostModules.dialog.create;
 
 AP.dialog.create = AP._hostModules.dialog.create = (...args) => {
   const dialog = original_dialogCreate(...args);
-  dialog.on = registerHandler;
+  dialog.on = util.deprecateApi(registerHandler,
+    'AP.dialog.on("close", callback)', 'AP.events.on("dialog.close", callback)', '5.0');
   return dialog;
 };
 
@@ -48,7 +49,8 @@ const original_dialogGetButton = AP._hostModules.dialog.getButton;
 AP.dialog.getButton = AP._hostModules.dialog.getButton = (...args) => {
   const button = original_dialogGetButton(...args);
   const name = args[0];
-  button.bind = (callback) => registerHandler(name, callback);
+  button.bind = util.deprecateApi((callback) => registerHandler(name, callback),
+    'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
   return button;
 };
 
