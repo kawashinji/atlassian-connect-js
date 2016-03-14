@@ -3,7 +3,7 @@ import util from '../util';
 import IframeComponent from 'components/iframe';
 
 EventDispatcher.register('iframe-resize', function(data){
-  IframeComponent.resize(width, height, data.$el);
+  IframeComponent.resize(data.width, data.height, data.$el);
 });
 
 EventDispatcher.register('iframe-size-to-parent', function(data){

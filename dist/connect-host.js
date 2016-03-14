@@ -1221,7 +1221,7 @@ var _componentsIframe = _dereq_('components/iframe');
 var _componentsIframe2 = _interopRequireDefault(_componentsIframe);
 
 _dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
-  _componentsIframe2['default'].resize(width, height, data.$el);
+  _componentsIframe2['default'].resize(data.width, data.height, data.$el);
 });
 
 _dispatchersEvent_dispatcher2['default'].register('iframe-size-to-parent', function (data) {
@@ -1471,7 +1471,8 @@ exports['default'] = {
     var extension = {
       addon_key: _utilsWebitem2['default'].getExtensionKey($target),
       key: _utilsWebitem2['default'].getKey($target),
-      url: $target.attr('href')
+      url: $target.attr('href'),
+      options: _utilsWebitem2['default'].getOptionsForWebItem($target)
     };
 
     _dispatchersEvent_dispatcher2['default'].dispatch('webitem-invoked:' + webitem.name, { webitem: webitem, event: event, extension: extension });
@@ -2029,7 +2030,8 @@ var InlineDialogWebItem = (function () {
       var $inlineDialog = this._createInlineDialog({
         id: webitemId,
         extension: data.extension,
-        $target: $target
+        $target: $target,
+        options: data.options || {}
       });
 
       $inlineDialog.show();
