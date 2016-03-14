@@ -3427,7 +3427,7 @@ var Connect = (function () {
         origin: _commonUtil2['default'].locationOrigin(),
         options: extension.options || {}
       };
-      console.log("DATA?", data);
+
       return {
         id: extension_id,
         name: JSON.stringify(data),
