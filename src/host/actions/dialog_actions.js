@@ -13,7 +13,7 @@ module.exports = {
   toggleButton: (data) => {
     EventDispatcher.dispatch('dialog-button-toggle', data);
   },
-  buttonClick: (data) => {
-    EventDispatcher.dispatch('dialog-button-click', data);
+  dialogMessage: (data) => {
+    EventDispatcher.dispatch('dialog-message', data);
   }
 };

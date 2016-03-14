@@ -4,11 +4,11 @@ import _ from '../underscore';
 const MESSAGE_BAR_ID = 'ac-message-container';
 const MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
 const MSGID_PREFIX = 'ap-message-';
-const MSGID_REXEXP = new RegExp(`^${MSGID_PREFIX}[0-9A-fa-f]+$`);
+const MSGID_REGEXP = new RegExp(`^${MSGID_PREFIX}[0-9A-fa-f]+$`);
 const _messages = {};
 
 function validateMessageId(msgId) {
-  return MSGID_REXEXP.test(msgId);
+  return MSGID_REGEXP.test(msgId);
 }
 
 function getMessageBar() {

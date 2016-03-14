@@ -7,11 +7,11 @@ import $ from '../dollar';
 import _ from '../underscore';
 
 const DLGID_PREFIX = 'ap-dialog-';
-const DLGID_REXEXP = new RegExp(`^${DLGID_PREFIX}[0-9A-fa-f]+$`);
+const DLGID_REGEXP = new RegExp(`^${DLGID_PREFIX}[0-9A-fa-f]+$`);
 
 function getActiveDialog() {
   const $el = AJS.LayerManager.global.getTopLayer();
-  if ($el && DLGID_REXEXP.test($el.attr('id'))) {
+  if ($el && DLGID_REGEXP.test($el.attr('id'))) {
     const dialog = AJS.dialog2($el);
     dialog._id = dialog.$el.attr('id').replace(DLGID_PREFIX, '');
     return dialog;
@@ -70,7 +70,10 @@ class Dialog {
       }
       $button.click(() => {
         if ($button.attr('aria-disabled') !== 'true') {
-          DialogActions.buttonClick($button, extension);
+          DialogActions.dialogMessage({
+            name: action.name,
+            extension
+          });
         }
       });
       return $button;
@@ -92,6 +95,7 @@ class Dialog {
       role: 'dialog',
       id: DLGID_PREFIX + options.id
     });
+    $dialog.data('aui-modal', true);
     $dialog.data('aui-remove-on-hide', true);
     $dialog.addClass('aui-layer aui-dialog2 ap-aui-dialog2');
     if (['small', 'medium', 'large', 'xlarge', 'fullscreen'].includes(options.size)) {
@@ -180,13 +184,6 @@ EventDispatcher.register('dialog-button-toggle', (data) => {
     });
     $button.attr('aria-disabled', !data.enabled);
   }
-});
-
-EventDispatcher.register('dialog-button-click', (data) => {
-  DialogActions.close({
-    dialog: getActiveDialog(),
-    extension: data.extension
-  });
 });
 
 export default DialogComponent;

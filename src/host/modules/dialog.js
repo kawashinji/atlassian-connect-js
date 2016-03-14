@@ -1,29 +1,28 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import DialogComponent from 'components/dialog';
 import DialogActions from 'actions/dialog_actions';
+import EventActions from 'actions/event_actions';
 
 const _dialogs = {};
-
-EventDispatcher.register('before:dialog-button-click', function ($el) {
-  const callbacks = $el.data('callbacks');
-  if ($.isArray(callbacks)) {
-    callbacks.forEach(cb => cb());
-  }
-});
 
 EventDispatcher.register('dialog-close', function (data) {
   const dialog = data.dialog;
   if (dialog) {
-    _dialogs[dialog._id].onClose.forEach(cb => cb(data.customData));
-    _dialogs[dialog._id]._destroy();
-    delete _dialogs[dialog._id];
+    EventActions.broadcast('dialog.close', {
+      addon_key: data.extension.addon_key
+    }, data.customData);
   }
+});
+
+EventDispatcher.register('dialog-message', (data) => {
+  EventActions.broadcast(`dialog.${data.name}`, {
+    addon_key: data.extension.addon_key
+  });
 });
 
 class Dialog {
   constructor(options, callback) {
     const _id = callback._id;
-    this.onClose = [];
     const actions = [
       {
         name: 'submit',
@@ -60,25 +59,12 @@ class Dialog {
     this.customData = options.customData;
     _dialogs[_id] = this;
   }
-  on(event, callback) {
-    if (event === 'close') {
-      if ($.isFunction(callback)) {
-        this.onClose.push(callback);
-      }
-    }
-  }
 }
 
 class Button {
   constructor(name) {
     this.name = name;
     this.enabled = true;
-    this.callbacks = [];
-  }
-  bind(callback) {
-    if ($.isFunction(callback)) {
-      this.callbacks.push(callback);
-    }
   }
   enable() {
     this.setState({
@@ -105,19 +91,23 @@ class Button {
       enabled: this.enabled
     });
   }
-  trigger() {
+  trigger(callback) {
     if (this.enabled) {
-      DialogActions.buttonClick({
-        name: this.name
+      DialogActions.dialogMessage({
+        name: this.name,
+        extension: callback._context.extension
       });
     }
   }
 }
 
+function getDialogFromContext(context) {
+  return  _dialogs[context.extension.options.dialogId];
+}
+
 module.exports = {
   create: {
-    constructor: Dialog,
-    on: Dialog.prototype.on
+    constructor: Dialog
   },
   close: (data, callback) => {
     DialogActions.closeActive({
@@ -126,30 +116,17 @@ module.exports = {
     });
   },
   getCustomData: (callback) => {
-    const dialog = _dialogs[callback._context.extension.options.dialogId];
+    const dialog = getDialogFromContext(callback._context);
     if (dialog) {
       callback(dialog.customData);
     }
   },
-  onDialogMessage: AJS.deprecate.fn(
-    (buttonName, callback) => {
-      const button = new Button(buttonName);
-      button.bind(callback);
-    },
-    'AP.dialog.onDialogMessage()',
-    {
-      deprecationType: 'API',
-      alternativeName:'AP.dialog.getButton().bind()',
-      sinceVersion:'ACJS 0.5'
-    }
-  ),
   getButton: {
     constructor: Button,
     enable: Button.prototype.enable,
     disable: Button.prototype.disable,
     toggle: Button.prototype.toggle,
     isEnabled: Button.prototype.isEnabled,
-    bind: Button.prototype.bind,
     trigger: Button.prototype.trigger
   }
 };
