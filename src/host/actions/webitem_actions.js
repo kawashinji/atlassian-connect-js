@@ -22,7 +22,8 @@ export default {
     var extension = {
       addon_key: WebItemUtils.getExtensionKey($target),
       key: WebItemUtils.getKey($target),
-      url: $target.attr('href')
+      url: $target.attr('href'),
+      options: WebItemUtils.getOptionsForWebItem($target)
     };
 
     EventDispatcher.dispatch('webitem-invoked:' + webitem.name, {webitem, event, extension});

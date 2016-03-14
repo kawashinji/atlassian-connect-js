@@ -49,7 +49,8 @@ class InlineDialogWebItem {
     var $inlineDialog = this._createInlineDialog({
       id: webitemId,
       extension: data.extension,
-      $target: $target
+      $target: $target,
+      options: data.options || {}
     });
 
     $inlineDialog.show();
