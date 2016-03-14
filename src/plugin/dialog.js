@@ -21,6 +21,8 @@ AP.register({
       let handlers = dialogHandlers[dialogEventMatch[1]];
       if (handlers) {
         handlers.forEach(cb => cb(data));
+      } else if (dialogEventMatch !== 'dialog.close') {
+        AP.dialog.close();
       }
     }
   }

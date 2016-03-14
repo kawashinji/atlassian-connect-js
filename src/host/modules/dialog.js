@@ -110,6 +110,10 @@ module.exports = {
     constructor: Dialog
   },
   close: (data, callback) => {
+    if (!$.isFunction(callback)) {
+      callback = data;
+      data = {};
+    }
     DialogActions.closeActive({
       customData: data,
       extension: callback._context.extension
