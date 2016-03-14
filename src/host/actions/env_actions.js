@@ -1,14 +1,9 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import util from '../util';
+import IframeComponent from 'components/iframe';
 
 EventDispatcher.register('iframe-resize', function(data){
-  var width = util.stringToDimension(data.width);
-  var height = util.stringToDimension(data.height);
-  data.$el.css({
-    width: width,
-    height: height
-  });
-  data.$el.trigger('resized', {width: width, height: height});
+  IframeComponent.resize(width, height, data.$el);
 });
 
 EventDispatcher.register('iframe-size-to-parent', function(data){
@@ -23,7 +18,13 @@ AJS.$(window).on('resize', function (e) {
 
 module.exports = {
   iframeResize: function(width, height, context){
-    var $el = util.getIframeByExtensionId(context.extension_id);
+    var $el;
+    if(context.extension_id){
+      $el = util.getIframeByExtensionId(context.extension_id);
+    } else {
+      $el = context;
+    }
+
     EventDispatcher.dispatch('iframe-resize', {width, height, $el, extension: context.extension});
   },
   sizeToParent: function(context){
