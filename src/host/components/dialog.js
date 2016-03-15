@@ -95,7 +95,7 @@ class Dialog {
       role: 'dialog',
       id: DLGID_PREFIX + options.id
     });
-    $dialog.data('aui-modal', true);
+    $dialog.attr('data-aui-modal', 'true');
     $dialog.data('aui-remove-on-hide', true);
     $dialog.addClass('aui-layer aui-dialog2 ap-aui-dialog2');
     if (['small', 'medium', 'large', 'xlarge', 'fullscreen'].includes(options.size)) {
@@ -132,13 +132,6 @@ class Dialog {
     }
     dialog.show();
     DialogActions.open();
-    dialog.on('hide', () => {
-      DialogActions.close({
-        dialog,
-        isHiding: true,
-        extension: options.extension
-      });
-    });
   }
 }
 
@@ -166,10 +159,6 @@ EventDispatcher.register('dialog-close-active', (data) => {
 });
 
 EventDispatcher.register('dialog-close', (data) => {
-  if (!data.isHiding) {
-    data.dialog.off('hide');
-    data.dialog.hide();
-  }
   DomEventActions.unregisterKeyEvent({
     extension_id: data.extension.id,
     key: 27
