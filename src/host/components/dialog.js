@@ -107,8 +107,8 @@ class Dialog {
       url: options.url,
       options: {
         dialogId: options.id,
-        // the following is a really bad idea but we need it for
-        // compat until AP.dialog.customData has been deprecated
+        // ACJS-185: the following is a really bad idea but we need it
+        // for compat until AP.dialog.customData has been deprecated
         customData: options.customData
       }
     });
