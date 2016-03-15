@@ -115,7 +115,7 @@ class Dialog {
     $dialog.append(this._renderContent($content));
     if (options.chrome) {
       $dialog.prepend(this._renderHeader({
-        title: options.title
+        header: options.header
       }));
       $dialog.append(this._renderFooter({
         extension: options.extension,
