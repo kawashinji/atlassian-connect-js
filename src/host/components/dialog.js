@@ -95,12 +95,13 @@ class Dialog {
       role: 'dialog',
       id: DLGID_PREFIX + options.id
     });
-    $dialog.data('aui-modal', true);
+    $dialog.attr('data-aui-modal', 'true');
     $dialog.data('aui-remove-on-hide', true);
     $dialog.addClass('aui-layer aui-dialog2 ap-aui-dialog2');
     if (['small', 'medium', 'large', 'xlarge', 'fullscreen'].includes(options.size)) {
       $dialog.addClass('aui-dialog2-' + options.size);
     }
+
     // const $content = IframeContainer.createExtension({
     //   addon_key: options.extension.addon_key,
     //   key: options.key,
@@ -113,9 +114,10 @@ class Dialog {
     //   }
     // });
     $dialog.append(this._renderContent(options.$content));
+
     if (options.chrome) {
       $dialog.prepend(this._renderHeader({
-        title: options.title
+        header: options.header
       }));
       $dialog.append(this._renderFooter({
         extension: options.extension,
@@ -132,13 +134,6 @@ class Dialog {
     }
     dialog.show();
     DialogActions.open();
-    dialog.on('hide', () => {
-      DialogActions.close({
-        dialog,
-        isHiding: true,
-        extension: options.extension
-      });
-    });
   }
 }
 
@@ -166,10 +161,6 @@ EventDispatcher.register('dialog-close-active', (data) => {
 });
 
 EventDispatcher.register('dialog-close', (data) => {
-  if (!data.isHiding) {
-    data.dialog.off('hide');
-    data.dialog.hide();
-  }
   DomEventActions.unregisterKeyEvent({
     extension_id: data.extension.id,
     key: 27
