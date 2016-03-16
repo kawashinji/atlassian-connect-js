@@ -17,10 +17,11 @@ module.exports = function(config) {
     //frameworks: ['browserify', 'qunit', 'sinon'],
     // list of files / patterns to load in the browser
     files: [
-      'https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.js',
-      'https://aui-cdn.atlassian.com/aui-adg/5.9.5/js/aui.js',
-      'https://aui-cdn.atlassian.com/aui-adg/5.9.5/js/aui-experimental.js',
-      'https://aui-cdn.atlassian.com/aui-adg/5.9.5/js/aui-soy.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore.js',
+      'https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.js',
+      'https://aui-cdn.atlassian.com/aui-adg/5.7.31/js/aui.js',
+      'https://cdn.rawgit.com/requirejs/almond/0.3.1/almond.js',
+      'https://aui-cdn.atlassian.com/aui-adg/5.7.31/js/aui-experimental.js'
       // {pattern: 'fixtures/**', included: false, served: true},
       // {pattern: 'dist/**', included: false, served: true}
     ],
