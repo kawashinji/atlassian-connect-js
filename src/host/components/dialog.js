@@ -1,13 +1,15 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import DomEventActions from 'actions/dom_event_actions';
 import DialogActions from 'actions/dialog_actions';
-import IframeContainer from 'components/iframe_container';
 
+import util from './util';
 import $ from '../dollar';
 import _ from '../underscore';
 
 const DLGID_PREFIX = 'ap-dialog-';
 const DLGID_REGEXP = new RegExp(`^${DLGID_PREFIX}[0-9A-fa-f]+$`);
+const DIALOG_SIZES = ['small', 'medium', 'large', 'xlarge', 'fullscreen'];
+const BUTTON_TYPES = ['primary', 'link'];
 
 function getActiveDialog() {
   const $el = AJS.LayerManager.global.getTopLayer();
@@ -65,7 +67,7 @@ class Dialog {
     $actions.append([...actions].map(action => {
       const $button = $('<button />').addClass('aui-button').text(action.text);
       $button.data('name', action.name);
-      if (['primary', 'link'].includes(action.type)) {
+      if (BUTTON_TYPES.includes(action.type)) {
         $button.addClass('aui-button-' + action.type);
       }
       $button.click(() => {
@@ -98,22 +100,38 @@ class Dialog {
     $dialog.attr('data-aui-modal', 'true');
     $dialog.data('aui-remove-on-hide', true);
     $dialog.addClass('aui-layer aui-dialog2 ap-aui-dialog2');
-    if (['small', 'medium', 'large', 'xlarge', 'fullscreen'].includes(options.size)) {
+    if (!options.actions) {
+      options.actions = [
+        {
+          name: 'submit',
+          text: options.submitText || 'submit',
+          type: 'primary'
+        },
+        {
+          name: 'cancel',
+          text: options.cancelText || 'cancel',
+          type: 'link'
+        }
+      ];
+    }
+    options.width = util.stringToDimension(options.width);
+    options.height = util.stringToDimension(options.height);
+    if (options.size === 'x-large') {
+      options.size = 'xlarge';
+    } else if (options.width === '100%' && options.height === '100%') {
+      options.size = 'fullscreen';
+    } else if (!options.width && !options.height) {
+      options.size = 'medium';
+    }
+    if (DIALOG_SIZES.includes(options.size)) {
       $dialog.addClass('aui-dialog2-' + options.size);
     }
 
-    // const $content = IframeContainer.createExtension({
-    //   addon_key: options.extension.addon_key,
-    //   key: options.key,
-    //   url: options.url,
-    //   options: {
-    //     dialogId: options.id,
-    //     // the following is a really bad idea but we need it for
-    //     // compat until AP.dialog.customData has been deprecated
-    //     customData: options.customData
-    //   }
-    // });
     $dialog.append(this._renderContent(options.$content));
+
+    if (typeof options.chrome === 'undefined') {
+      options.chrome = true;
+    }
 
     if (options.chrome) {
       $dialog.prepend(this._renderHeader({

@@ -2,6 +2,7 @@ import EventDispatcher from 'dispatchers/event_dispatcher';
 import DialogComponent from 'components/dialog';
 import DialogActions from 'actions/dialog_actions';
 import EventActions from 'actions/event_actions';
+import IframeContainer from 'components/iframe_container';
 
 const _dialogs = {};
 
@@ -23,38 +24,29 @@ EventDispatcher.register('dialog-message', (data) => {
 class Dialog {
   constructor(options, callback) {
     const _id = callback._id;
-    const actions = [
-      {
-        name: 'submit',
-        text: options.submitText || 'submit',
-        type: 'primary'
-      },
-      {
-        name: 'cancel',
-        text: options.cancelText || 'cancel',
-        type: 'link'
-      }
-    ];
-    if (options.size === 'x-large') {
-      options.size = 'xlarge';
-    } else if (options.width === '100%' && options.height === '100%') {
-      options.size = 'fullscreen';
-    } else if (!options.width && !options.height) {
-      options.size = 'medium';
-    }
-    DialogComponent.render({
-      extension: callback._context.extension,
+    const extension = callback._context.extension;
+    const $iframeContainer = IframeContainer.createExtension({
+      addon_key: extension.addon_key,
       key: options.key,
       url: options.url,
+      options: {
+        dialogId: options.id,
+        // the following is a really bad idea but we need it for
+        // compat until AP.dialog.customData has been deprecated
+        customData: options.customData
+      }
+    });
+    DialogComponent.render({
+      extension,
+      id: _id,
+      $content: $iframeContainer,
       size: options.size,
       width: options.width,
       height: options.height,
-      chrome: options.chrome,
+      chrome: !!options.chrome,
       header: options.header,
       hint: options.hint,
-      actions: actions,
-      id: _id,
-      customData: options.customData
+      actions: options.actions
     });
     this.customData = options.customData;
     _dialogs[_id] = this;
