@@ -88,7 +88,7 @@ var xdmMockRequest;
             });
 
             test("host request is passed file param", function () {
-                var testFile = new File();
+                var testFile = new File([""], "filename.txt", {type: "text/plain", lastModified: Date.now()});
                 request('/foo/bar', {file: testFile});
                 equal(xdmMockRequest.request.args[0][0].file, testFile);
             });
