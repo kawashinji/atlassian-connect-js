@@ -48,7 +48,6 @@ class WebItem {
   }
 
   _addTriggers (webitem) {
-    console.log('add triggers', webitem);
     var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
     webitem._on = (e) => {
       e.preventDefault();
