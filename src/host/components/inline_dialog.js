@@ -43,19 +43,19 @@ class InlineDialog {
     }
 
     var $el = AJS.InlineDialog(
-        data.bindTo,
-        //assign unique id to inline Dialog
-        data.id,
-        ($placeholder, trigger, showInlineDialog) => {
-          $placeholder.append(data.$content);
-          this._displayInlineDialog({
-            extension: data.extension,
-            $el: $placeholder,
-            trigger: trigger
-          });
-          showInlineDialog();
-        },
-        data.dialogOptions
+      data.bindTo,
+      //assign unique id to inline Dialog
+      data.id,
+      ($placeholder, trigger, showInlineDialog) => {
+        $placeholder.append(data.$content);
+        this._displayInlineDialog({
+          extension: data.extension,
+          $el: $placeholder,
+          trigger: trigger
+        });
+        showInlineDialog();
+      },
+      data.dialogOptions
     );
     return $el;
   }

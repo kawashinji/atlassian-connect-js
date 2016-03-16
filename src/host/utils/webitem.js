@@ -32,9 +32,13 @@ function getKey($target){
 function getOptionsForWebItem($target) {
   var moduleKey = getKey($target);
   var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-  return window._AP[type + 'Options'][moduleKey] || {};
+  if(window._AP && window._AP[type + 'Options']){
+    return window._AP[type + 'Options'][moduleKey] || {};
+  } else {
+    console.warn('no webitem ' + type + 'Options for ' + moduleKey);
+    return {};
+  }
 }
-
 
 module.exports = {
   sanitizeTriggers,
