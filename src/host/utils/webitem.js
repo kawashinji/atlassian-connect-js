@@ -36,9 +36,9 @@ function getOptionsForWebItem($target) {
     return window._AP[type + 'Options'][moduleKey] || {};
   } else {
     console.warn('no webitem ' + type + 'Options for ' + moduleKey);
+    return {};
   }
 }
-
 
 module.exports = {
   sanitizeTriggers,

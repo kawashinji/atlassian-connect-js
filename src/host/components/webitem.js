@@ -8,7 +8,7 @@ class WebItem {
 
   constructor() {
     this._webitems = {};
-    this._contentResolver = function(){};
+    this._contentResolver = function noop(){};
   }
 
   setContentResolver(resolver) {
@@ -22,7 +22,7 @@ class WebItem {
   }
 
   getWebItemsBySelector(selector) {
-    _.find(this._webitems, function(obj) {
+    return _.find(this._webitems, function(obj) {
       if(obj.selector){
         return obj.selector.trim() === selector.trim();
       }

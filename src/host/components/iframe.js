@@ -6,11 +6,20 @@ import simpleXDM from 'simple-xdm/dist/host';
 import urlUtil from 'utils/url';
 
 const CONTAINER_CLASSES = ['ap-container'];
-const DEFAULT_IFRAME_ATTRIBUTES = {width: '100%'};
 
 class Iframe {
   constructor () {
     this._stateRegistry = {};
+  }
+
+  resize(width, height, $el){
+    width = util.stringToDimension(width);
+    height = util.stringToDimension(height);
+    $el.css({
+      width: width,
+      height: height
+    });
+    $el.trigger('resized', {width: width, height: height});
   }
 
   simpleXdmExtension(extension) {
@@ -28,11 +37,14 @@ class Iframe {
   }
 
   _renderIframe(attributes){
-    var attrs = $.extend({}, DEFAULT_IFRAME_ATTRIBUTES, attributes);
-    return $('<iframe />').attr(attrs);
+    return $('<iframe />').attr(attributes);
   }
 }
 
 var IframeComponent = new Iframe();
+
+EventDispatcher.register('iframe-resize', function(data){
+  IframeComponent.resize(data.width, data.height, data.$el);
+});
 
 export default IframeComponent;

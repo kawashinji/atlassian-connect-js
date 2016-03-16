@@ -20,12 +20,16 @@ class IframeContainer {
   _insertIframe($container, extension) {
     var simpleExtension = IframeComponent.simpleXdmExtension(extension);
     $container.append(simpleExtension.$el);
+    if(extension.options.width){
+      simpleExtension.$el.css('width', extension.options.width);
+    }
+    if(extension.options.height){
+     simpleExtension.$el.css('height', extension.options.height);
+    }
     IframeActions.notifyIframeCreated(simpleExtension.$el, simpleExtension.extension);
-
   }
 
   createExtension(extension) {
-    var $iframe;
     var $container = this._renderContainer();
     if(!extension.url || (urlUtil.hasJwt(extension.url) && urlUtil.isJwtExpired(extension.url))){
       this._urlContainerRegistry[extension.id] = $container;
@@ -33,9 +37,9 @@ class IframeContainer {
     } else {
       this._insertIframe($container, extension);
     }
-
     return $container;
   }
+
   resolverResponse(data) {
     var extension = data.extension;
     var $container = this._urlContainerRegistry[extension.id];

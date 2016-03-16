@@ -35,7 +35,7 @@ class InlineDialogWebItem {
       $content: $iframeContainer,
       dialogOptions: {} // fill this with dialog options.
     });
-    $inlineDialog
+
     return $inlineDialog;
   }
 
@@ -49,14 +49,20 @@ class InlineDialogWebItem {
     var $inlineDialog = this._createInlineDialog({
       id: webitemId,
       extension: data.extension,
-      $target: $target
+      $target: $target,
+      options: data.options || {}
     });
 
     $inlineDialog.show();
   }
 
   opened(data){
-    WebitemComponent.requestContent(data.extension).then(function(content){
+    var contentRequest = WebitemComponent.requestContent(data.extension);
+    if(!contentRequest){
+      console.warn('no content resolver found');
+      return false;
+    }
+    contentRequest.then(function(content){
       var contentData = JSON.parse(content);
       contentData.options = {
         autoresize: true,

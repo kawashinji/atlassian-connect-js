@@ -1216,14 +1216,12 @@ var _util = _dereq_('../util');
 
 var _util2 = _interopRequireDefault(_util);
 
+var _componentsIframe = _dereq_('components/iframe');
+
+var _componentsIframe2 = _interopRequireDefault(_componentsIframe);
+
 _dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
-  var width = _util2['default'].stringToDimension(data.width);
-  var height = _util2['default'].stringToDimension(data.height);
-  data.$el.css({
-    width: width,
-    height: height
-  });
-  data.$el.trigger('resized', { width: width, height: height });
+  _componentsIframe2['default'].resize(data.width, data.height, data.$el);
 });
 
 _dispatchersEvent_dispatcher2['default'].register('iframe-size-to-parent', function (data) {
@@ -1238,7 +1236,13 @@ AJS.$(window).on('resize', function (e) {
 
 module.exports = {
   iframeResize: function iframeResize(width, height, context) {
-    var $el = _util2['default'].getIframeByExtensionId(context.extension_id);
+    var $el;
+    if (context.extension_id) {
+      $el = _util2['default'].getIframeByExtensionId(context.extension_id);
+    } else {
+      $el = context;
+    }
+
     _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
   },
   sizeToParent: function sizeToParent(context) {
@@ -1246,7 +1250,7 @@ module.exports = {
   }
 };
 
-},{"../util":33,"dispatchers/event_dispatcher":24}],7:[function(_dereq_,module,exports){
+},{"../util":33,"components/iframe":16,"dispatchers/event_dispatcher":24}],7:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1467,7 +1471,8 @@ exports['default'] = {
     var extension = {
       addon_key: _utilsWebitem2['default'].getExtensionKey($target),
       key: _utilsWebitem2['default'].getKey($target),
-      url: $target.attr('href')
+      url: $target.attr('href'),
+      options: _utilsWebitem2['default'].getOptionsForWebItem($target)
     };
 
     _dispatchersEvent_dispatcher2['default'].dispatch('webitem-invoked:' + webitem.name, { webitem: webitem, event: event, extension: extension });
@@ -1646,7 +1651,6 @@ var _utilsUrl = _dereq_('utils/url');
 var _utilsUrl2 = _interopRequireDefault(_utilsUrl);
 
 var CONTAINER_CLASSES = ['ap-container'];
-var DEFAULT_IFRAME_ATTRIBUTES = { width: '100%' };
 
 var Iframe = (function () {
   function Iframe() {
@@ -1656,6 +1660,17 @@ var Iframe = (function () {
   }
 
   _createClass(Iframe, [{
+    key: 'resize',
+    value: function resize(width, height, $el) {
+      width = _util2['default'].stringToDimension(width);
+      height = _util2['default'].stringToDimension(height);
+      $el.css({
+        width: width,
+        height: height
+      });
+      $el.trigger('resized', { width: width, height: height });
+    }
+  }, {
     key: 'simpleXdmExtension',
     value: function simpleXdmExtension(extension) {
       var $iframe;
@@ -1673,8 +1688,7 @@ var Iframe = (function () {
   }, {
     key: '_renderIframe',
     value: function _renderIframe(attributes) {
-      var attrs = _dollar2['default'].extend({}, DEFAULT_IFRAME_ATTRIBUTES, attributes);
-      return (0, _dollar2['default'])('<iframe />').attr(attrs);
+      return (0, _dollar2['default'])('<iframe />').attr(attributes);
     }
   }]);
 
@@ -1682,6 +1696,10 @@ var Iframe = (function () {
 })();
 
 var IframeComponent = new Iframe();
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
+  IframeComponent.resize(data.width, data.height, data.$el);
+});
 
 exports['default'] = IframeComponent;
 module.exports = exports['default'];
@@ -1743,12 +1761,17 @@ var IframeContainer = (function () {
     value: function _insertIframe($container, extension) {
       var simpleExtension = _componentsIframe2['default'].simpleXdmExtension(extension);
       $container.append(simpleExtension.$el);
+      if (extension.options.width) {
+        simpleExtension.$el.css('width', extension.options.width);
+      }
+      if (extension.options.height) {
+        simpleExtension.$el.css('height', extension.options.height);
+      }
       _actionsIframe_actions2['default'].notifyIframeCreated(simpleExtension.$el, simpleExtension.extension);
     }
   }, {
     key: 'createExtension',
     value: function createExtension(extension) {
-      var $iframe;
       var $container = this._renderContainer();
       if (!extension.url || _utilsUrl2['default'].hasJwt(extension.url) && _utilsUrl2['default'].isJwtExpired(extension.url)) {
         this._urlContainerRegistry[extension.id] = $container;
@@ -1756,7 +1779,6 @@ var IframeContainer = (function () {
       } else {
         this._insertIframe($container, extension);
       }
-
       return $container;
     }
   }, {
@@ -2008,7 +2030,8 @@ var InlineDialogWebItem = (function () {
       var $inlineDialog = this._createInlineDialog({
         id: webitemId,
         extension: data.extension,
-        $target: $target
+        $target: $target,
+        options: data.options || {}
       });
 
       $inlineDialog.show();
