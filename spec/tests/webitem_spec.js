@@ -41,6 +41,19 @@ describe("webitem component", () => {
     });
   });
 
+  it('setWebItem adds a webitem to the list',() => {
+    var webitemone = {
+      name: 'awebitem',
+      selector: 'div',
+      triggers: []
+    };
+    expect(WebItem._webitems).toEqual({});
+    WebItem.setWebItem(webitemone);
+    expect(WebItem._webitems).toEqual({
+      'awebitem': webitemone
+    });
+  });
+
   describe('getWebItemsBySelector', () => {
     afterEach(() => {
       WebItem._webitems = {};
@@ -48,14 +61,14 @@ describe("webitem component", () => {
 
     it('returns webitems that match the specified selector', () => {
       var webitemone = {
-          name: 'awebitem',
-          selector: 'div',
-          triggers: []
+        name: 'awebitem',
+        selector: 'div',
+        triggers: []
       };
       var webitemtwo = {
-          name: 'secondwebitem',
-          selector: 'a',
-          triggers: []
+        name: 'secondwebitem',
+        selector: 'a',
+        triggers: []
       };
       WebItem.setWebItem(webitemone);
       WebItem.setWebItem(webitemtwo);
@@ -65,5 +78,6 @@ describe("webitem component", () => {
 
     });
   });
+
 
 });
