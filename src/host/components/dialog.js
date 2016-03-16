@@ -101,18 +101,20 @@ class Dialog {
     if (['small', 'medium', 'large', 'xlarge', 'fullscreen'].includes(options.size)) {
       $dialog.addClass('aui-dialog2-' + options.size);
     }
-    const $content = IframeContainer.createExtension({
-      addon_key: options.extension.addon_key,
-      key: options.key,
-      url: options.url,
-      options: {
-        dialogId: options.id,
-        // ACJS-185: the following is a really bad idea but we need it
-        // for compat until AP.dialog.customData has been deprecated
-        customData: options.customData
-      }
-    });
-    $dialog.append(this._renderContent($content));
+
+    // const $content = IframeContainer.createExtension({
+    //   addon_key: options.extension.addon_key,
+    //   key: options.key,
+    //   url: options.url,
+    //   options: {
+    //     dialogId: options.id,
+    //     // the following is a really bad idea but we need it for
+    //     // compat until AP.dialog.customData has been deprecated
+    //     customData: options.customData
+    //   }
+    // });
+    $dialog.append(this._renderContent(options.$content));
+
     if (options.chrome) {
       $dialog.prepend(this._renderHeader({
         header: options.header
