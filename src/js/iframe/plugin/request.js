@@ -68,7 +68,10 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
        * 
        * In contrast to REST calls made from the add-on server to the product directly, any requests made in the browser are evaluated
        * in the context of the currently logged in user. The requested resource is still evaluated against the add-ons granted scopes.
-       * 
+       *
+       * If a File is provided in the options, then the request will automatically become a Multipart POST. This can be used to add
+       * file attachments using the JIRA and Confluence REST APIs.
+       *
        * @exports request
        */
       apis: {
@@ -90,8 +93,6 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
         *     }
         *   });
         * });
-        *
-        * If a File is provided in the options, then the request will automatically become a Multipart POST.
         *
         * @example
         * // Add an attachment to a Confluence entity.
