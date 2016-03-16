@@ -159,6 +159,7 @@ EventDispatcher.register('dialog-close-active', (data) => {
 });
 
 EventDispatcher.register('dialog-close', (data) => {
+  data.dialog.hide();
   DomEventActions.unregisterKeyEvent({
     extension_id: data.extension.id,
     key: 27
