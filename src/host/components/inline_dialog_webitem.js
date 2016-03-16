@@ -35,7 +35,7 @@ class InlineDialogWebItem {
       $content: $iframeContainer,
       dialogOptions: {} // fill this with dialog options.
     });
-    $inlineDialog
+
     return $inlineDialog;
   }
 
