@@ -48,10 +48,11 @@ class WebItem {
   }
 
   _addTriggers (webitem) {
+    console.log('add triggers', webitem);
     var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
     webitem._on = (e) => {
-      WebItemActions.webitemInvoked(webitem, e);
       e.preventDefault();
+      WebItemActions.webitemInvoked(webitem, e);
     };
     $(() => {
       $('body').on(onTriggers, webitem.selector, webitem._on);

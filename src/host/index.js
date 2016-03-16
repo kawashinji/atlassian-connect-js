@@ -16,6 +16,7 @@ import EventActions from 'actions/event_actions';
 import IframeActions from 'actions/iframe_actions';
 
 import InlineDialogWebItemComponent from 'components/inline_dialog_webitem';
+import DialogWebItemComponent from 'components/dialog_webitem';
 // import propagator from './propagate/rpc';
 
 /**
