@@ -52,7 +52,8 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
   * @property {Object}    headers       an object containing headers to set; supported headers are: Accept
   * @property {Function}  success       a callback function executed on a 200 success status code
   * @property {Function}  error         a callback function executed when a HTTP status error code is returned
-  * @property {Boolean}   experimental  if the experimental is set to true, the developer acknowledges that the API endpoint which is being
+  * @property {File}      file          the file that gets sent along with the data as part of a Multipart POST
+  * @property {Boolean}   experimental  if this is set to true, the developer acknowledges that the API endpoint which is being
   *                                     called may be in beta state, and thus may also have a shorter deprecation cycle than stable APIs.
   */
 
@@ -67,7 +68,10 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
        * 
        * In contrast to REST calls made from the add-on server to the product directly, any requests made in the browser are evaluated
        * in the context of the currently logged in user. The requested resource is still evaluated against the add-ons granted scopes.
-       * 
+       *
+       * If a File is provided in the options, then the request will automatically become a Multipart POST. This can be used to add
+       * file attachments using the JIRA and Confluence REST APIs.
+       *
        * @exports request
        */
       apis: {
@@ -84,6 +88,22 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
         * AP.require('request', function(request){
         *   request({
         *     url: '../assets/js/rest-example.json',
+        *     success: function(responseText){
+        *       alert(responseText);
+        *     }
+        *   });
+        * });
+        *
+        * @example
+        * // Add an attachment to a Confluence entity.
+        * var fileToUpload = document.getElementById("fileInput").files[0];
+        *
+        * AP.require('request', function(request){
+        *   request({
+        *     url: '/rest/api/content/123456/child/attachment',
+        *     type: 'POST',
+        *     data: {comment: 'example comment'},
+        *     file: fileToUpload,
         *     success: function(responseText){
         *       alert(responseText);
         *     }
