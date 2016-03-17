@@ -31,7 +31,7 @@
                 submitText: dialogOptions.submitText,
                 cancelText: dialogOptions.cancelText,
                 closeOnEscape: dialogOptions.closeOnEscape,
-                src: (options.insecureUrl ? options.baseUrl + options.insecureUrl : false)
+                src: (dialogOptions.insecureUrl ? options.baseUrl + '/' + dialogOptions.insecureUrl : false)
             }, false);
 
             container = createdDialog.$el.find('.ap-dialog-container');

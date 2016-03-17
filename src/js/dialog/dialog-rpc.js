@@ -69,8 +69,7 @@
                             throw new Error('Cannot open dialog by URL, please use module key');
                         }
                         if(dialogOptions.insecureUrl){
-                            xdmOptions.baseUrl = 'derp';
-                            console.log('no idea', xdmOptions, this, dialogOptions);
+                            xdmOptions.baseUrl = this.remoteOrigin;
                         }
                         dialogFactory(xdmOptions, dialogOptions, this.productContext);
 
