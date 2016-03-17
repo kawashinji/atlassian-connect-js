@@ -30,20 +30,22 @@
                 size: dialogOptions.size,
                 submitText: dialogOptions.submitText,
                 cancelText: dialogOptions.cancelText,
-                closeOnEscape: dialogOptions.closeOnEscape
+                closeOnEscape: dialogOptions.closeOnEscape,
+                src: (options.insecureUrl ? options.baseUrl + options.insecureUrl : false)
             }, false);
 
             container = createdDialog.$el.find('.ap-dialog-container');
             if(options.url){
                 throw new Error('Cannot retrieve dialog content by URL');
-            }
+            } else if(!options.insecureUrl) {
+                promise = window._AP.contentResolver.resolveByParameters({
+                    addonKey: options.key,
+                    moduleKey: options.moduleKey,
+                    productContext: productContext,
+                    uiParams: uiParams,
+                });
 
-            promise = window._AP.contentResolver.resolveByParameters({
-                addonKey: options.key,
-                moduleKey: options.moduleKey,
-                productContext: productContext,
-                uiParams: uiParams
-            });
+            }
 
             promise
                 .done(function(data) {
