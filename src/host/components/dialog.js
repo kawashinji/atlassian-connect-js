@@ -2,7 +2,7 @@ import EventDispatcher from 'dispatchers/event_dispatcher';
 import DomEventActions from 'actions/dom_event_actions';
 import DialogActions from 'actions/dialog_actions';
 
-import util from './util';
+import util from '../util';
 import $ from '../dollar';
 import _ from '../underscore';
 
