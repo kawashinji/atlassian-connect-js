@@ -31,13 +31,14 @@
                 submitText: dialogOptions.submitText,
                 cancelText: dialogOptions.cancelText,
                 closeOnEscape: dialogOptions.closeOnEscape,
-                src: (dialogOptions.insecureUrl ? options.baseUrl + '/' + dialogOptions.insecureUrl : false)
+                src: (dialogOptions.insecureUrl ? options.baseUrl + '/' + dialogOptions.insecureUrl : false),
+                remote: (dialogOptions.insecureUrl ? options.baseUrl + '/' + dialogOptions.insecureUrl : undefined)
             }, false);
 
             container = createdDialog.$el.find('.ap-dialog-container');
             if(options.url){
                 throw new Error('Cannot retrieve dialog content by URL');
-            } else if(!options.insecureUrl) {
+            } else if(!dialogOptions.insecureUrl) {
                 promise = window._AP.contentResolver.resolveByParameters({
                     addonKey: options.key,
                     moduleKey: options.moduleKey,
