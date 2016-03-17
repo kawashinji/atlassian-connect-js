@@ -49,11 +49,17 @@
                 extraClasses.push('ap-aui-dialog2-chromeless');
             }
 
+            var auiSize = options.size;
+            if (auiSize === 'fullscreen') {
+                // Fullscreen delegates to 'maximum' CSS styles for the correct height/width and top settings.
+                auiSize = 'maximum';
+            }
+
             $el = $(aui.dialog.dialog2({
                 id: options.id,
                 titleText: options.header,
                 titleId: options.titleId,
-                size: options.size,
+                size: auiSize,
                 extraClasses: extraClasses,
                 removeOnHide: true,
                 footerActionContent: true,
