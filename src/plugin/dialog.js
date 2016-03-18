@@ -29,7 +29,7 @@ AP.register({
 });
 
 function registerHandler(event, callback) {
-  if ($.isFunction(callback)) {
+  if (typeof callback === 'function') {
     if (!dialogHandlers[event]) {
       dialogHandlers[event] = [];
     }
