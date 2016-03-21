@@ -60,3 +60,8 @@
     color: #fff;
     margin-left: 16px;
 }
+
+/* Reduce the height of the content div to allow for the height of the header bar */
+.ap-header-controls .aui-dialog2-content {
+    max-height: calc(100% - 50px);
+}
