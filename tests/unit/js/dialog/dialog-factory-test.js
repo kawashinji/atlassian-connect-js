@@ -38,6 +38,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
                 fail: sinon.stub().returns($.Deferred().promise())
             };
             this.store.contentResolver = window._AP.contentResolver;
+            this.store.dialogModules = window._AP.dialogModules;
 
             window._AP.contentResolver = {
                 resolveByParameters: sinon.stub().returns(this.contentResolverPromise)
@@ -46,6 +47,7 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
         },
         teardown: function(){
             window._AP.contentResolver = this.store.contentResolver;
+            window._AP.dialogModules = this.store.dialogModules;
             this.server.restore();
             window.AJS.dialog2 = this.store.dialog2;
             window.AJS.layer = this.store.layer;
@@ -193,4 +195,28 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
         ok(dialogSpy.$el.hasClass('ap-aui-dialog2-chromeless'));
     });
 
+    test("common dialog module options are resolved", function(){
+        this.server.respondWith("GET", /.*somekey\/somemodulekey/,
+            [200, { "Content-Type": "text/html" }, 'This is the <span id="my-span">content</span>']);
+
+        window._AP.dialogModules = {
+            "plugin-key" : {
+                "common-dialog" : {
+                    "options": {
+                        "size": "maximum"
+                    }
+                }
+            }
+        };
+
+        dialog = dialogFactory({
+            key: 'plugin-key',
+            moduleKey: 'somemodulekey',
+            id: 'dialogid'
+        }, {
+            dialogModuleKey: "common-dialog"
+        }, "");
+
+        ok(dialogSpy.$el.hasClass('aui-dialog2-maximum'));
+    });
 });

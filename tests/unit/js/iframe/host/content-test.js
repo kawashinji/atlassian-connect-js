@@ -63,6 +63,35 @@
 
         });
 
+        module("Content Utilities class extraction");
+
+        test("getWebItemPluginKey returns the plugin key", function(){
+            var $target = $('<div class="ap-plugin-key-the-plugin-key">');
+            var key = contentUtilities.getWebItemPluginKey($target);
+
+            equal(key, 'the-plugin-key');
+        });
+
+        test("getWebItemModuleKey returns the module key", function(){
+            var $target = $('<div class="ap-module-key-the-module-key">');
+            var key = contentUtilities.getWebItemModuleKey($target);
+
+            equal(key, 'the-module-key');
+        });
+
+        test("getWebItemTargetKey returns the target key if present", function(){
+            var $target = $('<div class="ap-target-key-the-target-key">');
+            var key = contentUtilities.getWebItemTargetKey($target);
+
+            equal(key, 'the-target-key');
+        });
+
+        test("getWebItemTargetKey returns false if target not present", function(){
+            var $target = $('<div>');
+            var key = contentUtilities.getWebItemTargetKey($target);
+
+            equal(key, false);
+        });
     });
 
 })();
