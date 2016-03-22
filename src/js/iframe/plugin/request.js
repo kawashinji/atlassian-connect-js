@@ -77,7 +77,7 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
         * always be set to "text" - even if specified.
         *
         * If contentType is set to "multipart/form-data" and data is an Object, then the data will transformed into a FormData
-        * object and it will be sent as a Multipart POST. To upload a file to the host application, it must a File object.
+        * object and it will be sent as a Multipart POST. To upload a file to the host application, it must be a File object.
         *
         * @param {String} url either the URI to request or an options object (as below) containing at least a 'url' property;<br />
         *                     this value should be relative to the context path of the host application.
