@@ -19,27 +19,22 @@
             }
         }
 
-        function handleFile (ajaxOptions, file, url) {
-            if (!file instanceof File) {
-                throw new Error("file must be a File object")
-            }
-
+        function handleMultipartRequest (ajaxOptions) {
             ajaxOptions.contentType = false;
             ajaxOptions.processData = false;
 
-            var formData = new FormData();
-            formData.append('file', file);
-
-            if (ajaxOptions.data) {
+            if (ajaxOptions.data && typeof ajaxOptions.data === 'object') {
+                var formData = new FormData();
                 Object.keys(ajaxOptions.data).forEach(function (key) {
                     formData.append(key, ajaxOptions.data[key]);
                 });
+                ajaxOptions.data = formData;
+            } else {
+                throw new Error("For a Multipart request, data must to be an Object");
             }
 
-            ajaxOptions.data = formData;
-
             if ($.isFunction(addFileUploadHeader)) {
-                ajaxOptions = addFileUploadHeader(ajaxOptions, url)
+                ajaxOptions = addFileUploadHeader(ajaxOptions)
             }
 
             return ajaxOptions;
@@ -101,8 +96,8 @@
                             }
                         };
 
-                        if (args.file) {
-                            ajaxOptions = handleFile(ajaxOptions, args.file, args.url);
+                        if (ajaxOptions.contentType === "multipart/form-data") {
+                            ajaxOptions = handleMultipartRequest(ajaxOptions);
                         }
 
                         $.each(requestHeadersWhitelist, function(index, header) {
