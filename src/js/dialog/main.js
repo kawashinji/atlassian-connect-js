@@ -51,6 +51,7 @@
 
             var auiSize = options.size;
             if (auiSize === 'fullscreen') {
+                // Fullscreen delegates to 'maximum' CSS styles for the correct height/width and top settings.
                 auiSize = 'maximum';
             }
 

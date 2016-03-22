@@ -99,7 +99,7 @@
 			}, 5000);
 	
 			$(window).on("message", function(e){
-				var event = JSON.parse(e.originalEvent.data);
+				var event = e.originalEvent.data;
 				if(event.m.n === 'getLocation'){
 					ok(AJS.error.calledOnce);
 					start();
