@@ -93,8 +93,8 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
         *   });
         * });
         *
-        * @example
         * @noDemo
+        * @example
         * // Upload an attachment to a Confluence entity.
         * var fileToUpload = document.getElementById("fileInput").files[0];
         *
