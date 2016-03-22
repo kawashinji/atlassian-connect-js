@@ -18,7 +18,7 @@ AJS.toInit(function ($) {
 
                     $.extend(options, webItemOptions, {
                         // The key of the common dialog module this item targets - may be blank
-                        dialogKey: connect.webItemHelper.getWebItemTargetKey(options.bindTo)
+                        dialogModuleKey: connect.webItemHelper.getWebItemTargetKey(options.bindTo)
                     });
 
                     if (!options.ns) {

@@ -12,11 +12,11 @@
         */
         return function(options, dialogOptions, productContext) {
 
-            // Look up options from a commonly-defined Dialog module.
-            if (dialogOptions.dialogKey) {
+            // Look up options from a commonly-defined Dialog module. eh
+            if (dialogOptions.dialogModuleKey) {
                 var allDialogModules = window._AP.dialogModules;
                 var addonModules = allDialogModules && allDialogModules[options.key];
-                var module = addonModules && addonModules[dialogOptions.dialogKey];
+                var module = addonModules && addonModules[dialogOptions.dialogModuleKey];
                 if (module) {
                     $.extend(dialogOptions, module.options);
                 }

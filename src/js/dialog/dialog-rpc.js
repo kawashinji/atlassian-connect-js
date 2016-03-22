@@ -70,7 +70,7 @@
                         }
 
                         // For looking up common dialog modules.
-                        dialogOptions.dialogKey = dialogOptions.key;
+                        dialogOptions.dialogModuleKey = dialogOptions.key;
 
                         dialogFactory(xdmOptions, dialogOptions, this.productContext);
 
