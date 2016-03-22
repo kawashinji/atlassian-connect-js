@@ -18,19 +18,24 @@
             return {
                 stubs: ["dialogMessage"],
                 init: function(state, xdm){
-                    // We cache the xdm in the active dialog so that it's available for button bindings.
-                    dialogMain._getActiveDialog().xdm = xdm;
-
                     // fallback for old connect p2 plugin.
                     if(state.dlg === "1"){
                         xdm.uiParams.isDialog = true;
                     }
 
-                    if (xdm.uiParams.isDialog) {
-                        $.each(dialogMain.getButton(), function(name, button) {
-                            initializeButtonCallback(name, button);
-                        });
+                    // This init method gets invoked from various Connect contexts and not solely when a dialog is
+                    // invoked. If there's no active dialog, there's nothing to init here.
+                    var activeDialog = dialogMain._getActiveDialog();
+                    if (!activeDialog) {
+                        return;
                     }
+
+                    // We cache the xdm in the active dialog so that it's available for button bindings.
+                    activeDialog.xdm = xdm;
+
+                    $.each(dialogMain.getButton(), function(name, button) {
+                        initializeButtonCallback(name, button);
+                    });
                 },
                 internals: {
                     dialogListenerBound: function(){
