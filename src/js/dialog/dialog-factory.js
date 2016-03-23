@@ -23,6 +23,7 @@
             var createdDialog = dialog.create({
                 id: options.id,
                 ns: options.moduleKey || options.key,
+                key: options.key,
                 chrome: chrome,
                 header: dialogOptions.header,
                 width: dialogOptions.width,
@@ -39,6 +40,7 @@
             if(options.url){
                 throw new Error('Cannot retrieve dialog content by URL');
             } else if(!dialogOptions.insecureUrl) {
+
                 promise = window._AP.contentResolver.resolveByParameters({
                     addonKey: options.key,
                     moduleKey: options.moduleKey,
