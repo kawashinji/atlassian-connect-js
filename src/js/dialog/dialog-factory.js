@@ -18,7 +18,8 @@
                 var addonModules = allDialogModules && allDialogModules[options.key];
                 var module = addonModules && addonModules[dialogOptions.dialogModuleKey];
                 if (module) {
-                    $.extend(dialogOptions, module.options);
+                    // Local options override common ones.
+                    dialogOptions = $.extend({}, module.options, dialogOptions);
                 }
             }
 

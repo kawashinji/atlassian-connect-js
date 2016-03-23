@@ -219,4 +219,31 @@ require(['ac/dialog/dialog-factory'], function(dialogFactory) {
 
         ok(dialogSpy.$el.hasClass('aui-dialog2-maximum'));
     });
+
+    test("common dialog module options can be overridden", function(){
+        this.server.respondWith("GET", /.*somekey\/somemodulekey/,
+            [200, { "Content-Type": "text/html" }, 'This is the <span id="my-span">content</span>']);
+
+        window._AP.dialogModules = {
+            "plugin-key" : {
+                "common-dialog" : {
+                    "options": {
+                        "size": "maximum"
+                    }
+                }
+            }
+        };
+
+        dialog = dialogFactory({
+            key: 'plugin-key',
+            moduleKey: 'somemodulekey',
+            id: 'dialogid'
+        }, {
+            dialogModuleKey: "common-dialog",
+            size: "small"
+
+        }, "");
+
+        ok(dialogSpy.$el.hasClass('aui-dialog2-small'));
+    });
 });
