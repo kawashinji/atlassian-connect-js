@@ -74,6 +74,9 @@
                             throw new Error('Cannot open dialog by URL, please use module key');
                         }
 
+                        // For looking up common dialog modules.
+                        dialogOptions.dialogModuleKey = dialogOptions.key;
+
                         dialogFactory(xdmOptions, dialogOptions, this.productContext);
 
                     },
