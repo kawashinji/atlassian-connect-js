@@ -15,6 +15,9 @@ var watchify = require('watchify');
 var concat = require('gulp-concat');
 var minifyCSS = require('gulp-minify-css');
 var eslint = require('gulp-eslint');
+var merge = require('merge-stream');
+var argv = require('yargs').argv;
+var deployPath = argv.deployPath || '/tmp/resources';
 
 function getTask(task) {
   return require('./gulp-tasks/' + task)(gulp);
@@ -95,6 +98,15 @@ function lintJS() {
     .pipe(eslint.format());
 }
 
+function deploy() {
+  return merge(
+    gulp.src('./dist/**/*.js')
+      .pipe(gulp.dest(`${deployPath}/js/core`)),
+    gulp.src('dist/**/*.css')
+      .pipe(gulp.dest(`${deployPath}/css/core`))
+  );
+}
+
 gulp.task('plugin:build', buildPlugin);
 gulp.task('plugin:watch', buildPlugin.bind(null, {watch: true}));
 
@@ -108,6 +120,8 @@ gulp.task('lint', lintJS);
 
 gulp.task('watch', ['plugin:watch', 'host:watch']);
 gulp.task('build', ['plugin:build', 'host:build']);
+
+gulp.task('deploy', deploy);
 
 gulp.task('default', ['build', 'css:minify']);
 
