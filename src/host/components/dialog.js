@@ -64,7 +64,7 @@ class Dialog {
 
   _renderFooterActions(actions, extension) {
     const $actions = $('<div />').addClass('aui-dialog2-footer-actions');
-    $actions.append([...actions].map(action => {
+    [...actions].forEach(action => {
       const $button = $('<button />').addClass('aui-button').text(action.text);
       $button.data('name', action.name);
       if (BUTTON_TYPES.includes(action.type)) {
@@ -78,8 +78,8 @@ class Dialog {
           });
         }
       });
-      return $button;
-    }));
+      $actions.append($button);
+    });
     return $actions;
   }
 
