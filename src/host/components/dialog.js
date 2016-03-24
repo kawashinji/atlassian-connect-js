@@ -67,7 +67,7 @@ class Dialog {
     [...actions].forEach(action => {
       const $button = $('<button />').addClass('aui-button').text(action.text);
       $button.data('name', action.name);
-      if (BUTTON_TYPES.includes(action.type)) {
+      if (_.contains(BUTTON_TYPES, action.type)) {
         $button.addClass('aui-button-' + action.type);
       }
       $button.click(() => {
@@ -123,7 +123,7 @@ class Dialog {
     } else if (!options.width && !options.height) {
       options.size = 'medium';
     }
-    if (DIALOG_SIZES.includes(options.size)) {
+    if (_.contains(DIALOG_SIZES, options.size)) {
       $dialog.addClass('aui-dialog2-' + options.size);
     }
 
