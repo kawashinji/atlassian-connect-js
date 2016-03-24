@@ -1,4 +1,4 @@
-define('host/_addons', ["_dollar", "_rpc"], function ($, rpc) {
+define('host/_addons', ["_dollar", "_rpc", "analytics/analytics"], function ($, rpc, analytics) {
 
   "use strict";
 
@@ -19,6 +19,8 @@ define('host/_addons', ["_dollar", "_rpc"], function ($, rpc) {
                     $.each(_channels[event.source.key], function (id, channel) {
                         channel.bus._emitEvent(event);
                     });
+                } else {
+                    analytics.track('analyticsEvent', {name: 'emitToAll.source', data: event.source});
                 }
             },
             remove: function (xdm) {
