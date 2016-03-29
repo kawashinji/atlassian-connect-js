@@ -1,4 +1,4 @@
-define('host/_addons', ["_dollar", "_rpc", "analytics/analytics"], function ($, rpc, analytics) {
+define('host/_addons', ["_dollar", "_rpc"], function ($, rpc) {
 
   "use strict";
 
@@ -20,7 +20,7 @@ define('host/_addons', ["_dollar", "_rpc", "analytics/analytics"], function ($, 
                         channel.bus._emitEvent(event);
                     });
                 } else {
-                    analytics.track('analyticsEvent', {name: 'emitToAll.source', data: event.source});
+                    AJS.trigger('analyticsEvent', {name: 'emitToAll.unknownSource', data: event.source});
                 }
             },
             remove: function (xdm) {
@@ -61,8 +61,8 @@ define('host/_addons', ["_dollar", "_rpc", "analytics/analytics"], function ($, 
 
     return {
         emitToAll: function(name) {
-            $.each(_channels, function (addon) {
-                $.each(_channels[addon], function(id, channel) {
+            $.each(_channels, function (addon, addonChannels) {
+                $.each(addonChannels, function(id, channel) {
                     channel.bus.emit(name);
                 });
             });
