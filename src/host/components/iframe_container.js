@@ -20,20 +20,27 @@ class IframeContainer {
   _insertIframe($container, extension) {
     var simpleExtension = IframeComponent.simpleXdmExtension(extension);
     $container.append(simpleExtension.$el);
-    if(extension.options.width){
-      simpleExtension.$el.css('width', extension.options.width);
-    }
-    if(extension.options.height){
-     simpleExtension.$el.css('height', extension.options.height);
+    if(extension.options){
+      if(extension.options.width){
+        simpleExtension.$el.css('width', extension.options.width);
+      }
+      if(extension.options.height){
+       simpleExtension.$el.css('height', extension.options.height);
+      }
     }
     IframeActions.notifyIframeCreated(simpleExtension.$el, simpleExtension.extension);
+    return simpleExtension;
   }
 
   createExtension(extension) {
     var $container = this._renderContainer();
     if(!extension.url || (urlUtil.hasJwt(extension.url) && urlUtil.isJwtExpired(extension.url))){
       this._urlContainerRegistry[extension.id] = $container;
-      JwtActions.requestRefreshUrl({extension, resolver: this._contentResolver});
+      if(this._contentResolver){
+        JwtActions.requestRefreshUrl({extension, resolver: this._contentResolver});
+      } else {
+        console.error('JWT is expired and no content resolver was specified');
+      }
     } else {
       this._insertIframe($container, extension);
     }

@@ -84,7 +84,7 @@ describe('Flag Component', () => {
 
 
   describe('rendering', () => {
-    return;
+
     it('renders a flag', (done) => {
       window.require(['aui/flag'], () => {
         var $flag = FlagComponent.render({
