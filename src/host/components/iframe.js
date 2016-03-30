@@ -8,9 +8,6 @@ import urlUtil from 'utils/url';
 const CONTAINER_CLASSES = ['ap-container'];
 
 class Iframe {
-  constructor () {
-    this._stateRegistry = {};
-  }
 
   resize(width, height, $el){
     width = util.stringToDimension(width);
