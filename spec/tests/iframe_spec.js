@@ -98,7 +98,7 @@ describe('Iframe component', () => {
 
   it('_renderIframe returns an iframe with attributes', () => {
     var attributes = {
-      width: '123px',
+      width: '123',
       custom: 'somethingelse'
     };
     var $iframe = IframeComponent._renderIframe(attributes);
