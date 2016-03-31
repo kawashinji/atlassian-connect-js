@@ -8,9 +8,6 @@ import urlUtil from 'utils/url';
 const CONTAINER_CLASSES = ['ap-container'];
 
 class Iframe {
-  constructor () {
-    this._stateRegistry = {};
-  }
 
   resize(width, height, $el){
     width = util.stringToDimension(width);
@@ -22,15 +19,18 @@ class Iframe {
     $el.trigger('resized', {width: width, height: height});
   }
 
-  simpleXdmExtension(extension) {
-    var $iframe;
-    var iframeAttributes = simpleXDM.create(extension, function (extension_id) {
-      extension.id = extension_id;
+  _bridgeEstablishedCallback($iframe, extension) {
+    return function (){
       EventDispatcher.dispatch('iframe-bridge-estabilshed', {
         $el: $iframe,
         extension
       });
-    });
+    };
+  }
+
+  simpleXdmExtension(extension) {
+    var $iframe;
+    var iframeAttributes = simpleXDM.create(extension, this._bridgeEstablishedCallback($iframe, extension));
     extension.id = iframeAttributes.id;
     $iframe = this._renderIframe(iframeAttributes);
     return {$el: $iframe, extension};
