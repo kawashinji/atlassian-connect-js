@@ -42,8 +42,17 @@ AP.define("navigator", ["_dollar", "_rpc"],
              * @param {Navigator~context} context Specific information that identifies the page to navigate to.
              * @noDemo
              * @example
+             * // To navigate to the view page for a piece of content:
              * AP.require('navigator', function(navigator){
              *   navigator.go('contentview', {contentId: '12345'});
+             * });
+             *
+             * // To navigate to the edit page for a piece of content:
+             * AP.require('navigator', function(navigator){
+             *   navigator.go('contentedit', {
+             *     contentType: 'page',
+             *     contentId: '12345'
+             *   });
              * });
              */
             go: function (target, context) {
