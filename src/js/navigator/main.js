@@ -19,7 +19,11 @@
             }
             if (target in routes) {
                 context = context || {};
-                browser.goToUrl(buildUrl(routes[target], context));
+                if ($.isFunction(routes[target])) {
+                    routes[target](context, browser.goToUrl);
+                } else if (typeof routes[target] === "string") {
+                    browser.goToUrl(buildUrl(routes[target], context));
+                }
             } else {
                 throw new Error("The URL target " + target + " is not available. Valid targets are: " + Object.keys(routes).toString());
             }
