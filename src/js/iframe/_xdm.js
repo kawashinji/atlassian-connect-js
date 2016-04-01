@@ -448,7 +448,8 @@ if(this.AP){
           !(value instanceof FileList)) {
 
           // check if the value already been seen
-          for (i = 0; i < objects.length; i += 1) {
+          i = objects.indexOf(value);
+          if (i > -1) {
             if (objects[i] === value) {
               return null;
             }
