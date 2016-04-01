@@ -448,11 +448,8 @@ if(this.AP){
           !(value instanceof FileList)) {
 
           // check if the value already been seen
-          i = objects.indexOf(value);
-          if (i > -1) {
-            if (objects[i] === value) {
-              return null;
-            }
+          if (objects.indexOf(value) > -1) {
+            return null;
           }
 
           // Keep a reference of the value
@@ -461,7 +458,7 @@ if(this.AP){
           // Recursively clone the Object or Array
           if (Array.isArray(value)) {
             newValue = [];
-            for (i = 0; i < value.length; i += 1) {
+            for (i = 0; i < value.length; i++) {
               newValue[i] = clone(value[i]);
             }
           } else {
