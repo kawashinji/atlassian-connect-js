@@ -168,6 +168,11 @@ if(this.AP){
     // Sends a message of a specific type to the remote peer via a post-message event
     function send(sid, type, message) {
       try {
+        // Sanitize the incoming message arguments
+        if (message && message.a) {
+          message.a = sanitizeStructuredClone(message.a);
+        }
+
         target.postMessage({
           c: channel,
           i: sid,
@@ -420,6 +425,66 @@ if(this.AP){
       // $.error seems to do the same thing as $.log in client console
       var error = (w.AJS && w.AJS.error);
       if (error) error.apply(w, arguments);
+    }
+
+    // Creates a deep copy of the object, rejecting Functions, Errors and Nodes
+    // ACJS-200: This is to prevent postMessage from breaking when it encounters unexpected arguments.
+    // Functions belonging to arrays will be null.
+    // Functions that are object properties are deleted.
+    // Errors and Nodes will be empty Objects
+    function sanitizeStructuredClone(object) {
+
+      // keep track the objects in case of circular references
+      var objects = [];
+
+      return (function clone(value) {
+        var i, name, newValue;
+
+        // For object types that are supported by the structured clone algorithm
+        if (typeof value === 'object' && value !== null &&
+          !(value instanceof Boolean) && !(value instanceof String) &&
+          !(value instanceof Date) && !(value instanceof RegExp) &&
+          !(value instanceof Blob)  && !(value instanceof File) &&
+          !(value instanceof FileList)) {
+
+          // check if the value already been seen
+          if (objects.indexOf(value) > -1) {
+            return null;
+          }
+
+          // Keep a reference of the value
+          objects.push(value);
+
+          // Recursively clone the Object or Array
+          if (Array.isArray(value)) {
+            newValue = [];
+            for (i = 0; i < value.length; i++) {
+              newValue[i] = clone(value[i]);
+            }
+          } else {
+            newValue = {};
+            for (name in value) {
+              if (value.hasOwnProperty(name)) {
+                var clonedValue = clone(value[name]);
+                if (clonedValue !== null) {
+                  newValue[name] = clonedValue;
+                }
+              }
+            }
+          }
+          return newValue;
+        }
+
+        if (typeof value === 'function') {
+          return null;
+        }
+
+        if (value instanceof Error || value instanceof Node) {
+          return {};
+        }
+
+        return value;
+      }(object));
     }
 
     // Immediately start listening for events
