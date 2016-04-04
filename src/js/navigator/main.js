@@ -9,7 +9,6 @@
         };
 
         var go = function (target, context) {
-
             if(!routes) {
                 throw new Error("navigation api not yet implemented for this product")
             }
@@ -19,7 +18,7 @@
             }
             if (target in routes) {
                 context = context || {};
-                if ($.isFunction(routes[target])) {
+                if (typeof routes[target] === "function") {
                     routes[target](context, browser.goToUrl);
                 } else if (typeof routes[target] === "string") {
                     browser.goToUrl(buildUrl(routes[target], context));
