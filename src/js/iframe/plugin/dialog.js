@@ -55,7 +55,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
          * @class Dialog~DialogOptions
          * @description The options supplied to a [dialog.create()](module-Dialog.html) call.
          *
-         * @property {String}        key         The module key of the page you want to open as a dialog
+         * @property {String}        key         The module key of a dialog, or the key of a page or web-item that you want to open as a dialog.
          * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or fullscreen (with chrome).
          * @property {Number|String} width       if size is not set, define the width as a percentage (append a % to the number) or pixels.
          * @property {Number|String} height      if size is not set, define the height as a percentage (append a % to the number) or pixels.
@@ -68,7 +68,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
          */
 
         /**
-         * Creates a dialog for a web-item or page module key.
+         * Creates a dialog for a common dialog, page or web-item module key.
          * @param {Dialog~DialogOptions} options configuration object of dialog options.
          * @noDemo
          * @example
