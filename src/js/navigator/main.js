@@ -40,10 +40,47 @@
             return AJS.contextPath() + uri.parse(urlTemplate).expand(context);
         };
 
+
+        /*
+            setRoutes allows you to specify a json list of routes to use in a particular product for use with Navigator.go.
+            There are two ways of defining each route.
+
+            The straightforward method is to provide a relative url templated string, where the variables will be
+            populated from the context object passed in by the add-on developer. For example:
+
+            "myroutename" : "/my/relative/url/string?someVar={someVar}&someOtherVar={someOtherVar}"
+
+            Alternatively, if you need more control over where to send the url, routing can be performed manually by
+            defining a routing function, which takes a context variable and a callback. When the url is calculated,
+            your code must call the callback function with the absolute url to navigate to. For example:
+
+            "myroutename" :
+                function (context, callback) {
+                    // ...
+                    // work out the absolute url here
+
+                    callback(url);
+                }
+         */
         var setRoutes = function (newRoutes) {
             routes = newRoutes;
         };
 
+        /*
+            setContext allows you to specify a function to return the current context of the current page for use with
+            Navigator.getLocation.
+
+            When called from a page in the host product, the function should return a properly formatted json object
+            consisting of a target and context object. For example:
+
+            {
+                 "target": "contentcreate",
+                 "context": {
+                     "contentId": 1234,
+                     "contentType": "page"
+                 }
+            }
+         */
         var setContextFunction = function (newContextFunction) {
             if (typeof newContextFunction === 'function') {
                 contextFunction = newContextFunction;
