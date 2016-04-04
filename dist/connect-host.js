@@ -2948,10 +2948,10 @@ var IframeContainer = (function () {
     key: '_insertIframe',
     value: function _insertIframe($container, extension) {
       var simpleExtension = _componentsIframe2['default'].simpleXdmExtension(extension);
-      $container.append(simpleExtension.$el);
       if (extension.srcdoc) {
         simpleExtension.$el.attr('srcdoc', extension.srcdoc);
       }
+      $container.append(simpleExtension.$el);
       if (extension.options) {
         if (extension.options.width) {
           simpleExtension.$el.css('width', extension.options.width);
