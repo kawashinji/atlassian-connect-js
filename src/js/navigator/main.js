@@ -67,7 +67,7 @@
         };
 
         /*
-            setContext allows you to specify a function to return the current context of the current page for use with
+            setContextFunction allows you to specify a function to return the current context of the current page for use with
             Navigator.getLocation.
 
             When called from a page in the host product, the function should return a properly formatted json object
