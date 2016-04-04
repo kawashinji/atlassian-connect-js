@@ -21,6 +21,7 @@ class IframeContainer {
     var simpleExtension = IframeComponent.simpleXdmExtension(extension);
     if(extension.srcdoc){
       simpleExtension.$el.attr('srcdoc', extension.srcdoc);
+      simpleExtension.$el.removeAttr('src');
     }
     $container.append(simpleExtension.$el);
     if(extension.options){

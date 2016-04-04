@@ -2950,6 +2950,7 @@ var IframeContainer = (function () {
       var simpleExtension = _componentsIframe2['default'].simpleXdmExtension(extension);
       if (extension.srcdoc) {
         simpleExtension.$el.attr('srcdoc', extension.srcdoc);
+        simpleExtension.$el.removeAttr('src');
       }
       $container.append(simpleExtension.$el);
       if (extension.options) {
