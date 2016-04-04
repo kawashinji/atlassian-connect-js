@@ -449,6 +449,7 @@ if(this.AP){
 
           // check if the value already been seen
           if (objects.indexOf(value) > -1) {
+            log("XDM: A circular reference was detected and removed from the message.");
             return null;
           }
 
@@ -476,10 +477,12 @@ if(this.AP){
         }
 
         if (typeof value === 'function') {
+          log("XDM: A function was detected and removed from the message.");
           return null;
         }
 
         if (value instanceof Error || value instanceof Node) {
+          log("XDM: An Error or Node object was detected and removed from the message.");
           return {};
         }
 
