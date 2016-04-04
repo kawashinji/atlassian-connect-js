@@ -50,7 +50,7 @@
 
             "myroutename" : "/my/relative/url/string?someVar={someVar}&someOtherVar={someOtherVar}"
 
-            Alternatively, if you need more control over where to send the url, routing can be performed manually by
+            Alternatively, if you need more control over what url to send the user to, routing can be performed manually by
             defining a routing function, which takes a context variable and a callback. When the url is calculated,
             your code must call the callback function with the absolute url to navigate to. For example:
 
