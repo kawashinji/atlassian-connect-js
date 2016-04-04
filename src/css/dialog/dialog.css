@@ -3,10 +3,7 @@
     background-color: #f5f5f5;
 }
 
-.ap-dialog-container .ap-container {
-    height: 100%;
-}
-
+.ap-aui-dialog2,
 .ap-aui-dialog2 div {
     height: 100%;
 }
@@ -16,10 +13,9 @@
     position: absolute; /* go over the top of the bottom bar when visible */
 }
 
-/* add new aui dialog size of maximum */
-.aui-dialog2-maximum.ap-aui-dialog2.aui-layer {
+/* add new aui dialog size of fullscreen */
+.ap-aui-dialog2.aui-dialog2-fullscreen {
     top: 0;
-    height: 100%;
 }
 
 .ap-aui-dialog2 .aui-dialog2-content {
@@ -37,7 +33,7 @@
     display:block;
 }
 
-.ap-aui-dialog2.ap-aui-dialog2-chromeless .aui-dialog2-content {
+.ap-aui-dialog2.aui-dialog2-chromeless .aui-dialog2-content {
     background-color:transparent;
 
     /* Override the aui selector that assumes the last-child is the footer */
