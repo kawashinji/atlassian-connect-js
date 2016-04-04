@@ -45,7 +45,8 @@ function dialogIframe(options, context) {
     url: options.url,
     options: {
       customData: options.customData
-    }
+    },
+    srcdoc: options.srcdoc
   });
 }
 

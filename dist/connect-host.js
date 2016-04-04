@@ -2688,6 +2688,9 @@ var IframeContainer = (function () {
     value: function _insertIframe($container, extension) {
       var simpleExtension = _componentsIframe2['default'].simpleXdmExtension(extension);
       $container.append(simpleExtension.$el);
+      if (extension.srcdoc) {
+        simpleExtension.$el.attr('srcdoc', extension.srcdoc);
+      }
       if (extension.options) {
         if (extension.options.width) {
           simpleExtension.$el.css('width', extension.options.width);
@@ -3712,7 +3715,8 @@ function dialogIframe(options, context) {
     url: options.url,
     options: {
       customData: options.customData
-    }
+    },
+    srcdoc: options.srcdoc
   });
 }
 
