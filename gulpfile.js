@@ -17,7 +17,7 @@ var minifyCSS = require('gulp-minify-css');
 var eslint = require('gulp-eslint');
 var merge = require('merge-stream');
 var argv = require('yargs').argv;
-var deployPath = argv.deployPath || '../atlassian-connect/plugin/src/main/resources';
+var deployPath = argv.deployPath || '../atlassian-connect/jsapi/src/main/resources';
 
 function getTask(task) {
   return require('./gulp-tasks/' + task)(gulp);
