@@ -3,6 +3,8 @@ Atlassian Connect JS
 
 The javascript library which backs [Atlassian Connect](http://connect.atlassian.com).
 
+Based on [Simple XDM](https://bitbucket.org/atlassian/simple-xdm/)
+
 Requirements
 ------------
 
