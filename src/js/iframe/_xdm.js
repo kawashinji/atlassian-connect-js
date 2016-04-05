@@ -440,15 +440,18 @@ if(this.AP){
       return (function clone(value) {
         var i, name, newValue;
 
-        // For object types that are supported by the structured clone algorithm
+        // For object types that are supported by the structured clone algorithm.
+        // It also checks if it's not an Error or Node - these are handled after along with functions.
         if (typeof value === 'object' && value !== null &&
           !(value instanceof Boolean) && !(value instanceof String) &&
           !(value instanceof Date) && !(value instanceof RegExp) &&
           !(value instanceof Blob)  && !(value instanceof File) &&
-          !(value instanceof FileList)) {
+          !(value instanceof FileList) && !(value instanceof Error) &&
+          !(value instanceof Node)) {
 
           // check if the value already been seen
           if (objects.indexOf(value) > -1) {
+            log("XDM: A circular reference was detected and removed from the message.");
             return null;
           }
 
@@ -476,10 +479,17 @@ if(this.AP){
         }
 
         if (typeof value === 'function') {
+          log("XDM: A function was detected and removed from the message.");
           return null;
         }
 
-        if (value instanceof Error || value instanceof Node) {
+        if (value instanceof Error) {
+          log("XDM: An Error object was detected and removed from the message.");
+          return {};
+        }
+
+        if (value instanceof Node) {
+          log("XDM: A Node object was detected and removed from the message.");
           return {};
         }
 
