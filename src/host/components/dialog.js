@@ -158,16 +158,18 @@ class Dialog {
 const DialogComponent = new Dialog();
 
 EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
-  DomEventActions.registerKeyEvent({
-    extension_id: data.extension.id,
-    key: 27,
-    callback: () => {
-      DialogActions.close({
-        dialog: getActiveDialog(),
-        extension: data.extension
-      });
-    }
-  });
+  if(data.extension.options.isDialog){
+    DomEventActions.registerKeyEvent({
+      extension_id: data.extension.id,
+      key: 27,
+      callback: () => {
+        DialogActions.close({
+          dialog: getActiveDialog(),
+          extension: data.extension
+        });
+      }
+    });
+  }
 });
 
 EventDispatcher.register('dialog-close-active', (data) => {

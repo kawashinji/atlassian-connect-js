@@ -38,6 +38,7 @@ class DialogWebItem {
     }
     var webitemId = $target.data(WEBITEM_UID_KEY);
     var dialogOptions = this._dialogOptions($target);
+    data.extension.options.isDialog = true;
     var $dialog = this._createDialog({
       id: webitemId,
       extension: data.extension,

@@ -30,6 +30,7 @@ class Dialog {
       key: options.key,
       url: options.url,
       options: {
+        isDialog: true,
         dialogId: options.id,
         // ACJS-185: the following is a really bad idea but we need it
         // for compat until AP.dialog.customData has been deprecated
