@@ -28,7 +28,7 @@ To build the distribution:
 Running tests
 -------------
 
-We use [Karma](http://karma-runner.github.io/0.10/index.html) for running our [Jasmine](http://jasmine.github.io/) tests.
+We use [Karma](http://karma-runner.github.io/0.13/index.html) for running our [Jasmine](http://jasmine.github.io/) tests.
 
 To run tests in watch mode:
 
