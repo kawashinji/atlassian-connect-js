@@ -70,7 +70,75 @@ var ConsumerOptions = (function () {
 
 module.exports = new ConsumerOptions();
 
-},{"./dollar":2}],2:[function(_dereq_,module,exports){
+},{"./dollar":3}],2:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _util = _dereq_('./util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var getCustomData = _util2['default'].deprecateApi(function () {
+  return AP._data.options.customData;
+}, 'AP.dialog.customData', 'AP.dialog.getCustomData()', '5.0');
+
+Object.defineProperty(AP._hostModules.dialog, 'customData', {
+  get: getCustomData
+});
+Object.defineProperty(AP.dialog, 'customData', {
+  get: getCustomData
+});
+
+var dialogHandlers = {};
+
+AP.register({
+  _any: function _any(data, callback) {
+    var dialogEventMatch = callback._context.eventName.match(/^dialog\.(\w+)$/);
+    if (dialogEventMatch) {
+      var handlers = dialogHandlers[dialogEventMatch[1]];
+      if (handlers) {
+        handlers.forEach(function (cb) {
+          return cb(data);
+        });
+      } else if (dialogEventMatch !== 'dialog.close') {
+        AP.dialog.close();
+      }
+    }
+  }
+});
+
+function registerHandler(event, callback) {
+  if (typeof callback === 'function') {
+    if (!dialogHandlers[event]) {
+      dialogHandlers[event] = [];
+    }
+    dialogHandlers[event].push(callback);
+  }
+}
+
+var original_dialogCreate = AP._hostModules.dialog.create;
+
+AP.dialog.create = AP._hostModules.dialog.create = function () {
+  var dialog = original_dialogCreate.apply(undefined, arguments);
+  dialog.on = _util2['default'].deprecateApi(registerHandler, 'AP.dialog.on("close", callback)', 'AP.events.on("dialog.close", callback)', '5.0');
+  return dialog;
+};
+
+var original_dialogGetButton = AP._hostModules.dialog.getButton;
+
+AP.dialog.getButton = AP._hostModules.dialog.getButton = function () {
+  var button = original_dialogGetButton.apply(undefined, arguments);
+  var name = arguments[0];
+  button.bind = _util2['default'].deprecateApi(function (callback) {
+    return registerHandler(name, callback);
+  }, 'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
+  return button;
+};
+
+AP.dialog.onDialogMessage = AP._hostModules.dialog.onDialogMessage = _util2['default'].deprecateApi(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '0.5');
+
+},{"./util":6}],3:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -161,7 +229,7 @@ function $(sel, context) {
 exports['default'] = extend($, _util2['default']);
 module.exports = exports['default'];
 
-},{"./util":5}],3:[function(_dereq_,module,exports){
+},{"./util":6}],4:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -308,7 +376,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./dollar":2}],4:[function(_dereq_,module,exports){
+},{"./dollar":3}],5:[function(_dereq_,module,exports){
 //INSERT AMD STUBBER HERE!
 // import amd from './amd';
 'use strict';
@@ -331,6 +399,10 @@ var _events = _dereq_('./events');
 
 var _events2 = _interopRequireDefault(_events);
 
+var _dialog = _dereq_('./dialog');
+
+var _dialog2 = _interopRequireDefault(_dialog);
+
 AP._hostModules._dollar = _dollar2['default'];
 
 if (_consumerOptions2['default'].get('sizeToParent') === true) {
@@ -341,7 +413,7 @@ _dollar2['default'].each(_events2['default'], function (i, method) {
   AP._hostModules.events[i] = AP.events[i] = method;
 });
 
-},{"./consumer-options":1,"./dollar":2,"./events":3,"./util":5}],5:[function(_dereq_,module,exports){
+},{"./consumer-options":1,"./dialog":2,"./dollar":3,"./events":4,"./util":6}],6:[function(_dereq_,module,exports){
 // universal iterator utility
 'use strict';
 
@@ -401,10 +473,22 @@ function decodeQueryComponent(encodedURI) {
   return encodedURI == null ? null : decodeURIComponent(encodedURI.replace(/\+/g, '%20'));
 }
 
+function deprecateApi(fn, name, alternate, sinceVersion) {
+  var called = false;
+  return function () {
+    if (!called && typeof console !== 'undefined' && console.warn) {
+      called = true;
+      console.warn('DEPRECATED API - ' + name + ' has been deprecated since ACJS ' + sinceVersion + (' and will be removed in a future release. Use ' + alternate + ' instead.'));
+    }
+    fn.apply(undefined, arguments);
+  };
+}
+
 exports['default'] = {
   each: each,
   log: log,
   decodeQueryComponent: decodeQueryComponent,
+  deprecateApi: deprecateApi,
   bind: binder('add', 'attach'),
   unbind: binder('remove', 'detach'),
 
@@ -465,7 +549,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{}]},{},[4])(4)
+},{}]},{},[5])(5)
 });
 
 
