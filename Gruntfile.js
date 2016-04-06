@@ -68,9 +68,9 @@ module.exports = function (grunt) {
         'concat:plugin',
         // 'closure-compiler',
 //        'append-sourcemapping',
-        'uglify',
-        'replace:projectVersion',
         'copy:disthostjs',
+        'replace:projectVersion',
+        'uglify',
         'copy:distpluginjs',
         'clean:tmp'
     ]);

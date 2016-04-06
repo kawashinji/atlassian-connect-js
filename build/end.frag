@@ -9,6 +9,7 @@
         _uriHelper: require('_uri'),
         _statusHelper: require('host/_status_helper'),
         _addons: require('host/_addons'),
-        webItemHelper: require('host/content')
+        webItemHelper: require('host/content'),
+        version: "${project.version}"
     };
 }));
