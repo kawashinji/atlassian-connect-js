@@ -4,6 +4,7 @@ import urlUtil from 'utils/url';
 import JwtActions from 'actions/jwt_actions';
 import IframeActions from 'actions/iframe_actions';
 import IframeComponent from 'components/iframe';
+import LoadingIndicatorComponent from 'components/loading_indicator';
 
 const CONTAINER_CLASSES = ['ap-container'];
 
@@ -19,7 +20,7 @@ class IframeContainer {
 
   _insertIframe($container, extension) {
     var simpleExtension = IframeComponent.simpleXdmExtension(extension);
-    $container.append(simpleExtension.$el);
+    $container.prepend(simpleExtension.$el);
     if(extension.options){
       if(extension.options.width){
         simpleExtension.$el.css('width', extension.options.width);
@@ -32,8 +33,11 @@ class IframeContainer {
     return simpleExtension;
   }
 
-  createExtension(extension) {
+  createExtension(extension, options) {
     var $container = this._renderContainer();
+    if(!options || options.loadingIndicator !== false){
+      $container.append(this._renderLoadingIndicator());
+    }
     if(!extension.url || (urlUtil.hasJwt(extension.url) && urlUtil.isJwtExpired(extension.url))){
       this._urlContainerRegistry[extension.id] = $container;
       if(this._contentResolver){
@@ -44,6 +48,7 @@ class IframeContainer {
     } else {
       this._insertIframe($container, extension);
     }
+
     return $container;
   }
 
@@ -61,6 +66,10 @@ class IframeContainer {
     var container = $('<div />').attr(attributes || {});
     container.addClass(CONTAINER_CLASSES.join(' '));
     return container;
+  }
+
+  _renderLoadingIndicator(){
+    return LoadingIndicatorComponent.render();
   }
 
 }
