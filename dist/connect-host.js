@@ -1535,10 +1535,6 @@ var _actionsDialog_actions = _dereq_('actions/dialog_actions');
 
 var _actionsDialog_actions2 = _interopRequireDefault(_actionsDialog_actions);
 
-var _util = _dereq_('../util');
-
-var _util2 = _interopRequireDefault(_util);
-
 var _dollar = _dereq_('../dollar');
 
 var _dollar2 = _interopRequireDefault(_dollar);
@@ -1598,10 +1594,19 @@ var Dialog = (function () {
     key: '_renderFooter',
     value: function _renderFooter(options) {
       var $footer = (0, _dollar2['default'])('<footer />').addClass('aui-dialog2-footer');
-      if (options.actions) {
-        var $actions = this._renderFooterActions(options.actions, options.extension);
-        $footer.append($actions);
+      if (!options.actions) {
+        options.actions = [{
+          name: 'submit',
+          text: options.submitText || 'submit',
+          type: 'primary'
+        }, {
+          name: 'cancel',
+          text: options.cancelText || 'cancel',
+          type: 'link'
+        }];
       }
+      var $actions = this._renderFooterActions(options.actions, options.extension);
+      $footer.append($actions);
       if (options.hint) {
         var $hint = (0, _dollar2['default'])('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
         $footer.append($hint);
@@ -1650,19 +1655,6 @@ var Dialog = (function () {
       $dialog.attr('data-aui-modal', 'true');
       $dialog.data('aui-remove-on-hide', true);
       $dialog.addClass('aui-layer aui-dialog2 ap-aui-dialog2');
-      if (!options.actions) {
-        options.actions = [{
-          name: 'submit',
-          text: options.submitText || 'submit',
-          type: 'primary'
-        }, {
-          name: 'cancel',
-          text: options.cancelText || 'cancel',
-          type: 'link'
-        }];
-      }
-      options.width = _util2['default'].stringToDimension(options.width);
-      options.height = _util2['default'].stringToDimension(options.height);
       if (options.size === 'x-large') {
         options.size = 'xlarge';
       } else if (options.width === '100%' && options.height === '100%') {
@@ -1751,7 +1743,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', functi
 exports['default'] = DialogComponent;
 module.exports = exports['default'];
 
-},{"../dollar":27,"../underscore":34,"../util":35,"actions/dialog_actions":5,"actions/dom_event_actions":6,"dispatchers/event_dispatcher":26}],17:[function(_dereq_,module,exports){
+},{"../dollar":27,"../underscore":34,"actions/dialog_actions":5,"actions/dom_event_actions":6,"dispatchers/event_dispatcher":26}],17:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3011,6 +3003,10 @@ var _componentsIframe_container = _dereq_('components/iframe_container');
 
 var _componentsIframe_container2 = _interopRequireDefault(_componentsIframe_container);
 
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
 var _dialogs = {};
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data) {
@@ -3033,6 +3029,8 @@ var Dialog = function Dialog(options, callback) {
 
   var _id = callback._id;
   var extension = callback._context.extension;
+  options.width = _util2['default'].stringToDimension(options.width);
+  options.height = _util2['default'].stringToDimension(options.height);
   var $iframeContainer = _componentsIframe_container2['default'].createExtension({
     addon_key: extension.addon_key,
     key: options.key,
@@ -3040,6 +3038,8 @@ var Dialog = function Dialog(options, callback) {
     options: {
       isDialog: true,
       dialogId: options.id,
+      width: options.width || '100%',
+      height: options.height || '100%',
       // ACJS-185: the following is a really bad idea but we need it
       // for compat until AP.dialog.customData has been deprecated
       customData: options.customData
@@ -3153,7 +3153,7 @@ module.exports = {
   }
 };
 
-},{"actions/dialog_actions":5,"actions/event_actions":8,"components/dialog":16,"components/iframe_container":19,"dispatchers/event_dispatcher":26}],30:[function(_dereq_,module,exports){
+},{"../util":35,"actions/dialog_actions":5,"actions/event_actions":8,"components/dialog":16,"components/iframe_container":19,"dispatchers/event_dispatcher":26}],30:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
