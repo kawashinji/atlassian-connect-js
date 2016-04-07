@@ -3,6 +3,7 @@ import DialogComponent from 'components/dialog';
 import DialogActions from 'actions/dialog_actions';
 import EventActions from 'actions/event_actions';
 import IframeContainer from 'components/iframe_container';
+import util from '../util';
 
 const _dialogs = {};
 
@@ -25,6 +26,8 @@ class Dialog {
   constructor(options, callback) {
     const _id = callback._id;
     const extension = callback._context.extension;
+    options.width = util.stringToDimension(options.width);
+    options.height = util.stringToDimension(options.height);
     const $iframeContainer = IframeContainer.createExtension({
       addon_key: extension.addon_key,
       key: options.key,
@@ -32,6 +35,8 @@ class Dialog {
       options: {
         isDialog: true,
         dialogId: options.id,
+        width: options.width || '100%',
+        height: options.height || '100%',
         // ACJS-185: the following is a really bad idea but we need it
         // for compat until AP.dialog.customData has been deprecated
         customData: options.customData
