@@ -19,18 +19,11 @@ class Iframe {
     $el.trigger('resized', {width: width, height: height});
   }
 
-  _bridgeEstablishedCallback($iframe, extension) {
-    return function (){
-      EventDispatcher.dispatch('iframe-bridge-estabilshed', {
-        $el: $iframe,
-        extension
-      });
-    };
-  }
-
   simpleXdmExtension(extension) {
     var $iframe;
-    var iframeAttributes = simpleXDM.create(extension, this._bridgeEstablishedCallback($iframe, extension));
+    var iframeAttributes = simpleXDM.create(extension, () => {
+      IframeActions.notifyBridgeEstablished($iframe, extension);
+    });
     extension.id = iframeAttributes.id;
     $iframe = this._renderIframe(iframeAttributes);
     return {$el: $iframe, extension};

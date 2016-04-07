@@ -5,6 +5,11 @@ module.exports = {
   notifyIframeCreated: function($el, extension) {
     EventDispatcher.dispatch('iframe-create', {$el, extension});
   },
+
+  notifyBridgeEstablished: function($el, extension){
+    EventDispatcher.dispatch('iframe-bridge-estabilshed', {$el, extension});
+  },
+
   notifyIframeDestroyed: function(extension_id){
     var extension = simpleXDM.getExtensions({
       extension_id: extension_id
