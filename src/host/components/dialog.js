@@ -2,7 +2,6 @@ import EventDispatcher from 'dispatchers/event_dispatcher';
 import DomEventActions from 'actions/dom_event_actions';
 import DialogActions from 'actions/dialog_actions';
 
-import util from '../util';
 import $ from '../dollar';
 import _ from '../underscore';
 
@@ -51,10 +50,22 @@ class Dialog {
 
   _renderFooter(options) {
     const $footer = $('<footer />').addClass('aui-dialog2-footer');
-    if(options.actions) {
-      const $actions = this._renderFooterActions(options.actions, options.extension);
-      $footer.append($actions);
+    if (!options.actions) {
+      options.actions = [
+        {
+          name: 'submit',
+          text: options.submitText || 'submit',
+          type: 'primary'
+        },
+        {
+          name: 'cancel',
+          text: options.cancelText || 'cancel',
+          type: 'link'
+        }
+      ];
     }
+    const $actions = this._renderFooterActions(options.actions, options.extension);
+    $footer.append($actions);
     if(options.hint) {
       const $hint = $('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
       $footer.append($hint);
@@ -100,22 +111,6 @@ class Dialog {
     $dialog.attr('data-aui-modal', 'true');
     $dialog.data('aui-remove-on-hide', true);
     $dialog.addClass('aui-layer aui-dialog2 ap-aui-dialog2');
-    if (!options.actions) {
-      options.actions = [
-        {
-          name: 'submit',
-          text: options.submitText || 'submit',
-          type: 'primary'
-        },
-        {
-          name: 'cancel',
-          text: options.cancelText || 'cancel',
-          type: 'link'
-        }
-      ];
-    }
-    options.width = util.stringToDimension(options.width);
-    options.height = util.stringToDimension(options.height);
     if (options.size === 'x-large') {
       options.size = 'xlarge';
     } else if (options.width === '100%' && options.height === '100%') {
