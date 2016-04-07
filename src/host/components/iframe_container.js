@@ -20,8 +20,12 @@ class IframeContainer {
   _insertIframe($container, extension) {
     var simpleExtension = IframeComponent.simpleXdmExtension(extension);
     $container.append(simpleExtension.$el);
-    simpleExtension.$el.css('width', extension.options.width || '100%');
-    simpleExtension.$el.css('height', extension.options.height || '100%');
+    if(extension.options.width){
+      simpleExtension.$el.css('width', extension.options.width);
+    }
+    if(extension.options.height){
+     simpleExtension.$el.css('height', extension.options.height);
+    }
     IframeActions.notifyIframeCreated(simpleExtension.$el, simpleExtension.extension);
   }
 
