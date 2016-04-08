@@ -1,5 +1,6 @@
 import IframeComponent from 'src/host/components/iframe';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
+import simpleXDM from 'simple-xdm/dist/host';
 
 describe('Iframe component', () => {
   function randomWholeNumber(max){
@@ -78,21 +79,22 @@ describe('Iframe component', () => {
     });
   });
 
-  it('triggers an event on _bridgeEstablishedCallback', (done) => {
+  it('triggers an event on bridge established', (done) => {
     var extension = {
       addon_key: 'some-addon-key',
       key: 'some-module-key',
       url: 'https://www.example.com'
     };
-    var $iframe = $('<iframe />');
     EventDispatcher.registerOnce('iframe-bridge-estabilshed', (data) => {
-      expect(data.$el).toEqual($iframe);
+      expect(data.$el[0].nodeName).toEqual("IFRAME");
       expect(data.extension).toEqual(extension);
       done();
     });
-    var cb = IframeComponent._bridgeEstablishedCallback($iframe, extension);
-    expect(cb).toEqual(jasmine.any(Function));
-    cb();
+    var spy = spyOn(simpleXDM, 'create').and.returnValue({id: 'abc123'});
+    IframeComponent.simpleXdmExtension(extension);
+    setTimeout(function(){
+      spy.calls.first().args[1]();
+    }, 100);
   });
 
 
