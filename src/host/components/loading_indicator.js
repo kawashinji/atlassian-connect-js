@@ -22,21 +22,14 @@ class LoadingIndicator {
     return $iframeContainer.find('.' + LOADING_INDICATOR_CLASS);
   }
 
-  show($iframeContainer, extension) {
-    this._stateRegistry[extension.id] = setTimeout(() => {
-      LoadingIndicatorActions.timeout($iframeContainer, extension);
-    }, LOADING_TIMEOUT);
-    var container = this._loadingContainer($iframeContainer);
-    if(!container.length) {
-      container = $('<div />').addClass(LOADING_INDICATOR_CLASS);
-      container.appendTo($iframeContainer);
-    }
-    container.append(LOADING_STATUSES.loading);
-    var spinner = container.find('.small-spinner');
+  render() {
+    var $container = $('<div />').addClass(LOADING_INDICATOR_CLASS);
+    $container.append(LOADING_STATUSES.loading);
+    var spinner = $container.find('.small-spinner');
     if (spinner.length && spinner.spin) {
       spinner.spin({lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1});
     }
-    return container;
+    return $container;
   }
 
   hide($iframeContainer, extensionId){
@@ -48,6 +41,12 @@ class LoadingIndicator {
   cancelled($iframeContainer, extensionId){
     var status = LOADING_STATUSES['load-error'];
     this._loadingContainer($iframeContainer).empty().text(status);
+  }
+
+  _setupTimeout($container, extension){
+    this._stateRegistry[extension.id] = setTimeout(() => {
+      LoadingIndicatorActions.timeout($container, extension);
+    }, LOADING_TIMEOUT);
   }
 
   timeout($iframeContainer, extensionId){
@@ -65,10 +64,10 @@ class LoadingIndicator {
 var LoadingComponent = new LoadingIndicator();
 
 EventDispatcher.register('iframe-create', (data) => {
-  LoadingComponent.show(data.$el, data.extension);
+  LoadingComponent._setupTimeout(data.$el.parents('.ap-container'), data.extension);
 });
 EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
-  LoadingComponent.hide(data.$el, data.extension.id);
+  LoadingComponent.hide(data.$el.parents('.ap-container'), data.extension.id);
 });
 EventDispatcher.register('iframe-bridge-timeout', (data) => {
   LoadingComponent.timeout(data.$el, data.extension.id);
