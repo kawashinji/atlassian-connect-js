@@ -15,6 +15,8 @@ var apis = rpc.extend(function (remote) {
      */
     apis: {
 
+      version: "%%GULP_INJECT_VERSION%%",
+
       /**
        * get the location of the host page
        *

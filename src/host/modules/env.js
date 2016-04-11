@@ -6,6 +6,7 @@ import util from '../util';
 var debounce = AJS.debounce || $.debounce;
 
 export default {
+  version: "%%GULP_INJECT_VERSION%%",
   getLocation: function (callback) {
     callback(window.location.href);
   },
