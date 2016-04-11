@@ -8,12 +8,17 @@ AJS.toInit(function ($) {
                 callback = function(href, options, eventType){
                     var webItemOptions = _AP.webItemHelper.getOptionsForWebItem(options.bindTo);
                     $.extend(options, webItemOptions);
-                    if(options.onHover !== "true" && eventType !== 'click'){
+
+                    // We expect this flag as a boolean but allowed the string "true" in the past so we'll
+                    // keep accepting it...
+                    var onHover = options.onHover === true || options.onHover === "true";
+                    if (!onHover && eventType !== 'click') {
+                        // onClick binding only and not a click - do nothing
                         return;
                     }
 
                     // don't repeatedly open if already visible as dozens of mouse-over events are fired in quick succession
-                    if (options.onHover === true && options.bindTo.hasClass('active')) {
+                    if (onHover && options.bindTo.hasClass('active')) {
                         return;
                     }
                     simpleInlineDialog(href, options).show();
