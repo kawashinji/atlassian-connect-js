@@ -9,9 +9,7 @@ AJS.toInit(function ($) {
                     var webItemOptions = _AP.webItemHelper.getOptionsForWebItem(options.bindTo);
                     $.extend(options, webItemOptions);
 
-                    // We expect this flag as a boolean but allowed the string "true" in the past so we'll
-                    // keep accepting it...
-                    var onHover = options.onHover === true || options.onHover === "true";
+                    var onHover = options.onHover === true;
                     if (!onHover && eventType !== 'click') {
                         // onClick binding only and not a click - do nothing
                         return;
