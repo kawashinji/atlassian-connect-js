@@ -18,10 +18,11 @@ AP.register({
   _any: (data, callback) => {
     let dialogEventMatch = callback._context.eventName.match(/^dialog\.(\w+)$/);
     if (dialogEventMatch) {
-      let handlers = dialogHandlers[dialogEventMatch[1]];
+      let dialogEvent = dialogEventMatch[1];
+      let handlers = dialogHandlers[dialogEvent];
       if (handlers) {
         handlers.forEach(cb => cb(data));
-      } else if (dialogEventMatch !== 'dialog.close') {
+      } else if (dialogEvent !== 'close') {
         AP.dialog.close();
       }
     }
