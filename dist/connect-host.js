@@ -1203,7 +1203,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":25,"simple-xdm/dist/host":38}],6:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":25,"simple-xdm/dist/host":39}],6:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1274,7 +1274,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":25,"simple-xdm/dist/host":38}],8:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":25,"simple-xdm/dist/host":39}],8:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1331,7 +1331,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":25,"simple-xdm/dist/host":38}],10:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":25,"simple-xdm/dist/host":39}],10:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1494,7 +1494,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"components/webitem":22,"dispatchers/event_dispatcher":25,"utils/webitem":37}],15:[function(_dereq_,module,exports){
+},{"components/webitem":22,"dispatchers/event_dispatcher":25,"utils/webitem":38}],15:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1750,14 +1750,29 @@ var _utilsUrl = _dereq_('utils/url');
 
 var _utilsUrl2 = _interopRequireDefault(_utilsUrl);
 
+var _actionsJwt_actions = _dereq_('actions/jwt_actions');
+
+var _actionsJwt_actions2 = _interopRequireDefault(_actionsJwt_actions);
+
+var _utilsIframe = _dereq_('utils/iframe');
+
+var _utilsIframe2 = _interopRequireDefault(_utilsIframe);
+
 var CONTAINER_CLASSES = ['ap-container'];
 
 var Iframe = (function () {
   function Iframe() {
     _classCallCheck(this, Iframe);
+
+    this._contentResolver = false;
   }
 
   _createClass(Iframe, [{
+    key: 'setContentResolver',
+    value: function setContentResolver(callback) {
+      this._contentResolver = callback;
+    }
+  }, {
     key: 'resize',
     value: function resize(width, height, $el) {
       width = _util2['default'].stringToDimension(width);
@@ -1771,13 +1786,36 @@ var Iframe = (function () {
   }, {
     key: 'simpleXdmExtension',
     value: function simpleXdmExtension(extension) {
-      var $iframe;
+      var iframeAttributes = _utilsIframe2['default'].optionsToAttributes(extension.options);
+      extension.$el = this._renderIframe(iframeAttributes);
+
+      if (!extension.url || _utilsUrl2['default'].hasJwt(extension.url) && _utilsUrl2['default'].isJwtExpired(extension.url)) {
+        if (this._contentResolver) {
+          _actionsJwt_actions2['default'].requestRefreshUrl({ extension: extension, resolver: this._contentResolver });
+        } else {
+          console.error('JWT is expired and no content resolver was specified');
+        }
+      } else {
+        this._simpleXdmCreate(extension);
+      }
+      _actionsIframe_actions2['default'].notifyIframeCreated(extension.$el, extension);
+      return extension;
+    }
+  }, {
+    key: '_simpleXdmCreate',
+    value: function _simpleXdmCreate(extension) {
       var iframeAttributes = _simpleXdmDistHost2['default'].create(extension, function () {
-        _actionsIframe_actions2['default'].notifyBridgeEstablished($iframe, extension);
+        _actionsIframe_actions2['default'].notifyBridgeEstablished(extension.$el, extension);
       });
       extension.id = iframeAttributes.id;
-      $iframe = this._renderIframe(iframeAttributes);
-      return { $el: $iframe, extension: extension };
+      extension.$el.attr(iframeAttributes);
+      return extension;
+    }
+  }, {
+    key: 'resolverResponse',
+    value: function resolverResponse(data) {
+      data.extension.url = data.url;
+      return this._simpleXdmCreate(data.extension);
     }
   }, {
     key: '_renderIframe',
@@ -1795,10 +1833,18 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (dat
   IframeComponent.resize(data.width, data.height, data.$el);
 });
 
+_dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-extension', function (data) {
+  IframeComponent.setContentResolver(data.callback);
+});
+
+_dispatchersEvent_dispatcher2['default'].register('jwt-url-refreshed', function (data) {
+  IframeComponent.resolverResponse(data);
+});
+
 exports['default'] = IframeComponent;
 module.exports = exports['default'];
 
-},{"../dollar":26,"../util":34,"actions/iframe_actions":9,"dispatchers/event_dispatcher":25,"simple-xdm/dist/host":38,"utils/url":36}],18:[function(_dereq_,module,exports){
+},{"../dollar":26,"../util":34,"actions/iframe_actions":9,"actions/jwt_actions":11,"dispatchers/event_dispatcher":25,"simple-xdm/dist/host":39,"utils/iframe":35,"utils/url":37}],18:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1811,21 +1857,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
 var _dollar = _dereq_('../dollar');
 
 var _dollar2 = _interopRequireDefault(_dollar);
-
-var _utilsUrl = _dereq_('utils/url');
-
-var _utilsUrl2 = _interopRequireDefault(_utilsUrl);
-
-var _actionsJwt_actions = _dereq_('actions/jwt_actions');
-
-var _actionsJwt_actions2 = _interopRequireDefault(_actionsJwt_actions);
 
 var _actionsIframe_actions = _dereq_('actions/iframe_actions');
 
@@ -1844,62 +1878,22 @@ var CONTAINER_CLASSES = ['ap-container'];
 var IframeContainer = (function () {
   function IframeContainer() {
     _classCallCheck(this, IframeContainer);
-
-    this._urlContainerRegistry = {};
-    this._contentResolver = false;
   }
 
   _createClass(IframeContainer, [{
-    key: 'setContentResolver',
-    value: function setContentResolver(callback) {
-      this._contentResolver = callback;
-    }
-  }, {
-    key: '_insertIframe',
-    value: function _insertIframe($container, extension) {
-      var simpleExtension = _componentsIframe2['default'].simpleXdmExtension(extension);
-      $container.prepend(simpleExtension.$el);
-      if (extension.options) {
-        if (extension.options.width) {
-          simpleExtension.$el.css('width', extension.options.width);
-        }
-        if (extension.options.height) {
-          simpleExtension.$el.css('height', extension.options.height);
-        }
-      }
-      _actionsIframe_actions2['default'].notifyIframeCreated(simpleExtension.$el, simpleExtension.extension);
-      return simpleExtension;
+    key: '_createIframe',
+    value: function _createIframe(extension) {
+      return _componentsIframe2['default'].simpleXdmExtension(extension);
     }
   }, {
     key: 'createExtension',
     value: function createExtension(extension, options) {
       var $container = this._renderContainer();
+      $container.append(this._createIframe(extension).$el);
       if (!options || options.loadingIndicator !== false) {
         $container.append(this._renderLoadingIndicator());
       }
-      if (!extension.url || _utilsUrl2['default'].hasJwt(extension.url) && _utilsUrl2['default'].isJwtExpired(extension.url)) {
-        this._urlContainerRegistry[extension.id] = $container;
-        if (this._contentResolver) {
-          _actionsJwt_actions2['default'].requestRefreshUrl({ extension: extension, resolver: this._contentResolver });
-        } else {
-          console.error('JWT is expired and no content resolver was specified');
-        }
-      } else {
-        this._insertIframe($container, extension);
-      }
-
       return $container;
-    }
-  }, {
-    key: 'resolverResponse',
-    value: function resolverResponse(data) {
-      var extension = data.extension;
-      var $container = this._urlContainerRegistry[extension.id];
-      if ($container) {
-        extension.url = data.url;
-        this._insertIframe($container, extension);
-      }
-      delete this._urlContainerRegistry[extension.id];
     }
   }, {
     key: '_renderContainer',
@@ -1919,18 +1913,11 @@ var IframeContainer = (function () {
 })();
 
 var IframeContainerComponent = new IframeContainer();
-_dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-extension', function (data) {
-  IframeContainerComponent.setContentResolver(data.callback);
-});
-
-_dispatchersEvent_dispatcher2['default'].register('jwt-url-refreshed', function (data) {
-  IframeContainerComponent.resolverResponse(data);
-});
 
 exports['default'] = IframeContainerComponent;
 module.exports = exports['default'];
 
-},{"../dollar":26,"actions/iframe_actions":9,"actions/jwt_actions":11,"components/iframe":17,"components/loading_indicator":21,"dispatchers/event_dispatcher":25,"utils/url":36}],19:[function(_dereq_,module,exports){
+},{"../dollar":26,"actions/iframe_actions":9,"components/iframe":17,"components/loading_indicator":21}],19:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2200,7 +2187,7 @@ _actionsWebitem_actions2['default'].addWebItem(webitem);
 exports['default'] = inlineDialogInstance;
 module.exports = exports['default'];
 
-},{"../create":23,"../dollar":26,"actions/webitem_actions":14,"components/iframe_container":18,"components/inline_dialog":19,"components/webitem":22,"dispatchers/event_dispatcher":25,"utils/webitem":37}],21:[function(_dereq_,module,exports){
+},{"../create":23,"../dollar":26,"actions/webitem_actions":14,"components/iframe_container":18,"components/inline_dialog":19,"components/webitem":22,"dispatchers/event_dispatcher":25,"utils/webitem":38}],21:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2430,7 +2417,7 @@ _dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-
 exports['default'] = webItemInstance;
 module.exports = exports['default'];
 
-},{"../dollar":26,"../underscore":33,"actions/webitem_actions":14,"dispatchers/event_dispatcher":25,"utils/webitem":37}],23:[function(_dereq_,module,exports){
+},{"../dollar":26,"../underscore":33,"actions/webitem_actions":14,"dispatchers/event_dispatcher":25,"utils/webitem":38}],23:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2828,7 +2815,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./components/loading_indicator":21,"./create":23,"./modules/dialog":28,"./modules/env":29,"./modules/events":30,"./modules/flag":31,"./modules/messages":32,"actions/dom_event_actions":5,"actions/event_actions":7,"actions/iframe_actions":9,"actions/jwt_actions":11,"actions/module_actions":13,"components/inline_dialog_webitem":20,"dispatchers/analytics_dispatcher":24,"dispatchers/event_dispatcher":25,"simple-xdm/dist/host":38,"underscore":33}],28:[function(_dereq_,module,exports){
+},{"./components/loading_indicator":21,"./create":23,"./modules/dialog":28,"./modules/env":29,"./modules/events":30,"./modules/flag":31,"./modules/messages":32,"actions/dom_event_actions":5,"actions/event_actions":7,"actions/iframe_actions":9,"actions/jwt_actions":11,"actions/module_actions":13,"components/inline_dialog_webitem":20,"dispatchers/analytics_dispatcher":24,"dispatchers/event_dispatcher":25,"simple-xdm/dist/host":39,"underscore":33}],28:[function(_dereq_,module,exports){
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -3299,6 +3286,30 @@ module.exports = exports['default'];
 },{"./underscore":33}],35:[function(_dereq_,module,exports){
 'use strict';
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+module.exports = {
+  optionsToAttributes: function optionsToAttributes(options) {
+    var sanitized = {};
+    if (options && typeof options === 'object') {
+      if (options.width) {
+        sanitized.width = _util2['default'].stringToDimension(options.width);
+      }
+      if (options.height) {
+        sanitized.height = _util2['default'].stringToDimension(options.height);
+      }
+    }
+    return sanitized;
+  }
+};
+
+},{"../util":34}],36:[function(_dereq_,module,exports){
+'use strict';
+
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
@@ -3366,7 +3377,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"base-64":1,"utf8":4}],36:[function(_dereq_,module,exports){
+},{"base-64":1,"utf8":4}],37:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3399,7 +3410,7 @@ module.exports = {
   isJwtExpired: isJwtExpired
 };
 
-},{"jsuri":3,"utils/jwt":35}],37:[function(_dereq_,module,exports){
+},{"jsuri":3,"utils/jwt":36}],38:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3456,7 +3467,7 @@ module.exports = {
   getOptionsForWebItem: getOptionsForWebItem
 };
 
-},{"../underscore":33}],38:[function(_dereq_,module,exports){
+},{"../underscore":33}],39:[function(_dereq_,module,exports){
 (function (global){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.host = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 'use strict';
