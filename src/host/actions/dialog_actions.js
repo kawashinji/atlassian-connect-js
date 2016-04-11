@@ -10,10 +10,14 @@ module.exports = {
   closeActive: (data) => {
     EventDispatcher.dispatch('dialog-close-active', data);
   },
+  clickButton: (name, $el, extension) => {  
+    EventDispatcher.dispatch('dialog-button-click', {
+      name,
+      $el,
+      extension
+    });
+  },
   toggleButton: (data) => {
     EventDispatcher.dispatch('dialog-button-toggle', data);
-  },
-  dialogMessage: (data) => {
-    EventDispatcher.dispatch('dialog-message', data);
   }
 };

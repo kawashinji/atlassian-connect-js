@@ -1198,11 +1198,15 @@ module.exports = {
   closeActive: function closeActive(data) {
     _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close-active', data);
   },
+  clickButton: function clickButton(name, $el, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-click', {
+      name: name,
+      $el: $el,
+      extension: extension
+    });
+  },
   toggleButton: function toggleButton(data) {
     _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-toggle', data);
-  },
-  dialogMessage: function dialogMessage(data) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-message', data);
   }
 };
 
@@ -1230,7 +1234,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":26,"simple-xdm/dist/host":39}],7:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":26,"simple-xdm/dist/host":40}],7:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1301,7 +1305,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":26,"simple-xdm/dist/host":39}],9:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":26,"simple-xdm/dist/host":40}],9:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1345,7 +1349,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":26,"simple-xdm/dist/host":39}],11:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":26,"simple-xdm/dist/host":40}],11:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1508,7 +1512,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"components/webitem":23,"dispatchers/event_dispatcher":26,"utils/webitem":38}],16:[function(_dereq_,module,exports){
+},{"components/webitem":23,"dispatchers/event_dispatcher":26,"utils/webitem":39}],16:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1534,6 +1538,10 @@ var _actionsDom_event_actions2 = _interopRequireDefault(_actionsDom_event_action
 var _actionsDialog_actions = _dereq_('actions/dialog_actions');
 
 var _actionsDialog_actions2 = _interopRequireDefault(_actionsDialog_actions);
+
+var _utilsDialog = _dereq_('utils/dialog');
+
+var _utilsDialog2 = _interopRequireDefault(_utilsDialog);
 
 var _dollar = _dereq_('../dollar');
 
@@ -1594,17 +1602,6 @@ var Dialog = (function () {
     key: '_renderFooter',
     value: function _renderFooter(options) {
       var $footer = (0, _dollar2['default'])('<footer />').addClass('aui-dialog2-footer');
-      if (!options.actions) {
-        options.actions = [{
-          name: 'submit',
-          text: options.submitText || 'submit',
-          type: 'primary'
-        }, {
-          name: 'cancel',
-          text: options.cancelText || 'cancel',
-          type: 'link'
-        }];
-      }
       var $actions = this._renderFooterActions(options.actions, options.extension);
       $footer.append($actions);
       if (options.hint) {
@@ -1624,11 +1621,9 @@ var Dialog = (function () {
           $button.addClass('aui-button-' + action.type);
         }
         $button.click(function () {
+          debugger;
           if ($button.attr('aria-disabled') !== 'true') {
-            _actionsDialog_actions2['default'].dialogMessage({
-              name: action.name,
-              extension: extension
-            });
+            _actionsDialog_actions2['default'].clickButton(action.name, $button, extension);
           }
         });
         $actions.append($button);
@@ -1648,49 +1643,41 @@ var Dialog = (function () {
   }, {
     key: 'render',
     value: function render(options) {
+      var sanitizedOptions = _utilsDialog2['default'].sanitizeOptions(options);
       var $dialog = (0, _dollar2['default'])('<section />').attr({
         role: 'dialog',
-        id: DLGID_PREFIX + options.id
+        id: DLGID_PREFIX + sanitizedOptions.id
       });
       $dialog.attr('data-aui-modal', 'true');
       $dialog.data('aui-remove-on-hide', true);
       $dialog.addClass('aui-layer aui-dialog2 ap-aui-dialog2');
-      if (options.size === 'x-large') {
-        options.size = 'xlarge';
-      } else if (options.width === '100%' && options.height === '100%') {
-        options.size = 'fullscreen';
-      } else if (!options.width && !options.height) {
-        options.size = 'medium';
-      }
-      if (_underscore2['default'].contains(DIALOG_SIZES, options.size)) {
-        $dialog.addClass('aui-dialog2-' + options.size);
+
+      if (_underscore2['default'].contains(DIALOG_SIZES, sanitizedOptions.size)) {
+        $dialog.addClass('aui-dialog2-' + sanitizedOptions.size);
       }
 
-      $dialog.append(this._renderContent(options.$content));
+      $dialog.append(this._renderContent(sanitizedOptions.$content));
 
-      if (typeof options.chrome === 'undefined') {
-        options.chrome = true;
-      }
-
-      if (options.chrome) {
+      if (sanitizedOptions.chrome) {
         $dialog.prepend(this._renderHeader({
-          header: options.header
+          header: sanitizedOptions.header
         }));
         $dialog.append(this._renderFooter({
-          extension: options.extension,
-          actions: options.actions,
-          hint: options.hint
+          extension: sanitizedOptions.extension,
+          actions: sanitizedOptions.actions,
+          hint: sanitizedOptions.hint
         }));
       } else {
         $dialog.addClass('aui-dialog2-chromeless');
       }
       var dialog = AJS.dialog2($dialog);
-      dialog._id = options.id;
-      if (!options.size || options.size === 'fullscreen') {
-        AJS.layer($dialog).changeSize(options.width, options.height);
+      dialog._id = sanitizedOptions.id;
+      if (!sanitizedOptions.size || sanitizedOptions.size === 'fullscreen') {
+        AJS.layer($dialog).changeSize(sanitizedOptions.width, sanitizedOptions.height);
       }
       dialog.show();
       _actionsDialog_actions2['default'].open();
+      return $dialog;
     }
   }]);
 
@@ -1743,7 +1730,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', functi
 exports['default'] = DialogComponent;
 module.exports = exports['default'];
 
-},{"../dollar":27,"../underscore":34,"actions/dialog_actions":5,"actions/dom_event_actions":6,"dispatchers/event_dispatcher":26}],17:[function(_dereq_,module,exports){
+},{"../dollar":27,"../underscore":34,"actions/dialog_actions":5,"actions/dom_event_actions":6,"dispatchers/event_dispatcher":26,"utils/dialog":36}],17:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1869,7 +1856,7 @@ _actionsWebitem_actions2['default'].addWebItem(webitem);
 exports['default'] = dialogInstance;
 module.exports = exports['default'];
 
-},{"../underscore":34,"actions/webitem_actions":15,"components/dialog":16,"components/iframe_container":19,"dispatchers/event_dispatcher":26,"utils/webitem":38}],18:[function(_dereq_,module,exports){
+},{"../underscore":34,"actions/webitem_actions":15,"components/dialog":16,"components/iframe_container":19,"dispatchers/event_dispatcher":26,"utils/webitem":39}],18:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1960,7 +1947,7 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (dat
 exports['default'] = IframeComponent;
 module.exports = exports['default'];
 
-},{"../dollar":27,"../util":35,"actions/iframe_actions":10,"dispatchers/event_dispatcher":26,"simple-xdm/dist/host":39,"utils/url":37}],19:[function(_dereq_,module,exports){
+},{"../dollar":27,"../util":35,"actions/iframe_actions":10,"dispatchers/event_dispatcher":26,"simple-xdm/dist/host":40,"utils/url":38}],19:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2072,7 +2059,7 @@ _dispatchersEvent_dispatcher2['default'].register('jwt-url-refreshed', function 
 exports['default'] = IframeContainerComponent;
 module.exports = exports['default'];
 
-},{"../dollar":27,"actions/iframe_actions":10,"actions/jwt_actions":12,"components/iframe":18,"dispatchers/event_dispatcher":26,"utils/url":37}],20:[function(_dereq_,module,exports){
+},{"../dollar":27,"actions/iframe_actions":10,"actions/jwt_actions":12,"components/iframe":18,"dispatchers/event_dispatcher":26,"utils/url":38}],20:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2342,7 +2329,7 @@ _actionsWebitem_actions2['default'].addWebItem(webitem);
 exports['default'] = inlineDialogInstance;
 module.exports = exports['default'];
 
-},{"../create":24,"../dollar":27,"actions/webitem_actions":15,"components/iframe_container":19,"components/inline_dialog":20,"components/webitem":23,"dispatchers/event_dispatcher":26,"utils/webitem":38}],22:[function(_dereq_,module,exports){
+},{"../create":24,"../dollar":27,"actions/webitem_actions":15,"components/iframe_container":19,"components/inline_dialog":20,"components/webitem":23,"dispatchers/event_dispatcher":26,"utils/webitem":39}],22:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2572,7 +2559,7 @@ _dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-
 exports['default'] = webItemInstance;
 module.exports = exports['default'];
 
-},{"../dollar":27,"../underscore":34,"actions/webitem_actions":15,"dispatchers/event_dispatcher":26,"utils/webitem":38}],24:[function(_dereq_,module,exports){
+},{"../dollar":27,"../underscore":34,"actions/webitem_actions":15,"dispatchers/event_dispatcher":26,"utils/webitem":39}],24:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2974,8 +2961,10 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./components/loading_indicator":22,"./create":24,"./modules/dialog":29,"./modules/env":30,"./modules/events":31,"./modules/flag":32,"./modules/messages":33,"actions/dom_event_actions":6,"actions/event_actions":8,"actions/iframe_actions":10,"actions/jwt_actions":12,"actions/module_actions":14,"components/dialog_webitem":17,"components/inline_dialog_webitem":21,"dispatchers/analytics_dispatcher":25,"dispatchers/event_dispatcher":26,"simple-xdm/dist/host":39,"underscore":34}],29:[function(_dereq_,module,exports){
+},{"./components/loading_indicator":22,"./create":24,"./modules/dialog":29,"./modules/env":30,"./modules/events":31,"./modules/flag":32,"./modules/messages":33,"actions/dom_event_actions":6,"actions/event_actions":8,"actions/iframe_actions":10,"actions/jwt_actions":12,"actions/module_actions":14,"components/dialog_webitem":17,"components/inline_dialog_webitem":21,"dispatchers/analytics_dispatcher":25,"dispatchers/event_dispatcher":26,"simple-xdm/dist/host":40,"underscore":34}],29:[function(_dereq_,module,exports){
 'use strict';
+
+var _arguments = arguments;
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -3018,7 +3007,8 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data
   }
 });
 
-_dispatchersEvent_dispatcher2['default'].register('dialog-message', function (data) {
+_dispatchersEvent_dispatcher2['default'].register('dialog-button-click', function (data) {
+  console.log("HERE!", _arguments);
   _actionsEvent_actions2['default'].broadcast('dialog.' + data.name, {
     addon_key: data.extension.addon_key
   });
@@ -3509,6 +3499,135 @@ Object.defineProperty(exports, '__esModule', {
   value: true
 });
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var DialogUtils = (function () {
+  function DialogUtils() {
+    _classCallCheck(this, DialogUtils);
+  }
+
+  _createClass(DialogUtils, [{
+    key: '_size',
+    value: function _size(options) {
+      var size;
+      if (options.size === 'x-large') {
+        size = 'xlarge';
+      } else if (options.width === '100%' && options.height === '100%') {
+        size = 'fullscreen';
+      } else if (!options.width && !options.height) {
+        size = 'medium';
+      }
+      return size;
+    }
+  }, {
+    key: '_header',
+    value: function _header(text) {
+      if (typeof text === 'string') {
+        return text;
+      }
+      return '';
+    }
+  }, {
+    key: '_hint',
+    value: function _hint(text) {
+      if (typeof text === 'string') {
+        return text;
+      }
+      return '';
+    }
+  }, {
+    key: '_chrome',
+    value: function _chrome(chrome) {
+      var returnval = true;
+      if (typeof chrome === 'boolean') {
+        returnval = chrome;
+      }
+      return returnval;
+    }
+  }, {
+    key: '_width',
+    value: function _width(dimension) {
+      if (typeof dimension !== 'string') {
+        dimension = '100%';
+      } else {
+        dimension = _util2['default'].stringToDimension(dimension);
+      }
+      return dimension;
+    }
+  }, {
+    key: '_height',
+    value: function _height(dimension) {
+      if (typeof dimension !== 'string') {
+        dimension = '400px';
+      } else {
+        dimension = _util2['default'].stringToDimension(dimension);
+      }
+      return dimension;
+    }
+  }, {
+    key: '_actions',
+    value: function _actions(options) {
+      var sanitizedActions = [];
+      options = options || {};
+      if (!options.actions) {
+        sanitizedActions = [{
+          name: 'submit',
+          text: options.submitText || 'submit',
+          type: 'primary'
+        }, {
+          name: 'cancel',
+          text: options.cancelText || 'cancel',
+          type: 'link'
+        }];
+      }
+      return sanitizedActions;
+    }
+  }, {
+    key: 'sanitizeOptions',
+    value: function sanitizeOptions(options) {
+      options = options || {};
+      var sanitized = {
+        chrome: this._chrome(options.chrome),
+        header: this._header(options.header),
+        hint: this._hint(options.hint),
+        size: this._size(options),
+        width: this._width(options),
+        height: this._height(options),
+        $content: options.$content,
+        extension: options.extension,
+        actions: this._actions(options)
+      };
+      return sanitized;
+    }
+  }]);
+
+  return DialogUtils;
+})();
+
+var dialogUtilsInstance = new DialogUtils();
+
+exports['default'] = dialogUtilsInstance;
+module.exports = exports['default'];
+
+},{"../dollar":27,"../util":35}],37:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _base64 = _dereq_('base-64');
@@ -3572,7 +3691,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"base-64":1,"utf8":4}],37:[function(_dereq_,module,exports){
+},{"base-64":1,"utf8":4}],38:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3605,7 +3724,7 @@ module.exports = {
   isJwtExpired: isJwtExpired
 };
 
-},{"jsuri":3,"utils/jwt":36}],38:[function(_dereq_,module,exports){
+},{"jsuri":3,"utils/jwt":37}],39:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3662,7 +3781,7 @@ module.exports = {
   getOptionsForWebItem: getOptionsForWebItem
 };
 
-},{"../underscore":34}],39:[function(_dereq_,module,exports){
+},{"../underscore":34}],40:[function(_dereq_,module,exports){
 (function (global){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.host = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 'use strict';

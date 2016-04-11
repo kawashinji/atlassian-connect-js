@@ -16,7 +16,7 @@ EventDispatcher.register('dialog-close', function (data) {
   }
 });
 
-EventDispatcher.register('dialog-message', (data) => {
+EventDispatcher.register('dialog-button-click', (data) => {
   EventActions.broadcast(`dialog.${data.name}`, {
     addon_key: data.extension.addon_key
   });
