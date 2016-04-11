@@ -1621,7 +1621,6 @@ var Dialog = (function () {
           $button.addClass('aui-button-' + action.type);
         }
         $button.click(function () {
-          debugger;
           if ($button.attr('aria-disabled') !== 'true') {
             _actionsDialog_actions2['default'].clickButton(action.name, $button, extension);
           }
@@ -1702,11 +1701,14 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', f
 });
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-close-active', function (data) {
-  _actionsDialog_actions2['default'].close({
-    customData: data.customData,
-    dialog: getActiveDialog(),
-    extension: data.extension
-  });
+  var activeDialog = getActiveDialog();
+  if (activeDialog) {
+    _actionsDialog_actions2['default'].close({
+      customData: data.customData,
+      dialog: activeDialog,
+      extension: data.extension
+    });
+  }
 });
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data) {
@@ -2964,8 +2966,6 @@ module.exports = exports['default'];
 },{"./components/loading_indicator":22,"./create":24,"./modules/dialog":29,"./modules/env":30,"./modules/events":31,"./modules/flag":32,"./modules/messages":33,"actions/dom_event_actions":6,"actions/event_actions":8,"actions/iframe_actions":10,"actions/jwt_actions":12,"actions/module_actions":14,"components/dialog_webitem":17,"components/inline_dialog_webitem":21,"dispatchers/analytics_dispatcher":25,"dispatchers/event_dispatcher":26,"simple-xdm/dist/host":40,"underscore":34}],29:[function(_dereq_,module,exports){
 'use strict';
 
-var _arguments = arguments;
-
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -3008,7 +3008,6 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data
 });
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-button-click', function (data) {
-  console.log("HERE!", _arguments);
   _actionsEvent_actions2['default'].broadcast('dialog.' + data.name, {
     addon_key: data.extension.addon_key
   });
@@ -3019,8 +3018,6 @@ var Dialog = function Dialog(options, callback) {
 
   var _id = callback._id;
   var extension = callback._context.extension;
-  options.width = _util2['default'].stringToDimension(options.width);
-  options.height = _util2['default'].stringToDimension(options.height);
   var $iframeContainer = _componentsIframe_container2['default'].createExtension({
     addon_key: extension.addon_key,
     key: options.key,
@@ -3035,6 +3032,7 @@ var Dialog = function Dialog(options, callback) {
       customData: options.customData
     }
   });
+
   _componentsDialog2['default'].render({
     extension: extension,
     id: _id,
@@ -3559,22 +3557,12 @@ var DialogUtils = (function () {
   }, {
     key: '_width',
     value: function _width(dimension) {
-      if (typeof dimension !== 'string') {
-        dimension = '100%';
-      } else {
-        dimension = _util2['default'].stringToDimension(dimension);
-      }
-      return dimension;
+      return _util2['default'].stringToDimension(dimension);
     }
   }, {
     key: '_height',
     value: function _height(dimension) {
-      if (typeof dimension !== 'string') {
-        dimension = '400px';
-      } else {
-        dimension = _util2['default'].stringToDimension(dimension);
-      }
-      return dimension;
+      return _util2['default'].stringToDimension(dimension);
     }
   }, {
     key: '_actions',
@@ -3595,6 +3583,14 @@ var DialogUtils = (function () {
       return sanitizedActions;
     }
   }, {
+    key: '_id',
+    value: function _id(str) {
+      if (typeof str !== 'string') {
+        str = Math.random().toString(36).substring(2, 8);
+      }
+      return str;
+    }
+  }, {
     key: 'sanitizeOptions',
     value: function sanitizeOptions(options) {
       options = options || {};
@@ -3602,13 +3598,16 @@ var DialogUtils = (function () {
         chrome: this._chrome(options.chrome),
         header: this._header(options.header),
         hint: this._hint(options.hint),
-        size: this._size(options),
-        width: this._width(options),
-        height: this._height(options),
+        width: this._width(options.width),
+        height: this._height(options.height),
         $content: options.$content,
         extension: options.extension,
-        actions: this._actions(options)
+        actions: this._actions(options),
+        id: this._id(options.id),
+        size: options.size
       };
+      sanitized.size = this._size(sanitized);
+
       return sanitized;
     }
   }]);

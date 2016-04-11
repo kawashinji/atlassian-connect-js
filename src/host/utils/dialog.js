@@ -37,21 +37,11 @@ class DialogUtils {
   }
 
   _width(dimension){
-    if(typeof dimension !== 'string'){
-      dimension = '100%';
-    } else {
-      dimension = util.stringToDimension(dimension);
-    }
-    return dimension;
+    return util.stringToDimension(dimension);
   }
 
   _height(dimension){
-    if(typeof dimension !== 'string'){
-      dimension = '400px';
-    } else {
-      dimension = util.stringToDimension(dimension);
-    }
-    return dimension;
+    return util.stringToDimension(dimension);
   }
 
   _actions(options){
@@ -75,19 +65,29 @@ class DialogUtils {
 
   }
 
+  _id(str){
+    if(typeof str !== 'string'){
+      str = Math.random().toString(36).substring(2, 8);
+    }
+    return str;
+  }
+
   sanitizeOptions(options){
     options = options || {};
     var sanitized = {
       chrome: this._chrome(options.chrome),
       header: this._header(options.header),
       hint: this._hint(options.hint),
-      size: this._size(options),
-      width: this._width(options),
-      height: this._height(options),
+      width: this._width(options.width),
+      height: this._height(options.height),
       $content: options.$content,
       extension: options.extension,
-      actions: this._actions(options)
+      actions: this._actions(options),
+      id: this._id(options.id),
+      size: options.size
     };
+    sanitized.size = this._size(sanitized);
+
     return sanitized;
   }
 }

@@ -144,11 +144,14 @@ EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
 });
 
 EventDispatcher.register('dialog-close-active', (data) => {
-  DialogActions.close({
-    customData: data.customData,
-    dialog: getActiveDialog(),
-    extension: data.extension
-  });
+  var activeDialog = getActiveDialog();
+  if(activeDialog){
+    DialogActions.close({
+      customData: data.customData,
+      dialog: activeDialog,
+      extension: data.extension
+    });
+  }
 });
 
 EventDispatcher.register('dialog-close', (data) => {

@@ -4,7 +4,10 @@ import dialogUtils from 'src/host/utils/dialog';
 import DialogActions from 'src/host/actions/dialog_actions';
 
 describe('dialog component', () => {
-
+  afterEach(() => {
+    $('.aui-dialog2').remove();
+    $('.aui-blanket').remove();
+  });
   describe('render', () => {
 
     it('renders a dialog', () => {
@@ -23,12 +26,27 @@ describe('dialog component', () => {
       expect($dialogContent.text()).toEqual('some content');
     });
 
+    it('is size medium by default', () => {
+      var $dialog = DialogComponent.render();
+      expect($dialog.hasClass('aui-dialog2-medium')).toEqual(true);
+    });
+
     describe('chrome', () => {
 
       it('renders a chromed dialog by default', () => {
         var $dialog = DialogComponent.render();
         expect($dialog.hasClass('aui-dialog2-chromeless')).toEqual(false);
       });
+
+      it('iframe dimensions should be the opened dimensions', () => {
+        var $dialog = DialogComponent.render({
+          width: '200px',
+          height: '300px'
+        });
+        expect($dialog.width()).toEqual(200);
+        expect($dialog.height()).toEqual(300);
+      });
+
 
       describe('footer', () => {
 
@@ -96,6 +114,18 @@ describe('dialog component', () => {
         expect($dialog.find('header').length).toEqual(0);
         expect($dialog.find('footer').length).toEqual(0);
       });
+
+      it('iframe dimensions should be the opened dimensions', () => {
+        var $dialog = DialogComponent.render({
+          width: '200px',
+          height: '300px',
+          chrome: false
+        });
+
+        expect($dialog.width()).toEqual(200);
+        expect($dialog.height()).toEqual(300);
+      });
+
     });
   });
 });
