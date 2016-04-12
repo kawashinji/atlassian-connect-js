@@ -55,9 +55,20 @@
                 auiSize = 'maximum';
             }
 
+            var header = options.header;
+            if (header && header.value) {
+                // The header is an I18nProperty from DialogOptions and not a String - extract the i18n value.
+                header = header.value;
+            }
+            if (!header && options.defaultHeader) {
+                // If header hasn't been specified in the DialogOptions, use the default header text from a
+                // web-item binding.
+                header = options.defaultHeader;
+            }
+
             $el = $(aui.dialog.dialog2({
                 id: options.id,
-                titleText: options.header,
+                titleText: header,
                 titleId: options.titleId,
                 size: auiSize,
                 extraClasses: extraClasses,
