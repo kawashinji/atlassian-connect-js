@@ -16,7 +16,7 @@ EventDispatcher.register('dialog-close', function (data) {
   }
 });
 
-EventDispatcher.register('dialog-message', (data) => {
+EventDispatcher.register('dialog-button-click', (data) => {
   EventActions.broadcast(`dialog.${data.name}`, {
     addon_key: data.extension.addon_key
   });
@@ -26,8 +26,6 @@ class Dialog {
   constructor(options, callback) {
     const _id = callback._id;
     const extension = callback._context.extension;
-    options.width = util.stringToDimension(options.width);
-    options.height = util.stringToDimension(options.height);
     const $iframeContainer = IframeContainer.createExtension({
       addon_key: extension.addon_key,
       key: options.key,
@@ -42,6 +40,7 @@ class Dialog {
         customData: options.customData
       }
     });
+
     DialogComponent.render({
       extension,
       id: _id,

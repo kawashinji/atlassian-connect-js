@@ -1,6 +1,7 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import DomEventActions from 'actions/dom_event_actions';
 import DialogActions from 'actions/dialog_actions';
+import dialogUtils from 'utils/dialog';
 
 import $ from '../dollar';
 import _ from '../underscore';
@@ -50,20 +51,6 @@ class Dialog {
 
   _renderFooter(options) {
     const $footer = $('<footer />').addClass('aui-dialog2-footer');
-    if (!options.actions) {
-      options.actions = [
-        {
-          name: 'submit',
-          text: options.submitText || 'submit',
-          type: 'primary'
-        },
-        {
-          name: 'cancel',
-          text: options.cancelText || 'cancel',
-          type: 'link'
-        }
-      ];
-    }
     const $actions = this._renderFooterActions(options.actions, options.extension);
     $footer.append($actions);
     if(options.hint) {
@@ -83,10 +70,7 @@ class Dialog {
       }
       $button.click(() => {
         if ($button.attr('aria-disabled') !== 'true') {
-          DialogActions.dialogMessage({
-            name: action.name,
-            extension
-          });
+          DialogActions.clickButton(action.name, $button, extension);
         }
       });
       $actions.append($button);
@@ -104,49 +88,41 @@ class Dialog {
   }
   **/
   render(options){
+    var sanitizedOptions = dialogUtils.sanitizeOptions(options);
     const $dialog = $('<section />').attr({
       role: 'dialog',
-      id: DLGID_PREFIX + options.id
+      id: DLGID_PREFIX + sanitizedOptions.id
     });
     $dialog.attr('data-aui-modal', 'true');
     $dialog.data('aui-remove-on-hide', true);
     $dialog.addClass('aui-layer aui-dialog2 ap-aui-dialog2');
-    if (options.size === 'x-large') {
-      options.size = 'xlarge';
-    } else if (options.width === '100%' && options.height === '100%') {
-      options.size = 'fullscreen';
-    } else if (!options.width && !options.height) {
-      options.size = 'medium';
-    }
-    if (_.contains(DIALOG_SIZES, options.size)) {
-      $dialog.addClass('aui-dialog2-' + options.size);
+
+    if (_.contains(DIALOG_SIZES, sanitizedOptions.size)) {
+      $dialog.addClass('aui-dialog2-' + sanitizedOptions.size);
     }
 
-    $dialog.append(this._renderContent(options.$content));
+    $dialog.append(this._renderContent(sanitizedOptions.$content));
 
-    if (typeof options.chrome === 'undefined') {
-      options.chrome = true;
-    }
-
-    if (options.chrome) {
+    if (sanitizedOptions.chrome) {
       $dialog.prepend(this._renderHeader({
-        header: options.header
+        header: sanitizedOptions.header
       }));
       $dialog.append(this._renderFooter({
-        extension: options.extension,
-        actions: options.actions,
-        hint: options.hint
+        extension: sanitizedOptions.extension,
+        actions: sanitizedOptions.actions,
+        hint: sanitizedOptions.hint
       }));
     } else {
       $dialog.addClass('aui-dialog2-chromeless');
     }
     const dialog = AJS.dialog2($dialog);
-    dialog._id = options.id;
-    if (!options.size || options.size === 'fullscreen') {
-      AJS.layer($dialog).changeSize(options.width, options.height);
+    dialog._id = sanitizedOptions.id;
+    if (!sanitizedOptions.size || sanitizedOptions.size === 'fullscreen') {
+      AJS.layer($dialog).changeSize(sanitizedOptions.width, sanitizedOptions.height);
     }
     dialog.show();
     DialogActions.open();
+    return $dialog;
   }
 }
 
@@ -168,11 +144,14 @@ EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
 });
 
 EventDispatcher.register('dialog-close-active', (data) => {
-  DialogActions.close({
-    customData: data.customData,
-    dialog: getActiveDialog(),
-    extension: data.extension
-  });
+  var activeDialog = getActiveDialog();
+  if(activeDialog){
+    DialogActions.close({
+      customData: data.customData,
+      dialog: activeDialog,
+      extension: data.extension
+    });
+  }
 });
 
 EventDispatcher.register('dialog-close', (data) => {
