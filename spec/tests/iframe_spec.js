@@ -1,6 +1,7 @@
 import IframeComponent from 'src/host/components/iframe';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import simpleXDM from 'simple-xdm/dist/host';
+import urlUtil from 'src/host/utils/url';
 
 describe('Iframe component', () => {
   function randomWholeNumber(max){
@@ -56,7 +57,29 @@ describe('Iframe component', () => {
     });
   });
 
+  describe('content resolver', () =>{
+    it('setContentResolver sets the content resolver', () => {
+      var spy = jasmine.createSpy('spy');
+      expect(IframeComponent._contentResolver).not.toEqual(spy);
+      IframeComponent.setContentResolver(spy);
+      expect(IframeComponent._contentResolver).toEqual(spy);
+    });
+
+    it('sets the content resolver when content-resolver-register-by-extension is triggered', () => {
+      var spy = jasmine.createSpy('spy');
+      expect(IframeComponent._contentResolver).not.toEqual(spy);
+      EventDispatcher.dispatch('content-resolver-register-by-extension', {
+        callback: spy
+      });
+      expect(IframeComponent._contentResolver).toEqual(spy);
+    });
+  });
+
   describe('simpleXdmExtension', () => {
+    beforeEach(() => {
+      IframeComponent._contentResolver = false;
+    });
+
     it('returns an iframe', () => {
       var extension = {
         addon_key: 'some-addon-key',
@@ -68,35 +91,74 @@ describe('Iframe component', () => {
     });
 
     it('returns an ID', () => {
-      return;
       var extension = {
         addon_key: 'some-addon-key',
         key: 'some-module-key',
         url: 'https://www.example.com'
       };
       var simpleExtension = IframeComponent.simpleXdmExtension(extension);
-      expect(simpleExtension.extension.id).toEqual(jasmine.stringMatching(new RegExp('^' + extension.addon_key + '__' + extension.key)));
+      expect(simpleExtension.id).toEqual(jasmine.stringMatching(new RegExp('^' + extension.addon_key + '__' + extension.key)));
     });
-  });
 
-  it('triggers an event on bridge established', (done) => {
-    var extension = {
-      addon_key: 'some-addon-key',
-      key: 'some-module-key',
-      url: 'https://www.example.com'
-    };
-    EventDispatcher.registerOnce('iframe-bridge-estabilshed', (data) => {
-      expect(data.$el[0].nodeName).toEqual("IFRAME");
-      expect(data.extension).toEqual(extension);
-      done();
+    it('iframe is immediately created', () => {
+      var extension = {
+        addon_key: 'some-addon-key',
+        key: 'some-module-key',
+        url: 'https://www.example.com'
+      };
+      var createdExtension = IframeComponent.simpleXdmExtension(extension);
+      expect(createdExtension.$el[0].nodeName).toEqual('IFRAME');
+      expect(createdExtension.$el.attr('src')).toEqual(extension.url);
     });
-    var spy = spyOn(simpleXDM, 'create').and.returnValue({id: 'abc123'});
-    IframeComponent.simpleXdmExtension(extension);
-    setTimeout(function(){
-      spy.calls.first().args[1]();
-    }, 100);
-  });
 
+    it('JWT url', () => {
+      var extension = {
+        addon_key: 'some-addon-key',
+        key: 'some-module-key',
+        url: 'https://www.example.com?jwt=abc123'
+      };
+      spyOn(urlUtil,'hasJwt').and.returnValue(true);
+      spyOn(urlUtil,'isJwtExpired').and.returnValue(false);
+      var createdExtension = IframeComponent.simpleXdmExtension(extension);
+      expect(createdExtension.$el[0].nodeName).toEqual('IFRAME');
+      expect(createdExtension.$el.attr('src')).toEqual(extension.url);
+    });
+
+    it('expired JWT', () => {
+      var spy = jasmine.createSpy('spy');
+      var extension = {
+        addon_key: 'some-addon-key',
+        key: 'some-module-key',
+        url: 'https://www.example.com?jwt=abc123',
+        id: 'some-id'
+      };
+      spyOn(urlUtil,'hasJwt').and.returnValue(true);
+      spyOn(urlUtil,'isJwtExpired').and.returnValue(true);
+
+      var createdExtension = IframeComponent.simpleXdmExtension(extension);
+      expect(createdExtension.$el[0].nodeName).toEqual('IFRAME');
+      expect(createdExtension.$el.attr('src')).toEqual(undefined);
+    });
+
+    it('triggers an event on bridge established', (done) => {
+      var extension = {
+        addon_key: 'some-addon-key',
+        key: 'some-module-key',
+        url: 'https://www.example.com'
+      };
+      EventDispatcher.registerOnce('iframe-bridge-estabilshed', (data) => {
+        expect(data.$el[0].nodeName).toEqual("IFRAME");
+        expect(data.extension).toEqual(extension);
+        done();
+      });
+      var spy = spyOn(simpleXDM, 'create').and.returnValue({id: 'abc123'});
+      IframeComponent.simpleXdmExtension(extension);
+      setTimeout(function(){
+        spy.calls.first().args[1]();
+      }, 100);
+    });
+
+  });
 
   it('_renderIframe returns an iframe with attributes', () => {
     var attributes = {
@@ -108,7 +170,6 @@ describe('Iframe component', () => {
     expect($iframe.attr('custom')).toEqual(attributes.custom);
     expect($iframe[0].nodeName).toEqual('IFRAME');
   });
-
 
 
 });
