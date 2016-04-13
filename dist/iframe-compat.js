@@ -96,12 +96,13 @@ AP.register({
   _any: function _any(data, callback) {
     var dialogEventMatch = callback._context.eventName.match(/^dialog\.(\w+)$/);
     if (dialogEventMatch) {
-      var handlers = dialogHandlers[dialogEventMatch[1]];
+      var dialogEvent = dialogEventMatch[1];
+      var handlers = dialogHandlers[dialogEvent];
       if (handlers) {
         handlers.forEach(function (cb) {
           return cb(data);
         });
-      } else if (dialogEventMatch !== 'dialog.close') {
+      } else if (dialogEvent !== 'close') {
         AP.dialog.close();
       }
     }

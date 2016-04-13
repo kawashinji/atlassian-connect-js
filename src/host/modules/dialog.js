@@ -1,5 +1,5 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
-import DialogComponent from 'components/dialog';
+import DialogExtensionActions from 'actions/dialog_extension_actions';
 import DialogActions from 'actions/dialog_actions';
 import EventActions from 'actions/event_actions';
 import IframeContainer from 'components/iframe_container';
@@ -26,25 +26,19 @@ class Dialog {
   constructor(options, callback) {
     const _id = callback._id;
     const extension = callback._context.extension;
-    const $iframeContainer = IframeContainer.createExtension({
+    var dialogExtension = {
       addon_key: extension.addon_key,
       key: options.key,
-      url: options.url,
       options: {
-        isDialog: true,
-        dialogId: options.id,
-        width: options.width || '100%',
-        height: options.height || '100%',
+        width: options.width,
+        height: options.height,
         // ACJS-185: the following is a really bad idea but we need it
         // for compat until AP.dialog.customData has been deprecated
         customData: options.customData
       }
-    });
-
-    DialogComponent.render({
-      extension,
+    };
+    var dialogOptions = {
       id: _id,
-      $content: $iframeContainer,
       size: options.size,
       width: options.width,
       height: options.height,
@@ -52,7 +46,10 @@ class Dialog {
       header: options.header,
       hint: options.hint,
       actions: options.actions
-    });
+    };
+
+    DialogExtensionActions.open(dialogExtension, dialogOptions);
+
     this.customData = options.customData;
     _dialogs[_id] = this;
   }

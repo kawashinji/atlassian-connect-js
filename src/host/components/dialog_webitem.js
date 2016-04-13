@@ -1,8 +1,7 @@
 import WebItemActions from 'actions/webitem_actions';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import WebItemUtils from 'utils/webitem';
-import IframeContainer from 'components/iframe_container';
-import DialogComponent from 'components/dialog';
+import DialogExtensionActions from 'actions/dialog_extension_actions';
 import _ from '../underscore';
 
 const ITEM_NAME = 'dialog';
@@ -38,27 +37,8 @@ class DialogWebItem {
     }
     var webitemId = $target.data(WEBITEM_UID_KEY);
     var dialogOptions = this._dialogOptions($target);
-    data.extension.options.isDialog = true;
-    var $dialog = this._createDialog({
-      id: webitemId,
-      extension: data.extension,
-      $target: $target,
-      options: dialogOptions
-    });
-  }
-
-  _createDialog(data) {
-    var $iframeContainer = IframeContainer.createExtension(data.extension);
-    var $dialog = DialogComponent.render({
-      extension: data.extension,
-      id: data.id,
-      $content: $iframeContainer,
-      chrome: data.options.chrome,
-      width: data.options.width,
-      height: data.options.height,
-      size: data.options.size
-    });
-    return $dialog;
+    dialogOptions.id = webitemId;
+    DialogExtensionActions.open(data.extension, dialogOptions);
   }
 
   createIfNotExists(data) {

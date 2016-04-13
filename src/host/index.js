@@ -17,7 +17,7 @@ import IframeActions from 'actions/iframe_actions';
 
 import InlineDialogWebItemComponent from 'components/inline_dialog_webitem';
 import DialogWebItemComponent from 'components/dialog_webitem';
-// import propagator from './propagate/rpc';
+import DialogExtensionComponent from 'components/dialog_extension';
 
 /**
  * Private namespace for host-side code.
@@ -51,6 +51,11 @@ simpleXDM.registerRequestNotifier(function(data){
 });
 
 export default {
+  dialog: {
+    create: (extension, dialogOptions) => {
+      DialogExtensionComponent.render(extension, dialogOptions);
+    }
+  },
   onKeyEvent: (extension_id, key, modifiers, callback) => {
     DomEventActions.registerKeyEvent({extension_id, key, modifiers, callback});
   },
