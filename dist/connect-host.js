@@ -1503,7 +1503,6 @@ var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
 
 exports['default'] = {
   addWebItem: function addWebItem(potentialWebItem) {
-
     var webitem = undefined;
     var existing = _componentsWebitem2['default'].getWebItemsBySelector(potentialWebItem.selector);
 
@@ -1515,15 +1514,7 @@ exports['default'] = {
     }
   },
 
-  webitemInvoked: function webitemInvoked(webitem, event) {
-    var $target = $(event.target);
-    var extension = {
-      addon_key: _utilsWebitem2['default'].getExtensionKey($target),
-      key: _utilsWebitem2['default'].getKey($target),
-      url: $target.attr('href'),
-      options: _utilsWebitem2['default'].getOptionsForWebItem($target)
-    };
-
+  webitemInvoked: function webitemInvoked(webitem, event, extension) {
     _dispatchersEvent_dispatcher2['default'].dispatch('webitem-invoked:' + webitem.name, { webitem: webitem, event: event, extension: extension });
   }
 
@@ -2589,9 +2580,15 @@ var WebItem = (function () {
     key: '_addTriggers',
     value: function _addTriggers(webitem) {
       var onTriggers = _utilsWebitem2['default'].sanitizeTriggers(webitem.triggers);
-      webitem._on = function (e) {
-        e.preventDefault();
-        _actionsWebitem_actions2['default'].webitemInvoked(webitem, e);
+      webitem._on = function (event) {
+        event.preventDefault();
+        var $target = (0, _dollar2['default'])(event.target);
+        _actionsWebitem_actions2['default'].webitemInvoked(webitem, event, {
+          addon_key: _utilsWebitem2['default'].getExtensionKey($target),
+          key: _utilsWebitem2['default'].getKey($target),
+          url: $target.attr('href'),
+          options: _utilsWebitem2['default'].getOptionsForWebItem($target)
+        });
       };
       (0, _dollar2['default'])(function () {
         (0, _dollar2['default'])('body').on(onTriggers, webitem.selector, webitem._on);
