@@ -100,6 +100,21 @@ require(['ac/dialog'], function(simpleDialog) {
         equal(dialogElement().find('h1').text(), text);
     });
 
+    test("dialog options.header as I18nProperty sets the dialog title", function(){
+        var text = "my title text";
+        var header = {
+            i18n: "some.i18n.key",
+            value: text
+        };
+        simpleDialog.create({
+            id: "my-dialog",
+            header: header,
+            chrome: true
+        });
+
+        equal(dialogElement().find('h1').text(), text);
+    });
+
 
     test("Dialog create takes a titleId argument", function() {
         simpleDialog.create({

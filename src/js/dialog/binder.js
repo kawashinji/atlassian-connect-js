@@ -39,6 +39,14 @@ AJS.toInit(function ($) {
                       options.chrome = true;
                     }
 
+                    // The incoming header here is hard-coded to the web-item text that has the "ap-dialog" class.
+                    // Options received by the dialogFactory are always respected, so don't force this hard-coded
+                    // value to be used.
+                    if (options.header) {
+                        options.defaultHeader = options.header;
+                        delete options.header;
+                    }
+
                     dialogFactory({
                         key: addonKey,
                         moduleKey: moduleKey
