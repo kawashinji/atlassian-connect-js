@@ -3016,7 +3016,11 @@ var _componentsLoading_indicator = _dereq_('components/loading_indicator');
 
 var _componentsLoading_indicator2 = _interopRequireDefault(_componentsLoading_indicator);
 
-var CONTAINER_CLASSES = ['ap-container'];
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var CONTAINER_CLASSES = ['ap-iframe-container'];
 
 var IframeContainer = (function () {
   function IframeContainer() {
@@ -3052,10 +3056,16 @@ var IframeContainer = (function () {
 
 var IframeContainerComponent = new IframeContainer();
 
+_dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
+  var id = 'embedded-' + data.extension.id;
+  data.extension.$el.parents('.ap-iframe-container').attr('id', id);
+  // DialogComponent.setIframeDimensions(data.extension.$el);
+});
+
 exports['default'] = IframeContainerComponent;
 module.exports = exports['default'];
 
-},{"../dollar":31,"components/iframe":22,"components/loading_indicator":26}],24:[function(_dereq_,module,exports){
+},{"../dollar":31,"components/iframe":22,"components/loading_indicator":26,"dispatchers/event_dispatcher":30}],24:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3427,14 +3437,17 @@ var LoadingIndicator = (function () {
 var LoadingComponent = new LoadingIndicator();
 
 _dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
-  LoadingComponent._setupTimeout(data.$el.parents('.ap-container'), data.extension);
+  LoadingComponent._setupTimeout(data.$el.parents('.ap-iframe-container'), data.extension);
 });
+
 _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
-  LoadingComponent.hide(data.$el.parents('.ap-container'), data.extension.id);
+  LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
 });
+
 _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-timeout', function (data) {
   LoadingComponent.timeout(data.$el, data.extension.id);
 });
+
 _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', function (data) {
   LoadingComponent.cancelled(data.$el, data.extension.id);
 });
