@@ -34,7 +34,8 @@ class Dialog {
         height: options.height,
         // ACJS-185: the following is a really bad idea but we need it
         // for compat until AP.dialog.customData has been deprecated
-        customData: options.customData
+        customData: options.customData,
+        productContext: extension.options.productContext
       }
     };
     var dialogOptions = {
