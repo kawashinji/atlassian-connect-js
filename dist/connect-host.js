@@ -2020,9 +2020,6 @@ var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
 var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
 
 module.exports = {
-  open: function open() {
-    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-open');
-  },
   close: function close(data) {
     _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close', data);
   },
@@ -2528,7 +2525,6 @@ var Dialog = (function () {
         AJS.layer($dialog).changeSize(sanitizedOptions.width, sanitizedOptions.height);
       }
       dialog.show();
-      _actionsDialog_actions2['default'].open();
       return $dialog;
     }
   }]);

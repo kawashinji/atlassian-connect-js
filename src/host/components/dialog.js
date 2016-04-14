@@ -121,7 +121,6 @@ class Dialog {
       AJS.layer($dialog).changeSize(sanitizedOptions.width, sanitizedOptions.height);
     }
     dialog.show();
-    DialogActions.open();
     return $dialog;
   }
 }
