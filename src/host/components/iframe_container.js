@@ -33,7 +33,6 @@ var IframeContainerComponent = new IframeContainer();
 EventDispatcher.register('iframe-create', (data) => {
   var id = 'embedded-' + data.extension.id;
   data.extension.$el.parents('.ap-iframe-container').attr('id', id);
-    // DialogComponent.setIframeDimensions(data.extension.$el);
 });
 
 export default IframeContainerComponent;

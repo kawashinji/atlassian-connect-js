@@ -5,3 +5,8 @@
 	position: fixed;
 	z-index: 4000;
 }
+
+.ap-aui-message {
+  font-size: 14px;
+  margin: 10px;
+}

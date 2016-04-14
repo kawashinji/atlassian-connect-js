@@ -80,7 +80,7 @@ function buildCss(options) {
   options = options || {};
   options.dest = options.dest || 'dist';
 
-  var g = gulp.src('src/css/**/*.css')
+  var g = gulp.src('src/css/host/**/*.css')
     .pipe(concat('connect-host.css'))
     .pipe(gulp.dest(options.dest));
 
