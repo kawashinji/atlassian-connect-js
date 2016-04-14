@@ -3511,12 +3511,17 @@ var WebItem = (function () {
       webitem._on = function (event) {
         event.preventDefault();
         var $target = (0, _dollar2['default'])(event.target);
-        _actionsWebitem_actions2['default'].webitemInvoked(webitem, event, {
+        var extension = {
           addon_key: _utilsWebitem2['default'].getExtensionKey($target),
           key: _utilsWebitem2['default'].getKey($target),
           url: $target.attr('href'),
           options: _utilsWebitem2['default'].getOptionsForWebItem($target)
-        });
+        };
+        //webitems with relative urls must be resolved.
+        if (extension.url.substr(0, 1) === '/') {
+          delete extension.url;
+        }
+        _actionsWebitem_actions2['default'].webitemInvoked(webitem, event, extension);
       };
       (0, _dollar2['default'])(function () {
         (0, _dollar2['default'])('body').on(onTriggers, webitem.selector, webitem._on);
