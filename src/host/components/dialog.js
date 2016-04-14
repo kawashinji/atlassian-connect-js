@@ -7,7 +7,7 @@ import $ from '../dollar';
 import _ from '../underscore';
 
 const DLGID_PREFIX = 'ap-dialog-';
-const DLGID_REGEXP = new RegExp(`^${DLGID_PREFIX}[0-9A-fa-f]+$`);
+const DLGID_REGEXP = new RegExp(`^${DLGID_PREFIX}[0-9A-Za-z]+$`);
 const DIALOG_SIZES = ['small', 'medium', 'large', 'xlarge', 'fullscreen'];
 const BUTTON_TYPES = ['primary', 'link'];
 
