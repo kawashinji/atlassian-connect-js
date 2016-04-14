@@ -1,99 +1,130 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
-import DialogComponent from 'components/dialog';
+import DialogExtensionActions from 'actions/dialog_extension_actions';
+import DialogActions from 'actions/dialog_actions';
+import EventActions from 'actions/event_actions';
 import IframeContainer from 'components/iframe_container';
+import util from '../util';
 
-const DLGID_PREFIX = 'ap-dialog-';
 const _dialogs = {};
 
-function isConnectDialog($el) {
-  return ($el && $el.hasClass('ap-aui-dialog2'));
-}
-
-function keyPressListener(e) {
-  if(e.keyCode === 27) {
-    let topLayer = AJS.LayerManager.global.getTopLayer();
-    if(isConnectDialog(topLayer)) {
-      getActiveDialog().hide();
-    }
+EventDispatcher.register('dialog-close', function (data) {
+  const dialog = data.dialog;
+  if (dialog) {
+    EventActions.broadcast('dialog.close', {
+      addon_key: data.extension.addon_key
+    }, data.customData);
   }
-}
-
-// $(document).on('keydown', keyPressListener);
-
-EventDispatcher.on('dialog-button-click', function($el){
-  const buttonOptions = $el.data('options');
-  console.log('button options?', buttonOptions, $el);
-  getActiveDialog().hide();
 });
 
-function getActiveDialog(){
-  return AJS.dialog2(AJS.LayerManager.global.getTopLayer());
-}
-
-function closeDialog(data){
-  EventDispatcher.dispatch('dialog-close', data);
-  const dialog = getActiveDialog();
-  const _id = dialog.$el.attr('id').replace(DLGID_PREFIX, '');
-  _dialogs[_id]._destroy();
-  dialog.hide();
-}
-
-function dialogIframe(options, context) {
-  return IframeContainer.createExtension({
-    addon_key: context.extension.addon_key,
-    key: options.key,
-    url: options.url,
-    options: {
-      customData: options.customData
-    }
+EventDispatcher.register('dialog-button-click', (data) => {
+  EventActions.broadcast(`dialog.${data.name}`, {
+    addon_key: data.extension.addon_key
   });
-}
+});
 
 class Dialog {
   constructor(options, callback) {
     const _id = callback._id;
-    options.id = DLGID_PREFIX + _id;
-    const $iframeContainer = dialogIframe(options, callback._context);
-    const dialogDOM = DialogComponent.render({
-      $content: $iframeContainer,
-      title: options.title,
+    const extension = callback._context.extension;
+    var dialogExtension = {
+      addon_key: extension.addon_key,
+      key: options.key,
+      options: {
+        width: options.width,
+        height: options.height,
+        // ACJS-185: the following is a really bad idea but we need it
+        // for compat until AP.dialog.customData has been deprecated
+        customData: options.customData
+      }
+    };
+    var dialogOptions = {
+      id: _id,
+      size: options.size,
+      width: options.width,
+      height: options.height,
+      chrome: !!options.chrome,
+      header: options.header,
       hint: options.hint,
-      actions: ['submit', 'cancel'],
-      id: options.id
-    });
-    const dialog = AJS.dialog2(dialogDOM);
-    dialog.show();
-    EventDispatcher.dispatch('dialog-open', {
-      $el: $iframeContainer,
-      $dialog: dialog
-    });
-    dialog.on('hide', function () {
-      closeDialog();
-    });
+      actions: options.actions
+    };
+
+    DialogExtensionActions.open(dialogExtension, dialogOptions);
+
+    this.customData = options.customData;
     _dialogs[_id] = this;
   }
-  on(event, callback) {
-    EventDispatcher.register('dialog-' + event, callback);
+}
+
+class Button {
+  constructor(name) {
+    this.name = name;
+    this.enabled = true;
   }
+  enable() {
+    this.setState({
+      enabled: true
+    });
+  }
+  disable() {
+    this.setState({
+      enabled: false
+    });
+  }
+  isEnabled(callback) {
+    callback(this.enabled);
+  }
+  toggle() {
+    this.setState({
+      enabled: !this.enabled
+    });
+  }
+  setState(state) {
+    this.enabled = state.enabled;
+    DialogActions.toggleButton({
+      name: this.name,
+      enabled: this.enabled
+    });
+  }
+  trigger(callback) {
+    if (this.enabled) {
+      DialogActions.dialogMessage({
+        name: this.name,
+        extension: callback._context.extension
+      });
+    }
+  }
+}
+
+function getDialogFromContext(context) {
+  return  _dialogs[context.extension.options.dialogId];
 }
 
 module.exports = {
   create: {
-    constructor: Dialog,
-    on: Dialog.prototype.on
+    constructor: Dialog
   },
-  close: closeDialog,
-  isDialog: true,
-  onDialogMessage: function (message, listener) {
-
-  },
-  getButton: function(name, callback){
-    callback({
-      name: name
-      // bind: function(){
-      //   console.log('called!');
-      // },
-      // disable: function(){}
+  close: (data, callback) => {
+    if (!$.isFunction(callback)) {
+      callback = data;
+      data = {};
+    }
+    DialogActions.closeActive({
+      customData: data,
+      extension: callback._context.extension
     });
+  },
+  getCustomData: (callback) => {
+    const dialog = getDialogFromContext(callback._context);
+    if (dialog) {
+      callback(dialog.customData);
+    }
+  },
+  getButton: {
+    constructor: Button,
+    enable: Button.prototype.enable,
+    disable: Button.prototype.disable,
+    toggle: Button.prototype.toggle,
+    isEnabled: Button.prototype.isEnabled,
+    trigger: Button.prototype.trigger
   }
 };

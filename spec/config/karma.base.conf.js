@@ -20,6 +20,7 @@ module.exports = function(config) {
       'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore.js',
       'https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.js',
       'https://aui-cdn.atlassian.com/aui-adg/5.7.31/js/aui.js',
+      'https://aui-cdn.atlassian.com/aui-adg/5.7.31/css/aui.min.css',
       'https://cdn.rawgit.com/requirejs/almond/0.3.1/almond.js',
       'https://aui-cdn.atlassian.com/aui-adg/5.7.31/js/aui-experimental.js'
       // {pattern: 'fixtures/**', included: false, served: true},

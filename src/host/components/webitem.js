@@ -49,9 +49,19 @@ class WebItem {
 
   _addTriggers (webitem) {
     var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
-    webitem._on = (e) => {
-      WebItemActions.webitemInvoked(webitem, e);
-      e.preventDefault();
+    webitem._on = (event) => {
+      event.preventDefault();
+      var $target = $(event.target);
+      WebItemActions.webitemInvoked(
+        webitem,
+        event,
+        {
+          addon_key: WebItemUtils.getExtensionKey($target),
+          key: WebItemUtils.getKey($target),
+          url: $target.attr('href'),
+          options: WebItemUtils.getOptionsForWebItem($target)
+        }
+      );
     };
     $(() => {
       $('body').on(onTriggers, webitem.selector, webitem._on);

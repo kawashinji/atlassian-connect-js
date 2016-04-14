@@ -4,7 +4,6 @@ import WebItemUtils from 'utils/webitem';
 
 export default {
   addWebItem: (potentialWebItem) => {
-
     let webitem;
     let existing = WebItemComponent.getWebItemsBySelector(potentialWebItem.selector);
 
@@ -17,15 +16,7 @@ export default {
 
   },
 
-  webitemInvoked: (webitem, event) => {
-    var $target = $(event.target);
-    var extension = {
-      addon_key: WebItemUtils.getExtensionKey($target),
-      key: WebItemUtils.getKey($target),
-      url: $target.attr('href'),
-      options: WebItemUtils.getOptionsForWebItem($target)
-    };
-
+  webitemInvoked: (webitem, event, extension) => {
     EventDispatcher.dispatch('webitem-invoked:' + webitem.name, {webitem, event, extension});
   }
 

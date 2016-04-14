@@ -1,7 +1,7 @@
 import DialogWebitem from 'src/host/components/dialog_webitem';
 import WebItem from 'src/host/components/webitem';
 import WebItemActions from 'src/host/actions/webitem_actions';
-
+import DialogExtension from 'src/host/components/dialog_extension';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 
 
