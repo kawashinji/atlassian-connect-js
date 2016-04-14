@@ -103,9 +103,9 @@ function lintJS() {
 function deploy() {
   return merge(
     gulp.src('./dist/**/*.js')
-      .pipe(gulp.dest('${deployPath}/js/core')),
+      .pipe(gulp.dest(`${deployPath}/js/core`)),
     gulp.src('dist/**/*.css')
-      .pipe(gulp.dest('${deployPath}/css/core'))
+      .pipe(gulp.dest(`${deployPath}/css/core`))
   );
 }
 
