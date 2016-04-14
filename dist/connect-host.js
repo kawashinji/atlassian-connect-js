@@ -2269,7 +2269,11 @@ module.exports = {
           console.error('ACJS: invalid response from content resolver');
         }
       }
-      _dispatchersEvent_dispatcher2['default'].dispatch('jwt-url-refreshed', { extension: data.extension, url: values.url });
+      _dispatchersEvent_dispatcher2['default'].dispatch('jwt-url-refreshed', {
+        extension: data.extension,
+        $container: data.$container,
+        url: values.url
+      });
     });
     _dispatchersEvent_dispatcher2['default'].dispatch('jwt-url-refresh-request', { data: data });
   }
@@ -2392,6 +2396,10 @@ var _actionsDialog_actions2 = _interopRequireDefault(_actionsDialog_actions);
 var _utilsDialog = _dereq_('utils/dialog');
 
 var _utilsDialog2 = _interopRequireDefault(_utilsDialog);
+
+var _componentsIframe = _dereq_('components/iframe');
+
+var _componentsIframe2 = _interopRequireDefault(_componentsIframe);
 
 var _dollar = _dereq_('../dollar');
 
@@ -2527,6 +2535,11 @@ var Dialog = (function () {
       dialog.show();
       return $dialog;
     }
+  }, {
+    key: 'setIframeDimensions',
+    value: function setIframeDimensions($iframe) {
+      _componentsIframe2['default'].resize('100%', '100%', $iframe);
+    }
   }]);
 
   return Dialog;
@@ -2578,10 +2591,16 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', functi
   }
 });
 
+_dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
+  if (data.extension.options && data.extension.options.isDialog) {
+    DialogComponent.setIframeDimensions(data.extension.$el);
+  }
+});
+
 exports['default'] = DialogComponent;
 module.exports = exports['default'];
 
-},{"../dollar":31,"../underscore":38,"actions/dialog_actions":6,"actions/dom_event_actions":8,"dispatchers/event_dispatcher":30,"utils/dialog":40}],19:[function(_dereq_,module,exports){
+},{"../dollar":31,"../underscore":38,"actions/dialog_actions":6,"actions/dom_event_actions":8,"components/iframe":22,"dispatchers/event_dispatcher":30,"utils/dialog":40}],19:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2902,21 +2921,20 @@ var Iframe = (function () {
     }
   }, {
     key: 'simpleXdmExtension',
-    value: function simpleXdmExtension(extension) {
-      var iframeAttributes = _utilsIframe2['default'].optionsToAttributes(extension.options);
-      extension.$el = this._renderIframe(iframeAttributes);
-
+    value: function simpleXdmExtension(extension, $container) {
       if (!extension.url || _utilsUrl2['default'].hasJwt(extension.url) && _utilsUrl2['default'].isJwtExpired(extension.url)) {
         if (this._contentResolver) {
-          _actionsJwt_actions2['default'].requestRefreshUrl({ extension: extension, resolver: this._contentResolver });
+          _actionsJwt_actions2['default'].requestRefreshUrl({
+            extension: extension,
+            resolver: this._contentResolver,
+            $container: $container
+          });
         } else {
           console.error('JWT is expired and no content resolver was specified');
         }
       } else {
-        this._simpleXdmCreate(extension);
+        this._appendExtension($container, this._simpleXdmCreate(extension));
       }
-      _actionsIframe_actions2['default'].notifyIframeCreated(extension.$el, extension);
-      return extension;
     }
   }, {
     key: '_simpleXdmCreate',
@@ -2925,18 +2943,30 @@ var Iframe = (function () {
         _actionsIframe_actions2['default'].notifyBridgeEstablished(extension.$el, extension);
       });
       extension.id = iframeAttributes.id;
-      extension.$el.attr(iframeAttributes);
+      _dollar2['default'].extend(iframeAttributes, _utilsIframe2['default'].optionsToAttributes(extension.options));
+      extension.$el = this.render(iframeAttributes);
       return extension;
+    }
+  }, {
+    key: '_appendExtension',
+    value: function _appendExtension($container, extension) {
+      var existingFrame = $container.find('iframe');
+      if (existingFrame.length > 0) {
+        existingFrame.destroy();
+      }
+      $container.prepend(extension.$el);
+      _actionsIframe_actions2['default'].notifyIframeCreated(extension.$el, extension);
     }
   }, {
     key: 'resolverResponse',
     value: function resolverResponse(data) {
       data.extension.url = data.url;
-      return this._simpleXdmCreate(data.extension);
+      var simpleExtension = this._simpleXdmCreate(data.extension);
+      this._appendExtension(data.$container, simpleExtension);
     }
   }, {
-    key: '_renderIframe',
-    value: function _renderIframe(attributes) {
+    key: 'render',
+    value: function render(attributes) {
       return (0, _dollar2['default'])('<iframe />').attr(attributes);
     }
   }]);
@@ -2978,10 +3008,6 @@ var _dollar = _dereq_('../dollar');
 
 var _dollar2 = _interopRequireDefault(_dollar);
 
-var _actionsIframe_actions = _dereq_('actions/iframe_actions');
-
-var _actionsIframe_actions2 = _interopRequireDefault(_actionsIframe_actions);
-
 var _componentsIframe = _dereq_('components/iframe');
 
 var _componentsIframe2 = _interopRequireDefault(_componentsIframe);
@@ -2998,18 +3024,13 @@ var IframeContainer = (function () {
   }
 
   _createClass(IframeContainer, [{
-    key: '_createIframe',
-    value: function _createIframe(extension) {
-      return _componentsIframe2['default'].simpleXdmExtension(extension);
-    }
-  }, {
     key: 'createExtension',
     value: function createExtension(extension, options) {
       var $container = this._renderContainer();
-      $container.append(this._createIframe(extension).$el);
       if (!options || options.loadingIndicator !== false) {
         $container.append(this._renderLoadingIndicator());
       }
+      _componentsIframe2['default'].simpleXdmExtension(extension, $container);
       return $container;
     }
   }, {
@@ -3034,7 +3055,7 @@ var IframeContainerComponent = new IframeContainer();
 exports['default'] = IframeContainerComponent;
 module.exports = exports['default'];
 
-},{"../dollar":31,"actions/iframe_actions":12,"components/iframe":22,"components/loading_indicator":26}],24:[function(_dereq_,module,exports){
+},{"../dollar":31,"components/iframe":22,"components/loading_indicator":26}],24:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4161,7 +4182,10 @@ exports['default'] = {
     callback(window.location.href);
   },
   resize: debounce(function (width, height, callback) {
-    _actionsEnv_actions2['default'].iframeResize(width, height, callback._context);
+    var options = callback._context.extension.options;
+    if (options && !options.isDialog) {
+      _actionsEnv_actions2['default'].iframeResize(width, height, callback._context);
+    }
   }),
 
   sizeToParent: debounce(function (callback) {

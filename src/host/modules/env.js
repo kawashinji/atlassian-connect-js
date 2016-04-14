@@ -10,7 +10,10 @@ export default {
     callback(window.location.href);
   },
   resize: debounce(function(width, height, callback) {
-    EnvActions.iframeResize(width, height, callback._context);
+    var options = callback._context.extension.options;
+    if (options && !options.isDialog){
+      EnvActions.iframeResize(width, height, callback._context);
+    }
   }),
 
   sizeToParent: debounce(function (callback) {

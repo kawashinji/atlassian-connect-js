@@ -2,6 +2,7 @@ import EventDispatcher from 'dispatchers/event_dispatcher';
 import DomEventActions from 'actions/dom_event_actions';
 import DialogActions from 'actions/dialog_actions';
 import dialogUtils from 'utils/dialog';
+import IframeComponent from 'components/iframe';
 
 import $ from '../dollar';
 import _ from '../underscore';
@@ -123,6 +124,10 @@ class Dialog {
     dialog.show();
     return $dialog;
   }
+
+  setIframeDimensions($iframe){
+    IframeComponent.resize('100%', '100%', $iframe);
+  }
 }
 
 const DialogComponent = new Dialog();
@@ -168,6 +173,12 @@ EventDispatcher.register('dialog-button-toggle', (data) => {
       return $(this).data('name') === data.name;
     });
     $button.attr('aria-disabled', !data.enabled);
+  }
+});
+
+EventDispatcher.register('iframe-create', (data) => {
+  if(data.extension.options && data.extension.options.isDialog){
+    DialogComponent.setIframeDimensions(data.extension.$el);
   }
 });
 

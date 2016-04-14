@@ -21,7 +21,11 @@ module.exports = {
           console.error('ACJS: invalid response from content resolver');
         }
       }
-      EventDispatcher.dispatch('jwt-url-refreshed', {extension: data.extension, url: values.url});
+      EventDispatcher.dispatch('jwt-url-refreshed', {
+        extension: data.extension,
+        $container: data.$container,
+        url: values.url
+      });
     });
     EventDispatcher.dispatch('jwt-url-refresh-request', {data});
   }

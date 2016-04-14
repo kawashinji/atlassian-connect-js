@@ -29,21 +29,20 @@ class Iframe {
     $el.trigger('resized', {width: width, height: height});
   }
 
-  simpleXdmExtension(extension) {
-    var iframeAttributes = iframeUtils.optionsToAttributes(extension.options);
-    extension.$el = this._renderIframe(iframeAttributes);
-
+  simpleXdmExtension(extension, $container) {
     if(!extension.url || (urlUtil.hasJwt(extension.url) && urlUtil.isJwtExpired(extension.url))){
       if(this._contentResolver){
-        JwtActions.requestRefreshUrl({extension: extension, resolver: this._contentResolver});
+        JwtActions.requestRefreshUrl({
+          extension: extension,
+          resolver: this._contentResolver,
+          $container: $container
+        });
       } else {
         console.error('JWT is expired and no content resolver was specified');
       }
     } else {
-      this._simpleXdmCreate(extension);
+      this._appendExtension($container, this._simpleXdmCreate(extension));
     }
-    IframeActions.notifyIframeCreated(extension.$el, extension);
-    return extension;
   }
 
   _simpleXdmCreate(extension){
@@ -51,16 +50,27 @@ class Iframe {
       IframeActions.notifyBridgeEstablished(extension.$el, extension);
     });
     extension.id = iframeAttributes.id;
-    extension.$el.attr(iframeAttributes);
+    $.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
+    extension.$el = this.render(iframeAttributes);
     return extension;
+  }
+
+  _appendExtension($container, extension){
+    var existingFrame = $container.find('iframe');
+    if(existingFrame.length > 0) {
+      existingFrame.destroy();
+    }
+    $container.prepend(extension.$el);
+    IframeActions.notifyIframeCreated(extension.$el, extension);
   }
 
   resolverResponse(data) {
     data.extension.url = data.url;
-    return this._simpleXdmCreate(data.extension);
+    var simpleExtension = this._simpleXdmCreate(data.extension);
+    this._appendExtension(data.$container, simpleExtension);
   }
 
-  _renderIframe(attributes){
+  render(attributes){
     return $('<iframe />').attr(attributes);
   }
 }
