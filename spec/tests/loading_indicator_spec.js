@@ -16,28 +16,30 @@ describe('Loading indicator component', () => {
     $container.remove();
   });
 
-  it('will show', () =>{
-    var loadingContainer = LoadingIndicatorComponent.show($container, extensionId);
-    expect(loadingContainer.length).toEqual(1);
-    expect(loadingContainer.find('.small-spinner').length).toBe(1);
-    expect($container.find('.ap-status-indicator').length).toBe(1);
+  it('will render', () =>{
+    var loadingIndicator = LoadingIndicatorComponent.render();
+    expect(loadingIndicator.length).toEqual(1);
+    expect(loadingIndicator.find('.small-spinner').length).toBe(1);
   });
 
   it('will hide', () => {
-    var loadingContainer = LoadingIndicatorComponent.show($container, extensionId);
-    expect(loadingContainer.is(':visible')).toBe(true);
+    var loadingIndicator = LoadingIndicatorComponent.render();
+    $container.append(loadingIndicator);
+    expect(loadingIndicator.is(':visible')).toBe(true);
     LoadingIndicatorComponent.hide($container, extensionId);
-    expect(loadingContainer.is(':visible')).toBe(false);
+    expect(loadingIndicator.is(':visible')).toBe(false);
   });
 
   it('will timeout', () => {
-    var loadingContainer = LoadingIndicatorComponent.show($container, extensionId);
+    var loadingIndicator = LoadingIndicatorComponent.render();
+    $container.append(loadingIndicator);
     LoadingIndicatorComponent.timeout($container, extensionId);
     expect($container.find('a.ap-btn-cancel').length).toEqual(1);
   });
 
   it('will cancel', () => {
-    var loadingContainer = LoadingIndicatorComponent.show($container, extensionId);
+    var loadingIndicator = LoadingIndicatorComponent.render();
+    $container.append(loadingIndicator);
     LoadingIndicatorComponent.cancelled($container, extensionId);
     expect($container.find('a.ap-btn-cancel').length).toEqual(0);
     expect($container.text().length > 1).toBe(true);

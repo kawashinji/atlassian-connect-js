@@ -1,53 +1,23 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
 import $ from '../dollar';
-import urlUtil from 'utils/url';
-import JwtActions from 'actions/jwt_actions';
 import IframeActions from 'actions/iframe_actions';
 import IframeComponent from 'components/iframe';
+import LoadingIndicatorComponent from 'components/loading_indicator';
 
 const CONTAINER_CLASSES = ['ap-container'];
 
 class IframeContainer {
-  constructor () {
-    this._urlContainerRegistry = {};
-    this._contentResolver = false;
+
+  _createIframe(extension) {
+    return IframeComponent.simpleXdmExtension(extension);
   }
 
-  setContentResolver(callback) {
-    this._contentResolver = callback;
-  }
-
-  _insertIframe($container, extension) {
-    var simpleExtension = IframeComponent.simpleXdmExtension(extension);
-    $container.append(simpleExtension.$el);
-    if(extension.options.width){
-      simpleExtension.$el.css('width', extension.options.width);
-    }
-    if(extension.options.height){
-     simpleExtension.$el.css('height', extension.options.height);
-    }
-    IframeActions.notifyIframeCreated(simpleExtension.$el, simpleExtension.extension);
-  }
-
-  createExtension(extension) {
+  createExtension(extension, options) {
     var $container = this._renderContainer();
-    if(!extension.url || (urlUtil.hasJwt(extension.url) && urlUtil.isJwtExpired(extension.url))){
-      this._urlContainerRegistry[extension.id] = $container;
-      JwtActions.requestRefreshUrl({extension, resolver: this._contentResolver});
-    } else {
-      this._insertIframe($container, extension);
+    $container.append(this._createIframe(extension).$el);
+    if(!options || options.loadingIndicator !== false){
+      $container.append(this._renderLoadingIndicator());
     }
     return $container;
-  }
-
-  resolverResponse(data) {
-    var extension = data.extension;
-    var $container = this._urlContainerRegistry[extension.id];
-    if($container){
-      extension.url = data.url;
-      this._insertIframe($container, extension);
-    }
-    delete this._urlContainerRegistry[extension.id];
   }
 
   _renderContainer(attributes){
@@ -56,15 +26,12 @@ class IframeContainer {
     return container;
   }
 
+  _renderLoadingIndicator(){
+    return LoadingIndicatorComponent.render();
+  }
+
 }
 
 var IframeContainerComponent = new IframeContainer();
-EventDispatcher.register('content-resolver-register-by-extension', function(data){
-  IframeContainerComponent.setContentResolver(data.callback);
-});
-
-EventDispatcher.register('jwt-url-refreshed', function(data) {
-  IframeContainerComponent.resolverResponse(data);
-});
 
 export default IframeContainerComponent;

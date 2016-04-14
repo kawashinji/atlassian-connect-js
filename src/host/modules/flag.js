@@ -1,25 +1,26 @@
 import $ from '../dollar';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import FlagActions from 'actions/flag_actions';
+import FlagComponent from 'components/flag';
 
-const FLAGID_PREFIX = 'ap-flag-';
 const _flags = {};
 
 class Flag {
   constructor(options, callback) {
-    const _id = FLAGID_PREFIX + callback._id;
 
-    this.flag = AJS.flag({
+    this.flag = FlagComponent.render({
       type: options.type,
       title: options.title,
       body: AJS.escapeHtml(options.body),
-      close: options.close
+      close: options.close,
+      id: callback._id
     });
+
+    FlagActions.open(this.flag.attr('id'));
 
     this.onTriggers= {};
 
-    $(this.flag).attr('id', _id);
-    _flags[_id] = this;
+    _flags[this.flag.attr('id')] = this;
   }
 
   on(event, callback) {
@@ -34,18 +35,12 @@ class Flag {
   }
 }
 
-$(document).on('aui-flag-close', (e) => {
-  const _id = e.target.id;
-  FlagActions.close(_id);
-  if (_flags[_id]) {
-    _flags[_id]._destroy();
-    delete _flags[_id];
-  }
-});
-
-EventDispatcher.register('flag-close', (data) => {
+EventDispatcher.register('flag-closed', (data) => {
   if (_flags[data.id] && $.isFunction(_flags[data.id].onTriggers['close'])) {
     _flags[data.id].onTriggers['close']();
+  }
+  if (_flags[data.id]) {
+    delete _flags[data.id];
   }
 });
 
