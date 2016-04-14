@@ -1,9 +1,6 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 
 module.exports = {
-  open: () => {
-    EventDispatcher.dispatch('dialog-open');
-  },
   close: (data) => {
     EventDispatcher.dispatch('dialog-close', data);
   },
