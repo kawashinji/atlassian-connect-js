@@ -28,7 +28,7 @@ export default {
     } else {
       // This is only here to support integration testing
       // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-      $(this.iframe).addClass('full-size-general-page-fail');
+      util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
     }
   })
 };

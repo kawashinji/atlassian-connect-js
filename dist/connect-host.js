@@ -4213,7 +4213,7 @@ exports['default'] = {
     } else {
       // This is only here to support integration testing
       // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-      (0, _dollar2['default'])(this.iframe).addClass('full-size-general-page-fail');
+      _util2['default'].getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
     }
   })
 };
