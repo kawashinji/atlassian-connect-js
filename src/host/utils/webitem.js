@@ -28,14 +28,18 @@ function getKey($target){
   return _.isArray(m) ? m[1] : false;
 }
 
+function getFullKey($target){
+  return getExtensionKey($target) + '__' + getKey($target);
+}
+
 // LEGACY - method for handling webitem options for p2
 function getOptionsForWebItem($target) {
-  var moduleKey = getKey($target);
+  var fullKey = getFullKey($target);
   var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
   if(window._AP && window._AP[type + 'Options']){
-    return window._AP[type + 'Options'][moduleKey] || {};
+    return window._AP[type + 'Options'][fullKey] || {};
   } else {
-    console.warn('no webitem ' + type + 'Options for ' + moduleKey);
+    console.warn('no webitem ' + type + 'Options for ' + fullKey);
     return {};
   }
 }
