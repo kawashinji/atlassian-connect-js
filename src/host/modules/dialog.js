@@ -26,18 +26,17 @@ class Dialog {
   constructor(options, callback) {
     const _id = callback._id;
     const extension = callback._context.extension;
+
     var dialogExtension = {
       addon_key: extension.addon_key,
       key: options.key,
-      options: {
-        width: options.width,
-        height: options.height,
-        // ACJS-185: the following is a really bad idea but we need it
-        // for compat until AP.dialog.customData has been deprecated
-        customData: options.customData,
-        productContext: extension.options.productContext
-      }
+      options: extension.options
     };
+
+    // ACJS-185: the following is a really bad idea but we need it
+    // for compat until AP.dialog.customData has been deprecated
+    dialogExtension.options.customData = options.customData;
+
     var dialogOptions = {
       id: _id,
       size: options.size,
