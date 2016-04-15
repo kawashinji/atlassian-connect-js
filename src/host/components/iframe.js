@@ -47,6 +47,9 @@ class Iframe {
 
   _simpleXdmCreate(extension){
     var iframeAttributes = simpleXDM.create(extension, () => {
+      if(!extension.options){
+        extension.options = {};
+      }
       IframeActions.notifyBridgeEstablished(extension.$el, extension);
     });
     extension.id = iframeAttributes.id;
@@ -65,8 +68,8 @@ class Iframe {
   }
 
   resolverResponse(data) {
-    data.extension.url = data.url;
-    var simpleExtension = this._simpleXdmCreate(data.extension);
+    // data.extension.url = data.url;
+    var simpleExtension = this._simpleXdmCreate(data.newExtensionConfiguration);
     this._appendExtension(data.$container, simpleExtension);
   }
 

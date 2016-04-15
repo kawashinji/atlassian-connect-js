@@ -11,12 +11,12 @@ module.exports = {
     }
     var promise = data.resolver.call(null, _.extend({classifier: 'json'}, data.extension));
     promise.done(function (promiseData) {
-      var values = {};
+      var newExtensionConfiguration = {};
       if(_.isObject(promiseData)) {
-        values = promiseData;
+        newExtensionConfiguration = promiseData;
       } else if(_.isString(promiseData)) {
         try{
-          values = JSON.parse(promiseData);
+          newExtensionConfiguration = JSON.parse(promiseData);
         } catch(e){
           console.error('ACJS: invalid response from content resolver');
         }
@@ -24,7 +24,8 @@ module.exports = {
       EventDispatcher.dispatch('jwt-url-refreshed', {
         extension: data.extension,
         $container: data.$container,
-        url: values.url
+        url: newExtensionConfiguration.url,
+        newExtensionConfiguration: newExtensionConfiguration
       });
     });
     EventDispatcher.dispatch('jwt-url-refresh-request', {data});

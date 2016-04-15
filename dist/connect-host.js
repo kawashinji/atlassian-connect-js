@@ -2259,12 +2259,12 @@ module.exports = {
     }
     var promise = data.resolver.call(null, _underscore2['default'].extend({ classifier: 'json' }, data.extension));
     promise.done(function (promiseData) {
-      var values = {};
+      var newExtensionConfiguration = {};
       if (_underscore2['default'].isObject(promiseData)) {
-        values = promiseData;
+        newExtensionConfiguration = promiseData;
       } else if (_underscore2['default'].isString(promiseData)) {
         try {
-          values = JSON.parse(promiseData);
+          newExtensionConfiguration = JSON.parse(promiseData);
         } catch (e) {
           console.error('ACJS: invalid response from content resolver');
         }
@@ -2272,7 +2272,8 @@ module.exports = {
       _dispatchersEvent_dispatcher2['default'].dispatch('jwt-url-refreshed', {
         extension: data.extension,
         $container: data.$container,
-        url: values.url
+        url: newExtensionConfiguration.url,
+        newExtensionConfiguration: newExtensionConfiguration
       });
     });
     _dispatchersEvent_dispatcher2['default'].dispatch('jwt-url-refresh-request', { data: data });
@@ -2940,6 +2941,9 @@ var Iframe = (function () {
     key: '_simpleXdmCreate',
     value: function _simpleXdmCreate(extension) {
       var iframeAttributes = _simpleXdmDistHost2['default'].create(extension, function () {
+        if (!extension.options) {
+          extension.options = {};
+        }
         _actionsIframe_actions2['default'].notifyBridgeEstablished(extension.$el, extension);
       });
       extension.id = iframeAttributes.id;
@@ -2960,8 +2964,8 @@ var Iframe = (function () {
   }, {
     key: 'resolverResponse',
     value: function resolverResponse(data) {
-      data.extension.url = data.url;
-      var simpleExtension = this._simpleXdmCreate(data.extension);
+      // data.extension.url = data.url;
+      var simpleExtension = this._simpleXdmCreate(data.newExtensionConfiguration);
       this._appendExtension(data.$container, simpleExtension);
     }
   }, {
