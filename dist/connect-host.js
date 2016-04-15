@@ -3297,12 +3297,11 @@ var InlineDialogWebItem = (function () {
         return false;
       }
       contentRequest.then(function (content) {
-        var contentData = JSON.parse(content);
-        contentData.options = {
+        content.options = {
           autoresize: true,
           widthinpx: true
         };
-        var addon = (0, _create2['default'])(contentData);
+        var addon = (0, _create2['default'])(content);
         data.$el.empty().append(addon);
       });
     }
