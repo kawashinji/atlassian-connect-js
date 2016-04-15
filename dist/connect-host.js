@@ -2269,11 +2269,12 @@ module.exports = {
           console.error('ACJS: invalid response from content resolver');
         }
       }
+      data.extension.url = newExtensionConfiguration.url;
+      _underscore2['default'].extend(data.extension.options, newExtensionConfiguration.options);
       _dispatchersEvent_dispatcher2['default'].dispatch('jwt-url-refreshed', {
         extension: data.extension,
         $container: data.$container,
-        url: newExtensionConfiguration.url,
-        newExtensionConfiguration: newExtensionConfiguration
+        url: data.extension.url
       });
     });
     _dispatchersEvent_dispatcher2['default'].dispatch('jwt-url-refresh-request', { data: data });
@@ -2965,7 +2966,7 @@ var Iframe = (function () {
     key: 'resolverResponse',
     value: function resolverResponse(data) {
       // data.extension.url = data.url;
-      var simpleExtension = this._simpleXdmCreate(data.newExtensionConfiguration);
+      var simpleExtension = this._simpleXdmCreate(data.extension);
       this._appendExtension(data.$container, simpleExtension);
     }
   }, {

@@ -21,11 +21,12 @@ module.exports = {
           console.error('ACJS: invalid response from content resolver');
         }
       }
+      data.extension.url = newExtensionConfiguration.url;
+      _.extend(data.extension.options, newExtensionConfiguration.options);
       EventDispatcher.dispatch('jwt-url-refreshed', {
         extension: data.extension,
         $container: data.$container,
-        url: newExtensionConfiguration.url,
-        newExtensionConfiguration: newExtensionConfiguration
+        url: data.extension.url
       });
     });
     EventDispatcher.dispatch('jwt-url-refresh-request', {data});
