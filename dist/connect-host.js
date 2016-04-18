@@ -2965,7 +2965,6 @@ var Iframe = (function () {
   }, {
     key: 'resolverResponse',
     value: function resolverResponse(data) {
-      // data.extension.url = data.url;
       var simpleExtension = this._simpleXdmCreate(data.extension);
       this._appendExtension(data.$container, simpleExtension);
     }

@@ -59,3 +59,7 @@ AP.dialog.getButton = AP._hostModules.dialog.getButton = (...args) => {
 
 AP.dialog.onDialogMessage = AP._hostModules.dialog.onDialogMessage = util.deprecateApi(registerHandler,
   'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '0.5');
+
+if(!AP.Dialog){
+  AP.Dialog = AP._hostModules.Dialog = AP.dialog;
+}
