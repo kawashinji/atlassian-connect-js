@@ -4559,10 +4559,18 @@ var DialogUtils = (function () {
   }, {
     key: '_header',
     value: function _header(text) {
-      if (typeof text === 'string') {
-        return text;
+      var headerText = '';
+      switch (typeof text) {
+        case 'string':
+          headerText = text;
+          break;
+
+        case 'object':
+          headerText = text.value;
+          break;
       }
-      return '';
+
+      return headerText;
     }
   }, {
     key: '_hint',
@@ -4805,7 +4813,6 @@ function getExtensionKey($target) {
 }
 
 // LEGACY: get module key by webitem for p2
-// ap-target-key is a dialog module thing
 function getKey($target) {
   var cssClass = $target.attr('class');
   var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;

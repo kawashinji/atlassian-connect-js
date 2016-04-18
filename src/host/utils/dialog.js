@@ -15,10 +15,18 @@ class DialogUtils {
   }
 
   _header(text){
-    if(typeof text === 'string'){
-      return text;
+    var headerText = '';
+    switch(typeof text) {
+        case 'string':
+        headerText = text;
+      break;
+
+        case 'object':
+        headerText = text.value;
+      break;
     }
-    return '';
+
+    return headerText;
   }
 
   _hint(text){

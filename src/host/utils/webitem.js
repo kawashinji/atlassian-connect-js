@@ -22,7 +22,6 @@ function getExtensionKey($target){
 }
 
 // LEGACY: get module key by webitem for p2
-// ap-target-key is a dialog module thing
 function getKey($target){
   var cssClass = $target.attr('class');
   var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
