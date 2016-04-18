@@ -266,35 +266,29 @@ var _dollar2 = _interopRequireDefault(_dollar);
  */
 var events = {};
 var ANY_PREFIX = '_any';
-if (window.AP && window.AP.register) {
-  window.AP.register({
-    _any: function _any(data, callback) {
-      var eventName = callback._context.eventName;
-      var any = events[ANY_PREFIX] || [];
-      var byName = events[eventName] || [];
+if (window.AP && window.AP.registerAny) {
+  window.AP.registerAny(function (data, callback) {
+    var eventName = callback._context.eventName;
+    var any = events[ANY_PREFIX] || [];
+    var byName = events[eventName] || [];
 
-      any.forEach(function (handler) {
-        //clone data before modifying
-        var args = [];
-        if (data) {
-          if (data.unshift) {
-            args = data.slice(0);
-            args.unshift(eventName);
-          } else {
-            args = [data];
-          }
-        }
-
-        args.push({
-          args: data,
-          name: eventName
-        });
-        handler.apply(null, args);
-      });
-      byName.forEach(function (handler) {
-        handler.apply(null, data);
-      });
+    if (!data.length) {
+      data = [data];
     }
+
+    any.forEach(function (handler) {
+      //clone data before modifying
+      var args = data.slice(0);
+      args.unshift(eventName);
+      args.push({
+        args: data,
+        name: eventName
+      });
+      handler.apply(null, args);
+    });
+    byName.forEach(function (handler) {
+      handler.apply(null, data);
+    });
   });
 }
 
