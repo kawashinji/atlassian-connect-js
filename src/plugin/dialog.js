@@ -1,4 +1,5 @@
 import util from './util';
+import events from './events';
 
 const getCustomData = util.deprecateApi(() => {
   return AP._data.options.customData;
@@ -14,17 +15,15 @@ Object.defineProperty(AP.dialog, 'customData', {
 
 const dialogHandlers = {};
 
-AP.register({
-  _any: (data, callback) => {
-    let dialogEventMatch = callback._context.eventName.match(/^dialog\.(\w+)$/);
-    if (dialogEventMatch) {
-      let dialogEvent = dialogEventMatch[1];
-      let handlers = dialogHandlers[dialogEvent];
-      if (handlers) {
-        handlers.forEach(cb => cb(data));
-      } else if (dialogEvent !== 'close') {
-        AP.dialog.close();
-      }
+events.onAny((name, args) => {
+  let dialogEventMatch = name.match(/^dialog\.(\w+)$/);
+  if (dialogEventMatch) {
+    let dialogEvent = dialogEventMatch[1];
+    let handlers = dialogHandlers[dialogEvent];
+    if (handlers) {
+      handlers.forEach(cb => cb(args));
+    } else if (dialogEvent !== 'close') {
+      AP.dialog.close();
     }
   }
 });

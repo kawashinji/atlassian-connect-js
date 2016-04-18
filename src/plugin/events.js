@@ -24,8 +24,14 @@ if(window.AP && window.AP.register){
       var byName = events[eventName] || [];
 
       any.forEach((handler) => {
-        //clone dataa before modifying
-        var args = data.slice(0);
+        //clone data before modifying
+        var args = [];
+        if(data) {
+          if(data.slice){
+            args = data.slice(0);
+          }
+        }
+
         args.unshift(eventName);
         args.push({
           args: data,

@@ -15,4 +15,3 @@ if(consumerOptions.get('sizeToParent') === true) {
 $.each(EventsModule, (i, method) => {
   AP._hostModules.events[i] = AP.events[i] = method;
 });
-

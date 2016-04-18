@@ -79,6 +79,10 @@ var _util = _dereq_('./util');
 
 var _util2 = _interopRequireDefault(_util);
 
+var _events = _dereq_('./events');
+
+var _events2 = _interopRequireDefault(_events);
+
 var getCustomData = _util2['default'].deprecateApi(function () {
   return AP._data.options.customData;
 }, 'AP.dialog.customData', 'AP.dialog.getCustomData()', '5.0');
@@ -92,19 +96,17 @@ Object.defineProperty(AP.dialog, 'customData', {
 
 var dialogHandlers = {};
 
-AP.register({
-  _any: function _any(data, callback) {
-    var dialogEventMatch = callback._context.eventName.match(/^dialog\.(\w+)$/);
-    if (dialogEventMatch) {
-      var dialogEvent = dialogEventMatch[1];
-      var handlers = dialogHandlers[dialogEvent];
-      if (handlers) {
-        handlers.forEach(function (cb) {
-          return cb(data);
-        });
-      } else if (dialogEvent !== 'close') {
-        AP.dialog.close();
-      }
+_events2['default'].onAny(function (name, args) {
+  var dialogEventMatch = name.match(/^dialog\.(\w+)$/);
+  if (dialogEventMatch) {
+    var dialogEvent = dialogEventMatch[1];
+    var handlers = dialogHandlers[dialogEvent];
+    if (handlers) {
+      handlers.forEach(function (cb) {
+        return cb(args);
+      });
+    } else if (dialogEvent !== 'close') {
+      AP.dialog.close();
     }
   }
 });
@@ -143,7 +145,7 @@ if (!AP.Dialog) {
   AP.Dialog = AP._hostModules.Dialog = AP.dialog;
 }
 
-},{"./util":6}],3:[function(_dereq_,module,exports){
+},{"./events":4,"./util":6}],3:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -272,8 +274,14 @@ if (window.AP && window.AP.register) {
       var byName = events[eventName] || [];
 
       any.forEach(function (handler) {
-        //clone dataa before modifying
-        var args = data.slice(0);
+        //clone data before modifying
+        var args = [];
+        if (data) {
+          if (data.slice) {
+            args = data.slice(0);
+          }
+        }
+
         args.unshift(eventName);
         args.push({
           args: data,
