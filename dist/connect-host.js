@@ -2687,6 +2687,10 @@ var _utilsWebitem = _dereq_('utils/webitem');
 
 var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
 
+var _utilsDialog = _dereq_('utils/dialog');
+
+var _utilsDialog2 = _interopRequireDefault(_utilsDialog);
+
 var _actionsDialog_extension_actions = _dereq_('actions/dialog_extension_actions');
 
 var _actionsDialog_extension_actions2 = _interopRequireDefault(_actionsDialog_extension_actions);
@@ -2721,8 +2725,11 @@ var DialogWebItem = (function () {
     }
   }, {
     key: '_dialogOptions',
-    value: function _dialogOptions($target) {
+    value: function _dialogOptions($target, extension) {
       var webitemOptions = _utilsWebitem2['default'].getOptionsForWebItem($target);
+      if (!webitemOptions) {
+        webitemOptions = _utilsDialog2['default'].getOptionsForModule(extension.addon_key, extension.key);
+      }
       return _underscore2['default'].extend({}, DEFAULT_WEBITEM_OPTIONS, webitemOptions);
     }
   }, {
@@ -2733,7 +2740,7 @@ var DialogWebItem = (function () {
         $target = $target.closest('.ap-dialog');
       }
       var webitemId = $target.data(WEBITEM_UID_KEY);
-      var dialogOptions = this._dialogOptions($target);
+      var dialogOptions = this._dialogOptions($target, data.extension);
       dialogOptions.id = webitemId;
       _actionsDialog_extension_actions2['default'].open(data.extension, dialogOptions);
     }
@@ -2764,7 +2771,7 @@ _actionsWebitem_actions2['default'].addWebItem(webitem);
 exports['default'] = dialogInstance;
 module.exports = exports['default'];
 
-},{"../underscore":38,"actions/dialog_extension_actions":7,"actions/webitem_actions":17,"dispatchers/event_dispatcher":30,"utils/webitem":44}],21:[function(_dereq_,module,exports){
+},{"../underscore":38,"actions/dialog_extension_actions":7,"actions/webitem_actions":17,"dispatchers/event_dispatcher":30,"utils/dialog":40,"utils/webitem":44}],21:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4633,6 +4640,15 @@ var DialogUtils = (function () {
       sanitized.size = this._size(sanitized);
 
       return sanitized;
+    }
+  }, {
+    key: 'getOptionsForModule',
+    value: function getOptionsForModule(addon_key, moduleKey) {
+      if (window._AP && window._AP.dialogModules && window._AP.dialogModules[addon_key] && window._AP.dialogModules[addon_key][moduleKey]) {
+        return window._AP.dialogModules[addon_key][moduleKey].options;
+      } else {
+        return {};
+      }
     }
   }]);
 

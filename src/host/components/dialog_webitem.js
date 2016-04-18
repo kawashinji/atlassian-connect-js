@@ -1,6 +1,7 @@
 import WebItemActions from 'actions/webitem_actions';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import WebItemUtils from 'utils/webitem';
+import dialogUtils from 'utils/dialog';
 import DialogExtensionActions from 'actions/dialog_extension_actions';
 import _ from '../underscore';
 
@@ -25,8 +26,11 @@ class DialogWebItem {
     return this._dialogWebItem;
   }
 
-  _dialogOptions($target){
+  _dialogOptions($target, extension){
     var webitemOptions = WebItemUtils.getOptionsForWebItem($target);
+    if(!webitemOptions){
+      webitemOptions = dialogUtils.getOptionsForModule(extension.addon_key, extension.key);
+    }
     return _.extend({}, DEFAULT_WEBITEM_OPTIONS, webitemOptions);
   }
 
@@ -36,7 +40,7 @@ class DialogWebItem {
       $target = $target.closest('.ap-dialog');
     }
     var webitemId = $target.data(WEBITEM_UID_KEY);
-    var dialogOptions = this._dialogOptions($target);
+    var dialogOptions = this._dialogOptions($target, data.extension);
     dialogOptions.id = webitemId;
     DialogExtensionActions.open(data.extension, dialogOptions);
   }

@@ -90,6 +90,18 @@ class DialogUtils {
 
     return sanitized;
   }
+
+  getOptionsForModule(addon_key, moduleKey){
+    if(window._AP
+      && window._AP.dialogModules
+      && window._AP.dialogModules[addon_key]
+      && window._AP.dialogModules[addon_key][moduleKey])
+    {
+      return window._AP.dialogModules[addon_key][moduleKey].options;
+    } else {
+      return {};
+    }
+  }
 }
 
 var dialogUtilsInstance = new DialogUtils();
