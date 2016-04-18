@@ -29,10 +29,12 @@ if(window.AP && window.AP.register){
         if(data) {
           if(data.slice){
             args = data.slice(0);
+            args.unshift(eventName);
+          } else {
+            args = [data];
           }
         }
 
-        args.unshift(eventName);
         args.push({
           args: data,
           name: eventName
