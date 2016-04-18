@@ -26,12 +26,8 @@ class DialogWebItem {
     return this._dialogWebItem;
   }
 
-  _dialogOptions(data){
-    var options = data.options;
-    if(!options) {
-      options = dialogUtils.getOptionsForModule(data.extension.addon_key, data.extension.key);
-    }
-   return _.extend({}, DEFAULT_WEBITEM_OPTIONS, options);
+  _dialogOptions(options){
+    return _.extend({}, DEFAULT_WEBITEM_OPTIONS, options || {});
   }
 
   triggered(data) {
@@ -40,7 +36,7 @@ class DialogWebItem {
       $target = $target.closest('.ap-dialog');
     }
     var webitemId = $target.data(WEBITEM_UID_KEY);
-    var dialogOptions = this._dialogOptions(data);
+    var dialogOptions = this._dialogOptions(data.extension.options);
     dialogOptions.id = webitemId;
     DialogExtensionActions.open(data.extension, dialogOptions);
   }

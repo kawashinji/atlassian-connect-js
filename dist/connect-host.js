@@ -2725,12 +2725,8 @@ var DialogWebItem = (function () {
     }
   }, {
     key: '_dialogOptions',
-    value: function _dialogOptions(data) {
-      var options = data.options;
-      if (!options) {
-        options = _utilsDialog2['default'].getOptionsForModule(data.extension.addon_key, data.extension.key);
-      }
-      return _underscore2['default'].extend({}, DEFAULT_WEBITEM_OPTIONS, options);
+    value: function _dialogOptions(options) {
+      return _underscore2['default'].extend({}, DEFAULT_WEBITEM_OPTIONS, options || {});
     }
   }, {
     key: 'triggered',
@@ -2740,7 +2736,7 @@ var DialogWebItem = (function () {
         $target = $target.closest('.ap-dialog');
       }
       var webitemId = $target.data(WEBITEM_UID_KEY);
-      var dialogOptions = this._dialogOptions(data);
+      var dialogOptions = this._dialogOptions(data.extension.options);
       dialogOptions.id = webitemId;
       _actionsDialog_extension_actions2['default'].open(data.extension, dialogOptions);
     }
@@ -4641,13 +4637,6 @@ var DialogUtils = (function () {
 
       return sanitized;
     }
-  }, {
-    key: 'getOptionsForModule',
-    value: function getOptionsForModule(addon_key, moduleKey) {
-      if (window._AP && window._AP.dialogModules && window._AP.dialogModules[addon_key] && window._AP.dialogModules[addon_key][moduleKey]) {
-        return window._AP.dialogModules[addon_key][moduleKey].options;
-      }
-    }
   }]);
 
   return DialogUtils;
@@ -4816,9 +4805,13 @@ function getExtensionKey($target) {
 }
 
 // LEGACY: get module key by webitem for p2
+// ap-target-key is a dialog module thing
 function getKey($target) {
   var cssClass = $target.attr('class');
-  var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
+  var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
+  if (!_underscore2['default'].isArray(m)) {
+    m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
+  }
   return _underscore2['default'].isArray(m) ? m[1] : false;
 }
 
@@ -4826,11 +4819,23 @@ function getFullKey($target) {
   return getExtensionKey($target) + '__' + getKey($target);
 }
 
+function getModuleOptionsForWebitem(type, $target) {
+  var addon_key = getExtensionKey($target);
+  var key = getKey($target);
+  var moduleType = type + 'Modules';
+  if (window._AP && window._AP[moduleType] && window._AP[moduleType][addon_key] && window._AP[moduleType][addon_key][key]) {
+    return window._AP[moduleType][addon_key][key].options;
+  }
+}
+
 // LEGACY - method for handling webitem options for p2
 function getOptionsForWebItem($target) {
   var fullKey = getFullKey($target);
   var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-  if (window._AP && window._AP[type + 'Options']) {
+  var moduleOptions = getModuleOptionsForWebitem(type, $target);
+  if (moduleOptions) {
+    return moduleOptions;
+  } else if (window._AP && window._AP[type + 'Options']) {
     return window._AP[type + 'Options'][fullKey] || {};
   } else {
     console.warn('no webitem ' + type + 'Options for ' + fullKey);
