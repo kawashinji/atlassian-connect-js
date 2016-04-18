@@ -3,6 +3,7 @@ import _ from '../underscore';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import WebItemActions from 'actions/webitem_actions';
 import WebItemUtils from 'utils/webitem';
+import urlUtils from 'utils/url';
 
 class WebItem {
 
@@ -55,13 +56,9 @@ class WebItem {
       var extension = {
           addon_key: WebItemUtils.getExtensionKey($target),
           key: WebItemUtils.getKey($target),
-          url: $target.attr('href'),
           options: WebItemUtils.getOptionsForWebItem($target)
         };
-      //webitems with relative urls must be resolved.
-      if(extension.url.substr(0,1) === '/') {
-        delete extension.url;
-      }
+
       WebItemActions.webitemInvoked(webitem, event, extension);
     };
     $(() => {

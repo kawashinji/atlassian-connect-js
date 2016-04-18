@@ -3490,6 +3490,10 @@ var _utilsWebitem = _dereq_('utils/webitem');
 
 var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
 
+var _utilsUrl = _dereq_('utils/url');
+
+var _utilsUrl2 = _interopRequireDefault(_utilsUrl);
+
 var WebItem = (function () {
   function WebItem() {
     _classCallCheck(this, WebItem);
@@ -3550,13 +3554,9 @@ var WebItem = (function () {
         var extension = {
           addon_key: _utilsWebitem2['default'].getExtensionKey($target),
           key: _utilsWebitem2['default'].getKey($target),
-          url: $target.attr('href'),
           options: _utilsWebitem2['default'].getOptionsForWebItem($target)
         };
-        //webitems with relative urls must be resolved.
-        if (extension.url.substr(0, 1) === '/') {
-          delete extension.url;
-        }
+
         _actionsWebitem_actions2['default'].webitemInvoked(webitem, event, extension);
       };
       (0, _dollar2['default'])(function () {
@@ -3581,7 +3581,7 @@ _dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-
 exports['default'] = webItemInstance;
 module.exports = exports['default'];
 
-},{"../dollar":31,"../underscore":38,"actions/webitem_actions":17,"dispatchers/event_dispatcher":30,"utils/webitem":44}],28:[function(_dereq_,module,exports){
+},{"../dollar":31,"../underscore":38,"actions/webitem_actions":17,"dispatchers/event_dispatcher":30,"utils/url":43,"utils/webitem":44}],28:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
