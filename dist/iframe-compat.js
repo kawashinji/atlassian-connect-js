@@ -277,7 +277,7 @@ if (window.AP && window.AP.register) {
         //clone data before modifying
         var args = [];
         if (data) {
-          if (data.slice) {
+          if (data.unshift) {
             args = data.slice(0);
             args.unshift(eventName);
           } else {
