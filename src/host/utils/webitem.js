@@ -25,10 +25,13 @@ function getExtensionKey($target){
 // ap-target-key is a dialog module thing
 function getKey($target){
   var cssClass = $target.attr('class');
+  var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
+  return _.isArray(m) ? m[1] : false;
+}
+
+function getTargetKey($target){
+  var cssClass = $target.attr('class');
   var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
-  if(!_.isArray(m)){
-    m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
-  }
   return _.isArray(m) ? m[1] : false;
 }
 
@@ -38,14 +41,14 @@ function getFullKey($target){
 
 function getModuleOptionsForWebitem(type, $target){
   var addon_key = getExtensionKey($target);
-  var key = getKey($target);
+  var targetKey = getTargetKey($target);
   var moduleType = type + 'Modules';
   if(window._AP
     && window._AP[moduleType]
     && window._AP[moduleType][addon_key]
-    && window._AP[moduleType][addon_key][key])
+    && window._AP[moduleType][addon_key][targetKey])
   {
-    return window._AP[moduleType][addon_key][key].options;
+    return window._AP[moduleType][addon_key][targetKey].options;
   }
 }
 
@@ -56,7 +59,7 @@ function getOptionsForWebItem($target) {
   var moduleOptions = getModuleOptionsForWebitem(type, $target);
   if(moduleOptions) {
     return moduleOptions;
-  }else if(window._AP && window._AP[type + 'Options']){
+  } else if(window._AP && window._AP[type + 'Options']){
     return window._AP[type + 'Options'][fullKey] || {};
   } else {
     console.warn('no webitem ' + type + 'Options for ' + fullKey);
