@@ -17,6 +17,7 @@ var minifyCSS = require('gulp-minify-css');
 var eslint = require('gulp-eslint');
 var merge = require('merge-stream');
 var argv = require('yargs').argv;
+var injectVersion = require('gulp-inject-version');
 var deployPath = argv.deployPath || '../atlassian-connect/jsapi/src/main/resources';
 
 function getTask(task) {
@@ -41,8 +42,9 @@ function build(entryModule, distModule, options) {
             .pipe(source(distModule + '.js'))
             .pipe(buffer())
             .pipe(sourcemaps.init({loadMaps: true}))
-                .pipe(derequire())
+            .pipe(derequire())
             .pipe(sourcemaps.write('./'))
+            .pipe(injectVersion())
             .pipe(gulp.dest('./dist'));
   }
 
