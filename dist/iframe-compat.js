@@ -272,7 +272,7 @@ if (window.AP && window.AP.registerAny) {
     var any = events[ANY_PREFIX] || [];
     var byName = events[eventName] || [];
 
-    if (!data.length) {
+    if (!Array.isArray(data)) {
       data = [data];
     }
 
@@ -286,6 +286,7 @@ if (window.AP && window.AP.registerAny) {
       });
       handler.apply(null, args);
     });
+
     byName.forEach(function (handler) {
       handler.apply(null, data);
     });
