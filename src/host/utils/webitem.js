@@ -40,7 +40,6 @@ function getOptionsForWebItem($target) {
     return window._AP[type + 'Options'][fullKey] || {};
   } else {
     console.warn('no webitem ' + type + 'Options for ' + fullKey);
-    return {};
   }
 }
 

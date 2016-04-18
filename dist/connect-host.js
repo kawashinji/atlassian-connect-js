@@ -2725,12 +2725,12 @@ var DialogWebItem = (function () {
     }
   }, {
     key: '_dialogOptions',
-    value: function _dialogOptions($target, extension) {
-      var webitemOptions = _utilsWebitem2['default'].getOptionsForWebItem($target);
-      if (!webitemOptions) {
-        webitemOptions = _utilsDialog2['default'].getOptionsForModule(extension.addon_key, extension.key);
+    value: function _dialogOptions(data) {
+      var options = data.options;
+      if (!options) {
+        options = _utilsDialog2['default'].getOptionsForModule(data.extension.addon_key, data.extension.key);
       }
-      return _underscore2['default'].extend({}, DEFAULT_WEBITEM_OPTIONS, webitemOptions);
+      return _underscore2['default'].extend({}, DEFAULT_WEBITEM_OPTIONS, options);
     }
   }, {
     key: 'triggered',
@@ -2740,7 +2740,7 @@ var DialogWebItem = (function () {
         $target = $target.closest('.ap-dialog');
       }
       var webitemId = $target.data(WEBITEM_UID_KEY);
-      var dialogOptions = this._dialogOptions($target, data.extension);
+      var dialogOptions = this._dialogOptions(data);
       dialogOptions.id = webitemId;
       _actionsDialog_extension_actions2['default'].open(data.extension, dialogOptions);
     }
@@ -4646,8 +4646,6 @@ var DialogUtils = (function () {
     value: function getOptionsForModule(addon_key, moduleKey) {
       if (window._AP && window._AP.dialogModules && window._AP.dialogModules[addon_key] && window._AP.dialogModules[addon_key][moduleKey]) {
         return window._AP.dialogModules[addon_key][moduleKey].options;
-      } else {
-        return {};
       }
     }
   }]);
@@ -4836,7 +4834,6 @@ function getOptionsForWebItem($target) {
     return window._AP[type + 'Options'][fullKey] || {};
   } else {
     console.warn('no webitem ' + type + 'Options for ' + fullKey);
-    return {};
   }
 }
 

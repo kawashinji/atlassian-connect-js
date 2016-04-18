@@ -98,8 +98,6 @@ class DialogUtils {
       && window._AP.dialogModules[addon_key][moduleKey])
     {
       return window._AP.dialogModules[addon_key][moduleKey].options;
-    } else {
-      return {};
     }
   }
 }
