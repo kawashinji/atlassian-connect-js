@@ -11,7 +11,7 @@ describe('Iframe container component', () => {
         url: 'https://www.example.com'
       };
       var createdExtension = IframeContainerComponent.createExtension(extension);
-      expect(createdExtension.hasClass('ap-container')).toBe(true);
+      expect(createdExtension.hasClass('ap-iframe-container')).toBe(true);
     });
   });
 

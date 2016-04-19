@@ -3,6 +3,12 @@ import DialogComponent from 'src/host/components/dialog';
 import EventActions from 'src/host/actions/event_actions';
 
 describe('Dialog module', () => {
+
+  afterEach(() => {
+    $('.aui-dialog2').remove();
+    $('.aui-blanket').remove();
+  });
+
   it('button click dispatches an event', () => {
     var extension = {
       addon_key: 'my-addon-key'

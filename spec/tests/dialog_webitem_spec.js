@@ -6,6 +6,11 @@ import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 
 
 describe('Dialog Webitem', () => {
+  afterEach(() => {
+    $('.aui-dialog2').remove();
+    $('.aui-blanket').remove();
+  });
+
   var webitemButton;
 
   beforeEach(() => {
@@ -32,9 +37,9 @@ describe('Dialog Webitem', () => {
       });
     });
 
-    it('contains and iframe', (done) => {
+    it('contains and iframe container', (done) => {
       EventDispatcher.registerOnce('after:webitem-invoked:dialog', function(){
-        expect($('.aui-dialog2 iframe').length).toBe(1);
+        expect($('.aui-dialog2 .ap-iframe-container').length).toBe(1);
         done();
       });
       $(function(){
