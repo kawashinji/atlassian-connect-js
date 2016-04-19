@@ -3,7 +3,6 @@ import _ from '../underscore';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import WebItemActions from 'actions/webitem_actions';
 import WebItemUtils from 'utils/webitem';
-import urlUtils from 'utils/url';
 
 class WebItem {
 

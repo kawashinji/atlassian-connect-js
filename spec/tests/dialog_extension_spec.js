@@ -18,6 +18,28 @@ describe('dialog extension component', () => {
       expect($('.aui-dialog2').length).toEqual(1);
     });
 
+    it('renders a dialog with a header', () => {
+      expect($('.aui-dialog2').length).toEqual(0);
+      var dialogOptions = {
+        header: {
+          value: 'abc123'
+        }
+      };
+
+      DialogExtensionComponent.render(extension, dialogOptions);
+      expect($('.aui-dialog2 .aui-dialog2-header-main').text()).toEqual(dialogOptions.header.value);
+    });
+
+    it('renders a dialog with a hint', () => {
+      expect($('.aui-dialog2').length).toEqual(0);
+      var dialogOptions = {
+        hint: 'abc123'
+      };
+
+      DialogExtensionComponent.render(extension, dialogOptions);
+      expect($('.aui-dialog2 .aui-dialog2-footer-hint').text()).toEqual(dialogOptions.hint);
+    });
+
     it('contains an iframe', () => {
       DialogExtensionComponent.render(extension);
       expect($('.aui-dialog2 iframe').length).toEqual(1);

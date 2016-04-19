@@ -2645,7 +2645,9 @@ var DialogExtension = (function () {
         chrome: dialogOptions.chrome,
         width: dialogOptions.width,
         height: dialogOptions.height,
-        size: dialogOptions.size
+        size: dialogOptions.size,
+        header: dialogOptions.header,
+        hint: dialogOptions.hint
       });
       return $dialog;
     }
@@ -3493,10 +3495,6 @@ var _utilsWebitem = _dereq_('utils/webitem');
 
 var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
 
-var _utilsUrl = _dereq_('utils/url');
-
-var _utilsUrl2 = _interopRequireDefault(_utilsUrl);
-
 var WebItem = (function () {
   function WebItem() {
     _classCallCheck(this, WebItem);
@@ -3584,7 +3582,7 @@ _dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-
 exports['default'] = webItemInstance;
 module.exports = exports['default'];
 
-},{"../dollar":31,"../underscore":38,"actions/webitem_actions":17,"dispatchers/event_dispatcher":30,"utils/url":43,"utils/webitem":44}],28:[function(_dereq_,module,exports){
+},{"../dollar":31,"../underscore":38,"actions/webitem_actions":17,"dispatchers/event_dispatcher":30,"utils/webitem":44}],28:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
