@@ -2647,7 +2647,9 @@ var DialogExtension = (function () {
         height: dialogOptions.height,
         size: dialogOptions.size,
         header: dialogOptions.header,
-        hint: dialogOptions.hint
+        hint: dialogOptions.hint,
+        submitText: dialogOptions.submitText,
+        cancelText: dialogOptions.cancelText
       });
       return $dialog;
     }
@@ -4016,9 +4018,9 @@ var _actionsEvent_actions = _dereq_('actions/event_actions');
 
 var _actionsEvent_actions2 = _interopRequireDefault(_actionsEvent_actions);
 
-var _componentsIframe_container = _dereq_('components/iframe_container');
+var _componentsDialog_extension = _dereq_('components/dialog_extension');
 
-var _componentsIframe_container2 = _interopRequireDefault(_componentsIframe_container);
+var _componentsDialog_extension2 = _interopRequireDefault(_componentsDialog_extension);
 
 var _util = _dereq_('../util');
 
@@ -4065,11 +4067,12 @@ var Dialog = function Dialog(options, callback) {
     chrome: !!options.chrome,
     header: options.header,
     hint: options.hint,
-    actions: options.actions
+    actions: options.actions,
+    submitText: options.submitText,
+    cancelText: options.cancelText
   };
 
   _actionsDialog_extension_actions2['default'].open(dialogExtension, dialogOptions);
-
   this.customData = options.customData;
   _dialogs[_id] = this;
 };
@@ -4166,7 +4169,7 @@ module.exports = {
   }
 };
 
-},{"../util":39,"actions/dialog_actions":6,"actions/dialog_extension_actions":7,"actions/event_actions":10,"components/iframe_container":23,"dispatchers/event_dispatcher":30}],34:[function(_dereq_,module,exports){
+},{"../util":39,"actions/dialog_actions":6,"actions/dialog_extension_actions":7,"actions/event_actions":10,"components/dialog_extension":19,"dispatchers/event_dispatcher":30}],34:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4544,12 +4547,14 @@ var DialogUtils = (function () {
   _createClass(DialogUtils, [{
     key: '_size',
     value: function _size(options) {
-      var size;
+      var size = options.size;
       if (options.size === 'x-large') {
         size = 'xlarge';
-      } else if (options.width === '100%' && options.height === '100%') {
+      }
+      if (options.width === '100%' && options.height === '100%') {
         size = 'fullscreen';
-      } else if (!options.width && !options.height) {
+      }
+      if (!options.size && !options.width && !options.height) {
         size = 'medium';
       }
       return size;

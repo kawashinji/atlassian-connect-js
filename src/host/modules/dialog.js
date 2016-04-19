@@ -2,7 +2,7 @@ import EventDispatcher from 'dispatchers/event_dispatcher';
 import DialogExtensionActions from 'actions/dialog_extension_actions';
 import DialogActions from 'actions/dialog_actions';
 import EventActions from 'actions/event_actions';
-import IframeContainer from 'components/iframe_container';
+import DialogExtensionComponent from 'components/dialog_extension';
 import util from '../util';
 
 const _dialogs = {};
@@ -45,11 +45,12 @@ class Dialog {
       chrome: !!options.chrome,
       header: options.header,
       hint: options.hint,
-      actions: options.actions
+      actions: options.actions,
+      submitText: options.submitText,
+      cancelText: options.cancelText
     };
 
     DialogExtensionActions.open(dialogExtension, dialogOptions);
-
     this.customData = options.customData;
     _dialogs[_id] = this;
   }

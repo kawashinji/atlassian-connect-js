@@ -3,12 +3,14 @@ import util from '../util';
 
 class DialogUtils {
   _size (options){
-    var size;
+    var size = options.size;
     if (options.size === 'x-large') {
       size = 'xlarge';
-    } else if (options.width === '100%' && options.height === '100%') {
+    }
+    if (options.width === '100%' && options.height === '100%') {
       size = 'fullscreen';
-    } else if (!options.width && !options.height) {
+    }
+    if (!options.size && !options.width && !options.height) {
       size = 'medium';
     }
     return size;
