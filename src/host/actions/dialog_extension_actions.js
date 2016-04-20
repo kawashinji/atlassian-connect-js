@@ -6,5 +6,8 @@ module.exports = {
       extension: extension,
       options: options
     });
+  },
+  close: () => {
+    EventDispatcher.dispatch('dialog-close-active', {});
   }
 };
