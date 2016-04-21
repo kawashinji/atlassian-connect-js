@@ -52,16 +52,13 @@ class WebItem {
     webitem._on = (event) => {
       event.preventDefault();
       var $target = $(event.target);
-      WebItemActions.webitemInvoked(
-        webitem,
-        event,
-        {
+      var extension = {
           addon_key: WebItemUtils.getExtensionKey($target),
           key: WebItemUtils.getKey($target),
-          url: $target.attr('href'),
           options: WebItemUtils.getOptionsForWebItem($target)
-        }
-      );
+        };
+
+      WebItemActions.webitemInvoked(webitem, event, extension);
     };
     $(() => {
       $('body').on(onTriggers, webitem.selector, webitem._on);

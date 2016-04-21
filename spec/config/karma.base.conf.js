@@ -37,7 +37,8 @@ module.exports = function(config) {
       cache: true,
       resolve: {
         alias: {
-          'src': path.join(__dirname, '../../src/')
+          'src': path.join(__dirname, '../../src/'),
+          'fixtures': path.join(__dirname, '../fixtures/'),
         }
       },
       module: {

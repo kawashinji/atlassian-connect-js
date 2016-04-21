@@ -1,22 +1,18 @@
 import $ from '../dollar';
-import IframeActions from 'actions/iframe_actions';
 import IframeComponent from 'components/iframe';
 import LoadingIndicatorComponent from 'components/loading_indicator';
+import EventDispatcher from 'dispatchers/event_dispatcher';
 
-const CONTAINER_CLASSES = ['ap-container'];
+const CONTAINER_CLASSES = ['ap-iframe-container'];
 
 class IframeContainer {
 
-  _createIframe(extension) {
-    return IframeComponent.simpleXdmExtension(extension);
-  }
-
   createExtension(extension, options) {
     var $container = this._renderContainer();
-    $container.append(this._createIframe(extension).$el);
     if(!options || options.loadingIndicator !== false){
       $container.append(this._renderLoadingIndicator());
     }
+    IframeComponent.simpleXdmExtension(extension, $container);
     return $container;
   }
 
@@ -33,5 +29,10 @@ class IframeContainer {
 }
 
 var IframeContainerComponent = new IframeContainer();
+
+EventDispatcher.register('iframe-create', (data) => {
+  var id = 'embedded-' + data.extension.id;
+  data.extension.$el.parents('.ap-iframe-container').attr('id', id);
+});
 
 export default IframeContainerComponent;

@@ -19,7 +19,7 @@ describe('Create', () => {
   it('returns an iframe container node', () => {
     var container = create(extensionConfig);
     expect(container.length).toEqual(1);
-    expect(container.hasClass('ap-container')).toBe(true);
+    expect(container.hasClass('ap-iframe-container')).toBe(true);
     expect(container.find('iframe').length).toEqual(1);
   });
 

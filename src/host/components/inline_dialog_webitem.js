@@ -63,12 +63,11 @@ class InlineDialogWebItem {
       return false;
     }
     contentRequest.then(function(content){
-      var contentData = JSON.parse(content);
-      contentData.options = {
+      content.options = {
         autoresize: true,
         widthinpx: true
       };
-      var addon = create(contentData);
+      var addon = create(content);
       data.$el.empty().append(addon);
     });
   }

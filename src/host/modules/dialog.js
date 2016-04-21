@@ -2,7 +2,7 @@ import EventDispatcher from 'dispatchers/event_dispatcher';
 import DialogExtensionActions from 'actions/dialog_extension_actions';
 import DialogActions from 'actions/dialog_actions';
 import EventActions from 'actions/event_actions';
-import IframeContainer from 'components/iframe_container';
+import DialogExtensionComponent from 'components/dialog_extension';
 import util from '../util';
 
 const _dialogs = {};
@@ -26,17 +26,17 @@ class Dialog {
   constructor(options, callback) {
     const _id = callback._id;
     const extension = callback._context.extension;
+
     var dialogExtension = {
       addon_key: extension.addon_key,
       key: options.key,
-      options: {
-        width: options.width,
-        height: options.height,
-        // ACJS-185: the following is a really bad idea but we need it
-        // for compat until AP.dialog.customData has been deprecated
-        customData: options.customData
-      }
+      options: extension.options
     };
+
+    // ACJS-185: the following is a really bad idea but we need it
+    // for compat until AP.dialog.customData has been deprecated
+    dialogExtension.options.customData = options.customData;
+
     var dialogOptions = {
       id: _id,
       size: options.size,
@@ -45,11 +45,12 @@ class Dialog {
       chrome: !!options.chrome,
       header: options.header,
       hint: options.hint,
-      actions: options.actions
+      actions: options.actions,
+      submitText: options.submitText,
+      cancelText: options.cancelText
     };
 
     DialogExtensionActions.open(dialogExtension, dialogOptions);
-
     this.customData = options.customData;
     _dialogs[_id] = this;
   }

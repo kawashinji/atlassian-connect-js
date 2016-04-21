@@ -15,7 +15,11 @@ class DialogExtension {
       chrome:     dialogOptions.chrome,
       width:      dialogOptions.width,
       height:     dialogOptions.height,
-      size:       dialogOptions.size
+      size:       dialogOptions.size,
+      header:     dialogOptions.header,
+      hint:       dialogOptions.hint,
+      submitText: dialogOptions.submitText,
+      cancelText: dialogOptions.cancelText
     });
     return $dialog;
   }

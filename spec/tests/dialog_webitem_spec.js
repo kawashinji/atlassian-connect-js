@@ -3,12 +3,21 @@ import WebItem from 'src/host/components/webitem';
 import WebItemActions from 'src/host/actions/webitem_actions';
 import DialogExtension from 'src/host/components/dialog_extension';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
-
+import baseDialogComponentTests from 'fixtures/base_dialog_component_tests';
 
 describe('Dialog Webitem', () => {
+  afterEach(() => {
+    $('.aui-dialog2').remove();
+    $('.aui-blanket').remove();
+  });
+
   var webitemButton;
 
   beforeEach(() => {
+    window._AP = {
+      dialogOptions: {}
+    };
+
     $('.aui-dialog2').remove();
     webitemButton = $('<a />').attr('href', 'https://www.example.com');
     webitemButton.text('i am a webitem');
@@ -17,6 +26,7 @@ describe('Dialog Webitem', () => {
   });
 
   afterEach(() => {
+    window._AP = {};
     webitemButton.remove();
   });
 
@@ -32,9 +42,9 @@ describe('Dialog Webitem', () => {
       });
     });
 
-    it('contains and iframe', (done) => {
+    it('contains and iframe container', (done) => {
       EventDispatcher.registerOnce('after:webitem-invoked:dialog', function(){
-        expect($('.aui-dialog2 iframe').length).toBe(1);
+        expect($('.aui-dialog2 .ap-iframe-container').length).toBe(1);
         done();
       });
       $(function(){
@@ -42,6 +52,75 @@ describe('Dialog Webitem', () => {
       });
     });
 
+    it('chromed dialog', (done) => {
+      var extension = {
+        addon_key: 'my-plugin',
+        key: 'key'
+      };
+      var options = baseDialogComponentTests.getChromeOptions();
+      window._AP.dialogOptions[extension.addon_key + '__' + extension.key] = options;
+      EventDispatcher.registerOnce('after:webitem-invoked:dialog', function(){
+        baseDialogComponentTests.testChrome(options);
+        done();
+      });
+      $(function(){
+        $('.ap-dialog').click();
+      });
+    });
+
+    it('renders a chromed dialog with dimensions', (done) => {
+      var extension = {
+        addon_key: 'my-plugin',
+        key: 'key'
+      };
+      var options = baseDialogComponentTests.getChromeOptions();
+      delete options.size;
+      options.width = '123px';
+      options.height = '100px';
+      window._AP.dialogOptions[extension.addon_key + '__' + extension.key] = options;
+      EventDispatcher.registerOnce('after:webitem-invoked:dialog', function(){
+        baseDialogComponentTests.testChrome(options);
+        done();
+      });
+      $(function(){
+        $('.ap-dialog').click();
+      });
+    });
+
+    it('renders a chromeless dialog', (done) => {
+      var extension = {
+        addon_key: 'my-plugin',
+        key: 'key'
+      };
+      var options = baseDialogComponentTests.getChromelessOptions();
+      window._AP.dialogOptions[extension.addon_key + '__' + extension.key] = options;
+      EventDispatcher.registerOnce('after:webitem-invoked:dialog', function(){
+        baseDialogComponentTests.testChromeless(options);
+        done();
+      });
+      $(function(){
+        $('.ap-dialog').click();
+      });
+    });
+
+    it('renders a chromeless dialog with dimensions', (done) => {
+        var extension = {
+          addon_key: 'my-plugin',
+          key: 'key'
+        };
+        var options = baseDialogComponentTests.getChromelessOptions();
+        delete options.size;
+        options.width = '123px';
+        options.height = '100px';
+        window._AP.dialogOptions[extension.addon_key + '__' + extension.key] = options;
+        EventDispatcher.registerOnce('after:webitem-invoked:dialog', function(){
+          baseDialogComponentTests.testChromeless(options);
+          done();
+        });
+        $(function(){
+          $('.ap-dialog').click();
+        });
+    });
   });
 
   describe('triggers', () => {

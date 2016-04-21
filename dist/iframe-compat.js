@@ -79,6 +79,10 @@ var _util = _dereq_('./util');
 
 var _util2 = _interopRequireDefault(_util);
 
+var _events = _dereq_('./events');
+
+var _events2 = _interopRequireDefault(_events);
+
 var getCustomData = _util2['default'].deprecateApi(function () {
   return AP._data.options.customData;
 }, 'AP.dialog.customData', 'AP.dialog.getCustomData()', '5.0');
@@ -92,19 +96,17 @@ Object.defineProperty(AP.dialog, 'customData', {
 
 var dialogHandlers = {};
 
-AP.register({
-  _any: function _any(data, callback) {
-    var dialogEventMatch = callback._context.eventName.match(/^dialog\.(\w+)$/);
-    if (dialogEventMatch) {
-      var dialogEvent = dialogEventMatch[1];
-      var handlers = dialogHandlers[dialogEvent];
-      if (handlers) {
-        handlers.forEach(function (cb) {
-          return cb(data);
-        });
-      } else if (dialogEvent !== 'close') {
-        AP.dialog.close();
-      }
+_events2['default'].onAny(function (name, args) {
+  var dialogEventMatch = name.match(/^dialog\.(\w+)$/);
+  if (dialogEventMatch) {
+    var dialogEvent = dialogEventMatch[1];
+    var handlers = dialogHandlers[dialogEvent];
+    if (handlers) {
+      handlers.forEach(function (cb) {
+        return cb(args);
+      });
+    } else if (dialogEvent !== 'close') {
+      AP.dialog.close();
     }
   }
 });
@@ -139,7 +141,11 @@ AP.dialog.getButton = AP._hostModules.dialog.getButton = function () {
 
 AP.dialog.onDialogMessage = AP._hostModules.dialog.onDialogMessage = _util2['default'].deprecateApi(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '0.5');
 
-},{"./util":6}],3:[function(_dereq_,module,exports){
+if (!AP.Dialog) {
+  AP.Dialog = AP._hostModules.Dialog = AP.dialog;
+}
+
+},{"./events":4,"./util":6}],3:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -260,27 +266,30 @@ var _dollar2 = _interopRequireDefault(_dollar);
  */
 var events = {};
 var ANY_PREFIX = '_any';
-if (window.AP && window.AP.register) {
-  window.AP.register({
-    _any: function _any(data, callback) {
-      var eventName = callback._context.eventName;
-      var any = events[ANY_PREFIX] || [];
-      var byName = events[eventName] || [];
+if (window.AP && window.AP.registerAny) {
+  window.AP.registerAny(function (data, callback) {
+    var eventName = callback._context.eventName;
+    var any = events[ANY_PREFIX] || [];
+    var byName = events[eventName] || [];
 
-      any.forEach(function (handler) {
-        //clone dataa before modifying
-        var args = data.slice(0);
-        args.unshift(eventName);
-        args.push({
-          args: data,
-          name: eventName
-        });
-        handler.apply(null, args);
-      });
-      byName.forEach(function (handler) {
-        handler.apply(null, data);
-      });
+    if (!Array.isArray(data)) {
+      data = [data];
     }
+
+    any.forEach(function (handler) {
+      //clone data before modifying
+      var args = data.slice(0);
+      args.unshift(eventName);
+      args.push({
+        args: data,
+        name: eventName
+      });
+      handler.apply(null, args);
+    });
+
+    byName.forEach(function (handler) {
+      handler.apply(null, data);
+    });
   });
 }
 

@@ -28,15 +28,40 @@ function getKey($target){
   return _.isArray(m) ? m[1] : false;
 }
 
+function getTargetKey($target){
+  var cssClass = $target.attr('class');
+  var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
+  return _.isArray(m) ? m[1] : false;
+}
+
+function getFullKey($target){
+  return getExtensionKey($target) + '__' + getKey($target);
+}
+
+function getModuleOptionsForWebitem(type, $target){
+  var addon_key = getExtensionKey($target);
+  var targetKey = getTargetKey($target);
+  var moduleType = type + 'Modules';
+  if(window._AP
+    && window._AP[moduleType]
+    && window._AP[moduleType][addon_key]
+    && window._AP[moduleType][addon_key][targetKey])
+  {
+    return window._AP[moduleType][addon_key][targetKey].options;
+  }
+}
+
 // LEGACY - method for handling webitem options for p2
 function getOptionsForWebItem($target) {
-  var moduleKey = getKey($target);
+  var fullKey = getFullKey($target);
   var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-  if(window._AP && window._AP[type + 'Options']){
-    return window._AP[type + 'Options'][moduleKey] || {};
+  var moduleOptions = getModuleOptionsForWebitem(type, $target);
+  if(moduleOptions) {
+    return moduleOptions;
+  } else if(window._AP && window._AP[type + 'Options']){
+    return window._AP[type + 'Options'][fullKey] || {};
   } else {
-    console.warn('no webitem ' + type + 'Options for ' + moduleKey);
-    return {};
+    console.warn('no webitem ' + type + 'Options for ' + fullKey);
   }
 }
 

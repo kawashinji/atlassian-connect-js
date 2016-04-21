@@ -75,40 +75,33 @@ describe('Iframe component', () => {
     });
   });
 
-  describe('simpleXdmExtension', () => {
-    beforeEach(() => {
-      IframeComponent._contentResolver = false;
-    });
-
-    it('returns an iframe', () => {
-      var extension = {
-        addon_key: 'some-addon-key',
-        key: 'some-module-key',
-        url: 'https://www.example.com'
-      };
-      var simpleExtension = IframeComponent.simpleXdmExtension(extension);
-      expect(simpleExtension.$el[0].nodeName).toEqual("IFRAME");
-    });
-
+  describe('_simpleXdmCreate', () => {
     it('returns an ID', () => {
       var extension = {
         addon_key: 'some-addon-key',
         key: 'some-module-key',
         url: 'https://www.example.com'
       };
-      var simpleExtension = IframeComponent.simpleXdmExtension(extension);
+      var simpleExtension = IframeComponent._simpleXdmCreate(extension);
       expect(simpleExtension.id).toEqual(jasmine.stringMatching(new RegExp('^' + extension.addon_key + '__' + extension.key)));
     });
+  });
 
-    it('iframe is immediately created', () => {
+
+  describe('simpleXdmExtension', () => {
+    beforeEach(() => {
+      IframeComponent._contentResolver = false;
+    });
+
+    it('appends an iframe', () => {
       var extension = {
         addon_key: 'some-addon-key',
         key: 'some-module-key',
         url: 'https://www.example.com'
       };
-      var createdExtension = IframeComponent.simpleXdmExtension(extension);
-      expect(createdExtension.$el[0].nodeName).toEqual('IFRAME');
-      expect(createdExtension.$el.attr('src')).toEqual(extension.url);
+      var $container = $('<div />');
+      var simpleExtension = IframeComponent.simpleXdmExtension(extension, $container);
+      expect($container.find('iframe').length).toEqual(1);
     });
 
     it('JWT url', () => {
@@ -117,11 +110,12 @@ describe('Iframe component', () => {
         key: 'some-module-key',
         url: 'https://www.example.com?jwt=abc123'
       };
+      var $container = $('<div />');
       spyOn(urlUtil,'hasJwt').and.returnValue(true);
       spyOn(urlUtil,'isJwtExpired').and.returnValue(false);
-      var createdExtension = IframeComponent.simpleXdmExtension(extension);
-      expect(createdExtension.$el[0].nodeName).toEqual('IFRAME');
-      expect(createdExtension.$el.attr('src')).toEqual(extension.url);
+      IframeComponent.simpleXdmExtension(extension, $container);
+      expect($container.find('iframe').length).toEqual(1);
+      expect($container.find('iframe').attr('src')).toEqual(extension.url);
     });
 
     it('expired JWT', () => {
@@ -132,40 +126,43 @@ describe('Iframe component', () => {
         url: 'https://www.example.com?jwt=abc123',
         id: 'some-id'
       };
+      var $container = $('<div />');
+
       spyOn(urlUtil,'hasJwt').and.returnValue(true);
       spyOn(urlUtil,'isJwtExpired').and.returnValue(true);
 
-      var createdExtension = IframeComponent.simpleXdmExtension(extension);
-      expect(createdExtension.$el[0].nodeName).toEqual('IFRAME');
-      expect(createdExtension.$el.attr('src')).toEqual(undefined);
+      var createdExtension = IframeComponent.simpleXdmExtension($container, extension);
+      expect($container.find('iframe').length).toEqual(0);
     });
 
     it('triggers an event on bridge established', (done) => {
       var extension = {
         addon_key: 'some-addon-key',
         key: 'some-module-key',
-        url: 'https://www.example.com'
+        url: 'https://www.example2.com'
       };
+      var $container = $('<div />');
+
       EventDispatcher.registerOnce('iframe-bridge-estabilshed', (data) => {
         expect(data.$el[0].nodeName).toEqual("IFRAME");
         expect(data.extension).toEqual(extension);
         done();
       });
       var spy = spyOn(simpleXDM, 'create').and.returnValue({id: 'abc123'});
-      IframeComponent.simpleXdmExtension(extension);
+      IframeComponent.simpleXdmExtension(extension, $container);
       setTimeout(function(){
         spy.calls.first().args[1]();
-      }, 100);
+      }, 300);
     });
 
   });
 
-  it('_renderIframe returns an iframe with attributes', () => {
+  it('render returns an iframe with attributes', () => {
     var attributes = {
       width: '123',
       custom: 'somethingelse'
     };
-    var $iframe = IframeComponent._renderIframe(attributes);
+    var $iframe = IframeComponent.render(attributes);
     expect($iframe.attr('width')).toEqual(attributes.width);
     expect($iframe.attr('custom')).toEqual(attributes.custom);
     expect($iframe[0].nodeName).toEqual('IFRAME');

@@ -10,7 +10,10 @@ export default {
     callback(window.location.href);
   },
   resize: debounce(function(width, height, callback) {
-    EnvActions.iframeResize(width, height, callback._context);
+    var options = callback._context.extension.options;
+    if (options && !options.isDialog){
+      EnvActions.iframeResize(width, height, callback._context);
+    }
   }),
 
   sizeToParent: debounce(function (callback) {
@@ -25,7 +28,7 @@ export default {
     } else {
       // This is only here to support integration testing
       // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-      $(this.iframe).addClass('full-size-general-page-fail');
+      util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
     }
   })
 };
