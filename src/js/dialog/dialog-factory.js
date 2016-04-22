@@ -34,7 +34,8 @@
 
             var createdDialog = dialog.create({
                 id: options.id,
-                ns: options.moduleKey || options.key,
+                key: options.key,
+                moduleKey: options.moduleKey,
                 chrome: chrome,
                 header: dialogOptions.header,
                 width: dialogOptions.width,
