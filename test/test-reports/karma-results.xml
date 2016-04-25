@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<testsuite name="Firefox 45.0.0 (Mac OS X 10.10.0)" package="" timestamp="2016-04-19T13:51:03" id="0" hostname="cwhittington" tests="82" errors="0" failures="0" time="0.711">
+  <properties>
+    <property name="browser.fullName" value="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:45.0) Gecko/20100101 Firefox/45.0"/>
+  </properties>
+  <testcase name="Analytics Dispatcher trackLoadingStarted stores the time" time="0.001" classname="Analytics Dispatcher"/>
+  <testcase name="Analytics Dispatcher trackLoadingEnded triggers iframe.performance.load" time="0.001" classname="Analytics Dispatcher"/>
+  <testcase name="Analytics Dispatcher trackLoadingTimeout triggers iframe.performance.timeout" time="0" classname="Analytics Dispatcher"/>
+  <testcase name="Analytics Dispatcher trackLoadingCancel triggers iframe.performance.cancel" time="0.001" classname="Analytics Dispatcher"/>
+  <testcase name="Analytics Dispatcher dispatch runs _track" time="0" classname="Analytics Dispatcher"/>
+  <testcase name="Create returns an iframe container node" time="0.006" classname="Create"/>
+  <testcase name="Create iframe has attribute src" time="0" classname="Create"/>
+  <testcase name="Create iframe has attribute id" time="0" classname="Create"/>
+  <testcase name="Create iframe has attribute name" time="0.001" classname="Create"/>
+  <testcase name="dialog extension component render renders a chromeless dialog" time="0.023" classname="dialog extension component"/>
+  <testcase name="dialog extension component render renders a dialog with chrome" time="0.015" classname="dialog extension component"/>
+  <testcase name="dialog extension component render contains an iframe" time="0.015" classname="dialog extension component"/>
+  <testcase name="Dialog module renders a chromed dialog" time="0.014" classname="Dialog module"/>
+  <testcase name="Dialog module renders a chromed dialog with dimensions" time="0.016" classname="Dialog module"/>
+  <testcase name="Dialog module renders a chromeless dialog" time="0.014" classname="Dialog module"/>
+  <testcase name="Dialog module renders a chromeless dialog with dimensions" time="0.008" classname="Dialog module"/>
+  <testcase name="Dialog module button click dispatches an event" time="0.013" classname="Dialog module"/>
+  <testcase name="dialog component render renders a dialog" time="0.008" classname="dialog component"/>
+  <testcase name="dialog component render contains content" time="0.007" classname="dialog component"/>
+  <testcase name="dialog component render is size medium by default" time="0.009" classname="dialog component"/>
+  <testcase name="dialog component render chrome renders a chromed dialog by default" time="0.007" classname="dialog component"/>
+  <testcase name="dialog component render chrome iframe dimensions should be the opened dimensions" time="0.008" classname="dialog component"/>
+  <testcase name="dialog component render chrome footer renders" time="0.001" classname="dialog component"/>
+  <testcase name="dialog component render chrome footer has a hint" time="0.001" classname="dialog component"/>
+  <testcase name="dialog component render chrome footer has actions" time="0" classname="dialog component"/>
+  <testcase name="dialog component render chrome footer triggers when buttons are clicked" time="0" classname="dialog component"/>
+  <testcase name="dialog component render chrome header renders" time="0.001" classname="dialog component"/>
+  <testcase name="dialog component render chrome header adds header text" time="0.001" classname="dialog component"/>
+  <testcase name="dialog component render chrome header has a close button" time="0.001" classname="dialog component"/>
+  <testcase name="dialog component render chromeless does not have chrome" time="0.002" classname="dialog component"/>
+  <testcase name="dialog component render chromeless iframe dimensions should be the opened dimensions" time="0.02" classname="dialog component"/>
+  <testcase name="Dialog Webitem rendering renders a dialog" time="0.017" classname="Dialog Webitem"/>
+  <testcase name="Dialog Webitem rendering contains and iframe container" time="0.011" classname="Dialog Webitem"/>
+  <testcase name="Dialog Webitem rendering chromed dialog" time="0.014" classname="Dialog Webitem"/>
+  <testcase name="Dialog Webitem rendering renders a chromed dialog with dimensions" time="0.014" classname="Dialog Webitem"/>
+  <testcase name="Dialog Webitem rendering renders a chromeless dialog" time="0.008" classname="Dialog Webitem"/>
+  <testcase name="Dialog Webitem rendering renders a chromeless dialog with dimensions" time="0.01" classname="Dialog Webitem"/>
+  <testcase name="Dialog Webitem triggers is set to be triggered by click" time="0.001" classname="Dialog Webitem"/>
+  <testcase name="Dialog Webitem triggers responds to a click event" time="0.003" classname="Dialog Webitem"/>
+  <testcase name="flag api module should return the flag api the correct methods" time="0.001" classname="flag api module"/>
+  <testcase name="flag api module constructor should create a flag" time="0.007" classname="flag api module"/>
+  <testcase name="flag api module close should close the flag" time="0.003" classname="flag api module"/>
+  <testcase name="flag api module on close should set an event hanler" time="0.011" classname="flag api module"/>
+  <testcase name="Flag Component close the flag returns a close method" time="0.008" classname="Flag Component"/>
+  <testcase name="Flag Component close the close action closes the flag" time="0.007" classname="Flag Component"/>
+  <testcase name="Flag Component close the close action closes the correct flag when multiple flags are open" time="0.008" classname="Flag Component"/>
+  <testcase name="Flag Component rendering renders a flag" time="0.006" classname="Flag Component"/>
+  <testcase name="Flag Component rendering renders a html body" time="0.006" classname="Flag Component"/>
+  <testcase name="Flag Component rendering renders a html body from jQuery" time="0.007" classname="Flag Component"/>
+  <testcase name="Flag Component rendering renders a plain text title" time="0.006" classname="Flag Component"/>
+  <testcase name="Flag Component rendering escapes a html title" time="0.005" classname="Flag Component"/>
+  <testcase name="Flag Component rendering escapes a jQuery title" time="0.005" classname="Flag Component"/>
+  <testcase name="Iframe container component createExtension returns a container" time="0.004" classname="Iframe container component"/>
+  <testcase name="Iframe component resize sets dimensions" time="0.002" classname="Iframe component"/>
+  <testcase name="Iframe component resize sets dimensions by %" time="0" classname="Iframe component"/>
+  <testcase name="Iframe component resize triggers a resized dom event" time="0.005" classname="Iframe component"/>
+  <testcase name="Iframe component resize is triggered by a iframe-resize event" time="0.001" classname="Iframe component"/>
+  <testcase name="Iframe component content resolver setContentResolver sets the content resolver" time="0.001" classname="Iframe component"/>
+  <testcase name="Iframe component content resolver sets the content resolver when content-resolver-register-by-extension is triggered" time="0" classname="Iframe component"/>
+  <testcase name="Iframe component _simpleXdmCreate returns an ID" time="0.001" classname="Iframe component"/>
+  <testcase name="Iframe component simpleXdmExtension appends an iframe" time="0" classname="Iframe component"/>
+  <testcase name="Iframe component simpleXdmExtension JWT url" time="0" classname="Iframe component"/>
+  <testcase name="Iframe component simpleXdmExtension expired JWT" time="0.001" classname="Iframe component"/>
+  <testcase name="Iframe component simpleXdmExtension triggers an event on bridge established" time="0.306" classname="Iframe component"/>
+  <testcase name="Iframe component render returns an iframe with attributes" time="0" classname="Iframe component"/>
+  <testcase name="Inline Dialog Component rendering renders an inline dialog" time="0.003" classname="Inline Dialog Component"/>
+  <testcase name="Inline Dialog Component rendering contains the inline dialog content" time="0.003" classname="Inline Dialog Component"/>
+  <testcase name="Inline Dialog Webitem getWebItem returns a webitem compatible object" time="0.001" classname="Inline Dialog Webitem"/>
+  <testcase name="Inline Dialog Webitem rendering renders an inline dialog" time="0.015" classname="Inline Dialog Webitem"/>
+  <testcase name="Inline Dialog Webitem triggers is set to be triggered by hover and click" time="0.001" classname="Inline Dialog Webitem"/>
+  <testcase name="Inline Dialog Webitem triggers responds to a click event" time="0.002" classname="Inline Dialog Webitem"/>
+  <testcase name="Inline Dialog Webitem triggers responds to a mouseover event" time="0.001" classname="Inline Dialog Webitem"/>
+  <testcase name="Loading indicator component will render" time="0.002" classname="Loading indicator component"/>
+  <testcase name="Loading indicator component will hide" time="0.003" classname="Loading indicator component"/>
+  <testcase name="Loading indicator component will timeout" time="0.003" classname="Loading indicator component"/>
+  <testcase name="Loading indicator component will cancel" time="0.002" classname="Loading indicator component"/>
+  <testcase name="webitem component content resolver contains a default content resolver" time="0" classname="webitem component"/>
+  <testcase name="webitem component content resolver setContentResolver sets a content resolver" time="0.001" classname="webitem component"/>
+  <testcase name="webitem component content resolver requestContent calls the content resolver" time="0" classname="webitem component"/>
+  <testcase name="webitem component content resolver requestContent returns the content resolver return" time="0" classname="webitem component"/>
+  <testcase name="webitem component setWebItem adds a webitem to the list" time="0.001" classname="webitem component"/>
+  <testcase name="webitem component getWebItemsBySelector returns webitems that match the specified selector" time="0" classname="webitem component"/>
+  <system-out>
+    <![CDATA[Chrome 50.0.2661 (Mac OS X 10.10.5) ERROR: 'JWT is expired and no content resolver was specified'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) ERROR: 'JWT is expired and no content resolver was specified'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) ERROR: 'JWT is expired and no content resolver was specified'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) ERROR: 'JWT is expired and no content resolver was specified'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) ERROR: 'JWT is expired and no content resolver was specified'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) ERROR: 'JWT is expired and no content resolver was specified'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) ERROR: 'JWT is expired and no content resolver was specified'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) ERROR: 'JWT is expired and no content resolver was specified'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) ERROR: 'JWT is expired and no content resolver was specified'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) ERROR: 'JWT is expired and no content resolver was specified'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) ERROR: 'JWT is expired and no content resolver was specified'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) WARN: 'DEPRECATED - Inline dialog constructor has been deprecated and will be removed in a future release. Use inline dialog 2 instead.  
+     at InlineDialog.render (http://localhost:9876/base/spec/tests/inline_dialog_spec.js?f434cb57a63cbc89ddf8b47e6b01a1122b02ad12:665:22)'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) WARN: 'no webitem inlineDialogOptions for my-plugin__key'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) ERROR: 'JWT is expired and no content resolver was specified'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) WARN: 'DEPRECATED - Inline dialog constructor has been deprecated and will be removed in a future release. Use inline dialog 2 instead.  
+     at InlineDialog.render (http://localhost:9876/base/spec/tests/inline_dialog_webitem_spec.js?fc85197af45126d9b648aba93ef23b771134e07f:3315:22)'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) WARN: 'no content resolver found'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) WARN: 'DEPRECATED - DisplayAbove has been deprecated and will be removed in a future release. 
+     at https://aui-cdn.atlassian.com/aui-adg/5.7.31/js/aui.js:7247:27'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) WARN: 'no webitem inlineDialogOptions for my-plugin__key'
+,Chrome 50.0.2661 (Mac OS X 10.10.5) WARN: 'no webitem inlineDialogOptions for my-plugin__key'
+,Firefox 45.0.0 (Mac OS X 10.10.0) ERROR: 'JWT is expired and no content resolver was specified'
+,Firefox 45.0.0 (Mac OS X 10.10.0) ERROR: 'JWT is expired and no content resolver was specified'
+,Firefox 45.0.0 (Mac OS X 10.10.0) ERROR: 'JWT is expired and no content resolver was specified'
+,Firefox 45.0.0 (Mac OS X 10.10.0) ERROR: 'JWT is expired and no content resolver was specified'
+,Firefox 45.0.0 (Mac OS X 10.10.0) ERROR: 'JWT is expired and no content resolver was specified'
+,Firefox 45.0.0 (Mac OS X 10.10.0) ERROR: 'JWT is expired and no content resolver was specified'
+,Firefox 45.0.0 (Mac OS X 10.10.0) ERROR: 'JWT is expired and no content resolver was specified'
+,Firefox 45.0.0 (Mac OS X 10.10.0) ERROR: 'JWT is expired and no content resolver was specified'
+,Firefox 45.0.0 (Mac OS X 10.10.0) ERROR: 'JWT is expired and no content resolver was specified'
+,Firefox 45.0.0 (Mac OS X 10.10.0) ERROR: 'JWT is expired and no content resolver was specified'
+,Firefox 45.0.0 (Mac OS X 10.10.0) ERROR: 'JWT is expired and no content resolver was specified'
+,Firefox 45.0.0 (Mac OS X 10.10.0) WARN: 'DEPRECATED - Inline dialog constructor has been deprecated and will be removed in a future release. Use inline dialog 2 instead.  
+ render@http://localhost:9876/base/spec/tests/inline_dialog_spec.js?f434cb57a63cbc89ddf8b47e6b01a1122b02ad12:665:18'
+,Firefox 45.0.0 (Mac OS X 10.10.0) WARN: 'no webitem inlineDialogOptions for my-plugin__key'
+,Firefox 45.0.0 (Mac OS X 10.10.0) ERROR: 'JWT is expired and no content resolver was specified'
+,Firefox 45.0.0 (Mac OS X 10.10.0) WARN: 'DEPRECATED - Inline dialog constructor has been deprecated and will be removed in a future release. Use inline dialog 2 instead.  
+ render@http://localhost:9876/base/spec/tests/inline_dialog_webitem_spec.js?fc85197af45126d9b648aba93ef23b771134e07f:3315:18'
+,Firefox 45.0.0 (Mac OS X 10.10.0) WARN: 'no content resolver found'
+,Firefox 45.0.0 (Mac OS X 10.10.0) WARN: 'DEPRECATED - DisplayAbove has been deprecated and will be removed in a future release. 
+ AJS.InlineDialog/showPopup/showTimer<@https://aui-cdn.atlassian.com/aui-adg/5.7.31/js/aui.js:7247:17'
+,Firefox 45.0.0 (Mac OS X 10.10.0) WARN: 'no webitem inlineDialogOptions for my-plugin__key'
+,Firefox 45.0.0 (Mac OS X 10.10.0) WARN: 'no webitem inlineDialogOptions for my-plugin__key'
+
+]]>
+  </system-out>
+  <system-err/>
+</testsuite>

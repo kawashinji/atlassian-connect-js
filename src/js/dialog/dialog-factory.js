@@ -36,6 +36,7 @@
                 id: options.id,
                 key: options.key,
                 moduleKey: options.moduleKey,
+                ns: options.ns || options.key + "__" + options.moduleKey,
                 chrome: chrome,
                 header: dialogOptions.header,
                 width: dialogOptions.width,
@@ -60,9 +61,16 @@
 
             promise
                 .done(function(data) {
-                    var dialogHtml = $(data);
+                    var htmlContent = $(data);
+
+                    var dialogHtml = $(htmlContent);
                     dialogHtml.addClass('ap-dialog-container');
-                    container.replaceWith(dialogHtml);
+                    var existingContainer = document.getElementById(htmlContent.attr('id'));
+                    if(existingContainer.length !== 0){
+                        $(existingContainer).replaceWith(dialogHtml);
+                    } else {
+                        container.replaceWith(dialogHtml);
+                    }
                 })
                 .fail(function(xhr, status, ex) {
                     var title = $("<p class='title' />").text("Unable to load add-on content. Please try again later.");

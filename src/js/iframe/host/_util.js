@@ -13,6 +13,10 @@ define("host/_util", function () {
             throw new Error("addon_key and module_key must be specified");
           }
           return addon_key + '__' + module_key;
+        },
+        randomStr: function(len) {
+          len = len || 5;
+          return Math.random().toString(36).substr(2, len);
         }
     };
 });

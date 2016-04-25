@@ -38,7 +38,13 @@
                 $(document).unbind("keydown", keyPressListener);
             }
         };
-
+        function headerFromOptions(options){
+            var header = options.header || options.defaultHeader;
+            if(typeof header === "object") {
+                header = header.value;
+            }
+            return header;
+        }
         function createDialogElement(options){
             var $el,
             extraClasses = ['ap-aui-dialog2'];
@@ -57,7 +63,7 @@
 
             $el = $(aui.dialog.dialog2({
                 id: options.id,
-                titleText: options.header,
+                titleText: headerFromOptions(options),
                 titleId: options.titleId,
                 size: auiSize,
                 extraClasses: extraClasses,
@@ -213,7 +219,7 @@
             * @param {String} [options.id] ID attribute to assign to the dialog. Default to "ap-dialog-n" where n is an autoincrementing id.
             */
             create: function(options, showLoadingIndicator) {
-
+                console.log('diaolog opened with these options', options);
                 // We don't support multiple copies of the same dialog being open at the same time.
                 var nexusId = 'ap-' + options.ns;
                 // This is a workaround because just using $('#' + nexusId) doesn't work in unit tests. :/

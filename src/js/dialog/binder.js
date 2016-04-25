@@ -3,7 +3,7 @@
  * TODO: document options
  */
 AJS.toInit(function ($) {
-
+    var counter = 0;
     (function(require, AJS){
         "use strict";
         require(["ac/dialog", "ac/dialog/dialog-factory", "connect-host"], function(dialog, dialogFactory, connect) {
@@ -14,15 +14,16 @@ AJS.toInit(function ($) {
 
                     var webItemOptions = connect.webItemHelper.getOptionsForWebItem(options.bindTo),
                     moduleKey = connect.webItemHelper.getWebItemModuleKey(options.bindTo),
-                    addonKey = connect.webItemHelper.getWebItemPluginKey(options.bindTo);
+                    addonKey = connect.webItemHelper.getWebItemPluginKey(options.bindTo),
+                    dialogModuleKey = connect.webItemHelper.getWebItemTargetKey(options.bindTo);
 
                     $.extend(options, webItemOptions, {
                         // The key of the common dialog module this item targets - may be blank
-                        dialogModuleKey: connect.webItemHelper.getWebItemTargetKey(options.bindTo)
+                        dialogModuleKey: dialogModuleKey
                     });
 
                     if (!options.ns) {
-                        options.ns = moduleKey;
+                        options.ns = addonKey + "__" + moduleKey;
                     }
                     if(!options.container){
                         options.container = options.ns;

@@ -45,7 +45,7 @@ define("host/content", ["_dollar", "_uri"], function ($, uri) {
             url = new uri.init(href),
             options = {
                 bindTo: $el,
-                header: $el.text(),
+                defaultHeader: $el.text(),
                 width:  url.getQueryParamValue('width'),
                 height: url.getQueryParamValue('height'),
                 cp:     url.getQueryParamValue('cp'),
