@@ -2,7 +2,7 @@
  * Utility methods for rendering connect addons in AUI components
  */
 
-define("host/content", ["_dollar", "_uri"], function ($, uri) {
+define("host/content", ["_dollar", "_uri", "host/_util"], function ($, uri, util) {
     "use strict";
 
     function getKeyFromClass(target, pattern){
@@ -23,8 +23,9 @@ define("host/content", ["_dollar", "_uri"], function ($, uri) {
 
     function getOptionsForWebItem(target){
         var moduleKey = getWebItemModuleKey(target),
+            addonKey = getWebItemPluginKey(target),
             type = target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-            return window._AP[type + 'Options'][moduleKey] || {};
+            return window._AP[type + 'Options'][util.addonToNs(addonKey, moduleKey)] || {};
     }
 
     function contextFromUrl (url) {
