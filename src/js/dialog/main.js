@@ -219,7 +219,6 @@
             * @param {String} [options.id] ID attribute to assign to the dialog. Default to "ap-dialog-n" where n is an autoincrementing id.
             */
             create: function(options, showLoadingIndicator) {
-                console.log('diaolog opened with these options', options);
                 // We don't support multiple copies of the same dialog being open at the same time.
                 var nexusId = 'ap-' + options.ns;
                 // This is a workaround because just using $('#' + nexusId) doesn't work in unit tests. :/
