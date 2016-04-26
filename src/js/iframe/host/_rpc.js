@@ -1,4 +1,4 @@
-define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri", "host/_util"], function ($, XdmRpc, jwtKeepAlive, uri, util) {
+define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri", "host/_util", "_ui-params"], function ($, XdmRpc, jwtKeepAlive, uri, util, uiParams) {
 
     "use strict";
 
