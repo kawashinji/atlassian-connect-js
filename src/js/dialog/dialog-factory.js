@@ -61,15 +61,17 @@
 
             promise
                 .done(function(data) {
-                    var htmlContent = $(data);
-
-                    var dialogHtml = $(htmlContent);
-                    dialogHtml.addClass('ap-dialog-container');
-                    var existingContainer = document.getElementById(htmlContent.attr('id'));
-                    if(existingContainer.length !== 0){
-                        $(existingContainer).replaceWith(dialogHtml);
+                    var $data = $(data);
+                    $data.find('.ap-content').addClass('ap-dialog-container');
+                    var $existingContainer = $(document.getElementById($data.attr('id')));
+                    // unwarp the velocity fragment if the container is already inplace.
+                    if($existingContainer.length !== 0){
+                        $existingContainer.empty();
+                        $data.each(function(index){
+                            $existingContainer.append($data[index]);
+                        });
                     } else {
-                        container.replaceWith(dialogHtml);
+                        container.replaceWith($data);
                     }
                 })
                 .fail(function(xhr, status, ex) {

@@ -66,7 +66,6 @@
                         var xdmOptions = {
                             key: this.addonKey
                         };
-                        console.log('opening dialog with', dialogOptions);
 
                         //open by key or url. This can be simplified when opening via url is removed.
                         if(dialogOptions.key) {
