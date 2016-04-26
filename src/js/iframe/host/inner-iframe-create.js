@@ -96,7 +96,7 @@ require(["_dollar", "_rpc"], function ($, rpc) {
         var payload = JSON.parse(e.data),
                 pid = payload.i, pchannel = payload.c, ptype = payload.t, pmessage = payload.m, addonKey = payload.k;
         
-        //This module is only used to initialise inner iframes. Ignore all messages from Confluence
+        //This module is only used to initialise inner iframes. Ignore all messages from Confluence.
         if (e.source === window.top) {
             return;
         }
