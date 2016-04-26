@@ -54,8 +54,39 @@ define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri"], function ($, X
                 if(src){
                     xdmConfig.remote = src;
                 }
+
+                // if there is already an iframe created. Destroy it. It's an old version.
+                $("#" + util.escapeSelector(xdmConfig.container)).find('iframe').trigger('ra.iframe.destroy');
+                
+                // Creates an iframe element from a config option consisting of the following values:
+                //  - container:  the parent element of the new iframe
+                //  - remote:     the src url of the new iframe
+                //  - props:      a map of additional HTML attributes for the new iframe
+                //  - channel:    deprecated
+                function createIframe(config) {
+                    if(!config.container){
+                        throw new Error("config.container must be defined");
+                    }
+                    var iframe = document.createElement("iframe"),
+                            id = "easyXDM_" + config.container + "_provider",
+                            windowName = "";
+
+                    if(config.uiParams){
+                        windowName = uiParams.encode(config.uiParams);
+                    }
+                    $.extend(iframe, {id: id, name: windowName, frameBorder: "0"}, config.props);
+                    //$.extend will not add the attribute rel.
+                    iframe.setAttribute('rel', 'nofollow');
+                    $("#" + util.escapeSelector(config.container)).append(iframe);
+                    $(iframe).trigger("ra.iframe.create");
+                    iframe.src = config.remote;
+                    return iframe;
+                }
+                
+                var iframe = createIframe(xdmConfig);
+                
                 // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
-                var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internals)});
+                var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internals)}, iframe.contentWindow, iframe);
 
                 rpcCollection[rpc.id] = rpc;
                 each(inits, function (_, init) {
@@ -64,6 +95,23 @@ define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri"], function ($, X
                 });
             });
 
+        },
+        
+        initInner: function (options, xdmConfig, target) {
+
+            options = options || {};
+            // add stubs for each public api
+            each(apis, function (method) { stubs.push(method); });
+            
+            // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
+            var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internals)}, target, undefined);
+
+            rpcCollection[rpc.id] = rpc;
+            each(inits, function (_, init) {
+                try { init(extend({}, options), rpc); }
+                catch (ex) { console.log(ex); }
+            });
+            
         }
 
     };

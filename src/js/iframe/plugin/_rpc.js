@@ -26,13 +26,13 @@ AP.define("_rpc", ["_dollar", "_xdm"], function ($, XdmRpc) {
     },
 
     // inits the connect add-on on iframe content load
-    init: function (options) {
+    init: function (options) {//
       options = options || {};
       if (!isInited) {
         // add stubs for each public api
         each(apis, function (method) { stubs.push(method); });
         // empty config for add-on-side ctor
-        rpc = this.rpc = new XdmRpc($, {}, {remote: stubs, local: internals});
+        rpc = this.rpc = new XdmRpc($, {}, {remote: stubs, local: internals}, window.top, undefined);
         rpc.init();
         extend(proxy, rpc);
         each(inits, function (_, init) {

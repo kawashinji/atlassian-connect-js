@@ -35,12 +35,11 @@ if(this.AP){
    * @returns XdmRpc instance
    * @constructor
    */
-  function XdmRpc($, config, bindings) {
+  function XdmRpc($, config, bindings, target, iframe) {
 
-    var self, id, target, remoteOrigin, channel, mixin,
+    var self, id, remoteOrigin, channel, mixin,
         localKey, remoteKey, addonKey,
-        w = window,
-        loc = w.location.toString(),
+        loc = window.location.toString(),
         locals = bindings.local || {},
         remotes = bindings.remote || [],
         localOrigin = getBaseUrl(loc);
@@ -93,12 +92,7 @@ if(this.AP){
     //    redundant with the current internal implementation of the XdmRpc and should be considered for removal
     if (!/xdm_e/.test(loc)) {
       // Host-side constructor branch
-
-      // if there is already an iframe created. Destroy it. It's an old version.
-      $("#" + util.escapeSelector(config.container)).find('iframe').trigger('ra.iframe.destroy');
-
-      var iframe = createIframe(config);
-      target = iframe.contentWindow;
+      //TODO: I don't think this is used at all. When it's set plugin side it's used in one place. Here it's put into the event bus, and that value in the event bus seems to not be used! I don't think it can be used, because it wouldn't make sense for the key to be the jwt token.
       localKey = param(config.remote, "oauth_consumer_key") || param(config.remote, "jwt");
       remoteKey = config.remoteKey;
       addonKey = remoteKey;
@@ -127,7 +121,6 @@ if(this.AP){
       $(iframe).on('ra.iframe.destroy', mixin.destroy);
     } else {
       // Add-on-side constructor branch
-      target = w.parent;
       localKey = "local"; // Would be better to make this the add-on key, but it's not readily available at this time
 
       // identify the add-on by unique key: first try JWT issuer claim and fall back to OAuth1 consumer key
@@ -207,7 +200,8 @@ if(this.AP){
 
         // if the iframe has potentially been reloaded. re-attach the source contentWindow object
         if (e.source !== target && e.origin.toLowerCase() === remoteOrigin && pchannel === channel) {
-          target = e.source;
+          //I don't think this can happen. I tested in Chrome, if the iframe reloads, or even if the origin changes. The source variable passed in postmessage stays the same.
+          //target = e.source;
         }
 
         // If the payload doesn't match our expected event signature, assume its not part of the xdm-rpc protocol
@@ -377,48 +371,23 @@ if(this.AP){
       return url.toString();
     }
 
-    // Creates an iframe element from a config option consisting of the following values:
-    //  - container:  the parent element of the new iframe
-    //  - remote:     the src url of the new iframe
-    //  - props:      a map of additional HTML attributes for the new iframe
-    //  - channel:    deprecated
-    function createIframe(config) {
-      if(!config.container){
-        throw new Error("config.container must be defined");
-      }
-      var iframe = document.createElement("iframe"),
-        id = "easyXDM_" + config.container + "_provider",
-        windowName = "";
-
-      if(config.uiParams){
-        windowName = uiParams.encode(config.uiParams);
-      }
-      $.extend(iframe, {id: id, name: windowName, frameBorder: "0"}, config.props);
-      //$.extend will not add the attribute rel.
-      iframe.setAttribute('rel', 'nofollow');
-      $("#" + util.escapeSelector(config.container)).append(iframe);
-      $(iframe).trigger("ra.iframe.create");
-      iframe.src = config.remote;
-      return iframe;
-    }
-
     function errmsg(ex) {
       return ex.message || ex.toString();
     }
 
     function debug() {
-      if (XdmRpc.debug) log.apply(w, ["DEBUG:"].concat([].slice.call(arguments)));
+      if (XdmRpc.debug) log.apply(window, ["DEBUG:"].concat([].slice.call(arguments)));
     }
 
     function log() {
-      var log = $.log || (w.AJS && w.AJS.log);
-      if (log) log.apply(w, arguments);
+      var log = $.log || (window.AJS && window.AJS.log);
+      if (log) log.apply(window, arguments);
     }
 
     function logError() {
       // $.error seems to do the same thing as $.log in client console
-      var error = (w.AJS && w.AJS.error);
-      if (error) error.apply(w, arguments);
+      var error = (window.AJS && window.AJS.error);
+      if (error) error.apply(window, arguments);
     }
 
     // Immediately start listening for events
