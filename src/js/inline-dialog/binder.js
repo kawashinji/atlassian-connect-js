@@ -8,7 +8,7 @@ AJS.toInit(function ($) {
                 callback = function(href, options, eventType){
                     var webItemOptions = _AP.webItemHelper.getOptionsForWebItem(options.bindTo);
                     $.extend(options, webItemOptions);
-                    if(options.onHover !== true  && eventType !== 'click'){
+                    if(options.onHover !== true && eventType !== 'click'){
                         return;
                     }
 

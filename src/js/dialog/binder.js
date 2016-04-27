@@ -3,7 +3,7 @@
  * TODO: document options
  */
 AJS.toInit(function ($) {
-    var counter = 0;
+
     (function(require, AJS){
         "use strict";
         require(["ac/dialog", "ac/dialog/dialog-factory", "connect-host"], function(dialog, dialogFactory, connect) {
