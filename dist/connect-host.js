@@ -2053,6 +2053,9 @@ module.exports = {
       extension: extension,
       options: options
     });
+  },
+  close: function close() {
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close-active', {});
   }
 };
 
@@ -3912,6 +3915,10 @@ var _actionsIframe_actions = _dereq_('actions/iframe_actions');
 
 var _actionsIframe_actions2 = _interopRequireDefault(_actionsIframe_actions);
 
+var _actionsDialog_extension_actions = _dereq_('actions/dialog_extension_actions');
+
+var _actionsDialog_extension_actions2 = _interopRequireDefault(_actionsDialog_extension_actions);
+
 var _componentsInline_dialog_webitem = _dereq_('components/inline_dialog_webitem');
 
 var _componentsInline_dialog_webitem2 = _interopRequireDefault(_componentsInline_dialog_webitem);
@@ -3932,6 +3939,13 @@ var _componentsDialog_extension2 = _interopRequireDefault(_componentsDialog_exte
  */
 if (!window._AP) {
   window._AP = {};
+}
+
+/*
+ * Add version
+ */
+if (!window._AP.version) {
+  window._AP.version = "v5.0.0";
 }
 
 _simpleXdmDistHost2['default'].defineModule('messages', _modulesMessages2['default']);
@@ -3958,7 +3972,10 @@ _simpleXdmDistHost2['default'].registerRequestNotifier(function (data) {
 exports['default'] = {
   dialog: {
     create: function create(extension, dialogOptions) {
-      _componentsDialog_extension2['default'].render(extension, dialogOptions);
+      _actionsDialog_extension_actions2['default'].open(extension, dialogOptions);
+    },
+    close: function close() {
+      _actionsDialog_extension_actions2['default'].close();
     }
   },
   onKeyEvent: function onKeyEvent(extension_id, key, modifiers, callback) {
@@ -3993,7 +4010,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./components/loading_indicator":26,"./create":28,"./modules/dialog":33,"./modules/env":34,"./modules/events":35,"./modules/flag":36,"./modules/messages":37,"actions/dom_event_actions":8,"actions/event_actions":10,"actions/iframe_actions":12,"actions/jwt_actions":14,"actions/module_actions":16,"components/dialog_extension":19,"components/dialog_webitem":20,"components/inline_dialog_webitem":25,"dispatchers/analytics_dispatcher":29,"dispatchers/event_dispatcher":30,"simple-xdm/dist/host":4,"underscore":38}],33:[function(_dereq_,module,exports){
+},{"./components/loading_indicator":26,"./create":28,"./modules/dialog":33,"./modules/env":34,"./modules/events":35,"./modules/flag":36,"./modules/messages":37,"actions/dialog_extension_actions":7,"actions/dom_event_actions":8,"actions/event_actions":10,"actions/iframe_actions":12,"actions/jwt_actions":14,"actions/module_actions":16,"components/dialog_extension":19,"components/dialog_webitem":20,"components/inline_dialog_webitem":25,"dispatchers/analytics_dispatcher":29,"dispatchers/event_dispatcher":30,"simple-xdm/dist/host":4,"underscore":38}],33:[function(_dereq_,module,exports){
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
