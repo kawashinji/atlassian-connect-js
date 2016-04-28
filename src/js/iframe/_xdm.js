@@ -24,6 +24,7 @@ if(this.AP){
    * @param {Object} config Configuration parameters
    * @param {String} config.remoteKey The remote peer's add-on key (host only)
    * @param {String} config.remote The src of remote iframe (host only)
+   * @param {String} config.remoteOrigin The src of remote origin. Required in case when remote doesn't points directly to the add-on servlet. (host only)
    * @param {String} config.container The id of element to which the generated iframe is appended (host only)
    * @param {Object} config.props Additional attributes to add to iframe element (host only)
    * @param {String} config.channel Channel (host only); deprecated
@@ -96,7 +97,7 @@ if(this.AP){
       localKey = param(config.remote, "oauth_consumer_key") || param(config.remote, "jwt");
       remoteKey = config.remoteKey;
       addonKey = remoteKey;
-      remoteOrigin = config.remoteOrigin ? config.remoteOrigin : getBaseUrl(config.remote).toLowerCase();
+      remoteOrigin = (config.remoteOrigin ? config.remoteOrigin : getBaseUrl(config.remote)).toLowerCase();
       channel = config.channel;
       // Define the host-side mixin
       mixin = {
@@ -160,12 +161,17 @@ if(this.AP){
     // Sends a message of a specific type to the remote peer via a post-message event
     function send(sid, type, message) {
       try {
-        target.postMessage(JSON.stringify({
+        // Sanitize the incoming message arguments
+        if (message && message.a) {
+          message.a = sanitizeStructuredClone(message.a);
+        }
+
+        target.postMessage({
           c: channel,
           i: sid,
           t: type,
           m: message
-        }), remoteOrigin);
+        }, remoteOrigin);
       } catch (ex) {
         log(errmsg(ex));
       }
@@ -195,7 +201,7 @@ if(this.AP){
     function receive(e) {
       try {
         // Extract message payload from the event
-        var payload = JSON.parse(e.data),
+        var payload = e.data,
             pid = payload.i, pchannel = payload.c, ptype = payload.t, pmessage = payload.m;
 
         // if the iframe has potentially been reloaded. re-attach the source contentWindow object
@@ -388,6 +394,76 @@ if(this.AP){
       // $.error seems to do the same thing as $.log in client console
       var error = (window.AJS && window.AJS.error);
       if (error) error.apply(window, arguments);
+    }
+
+    // Creates a deep copy of the object, rejecting Functions, Errors and Nodes
+    // ACJS-200: This is to prevent postMessage from breaking when it encounters unexpected arguments.
+    // Functions belonging to arrays will be null.
+    // Functions that are object properties are deleted.
+    // Errors and Nodes will be empty Objects
+    function sanitizeStructuredClone(object) {
+
+      // keep track the objects in case of circular references
+      var objects = [];
+
+      return (function clone(value) {
+        var i, name, newValue;
+
+        // For object types that are supported by the structured clone algorithm.
+        // It also checks if it's not an Error or Node - these are handled after along with functions.
+        if (typeof value === 'object' && value !== null &&
+          !(value instanceof Boolean) && !(value instanceof String) &&
+          !(value instanceof Date) && !(value instanceof RegExp) &&
+          !(value instanceof Blob)  && !(value instanceof File) &&
+          !(value instanceof FileList) && !(value instanceof Error) &&
+          !(value instanceof Node)) {
+
+          // check if the value already been seen
+          if (objects.indexOf(value) > -1) {
+            log("XDM: A circular reference was detected and removed from the message.");
+            return null;
+          }
+
+          // Keep a reference of the value
+          objects.push(value);
+
+          // Recursively clone the Object or Array
+          if (Array.isArray(value)) {
+            newValue = [];
+            for (i = 0; i < value.length; i++) {
+              newValue[i] = clone(value[i]);
+            }
+          } else {
+            newValue = {};
+            for (name in value) {
+              if (value.hasOwnProperty(name)) {
+                var clonedValue = clone(value[name]);
+                if (clonedValue !== null) {
+                  newValue[name] = clonedValue;
+                }
+              }
+            }
+          }
+          return newValue;
+        }
+
+        if (typeof value === 'function') {
+          log("XDM: A function was detected and removed from the message.");
+          return null;
+        }
+
+        if (value instanceof Error) {
+          log("XDM: An Error object was detected and removed from the message.");
+          return {};
+        }
+
+        if (value instanceof Node) {
+          log("XDM: A Node object was detected and removed from the message.");
+          return {};
+        }
+
+        return value;
+      }(object));
     }
 
     // Immediately start listening for events

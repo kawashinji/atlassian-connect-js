@@ -14,6 +14,8 @@ AP.define("env", ["_dollar", "_rpc", "_ui-params"], function ($, rpc, UiParams) 
       */
       apis: {
 
+        version: "${project.version}",
+
         /**
         * get the location of the host page
         *

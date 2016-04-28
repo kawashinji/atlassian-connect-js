@@ -82,6 +82,11 @@ var xdmMockRequest;
                 equal(xdmMockRequest.request.args[0][0].cache, true);
             });
 
+            test("host request is passed experimental param", function () {
+                request('/foo/bar', {experimental: true});
+                equal(xdmMockRequest.request.args[0][0].experimental, true);
+            });
+
             test("custom success callback passed", function () {
                 var successSpy = sinon.spy();
 

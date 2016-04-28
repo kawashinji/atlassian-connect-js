@@ -1,4 +1,4 @@
-require(["_dollar", "_rpc"], function ($, rpc) {
+define('host/_addons', ["_dollar", "_rpc"], function ($, rpc) {
 
   "use strict";
 
@@ -14,9 +14,14 @@ require(["_dollar", "_rpc"], function ($, rpc) {
 
         var self = {
             _emitEvent: function (event) {
-                $.each(_channels[event.source.key], function (id, channel) {
-                    channel.bus._emitEvent(event);
-                });
+                // Events fired via the emitToAll method will have a source that we are not aware of (it's us!)
+                if (event.source.key in _channels) {
+                    $.each(_channels[event.source.key], function (id, channel) {
+                        channel.bus._emitEvent(event);
+                    });
+                } else {
+                    AJS.trigger('analyticsEvent', {name: 'emitToAll.unknownSource', data: event.source});
+                }
             },
             remove: function (xdm) {
                 var channel = _channels[xdm.addonKey][xdm.id];
@@ -53,5 +58,15 @@ require(["_dollar", "_rpc"], function ($, rpc) {
         };
         return self;
     });
+
+    return {
+        emitToAll: function(name) {
+            $.each(_channels, function (addon, addonChannels) {
+                $.each(addonChannels, function(id, channel) {
+                    channel.bus.emit(name);
+                });
+            });
+        }
+    }
 
 });

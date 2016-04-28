@@ -44,14 +44,16 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
   * @name RequestProperties
   * @description An object containing the options of a {@link Request}
   * @class
-  * @property {String}    url         the url to request from the host application, relative to the host's context path
-  * @property {String}    type        the HTTP method name; defaults to 'GET'
-  * @property {Boolean}   cache       if the request should be cached. Default is true.
-  * @property {String}    data        the string entity body of the request; required if type is 'POST' or 'PUT'
-  * @property {String}    contentType the content-type string value of the entity body, above; required when data is supplied
-  * @property {Object}    headers     an object containing headers to set; supported headers are: Accept
-  * @property {Function}  success     a callback function executed on a 200 success status code
-  * @property {Function}  error       a callback function executed when a HTTP status error code is returned
+  * @property {String}        url           the url to request from the host application, relative to the host's context path
+  * @property {String}        type          the HTTP method name; defaults to 'GET'
+  * @property {Boolean}       cache         if the request should be cached. Default is true.
+  * @property {String|Object} data          the body of the request; required if type is 'POST' or 'PUT'
+  * @property {String}        contentType   the content-type string value of the entity body, above; required when data is supplied
+  * @property {Object}        headers       an object containing headers to set; supported headers are: Accept
+  * @property {Function}      success       a callback function executed on a 200 success status code
+  * @property {Function}      error         a callback function executed when a HTTP status error code is returned
+  * @property {Boolean}       experimental  if this is set to true, the developer acknowledges that the API endpoint which is being
+  *                                         called may be in beta state, and thus may also have a shorter deprecation cycle than stable APIs.
   */
 
 
@@ -65,7 +67,7 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
        * 
        * In contrast to REST calls made from the add-on server to the product directly, any requests made in the browser are evaluated
        * in the context of the currently logged in user. The requested resource is still evaluated against the add-ons granted scopes.
-       * 
+       *
        * @exports request
        */
       apis: {
@@ -73,6 +75,9 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
         /**
         * Execute an XMLHttpRequest in the context of the host application. The format of the response (dataType) will
         * always be set to "text" - even if specified.
+        *
+        * If contentType is set to "multipart/form-data" and data is an Object, then the data will transformed into a FormData
+        * object and it will be sent as a Multipart POST. To upload a file to the host application, it must be a File object.
         *
         * @param {String} url either the URI to request or an options object (as below) containing at least a 'url' property;<br />
         *                     this value should be relative to the context path of the host application.
@@ -82,6 +87,23 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
         * AP.require('request', function(request){
         *   request({
         *     url: '../assets/js/rest-example.json',
+        *     success: function(responseText){
+        *       alert(responseText);
+        *     }
+        *   });
+        * });
+        *
+        * @noDemo
+        * @example
+        * // Upload an attachment to a Confluence entity.
+        * var fileToUpload = document.getElementById("fileInput").files[0];
+        *
+        * AP.require('request', function(request){
+        *   request({
+        *     url: '/rest/api/content/123456/child/attachment',
+        *     type: 'POST',
+        *     contentType: 'multipart/form-data',
+        *     data: {comment: 'example comment', file: fileToUpload},
         *     success: function(responseText){
         *       alert(responseText);
         *     }

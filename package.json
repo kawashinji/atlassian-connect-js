@@ -1,7 +1,7 @@
 {
   "name": "atlassian-connect-js",
   "description": "Atlassian Connect javascript lib",
-  "version": "3.1.7",
+  "version": "3.1.26",
   "dependencies": {
     "qunitjs": "~1.17.0",
     "grunt": "~0.4.5",
@@ -25,7 +25,6 @@
     "karma": "0.12.31",
     "karma-chrome-launcher": "^0.1.7",
     "karma-firefox-launcher": "^0.1.4",
-    "karma-phantomjs-launcher": "^0.1.4",
     "karma-sinon": "1.0.4",
     "karma-qunit": "0.1.4",
     "karma-junit-reporter": "0.2.2",
@@ -36,11 +35,13 @@
     "grunt-contrib-uglify": "^0.5.0",
     "grunt-karma": "0.10.1",
     "fs-extra": "^0.12.0",
-    "grunt-shell": "^1.1.1"
+    "grunt-shell": "^1.1.1",
+    "sinon" : "1.14.1"
   },
   "devDependencies": {},
   "scripts": {
     "postinstall": "node ./build/bin/npm-postinstall.js",
     "test": "node ./build/bin/npm-test.js"
-  }
+  },
+  "license": " Apache-2.0"
 }

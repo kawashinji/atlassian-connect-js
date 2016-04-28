@@ -8,7 +8,8 @@ module.exports = {
         src: [
             '<%= paths.cssSource %>' + 'iframe/host.css',
             '<%= paths.cssSource %>' + 'messages/main.css',
-            '<%= paths.cssSource %>' + 'dialog/dialog.css'
+            '<%= paths.cssSource %>' + 'dialog/dialog.css',
+            '<%= paths.cssSource %>' + 'dialog/header-controls.css'
         ],
         dest: '.tmp/host-css.css',
         nonull: true
@@ -36,7 +37,8 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/plugin/messages.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/cookie.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/history.js',
-            '<%= paths.jsSource %>' + 'iframe/plugin/_resize_listener.js'
+            '<%= paths.jsSource %>' + 'iframe/plugin/_resize_listener.js',
+            '<%= paths.jsSource %>' + 'iframe/plugin/navigator.js'
         ],
         dest: '.tmp/all-debug.js',
         nonull: true

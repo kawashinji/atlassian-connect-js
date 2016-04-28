@@ -39,21 +39,36 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
 
 
       exports = {
+        /**
+         * Returns the data Object passed to the dialog at creation.
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
+         *   var myDataVariable = dialog.customData.myDataVariable;
+         * });
+         *
+         * @return {Object} Data Object passed to the dialog on creation.
+         */        
+        customData: uiParams.customData,
 
         /**
          * @class Dialog~DialogOptions
-         * @property {String}        key         The module key of the page you want to open as a dialog
-         * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or maximum (full screen).
-         * @property {Number|String} width       overrides size, define the width as a percentage (append a % to the number) or pixels.
-         * @property {Number|String} height      overrides size, define the height as a percentage (append a % to the number) or pixels.
+         * @description The options supplied to a [dialog.create()](module-Dialog.html) call.
+         *
+         * @property {String}        key         The module key of a dialog, or the key of a page or web-item that you want to open as a dialog.
+         * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or fullscreen (with chrome).
+         * @property {Number|String} width       if size is not set, define the width as a percentage (append a % to the number) or pixels.
+         * @property {Number|String} height      if size is not set, define the height as a percentage (append a % to the number) or pixels.
          * @property {Boolean}       chrome      (optional) opens the dialog with heading and buttons.
          * @property {String}        header      (optional) text to display in the header if opening a dialog with chrome.
          * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
          * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
+         * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
+         * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC will close the dialog (default is true).
          */
 
         /**
-         * Creates a dialog for a web-item or page module key.
+         * Creates a dialog for a common dialog, page or web-item module key.
          * @param {Dialog~DialogOptions} options configuration object of dialog options.
          * @noDemo
          * @example
@@ -125,6 +140,25 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
         onDialogMessage: function(buttonName, listener) {
           this.getButton(buttonName).bind(listener);
         },
+
+        /**
+         * Queries the value of the 'closeOnEscape' property.  If this property is true
+         * then the dialog should close if ESC is pressed.
+         * @param {Function} callback function to receive the 'closeOnEscape' value.
+         * @noDemo
+         * @example
+         * AP.require('dialog', function(dialog){
+             *   dialog.isCloseOnEscape(function(enabled){
+             *     if(enabled){
+             *       //close on escape is true
+             *     }
+             *   });
+             * });
+         */
+        isCloseOnEscape: function(callback) {
+          remote.isCloseOnEscape(callback);
+        },
+
         /**
          * Returns the button that was requested (either cancel or submit)
          * @returns {Dialog~DialogButton}
@@ -182,7 +216,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
               });
             },
             /**
-             * Query a button for it's current state.
+             * Query a button for its current state.
              * @memberOf Dialog~DialogButton
              * @param {Function} callback function to receive the button state.
              * @noDemo
@@ -197,6 +231,47 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
              */
             isEnabled: function(callback) {
               remote.isDialogButtonEnabled(name, callback);
+            },
+            /**
+             * Sets the button state to hidden
+             * @memberOf Dialog~DialogButton
+             * @noDemo
+             * @example
+             * AP.require('dialog', function(dialog){
+             *   dialog.getButton('submit').hide();
+             * });
+             */
+            hide: function(callback) {
+              remote.setDialogButtonHidden(name, true);
+            },
+            /**
+             * Sets the button state to visible
+             * @memberOf Dialog~DialogButton
+             * @noDemo
+             * @example
+             * AP.require('dialog', function(dialog){
+             *   dialog.getButton('submit').show();
+             * });
+             */
+            show: function(callback) {
+              remote.setDialogButtonHidden(name, false);
+            },
+            /**
+             * Query a button for its current hidden/visible state.
+             * @memberOf Dialog~DialogButton
+             * @param {Function} callback function to receive the button state.
+             * @noDemo
+             * @example
+             * AP.require('dialog', function(dialog){
+             *   dialog.getButton('submit').isHidden(function(hidden){
+             *     if(hidden){
+             *       //button is hidden
+             *     }
+             *   });
+             * });
+             */
+            isHidden: function(callback) {
+              remote.isDialogButtonHidden(name, callback);
             },
             /**
              * Registers a function to be called when the button is clicked.
@@ -247,6 +322,14 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
               return !!result;
             }
           };
+        },
+        /**
+         * @class Dialog~DialogButton
+         * @description Creates a dialog button that can be controlled with javascript
+         */
+        createButton: function(name, options) {
+          remote.createButton(name, options);
+          return this.getButton(name);
         }
       };
 
@@ -274,17 +357,23 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
         stubs: [
           "dialogListenerBound",
           "setDialogButtonEnabled",
+          "setDialogButtonHidden",
           "isDialogButtonEnabled",
+          "isDialogButtonHidden",
+          "isCloseOnEscape",
           "createDialog",
-          "closeDialog"
+          "closeDialog",
+          "createButton"
         ],
 
         init: function() {
           if (isDialog) {
             window.addEventListener('keydown', function(event) {
-              if (event.keyCode === 27) {
-                exports.close();
-              }
+              exports.isCloseOnEscape(function(closeOnEscape) {
+                if (closeOnEscape && event.keyCode === 27) {
+                  exports.close();
+                }
+              });
             });
           }
         }

@@ -1,13 +1,9 @@
 require(['ac/dialog'], function(simpleDialog) {
 
+    var dialogSpy;
+
     module("Main Dialog", {
         setup: function(){
-            this.dialogSpy = {
-                show: sinon.spy(),
-                on: sinon.spy(),
-                remove: sinon.spy(),
-                hide: sinon.spy()
-            };
             this.layerSpy = {
                 changeSize: sinon.spy()
             };
@@ -17,7 +13,17 @@ require(['ac/dialog'], function(simpleDialog) {
                 dialog2: window.AJS.dialog2
             };
 
-            AJS.dialog2 = sinon.stub().returns(this.dialogSpy);
+            // Until ac/dialog gets refactored, we need dialog.$el to be set.
+            AJS.dialog2 = function($el) {
+                dialogSpy = {
+                    show: sinon.spy(),
+                    on: sinon.spy(),
+                    remove: sinon.spy(),
+                    hide: sinon.spy(),
+                    $el: $el
+                };
+                return dialogSpy;
+            };
             AJS.layer = sinon.stub().returns(this.layerSpy);
 
         },
@@ -25,8 +31,22 @@ require(['ac/dialog'], function(simpleDialog) {
             // clean up mock
             window.AJS.dialog2 = this.store.dialog2;
             window.AJS.layer = this.store.layer;
+
+            // Ensure that the dialog stack is cleared after each test.
+            var dialogsRemain = true;
+            while (dialogsRemain) {
+                try {
+                    simpleDialog.close();
+                } catch (e) {
+                    dialogsRemain = false;
+                }
+            }
         }
     });
+    
+    function dialogElement() {
+        return dialogSpy.$el;
+    }
 
     test("dialog options.id sets the dialog id", function() {
         var dialogId = "abc123";
@@ -34,7 +54,7 @@ require(['ac/dialog'], function(simpleDialog) {
             id: dialogId
         });
 
-        equal(AJS.dialog2.args[0][0].attr('id'), dialogId);
+        equal(dialogElement().attr('id'), dialogId);
     });
 
     test("dialog options.width sets the dialog width", function(){
@@ -66,7 +86,7 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: false
         });
 
-        ok(AJS.dialog2.args[0][0].is(".aui-dialog2-large"), "Size argument was passed to dialog");
+        ok(dialogElement().is(".aui-dialog2-large"), "Size argument was passed to dialog");
     });
 
     test("dialog options.header sets the dialog title", function(){
@@ -77,7 +97,22 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: true
         });
 
-        equal(AJS.dialog2.args[0][0].find('h1').text(), text);
+        equal(dialogElement().find('h1').text(), text);
+    });
+
+    test("dialog options.header as I18nProperty sets the dialog title", function(){
+        var text = "my title text";
+        var header = {
+            i18n: "some.i18n.key",
+            value: text
+        };
+        simpleDialog.create({
+            id: "my-dialog",
+            header: header,
+            chrome: true
+        });
+
+        equal(dialogElement().find('h1').text(), text);
     });
 
 
@@ -88,7 +123,7 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: true
         });
         // aui appends "dialog-title" to the end of your dialog titles.
-        equal(AJS.dialog2.args[0][0].attr("aria-labelledby"), "my-dialog-dialog-title", "TitleId attribute was passed to dialog");
+        equal(dialogElement().attr("aria-labelledby"), "my-dialog-dialog-title", "TitleId attribute was passed to dialog");
     });
 
     test("Dialog close", function(){
@@ -98,7 +133,73 @@ require(['ac/dialog'], function(simpleDialog) {
         });
         simpleDialog.close();
 
-        ok(this.dialogSpy.hide.calledOnce, "Dialog close was called");
+        ok(dialogSpy.hide.calledOnce, "Dialog close was called");
+    });
+
+    test("Dialog close before dialog created throws error", function(){
+        try {
+            simpleDialog.close();
+            ok(false, 'Error should be thrown when calling close before any dialogs created.');
+        } catch (e) {
+            // Expected to be thrown.
+            ok(true, 'Error was thrown as expected.')
+        }
+    });
+
+    test("Dialog close after dialog stack empty throws error", function(){
+        simpleDialog.create({
+            id: "my-dialog",
+            chrome: true
+        });
+        simpleDialog.close();
+
+        try {
+            simpleDialog.close();
+            ok(false, 'Error should be thrown when calling close after last dialog closed.');
+        } catch (e) {
+            // Expected to be thrown.
+            ok(true, 'Error was thrown as expected.')
+        }
+    });
+
+    test("Dialog opened multiple times without closing", function(){
+        simpleDialog.create({
+            id: "my-dialog"
+        });
+
+        try {
+            simpleDialog.create({
+                id: "my-dialog"
+            });
+            ok(false, 'Error should be thrown when opening same dialog multiple times.');
+        } catch (e) {
+            // Expected to be thrown.
+            ok(true, 'Error was thrown as expected.')
+        }
+    });
+
+    test("Multiple dialogs can be opened", function(){
+        var dialog1 = simpleDialog.create({
+            ns: "my-dialog-1"
+        });
+        var dialog2 = simpleDialog.create({
+            ns: "my-dialog-2"
+        });
+        equal(dialog1.$el.attr('id'), "ap-dialog-1");
+        equal(dialog2.$el.attr('id'), "ap-dialog-2");
+
+        // Close and reopen the second dialog
+        simpleDialog.close();
+        var dialog3 = simpleDialog.create({
+            ns: "my-dialog-2"
+        });
+        equal(dialog3.$el.attr('id'), "ap-dialog-3");
+
+        // Close two dialogs - this would throw if two dialogs were not open.
+        simpleDialog.close();
+        simpleDialog.close();
+
+        ok(true, 'Dialogs should be opened and closed without errors');
     });
 
     test("Focuses on iframe creation", function() {
@@ -106,11 +207,9 @@ require(['ac/dialog'], function(simpleDialog) {
             id: "my-dialog",
             chrome: true
         });
-        var dialogElement = AJS.dialog2.args[0][0];
-
         var iframe = document.createElement('iframe');
         iframe.focus = sinon.spy();
-        dialogElement.append(iframe);
+        dialogElement().append(iframe);
         $(iframe).trigger('ra.iframe.create');
         ok(iframe.focus.calledOnce, 'iframe was focused');
     });
@@ -121,7 +220,7 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: false
         });
 
-        equal(AJS.dialog2.args[0][0].find(".aui-dialog2-header").length, 0);
+        equal(dialogElement().find(".aui-dialog2-header").length, 0);
     });
 
     test("by default, dialogs are chromeless", function(){
@@ -129,7 +228,7 @@ require(['ac/dialog'], function(simpleDialog) {
             id: "my-dialog"
         });
 
-        equal(AJS.dialog2.args[0][0].find(".aui-dialog2-header").length, 0);
+        equal(dialogElement().find(".aui-dialog2-header").length, 0);
     });
 
     test("options.chrome opens a dialog with chrome", function(){
@@ -138,7 +237,7 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: true
         });
 
-        equal(AJS.dialog2.args[0][0].find(".aui-dialog2-header").length, 1);
+        equal(dialogElement().find(".aui-dialog2-header").length, 1);
     });
 
     test("dialogs with chrome contain a submit button", function(){
@@ -147,7 +246,7 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: true
         });
 
-        equal(AJS.dialog2.args[0][0].find(".ap-dialog-submit").length, 1);
+        equal(dialogElement().find(".ap-dialog-submit").length, 1);
     });
 
     test("dialogs with chrome contain a cancel button", function(){
@@ -156,7 +255,18 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: true
         });
 
-        equal(AJS.dialog2.args[0][0].find(".ap-dialog-cancel").length, 1);
+        equal(dialogElement().find(".ap-dialog-cancel").length, 1);
+    });
+
+    test("fullscreen dialogs with chrome contain submit and cancel buttons in the header", function(){
+        simpleDialog.create({
+            id: "my-dialog",
+            size: 'fullscreen',
+            chrome: true
+        });
+
+        equal(dialogElement().find("header .ap-dialog-submit").length, 1);
+        equal(dialogElement().find("header .ap-dialog-cancel").length, 1);
     });
 
     test("dialog with a submit button can set the text", function(){
@@ -165,7 +275,7 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: true,
             submitText: "some submit text"
         });
-        equal(AJS.dialog2.args[0][0].find(".ap-dialog-submit").text(), "some submit text");
+        equal(dialogElement().find(".ap-dialog-submit").text(), "some submit text");
     });
 
     test("dialog with a cancel button can set the text", function(){
@@ -174,8 +284,21 @@ require(['ac/dialog'], function(simpleDialog) {
             chrome: true,
             cancelText: "some cancel text"
         });
-        equal(AJS.dialog2.args[0][0].find(".ap-dialog-cancel").text(), "some cancel text");
+        equal(dialogElement().find(".ap-dialog-cancel").text(), "some cancel text");
     });
 
+    test("new button can be added to dialog", function(){
+        simpleDialog.create({
+            id: "my-dialog"
+        });
+        var createdButton = simpleDialog.createButton('Click me');
+        var $el = createdButton.$el;
+        equal($el.text(), 'Click me');
+        ok($el.hasClass('aui-button-secondary'));
+        ok($el.hasClass('ap-dialog-custom-button'));
+
+        var foundButton = simpleDialog.getButton('Click me');
+        equal(createdButton, foundButton, "The created button should be present in the dialog's button collection.");
+    });
 
 });

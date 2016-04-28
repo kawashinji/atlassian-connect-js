@@ -1,0 +1,67 @@
+/*
+   These styles lifted from the file viewer. We could conceivably define a separate component 'header-controls'
+   in AUI that contains its own styles, but adding to AUI is out of scope for the current task.
+
+   Given that plugin devs won't be working directly with these CSS rules, we have some flexibility to refactor
+   these internals later.
+ */
+
+.ap-header-controls.aui-dialog2 .aui-dialog2-header {
+    background-color: #000;
+    border-radius: 0;
+    height: 50px;
+    margin-top: 0;
+    padding: 0 0 0 20px;
+}
+
+.ap-header-controls .header-title-container {
+    max-width: 70%;
+    display: block;
+    float: left;
+    height: 50px
+}
+
+.ap-header-controls .header-title-container div {
+    color: #fff;
+    line-height: 50px;
+    white-space: nowrap;
+    overflow: hidden
+}
+
+.ap-header-controls .header-control-panel {
+    padding-left: 0;
+    text-align: right;
+    float: right;
+    max-width: 30%;
+    display: block;
+    height: 50px
+}
+
+.ap-header-controls .header-control-panel > span {
+    display: inline-block
+}
+
+.ap-header-controls .header-control-panel .aui-button {
+    background-color: #000;  /* Override blue for primary controls*/
+    background-position: center;
+    background-repeat: no-repeat;
+    border-left: 1px solid #333;
+    border-radius: 0px;
+    height: 50px;
+    float: left;
+    margin-left: 0;  /* overrides AUI style of 10px */
+    text-align: left;
+    text-indent: -999em;
+    width: 50px
+}
+
+/* Pads the button icons provided by the AUI Icon font */
+.ap-header-controls .header-control-panel .aui-icon-small:before {
+    color: #fff;
+    margin-left: 16px;
+}
+
+/* Reduce the height of the content div to allow for the height of the header bar */
+.ap-header-controls .aui-dialog2-content {
+    max-height: calc(100% - 50px);
+}

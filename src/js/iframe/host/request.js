@@ -7,7 +7,46 @@
             requestHeadersWhitelist = [
                 "If-Match", "If-None-Match"
             ],
-            contextPath = null;
+            contextPath = null,
+            experimentify = null,
+            addFileUploadHeader = null;
+
+        function setExperimentify(func) {
+            if ($.isFunction(func)) {
+                experimentify = func;
+            } else {
+                throw new Error("func must be a function");
+            }
+        }
+
+        function handleMultipartRequest (ajaxOptions) {
+            ajaxOptions.contentType = false;
+            ajaxOptions.processData = false;
+
+            if (ajaxOptions.data && typeof ajaxOptions.data === 'object') {
+                var formData = new FormData();
+                Object.keys(ajaxOptions.data).forEach(function (key) {
+                    formData.append(key, ajaxOptions.data[key]);
+                });
+                ajaxOptions.data = formData;
+            } else {
+                throw new Error("For a Multipart request, data must to be an Object");
+            }
+
+            if ($.isFunction(addFileUploadHeader)) {
+                ajaxOptions = addFileUploadHeader(ajaxOptions)
+            }
+
+            return ajaxOptions;
+        }
+
+        function setAddFileUploadHeader (func) {
+            if ($.isFunction(func)) {
+                addFileUploadHeader = func;
+            } else {
+                throw new Error("func must be a function");
+            }
+        }
 
         _AP.extend(function () {
             return {
@@ -56,17 +95,37 @@
                                 "AP-Client-Key": this.addonKey
                             }
                         };
+
+                        if (ajaxOptions.contentType === "multipart/form-data") {
+                            ajaxOptions = handleMultipartRequest(ajaxOptions);
+                        }
+
                         $.each(requestHeadersWhitelist, function(index, header) {
                             if (headers[header.toLowerCase()]) {
                                 ajaxOptions.headers[header] = headers[header.toLowerCase()];
                             }
                         });
+
+                        // Set experimental API header
+                        if (args.experimental === true) {
+                            if ($.isFunction(experimentify)) {
+                                ajaxOptions = experimentify(ajaxOptions);
+                            } else {
+                                console.log("Experimental api is not supported.");
+                            }
+                        }
+
                         $.ajax(ajaxOptions).then(done, fail);
                     }
 
                 }
             };
         });
+
+        return {
+            setExperimentify: setExperimentify,
+            setAddFileUploadHeader: setAddFileUploadHeader
+        }
 
     });
 })(define, AJS, AJS.$);

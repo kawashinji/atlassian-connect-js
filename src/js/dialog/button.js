@@ -21,6 +21,23 @@
                 return true;
             };
 
+            this.isHidden = function(){                
+                return (this.$el.css('display') === 'none');
+            };
+
+            this.setHidden = function(hide){
+                //cannot disable a noHide button
+                if(options.noHide === true){
+                    return false;
+                }
+                if (hide) {
+                    this.$el.hide();
+                } else {
+                    this.$el.show();
+                }
+                return true;
+            };
+
             this.setEnabled(true);
 
             this.click = function(listener){
@@ -46,6 +63,7 @@
         }
 
         return {
+            button: button,
             submit: function(actions){
                 return new button({
                     type: 'primary',
@@ -59,6 +77,7 @@
                     type: 'link',
                     text: 'Cancel',
                     noDisable: true,
+                    noHide: true,
                     additionalClasses: 'ap-dialog-cancel',
                     actions: actions
                 });

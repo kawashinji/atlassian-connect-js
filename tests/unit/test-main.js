@@ -4,6 +4,7 @@ var tests = [],
     'aui-atlassian': '../../bower_components/aui/src/js/atlassian',
     '_ap': 'iframe/host/_ap',
     '_dollar': 'iframe/host/_dollar',
+    '_uritemplate': 'iframe/_uritemplate',
     '_uri': 'iframe/_uri',
     'host/_status_helper': 'iframe/host/_status_helper',
     'host/_util': 'iframe/host/_util',
@@ -24,7 +25,10 @@ var tests = [],
     'create': 'iframe/host/create',
     'ac/dialog': 'dialog/main',
     'ac/dialog/dialog-factory': 'dialog/dialog-factory',
-    'connect-host': '../../dist/connect-host'
+    'ac/navigator': 'navigator/main',
+    'ac/navigator-browser': 'navigator/navigator-browser',
+    'connect-host': '../../dist/connect-host',
+    'ac/request': 'iframe/host/request'
   };
 
 for (var file in window.__karma__.files) {
@@ -148,6 +152,14 @@ requirejs.config({
         'ac/dialog'
       ]
     },
+    'ac/navigator': {
+      deps: [
+        '_ap',
+        'connect-host',
+        'ac/navigator-browser',
+        '_uritemplate'
+      ]
+    },
     'iframe/host/_rpc': {
       deps: [
         '_ap',
@@ -195,6 +207,12 @@ requirejs.config({
         ]
     },
     'iframe/host/main':{
+        deps: [
+        '_ap',
+        '_dollar'
+        ]
+    },
+    'iframe/host/request':{
         deps: [
         '_ap',
         '_dollar'

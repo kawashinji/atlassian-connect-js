@@ -2,6 +2,18 @@
     "use strict";
     require(["connect-host", "ac/dialog/dialog-factory", "ac/dialog"], function (connect, dialogFactory, dialogMain) {
 
+        function initializeButtonCallback(name, button) {
+            // Assumes that button events are only triggered on the currently-active dialog.
+            var xdm = dialogMain._getActiveDialog().xdm;
+            button.click(function (e, callback) {
+                if (xdm.isActive() && xdm.buttonListenerBound) {
+                    xdm.dialogMessage(name, callback);
+                } else {
+                    callback(true);
+                }
+            });
+        }
+
         connect.extend(function () {
             return {
                 stubs: ["dialogMessage"],
@@ -11,20 +23,19 @@
                         xdm.uiParams.isDialog = true;
                     }
 
-                    if(xdm.uiParams.isDialog){
-                        var buttons = dialogMain.getButton();
-                        if(buttons){
-                            $.each(buttons, function(name, button) {
-                                button.click(function (e, callback) {
-                                    if(xdm.isActive() && xdm.buttonListenerBound){
-                                        xdm.dialogMessage(name, callback);
-                                    } else {
-                                        callback(true);
-                                    }
-                                });
-                            });
-                        }
+                    // This init method gets invoked from various Connect contexts and not solely when a dialog is
+                    // invoked. If there's no active dialog, there's nothing to init here.
+                    var activeDialog = dialogMain._getActiveDialog();
+                    if (!activeDialog) {
+                        return;
                     }
+
+                    // We cache the xdm in the active dialog so that it's available for button bindings.
+                    activeDialog.xdm = xdm;
+
+                    $.each(dialogMain.getButton(), function(name, button) {
+                        initializeButtonCallback(name, button);
+                    });
                 },
                 internals: {
                     dialogListenerBound: function(){
@@ -33,9 +44,23 @@
                     setDialogButtonEnabled: function (name, enabled) {
                         dialogMain.getButton(name).setEnabled(enabled);
                     },
+                    setDialogButtonHidden: function (name, hidden) {
+                        dialogMain.getButton(name).setHidden(hidden);
+                    },                    
                     isDialogButtonEnabled: function (name, callback) {
                         var button =  dialogMain.getButton(name);
                         callback(button ? button.isEnabled() : void 0);
+                    },
+                    isDialogButtonHidden: function (name, callback) {
+                        var button =  dialogMain.getButton(name);
+                        callback(button ? button.isHidden() : void 0);
+                    },                    
+                    createButton: function(name, options) {
+                        var button = dialogMain.createButton(name, options);
+                        initializeButtonCallback(name, button);
+                    },
+                    isCloseOnEscape: function (callback) {
+                        callback(dialogMain.isCloseOnEscape());
                     },
                     createDialog: function (dialogOptions) {
                         var xdmOptions = {
@@ -49,9 +74,8 @@
                             throw new Error('Cannot open dialog by URL, please use module key');
                         }
 
-                        if($(".aui-dialog2 :visible").length !== 0) {
-                            throw new Error('Cannot open dialog when a layer is already visible');
-                        }
+                        // For looking up common dialog modules.
+                        dialogOptions.dialogModuleKey = dialogOptions.key;
 
                         dialogFactory(xdmOptions, dialogOptions, this.productContext);
 

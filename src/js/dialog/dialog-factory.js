@@ -11,23 +11,41 @@
         * @param {String} productContextJson pass context back to the server
         */
         return function(options, dialogOptions, productContext) {
+
+            // Look up options from a commonly-defined Dialog module. eh
+            if (dialogOptions.dialogModuleKey) {
+                var allDialogModules = window._AP.dialogModules;
+                var addonModules = allDialogModules && allDialogModules[options.key];
+                var module = addonModules && addonModules[dialogOptions.dialogModuleKey];
+                if (module) {
+                    // Local options override common ones.
+                    dialogOptions = $.extend({}, module.options, dialogOptions);
+                }
+            }
+
             var promise,
             container,
-            uiParams = $.extend({isDialog: 1}, options.uiParams);
+            uiParams = $.extend({isDialog: 1}, options.uiParams, {customData: dialogOptions.customData});
 
-            dialog.create({
+            var chrome = dialogOptions.chrome;
+            if (typeof chrome === 'undefined') {
+                chrome = options.chrome;
+            }
+
+            var createdDialog = dialog.create({
                 id: options.id,
                 ns: options.moduleKey || options.key,
-                chrome: dialogOptions.chrome || options.chrome,
+                chrome: chrome,
                 header: dialogOptions.header,
                 width: dialogOptions.width,
                 height: dialogOptions.height,
                 size: dialogOptions.size,
                 submitText: dialogOptions.submitText,
-                cancelText: dialogOptions.cancelText
+                cancelText: dialogOptions.cancelText,
+                closeOnEscape: dialogOptions.closeOnEscape
             }, false);
 
-            container = $('.ap-dialog-container');
+            container = createdDialog.$el.find('.ap-dialog-container');
             if(options.url){
                 throw new Error('Cannot retrieve dialog content by URL');
             }

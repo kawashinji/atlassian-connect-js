@@ -16,7 +16,10 @@ AJS.toInit(function ($) {
                     moduleKey = connect.webItemHelper.getWebItemModuleKey(options.bindTo),
                     addonKey = connect.webItemHelper.getWebItemPluginKey(options.bindTo);
 
-                    $.extend(options, webItemOptions);
+                    $.extend(options, webItemOptions, {
+                        // The key of the common dialog module this item targets - may be blank
+                        dialogModuleKey: connect.webItemHelper.getWebItemTargetKey(options.bindTo)
+                    });
 
                     if (!options.ns) {
                         options.ns = moduleKey;
@@ -31,8 +34,17 @@ AJS.toInit(function ($) {
                     }
 
                     //default chrome to be true for backwards compatibility with webitems
-                    if(options.chrome === undefined){
+                    // ACJS-129 Keep chrome as opt-in for 'maximum' dialogs.
+                    if(options.chrome === undefined && options.size !== 'maximum'){
                       options.chrome = true;
+                    }
+
+                    // The incoming header here is hard-coded to the web-item text that has the "ap-dialog" class.
+                    // Options received by the dialogFactory are always respected, so don't force this hard-coded
+                    // value to be used.
+                    if (options.header) {
+                        options.defaultHeader = options.header;
+                        delete options.header;
                     }
 
                     dialogFactory({

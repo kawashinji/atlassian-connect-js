@@ -57,6 +57,15 @@
                 if(validateMessageId(id)){
                     $('#' + id).remove();
                 }
+            },
+            onClose: function (id, callback) {
+                if(validateMessageId(id) && $.isFunction(callback)){
+                    $(document).on('aui-message-close', function (e, $msg) {
+                        if ($msg.attr('id') === id) {
+                            callback();
+                        }
+                    });
+                }
             }
         };
     });
