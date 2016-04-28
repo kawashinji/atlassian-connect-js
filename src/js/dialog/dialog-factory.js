@@ -1,6 +1,6 @@
 (function(define, $){
     "use strict";
-    define("ac/dialog/dialog-factory", ["ac/dialog"], function(dialog) {
+    define("ac/dialog/dialog-factory", ["ac/dialog", 'iframe/host/_util'], function(dialog, util) {
 
         //might rename this, it opens a dialog by first working out the url (used for javascript opening a dialog).
         /**
@@ -36,7 +36,7 @@
                 id: options.id,
                 key: options.key,
                 moduleKey: options.moduleKey,
-                ns: options.ns || options.key + "__" + options.moduleKey,
+                ns: options.ns || util.addonToNs(options.key, options.moduleKey),
                 chrome: chrome,
                 header: dialogOptions.header,
                 width: dialogOptions.width,

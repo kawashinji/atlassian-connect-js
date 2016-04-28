@@ -39,7 +39,10 @@
             }
         };
         function headerFromOptions(options){
+            // If header hasn't been specified in the DialogOptions, use the default header text from a
+            // web-item binding.
             var header = options.header || options.defaultHeader;
+            // The header is an I18nProperty from DialogOptions and not a String - extract the i18n value.
             if(typeof header === "object") {
                 header = header.value;
             }

@@ -6,7 +6,7 @@ AJS.toInit(function ($) {
 
     (function(require, AJS){
         "use strict";
-        require(["ac/dialog", "ac/dialog/dialog-factory", "connect-host"], function(dialog, dialogFactory, connect) {
+        require(["ac/dialog", "ac/dialog/dialog-factory", "connect-host", 'iframe/host/_util'], function(dialog, dialogFactory, connect, util) {
 
             var action = "click",
                 selector = ".ap-dialog",
@@ -23,7 +23,7 @@ AJS.toInit(function ($) {
                     });
 
                     if (!options.ns) {
-                        options.ns = addonKey + "__" + moduleKey;
+                        options.ns = util.addonToNs(addonKey, moduleKey);
                     }
                     if(!options.container){
                         options.container = options.ns;
