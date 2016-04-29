@@ -16,6 +16,7 @@ require(["_dollar", "_rpc"], function ($, rpc) {
         var payload = JSON.parse(e.data),
                 sid = payload.i, channel = payload.c, type = payload.t, message = payload.m, addonKey = payload.k;
 
+        initilialisedChildren.push(e.source);
 
         var themeOptions = JSON.parse(document.getElementsByClassName('ap-iframe-json-data')[0].innerText);
 
@@ -45,6 +46,7 @@ require(["_dollar", "_rpc"], function ($, rpc) {
         options.dlg = "";
         options.simpleDlg = "";
         options.general = "";
+        options.src = "";
         
         
         if(typeof options.uiParams !== "object"){
@@ -87,7 +89,9 @@ require(["_dollar", "_rpc"], function ($, rpc) {
             }
         });
 
-        rpc.initInner(options, xdmOptions, e.source);
+        var bridge = rpc.initInner(options, xdmOptions, e.source);
+
+        bridge.bridgeReceive(e);
     }
 
     function messageHandler(e) {
