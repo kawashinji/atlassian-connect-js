@@ -73,7 +73,7 @@ class Iframe {
   }
 
   render(attributes){
-    return $('<iframe />').attr(attributes);
+    return $('<iframe />').attr(attributes).addClass('ap-iframe');
   }
 }
 

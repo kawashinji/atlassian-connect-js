@@ -2981,7 +2981,7 @@ var Iframe = (function () {
   }, {
     key: 'render',
     value: function render(attributes) {
-      return (0, _dollar2['default'])('<iframe />').attr(attributes);
+      return (0, _dollar2['default'])('<iframe />').attr(attributes).addClass('ap-iframe');
     }
   }]);
 
