@@ -1,6 +1,6 @@
 (function(define, $){
     "use strict";
-    define("ac/dialog/dialog-factory", ["ac/dialog", '_util'], function(dialog, util) {
+    define("ac/dialog/dialog-factory", ["ac/dialog", 'host/_util'], function(dialog, util) {
 
         //might rename this, it opens a dialog by first working out the url (used for javascript opening a dialog).
         /**

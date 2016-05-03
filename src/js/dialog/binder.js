@@ -6,7 +6,7 @@ AJS.toInit(function ($) {
 
     (function(require, AJS){
         "use strict";
-        require(["ac/dialog", "ac/dialog/dialog-factory", "connect-host", '_util'], function(dialog, dialogFactory, connect, util) {
+        require(["ac/dialog", "ac/dialog/dialog-factory", "connect-host", 'host/_util'], function(dialog, dialogFactory, connect, util) {
 
             var action = "click",
                 selector = ".ap-dialog",
