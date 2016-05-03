@@ -109,6 +109,8 @@ define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri", "host/_util", "
                 try { init(extend({}, options), rpc); }
                 catch (ex) { console.log(ex); }
             });
+
+            return rpc;
         }
     };
 });

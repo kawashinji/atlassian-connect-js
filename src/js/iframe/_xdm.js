@@ -469,6 +469,12 @@ if(this.AP){
     // Immediately start listening for events
     bind();
 
+    var bridgeThis = this;
+    
+    self.bridgeReceive = function(){
+      return receive.apply(bridgeThis, arguments);
+    };
+
     return self;
   }
 
