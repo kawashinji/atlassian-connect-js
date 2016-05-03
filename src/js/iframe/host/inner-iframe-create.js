@@ -13,8 +13,7 @@ require(["_dollar", "_rpc"], function ($, rpc) {
     }
 
     function initialise(e) {
-        var payload = JSON.parse(e.data),
-                sid = payload.i, channel = payload.c, type = payload.t, message = payload.m, addonKey = payload.k;
+        var payload = JSON.parse(e.data), addonKey = payload.k;
 
         initilialisedChildren.push(e.source);
 
@@ -22,7 +21,8 @@ require(["_dollar", "_rpc"], function ($, rpc) {
 
         var productContext = JSON.parse(themeOptions.productCtx);
 
-        //Example macro specific data:
+        //We sanitise productContext so that the macro specific context is gone (because we take it from the middle frame):
+        //Here's what would normally be in these macro specific fields
         // productContext["macro.hash"] = "2558c326-463a-4f9c-b639-815cd64ba4ec";
         // productContext["macro.body"] = "<p>This is a macro yo<\/p>";
         // productContext["macro.truncated"] = "false";
@@ -97,8 +97,7 @@ require(["_dollar", "_rpc"], function ($, rpc) {
     function messageHandler(e) {
         e = e.originalEvent ? e.originalEvent : e;
         // Extract message payload from the event
-        var payload = JSON.parse(e.data),
-                pid = payload.i, pchannel = payload.c, ptype = payload.t, pmessage = payload.m, addonKey = payload.k;
+        var payload = JSON.parse(e.data), addonKey = payload.k;
         
         //This module is only used to initialise inner iframes. Ignore all messages from Confluence.
         if (e.source === window.top) {
@@ -129,5 +128,4 @@ require(["_dollar", "_rpc"], function ($, rpc) {
     }
     
     bind();
-    
 });
