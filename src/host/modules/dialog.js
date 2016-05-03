@@ -9,7 +9,7 @@ const _dialogs = {};
 
 EventDispatcher.register('dialog-close', function (data) {
   const dialog = data.dialog;
-  if (dialog) {
+  if (dialog && data.extension) {
     EventActions.broadcast('dialog.close', {
       addon_key: data.extension.addon_key
     }, data.customData);

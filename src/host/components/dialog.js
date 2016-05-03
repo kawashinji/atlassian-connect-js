@@ -144,6 +144,13 @@ EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
         });
       }
     });
+
+    EventDispatcher.registerOnce('dialog-close', (d) => {
+      DomEventActions.unregisterKeyEvent({
+        extension_id: data.extension.id,
+        key: 27
+      });
+    });
   }
 });
 
@@ -160,10 +167,6 @@ EventDispatcher.register('dialog-close-active', (data) => {
 
 EventDispatcher.register('dialog-close', (data) => {
   data.dialog.hide();
-  DomEventActions.unregisterKeyEvent({
-    extension_id: data.extension.id,
-    key: 27
-  });
 });
 
 EventDispatcher.register('dialog-button-toggle', (data) => {
@@ -179,6 +182,16 @@ EventDispatcher.register('dialog-button-toggle', (data) => {
 EventDispatcher.register('iframe-create', (data) => {
   if(data.extension.options && data.extension.options.isDialog){
     DialogComponent.setIframeDimensions(data.extension.$el);
+  }
+});
+
+DomEventActions.registerWindowKeyEvent({
+  keyCode: 27,
+  callback: () => {
+    DialogActions.closeActive({
+      customData: {},
+      extension: null
+    });
   }
 });
 
