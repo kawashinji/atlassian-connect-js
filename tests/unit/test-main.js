@@ -3,6 +3,7 @@ var tests = [],
     // host side
     'aui-atlassian': '../../bower_components/aui/src/js/atlassian',
     '_ap': 'iframe/host/_ap',
+    '_util': 'iframe/host/_util',
     '_dollar': 'iframe/host/_dollar',
     '_uritemplate': 'iframe/_uritemplate',
     '_uri': 'iframe/_uri',
