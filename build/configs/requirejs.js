@@ -142,6 +142,7 @@
                 {
                     name: rootSource('.tmp/amd-stubs/connect-host-dialog'),
                     include: [
+                        '_util',
                         'dialog/header-controls',
                         'dialog/button',
                         'dialog/main',

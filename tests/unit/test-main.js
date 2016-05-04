@@ -136,7 +136,8 @@ requirejs.config({
         '_ui-params',
         'host/_status_helper',
         'ac/dialog/button',
-        'connect-host'
+        'connect-host',
+        'host/_util'
       ]
     },
     'ac/dialog/button': {
