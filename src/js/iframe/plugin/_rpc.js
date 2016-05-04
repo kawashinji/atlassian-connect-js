@@ -26,7 +26,7 @@ AP.define("_rpc", ["_dollar", "_xdm"], function ($, XdmRpc) {
     },
 
     // inits the connect add-on on iframe content load
-    init: function (options) {//
+    init: function (options) {
       options = options || {};
       if (!isInited) {
         // add stubs for each public api
