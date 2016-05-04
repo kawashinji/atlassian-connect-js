@@ -3380,7 +3380,7 @@ var LOADING_INDICATOR_CLASS = 'ap-status-indicator';
 
 var LOADING_STATUSES = {
   loading: '<div class="ap-loading"><div class="small-spinner"></div>Loading add-on...</div>',
-  'load-timeout': '<div class="ap-load-timeout><div class="small-spinner"></div>Add-on is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?</div>',
+  'load-timeout': '<div class="ap-load-timeout"><div class="small-spinner"></div>Add-on is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?</div>',
   'load-error': 'Add-on failed to load.'
 };
 
