@@ -128,6 +128,10 @@ class Dialog {
   setIframeDimensions($iframe){
     IframeComponent.resize('100%', '100%', $iframe);
   }
+
+  getActive(){
+    return getActiveDialog();
+  }
 }
 
 const DialogComponent = new Dialog();

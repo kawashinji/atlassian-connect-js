@@ -58,6 +58,9 @@ class Dialog {
 
 class Button {
   constructor(name) {
+    if (!DialogExtensionComponent.getActiveDialog()) {
+      throw new Error('Failed to find an active dialog.');
+    }
     this.name = name;
     this.enabled = true;
   }
