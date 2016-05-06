@@ -39,7 +39,7 @@ if(this.AP){
   function XdmRpc($, config, bindings, target, iframe) {
 
     var self, id, remoteOrigin, channel, mixin,
-        localKey, remoteKey, addonKey,
+        localKey, remoteKey, addonKey, realAddonKey,
         loc = window.location.toString(),
         locals = bindings.local || {},
         remotes = bindings.remote || [],
@@ -94,8 +94,10 @@ if(this.AP){
     if (!/xdm_e/.test(loc)) {
       // Host-side constructor branch
       //TODO: I don't think this is used at all. When it's set plugin side it's used in one place. Here it's put into the event bus, and that value in the event bus seems to not be used! I don't think it can be used, because it wouldn't make sense for the key to be the jwt token.
-      localKey = param(config.remote, "oauth_consumer_key") || param(config.remote, "jwt");
+      //localKey = param(config.remote, "oauth_consumer_key") || param(config.remote, "jwt");
+      localKey = "nothing";
       remoteKey = config.remoteKey;
+      realAddonKey = remoteKey;
       addonKey = remoteKey;
       remoteOrigin = (config.remoteOrigin ? config.remoteOrigin : getBaseUrl(config.remote)).toLowerCase();
       channel = config.channel;
@@ -116,25 +118,16 @@ if(this.AP){
         },
         isActive: function () {
           // Host-side instances are only active as long as the iframe they communicate with still exists in the DOM
-          return $.contains(document.documentElement, self.iframe);
+          //return $.contains(document.documentElement, self.iframe);
+          //Always active at the moment because not all of our bridges are to immediate child iframes.
+          return true;
         }
       };
       $(iframe).on('ra.iframe.destroy', mixin.destroy);
     } else {
       // Add-on-side constructor branch
       localKey = "local"; // Would be better to make this the add-on key, but it's not readily available at this time
-
-      // identify the add-on by unique key: first try JWT issuer claim and fall back to OAuth1 consumer key
-      var jwtParam = param(loc, "jwt");
-      remoteKey = jwtParam ? jwt.parseJwtIssuer(jwtParam) : param(loc, "oauth_consumer_key");
-
-      // if the authentication method is "none" then it is valid to have no jwt and no oauth in the url
-      // but equally we don't trust this iframe as far as we can throw it, so assign it a random id
-      // in order to prevent it from talking to any other iframe
-      if (null === remoteKey) {
-          remoteKey = Math.random(); // unpredictable and unsecured, like an oauth consumer key
-      }
-
+      realAddonKey = param(loc, "xdm_addon_key");
       addonKey = localKey;
       remoteOrigin = param(loc, "xdm_e").toLowerCase();
       channel = param(loc, "xdm_c");
@@ -160,21 +153,34 @@ if(this.AP){
 
     // Sends a message of a specific type to the remote peer via a post-message event
     function send(sid, type, message) {
-      try {
+      //try {
         // Sanitize the incoming message arguments
         if (message && message.a) {
           message.a = sanitizeStructuredClone(message.a);
         }
 
-        target.postMessage({
-          c: channel,
-          i: sid,
-          t: type,
-          m: message
-        }, remoteOrigin);
-      } catch (ex) {
-        log(errmsg(ex));
-      }
+        var toParentMethods = ["resize", "sizeToParent", "init"];
+        //If the method name is in the parent whitelist
+        if (message && toParentMethods.indexOf(message.n) !== -1 && target === window.top) {
+          window.parent.postMessage({
+            c: channel,
+            i: sid,
+            k: realAddonKey,
+            t: type,
+            m: message
+          }, "*");
+        } else {
+          target.postMessage({
+            c: channel,
+            i: sid,
+            k: realAddonKey,
+            t: type,
+            m: message
+          }, remoteOrigin);
+        }
+      // } catch (ex) {
+      //   log(errmsg(ex));
+      // }
     }
 
     // Sends a request with a specific remote method name, args, and optional callbacks
@@ -183,10 +189,12 @@ if(this.AP){
       var sid = Math.floor(Math.random() * 1000000000).toString(16);
       // Register any callbacks with the nexus so they can be invoked when a response is received
       nexus.add(sid, done, fail);
-      // Send a request to the remote, where:
-      //  - n is the name of the remote function
-      //  - a is an array of the (hopefully) serializable, non-callback arguments to this method
-      send(sid, "request", {n: methodName, a: args});
+
+        // Send a request to the remote, where:
+        //  - n is the name of the remote function
+        //  - a is an array of the (hopefully) serializable, non-callback arguments to this method
+        send(sid, "request", {n: methodName, a: args});
+
     }
 
     function sendDone(sid, message) {
@@ -199,7 +207,7 @@ if(this.AP){
 
     // Handles an normalized, incoming post-message event
     function receive(e) {
-      try {
+      //try {
         // Extract message payload from the event
         var payload = e.data,
             pid = payload.i, pchannel = payload.c, ptype = payload.t, pmessage = payload.m;
@@ -238,7 +246,7 @@ if(this.AP){
             } else {
               context.isHost = false;
             }
-            try {
+            //try {
               if (async) {
                 // If async, apply the method with the responders added to the args list
                 local.apply(context, args.concat([done, fail]));
@@ -246,11 +254,11 @@ if(this.AP){
                 // Otherwise, immediately respond with the result
                 done(local.apply(context, args));
               }
-            } catch (ex) {
-              // If the invocation threw an error, invoke the fail responder callback with it
-              fail(errmsg(ex));
-              logError(ex);
-            }
+            // } catch (ex) {
+            //   // If the invocation threw an error, invoke the fail responder callback with it
+            //   fail(errmsg(ex));
+            //   logError(ex);
+            // }
           } else {
             // No such local rpc method name found
             debug("Unhandled request:", payload);
@@ -262,9 +270,9 @@ if(this.AP){
             debug("Unhandled response:", ptype, pid, pmessage);
           }
         }
-      } catch (ex) {
-        log(errmsg(ex));
-      }
+      // } catch (ex) {
+      //   log(errmsg(ex));
+      // }
     }
 
     // Creates a bridging invocation function for a remote method

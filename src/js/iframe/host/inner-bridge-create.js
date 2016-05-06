@@ -13,11 +13,12 @@ require(["_dollar", "_rpc"], function ($, rpc) {
     }
 
     function initialise(e) {
-        var payload = JSON.parse(e.data), addonKey = payload.k;
+        var payload = e.data, addonKey = payload.k;
 
         initilialisedChildren.push(e.source);
 
-        var themeOptions = JSON.parse(document.getElementsByClassName('ap-iframe-json-data')[0].innerText);
+        // var themeOptions = JSON.parse(document.getElementsByClassName('ap-iframe-json-data')[0].innerText);
+        var themeOptions = window.mostRecentMacroOptions; //Slight hack
 
         var productContext = JSON.parse(themeOptions.productCtx);
 
@@ -27,6 +28,7 @@ require(["_dollar", "_rpc"], function ($, rpc) {
         // productContext["macro.body"] = "<p>This is a macro yo<\/p>";
         // productContext["macro.truncated"] = "false";
         // productContext["macro.id"] = "2558c326-463a-4f9c-b639-815cd64ba4ec";
+
 
         productContext["macro.hash"] = undefined;
         productContext["macro.body"] = undefined;
@@ -49,13 +51,14 @@ require(["_dollar", "_rpc"], function ($, rpc) {
         options.src = "";
         
         
-        if(typeof options.uiParams !== "object"){
-            options.uiParams = uiParams.fromUrl(options.src);
-        }
+        // if(typeof options.uiParams !== "object"){
+        //     options.uiParams = uiParams.fromUrl(options.src);
+        // }
+        //What are we doing about uiParams?
 
         var ns = options.ns,
                 contentId = "embedded-" + ns,
-                channelId = "channel-" + ns,
+                channelId = payload.c,
                 initWidth = options.w || "100%",
                 initHeight = options.h || "0";
 
@@ -81,14 +84,6 @@ require(["_dollar", "_rpc"], function ($, rpc) {
             options.productContext = JSON.parse(options.productCtx);
         }
 
-        rpc.extend({
-            init: function(opts, xdm){
-                xdm.analytics = analytics.get({addonKey: xdm.addonKey, moduleKey: ns});
-                xdm.analytics.iframePerformance.start();
-                xdm.productContext = options.productContext;
-            }
-        });
-
         var bridge = rpc.initInner(options, xdmOptions, e.source);
 
         bridge.bridgeReceive(e);
@@ -97,7 +92,7 @@ require(["_dollar", "_rpc"], function ($, rpc) {
     function messageHandler(e) {
         e = e.originalEvent ? e.originalEvent : e;
         // Extract message payload from the event
-        var payload = JSON.parse(e.data), addonKey = payload.k;
+        var payload = e.data, addonKey = payload.k;
         
         //This module is only used to initialise inner iframes. Ignore all messages from Confluence.
         if (e.source === window.top) {

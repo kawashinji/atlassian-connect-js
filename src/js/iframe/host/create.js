@@ -35,6 +35,8 @@
       * @param {Options} options These values come from the velocity template and can be overridden using uiParams
       */
       function create(options) {
+
+      window.mostRecentMacroOptions = options;
       if(typeof options.uiParams !== "object"){
         options.uiParams = uiParams.fromUrl(options.src);
       }
