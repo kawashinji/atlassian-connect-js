@@ -1,55 +1,92 @@
-AP.define("_create_inner_frame", ['_ui-params', '_initialise_iframe_request'], function(uiParams, initialiseIframeRequest) {
+AP.define("_create_inner_frame", ['_ui-params', '_initialise_iframe_request', '_rpc', "_util"], function(uiParams, initialiseIframeRequest, rpc, util) {
 
-    // Creates an iframe element from a config option consisting of the following values:
-    //  - container:  the parent element of the new iframe
-    //  - remote:     the src url of the new iframe
-    //  - props:      a map of additional HTML attributes for the new iframe
-    //  - channel:    deprecated
-    function createIframe(config) {
-        if(!config.container){
-            throw new Error("config.container must be defined");
+    function contentDiv(ns) {
+        if(!ns){
+            throw new Error("ns undefined");
         }
-        var iframe = document.createElement("iframe"),
-                id = "easyXDM_" + config.container + "_provider",
-                windowName = "";
-
-        if(config.uiParams){
-            windowName = uiParams.encode(config.uiParams);
-        }
-        iframe.id = id;
-        iframe.name = windowName;
-        iframe.frameBorder = "0";
-        iframe.width = config.props.width;
-        iframe.height = config.props.height;
-        iframe.setAttribute('rel', 'nofollow');
-        document.getElementById(config.container).appendChild(iframe);
-
-        iframe.src = config.remote;
-        return iframe;
+        return document.getElementById("#embedded-" + util.escapeSelector(ns));
     }
-    
-    //TODO: In the future send the JSON blob up to the top frame. 
-    //initialiseIframeRequest(iframeData);
-    
-    return function(iframeData) {
-        
 
-        if(typeof iframeData.uiParams !== "object"){
-            iframeData.uiParams = uiParams.fromUrl(iframeData.src);
+    /* @name Options
+    * @class
+    * @property {String}  ns            module key
+    * @property {String}  src           url of the iframe
+    * @property {String}  w             width of the iframe
+    * @property {String}  h             height of the iframe
+    * @property {String}  dlg           is a dialog (disables the resizer)
+    * @property {String}  simpleDlg     deprecated, looks to be set when a confluence macro editor is being rendered as a dialog
+    * @property {Boolean} general       is a page that can be resized
+    * @property {String}  productCtx    context to pass back to the server (project id, space id, etc)
+    * @property {String}  key           addon key from the descriptor
+    * @property {String}  uid           id of the current user
+    * @property {String}  ukey          user key
+    * @property {String}  data.timeZone timezone of the current user
+    * @property {String}  cp            context path
+    * @property {String}  origin        origin address of the add-on, required when src does not point directly to the add-on
+    */
+
+    /**
+     * @param {Options} options These values come from the velocity template and can be overridden using uiParams
+     */
+    function create(options) {
+
+        window.mostRecentMacroOptions = options;
+        if(typeof options.uiParams !== "object"){
+            options.uiParams = uiParams.fromUrl(options.src);
         }
 
-        createIframe({
-            "remote": iframeData.src,
-            "remoteOrigin": iframeData.origin,
-            "remoteKey": iframeData.key,
-            "container": "embedded-" + iframeData.ns,
-            "channel": "channel-" + iframeData.ns,
-            "props": {
-                "width": iframeData.w,
-                "height": iframeData.h
-            }//,
-            // "uiParams":  //TODO: Figure out how to pass uiParams in.
-        });    
+        var ns = options.ns,
+                contentId = "embedded-" + ns,
+                channelId = "channel-" + ns,
+                initWidth = options.w || "100%",
+                initHeight = options.h || "0";
+
+        if(typeof options.uiParams !== "object"){
+            options.uiParams = {};
+        }
+
+        if(!!options.general) {
+            options.uiParams.isGeneral = true;
+        }
+
+        var xdmOptions = {
+            remote: options.src,
+            remoteOrigin: options.origin,
+            remoteKey: options.key,
+            container: contentId,
+            channel: channelId,
+            props: {width: initWidth, height: initHeight},
+            uiParams: options.uiParams
+        };
+
+        if(options.productCtx && !options.productContext){
+            options.productContext = JSON.parse(options.productCtx);
+        }
+
+        rpc.initWithFrame(options, xdmOptions);
+    }
+
+    //TODO: In the future send the JSON blob up to the top frame.
+    //initialiseIframeRequest(iframeData);
+
+    return function(iframeData) {
+
+        var attemptCounter = 0;
+        function doCreate() {
+            //If the element we are going to append the iframe to doesn't exist in the dom (yet). Wait for it to appear.
+            if(contentDiv(iframeData.ns) && attemptCounter < 10){
+                setTimeout(function(){
+                    attemptCounter++;
+                    doCreate();
+                }, 50);
+                return;
+            }
+
+            // create the new iframe
+            create(iframeData);
+        }
+
+        doCreate();
     };
 
     

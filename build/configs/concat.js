@@ -30,6 +30,7 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/_xdm.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_rpc.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_create_inner_frame.js',
+            '<%= paths.jsSource %>' + 'iframe/plugin/resize.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/events.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/env.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/request.js',

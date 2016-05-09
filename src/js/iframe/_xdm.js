@@ -91,7 +91,7 @@ if(this.AP){
     //  - xdm_c contains a unique channel name; this is a holdover from easyXDM that was used to distinguish
     //    postMessage events between multiple iframes with identical xdm_e values, though this may now be
     //    redundant with the current internal implementation of the XdmRpc and should be considered for removal
-    if (!/xdm_e/.test(loc)) {
+    if (!/xdm_e/.test(loc)) { //If we're on Confluence
       // Host-side constructor branch
       //TODO: I don't think this is used at all. When it's set plugin side it's used in one place. Here it's put into the event bus, and that value in the event bus seems to not be used! I don't think it can be used, because it wouldn't make sense for the key to be the jwt token.
       //localKey = param(config.remote, "oauth_consumer_key") || param(config.remote, "jwt");
@@ -124,6 +124,35 @@ if(this.AP){
         }
       };
       $(iframe).on('ra.iframe.destroy', mixin.destroy);
+    } else if (iframe != undefined) { //If we're at a middle frame
+      localKey = "nothing";
+      remoteKey = config.remoteKey;
+      realAddonKey = remoteKey;
+      addonKey = remoteKey;
+      remoteOrigin = (config.remoteOrigin ? config.remoteOrigin : getBaseUrl(config.remote)).toLowerCase();
+      channel = config.channel;
+      // Define the host-side mixin
+      mixin = {
+        isHost: true,
+        iframe: iframe,
+        uiParams: config.uiParams,
+        destroy: function () {
+          window.clearTimeout(self.timeout); //clear the iframe load time.
+          // Unbind postMessage handler when destroyed
+          unbind();
+          // Then remove the iframe, if it still exists
+          if (self.iframe) {
+            //$(self.iframe).remove();
+            delete self.iframe;
+          }
+        },
+        isActive: function () {
+          // Host-side instances are only active as long as the iframe they communicate with still exists in the DOM
+          //return $.contains(document.documentElement, self.iframe);
+          //Always active at the moment because not all of our bridges are to immediate child iframes.
+          return true;
+        }
+      };
     } else {
       // Add-on-side constructor branch
       localKey = "local"; // Would be better to make this the add-on key, but it's not readily available at this time
