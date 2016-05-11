@@ -214,7 +214,6 @@ if(this.AP){
       var sid = Math.floor(Math.random() * 1000000000).toString(16);
       // Register any callbacks with the nexus so they can be invoked when a response is received
       nexus.add(sid, done, fail);
-
       // Send a request to the remote, where:
       //  - n is the name of the remote function
       //  - a is an array of the (hopefully) serializable, non-callback arguments to this method
