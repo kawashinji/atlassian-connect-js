@@ -36,7 +36,8 @@
       */
       function create(options) {
 
-      window.mostRecentMacroOptions = options;
+      window._AP.mostRecentMacroOptions = options;
+          
       if(typeof options.uiParams !== "object"){
         options.uiParams = uiParams.fromUrl(options.src);
       }

@@ -67,7 +67,6 @@ AP.define("_create_inner_frame", ['_ui-params', '_initialise_iframe_request', '_
     }
 
     //TODO: In the future send the JSON blob up to the top frame.
-    //initialiseIframeRequest(iframeData);
 
     return function(iframeData) {
 

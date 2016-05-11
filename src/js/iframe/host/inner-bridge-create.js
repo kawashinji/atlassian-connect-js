@@ -16,10 +16,10 @@ require(["_dollar", "_rpc"], function ($, rpc) {
 
         initilialisedChildren.push(e.source);
 
-        // var themeOptions = JSON.parse(document.getElementsByClassName('ap-iframe-json-data')[0].innerText);
-        var themeOptions = window.mostRecentMacroOptions; //Slight hack
+        var outerFrameOptions = window._AP.mostRecentMacroOptions; //Slight hack
 
-        var productContext = JSON.parse(themeOptions.productCtx);
+        //TODO: Send correct product context up from inner frame.
+        var productContext = JSON.parse(outerFrameOptions.productCtx);
 
         //We sanitise productContext so that the macro specific context is gone (because we take it from the middle frame):
         //Here's what would normally be in these macro specific fields
@@ -28,32 +28,29 @@ require(["_dollar", "_rpc"], function ($, rpc) {
         // productContext["macro.truncated"] = "false";
         // productContext["macro.id"] = "2558c326-463a-4f9c-b639-815cd64ba4ec";
 
-
         productContext["macro.hash"] = undefined;
         productContext["macro.body"] = undefined;
         productContext["macro.truncated"] = undefined;
         productContext["macro.id"] = undefined;
 
-
         var options = {};
-        options.ns = themeOptions.ns + "." + addonKey + "." + Math.floor(Math.random() * 1000000000);
+        options.ns = outerFrameOptions.ns + "." + addonKey + "." + Math.floor(Math.random() * 1000000000);
         options.key = addonKey;
-        options.cp = themeOptions.cp;
-        options.uid = themeOptions.uid;
-        options.ukey = themeOptions.ukey;
+        options.cp = outerFrameOptions.cp;
+        options.uid = outerFrameOptions.uid;
+        options.ukey = outerFrameOptions.ukey;
         options.origin = e.origin.toLowerCase();
-        options.timeZone = themeOptions.timeZone;
+        options.timeZone = outerFrameOptions.timeZone;
         options.productCtx = JSON.stringify(productContext);
         options.dlg = "";
         options.simpleDlg = "";
         options.general = "";
         options.src = "";
         
-        
+        //TODO: Send correct uiParams up from inner frame.
         // if(typeof options.uiParams !== "object"){
         //     options.uiParams = uiParams.fromUrl(options.src);
         // }
-        //What are we doing about uiParams?
 
         var ns = options.ns,
                 contentId = "embedded-" + ns,

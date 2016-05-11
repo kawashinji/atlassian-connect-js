@@ -1,9 +1,8 @@
-var deps = ["_events", "_jwt", "_uri",  "_ui-params", "host/_util"];
+var deps = ["_events", "_jwt", "_uri"];
 if(this.AP){
-  deps = ["_events", "_jwt", "_uri",  "_ui-params"];
+  deps = ["_events", "_jwt", "_uri"];
 }
-( (typeof _AP !== "undefined") ? define : AP.define)("_xdm", deps, function (events, jwt, uri, uiParams, util) {
-
+( (typeof _AP !== "undefined") ? define : AP.define)("_xdm", deps, function (events, jwt, uri) {
   "use strict";
 
   // Capture some common values and symbol aliases
@@ -29,6 +28,8 @@ if(this.AP){
    * @param {Object} config.props Additional attributes to add to iframe element (host only)
    * @param {String} config.channel Channel (host only); deprecated
    * @param {Object} bindings RPC method stubs and implementations
+   * @param {Object} target the iframe content window/top browser window
+   * @param {Object} iframe if the target has an associated iframe on the page, then that iframe's DOM element
    * @param {Object} bindings.local Local function implementations - functions that exist in the current context.
    *    XdmRpc exposes these functions so that they can be invoked by code running in the other side of the iframe.
    * @param {Array} bindings.remote Names of functions which exist on the other side of the iframe.
@@ -93,9 +94,8 @@ if(this.AP){
     //    redundant with the current internal implementation of the XdmRpc and should be considered for removal
     if (!/xdm_e/.test(loc)) { //If we're on Confluence
       // Host-side constructor branch
-      //TODO: I don't think this is used at all. When it's set plugin side it's used in one place. Here it's put into the event bus, and that value in the event bus seems to not be used! I don't think it can be used, because it wouldn't make sense for the key to be the jwt token.
-      //localKey = param(config.remote, "oauth_consumer_key") || param(config.remote, "jwt");
-      localKey = "nothing";
+      //TODO: This is put into the event bus, but is never really used. If _event was used, when this was set, then that event would never match any of the channels in addons.js. This should be refactored away.
+      localKey = "IsNotUsed";
       remoteKey = config.remoteKey;
       realAddonKey = remoteKey;
       addonKey = remoteKey;
@@ -118,14 +118,19 @@ if(this.AP){
         },
         isActive: function () {
           // Host-side instances are only active as long as the iframe they communicate with still exists in the DOM
-          //return $.contains(document.documentElement, self.iframe);
-          //Always active at the moment because not all of our bridges are to immediate child iframes.
-          return true;
+          if(iframe) {
+            return $.contains(document.documentElement, self.iframe);
+          } else {
+            //This is a bridge for a frame of a frame. We can't tell if the frame is still there.
+            return true; //Bridges for frames of frames are never destroyed. This should be ok, because each bridge only has a single target frame, and that frame should never change.
+          }
         }
       };
-      $(iframe).on('ra.iframe.destroy', mixin.destroy);
+      if (iframe) {
+        $(iframe).on('ra.iframe.destroy', mixin.destroy);
+      }
     } else if (iframe != undefined) { //If we're at a middle frame
-      localKey = "nothing";
+      localKey = "IsNotUsed";
       remoteKey = config.remoteKey;
       realAddonKey = remoteKey;
       addonKey = remoteKey;
@@ -136,21 +141,12 @@ if(this.AP){
         isHost: true,
         iframe: iframe,
         uiParams: config.uiParams,
-        destroy: function () {
-          window.clearTimeout(self.timeout); //clear the iframe load time.
-          // Unbind postMessage handler when destroyed
-          unbind();
-          // Then remove the iframe, if it still exists
-          if (self.iframe) {
-            //$(self.iframe).remove();
-            delete self.iframe;
-          }
-        },
         isActive: function () {
-          // Host-side instances are only active as long as the iframe they communicate with still exists in the DOM
-          //return $.contains(document.documentElement, self.iframe);
-          //Always active at the moment because not all of our bridges are to immediate child iframes.
-          return true;
+          if (target !== window.top) {
+            return document.contains(self.iframe);
+          } else {
+            return true;
+          }
         }
       };
     } else {
@@ -182,7 +178,7 @@ if(this.AP){
 
     // Sends a message of a specific type to the remote peer via a post-message event
     function send(sid, type, message) {
-      //try {
+      try {
         // Sanitize the incoming message arguments
         if (message && message.a) {
           message.a = sanitizeStructuredClone(message.a);
@@ -207,9 +203,9 @@ if(this.AP){
             m: message
           }, remoteOrigin);
         }
-      // } catch (ex) {
-      //   log(errmsg(ex));
-      // }
+      } catch (ex) {
+        log(errmsg(ex));
+      }
     }
 
     // Sends a request with a specific remote method name, args, and optional callbacks
@@ -219,11 +215,10 @@ if(this.AP){
       // Register any callbacks with the nexus so they can be invoked when a response is received
       nexus.add(sid, done, fail);
 
-        // Send a request to the remote, where:
-        //  - n is the name of the remote function
-        //  - a is an array of the (hopefully) serializable, non-callback arguments to this method
-        send(sid, "request", {n: methodName, a: args});
-
+      // Send a request to the remote, where:
+      //  - n is the name of the remote function
+      //  - a is an array of the (hopefully) serializable, non-callback arguments to this method
+      send(sid, "request", {n: methodName, a: args});
     }
 
     function sendDone(sid, message) {
@@ -236,16 +231,10 @@ if(this.AP){
 
     // Handles an normalized, incoming post-message event
     function receive(e) {
-      //try {
+      try {
         // Extract message payload from the event
         var payload = e.data,
             pid = payload.i, pchannel = payload.c, ptype = payload.t, pmessage = payload.m;
-
-        // if the iframe has potentially been reloaded. re-attach the source contentWindow object
-        if (e.source !== target && e.origin.toLowerCase() === remoteOrigin && pchannel === channel) {
-          //I don't think this can happen. I tested in Chrome, if the iframe reloads, or even if the origin changes. The source variable passed in postmessage stays the same.
-          //target = e.source;
-        }
 
         // If the payload doesn't match our expected event signature, assume its not part of the xdm-rpc protocol
         if (e.source !== target || e.origin.toLowerCase() !== remoteOrigin || pchannel !== channel){
@@ -275,7 +264,7 @@ if(this.AP){
             } else {
               context.isHost = false;
             }
-            //try {
+            try {
               if (async) {
                 // If async, apply the method with the responders added to the args list
                 local.apply(context, args.concat([done, fail]));
@@ -283,11 +272,11 @@ if(this.AP){
                 // Otherwise, immediately respond with the result
                 done(local.apply(context, args));
               }
-            // } catch (ex) {
-            //   // If the invocation threw an error, invoke the fail responder callback with it
-            //   fail(errmsg(ex));
-            //   logError(ex);
-            // }
+            } catch (ex) {
+              // If the invocation threw an error, invoke the fail responder callback with it
+              fail(errmsg(ex));
+              logError(ex);
+            }
           } else {
             // No such local rpc method name found
             debug("Unhandled request:", payload);
@@ -299,9 +288,9 @@ if(this.AP){
             debug("Unhandled response:", ptype, pid, pmessage);
           }
         }
-      // } catch (ex) {
-      //   log(errmsg(ex));
-      // }
+      } catch (ex) {
+        log(errmsg(ex));
+      }
     }
 
     // Creates a bridging invocation function for a remote method
