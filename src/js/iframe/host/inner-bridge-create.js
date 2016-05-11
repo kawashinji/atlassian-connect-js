@@ -8,8 +8,7 @@ require(["_dollar", "_rpc"], function ($, rpc) {
     }
 
     function keyMatchesOrigin(addonKey, origin) {
-        //noinspection JSUnresolvedVariable
-        return window.AddonOriginMap[addonKey].toLowerCase() == origin.toLowerCase();
+        return _AP.addonOriginMap[addonKey] === origin.toLowerCase();
     }
 
     function initialise(e) {

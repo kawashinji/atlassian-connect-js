@@ -156,7 +156,7 @@ if(this.AP){
     } else {
       // Add-on-side constructor branch
       localKey = "local"; // Would be better to make this the add-on key, but it's not readily available at this time
-      realAddonKey = param(loc, "xdm_addon_key");
+      realAddonKey = param(loc, "xdm_deprecated_addon_key_do_not_use");
       addonKey = localKey;
       remoteOrigin = param(loc, "xdm_e").toLowerCase();
       channel = param(loc, "xdm_c");
