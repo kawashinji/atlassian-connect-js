@@ -38,7 +38,16 @@
                 $(document).unbind("keydown", keyPressListener);
             }
         };
-
+        function headerFromOptions(options){
+            // If header hasn't been specified in the DialogOptions, use the default header text from a
+            // web-item binding.
+            var header = options.header || options.defaultHeader;
+            // The header is an I18nProperty from DialogOptions and not a String - extract the i18n value.
+            if(typeof header === "object") {
+                header = header.value;
+            }
+            return header;
+        }
         function createDialogElement(options){
             var $el,
             extraClasses = ['ap-aui-dialog2'];
@@ -55,20 +64,9 @@
                 auiSize = 'maximum';
             }
 
-            var header = options.header;
-            if (header && header.value) {
-                // The header is an I18nProperty from DialogOptions and not a String - extract the i18n value.
-                header = header.value;
-            }
-            if (!header && options.defaultHeader) {
-                // If header hasn't been specified in the DialogOptions, use the default header text from a
-                // web-item binding.
-                header = options.defaultHeader;
-            }
-
             $el = $(aui.dialog.dialog2({
                 id: options.id,
-                titleText: header,
+                titleText: headerFromOptions(options),
                 titleId: options.titleId,
                 size: auiSize,
                 extraClasses: extraClasses,
@@ -224,7 +222,6 @@
             * @param {String} [options.id] ID attribute to assign to the dialog. Default to "ap-dialog-n" where n is an autoincrementing id.
             */
             create: function(options, showLoadingIndicator) {
-
                 // We don't support multiple copies of the same dialog being open at the same time.
                 var nexusId = 'ap-' + options.ns;
                 // This is a workaround because just using $('#' + nexusId) doesn't work in unit tests. :/

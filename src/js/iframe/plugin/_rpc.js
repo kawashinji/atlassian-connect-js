@@ -37,6 +37,7 @@ AP.define("_rpc", ["_dollar", "_xdm", "_util", '_ui-params'], function ($, XdmRp
     iframe.width = config.props.width;
     iframe.height = config.props.height;
     iframe.setAttribute('rel', 'nofollow');
+    iframe.className = "ap-iframe";
     document.getElementById(config.container).appendChild(iframe);
 
     iframe.src = config.remote;

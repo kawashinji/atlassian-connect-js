@@ -30,6 +30,7 @@ define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri", "host/_util", "
         $.extend(iframe, {id: id, name: windowName, frameBorder: "0"}, config.props);
         //$.extend will not add the attribute rel.
         iframe.setAttribute('rel', 'nofollow');
+        iframe.className = "ap-iframe";
         $("#" + util.escapeSelector(config.container)).append(iframe);
         $(iframe).trigger("ra.iframe.create");
         iframe.src = config.remote;

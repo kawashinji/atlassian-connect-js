@@ -8,7 +8,6 @@ AJS.toInit(function ($) {
                 callback = function(href, options, eventType){
                     var webItemOptions = _AP.webItemHelper.getOptionsForWebItem(options.bindTo);
                     $.extend(options, webItemOptions);
-
                     var onHover = options.onHover === true;
                     if (!onHover && eventType !== 'click') {
                         // onClick binding only and not a click - do nothing

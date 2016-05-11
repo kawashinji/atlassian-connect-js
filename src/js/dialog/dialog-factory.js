@@ -1,6 +1,6 @@
 (function(define, $){
     "use strict";
-    define("ac/dialog/dialog-factory", ["ac/dialog"], function(dialog) {
+    define("ac/dialog/dialog-factory", ["ac/dialog", 'host/_util'], function(dialog, util) {
 
         //might rename this, it opens a dialog by first working out the url (used for javascript opening a dialog).
         /**
@@ -34,7 +34,9 @@
 
             var createdDialog = dialog.create({
                 id: options.id,
-                ns: options.moduleKey || options.key,
+                key: options.key,
+                moduleKey: options.moduleKey,
+                ns: options.ns || util.addonToNs(options.key, options.moduleKey),
                 chrome: chrome,
                 header: dialogOptions.header,
                 width: dialogOptions.width,
@@ -59,9 +61,18 @@
 
             promise
                 .done(function(data) {
-                    var dialogHtml = $(data);
-                    dialogHtml.addClass('ap-dialog-container');
-                    container.replaceWith(dialogHtml);
+                    var $data = $(data);
+                    $data.find('.ap-content').addClass('ap-dialog-container');
+                    var $existingContainer = $(document.getElementById($data.attr('id')));
+                    // unwarp the velocity fragment if the container is already inplace.
+                    if($existingContainer.length !== 0){
+                        $existingContainer.empty();
+                        $data.each(function(index){
+                            $existingContainer.append($data[index]);
+                        });
+                    } else {
+                        container.replaceWith($data);
+                    }
                 })
                 .fail(function(xhr, status, ex) {
                     var title = $("<p class='title' />").text("Unable to load add-on content. Please try again later.");

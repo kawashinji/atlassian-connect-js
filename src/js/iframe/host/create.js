@@ -41,9 +41,8 @@
       if(typeof options.uiParams !== "object"){
         options.uiParams = uiParams.fromUrl(options.src);
       }
-
-      var ns = options.ns,
-          contentId = "embedded-" + ns,
+      var ns = options.ns = utils.addonToNs(options.key, options.moduleKey);
+      var contentId = "embedded-" + ns,
           channelId = "channel-" + ns,
           initWidth = options.w || "100%",
           initHeight = options.h || "0";
@@ -85,9 +84,10 @@
     return function (options) {
 
       var attemptCounter = 0;
+      var ns = utils.addonToNs(options.key, options.moduleKey);
       function doCreate() {
           //If the element we are going to append the iframe to doesn't exist in the dom (yet). Wait for it to appear.
-          if(contentDiv(options.ns).length === 0 && attemptCounter < 10){
+          if(contentDiv(ns).length === 0 && attemptCounter < 10){
               setTimeout(function(){
                   attemptCounter++;
                   doCreate();
