@@ -98,7 +98,7 @@ define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri", "host/_util", "
         },
 
         initInner: function (options, xdmConfig, target) {
-            options = options || {};
+
             // add stubs for each public api
             each(apis, function (method) { stubs.push(method); });
 

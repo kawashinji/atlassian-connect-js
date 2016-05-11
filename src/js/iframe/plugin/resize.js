@@ -19,19 +19,20 @@ AP.require(["_dollar", "_rpc"], function ($, rpc) {
 
     rpc.extend(function () {
         return {
-            init: function (config, xdm) {
+            initForFrame: function (config, xdm) {
                 if (xdm) {
                     xdm.resize = debounce(function resize ($, width, height) {
                         $(this.iframe).each(function(i, el) {
                             el.style.width = width;
                             el.style.height = height;
                         });
+                        //TODO: Understand consequences of removing this trigger.
                         // var nexus = $(this.iframe).closest('.ap-container');
                         // nexus.trigger('resized', {width: width, height: height});
                     });
                 }
             },
-            internals: {
+            internalsForFrame: {
                 resize: function(width, height) {
                     if(!this.uiParams.isDialog){
                         this.resize($, width, height);

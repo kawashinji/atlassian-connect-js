@@ -10,7 +10,9 @@ AP.define("_rpc", ["_dollar", "_xdm", "_util", '_ui-params'], function ($, XdmRp
       apis = {},
       stubs = ["init"],
       internals = {},
+      internalsForFrame = {},
       inits = [],
+      initsForFrame = [],
       isInited;
 
 
@@ -52,9 +54,12 @@ AP.define("_rpc", ["_dollar", "_xdm", "_util", '_ui-params'], function ($, XdmRp
       if (isFn(config)) config = config(proxy);
       extend(apis, config.apis);
       extend(internals, config.internals);
+      extend(internalsForFrame, config.internalsForFrame);
       stubs = stubs.concat(config.stubs || []);
       var init = config.init;
       if (isFn(init)) inits.push(init);
+      var initForFrame = config.initForFrame;
+      if (isFn(initForFrame)) initsForFrame.push(initForFrame);
       return config.apis;
     },
 
@@ -93,11 +98,11 @@ AP.define("_rpc", ["_dollar", "_xdm", "_util", '_ui-params'], function ($, XdmRp
       var iframe = createIframe(xdmConfig);
 
       // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
-      var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internals)}, iframe.contentWindow, iframe);
+      var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internalsForFrame)}, iframe.contentWindow, iframe);
 
       //Not currently keeping a reference of all of our bridge objects.
       //rpcCollection[rpc.id] = rpc;
-      each(inits, function (_, init) {
+      each(initsForFrame, function (_, init) {
         try { init(extend({}, options), rpc); }
         catch (ex) { console.log(ex); }
       });
