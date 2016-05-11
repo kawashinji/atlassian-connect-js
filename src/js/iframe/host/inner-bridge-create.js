@@ -1,10 +1,11 @@
 require(["_dollar", "_rpc"], function ($, rpc) {
     "use strict";
 
-    var initilialisedChildren = []
+    var initialisedChildren = [];
+    var count = 0;
     
     function alreadyInitialised(source) {
-        return initilialisedChildren.indexOf(source) > -1;
+        return initialisedChildren.indexOf(source) > -1;
     }
 
     function keyMatchesOrigin(addonKey, origin) {
@@ -14,7 +15,7 @@ require(["_dollar", "_rpc"], function ($, rpc) {
     function initialise(e) {
         var payload = e.data, addonKey = payload.k;
 
-        initilialisedChildren.push(e.source);
+        initialisedChildren.push(e.source);
 
         var outerFrameOptions = window._AP.mostRecentMacroOptions; //Slight hack
 
@@ -34,7 +35,7 @@ require(["_dollar", "_rpc"], function ($, rpc) {
         productContext["macro.id"] = undefined;
 
         var options = {};
-        options.ns = outerFrameOptions.ns + "." + addonKey + "." + Math.floor(Math.random() * 1000000000);
+        options.ns = outerFrameOptions.ns + "." + addonKey + "." + count++;
         options.key = addonKey;
         options.cp = outerFrameOptions.cp;
         options.uid = outerFrameOptions.uid;
