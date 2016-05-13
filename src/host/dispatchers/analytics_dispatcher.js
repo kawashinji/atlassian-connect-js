@@ -55,14 +55,16 @@ class AnalyticsDispatcher {
     this._track('iframe.performance.load', {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
-      value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil((value) / LOADING_TIME_TRIMP_PRECISION)
+      value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil((value) / LOADING_TIME_TRIMP_PRECISION),
+      version: "%%GULP_INJECT_VERSION%%"
     });
   }
 
   trackLoadingTimeout(extension) {
     this._track('iframe.performance.timeout', {
       addonKey: extension.addon_key,
-      moduleKey: extension.key
+      moduleKey: extension.key,
+      version: "%%GULP_INJECT_VERSION%%"
     });
     //track an end event during a timeout so we always have complete start / end data.
     this.trackLoadingEnded(extension);
@@ -71,7 +73,8 @@ class AnalyticsDispatcher {
   trackLoadingCancel(extension) {
     this._track('iframe.performance.cancel', {
       addonKey: extension.addon_key,
-      moduleKey: extension.key
+      moduleKey: extension.key,
+      version: "%%GULP_INJECT_VERSION%%"
     });
   }
 

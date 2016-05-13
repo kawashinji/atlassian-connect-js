@@ -53,7 +53,8 @@ simpleXDM.registerRequestNotifier(function(data){
     module: data.module,
     fn: data.fn,
     addonKey: data.addon_key,
-    moduleKey: data.key
+    moduleKey: data.key,
+    version: "%%GULP_INJECT_VERSION%%"
   });
 });
 
