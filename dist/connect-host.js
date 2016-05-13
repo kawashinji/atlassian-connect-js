@@ -4094,6 +4094,10 @@ var _utilsDialog = _dereq_('utils/dialog');
 
 var _utilsDialog2 = _interopRequireDefault(_utilsDialog);
 
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
 var _dialogs = {};
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data) {
@@ -4129,7 +4133,7 @@ var Dialog = function Dialog(options, callback) {
 
   // terrible idea! - we need to remove this from p2 ASAP!
   var dialogModuleOptions = _utilsDialog2['default'].moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
-  options = _.merge({}, dialogModuleOptions || {}, options);
+  options = _underscore2['default'].extend({}, dialogModuleOptions || {}, options);
 
   var dialogOptions = {
     id: _id,
@@ -4241,7 +4245,7 @@ module.exports = {
   }
 };
 
-},{"../util":39,"actions/dialog_actions":6,"actions/dialog_extension_actions":7,"actions/event_actions":10,"components/dialog_extension":19,"dispatchers/event_dispatcher":30,"utils/dialog":40}],34:[function(_dereq_,module,exports){
+},{"../underscore":38,"../util":39,"actions/dialog_actions":6,"actions/dialog_extension_actions":7,"actions/event_actions":10,"components/dialog_extension":19,"dispatchers/event_dispatcher":30,"utils/dialog":40}],34:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

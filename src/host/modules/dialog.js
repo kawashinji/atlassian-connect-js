@@ -5,6 +5,7 @@ import EventActions from 'actions/event_actions';
 import DialogExtensionComponent from 'components/dialog_extension';
 import util from '../util';
 import DialogUtils from 'utils/dialog';
+import _ from '../underscore';
 
 const _dialogs = {};
 
@@ -40,7 +41,7 @@ class Dialog {
 
     // terrible idea! - we need to remove this from p2 ASAP!
     var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
-    options = _.merge({}, dialogModuleOptions || {}, options);
+    options = _.extend({}, dialogModuleOptions || {}, options);
 
     var dialogOptions = {
       id: _id,
