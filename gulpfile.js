@@ -43,9 +43,7 @@ function build(entryModule, distModule, options) {
             .pipe(buffer())
             .pipe(sourcemaps.init({loadMaps: true}))
             .pipe(derequire())
-            .pipe(injectVersion({
-              replace: /%%GULP_INJECT_VERSION%%/g
-            }))
+            .pipe(injectVersion())
             .pipe(sourcemaps.write('./'))
             .pipe(gulp.dest('./dist'));
   }

@@ -4,7 +4,7 @@ const extension = {
   id: 'xxxewjkd',
   addon_key: 'some-addon-key',
   key: 'some-module-key',
-  version: "%%GULP_INJECT_VERSION%%"
+  version: 'some version'
 };
 
 

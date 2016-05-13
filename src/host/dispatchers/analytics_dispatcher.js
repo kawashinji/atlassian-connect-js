@@ -56,7 +56,7 @@ class AnalyticsDispatcher {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
       value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil((value) / LOADING_TIME_TRIMP_PRECISION),
-      version: "%%GULP_INJECT_VERSION%%"
+      version: extension.version
     });
   }
 
@@ -64,7 +64,7 @@ class AnalyticsDispatcher {
     this._track('iframe.performance.timeout', {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
-      version: "%%GULP_INJECT_VERSION%%"
+      version: extension.version
     });
     //track an end event during a timeout so we always have complete start / end data.
     this.trackLoadingEnded(extension);
@@ -74,7 +74,7 @@ class AnalyticsDispatcher {
     this._track('iframe.performance.cancel', {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
-      version: "%%GULP_INJECT_VERSION%%"
+      version: extension.version
     });
   }
 
@@ -85,15 +85,19 @@ class AnalyticsDispatcher {
 
 var analytics = new AnalyticsDispatcher();
 EventDispatcher.register('iframe-create', function(data) {
+  data.extension.version = window._AP.version;
   analytics.trackLoadingStarted(data.extension);
 });
 EventDispatcher.register('iframe-bridge-estabilshed', function(data) {
+  data.extension.version = window._AP.version;
   analytics.trackLoadingEnded(data.extension);
 });
 EventDispatcher.register('iframe-bridge-timeout', function (data) {
+  data.extension.version = window._AP.version;
   analytics.trackLoadingTimeout(data.extension);
 });
 EventDispatcher.register('iframe-bridge-cancelled', function(data) {
+  data.extension.version = window._AP.version;
   analytics.trackLoadingCancel(data.extension);
 });
 

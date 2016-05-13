@@ -54,7 +54,7 @@ simpleXDM.registerRequestNotifier(function(data){
     fn: data.fn,
     addonKey: data.addon_key,
     moduleKey: data.key,
-    version: "%%GULP_INJECT_VERSION%%"
+    version: window._AP.version
   });
 });
 
