@@ -32,7 +32,7 @@ describe('Analytics Dispatcher', () => {
     expect(AnalyticsDispatcher._track).toHaveBeenCalled();
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.timeout', {
       addonKey: extension.addon_key,
-      moduleKey: extension.key,
+      moduleKey: extension.key
     });
   });
   it('trackLoadingCancel triggers iframe.performance.cancel', () => {
