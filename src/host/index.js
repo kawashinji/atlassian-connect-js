@@ -11,7 +11,7 @@ import messages from './modules/messages';
 import flag from './modules/flag';
 import ModuleActions from 'actions/module_actions';
 import DomEventActions from 'actions/dom_event_actions';
-import _ from 'underscore';
+import _ from './underscore';
 import EventActions from 'actions/event_actions';
 import IframeActions from 'actions/iframe_actions';
 import DialogExtensionActions from 'actions/dialog_extension_actions';

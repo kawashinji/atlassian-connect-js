@@ -100,6 +100,17 @@ class DialogUtils {
 
     return sanitized;
   }
+  // such a bad idea! this entire concept needs rewriting in the p2 plugin.
+  moduleOptionsFromGlobal(addon_key, key) {
+    if(window._AP
+      && window._AP.dialogModules
+      && window._AP.dialogModules[addon_key]
+      && window._AP.dialogModules[addon_key][key])
+    {
+      return window._AP.dialogModules[addon_key][key].options;
+    }
+    return false;
+  }
 
 }
 
