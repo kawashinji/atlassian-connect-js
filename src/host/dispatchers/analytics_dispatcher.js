@@ -26,6 +26,7 @@ class AnalyticsDispatcher {
   _track(name, data) {
     var w = window;
     var prefixedName = EVENT_NAME_PREFIX + name;
+    data.extension.version = w._AP.version;
 
     if(w.AJS.Analytics){
       w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
@@ -55,16 +56,14 @@ class AnalyticsDispatcher {
     this._track('iframe.performance.load', {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
-      value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil((value) / LOADING_TIME_TRIMP_PRECISION),
-      version: extension.version
+      value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil((value) / LOADING_TIME_TRIMP_PRECISION)
     });
   }
 
   trackLoadingTimeout(extension) {
     this._track('iframe.performance.timeout', {
       addonKey: extension.addon_key,
-      moduleKey: extension.key,
-      version: extension.version
+      moduleKey: extension.key
     });
     //track an end event during a timeout so we always have complete start / end data.
     this.trackLoadingEnded(extension);
@@ -73,8 +72,7 @@ class AnalyticsDispatcher {
   trackLoadingCancel(extension) {
     this._track('iframe.performance.cancel', {
       addonKey: extension.addon_key,
-      moduleKey: extension.key,
-      version: extension.version
+      moduleKey: extension.key
     });
   }
 
@@ -85,19 +83,15 @@ class AnalyticsDispatcher {
 
 var analytics = new AnalyticsDispatcher();
 EventDispatcher.register('iframe-create', function(data) {
-  data.extension.version = window._AP.version;
   analytics.trackLoadingStarted(data.extension);
 });
 EventDispatcher.register('iframe-bridge-estabilshed', function(data) {
-  data.extension.version = window._AP.version;
   analytics.trackLoadingEnded(data.extension);
 });
 EventDispatcher.register('iframe-bridge-timeout', function (data) {
-  data.extension.version = window._AP.version;
   analytics.trackLoadingTimeout(data.extension);
 });
 EventDispatcher.register('iframe-bridge-cancelled', function(data) {
-  data.extension.version = window._AP.version;
   analytics.trackLoadingCancel(data.extension);
 });
 
