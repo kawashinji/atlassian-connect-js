@@ -53,8 +53,7 @@ simpleXDM.registerRequestNotifier(function(data){
     module: data.module,
     fn: data.fn,
     addonKey: data.addon_key,
-    moduleKey: data.key,
-    version: window._AP.version
+    moduleKey: data.key
   });
 });
 
