@@ -1255,6 +1255,63 @@ var Util = (function () {
       });
       return dest;
     }
+  }, {
+    key: "sanitizeStructuredClone",
+    value: function sanitizeStructuredClone(object) {
+      var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
+      var blackList = [Error, Node];
+      var warn = this.warn;
+      var visitedObjects = [];
+
+      function _clone(value) {
+        if (typeof value === 'function') {
+          warn("A function was detected and removed from the message.");
+          return null;
+        }
+
+        if (blackList.some(function (t) {
+          if (value instanceof t) {
+            warn(t.name + " object was detected and removed from the message.");
+            return true;
+          }
+          return false;
+        })) {
+          return {};
+        }
+
+        if (value && typeof value === 'object' && whiteList.every(function (t) {
+          return !(value instanceof t);
+        })) {
+          if (visitedObjects.indexOf(value) > -1) {
+            warn("A circular reference was detected and removed from the message.");
+            return null;
+          }
+
+          visitedObjects.push(value);
+
+          var newValue = undefined;
+
+          if (Array.isArray(value)) {
+            newValue = value.map(function (element) {
+              return _clone(element);
+            });
+          } else {
+            newValue = {};
+            for (var _name in value) {
+              if (value.hasOwnProperty(_name)) {
+                var clonedValue = _clone(value[_name]);
+                if (clonedValue !== null) {
+                  newValue[_name] = clonedValue;
+                }
+              }
+            }
+          }
+          return newValue;
+        }
+        return value;
+      }
+      return _clone(object);
+    }
   }]);
 
   return Util;
@@ -1378,7 +1435,7 @@ var XDMRPC = (function (_PostMessage) {
     key: '_handleRequest',
     value: function _handleRequest(event, reg) {
       function sendResponse() {
-        var args = _commonUtil2['default'].argumentsToArray(arguments);
+        var args = _commonUtil2['default'].sanitizeStructuredClone(_commonUtil2['default'].argumentsToArray(arguments));
         event.source.postMessage({
           mid: event.data.mid,
           type: 'resp',
@@ -3900,7 +3957,7 @@ var _actionsDom_event_actions = _dereq_('actions/dom_event_actions');
 
 var _actionsDom_event_actions2 = _interopRequireDefault(_actionsDom_event_actions);
 
-var _underscore = _dereq_('underscore');
+var _underscore = _dereq_('./underscore');
 
 var _underscore2 = _interopRequireDefault(_underscore);
 
@@ -3932,6 +3989,13 @@ var _componentsDialog_extension2 = _interopRequireDefault(_componentsDialog_exte
  */
 if (!window._AP) {
   window._AP = {};
+}
+
+/*
+ * Add version
+ */
+if (!window._AP.version) {
+  window._AP.version = "v5.0.0";
 }
 
 _simpleXdmDistHost2['default'].defineModule('messages', _modulesMessages2['default']);
@@ -3993,7 +4057,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./components/loading_indicator":26,"./create":28,"./modules/dialog":33,"./modules/env":34,"./modules/events":35,"./modules/flag":36,"./modules/messages":37,"actions/dom_event_actions":8,"actions/event_actions":10,"actions/iframe_actions":12,"actions/jwt_actions":14,"actions/module_actions":16,"components/dialog_extension":19,"components/dialog_webitem":20,"components/inline_dialog_webitem":25,"dispatchers/analytics_dispatcher":29,"dispatchers/event_dispatcher":30,"simple-xdm/dist/host":4,"underscore":38}],33:[function(_dereq_,module,exports){
+},{"./components/loading_indicator":26,"./create":28,"./modules/dialog":33,"./modules/env":34,"./modules/events":35,"./modules/flag":36,"./modules/messages":37,"./underscore":38,"actions/dom_event_actions":8,"actions/event_actions":10,"actions/iframe_actions":12,"actions/jwt_actions":14,"actions/module_actions":16,"components/dialog_extension":19,"components/dialog_webitem":20,"components/inline_dialog_webitem":25,"dispatchers/analytics_dispatcher":29,"dispatchers/event_dispatcher":30,"simple-xdm/dist/host":4}],33:[function(_dereq_,module,exports){
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -4025,6 +4089,14 @@ var _componentsDialog_extension2 = _interopRequireDefault(_componentsDialog_exte
 var _util = _dereq_('../util');
 
 var _util2 = _interopRequireDefault(_util);
+
+var _utilsDialog = _dereq_('utils/dialog');
+
+var _utilsDialog2 = _interopRequireDefault(_utilsDialog);
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
 
 var _dialogs = {};
 
@@ -4058,6 +4130,10 @@ var Dialog = function Dialog(options, callback) {
   // ACJS-185: the following is a really bad idea but we need it
   // for compat until AP.dialog.customData has been deprecated
   dialogExtension.options.customData = options.customData;
+
+  // terrible idea! - we need to remove this from p2 ASAP!
+  var dialogModuleOptions = _utilsDialog2['default'].moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
+  options = _underscore2['default'].extend({}, dialogModuleOptions || {}, options);
 
   var dialogOptions = {
     id: _id,
@@ -4169,7 +4245,7 @@ module.exports = {
   }
 };
 
-},{"../util":39,"actions/dialog_actions":6,"actions/dialog_extension_actions":7,"actions/event_actions":10,"components/dialog_extension":19,"dispatchers/event_dispatcher":30}],34:[function(_dereq_,module,exports){
+},{"../underscore":38,"../util":39,"actions/dialog_actions":6,"actions/dialog_extension_actions":7,"actions/event_actions":10,"components/dialog_extension":19,"dispatchers/event_dispatcher":30,"utils/dialog":40}],34:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4647,6 +4723,16 @@ var DialogUtils = (function () {
       sanitized.size = this._size(sanitized);
 
       return sanitized;
+    }
+
+    // such a bad idea! this entire concept needs rewriting in the p2 plugin.
+  }, {
+    key: 'moduleOptionsFromGlobal',
+    value: function moduleOptionsFromGlobal(addon_key, key) {
+      if (window._AP && window._AP.dialogModules && window._AP.dialogModules[addon_key] && window._AP.dialogModules[addon_key][key]) {
+        return window._AP.dialogModules[addon_key][key].options;
+      }
+      return false;
     }
   }]);
 

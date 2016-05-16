@@ -4,6 +4,8 @@ import DialogActions from 'actions/dialog_actions';
 import EventActions from 'actions/event_actions';
 import DialogExtensionComponent from 'components/dialog_extension';
 import util from '../util';
+import DialogUtils from 'utils/dialog';
+import _ from '../underscore';
 
 const _dialogs = {};
 
@@ -36,6 +38,10 @@ class Dialog {
     // ACJS-185: the following is a really bad idea but we need it
     // for compat until AP.dialog.customData has been deprecated
     dialogExtension.options.customData = options.customData;
+
+    // terrible idea! - we need to remove this from p2 ASAP!
+    var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
+    options = _.extend({}, dialogModuleOptions || {}, options);
 
     var dialogOptions = {
       id: _id,
