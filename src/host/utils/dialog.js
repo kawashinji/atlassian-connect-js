@@ -61,12 +61,12 @@ class DialogUtils {
       sanitizedActions = [
         {
           name: 'submit',
-          text: options.submitText || 'submit',
+          text: options.submitText || 'Submit',
           type: 'primary'
         },
         {
           name: 'cancel',
-          text: options.cancelText || 'cancel',
+          text: options.cancelText || 'Cancel',
           type: 'link'
         }
       ];

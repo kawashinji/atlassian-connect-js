@@ -68,10 +68,17 @@ class Dialog {
       $button.data('name', action.name);
       if (_.contains(BUTTON_TYPES, action.type)) {
         $button.addClass('aui-button-' + action.type);
-      }
-      $button.click(() => {
+      }    
+      $button.click(() => {                
         if ($button.attr('aria-disabled') !== 'true') {
-          DialogActions.clickButton(action.name, $button, extension);
+          if ($button.parents('.aui-dialog2').find('.ap-iframe-container').hasClass('iframe-init')) {
+            DialogActions.clickButton(action.name, $button, extension);
+          } else {
+            DialogActions.close({
+              dialog: getActiveDialog(),
+              extension: extension
+            });
+          }
         }
       });
       $actions.append($button);
