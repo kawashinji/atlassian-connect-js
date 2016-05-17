@@ -2134,6 +2134,13 @@ module.exports = {
   unregisterKeyEvent: function unregisterKeyEvent(data) {
     _simpleXdmDistHost2['default'].unregisterKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
     _dispatchersEvent_dispatcher2['default'].dispatch('dom-event-unregister', data);
+  },
+  registerWindowKeyEvent: function registerWindowKeyEvent(data) {
+    window.addEventListener('keydown', function (event) {
+      if (event.keyCode === data.keyCode) {
+        data.callback();
+      }
+    });
   }
 };
 
@@ -2539,7 +2546,14 @@ var Dialog = (function () {
         }
         $button.click(function () {
           if ($button.attr('aria-disabled') !== 'true') {
-            _actionsDialog_actions2['default'].clickButton(action.name, $button, extension);
+            if ($button.parents('.aui-dialog2').find('.ap-iframe-container').hasClass('iframe-init')) {
+              _actionsDialog_actions2['default'].clickButton(action.name, $button, extension);
+            } else {
+              _actionsDialog_actions2['default'].close({
+                dialog: getActiveDialog(),
+                extension: extension
+              });
+            }
           }
         });
         $actions.append($button);
@@ -2599,6 +2613,11 @@ var Dialog = (function () {
     value: function setIframeDimensions($iframe) {
       _componentsIframe2['default'].resize('100%', '100%', $iframe);
     }
+  }, {
+    key: 'getActive',
+    value: function getActive() {
+      return getActiveDialog();
+    }
   }]);
 
   return Dialog;
@@ -2618,6 +2637,13 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', f
         });
       }
     });
+
+    _dispatchersEvent_dispatcher2['default'].registerOnce('dialog-close', function (d) {
+      _actionsDom_event_actions2['default'].unregisterKeyEvent({
+        extension_id: data.extension.id,
+        key: 27
+      });
+    });
   }
 });
 
@@ -2634,10 +2660,6 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-close-active', functio
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data) {
   data.dialog.hide();
-  _actionsDom_event_actions2['default'].unregisterKeyEvent({
-    extension_id: data.extension.id,
-    key: 27
-  });
 });
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', function (data) {
@@ -2653,6 +2675,16 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', functi
 _dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
   if (data.extension.options && data.extension.options.isDialog) {
     DialogComponent.setIframeDimensions(data.extension.$el);
+  }
+});
+
+_actionsDom_event_actions2['default'].registerWindowKeyEvent({
+  keyCode: 27,
+  callback: function callback() {
+    _actionsDialog_actions2['default'].closeActive({
+      customData: {},
+      extension: null
+    });
   }
 });
 
@@ -2709,6 +2741,11 @@ var DialogExtension = (function () {
         cancelText: dialogOptions.cancelText
       });
       return $dialog;
+    }
+  }, {
+    key: 'getActiveDialog',
+    value: function getActiveDialog() {
+      return _componentsDialog2['default'].getActive();
     }
   }]);
 
@@ -4102,7 +4139,7 @@ var _dialogs = {};
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data) {
   var dialog = data.dialog;
-  if (dialog) {
+  if (dialog && data.extension) {
     _actionsEvent_actions2['default'].broadcast('dialog.close', {
       addon_key: data.extension.addon_key
     }, data.customData);
@@ -4157,6 +4194,9 @@ var Button = (function () {
   function Button(name) {
     _classCallCheck(this, Button);
 
+    if (!_componentsDialog_extension2['default'].getActiveDialog()) {
+      throw new Error('Failed to find an active dialog.');
+    }
     this.name = name;
     this.enabled = true;
   }
@@ -4686,11 +4726,11 @@ var DialogUtils = (function () {
       if (!options.actions) {
         sanitizedActions = [{
           name: 'submit',
-          text: options.submitText || 'submit',
+          text: options.submitText || 'Submit',
           type: 'primary'
         }, {
           name: 'cancel',
-          text: options.cancelText || 'cancel',
+          text: options.cancelText || 'Cancel',
           type: 'link'
         }];
       }
