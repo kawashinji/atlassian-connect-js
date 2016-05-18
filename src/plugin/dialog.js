@@ -20,9 +20,11 @@ events.onAny((name, args) => {
   if (dialogEventMatch) {
     let dialogEvent = dialogEventMatch[1];
     let handlers = dialogHandlers[dialogEvent];
+    let shouldClose = dialogEvent !== 'close';
     if (handlers) {
-      handlers.forEach(cb => cb(args));
-    } else if (dialogEvent !== 'close') {
+      shouldClose = shouldClose && handlers.every(cb => cb(args));
+    }
+    if (shouldClose) {
       AP.dialog.close();
     }
   }

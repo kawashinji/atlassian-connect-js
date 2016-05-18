@@ -14,6 +14,7 @@ import DomEventActions from 'actions/dom_event_actions';
 import _ from './underscore';
 import EventActions from 'actions/event_actions';
 import IframeActions from 'actions/iframe_actions';
+import DialogExtensionActions from 'actions/dialog_extension_actions';
 
 import InlineDialogWebItemComponent from 'components/inline_dialog_webitem';
 import DialogWebItemComponent from 'components/dialog_webitem';
@@ -60,7 +61,10 @@ simpleXDM.registerRequestNotifier(function(data){
 export default {
   dialog: {
     create: (extension, dialogOptions) => {
-      DialogExtensionComponent.render(extension, dialogOptions);
+      DialogExtensionActions.open(extension, dialogOptions);
+    },
+    close: () => {
+      DialogExtensionActions.close();
     }
   },
   onKeyEvent: (extension_id, key, modifiers, callback) => {
