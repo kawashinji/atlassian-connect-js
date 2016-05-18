@@ -1255,6 +1255,63 @@ var Util = (function () {
       });
       return dest;
     }
+  }, {
+    key: "sanitizeStructuredClone",
+    value: function sanitizeStructuredClone(object) {
+      var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
+      var blackList = [Error, Node];
+      var warn = this.warn;
+      var visitedObjects = [];
+
+      function _clone(value) {
+        if (typeof value === 'function') {
+          warn("A function was detected and removed from the message.");
+          return null;
+        }
+
+        if (blackList.some(function (t) {
+          if (value instanceof t) {
+            warn(t.name + " object was detected and removed from the message.");
+            return true;
+          }
+          return false;
+        })) {
+          return {};
+        }
+
+        if (value && typeof value === 'object' && whiteList.every(function (t) {
+          return !(value instanceof t);
+        })) {
+          if (visitedObjects.indexOf(value) > -1) {
+            warn("A circular reference was detected and removed from the message.");
+            return null;
+          }
+
+          visitedObjects.push(value);
+
+          var newValue = undefined;
+
+          if (Array.isArray(value)) {
+            newValue = value.map(function (element) {
+              return _clone(element);
+            });
+          } else {
+            newValue = {};
+            for (var _name in value) {
+              if (value.hasOwnProperty(_name)) {
+                var clonedValue = _clone(value[_name]);
+                if (clonedValue !== null) {
+                  newValue[_name] = clonedValue;
+                }
+              }
+            }
+          }
+          return newValue;
+        }
+        return value;
+      }
+      return _clone(object);
+    }
   }]);
 
   return Util;
@@ -1378,7 +1435,7 @@ var XDMRPC = (function (_PostMessage) {
     key: '_handleRequest',
     value: function _handleRequest(event, reg) {
       function sendResponse() {
-        var args = _commonUtil2['default'].argumentsToArray(arguments);
+        var args = _commonUtil2['default'].sanitizeStructuredClone(_commonUtil2['default'].argumentsToArray(arguments));
         event.source.postMessage({
           mid: event.data.mid,
           type: 'resp',
