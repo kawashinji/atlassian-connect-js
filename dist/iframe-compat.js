@@ -104,10 +104,16 @@ _events2['default'].onAny(function (name, args) {
     var dialogEvent = dialogEventMatch[1];
     var handlers = dialogHandlers[dialogEvent];
     var shouldClose = dialogEvent !== 'close';
-    if (handlers) {
-      shouldClose = shouldClose && handlers.every(function (cb) {
-        return cb(args);
-      });
+    try {
+      if (handlers) {
+        shouldClose = handlers.reduce(function (result, cb) {
+          return cb(args) && result;
+        }, shouldClose);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      delete dialogHandlers[dialogEvent];
     }
     if (shouldClose) {
       AP.dialog.close();
