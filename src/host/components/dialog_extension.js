@@ -24,6 +24,10 @@ class DialogExtension {
     return $dialog;
   }
 
+  getActiveDialog(){
+    return DialogComponent.getActive();
+  }
+
 }
 
 var DialogExtensionComponent = new DialogExtension();

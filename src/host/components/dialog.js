@@ -68,10 +68,17 @@ class Dialog {
       $button.data('name', action.name);
       if (_.contains(BUTTON_TYPES, action.type)) {
         $button.addClass('aui-button-' + action.type);
-      }
-      $button.click(() => {
+      }    
+      $button.click(() => {                
         if ($button.attr('aria-disabled') !== 'true') {
-          DialogActions.clickButton(action.name, $button, extension);
+          if ($button.parents('.aui-dialog2').find('.ap-iframe-container').hasClass('iframe-init')) {
+            DialogActions.clickButton(action.name, $button, extension);
+          } else {
+            DialogActions.close({
+              dialog: getActiveDialog(),
+              extension: extension
+            });
+          }
         }
       });
       $actions.append($button);
@@ -128,6 +135,10 @@ class Dialog {
   setIframeDimensions($iframe){
     IframeComponent.resize('100%', '100%', $iframe);
   }
+
+  getActive(){
+    return getActiveDialog();
+  }
 }
 
 const DialogComponent = new Dialog();
@@ -143,6 +154,13 @@ EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
           extension: data.extension
         });
       }
+    });
+
+    EventDispatcher.registerOnce('dialog-close', (d) => {
+      DomEventActions.unregisterKeyEvent({
+        extension_id: data.extension.id,
+        key: 27
+      });
     });
   }
 });
@@ -160,10 +178,6 @@ EventDispatcher.register('dialog-close-active', (data) => {
 
 EventDispatcher.register('dialog-close', (data) => {
   data.dialog.hide();
-  DomEventActions.unregisterKeyEvent({
-    extension_id: data.extension.id,
-    key: 27
-  });
 });
 
 EventDispatcher.register('dialog-button-toggle', (data) => {
@@ -179,6 +193,16 @@ EventDispatcher.register('dialog-button-toggle', (data) => {
 EventDispatcher.register('iframe-create', (data) => {
   if(data.extension.options && data.extension.options.isDialog){
     DialogComponent.setIframeDimensions(data.extension.$el);
+  }
+});
+
+DomEventActions.registerWindowKeyEvent({
+  keyCode: 27,
+  callback: () => {
+    DialogActions.closeActive({
+      customData: {},
+      extension: null
+    });
   }
 });
 

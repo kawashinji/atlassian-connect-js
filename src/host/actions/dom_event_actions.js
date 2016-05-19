@@ -9,5 +9,12 @@ module.exports = {
   unregisterKeyEvent: function(data){
     SimpleXDM.unregisterKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
     EventDispatcher.dispatch('dom-event-unregister', data);
+  },
+  registerWindowKeyEvent: function(data){
+    window.addEventListener('keydown', (event) => {
+      if (event.keyCode === data.keyCode) {
+        data.callback();
+      }
+    });
   }
 };

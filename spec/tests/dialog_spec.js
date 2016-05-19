@@ -72,11 +72,25 @@ describe('dialog component', () => {
           expect($actions.find('button').length).toEqual(2);
         });
 
-        it('triggers when buttons are clicked', () => {
+        it('does not trigger event on button clicks when iframe is has not loaded', () => {
           var sanitizedOptions = dialogUtils.sanitizeOptions();
           var $footer = DialogComponent._renderFooter(sanitizedOptions);
           spyOn(DialogActions, 'clickButton');
           $footer.find('button').first().trigger('click');
+          expect(DialogActions.clickButton.calls.count()).toEqual(0);
+        });
+
+        it('triggers when buttons are clicked when iframe is has loaded', () => {
+          var content = $('<div class="ap-iframe-container iframe-init" />').text('some content');
+          var $dialog = DialogComponent.render({
+            $content: content
+          });          
+
+          var sanitizedOptions = dialogUtils.sanitizeOptions();          
+          $dialog.append(DialogComponent._renderFooter(sanitizedOptions));
+
+          spyOn(DialogActions, 'clickButton');
+          $dialog.find('button').first().trigger('click');
           expect(DialogActions.clickButton.calls.count()).toEqual(1);
         });
       });

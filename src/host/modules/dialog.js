@@ -11,7 +11,7 @@ const _dialogs = {};
 
 EventDispatcher.register('dialog-close', function (data) {
   const dialog = data.dialog;
-  if (dialog) {
+  if (dialog && data.extension) {
     EventActions.broadcast('dialog.close', {
       addon_key: data.extension.addon_key
     }, data.customData);
@@ -64,6 +64,9 @@ class Dialog {
 
 class Button {
   constructor(name) {
+    if (!DialogExtensionComponent.getActiveDialog()) {
+      throw new Error('Failed to find an active dialog.');
+    }
     this.name = name;
     this.enabled = true;
   }

@@ -73,6 +73,8 @@ module.exports = new ConsumerOptions();
 },{"./dollar":3}],2:[function(_dereq_,module,exports){
 'use strict';
 
+var _arguments2 = arguments;
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _util = _dereq_('./util');
@@ -102,10 +104,16 @@ _events2['default'].onAny(function (name, args) {
     var dialogEvent = dialogEventMatch[1];
     var handlers = dialogHandlers[dialogEvent];
     var shouldClose = dialogEvent !== 'close';
-    if (handlers) {
-      shouldClose = shouldClose && handlers.every(function (cb) {
-        return cb(args);
-      });
+    try {
+      if (handlers) {
+        shouldClose = handlers.reduce(function (result, cb) {
+          return cb(args) && result;
+        }, shouldClose);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      delete dialogHandlers[dialogEvent];
     }
     if (shouldClose) {
       AP.dialog.close();
@@ -133,12 +141,24 @@ AP.dialog.create = AP._hostModules.dialog.create = function () {
 var original_dialogGetButton = AP._hostModules.dialog.getButton;
 
 AP.dialog.getButton = AP._hostModules.dialog.getButton = function () {
-  var button = original_dialogGetButton.apply(undefined, arguments);
-  var name = arguments[0];
-  button.bind = _util2['default'].deprecateApi(function (callback) {
-    return registerHandler(name, callback);
-  }, 'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
-  return button;
+  var _arguments = _arguments2;
+
+  try {
+    var _ret = (function () {
+      var button = original_dialogGetButton.apply(undefined, _arguments);
+      var name = _arguments[0];
+      button.bind = _util2['default'].deprecateApi(function (callback) {
+        return registerHandler(name, callback);
+      }, 'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
+      return {
+        v: button
+      };
+    })();
+
+    if (typeof _ret === 'object') return _ret.v;
+  } catch (e) {
+    return {};
+  }
 };
 
 AP.dialog.onDialogMessage = AP._hostModules.dialog.onDialogMessage = _util2['default'].deprecateApi(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '0.5');

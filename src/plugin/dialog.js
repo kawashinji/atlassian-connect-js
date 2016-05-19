@@ -21,8 +21,14 @@ events.onAny((name, args) => {
     let dialogEvent = dialogEventMatch[1];
     let handlers = dialogHandlers[dialogEvent];
     let shouldClose = dialogEvent !== 'close';
-    if (handlers) {
-      shouldClose = shouldClose && handlers.every(cb => cb(args));
+    try {
+      if (handlers) {
+        shouldClose = handlers.reduce((result, cb) => cb(args) && result, shouldClose);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      delete dialogHandlers[dialogEvent];
     }
     if (shouldClose) {
       AP.dialog.close();
@@ -51,11 +57,15 @@ AP.dialog.create = AP._hostModules.dialog.create = (...args) => {
 const original_dialogGetButton = AP._hostModules.dialog.getButton;
 
 AP.dialog.getButton = AP._hostModules.dialog.getButton = (...args) => {
-  const button = original_dialogGetButton(...args);
-  const name = args[0];
-  button.bind = util.deprecateApi((callback) => registerHandler(name, callback),
-    'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
-  return button;
+  try {
+    const button = original_dialogGetButton(...args);
+    const name = args[0];
+    button.bind = util.deprecateApi((callback) => registerHandler(name, callback),
+      'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
+    return button;
+  } catch (e) {
+    return {};
+  }
 };
 
 AP.dialog.onDialogMessage = AP._hostModules.dialog.onDialogMessage = util.deprecateApi(registerHandler,
