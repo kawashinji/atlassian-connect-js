@@ -47,6 +47,13 @@ var apis = rpc.extend(function (remote) {
         remote.resize(dim.w, dim.h);
       }, 50),
 
+      /**
+       * Resizes the iframe, so it takes the entire page. Add-on may define to hide footer using
+       * data-options.
+       *
+       * @method
+       * @param {boolean} hideFooter true if the footer is supposed to be hidden
+       */
       sizeToParent: $.debounce(function () {
         remote.sizeToParent();
       }, 50)
