@@ -10,8 +10,8 @@ var apis = rpc.extend(function (remote) {
 
   return {
     /**
-     * @exports AP
      * Utility methods that are available without requiring additional modules.
+     * @exports AP
      */
     apis: {
 
