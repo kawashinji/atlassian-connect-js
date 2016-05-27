@@ -24,7 +24,7 @@ AP.require(["_dollar", "_rpc"], function ($, rpc) {
                     xdm.resize = debounce(function resize ($, width, height) {
                         $(this.iframe).each(function(i, el) {
                             el.style.width = width;
-                            el.style.height = height;
+                            el.style.height = height + 'px';
                         });
                         //TODO: Understand consequences of removing this trigger.
                         // var nexus = $(this.iframe).closest('.ap-container');
