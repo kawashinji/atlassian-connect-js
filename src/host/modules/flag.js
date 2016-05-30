@@ -47,7 +47,7 @@ class Flag {
   *   type: 'info'
   * });
   *
-  * // Log stuff to the console when the flag has closed.
+  * // Log a message to the console when the flag has closed.
   * flag.on('close', function (data) {
   *   console.log('Flag has been closed!');
   * })

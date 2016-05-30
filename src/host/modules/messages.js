@@ -86,7 +86,7 @@ $(document).on('aui-message-close', function (e, $msg) {
 
 var toExport = {
   /**
-  * clear a message
+  * Close a message
   * @name clear
   * @method
   * @memberof module:messages#
