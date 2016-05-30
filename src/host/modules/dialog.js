@@ -77,6 +77,7 @@ class Button {
     }
     this.name = name;
     this.enabled = true;
+    this.visibility = true;
   }
   /**
    * Sets the button state to enabled
@@ -168,6 +169,57 @@ class Button {
         extension: callback._context.extension
       });
     }
+  }
+  /**
+   * Query a button for its current hidden/visible state.
+   * @method isHidden
+   * @memberOf Dialog~DialogButton
+   * @param {Function} callback function to receive the button state.
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit').isHidden(function(hidden){
+   *     if(hidden){
+   *       //button is hidden
+   *     }
+   *   });
+   * });
+   */
+  isHidden(callback) {
+    callback(this.visibility);
+  }
+  /**
+   * Sets the button state to hidden
+   * @method hide
+   * @memberOf Dialog~DialogButton
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit').hide();
+   * });
+   */
+  hide() {
+    this.setVisibility(false);
+  }
+  /**
+   * Sets the button state to visible
+   * @method show
+   * @memberOf Dialog~DialogButton
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit').show();
+   * });
+   */
+  show() {
+    this.setVisibility(true);
+  }
+  setVisibility(visibility) {
+    this.visibility = visibility;
+    DialogActions.toggleButtonVisibility({
+      name: this.name,
+      visibility: this.visibility
+    });
   }
 }
 
@@ -285,6 +337,9 @@ module.exports = {
     disable: Button.prototype.disable,
     toggle: Button.prototype.toggle,
     isEnabled: Button.prototype.isEnabled,
-    trigger: Button.prototype.trigger
+    trigger: Button.prototype.trigger,
+    isHidden: Button.prototype.isHidden,
+    hide: Button.prototype.hide,
+    show: Button.prototype.show
   }
 };

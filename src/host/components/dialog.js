@@ -190,6 +190,20 @@ EventDispatcher.register('dialog-button-toggle', (data) => {
   }
 });
 
+EventDispatcher.register('dialog-button-toggle-visibility', (data) => {
+  const dialog = getActiveDialog();
+  if (dialog) {
+    const $button = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
+      return $(this).data('name') === data.name;
+    });
+    if (data.visibility) {
+      $button.show();
+    } else {
+      $button.hide();
+    }
+  }
+});
+
 EventDispatcher.register('iframe-create', (data) => {
   if(data.extension.options && data.extension.options.isDialog){
     DialogComponent.setIframeDimensions(data.extension.$el);
