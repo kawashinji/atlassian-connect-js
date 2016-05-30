@@ -24,6 +24,10 @@ EventDispatcher.register('dialog-button-click', (data) => {
   });
 });
 
+/**
+ * @class Dialog~Dialog
+ * @description A dialog object that is returned when a dialog is created using the [dialog module](module-Dialog.html).
+ */
 class Dialog {
   constructor(options, callback) {
     const _id = callback._id;
@@ -62,6 +66,10 @@ class Dialog {
   }
 }
 
+/**
+ * @class Dialog~DialogButton
+ * @description A dialog button that can be controlled with JavaScript
+ */
 class Button {
   constructor(name) {
     if (!DialogExtensionComponent.getActiveDialog()) {
@@ -70,19 +78,64 @@ class Button {
     this.name = name;
     this.enabled = true;
   }
+  /**
+   * Sets the button state to enabled
+   * @method enable
+   * @memberOf Dialog~DialogButton
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit').enable();
+   * });
+   */
   enable() {
     this.setState({
       enabled: true
     });
   }
+  /**
+   * Sets the button state to disabled. A disabled button cannot be clicked and emits no events.
+   * @method disable
+   * @memberOf Dialog~DialogButton
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit').disable();
+   * });
+   */
   disable() {
     this.setState({
       enabled: false
     });
   }
+  /**
+   * Query a button for its current state.
+   * @method isEnabled
+   * @memberOf Dialog~DialogButton
+   * @param {Function} callback function to receive the button state.
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit').isEnabled(function(enabled){
+   *     if(enabled){
+   *       //button is enabled
+   *     }
+   *   });
+   * });
+   */
   isEnabled(callback) {
     callback(this.enabled);
   }
+  /**
+   * Toggle the button state between enabled and disabled.
+   * @method toggle
+   * @memberOf Dialog~DialogButton
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit').toggle();
+   * });
+   */
   toggle() {
     this.setState({
       enabled: !this.enabled
@@ -95,6 +148,19 @@ class Button {
       enabled: this.enabled
     });
   }
+  /**
+   * Trigger a callback bound to a button.
+   * @method trigger
+   * @memberOf Dialog~DialogButton
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit').bind(function(){
+   *     alert('clicked!');
+   *   });
+   *   dialog.getButton('submit').trigger();
+   * });
+   */
   trigger(callback) {
     if (this.enabled) {
       DialogActions.dialogMessage({
@@ -109,10 +175,71 @@ function getDialogFromContext(context) {
   return  _dialogs[context.extension.options.dialogId];
 }
 
+/**
+ * The Dialog module provides a mechanism for launching an add-on's modules as modal dialogs from within an add-on's iframe.
+ * A modal dialog displays information without requiring the user to leave the current page.
+ * The dialog is opened over the entire window, rather than within the iframe itself.
+ *
+ * <h3>Styling your dialog to look like a standard Atlassian dialog</h3>
+ *
+ * By default the dialog iframe is undecorated. It's up to you to style the dialog.
+ * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
+ *
+ * In order to maintain a consistent look and feel between the host application and the add-on,
+ * we encourage you to style your dialogs to match Atlassian's Design Guidelines for modal dialogs.
+ * To do that, you'll need to add the AUI styles to your dialog.
+ *
+ * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog.html).
+ * @exports Dialog
+ */
 module.exports = {
+  /**
+   * @class Dialog~DialogOptions
+   * @description The options supplied to a [dialog.create()](module-Dialog.html) call.
+   *
+   * @property {String}        key         The module key of a dialog, or the key of a page or web-item that you want to open as a dialog.
+   * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or fullscreen (with chrome).
+   * @property {Number|String} width       if size is not set, define the width as a percentage (append a % to the number) or pixels.
+   * @property {Number|String} height      if size is not set, define the height as a percentage (append a % to the number) or pixels.
+   * @property {Boolean}       chrome      (optional) opens the dialog with heading and buttons.
+   * @property {String}        header      (optional) text to display in the header if opening a dialog with chrome.
+   * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
+   * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
+   * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
+   * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC will close the dialog (default is true).
+   */
+
+  /**
+   * Creates a dialog for a common dialog, page or web-item module key.
+   * @param {Dialog~DialogOptions} options configuration object of dialog options.
+   * @method create
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.create({
+   *     key: 'my-module-key',
+   *     width: '500px',
+   *     height: '200px',
+   *     chrome: true
+   *   }).on("close", callbackFunc);
+   * });
+   *
+   * @return {Dialog~Dialog} Dialog object allowing for callback registrations
+   */
   create: {
     constructor: Dialog
   },
+  /**
+   * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.
+   * This will only close a dialog that has been opened by your add-on.
+   * You can register for close events using the `dialog.close` event and the [events module](module-Events.html).
+   * @param {Object} data An object to be emitted on dialog close.
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+         *   dialog.close({foo: 'bar'});
+         * });
+   */
   close: (data, callback) => {
     if (!$.isFunction(callback)) {
       callback = data;
@@ -123,12 +250,35 @@ module.exports = {
       extension: callback._context.extension
     });
   },
+  /**
+   * Returns the data Object passed to the dialog at creation.
+   * @noDemo
+   * @name customData
+   * @method
+   * @param {Function} callback - Callback method to be executed with the custom data.
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   var myDataVariable = dialog.customData.myDataVariable;
+   * });
+   *
+   * @return {Object} Data Object passed to the dialog on creation.
+   */
   getCustomData: (callback) => {
     const dialog = getDialogFromContext(callback._context);
     if (dialog) {
       callback(dialog.customData);
     }
   },
+  /**
+   * Returns the button that was requested (either cancel or submit). If the requested button does not exist, an empty Object will be returned instead.
+   * @method getButton
+   * @returns {Dialog~DialogButton}
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit');
+   * });
+   */
   getButton: {
     constructor: Button,
     enable: Button.prototype.enable,
