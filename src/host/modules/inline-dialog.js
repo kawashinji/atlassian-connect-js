@@ -5,7 +5,7 @@
  * Inline dialogs can be shown via a [web item target](../modules/common/web-item.html#target).
  *
  * For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inline-dialog.html).
- * @exports inline-dialog
+ * @module inline-dialog
  */
 
 import EventDispatcher from 'dispatchers/event_dispatcher';
@@ -21,6 +21,7 @@ EventDispatcher.register('inline-dialog-hide', hideInlineDialog);
 export default {
   /**
    * Hide the inline dialog that contains the iframe where this method is called from.
+   * @memberOf module:inline-dialog
    * @method hide
    * @noDemo
    * @example

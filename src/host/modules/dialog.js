@@ -26,7 +26,7 @@ EventDispatcher.register('dialog-button-click', (data) => {
 
 /**
  * @class Dialog~Dialog
- * @description A dialog object
+ * @description A dialog object that is returned when a dialog is created using the [dialog module](module-Dialog.html).
  */
 class Dialog {
   constructor(options, callback) {
@@ -94,7 +94,7 @@ class Button {
     });
   }
   /**
-   * Sets the button state to disabled
+   * Sets the button state to disabled. A disabled button cannot be clicked and emits no events.
    * @method disable
    * @memberOf Dialog~DialogButton
    * @noDemo
@@ -216,13 +216,13 @@ module.exports = {
    * @noDemo
    * @example
    * AP.require('dialog', function(dialog){
-         *   dialog.create({
-         *     key: 'my-module-key',
-         *     width: '500px',
-         *     height: '200px',
-         *     chrome: true
-         *   }).on("close", callbackFunc);
-         * });
+   *   dialog.create({
+   *     key: 'my-module-key',
+   *     width: '500px',
+   *     height: '200px',
+   *     chrome: true
+   *   }).on("close", callbackFunc);
+   * });
    *
    * @return {Dialog~Dialog} Dialog object allowing for callback registrations
    */
@@ -258,8 +258,8 @@ module.exports = {
    * @param {Function} callback - Callback method to be executed with the custom data.
    * @example
    * AP.require('dialog', function(dialog){
-         *   var myDataVariable = dialog.customData.myDataVariable;
-         * });
+   *   var myDataVariable = dialog.customData.myDataVariable;
+   * });
    *
    * @return {Object} Data Object passed to the dialog on creation.
    */
@@ -270,14 +270,14 @@ module.exports = {
     }
   },
   /**
-   * Returns the button that was requested (either cancel or submit)
+   * Returns the button that was requested (either cancel or submit). If the requested button does not exist, an empty Object will be returned instead.
    * @method getButton
    * @returns {Dialog~DialogButton}
    * @noDemo
    * @example
    * AP.require('dialog', function(dialog){
-         *   dialog.getButton('submit');
-         * });
+   *   dialog.getButton('submit');
+   * });
    */
   getButton: {
     constructor: Button,

@@ -47,20 +47,20 @@ function registerHandler(event, callback) {
 
 const original_dialogCreate = AP._hostModules.dialog.create;
 
-/**
- * Allows the add-on to register a callback function for the given event. The listener is only called once and must be
- * re-registered if needed.
- * @memberOf Dialog~Dialog
- * @param {String} event name of the event to listen for, such as 'close'.
- * @param {Function} callback function to receive the event callback.
- * @noDemo
- * @example
- * AP.require('dialog', function(dialog){
- *   dialog.create(opts).on("close", callbackFunc);
- * });
- */
 AP.dialog.create = AP._hostModules.dialog.create = (...args) => {
   const dialog = original_dialogCreate(...args);
+  /**
+   * Allows the add-on to register a callback function for the given event. The listener is only called once and must be re-registered if needed.
+   * @memberOf Dialog~Dialog
+   * @method on
+   * @param {String} event name of the event to listen for, such as 'close'.
+   * @param {Function} callback function to receive the event callback.
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.create(opts).on("close", callbackFunc);
+   * });
+   */
   dialog.on = util.deprecateApi(registerHandler,
     'AP.dialog.on("close", callback)', 'AP.events.on("dialog.close", callback)', '5.0');
   return dialog;

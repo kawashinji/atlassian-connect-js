@@ -9,6 +9,7 @@
 *   var message = messages.info('plain text title', 'plain text body');
 * });
 * ```
+* This module has been deprecated and may be removed in future releases. Please use the [Flag module](module-Flag.html) instead.
 * @name messages
 * @module
 */
