@@ -157,8 +157,8 @@ AP.dialog.getButton = AP._hostModules.dialog.getButton = function () {
 
   try {
     var _ret = (function () {
-      var button = original_dialogGetButton.apply(undefined, _arguments);
       var name = _arguments[0];
+      var button = original_dialogGetButton(name);
 
       /**
        * Registers a function to be called when the button is clicked.

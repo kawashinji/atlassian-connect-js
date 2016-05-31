@@ -2681,13 +2681,13 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', functi
 _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle-visibility', function (data) {
   var dialog = getActiveDialog();
   if (dialog) {
-    var $button = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
+    var $button = dialog.$el.find(".aui-dialog2-footer-actions .aui-button").filter(function () {
       return (0, _dollar2['default'])(this).data('name') === data.name;
     });
-    if (data.visibility) {
-      $button.show();
-    } else {
+    if (data.hidden) {
       $button.hide();
+    } else {
+      $button.show();
     }
   }
 });
@@ -4237,7 +4237,7 @@ var Button = (function () {
     }
     this.name = name;
     this.enabled = true;
-    this.visibility = true;
+    this.hidden = false;
   }
 
   /**
@@ -4367,7 +4367,7 @@ var Button = (function () {
   }, {
     key: 'isHidden',
     value: function isHidden(callback) {
-      callback(this.visibility);
+      callback(this.hidden);
     }
 
     /**
@@ -4383,7 +4383,7 @@ var Button = (function () {
   }, {
     key: 'hide',
     value: function hide() {
-      this.setVisibility(false);
+      this.setHidden(true);
     }
 
     /**
@@ -4399,15 +4399,15 @@ var Button = (function () {
   }, {
     key: 'show',
     value: function show() {
-      this.setVisibility(true);
+      this.setHidden(false);
     }
   }, {
-    key: 'setVisibility',
-    value: function setVisibility(visibility) {
-      this.visibility = visibility;
+    key: 'setHidden',
+    value: function setHidden(hidden) {
+      this.hidden = hidden;
       _actionsDialog_actions2['default'].toggleButtonVisibility({
         name: this.name,
-        visibility: this.visibility
+        hidden: this.hidden
       });
     }
   }]);

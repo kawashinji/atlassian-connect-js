@@ -193,13 +193,13 @@ EventDispatcher.register('dialog-button-toggle', (data) => {
 EventDispatcher.register('dialog-button-toggle-visibility', (data) => {
   const dialog = getActiveDialog();
   if (dialog) {
-    const $button = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
+    const $button = dialog.$el.find(".aui-dialog2-footer-actions .aui-button").filter(function () {
       return $(this).data('name') === data.name;
     });
-    if (data.visibility) {
-      $button.show();
-    } else {
+    if (data.hidden) {
       $button.hide();
+    } else {
+      $button.show();
     }
   }
 });

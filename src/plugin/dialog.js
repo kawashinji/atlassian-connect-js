@@ -70,8 +70,8 @@ const original_dialogGetButton = AP._hostModules.dialog.getButton;
 
 AP.dialog.getButton = AP._hostModules.dialog.getButton = (...args) => {
   try {
-    const button = original_dialogGetButton(...args);
     const name = args[0];
+    const button = original_dialogGetButton(name);
 
     /**
      * Registers a function to be called when the button is clicked.

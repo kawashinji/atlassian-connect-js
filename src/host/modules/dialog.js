@@ -77,7 +77,7 @@ class Button {
     }
     this.name = name;
     this.enabled = true;
-    this.visibility = true;
+    this.hidden = false;
   }
   /**
    * Sets the button state to enabled
@@ -186,7 +186,7 @@ class Button {
    * });
    */
   isHidden(callback) {
-    callback(this.visibility);
+    callback(this.hidden);
   }
   /**
    * Sets the button state to hidden
@@ -199,7 +199,7 @@ class Button {
    * });
    */
   hide() {
-    this.setVisibility(false);
+    this.setHidden(true);
   }
   /**
    * Sets the button state to visible
@@ -212,13 +212,13 @@ class Button {
    * });
    */
   show() {
-    this.setVisibility(true);
+    this.setHidden(false);
   }
-  setVisibility(visibility) {
-    this.visibility = visibility;
+  setHidden(hidden) {
+    this.hidden = hidden;
     DialogActions.toggleButtonVisibility({
       name: this.name,
-      visibility: this.visibility
+      hidden: this.hidden
     });
   }
 }
