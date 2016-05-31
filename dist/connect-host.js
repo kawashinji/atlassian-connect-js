@@ -2684,7 +2684,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle-visibili
     var $button = dialog.$el.find(".aui-dialog2-footer-actions .aui-button").filter(function () {
       return (0, _dollar2['default'])(this).data('name') === data.name;
     });
-    if (data.hidden) {
+    if (data.isHidden) {
       $button.hide();
     } else {
       $button.show();
@@ -4407,7 +4407,7 @@ var Button = (function () {
       this.hidden = hidden;
       _actionsDialog_actions2['default'].toggleButtonVisibility({
         name: this.name,
-        hidden: this.hidden
+        isHidden: this.hidden
       });
     }
   }]);

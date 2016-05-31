@@ -69,8 +69,8 @@ AP.dialog.create = AP._hostModules.dialog.create = (...args) => {
 const original_dialogGetButton = AP._hostModules.dialog.getButton;
 
 AP.dialog.getButton = AP._hostModules.dialog.getButton = (...args) => {
+  const name = args[0];
   try {
-    const name = args[0];
     const button = original_dialogGetButton(name);
 
     /**

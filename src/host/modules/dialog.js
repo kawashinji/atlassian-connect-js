@@ -218,7 +218,7 @@ class Button {
     this.hidden = hidden;
     DialogActions.toggleButtonVisibility({
       name: this.name,
-      hidden: this.hidden
+      isHidden: this.hidden
     });
   }
 }
