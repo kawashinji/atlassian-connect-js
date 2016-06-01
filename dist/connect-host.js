@@ -3650,7 +3650,6 @@ var WebItem = (function () {
       var onTriggers = _utilsWebitem2['default'].sanitizeTriggers(webitem.triggers);
       webitem._on = function (event) {
         event.preventDefault();
-        // var $target = $(event.target);
         var $target = (0, _dollar2['default'])(event.target).closest(webitem.selector);
         var extension = {
           addon_key: _utilsWebitem2['default'].getExtensionKey($target),
