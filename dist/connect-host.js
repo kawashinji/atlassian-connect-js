@@ -5386,13 +5386,13 @@ function getOptionsForWebItem($target) {
   } else {
     console.warn('no webitem ' + type + 'Options for ' + fullKey);
   }
-  var url = new _jsuri2['default']($target.attr('href'));
-
-  return _underscore2['default'].extend({}, options, {
-    productContext: url.getQueryParamValue('cp'),
-    width: url.getQueryParamValue('width'),
-    height: url.getQueryParamValue('height')
+  options.productContext = options.productContext || {};
+  // create product context from url params
+  new _jsuri2['default']($target.attr('href')).query().params.forEach(function (param) {
+    options.productContext[param[0]] = param[1];
   });
+
+  return options;
 }
 
 module.exports = {

@@ -63,14 +63,13 @@ function getOptionsForWebItem($target) {
   } else {
     console.warn('no webitem ' + type + 'Options for ' + fullKey);
   }
-  var url = new jsuri($target.attr('href'));
-
-  return _.extend({}, options, {
-    productContext: url.getQueryParamValue('cp'),
-    width: url.getQueryParamValue('width'),
-    height: url.getQueryParamValue('height')
+  options.productContext = options.productContext || {};
+  // create product context from url params
+  new jsuri($target.attr('href')).query().params.forEach((param) => {
+    options.productContext[param[0]] = param[1];
   });
 
+  return options;
 }
 
 module.exports = {
