@@ -51,7 +51,8 @@ class WebItem {
     var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
     webitem._on = (event) => {
       event.preventDefault();
-      var $target = $(event.target);
+      // var $target = $(event.target);
+      var $target = $(event.target).closest(webitem.selector);
       var extension = {
           addon_key: WebItemUtils.getExtensionKey($target),
           key: WebItemUtils.getKey($target),
