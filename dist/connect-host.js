@@ -5324,6 +5324,10 @@ var _underscore = _dereq_('../underscore');
 
 var _underscore2 = _interopRequireDefault(_underscore);
 
+var _jsuri = _dereq_('jsuri');
+
+var _jsuri2 = _interopRequireDefault(_jsuri);
+
 function sanitizeTriggers(triggers) {
   var onTriggers;
   if (_underscore2['default'].isArray(triggers)) {
@@ -5374,15 +5378,21 @@ function getModuleOptionsForWebitem(type, $target) {
 // LEGACY - method for handling webitem options for p2
 function getOptionsForWebItem($target) {
   var fullKey = getFullKey($target);
+
   var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-  var moduleOptions = getModuleOptionsForWebitem(type, $target);
-  if (moduleOptions) {
-    return moduleOptions;
-  } else if (window._AP && window._AP[type + 'Options']) {
-    return window._AP[type + 'Options'][fullKey] || {};
+  var options = getModuleOptionsForWebitem(type, $target);
+  if (!options && window._AP && window._AP[type + 'Options']) {
+    options = window._AP[type + 'Options'][fullKey] || {};
   } else {
     console.warn('no webitem ' + type + 'Options for ' + fullKey);
   }
+  var url = new _jsuri2['default']($target.attr('href'));
+
+  return _underscore2['default'].extend({}, options, {
+    productContext: url.getQueryParamValue('cp'),
+    width: url.getQueryParamValue('width'),
+    height: url.getQueryParamValue('height')
+  });
 }
 
 module.exports = {
@@ -5393,7 +5403,7 @@ module.exports = {
   getOptionsForWebItem: getOptionsForWebItem
 };
 
-},{"../underscore":38}]},{},[32])(32)
+},{"../underscore":38,"jsuri":3}]},{},[32])(32)
 });
 
 
