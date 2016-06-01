@@ -58,14 +58,16 @@ function getOptionsForWebItem($target) {
 
   var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
   var options = getModuleOptionsForWebitem(type, $target);
-  if(!options && window._AP && window._AP[type + 'Options']) {
+  if(window._AP && window._AP[type + 'Options']) {
     options = window._AP[type + 'Options'][fullKey] || {};
-  } else {
+  }
+  if(!options){
+    options = {};
     console.warn('no webitem ' + type + 'Options for ' + fullKey);
   }
   options.productContext = options.productContext || {};
   // create product context from url params
-  new jsuri($target.attr('href')).query().params.forEach((param) => {
+  new jsuri($target.attr('href')).queryPairs.forEach((param) => {
     options.productContext[param[0]] = param[1];
   });
 
