@@ -3650,7 +3650,7 @@ var WebItem = (function () {
       var onTriggers = _utilsWebitem2['default'].sanitizeTriggers(webitem.triggers);
       webitem._on = function (event) {
         event.preventDefault();
-        var $target = (0, _dollar2['default'])(event.target);
+        var $target = (0, _dollar2['default'])(event.target).closest(webitem.selector);
         var extension = {
           addon_key: _utilsWebitem2['default'].getExtensionKey($target),
           key: _utilsWebitem2['default'].getKey($target),
@@ -4162,6 +4162,11 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-click', functio
   });
 });
 
+/**
+ * @class Dialog~Dialog
+ * @description A dialog object that is returned when a dialog is created using the [dialog module](module-Dialog.html).
+ */
+
 var Dialog = function Dialog(options, callback) {
   _classCallCheck(this, Dialog);
 
@@ -4198,7 +4203,13 @@ var Dialog = function Dialog(options, callback) {
   _actionsDialog_extension_actions2['default'].open(dialogExtension, dialogOptions);
   this.customData = options.customData;
   _dialogs[_id] = this;
-};
+}
+
+/**
+ * @class Dialog~DialogButton
+ * @description A dialog button that can be controlled with JavaScript
+ */
+;
 
 var Button = (function () {
   function Button(name) {
@@ -4211,6 +4222,17 @@ var Button = (function () {
     this.enabled = true;
   }
 
+  /**
+   * Sets the button state to enabled
+   * @method enable
+   * @memberOf Dialog~DialogButton
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit').enable();
+   * });
+   */
+
   _createClass(Button, [{
     key: 'enable',
     value: function enable() {
@@ -4218,6 +4240,17 @@ var Button = (function () {
         enabled: true
       });
     }
+
+    /**
+     * Sets the button state to disabled. A disabled button cannot be clicked and emits no events.
+     * @method disable
+     * @memberOf Dialog~DialogButton
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').disable();
+     * });
+     */
   }, {
     key: 'disable',
     value: function disable() {
@@ -4225,11 +4258,38 @@ var Button = (function () {
         enabled: false
       });
     }
+
+    /**
+     * Query a button for its current state.
+     * @method isEnabled
+     * @memberOf Dialog~DialogButton
+     * @param {Function} callback function to receive the button state.
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').isEnabled(function(enabled){
+     *     if(enabled){
+     *       //button is enabled
+     *     }
+     *   });
+     * });
+     */
   }, {
     key: 'isEnabled',
     value: function isEnabled(callback) {
       callback(this.enabled);
     }
+
+    /**
+     * Toggle the button state between enabled and disabled.
+     * @method toggle
+     * @memberOf Dialog~DialogButton
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').toggle();
+     * });
+     */
   }, {
     key: 'toggle',
     value: function toggle() {
@@ -4246,6 +4306,20 @@ var Button = (function () {
         enabled: this.enabled
       });
     }
+
+    /**
+     * Trigger a callback bound to a button.
+     * @method trigger
+     * @memberOf Dialog~DialogButton
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').bind(function(){
+     *     alert('clicked!');
+     *   });
+     *   dialog.getButton('submit').trigger();
+     * });
+     */
   }, {
     key: 'trigger',
     value: function trigger(callback) {
@@ -4265,10 +4339,71 @@ function getDialogFromContext(context) {
   return _dialogs[context.extension.options.dialogId];
 }
 
+/**
+ * The Dialog module provides a mechanism for launching an add-on's modules as modal dialogs from within an add-on's iframe.
+ * A modal dialog displays information without requiring the user to leave the current page.
+ * The dialog is opened over the entire window, rather than within the iframe itself.
+ *
+ * <h3>Styling your dialog to look like a standard Atlassian dialog</h3>
+ *
+ * By default the dialog iframe is undecorated. It's up to you to style the dialog.
+ * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
+ *
+ * In order to maintain a consistent look and feel between the host application and the add-on,
+ * we encourage you to style your dialogs to match Atlassian's Design Guidelines for modal dialogs.
+ * To do that, you'll need to add the AUI styles to your dialog.
+ *
+ * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog.html).
+ * @exports Dialog
+ */
 module.exports = {
+  /**
+   * @class Dialog~DialogOptions
+   * @description The options supplied to a [dialog.create()](module-Dialog.html) call.
+   *
+   * @property {String}        key         The module key of a dialog, or the key of a page or web-item that you want to open as a dialog.
+   * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or fullscreen (with chrome).
+   * @property {Number|String} width       if size is not set, define the width as a percentage (append a % to the number) or pixels.
+   * @property {Number|String} height      if size is not set, define the height as a percentage (append a % to the number) or pixels.
+   * @property {Boolean}       chrome      (optional) opens the dialog with heading and buttons.
+   * @property {String}        header      (optional) text to display in the header if opening a dialog with chrome.
+   * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
+   * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
+   * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
+   * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC will close the dialog (default is true).
+   */
+
+  /**
+   * Creates a dialog for a common dialog, page or web-item module key.
+   * @param {Dialog~DialogOptions} options configuration object of dialog options.
+   * @method create
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.create({
+   *     key: 'my-module-key',
+   *     width: '500px',
+   *     height: '200px',
+   *     chrome: true
+   *   }).on("close", callbackFunc);
+   * });
+   *
+   * @return {Dialog~Dialog} Dialog object allowing for callback registrations
+   */
   create: {
     constructor: Dialog
   },
+  /**
+   * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.
+   * This will only close a dialog that has been opened by your add-on.
+   * You can register for close events using the `dialog.close` event and the [events module](module-Events.html).
+   * @param {Object} data An object to be emitted on dialog close.
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+         *   dialog.close({foo: 'bar'});
+         * });
+   */
   close: function close(data, callback) {
     if (!$.isFunction(callback)) {
       callback = data;
@@ -4279,12 +4414,35 @@ module.exports = {
       extension: callback._context.extension
     });
   },
+  /**
+   * Returns the data Object passed to the dialog at creation.
+   * @noDemo
+   * @name customData
+   * @method
+   * @param {Function} callback - Callback method to be executed with the custom data.
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   var myDataVariable = dialog.customData.myDataVariable;
+   * });
+   *
+   * @return {Object} Data Object passed to the dialog on creation.
+   */
   getCustomData: function getCustomData(callback) {
     var dialog = getDialogFromContext(callback._context);
     if (dialog) {
       callback(dialog.customData);
     }
   },
+  /**
+   * Returns the button that was requested (either cancel or submit). If the requested button does not exist, an empty Object will be returned instead.
+   * @method getButton
+   * @returns {Dialog~DialogButton}
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit');
+   * });
+   */
   getButton: {
     constructor: Button,
     enable: Button.prototype.enable,
@@ -4384,6 +4542,11 @@ exports['default'] = {
 module.exports = exports['default'];
 
 },{"../underscore":38,"actions/event_actions":10}],36:[function(_dereq_,module,exports){
+/**
+* Flags are the primary method for providing system feedback in the product user interface. Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
+* @module Flag
+*/
+
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4414,6 +4577,11 @@ var _componentsFlag2 = _interopRequireDefault(_componentsFlag);
 
 var _flags = {};
 
+/**
+* @class Flag~Flag
+* @description A flag object created by the [AP.flag]{@link module:Flag} module.
+*/
+
 var Flag = (function () {
   function Flag(options, callback) {
     _classCallCheck(this, Flag);
@@ -4433,6 +4601,28 @@ var Flag = (function () {
     _flags[this.flag.attr('id')] = this;
   }
 
+  /**
+  * @name on
+  * @memberof Flag~Flag
+  * @method
+  * @description Binds a callback function to an event that is triggered by the Flag.
+  * @param {Event} event A flag event; currently, the only valid option is 'close'.
+  * @param {Function} callback The function that runs when the event occurs.
+  * @example
+  * // Display a nice green flag using the Flags JavaScript API.
+  * var flag = AP.flag.create({
+  *   title: 'Succesfully created a flag.',
+  *   body: 'This is a flag.',
+  *   type: 'info'
+  * });
+  *
+  * // Log a message to the console when the flag has closed.
+  * flag.on('close', function (data) {
+  *   console.log('Flag has been closed!');
+  * })
+  *
+  */
+
   _createClass(Flag, [{
     key: 'on',
     value: function on(event, callback) {
@@ -4441,6 +4631,24 @@ var Flag = (function () {
         this.onTriggers[event] = callback;
       }
     }
+
+    /**
+    * @name close
+    * @memberof Flag~Flag
+    * @method
+    * @description Closes the Flag.
+    * @example
+    * // Display a nice green flag using the Flags JavaScript API.
+    * var flag = AP.flag.create({
+    *   title: 'Succesfully created a flag.',
+    *   body: 'This is a flag.',
+    *   type: 'info'
+    * });
+    *
+    * // Close the flag.
+    * flag.close()
+    *
+    */
   }, {
     key: 'close',
     value: function close() {
@@ -4461,6 +4669,24 @@ _dispatchersEvent_dispatcher2['default'].register('flag-closed', function (data)
 });
 
 exports['default'] = {
+  /**
+  * @name create
+  * @method
+  * @description Creates a new flag.
+  * @param {Object} options           Options of the flag.
+  * @param {String} options.title     The title text of the flag.
+  * @param {String} options.body      The body text of the flag.
+  * @param {String} options.type=info Sets the type of the message. Valid options are "info", "success", "warning" and "error".
+  * @param {String} options.close     The closing behaviour that this flag has. Valid options are "manual", "auto" and "never".
+  * @returns {Flag~Flag}
+  * @example
+  * // Display a nice green flag using the Flags JavaScript API.
+  * var flag = AP.flag.create({
+  *   title: 'Succesfully created a flag.',
+  *   body: 'This is a flag.',
+  *   type: 'success'
+  * });
+  */
   create: {
     constructor: Flag,
     on: Flag.prototype.on,
@@ -4470,6 +4696,22 @@ exports['default'] = {
 module.exports = exports['default'];
 
 },{"../dollar":31,"actions/flag_actions":11,"components/flag":21,"dispatchers/event_dispatcher":30}],37:[function(_dereq_,module,exports){
+/**
+* Messages are the primary method for providing system feedback in the product user interface.
+* Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
+* For visual examples of each kind please see the [Design guide](https://developer.atlassian.com/design/latest/communicators/messages/).
+* ### Example ###
+* ```
+* AP.require("messages", function(messages){
+*   //create a message
+*   var message = messages.info('plain text title', 'plain text body');
+* });
+* ```
+* This module has been deprecated and may be removed in future releases. Please use the [Flag module](module-Flag.html) instead.
+* @name messages
+* @module
+*/
+
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4554,12 +4796,44 @@ var deprecatedShowMessage = AJS.deprecate.fn(showMessage, 'AP.messages', {
 });
 
 var toExport = {
+  /**
+  * Close a message
+  * @name clear
+  * @method
+  * @memberof module:messages#
+  * @param    {String}    id  The id that was returned when the message was created.
+  * @example
+  * AP.require("messages", function(messages){
+  *   //create a message
+  *   var message = messages.info('title', 'body');
+  *   setTimeout(function(){
+  *     messages.clear(message);
+  *   }, 2000);
+  * });
+  */
   clear: function clear(msg) {
     var id = MSGID_PREFIX + msg._id;
     if (validateMessageId(id)) {
       (0, _dollar2['default'])('#' + id).closeMessage();
     }
   },
+
+  /**
+  * Trigger an event when a message is closed
+  * @name onClose
+  * @method
+  * @memberof module:messages#
+  * @param    {String}    id  The id that was returned when the message was created.
+  * @param    {Function}  callback  The function that is run when the event is triggered
+  * @example
+  * AP.require("messages", function(messages){
+  *   //create a message
+  *   var message = messages.info('title', 'body');
+  *   messages.onClose(message, function() {
+  *       console.log(message, ' has been closed!');
+  *   });
+  * });
+  */
   onClose: function onClose(msg, callback) {
     var id = msg._id;
     if (_messages[id]) {
@@ -4568,6 +4842,125 @@ var toExport = {
   }
 };
 
+/**
+* Show a generic message
+* @name generic
+* @method
+* @memberof module:messages#
+* @param    {String}            title       Sets the title text of the message.
+* @param    {String}            body        The main content of the message.
+* @param    {Object}            options             Message Options
+* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+* @returns  {String}    The id to be used when clearing the message
+* @example
+* AP.require("messages", function(messages){
+*   //create a message
+*   var message = messages.generic('title', 'generic message example');
+* });
+*/
+
+/**
+* Show an error message
+* @name error
+* @method
+* @memberof module:messages#
+* @param    {String}            title       Sets the title text of the message.
+* @param    {String}            body        The main content of the message.
+* @param    {Object}            options             Message Options
+* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+* @returns  {String}    The id to be used when clearing the message
+* @example
+* AP.require("messages", function(messages){
+*   //create a message
+*   var message = messages.error('title', 'error message example');
+* });
+*/
+
+/**
+* Show a warning message
+* @name warning
+* @method
+* @memberof module:messages#
+* @param    {String}            title       Sets the title text of the message.
+* @param    {String}            body        The main content of the message.
+* @param    {Object}            options             Message Options
+* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+* @returns  {String}    The id to be used when clearing the message
+* @example
+* AP.require("messages", function(messages){
+*   //create a message
+*   var message = messages.warning('title', 'warning message example');
+* });
+*/
+
+/**
+* Show a success message
+* @name success
+* @method
+* @memberof module:messages#
+* @param    {String}            title       Sets the title text of the message.
+* @param    {String}            body        The main content of the message.
+* @param    {Object}            options             Message Options
+* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+* @returns  {String}    The id to be used when clearing the message
+* @example
+* AP.require("messages", function(messages){
+*   //create a message
+*   var message = messages.success('title', 'success message example');
+* });
+*/
+
+/**
+* Show an info message
+* @name info
+* @method
+* @memberof module:messages#
+* @param    {String}            title       Sets the title text of the message.
+* @param    {String}            body        The main content of the message.
+* @param    {Object}            options             Message Options
+* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+* @returns  {String}    The id to be used when clearing the message
+* @example
+* AP.require("messages", function(messages){
+*   //create a message
+*   var message = messages.info('title', 'info message example');
+* });
+*/
+
+/**
+* Show a hint message
+* @name hint
+* @method
+* @memberof module:messages#
+* @param    {String}            title               Sets the title text of the message.
+* @param    {String}            body                The main content of the message.
+* @param    {Object}            options             Message Options
+* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+* @returns  {String}    The id to be used when clearing the message
+* @example
+* AP.require("messages", function(messages){
+*   //create a message
+*   var message = messages.hint('title', 'hint message example');
+* });
+*/
 MESSAGE_TYPES.forEach(function (messageType) {
   toExport[messageType] = {
     constructor: function constructor(title, body, options, callback) {
@@ -4930,6 +5323,10 @@ var _underscore = _dereq_('../underscore');
 
 var _underscore2 = _interopRequireDefault(_underscore);
 
+var _jsuri = _dereq_('jsuri');
+
+var _jsuri2 = _interopRequireDefault(_jsuri);
+
 function sanitizeTriggers(triggers) {
   var onTriggers;
   if (_underscore2['default'].isArray(triggers)) {
@@ -4980,15 +5377,23 @@ function getModuleOptionsForWebitem(type, $target) {
 // LEGACY - method for handling webitem options for p2
 function getOptionsForWebItem($target) {
   var fullKey = getFullKey($target);
+
   var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-  var moduleOptions = getModuleOptionsForWebitem(type, $target);
-  if (moduleOptions) {
-    return moduleOptions;
-  } else if (window._AP && window._AP[type + 'Options']) {
-    return window._AP[type + 'Options'][fullKey] || {};
-  } else {
+  var options = getModuleOptionsForWebitem(type, $target);
+  if (window._AP && window._AP[type + 'Options']) {
+    options = window._AP[type + 'Options'][fullKey] || {};
+  }
+  if (!options) {
+    options = {};
     console.warn('no webitem ' + type + 'Options for ' + fullKey);
   }
+  options.productContext = options.productContext || {};
+  // create product context from url params
+  new _jsuri2['default']($target.attr('href')).queryPairs.forEach(function (param) {
+    options.productContext[param[0]] = param[1];
+  });
+
+  return options;
 }
 
 module.exports = {
@@ -4999,7 +5404,7 @@ module.exports = {
   getOptionsForWebItem: getOptionsForWebItem
 };
 
-},{"../underscore":38}]},{},[32])(32)
+},{"../underscore":38,"jsuri":3}]},{},[32])(32)
 });
 
 

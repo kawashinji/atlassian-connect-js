@@ -1,4 +1,5 @@
 import _ from '../underscore';
+import jsuri from 'jsuri';
 
 function sanitizeTriggers(triggers) {
   var onTriggers;
@@ -54,15 +55,23 @@ function getModuleOptionsForWebitem(type, $target){
 // LEGACY - method for handling webitem options for p2
 function getOptionsForWebItem($target) {
   var fullKey = getFullKey($target);
+
   var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-  var moduleOptions = getModuleOptionsForWebitem(type, $target);
-  if(moduleOptions) {
-    return moduleOptions;
-  } else if(window._AP && window._AP[type + 'Options']){
-    return window._AP[type + 'Options'][fullKey] || {};
-  } else {
+  var options = getModuleOptionsForWebitem(type, $target);
+  if(window._AP && window._AP[type + 'Options']) {
+    options = window._AP[type + 'Options'][fullKey] || {};
+  }
+  if(!options){
+    options = {};
     console.warn('no webitem ' + type + 'Options for ' + fullKey);
   }
+  options.productContext = options.productContext || {};
+  // create product context from url params
+  new jsuri($target.attr('href')).queryPairs.forEach((param) => {
+    options.productContext[param[0]] = param[1];
+  });
+
+  return options;
 }
 
 module.exports = {
