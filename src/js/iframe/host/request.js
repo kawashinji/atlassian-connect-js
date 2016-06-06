@@ -26,7 +26,12 @@
             if (ajaxOptions.data && typeof ajaxOptions.data === 'object') {
                 var formData = new FormData();
                 Object.keys(ajaxOptions.data).forEach(function (key) {
-                    formData.append(key, ajaxOptions.data[key]);
+                    // check for wrapped blobs
+                    if (ajaxOptions.data[key]._isBlob) {
+                        formData.append(key, ajaxOptions.data[key].blob, ajaxOptions.data[key].name);
+                    } else {
+                        formData.append(key, ajaxOptions.data[key]);
+                    }
                 });
                 ajaxOptions.data = formData;
             } else {

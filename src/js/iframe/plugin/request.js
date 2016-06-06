@@ -1,4 +1,4 @@
-AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
+AP.define("request", ["_dollar", "_rpc", "_file"], function ($, rpc) {
 
   "use strict";
 
@@ -138,6 +138,17 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
           delete options.success;
           error = options.error || nop;
           delete options.error;
+
+          // wrap blobs into an object so that it's extra properties can make it through the xdm bridge
+          if (options.contentType === 'multipart/form-data') {
+            Object.keys(options.data).forEach(function(key) {
+              var item = options.data[key];
+              if (item instanceof Blob && item.name) {
+                options.data[key] = {blob: item, name: item.name, _isBlob: true};
+              }
+            })
+          }
+
           // execute the request
           remote.request(options, done, fail);
         }
