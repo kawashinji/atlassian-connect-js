@@ -1,6 +1,6 @@
 AP.define("_file", function (util) {
   try {
-    var file = new File([], '');
+    new File([], '');
   } catch (e) {
     console.warn('File constructor is not available. Enabled polyfill.');
     File = function (data, name, options) {
@@ -10,4 +10,4 @@ AP.define("_file", function (util) {
       return newFile;
     }
   }
-})
+});
