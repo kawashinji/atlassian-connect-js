@@ -1,4 +1,4 @@
-AP.define("_file", function (util) {
+AP.define("_file", function () {
   try {
     new File([], '');
   } catch (e) {
