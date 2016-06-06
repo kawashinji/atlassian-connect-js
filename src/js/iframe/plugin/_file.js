@@ -6,6 +6,7 @@ AP.define("_file", function (util) {
     File = function (data, name, options) {
       var newFile = new Blob(data, options);
       newFile.name = name;
+      newFile.lastModifiedDate = new Date();
       return newFile;
     }
   }
