@@ -3667,7 +3667,7 @@ var WebItem = (function () {
       var onTriggers = _utilsWebitem2['default'].sanitizeTriggers(webitem.triggers);
       webitem._on = function (event) {
         event.preventDefault();
-        var $target = (0, _dollar2['default'])(event.target);
+        var $target = (0, _dollar2['default'])(event.target).closest(webitem.selector);
         var extension = {
           addon_key: _utilsWebitem2['default'].getExtensionKey($target),
           key: _utilsWebitem2['default'].getKey($target),
@@ -5406,6 +5406,10 @@ var _underscore = _dereq_('../underscore');
 
 var _underscore2 = _interopRequireDefault(_underscore);
 
+var _jsuri = _dereq_('jsuri');
+
+var _jsuri2 = _interopRequireDefault(_jsuri);
+
 function sanitizeTriggers(triggers) {
   var onTriggers;
   if (_underscore2['default'].isArray(triggers)) {
@@ -5456,15 +5460,23 @@ function getModuleOptionsForWebitem(type, $target) {
 // LEGACY - method for handling webitem options for p2
 function getOptionsForWebItem($target) {
   var fullKey = getFullKey($target);
+
   var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-  var moduleOptions = getModuleOptionsForWebitem(type, $target);
-  if (moduleOptions) {
-    return moduleOptions;
-  } else if (window._AP && window._AP[type + 'Options']) {
-    return window._AP[type + 'Options'][fullKey] || {};
-  } else {
+  var options = getModuleOptionsForWebitem(type, $target);
+  if (window._AP && window._AP[type + 'Options']) {
+    options = window._AP[type + 'Options'][fullKey] || {};
+  }
+  if (!options) {
+    options = {};
     console.warn('no webitem ' + type + 'Options for ' + fullKey);
   }
+  options.productContext = options.productContext || {};
+  // create product context from url params
+  new _jsuri2['default']($target.attr('href')).queryPairs.forEach(function (param) {
+    options.productContext[param[0]] = param[1];
+  });
+
+  return options;
 }
 
 module.exports = {
@@ -5475,7 +5487,7 @@ module.exports = {
   getOptionsForWebItem: getOptionsForWebItem
 };
 
-},{"../underscore":38}]},{},[32])(32)
+},{"../underscore":38,"jsuri":3}]},{},[32])(32)
 });
 
 

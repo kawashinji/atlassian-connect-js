@@ -73,6 +73,8 @@ module.exports = new ConsumerOptions();
 },{"./dollar":3}],2:[function(_dereq_,module,exports){
 'use strict';
 
+var _arguments2 = arguments;
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _util = _dereq_('./util');
@@ -151,28 +153,36 @@ AP.dialog.create = AP._hostModules.dialog.create = function () {
 var original_dialogGetButton = AP._hostModules.dialog.getButton;
 
 AP.dialog.getButton = AP._hostModules.dialog.getButton = function () {
-  var name = arguments[0];
+  var _arguments = _arguments2;
+
   try {
-    var button = original_dialogGetButton(name);
+    var _ret = (function () {
+      var button = original_dialogGetButton.apply(undefined, _arguments);
+      var name = _arguments[0];
 
-    /**
-     * Registers a function to be called when the button is clicked.
-     * @method bind
-     * @memberOf Dialog~DialogButton
-     * @param {Function} callback function to be triggered on click or programatically.
-     * @noDemo
-     * @example
-     * AP.require('dialog', function(dialog){
-     *   dialog.getButton('submit').bind(function(){
-     *     alert('clicked!');
-     *   });
-     * });
-     */
-    button.bind = _util2['default'].deprecateApi(function (callback) {
-      return registerHandler(name, callback);
-    }, 'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
+      /**
+       * Registers a function to be called when the button is clicked.
+       * @method bind
+       * @memberOf Dialog~DialogButton
+       * @param {Function} callback function to be triggered on click or programatically.
+       * @noDemo
+       * @example
+       * AP.require('dialog', function(dialog){
+       *   dialog.getButton('submit').bind(function(){
+       *     alert('clicked!');
+       *   });
+       * });
+       */
+      button.bind = _util2['default'].deprecateApi(function (callback) {
+        return registerHandler(name, callback);
+      }, 'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
 
-    return button;
+      return {
+        v: button
+      };
+    })();
+
+    if (typeof _ret === 'object') return _ret.v;
   } catch (e) {
     return {};
   }
