@@ -40,6 +40,14 @@ AP.define("request", ["_dollar", "_rpc", "_file"], function ($, rpc) {
     });
   }
 
+  // wrap blobs into an object so that it's extra properties can make it through the xdm bridge
+  function wrapBlob(value) {
+    if (value instanceof Blob && value.name) {
+      return {blob: value, name: value.name, _isBlob: true};
+    }
+    return value;
+  }
+
   /**
   * @name RequestProperties
   * @description An object containing the options of a {@link Request}
@@ -139,12 +147,15 @@ AP.define("request", ["_dollar", "_rpc", "_file"], function ($, rpc) {
           error = options.error || nop;
           delete options.error;
 
-          // wrap blobs into an object so that it's extra properties can make it through the xdm bridge
           if (options.contentType === 'multipart/form-data') {
             Object.keys(options.data).forEach(function(key) {
               var item = options.data[key];
-              if (item instanceof Blob && item.name) {
-                options.data[key] = {blob: item, name: item.name, _isBlob: true};
+              if (Array.isArray(item)) {
+                item.forEach(function (val, index) {
+                  options.data[key][index] = wrapBlob(val);
+                })
+              } else {
+                options.data[key] = wrapBlob(item);
               }
             })
           }

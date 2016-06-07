@@ -19,18 +19,31 @@
             }
         }
 
+        function appendFormData(formData, key, value) {
+            if (value._isBlob && value.blob && value.name) {
+                formData.append(key, value.blob, value.name);
+            } else {
+                formData.append(key, value);
+            }
+            return formData;
+        }
+
         function handleMultipartRequest (ajaxOptions) {
             ajaxOptions.contentType = false;
             ajaxOptions.processData = false;
 
-            if (ajaxOptions.data && typeof ajaxOptions.data === 'object') {
+            if (ajaxOptions.data && typeof ajaxOptions.data === "object") {
                 var formData = new FormData();
                 Object.keys(ajaxOptions.data).forEach(function (key) {
-                    // check for wrapped blobs
-                    if (ajaxOptions.data[key]._isBlob) {
-                        formData.append(key, ajaxOptions.data[key].blob, ajaxOptions.data[key].name);
+                    var formValue = ajaxOptions.data[key];
+
+                    // map arrays into individual index entries
+                    if (Array.isArray(formValue)) {
+                        formValue.forEach(function (val, index) {
+                            formData = appendFormData(formData, key + "[" + index + "]", val);
+                        })
                     } else {
-                        formData.append(key, ajaxOptions.data[key]);
+                        formData = appendFormData(formData, key, formValue);
                     }
                 });
                 ajaxOptions.data = formData;
