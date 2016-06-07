@@ -66,13 +66,14 @@ AP.dialog.create = AP._hostModules.dialog.create = (...args) => {
   return dialog;
 };
 
-const original_dialogGetButton = AP._hostModules.dialog.getButton;
+// the constructor is the function you want to keep a copy of.
+var original_dialogGetButton = AP.dialog.getButton.prototype.constructor.bind({});
 
-AP.dialog.getButton = AP._hostModules.dialog.getButton = (...args) => {
-  const name = args[0];
+// this overwrites the constructor (yeah it's not obvious), but don't worry cause we copied the function above.
+AP.dialog.getButton = AP._hostModules.dialog.getButton = function(name) {
   try {
-    const button = original_dialogGetButton(name);
 
+    const button = original_dialogGetButton(name);
     /**
      * Registers a function to be called when the button is clicked.
      * @method bind
