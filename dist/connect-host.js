@@ -2684,11 +2684,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle-visibili
     var $button = dialog.$el.find(".aui-dialog2-footer-actions .aui-button").filter(function () {
       return (0, _dollar2['default'])(this).data('name') === data.name;
     });
-    if (data.isHidden) {
-      $button.hide();
-    } else {
-      $button.show();
-    }
+    $button.toggle(!data.isHidden);
   }
 });
 
