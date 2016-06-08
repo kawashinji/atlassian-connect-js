@@ -28,6 +28,7 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/_ui-params.js',
             '<%= paths.jsSource %>' + 'iframe/_jwt.js',
             '<%= paths.jsSource %>' + 'iframe/_xdm.js',
+            '<%= paths.jsSource %>' + 'iframe/_create_iframe.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_rpc.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_create_inner_frame.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/resize.js',

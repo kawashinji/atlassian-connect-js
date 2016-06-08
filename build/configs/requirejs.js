@@ -44,6 +44,7 @@
         'content': 'iframe/host/content',
         'host/_addons': 'iframe/host/_addons',
         '_base64': 'iframe/_base64',
+        '_create_iframe': 'iframe/_create_iframe',
         '_jwt': 'iframe/_jwt',
         'host/jwt-keepalive': 'iframe/host/jwt-keepalive',
         '_xdm': 'iframe/_xdm',
@@ -66,6 +67,7 @@
         '_uritemplate',
         'host/_addons',
         '_base64',
+        '_create_iframe',
         'analytics/analytics',
         '_jwt',
         'host/jwt-keepalive',
@@ -183,7 +185,7 @@
                 },
                 shim: {
                     '_jwt': ['_base64'],
-                    '_xdm': ["_events", "_jwt", "_uri",  "_ui-params", "_util"]
+                    '_xdm': ["_events", "_jwt", "_uri",  "_ui-params", "_util", "_create_iframe"]
                 },
                 modules: [
                 {

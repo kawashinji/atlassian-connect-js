@@ -1,4 +1,4 @@
-AP.define("_rpc", ["_dollar", "_xdm", "_util", '_ui-params'], function ($, XdmRpc, util, uiParams) {
+AP.define("_rpc", ["_dollar", "_xdm", "_util", "_create_iframe"], function ($, XdmRpc, util, createIframe) {
 
   "use strict";
 
@@ -15,41 +15,7 @@ AP.define("_rpc", ["_dollar", "_xdm", "_util", '_ui-params'], function ($, XdmRp
       initsForFrame = [],
       isInited;
 
-
-
-  // Creates an iframe element from a config option consisting of the following values:
-  //  - container:  the parent element of the new iframe
-  //  - remote:     the src url of the new iframe
-  //  - props:      a map of additional HTML attributes for the new iframe
-  //  - channel:    deprecated
-  function createIframe(config) {
-    if(!config.container){
-      throw new Error("config.container must be defined");
-    }
-    var iframe = document.createElement("iframe"),
-            id = "easyXDM_" + config.container + "_provider",
-            windowName = "";
-
-    if(config.uiParams){
-      windowName = uiParams.encode(config.uiParams);
-    }
-    iframe.id = id;
-    iframe.name = windowName;
-    iframe.frameBorder = "0";
-    iframe.width = config.props.width;
-    iframe.height = config.props.height;
-    iframe.setAttribute('rel', 'nofollow');
-    iframe.className = "ap-iframe";
-    document.getElementById(config.container).appendChild(iframe);
-
-    iframe.src = config.remote;
-    return iframe;
-  }
-  
-  
-
   return {
-
     extend: function (config) {
       if (isFn(config)) config = config(proxy);
       extend(apis, config.apis);
@@ -80,7 +46,7 @@ AP.define("_rpc", ["_dollar", "_xdm", "_util", '_ui-params'], function ($, XdmRp
         isInited = true;
       }
     },
-    
+
     initWithFrame: function (options, xdmConfig) {
       // if there is already an iframe created. Destroy it. It's an old version.
       //TODO: Investigate consequences of lack of remove event.
@@ -93,7 +59,6 @@ AP.define("_rpc", ["_dollar", "_xdm", "_util", '_ui-params'], function ($, XdmRp
           existingFrameList[0].remove();
         }
       }
-
 
       var iframe = createIframe(xdmConfig);
 
