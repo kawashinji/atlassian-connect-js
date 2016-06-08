@@ -2717,7 +2717,9 @@ var Dialog = (function () {
       actions[0].additionalClasses = ['aui-icon', 'aui-icon-small', 'aui-iconfont-success'];
       actions[1].additionalClasses = ['aui-icon', 'aui-icon-small', 'aui-iconfont-close-dialog'];
       var $actions = this._renderActionButtons(actions, extension);
-      $headerControls.append($actions);
+      $actions.forEach(function ($action) {
+        $headerControls.append($action);
+      });
       return $headerControls;
     }
   }, {
@@ -2763,7 +2765,10 @@ var Dialog = (function () {
     key: '_renderFooterActions',
     value: function _renderFooterActions(actions, extension) {
       var $actions = (0, _dollar2['default'])('<div />').addClass(DIALOG_FOOTER_ACTIONS_CLASS);
-      $actions.append(this._renderActionButtons(actions, extension));
+      var $buttons = this._renderActionButtons(actions, extension);
+      $buttons.forEach(function ($button) {
+        $actions.append($button);
+      });
       return $actions;
     }
   }, {

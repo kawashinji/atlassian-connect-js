@@ -64,7 +64,9 @@ class Dialog {
     actions[0].additionalClasses = ['aui-icon', 'aui-icon-small', 'aui-iconfont-success'];
     actions[1].additionalClasses = ['aui-icon', 'aui-icon-small', 'aui-iconfont-close-dialog'];
     const $actions = this._renderActionButtons(actions, extension);
-    $headerControls.append($actions);
+    $actions.forEach(($action) => {
+      $headerControls.append($action);
+    });
     return $headerControls;
   }
 
@@ -106,7 +108,10 @@ class Dialog {
 
   _renderFooterActions(actions, extension) {
     const $actions = $('<div />').addClass(DIALOG_FOOTER_ACTIONS_CLASS);
-    $actions.append(this._renderActionButtons(actions, extension));
+    const $buttons = this._renderActionButtons(actions, extension);
+    $buttons.forEach(($button) => {
+      $actions.append($button);
+    });
     return $actions;
   }
 
