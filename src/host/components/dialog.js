@@ -3,14 +3,20 @@ import DomEventActions from 'actions/dom_event_actions';
 import DialogActions from 'actions/dialog_actions';
 import dialogUtils from 'utils/dialog';
 import IframeComponent from 'components/iframe';
+import Button from 'components/button';
+import ButtonActions from 'actions/button_actions';
 
 import $ from '../dollar';
 import _ from '../underscore';
 
 const DLGID_PREFIX = 'ap-dialog-';
+const DIALOG_CLASS = 'ap-aui-dialog2';
 const DLGID_REGEXP = new RegExp(`^${DLGID_PREFIX}[0-9A-Za-z]+$`);
 const DIALOG_SIZES = ['small', 'medium', 'large', 'xlarge', 'fullscreen'];
-const BUTTON_TYPES = ['primary', 'link'];
+const DIALOG_BUTTTON_CLASS = 'ap-aui-dialog-button';
+const DIALOG_FOOTER_CLASS = 'aui-dialog2-footer';
+const DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
+const DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
 
 function getActiveDialog() {
   const $el = AJS.LayerManager.global.getTopLayer();
@@ -31,15 +37,35 @@ class Dialog {
     $close.append($closeBtn);
     return $close;
   }
+  //v3 ask DT about this DOM.
+  _renderFullScreenHeader($header, options) {
+    var $titleContainer = $('<div />').addClass('header-title-container aui-item expanded');
+    var $title = $('<div />').append($('<span />').addClass('header-title').text(options.header || ''));
+    $titleContainer.append($title);
+    $header.append($titleContainer).append(this._renderHeaderActions(options.actions, options.extension));
+    return $header;
+  }
 
   _renderHeader(options){
     const $header = $('<header />').addClass('aui-dialog2-header');
+    if(options.size === 'fullscreen') {
+      return this._renderFullScreenHeader($header, options);
+    }
     if(options.header) {
       const $title = $('<h2 />').addClass('aui-dialog2-header-main').text(options.header);
       $header.append($title);
     }
     $header.append(this._renderHeaderCloseBtn());
     return $header;
+  }
+
+  _renderHeaderActions(actions, extension) {
+    const $headerControls = $('<div />').addClass('aui-item ' + DIALOG_HEADER_ACTIONS_CLASS);
+    actions[0].additionalClasses = ['aui-icon', 'aui-icon-small', 'aui-iconfont-success'];
+    actions[1].additionalClasses = ['aui-icon', 'aui-icon-small', 'aui-iconfont-close-dialog'];
+    const $actions = this._renderActionButtons(actions, extension);
+    $headerControls.append($actions);
+    return $headerControls;
   }
 
   _renderContent($content){
@@ -51,39 +77,45 @@ class Dialog {
   }
 
   _renderFooter(options) {
-    const $footer = $('<footer />').addClass('aui-dialog2-footer');
-    const $actions = this._renderFooterActions(options.actions, options.extension);
-    $footer.append($actions);
-    if(options.hint) {
-      const $hint = $('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
-      $footer.append($hint);
+    const $footer = $('<footer />').addClass(DIALOG_FOOTER_CLASS);
+    if(options.size !== 'fullscreen') {
+      const $actions = this._renderFooterActions(options.actions, options.extension);
+      $footer.append($actions);
+      if(options.hint) {
+        const $hint = $('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
+        $footer.append($hint);
+      }
     }
     return $footer;
   }
 
-  _renderFooterActions(actions, extension) {
-    const $actions = $('<div />').addClass('aui-dialog2-footer-actions');
+  _renderActionButtons(actions, extension) {
+    var actionButtons = [];
     [...actions].forEach(action => {
-      const $button = $('<button />').addClass('aui-button').text(action.text);
-      $button.data('name', action.name);
-      if (_.contains(BUTTON_TYPES, action.type)) {
-        $button.addClass('aui-button-' + action.type);
-      }    
-      $button.click(() => {                
-        if ($button.attr('aria-disabled') !== 'true') {
-          if ($button.parents('.aui-dialog2').find('.ap-iframe-container').hasClass('iframe-init')) {
-            DialogActions.clickButton(action.name, $button, extension);
-          } else {
-            DialogActions.close({
-              dialog: getActiveDialog(),
-              extension: extension
-            });
-          }
-        }
-      });
-      $actions.append($button);
+      actionButtons.push(
+        this._renderDialogButton({
+          text: action.text,
+          name: action.name,
+          type: action.type,
+          additionalClasses: action.additionalClasses
+        }, extension)
+      );
     });
+    return actionButtons;
+  }
+
+  _renderFooterActions(actions, extension) {
+    const $actions = $('<div />').addClass(DIALOG_FOOTER_ACTIONS_CLASS);
+    $actions.append(this._renderActionButtons(actions, extension));
     return $actions;
+  }
+
+  _renderDialogButton(options, extension) {
+    options.additionalClasses = options.additionalClasses || [];
+    options.additionalClasses.push(DIALOG_BUTTTON_CLASS);
+    const $button = Button.render(options);
+    $button.extension = extension;
+    return $button;
   }
 
   /**
@@ -103,32 +135,42 @@ class Dialog {
     });
     $dialog.attr('data-aui-modal', 'true');
     $dialog.data('aui-remove-on-hide', true);
-    $dialog.addClass('aui-layer aui-dialog2 ap-aui-dialog2');
-
+    $dialog.addClass('aui-layer aui-dialog2 ' + DIALOG_CLASS);
+    $dialog.extension = sanitizedOptions.extension;
     if (_.contains(DIALOG_SIZES, sanitizedOptions.size)) {
       $dialog.addClass('aui-dialog2-' + sanitizedOptions.size);
+    }
+
+    if(sanitizedOptions.size === 'fullscreen') {
+      $dialog.addClass('ap-header-controls');
+      $dialog.addClass('aui-dialog2-maximum');
     }
 
     $dialog.append(this._renderContent(sanitizedOptions.$content));
 
     if (sanitizedOptions.chrome) {
       $dialog.prepend(this._renderHeader({
-        header: sanitizedOptions.header
+        header: sanitizedOptions.header,
+        actions: sanitizedOptions.actions,
+        size: sanitizedOptions.size
       }));
       $dialog.append(this._renderFooter({
         extension: sanitizedOptions.extension,
         actions: sanitizedOptions.actions,
-        hint: sanitizedOptions.hint
+        hint: sanitizedOptions.hint,
+        size: sanitizedOptions.size
       }));
     } else {
       $dialog.addClass('aui-dialog2-chromeless');
     }
+
     const dialog = AJS.dialog2($dialog);
     dialog._id = sanitizedOptions.id;
     if (!sanitizedOptions.size || sanitizedOptions.size === 'fullscreen') {
       AJS.layer($dialog).changeSize(sanitizedOptions.width, sanitizedOptions.height);
     }
     dialog.show();
+    dialog.$el[0].extension = sanitizedOptions.extension;
     return $dialog;
   }
 
@@ -138,6 +180,42 @@ class Dialog {
 
   getActive(){
     return getActiveDialog();
+  }
+
+  /**
+  * takes either a target spec or a filter function
+  * returns all matching dialogs
+  */
+  getByExtension(extension) {
+    var filterFunction;
+    if(typeof extension === 'function') {
+      filterFunction = extension;
+    } else {
+      var keys = Object.getOwnPropertyNames(extension);
+      filterFunction = function($dialog) {
+        return keys.every((key) => {
+          return $dialog.extension[key] === extension[key];
+        });
+      };
+    }
+
+    return $('.' + DIALOG_CLASS).toArray().filter(filterFunction);
+  }
+
+  addButton(extension, options) {
+    options.type = 'secondary';
+    var $button = this._renderDialogButton(options, extension);
+    $button.addClass('ap-dialog-user-button');
+    var $dialog = $(this.getByExtension({
+      addon_key: extension.addon_key,
+      key: extension.key
+    }));
+    var $actionBar = $dialog.find('.' + DIALOG_HEADER_ACTIONS_CLASS);    
+    if(!$actionBar.length) {
+      $actionBar = $dialog.find('.' + DIALOG_FOOTER_ACTIONS_CLASS);
+    }
+    $actionBar.append($button);
+    return $dialog;
   }
 }
 
@@ -184,9 +262,25 @@ EventDispatcher.register('dialog-button-toggle', (data) => {
   const dialog = getActiveDialog();
   if (dialog) {
     const $button = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
-      return $(this).data('name') === data.name;
+      return Button.getName(this) === data.name;
     });
-    $button.attr('aria-disabled', !data.enabled);
+    ButtonActions.toggle($button, !data.enabled);
+    // $button.attr('aria-disabled', !data.enabled);
+  }
+});
+
+EventDispatcher.register('button-clicked', (data) => {
+  var $button = data.$el;
+  if($button.hasClass(DIALOG_BUTTTON_CLASS)) {
+    var $dialog = $button.parents('.' + DIALOG_CLASS);
+    if ($dialog.find('iframe')[0].bridgeEstablished) {
+      DialogActions.clickButton(Button.getIdentifier($button), $button, $dialog[0].extension);
+    } else {
+      DialogActions.close({
+        dialog: getActiveDialog(),
+        extension: $button.extension
+      });
+    }
   }
 });
 
@@ -194,6 +288,10 @@ EventDispatcher.register('iframe-create', (data) => {
   if(data.extension.options && data.extension.options.isDialog){
     DialogComponent.setIframeDimensions(data.extension.$el);
   }
+});
+
+EventDispatcher.register('dialog-button-add', (data) => {
+  DialogComponent.addButton(data.extension, data.button);
 });
 
 DomEventActions.registerWindowKeyEvent({

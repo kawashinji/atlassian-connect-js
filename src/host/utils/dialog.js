@@ -38,10 +38,13 @@ class DialogUtils {
     return '';
   }
 
-  _chrome(chrome){
+  _chrome(options){
     var returnval = true;
-    if (typeof chrome === 'boolean') {
-      returnval = chrome;
+    if (typeof options.chrome === 'boolean') {
+      returnval = options.chrome;
+    }
+    if(options.size === 'fullscreen') {
+      returnval = true;
     }
     return returnval;
   }
@@ -85,7 +88,7 @@ class DialogUtils {
   sanitizeOptions(options){
     options = options || {};
     var sanitized = {
-      chrome: this._chrome(options.chrome),
+      chrome: this._chrome(options),
       header: this._header(options.header),
       hint: this._hint(options.hint),
       width: this._width(options.width),

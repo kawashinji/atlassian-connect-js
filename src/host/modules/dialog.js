@@ -4,6 +4,7 @@ import DialogActions from 'actions/dialog_actions';
 import EventActions from 'actions/event_actions';
 import DialogExtensionComponent from 'components/dialog_extension';
 import util from '../util';
+import ButtonComponent from 'components/button';
 import DialogUtils from 'utils/dialog';
 import _ from '../underscore';
 
@@ -19,9 +20,28 @@ EventDispatcher.register('dialog-close', function (data) {
 });
 
 EventDispatcher.register('dialog-button-click', (data) => {
-  EventActions.broadcast(`dialog.${data.name}`, {
-    addon_key: data.extension.addon_key
-  });
+  console.log('dialog-button-click event data', data);
+  var eventData = {
+    button: {
+      name: ButtonComponent.getName(data.$el),
+      id: data.identifier,
+      text: ButtonComponent.getText(data.$el)
+    }
+  };
+
+  // Old buttons, (submit and cancel) use old events
+  if(!data.$el.hasClass('ap-dialog-user-button')) {
+    EventActions.broadcast(`dialog.${data.name}`, {
+      addon_key: data.extension.addon_key
+    }, eventData);
+
+  } else {
+    // new buttons only target the dialog
+    EventActions.broadcast('dialog.button.click', {
+      addon_key: data.extension.addon_key,
+      key: data.extension.key
+    }, eventData);
+  }
 });
 
 /**
@@ -175,6 +195,15 @@ function getDialogFromContext(context) {
   return  _dialogs[context.extension.options.dialogId];
 }
 
+class CreateButton {
+  constructor(options, callback) {
+    DialogExtensionActions.addUserButton({
+      identifier: options.id,
+      text: options.text
+    }, callback._context.extension);
+  }
+}
+
 /**
  * The Dialog module provides a mechanism for launching an add-on's modules as modal dialogs from within an add-on's iframe.
  * A modal dialog displays information without requiring the user to leave the current page.
@@ -286,5 +315,21 @@ module.exports = {
     toggle: Button.prototype.toggle,
     isEnabled: Button.prototype.isEnabled,
     trigger: Button.prototype.trigger
+  },
+  /**
+   * Creates a dialog button that can be controlled with javascript
+   * @method getButton
+   * @returns {Dialog~DialogButton}
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.createButton({
+   *     text: 'button text',
+   *     identifier: 'button.1'
+   *   }).bind(function mycallback(){});
+   * });
+   */
+  createButton: {
+    constructor: CreateButton
   }
 };
