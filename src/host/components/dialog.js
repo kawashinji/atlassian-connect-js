@@ -13,7 +13,8 @@ const DLGID_PREFIX = 'ap-dialog-';
 const DIALOG_CLASS = 'ap-aui-dialog2';
 const DLGID_REGEXP = new RegExp(`^${DLGID_PREFIX}[0-9A-Za-z]+$`);
 const DIALOG_SIZES = ['small', 'medium', 'large', 'xlarge', 'fullscreen'];
-const DIALOG_BUTTTON_CLASS = 'ap-aui-dialog-button';
+const DIALOG_BUTTON_CLASS = 'ap-aui-dialog-button';
+const DIALOG_BUTTON_CUSTOM_CLASS = 'ap-dialog-custom-button';
 const DIALOG_FOOTER_CLASS = 'aui-dialog2-footer';
 const DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
 const DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
@@ -117,7 +118,7 @@ class Dialog {
 
   _renderDialogButton(options, extension) {
     options.additionalClasses = options.additionalClasses || [];
-    options.additionalClasses.push(DIALOG_BUTTTON_CLASS);
+    options.additionalClasses.push(DIALOG_BUTTON_CLASS);
     const $button = Button.render(options);
     $button.extension = extension;
     return $button;
@@ -210,7 +211,7 @@ class Dialog {
   addButton(extension, options) {
     options.type = 'secondary';
     var $button = this._renderDialogButton(options, extension);
-    $button.addClass('ap-dialog-user-button');
+    $button.addClass(DIALOG_BUTTON_CUSTOM_CLASS);
     var $dialog = $(this.getByExtension({
       addon_key: extension.addon_key,
       key: extension.key
@@ -276,7 +277,7 @@ EventDispatcher.register('dialog-button-toggle', (data) => {
 
 EventDispatcher.register('button-clicked', (data) => {
   var $button = data.$el;
-  if($button.hasClass(DIALOG_BUTTTON_CLASS)) {
+  if($button.hasClass(DIALOG_BUTTON_CLASS)) {
     var $dialog = $button.parents('.' + DIALOG_CLASS);
     if ($dialog.find('iframe')[0].bridgeEstablished) {
       DialogActions.clickButton(Button.getIdentifier($button), $button, $dialog[0].extension);

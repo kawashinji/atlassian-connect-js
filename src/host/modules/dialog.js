@@ -30,7 +30,7 @@ EventDispatcher.register('dialog-button-click', (data) => {
   };
 
   // Old buttons, (submit and cancel) use old events
-  if(!data.$el.hasClass('ap-dialog-user-button')) {
+  if(!data.$el.hasClass('ap-dialog-custom-button')) {
     EventActions.broadcast(`dialog.${data.name}`, {
       addon_key: data.extension.addon_key
     }, eventData);

@@ -2658,7 +2658,8 @@ var DLGID_PREFIX = 'ap-dialog-';
 var DIALOG_CLASS = 'ap-aui-dialog2';
 var DLGID_REGEXP = new RegExp('^' + DLGID_PREFIX + '[0-9A-Za-z]+$');
 var DIALOG_SIZES = ['small', 'medium', 'large', 'xlarge', 'fullscreen'];
-var DIALOG_BUTTTON_CLASS = 'ap-aui-dialog-button';
+var DIALOG_BUTTON_CLASS = 'ap-aui-dialog-button';
+var DIALOG_BUTTON_CUSTOM_CLASS = 'ap-dialog-custom-button';
 var DIALOG_FOOTER_CLASS = 'aui-dialog2-footer';
 var DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
 var DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
@@ -2775,7 +2776,7 @@ var Dialog = (function () {
     key: '_renderDialogButton',
     value: function _renderDialogButton(options, extension) {
       options.additionalClasses = options.additionalClasses || [];
-      options.additionalClasses.push(DIALOG_BUTTTON_CLASS);
+      options.additionalClasses.push(DIALOG_BUTTON_CLASS);
       var $button = _componentsButton2['default'].render(options);
       $button.extension = extension;
       return $button;
@@ -2875,7 +2876,7 @@ var Dialog = (function () {
     value: function addButton(extension, options) {
       options.type = 'secondary';
       var $button = this._renderDialogButton(options, extension);
-      $button.addClass('ap-dialog-user-button');
+      $button.addClass(DIALOG_BUTTON_CUSTOM_CLASS);
       var $dialog = (0, _dollar2['default'])(this.getByExtension({
         addon_key: extension.addon_key,
         key: extension.key
@@ -2944,7 +2945,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', functi
 
 _dispatchersEvent_dispatcher2['default'].register('button-clicked', function (data) {
   var $button = data.$el;
-  if ($button.hasClass(DIALOG_BUTTTON_CLASS)) {
+  if ($button.hasClass(DIALOG_BUTTON_CLASS)) {
     var $dialog = $button.parents('.' + DIALOG_CLASS);
     if ($dialog.find('iframe')[0].bridgeEstablished) {
       _actionsDialog_actions2['default'].clickButton(_componentsButton2['default'].getIdentifier($button), $button, $dialog[0].extension);
@@ -4461,7 +4462,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-click', functio
   };
 
   // Old buttons, (submit and cancel) use old events
-  if (!data.$el.hasClass('ap-dialog-user-button')) {
+  if (!data.$el.hasClass('ap-dialog-custom-button')) {
     _actionsEvent_actions2['default'].broadcast('dialog.' + data.name, {
       addon_key: data.extension.addon_key
     }, eventData);
