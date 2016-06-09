@@ -36,10 +36,12 @@ class Button {
   }
 
   _additionalClasses($button, classes) {
-    if(typeof classes !== "string") {
-      classes = classes.join(" ");
+    if(classes) {
+      if(typeof classes !== "string") {
+        classes = classes.join(" ");
+      }
+      $button.addClass(classes);
     }
-    $button.addClass(classes);
     return $button;
   }
 
@@ -57,6 +59,7 @@ class Button {
 
   render (options) {
     var $button = $("<button />");
+    options = options || {};
     $button.addClass("aui-button " + this.AP_BUTTON_CLASS);
     $button.text(options.text);
     $button.data(options.data);
@@ -66,7 +69,7 @@ class Button {
     });
     this._additionalClasses($button, options.additionalClasses);
     this.setType($button, options.type);
-    this.setDisabled($button, options.disabled);
+    this.setDisabled($button, options.disabled || false);
     this._setId($button, options.id);
     return $button;
   }
