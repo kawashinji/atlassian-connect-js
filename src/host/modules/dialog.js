@@ -14,8 +14,7 @@ EventDispatcher.register('dialog-close', function (data) {
   const dialog = data.dialog;
   if (dialog && data.extension) {
     EventActions.broadcast('dialog.close', {
-      addon_key: data.extension.addon_key,
-      key: data.extension.key
+      addon_key: data.extension.addon_key
     }, data.customData);
   }
 });

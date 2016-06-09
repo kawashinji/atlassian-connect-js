@@ -62,9 +62,13 @@ describe('Button component', () => {
       document.body.appendChild($button[0]);
       var spy = jasmine.createSpy('spy');
       EventDispatcher.registerOnce('button-clicked', spy);
+
+      // jquery bug, need to wait 1 tick before triggering.
       setTimeout(function(){
         $button.trigger('click');
       }, 0);
+
+      // wait longer than the 1 tick to make sure it's not triggered.
       setTimeout(function(){
         expect(spy).not.toHaveBeenCalled();
         done();
