@@ -2947,7 +2947,8 @@ _dispatchersEvent_dispatcher2['default'].register('button-clicked', function (da
   var $button = data.$el;
   if ($button.hasClass(DIALOG_BUTTON_CLASS)) {
     var $dialog = $button.parents('.' + DIALOG_CLASS);
-    if ($dialog.find('iframe')[0].bridgeEstablished) {
+    var $iframe = $dialog.find('iframe');
+    if ($iframe.length && $iframe[0].bridgeEstablished) {
       _actionsDialog_actions2['default'].clickButton(_componentsButton2['default'].getIdentifier($button), $button, $dialog[0].extension);
     } else {
       _actionsDialog_actions2['default'].close({
@@ -4446,13 +4447,13 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data
   var dialog = data.dialog;
   if (dialog && data.extension) {
     _actionsEvent_actions2['default'].broadcast('dialog.close', {
-      addon_key: data.extension.addon_key
+      addon_key: data.extension.addon_key,
+      key: data.extension.key
     }, data.customData);
   }
 });
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-button-click', function (data) {
-  console.log('dialog-button-click event data', data);
   var eventData = {
     button: {
       name: _componentsButton2['default'].getName(data.$el),
@@ -4463,7 +4464,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-click', functio
 
   // Old buttons, (submit and cancel) use old events
   if (!data.$el.hasClass('ap-dialog-custom-button')) {
-    _actionsEvent_actions2['default'].broadcast('dialog.' + data.name, {
+    _actionsEvent_actions2['default'].broadcast('dialog.' + eventData.button.name, {
       addon_key: data.extension.addon_key
     }, eventData);
   } else {

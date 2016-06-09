@@ -14,13 +14,13 @@ EventDispatcher.register('dialog-close', function (data) {
   const dialog = data.dialog;
   if (dialog && data.extension) {
     EventActions.broadcast('dialog.close', {
-      addon_key: data.extension.addon_key
+      addon_key: data.extension.addon_key,
+      key: data.extension.key
     }, data.customData);
   }
 });
 
 EventDispatcher.register('dialog-button-click', (data) => {
-  console.log('dialog-button-click event data', data);
   var eventData = {
     button: {
       name: ButtonComponent.getName(data.$el),
@@ -31,7 +31,7 @@ EventDispatcher.register('dialog-button-click', (data) => {
 
   // Old buttons, (submit and cancel) use old events
   if(!data.$el.hasClass('ap-dialog-custom-button')) {
-    EventActions.broadcast(`dialog.${data.name}`, {
+    EventActions.broadcast(`dialog.${eventData.button.name}`, {
       addon_key: data.extension.addon_key
     }, eventData);
 

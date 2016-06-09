@@ -279,7 +279,8 @@ EventDispatcher.register('button-clicked', (data) => {
   var $button = data.$el;
   if($button.hasClass(DIALOG_BUTTON_CLASS)) {
     var $dialog = $button.parents('.' + DIALOG_CLASS);
-    if ($dialog.find('iframe')[0].bridgeEstablished) {
+    var $iframe = $dialog.find('iframe');
+    if ($iframe.length && $iframe[0].bridgeEstablished) {
       DialogActions.clickButton(Button.getIdentifier($button), $button, $dialog[0].extension);
     } else {
       DialogActions.close({
