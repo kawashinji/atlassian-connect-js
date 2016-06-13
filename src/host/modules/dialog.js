@@ -23,7 +23,7 @@ EventDispatcher.register('dialog-button-click', (data) => {
   var eventData = {
     button: {
       name: ButtonComponent.getName(data.$el),
-      id: data.identifier,
+      identifier: ButtonComponent.getIdentifier(data.$el),
       text: ButtonComponent.getText(data.$el)
     }
   };
@@ -198,7 +198,7 @@ function getDialogFromContext(context) {
 class CreateButton {
   constructor(options, callback) {
     DialogExtensionActions.addUserButton({
-      identifier: options.id,
+      identifier: options.identifier,
       text: options.text
     }, callback._context.extension);
   }

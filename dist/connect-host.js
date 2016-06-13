@@ -4466,7 +4466,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-click', functio
   var eventData = {
     button: {
       name: _componentsButton2['default'].getName(data.$el),
-      id: data.identifier,
+      identifier: _componentsButton2['default'].getIdentifier(data.$el),
       text: _componentsButton2['default'].getText(data.$el)
     }
   };
@@ -4667,7 +4667,7 @@ var CreateButton = function CreateButton(options, callback) {
   _classCallCheck(this, CreateButton);
 
   _actionsDialog_extension_actions2['default'].addUserButton({
-    identifier: options.id,
+    identifier: options.identifier,
     text: options.text
   }, callback._context.extension);
 }

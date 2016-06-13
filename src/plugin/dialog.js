@@ -23,7 +23,7 @@ function eventDelegator(name, args) {
     return;
   }
   if(name === 'dialog.button.click') {
-    customButtonEvent(args.button.id, args);
+    customButtonEvent(args.button.identifier, args);
   } else {
     submitOrCancelEvent(dialogEventMatch[1], args);
   }
@@ -125,12 +125,12 @@ AP.dialog.createButton = AP._hostModules.dialog.createButton = function(options)
   } else {
     buttonProperties = options;
   }
-  if(!buttonProperties.id) {
+  if(!buttonProperties.identifier) {
 
-    buttonProperties.id = 'user.button.' + customButtonIncrement++;
+    buttonProperties.identifier = 'user.button.' + customButtonIncrement++;
   }
   var createButton = original_dialogCreateButton(buttonProperties);
-  return AP.dialog.getButton(buttonProperties.id);
+  return AP.dialog.getButton(buttonProperties.identifier);
 };
 
 AP.dialog.onDialogMessage = AP._hostModules.dialog.onDialogMessage = util.deprecateApi(registerHandler,
