@@ -277,7 +277,6 @@ EventDispatcher.register('dialog-button-toggle', (data) => {
       return Button.getName(this) === data.name;
     });
     ButtonActions.toggle($button, !data.enabled);
-    // $button.attr('aria-disabled', !data.enabled);
   }
 });
 

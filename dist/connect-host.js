@@ -2949,7 +2949,6 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', functi
       return _componentsButton2['default'].getName(this) === data.name;
     });
     _actionsButton_actions2['default'].toggle($button, !data.enabled);
-    // $button.attr('aria-disabled', !data.enabled);
   }
 });
 
@@ -4724,7 +4723,8 @@ module.exports = {
    *     chrome: true,
    *     buttons: [
    *      {
-   *        text: 'my button'
+   *        text: 'my button',
+   *        identifier: 'my_unique_identifier'
    *      }
    *     ]
    *   }).on("close", callbackFunc);

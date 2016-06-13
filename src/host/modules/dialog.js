@@ -253,7 +253,8 @@ module.exports = {
    *     chrome: true,
    *     buttons: [
    *      {
-   *        text: 'my button'
+   *        text: 'my button',
+   *        identifier: 'my_unique_identifier'
    *      }
    *     ]
    *   }).on("close", callbackFunc);
