@@ -2742,10 +2742,10 @@ var Dialog = (function () {
       if (options.size !== 'fullscreen') {
         var $actions = this._renderFooterActions(options.actions, options.extension);
         $footer.append($actions);
-        if (options.hint) {
-          var $hint = (0, _dollar2['default'])('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
-          $footer.append($hint);
-        }
+      }
+      if (options.hint) {
+        var $hint = (0, _dollar2['default'])('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
+        $footer.append($hint);
       }
       return $footer;
     }
@@ -2760,7 +2760,9 @@ var Dialog = (function () {
           text: action.text,
           name: action.name,
           type: action.type,
-          additionalClasses: action.additionalClasses
+          additionalClasses: action.additionalClasses,
+          custom: action.custom || false,
+          identifier: action.identifier
         }, extension));
       });
       return actionButtons;
@@ -2780,6 +2782,9 @@ var Dialog = (function () {
     value: function _renderDialogButton(options, extension) {
       options.additionalClasses = options.additionalClasses || [];
       options.additionalClasses.push(DIALOG_BUTTON_CLASS);
+      if (options.custom) {
+        options.additionalClasses.push(DIALOG_BUTTON_CUSTOM_CLASS);
+      }
       var $button = _componentsButton2['default'].render(options);
       $button.extension = extension;
       return $button;
@@ -2823,6 +2828,7 @@ var Dialog = (function () {
           actions: sanitizedOptions.actions,
           size: sanitizedOptions.size
         }));
+
         $dialog.append(this._renderFooter({
           extension: sanitizedOptions.extension,
           actions: sanitizedOptions.actions,
@@ -2874,12 +2880,13 @@ var Dialog = (function () {
 
       return (0, _dollar2['default'])('.' + DIALOG_CLASS).toArray().filter(filterFunction);
     }
+
+    // add user defined button to an existing dialog
   }, {
     key: 'addButton',
     value: function addButton(extension, options) {
-      options.type = 'secondary';
+      options.custom = true;
       var $button = this._renderDialogButton(options, extension);
-      $button.addClass(DIALOG_BUTTON_CUSTOM_CLASS);
       var $dialog = (0, _dollar2['default'])(this.getByExtension({
         addon_key: extension.addon_key,
         key: extension.key
@@ -3032,7 +3039,8 @@ var DialogExtension = (function () {
         header: dialogOptions.header,
         hint: dialogOptions.hint,
         submitText: dialogOptions.submitText,
-        cancelText: dialogOptions.cancelText
+        cancelText: dialogOptions.cancelText,
+        buttons: dialogOptions.buttons
       });
       return $dialog;
     }
@@ -4513,7 +4521,8 @@ var Dialog = function Dialog(options, callback) {
     hint: options.hint,
     actions: options.actions,
     submitText: options.submitText,
-    cancelText: options.cancelText
+    cancelText: options.cancelText,
+    buttons: options.buttons
   };
 
   _actionsDialog_extension_actions2['default'].open(dialogExtension, dialogOptions);
@@ -4698,6 +4707,7 @@ module.exports = {
    * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
    * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
    * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC will close the dialog (default is true).
+   * @property {Array}         buttons     (optional) an array of custom buttons to be added to the dialog if opening a dialog with chrome.
    */
 
   /**
@@ -4711,7 +4721,12 @@ module.exports = {
    *     key: 'my-module-key',
    *     width: '500px',
    *     height: '200px',
-   *     chrome: true
+   *     chrome: true,
+   *     buttons: [
+   *      {
+   *        text: 'my button'
+   *      }
+   *     ]
    *   }).on("close", callbackFunc);
    * });
    *
@@ -5434,6 +5449,10 @@ var _util = _dereq_('../util');
 
 var _util2 = _interopRequireDefault(_util);
 
+var _button = _dereq_('./button');
+
+var _button2 = _interopRequireDefault(_button);
+
 var DialogUtils = (function () {
   function DialogUtils() {
     _classCallCheck(this, DialogUtils);
@@ -5506,6 +5525,7 @@ var DialogUtils = (function () {
       var sanitizedActions = [];
       options = options || {};
       if (!options.actions) {
+
         sanitizedActions = [{
           name: 'submit',
           text: options.submitText || 'Submit',
@@ -5516,6 +5536,11 @@ var DialogUtils = (function () {
           type: 'link'
         }];
       }
+
+      if (options.buttons) {
+        sanitizedActions = sanitizedActions.concat(this._buttons(options));
+      }
+
       return sanitizedActions;
     }
   }, {
@@ -5525,6 +5550,40 @@ var DialogUtils = (function () {
         str = Math.random().toString(36).substring(2, 8);
       }
       return str;
+    }
+
+    // user defined action buttons
+  }, {
+    key: '_buttons',
+    value: function _buttons(options) {
+      var buttons = [];
+      if (options.buttons && Array.isArray(options.buttons)) {
+        options.buttons.forEach(function (button) {
+          var text,
+              identifier,
+              disabled = false;
+          if (button.text && typeof button.text === 'string') {
+            text = button.text;
+          }
+          if (button.identifier && typeof button.identifier === 'string') {
+            identifier = button.identifier;
+          } else {
+            identifier = _button2['default'].randomIdentifier();
+          }
+          if (button.disabled && button.disabled === true) {
+            disabled === true;
+          }
+
+          buttons.push({
+            text: text,
+            identifier: identifier,
+            type: 'secondary',
+            custom: true,
+            disabled: disabled
+          });
+        });
+      }
+      return buttons;
     }
   }, {
     key: 'sanitizeOptions',
@@ -5566,7 +5625,7 @@ var dialogUtilsInstance = new DialogUtils();
 exports['default'] = dialogUtilsInstance;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../util":41}],44:[function(_dereq_,module,exports){
+},{"../dollar":33,"../util":41,"./button":42}],44:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }

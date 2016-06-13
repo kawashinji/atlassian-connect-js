@@ -84,10 +84,10 @@ class Dialog {
     if(options.size !== 'fullscreen') {
       const $actions = this._renderFooterActions(options.actions, options.extension);
       $footer.append($actions);
-      if(options.hint) {
-        const $hint = $('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
-        $footer.append($hint);
-      }
+    }
+    if(options.hint) {
+      const $hint = $('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
+      $footer.append($hint);
     }
     return $footer;
   }
@@ -100,7 +100,9 @@ class Dialog {
           text: action.text,
           name: action.name,
           type: action.type,
-          additionalClasses: action.additionalClasses
+          additionalClasses: action.additionalClasses,
+          custom: action.custom || false,
+          identifier: action.identifier
         }, extension)
       );
     });
@@ -119,6 +121,9 @@ class Dialog {
   _renderDialogButton(options, extension) {
     options.additionalClasses = options.additionalClasses || [];
     options.additionalClasses.push(DIALOG_BUTTON_CLASS);
+    if(options.custom) {
+      options.additionalClasses.push(DIALOG_BUTTON_CUSTOM_CLASS);
+    }
     const $button = Button.render(options);
     $button.extension = extension;
     return $button;
@@ -160,6 +165,7 @@ class Dialog {
         actions: sanitizedOptions.actions,
         size: sanitizedOptions.size
       }));
+
       $dialog.append(this._renderFooter({
         extension: sanitizedOptions.extension,
         actions: sanitizedOptions.actions,
@@ -208,10 +214,10 @@ class Dialog {
     return $('.' + DIALOG_CLASS).toArray().filter(filterFunction);
   }
 
+  // add user defined button to an existing dialog
   addButton(extension, options) {
-    options.type = 'secondary';
+    options.custom = true;
     var $button = this._renderDialogButton(options, extension);
-    $button.addClass(DIALOG_BUTTON_CUSTOM_CLASS);
     var $dialog = $(this.getByExtension({
       addon_key: extension.addon_key,
       key: extension.key

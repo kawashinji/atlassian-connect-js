@@ -76,7 +76,8 @@ class Dialog {
       hint: options.hint,
       actions: options.actions,
       submitText: options.submitText,
-      cancelText: options.cancelText
+      cancelText: options.cancelText,
+      buttons: options.buttons
     };
 
     DialogExtensionActions.open(dialogExtension, dialogOptions);
@@ -235,6 +236,7 @@ module.exports = {
    * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
    * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
    * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC will close the dialog (default is true).
+   * @property {Array}         buttons     (optional) an array of custom buttons to be added to the dialog if opening a dialog with chrome.
    */
 
   /**
@@ -248,7 +250,12 @@ module.exports = {
    *     key: 'my-module-key',
    *     width: '500px',
    *     height: '200px',
-   *     chrome: true
+   *     chrome: true,
+   *     buttons: [
+   *      {
+   *        text: 'my button'
+   *      }
+   *     ]
    *   }).on("close", callbackFunc);
    * });
    *

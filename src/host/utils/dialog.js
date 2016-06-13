@@ -1,5 +1,6 @@
 import $ from '../dollar';
 import util from '../util';
+import buttonUtils from './button';
 
 class DialogUtils {
   _size (options){
@@ -61,6 +62,7 @@ class DialogUtils {
     var sanitizedActions = [];
     options = options || {};
     if (!options.actions) {
+
       sanitizedActions = [
         {
           name: 'submit',
@@ -74,6 +76,11 @@ class DialogUtils {
         }
       ];
     }
+
+    if(options.buttons) {
+      sanitizedActions = sanitizedActions.concat(this._buttons(options));
+    }
+
     return sanitizedActions;
 
   }
@@ -83,6 +90,35 @@ class DialogUtils {
       str = Math.random().toString(36).substring(2, 8);
     }
     return str;
+  }
+  // user defined action buttons
+  _buttons(options) {
+    var buttons = [];
+    if(options.buttons && Array.isArray(options.buttons)) {
+      options.buttons.forEach((button) => {
+        var text, identifier, disabled = false;
+        if(button.text && typeof button.text === 'string') {
+          text = button.text;
+        }
+        if(button.identifier && typeof button.identifier === 'string') {
+          identifier = button.identifier;
+        } else {
+          identifier = buttonUtils.randomIdentifier();
+        }
+        if(button.disabled && button.disabled === true) {
+          disabled === true;
+        }
+
+        buttons.push({
+          text: text,
+          identifier: identifier,
+          type: 'secondary',
+          custom: true,
+          disabled: disabled
+        });
+      });
+    }
+    return buttons;
   }
 
   sanitizeOptions(options){
@@ -97,7 +133,7 @@ class DialogUtils {
       extension: options.extension,
       actions: this._actions(options),
       id: this._id(options.id),
-      size: options.size
+      size: options.size,
     };
     sanitized.size = this._size(sanitized);
 
