@@ -19,7 +19,8 @@ class DialogExtension {
       header:     dialogOptions.header,
       hint:       dialogOptions.hint,
       submitText: dialogOptions.submitText,
-      cancelText: dialogOptions.cancelText
+      cancelText: dialogOptions.cancelText,
+      buttons:    dialogOptions.buttons
     });
     return $dialog;
   }

@@ -73,8 +73,6 @@ module.exports = new ConsumerOptions();
 },{"./dollar":3}],2:[function(_dereq_,module,exports){
 'use strict';
 
-var _arguments2 = arguments;
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _util = _dereq_('./util');
@@ -84,6 +82,8 @@ var _util2 = _interopRequireDefault(_util);
 var _events = _dereq_('./events');
 
 var _events2 = _interopRequireDefault(_events);
+
+var customButtonIncrement = 1;
 
 var getCustomData = _util2['default'].deprecateApi(function () {
   return AP._data.options.customData;
@@ -98,28 +98,50 @@ Object.defineProperty(AP.dialog, 'customData', {
 
 var dialogHandlers = {};
 
-_events2['default'].onAny(function (name, args) {
-  var dialogEventMatch = name.match(/^dialog\.(\w+)$/);
-  if (dialogEventMatch) {
-    var dialogEvent = dialogEventMatch[1];
-    var handlers = dialogHandlers[dialogEvent];
-    var shouldClose = dialogEvent !== 'close';
+_events2['default'].onAny(eventDelegator);
+function eventDelegator(name, args) {
+  var dialogEventMatch = name.match(/^dialog\.(\w+)/);
+  if (!dialogEventMatch) {
+    return;
+  }
+  if (name === 'dialog.button.click') {
+    customButtonEvent(args.button.identifier, args);
+  } else {
+    submitOrCancelEvent(dialogEventMatch[1], args);
+  }
+}
+
+function customButtonEvent(buttonIdentifier, args) {
+  var callbacks = dialogHandlers[buttonIdentifier];
+  if (callbacks && callbacks.length !== 0) {
     try {
-      if (handlers) {
-        shouldClose = handlers.reduce(function (result, cb) {
-          return cb(args) && result;
-        }, shouldClose);
-      }
+      callbacks.forEach(function (callback) {
+        callback.call(null, args);
+      });
     } catch (err) {
       console.error(err);
-    } finally {
-      delete dialogHandlers[dialogEvent];
-    }
-    if (shouldClose) {
-      AP.dialog.close();
     }
   }
-});
+}
+
+function submitOrCancelEvent(name, args) {
+  var handlers = dialogHandlers[name];
+  var shouldClose = name !== 'close';
+  try {
+    if (handlers) {
+      shouldClose = handlers.reduce(function (result, cb) {
+        return cb(args) && result;
+      }, shouldClose);
+    }
+  } catch (err) {
+    console.error(err);
+  } finally {
+    delete dialogHandlers[name];
+  }
+  if (shouldClose) {
+    AP.dialog.close();
+  }
+}
 
 function registerHandler(event, callback) {
   if (typeof callback === 'function') {
@@ -150,42 +172,49 @@ AP.dialog.create = AP._hostModules.dialog.create = function () {
   return dialog;
 };
 
-var original_dialogGetButton = AP._hostModules.dialog.getButton;
+var original_dialogGetButton = AP.dialog.getButton.prototype.constructor.bind({});
 
-AP.dialog.getButton = AP._hostModules.dialog.getButton = function () {
-  var _arguments = _arguments2;
-
+AP.dialog.getButton = AP._hostModules.dialog.getButton = function (name) {
   try {
-    var _ret = (function () {
-      var button = original_dialogGetButton.apply(undefined, _arguments);
-      var name = _arguments[0];
+    var button = original_dialogGetButton(name);
+    /**
+     * Registers a function to be called when the button is clicked.
+     * @method bind
+     * @memberOf Dialog~DialogButton
+     * @param {Function} callback function to be triggered on click or programatically.
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').bind(function(){
+     *     alert('clicked!');
+     *   });
+     * });
+     */
+    button.bind = _util2['default'].deprecateApi(function (callback) {
+      return registerHandler(name, callback);
+    }, 'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
 
-      /**
-       * Registers a function to be called when the button is clicked.
-       * @method bind
-       * @memberOf Dialog~DialogButton
-       * @param {Function} callback function to be triggered on click or programatically.
-       * @noDemo
-       * @example
-       * AP.require('dialog', function(dialog){
-       *   dialog.getButton('submit').bind(function(){
-       *     alert('clicked!');
-       *   });
-       * });
-       */
-      button.bind = _util2['default'].deprecateApi(function (callback) {
-        return registerHandler(name, callback);
-      }, 'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
-
-      return {
-        v: button
-      };
-    })();
-
-    if (typeof _ret === 'object') return _ret.v;
+    return button;
   } catch (e) {
     return {};
   }
+};
+
+var original_dialogCreateButton = AP.dialog.createButton.prototype.constructor.bind({});
+
+AP.dialog.createButton = AP._hostModules.dialog.createButton = function (options) {
+  var buttonProperties = {};
+  if (typeof options !== "object") {
+    buttonProperties.text = options;
+  } else {
+    buttonProperties = options;
+  }
+  if (!buttonProperties.identifier) {
+
+    buttonProperties.identifier = 'user.button.' + customButtonIncrement++;
+  }
+  var createButton = original_dialogCreateButton(buttonProperties);
+  return AP.dialog.getButton(buttonProperties.identifier);
 };
 
 AP.dialog.onDialogMessage = AP._hostModules.dialog.onDialogMessage = _util2['default'].deprecateApi(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');

@@ -91,4 +91,8 @@ EventDispatcher.register('jwt-url-refreshed', function(data) {
   IframeComponent.resolverResponse(data);
 });
 
+EventDispatcher.register('after:iframe-bridge-estabilshed', function(data) {
+  data.$el[0].bridgeEstablished = true;
+});
+
 export default IframeComponent;

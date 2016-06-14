@@ -1,7 +1,9 @@
 import DialogModule from 'src/host/modules/dialog';
 import DialogComponent from 'src/host/components/dialog';
+import DialogExtensionComponent from 'src/host/components/dialog_extension';
 import EventActions from 'src/host/actions/event_actions';
 import baseDialogComponentTests from 'fixtures/base_dialog_component_tests';
+import IframeActions from 'src/host/actions/iframe_actions';
 
 describe('Dialog module', () => {
 
@@ -80,17 +82,38 @@ describe('Dialog module', () => {
     baseDialogComponentTests.testChromeless(options);
   });
 
-
-  it('button click dispatches an event', () => {
+  it('button click dispatches an event', (done) => {
     var extension = {
-      addon_key: 'my-addon-key'
+      addon_key: 'some-key',
+      key: 'module-key',
+      url: 'http://www.example.com'
     };
-    var $dialog = DialogComponent.render({
-      extension: extension
-    });
+
+    var options = baseDialogComponentTests.getChromeOptions();
+    var $dialogExtension = DialogExtensionComponent.render(extension, options);
+    $dialogExtension.find('iframe')[0].bridgeEstablished = true;
     spyOn(EventActions, 'broadcast');
-    $dialog.find('button').first().click();
-    expect(EventActions.broadcast.calls.count()).toEqual(1);
-    expect(EventActions.broadcast.calls.first().args[1]).toEqual(extension);
+    $dialogExtension.find('iframe').load(function(){
+      $dialogExtension.find('button').first().click();
+      expect(EventActions.broadcast.calls.count()).toEqual(1);
+      expect(EventActions.broadcast.calls.first().args[1]).toEqual({
+        addon_key: extension.addon_key
+      });
+      done();
+    });
+  });
+
+  it('button click is ignored if iframe has not loaded', () => {
+    var extension = {
+      addon_key: 'some-key',
+      key: 'module-key',
+      url: 'http://www.example.com'
+    };
+
+    var options = baseDialogComponentTests.getChromeOptions();
+    var $dialogExtension = DialogExtensionComponent.render(extension, options);
+    spyOn(EventActions, 'broadcast');
+    $dialogExtension.find('button').first().click();
+    expect(EventActions.broadcast.calls.count()).toEqual(0);
   });
 });
