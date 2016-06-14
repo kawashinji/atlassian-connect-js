@@ -1,6 +1,6 @@
 import util from './util';
 import events from './events';
-var customButtonIncrement = 1;
+let customButtonIncrement = 1;
 
 const getCustomData = util.deprecateApi(() => {
   return AP._data.options.customData;
@@ -33,7 +33,7 @@ function customButtonEvent(buttonIdentifier, args) {
   var callbacks = dialogHandlers[buttonIdentifier];
   if(callbacks && callbacks.length !== 0){
     try{
-      callbacks.forEach(function(callback){
+      callbacks.forEach((callback) => {
         callback.call(null, args);
       });
     } catch (err) {
@@ -89,7 +89,7 @@ AP.dialog.create = AP._hostModules.dialog.create = (...args) => {
   return dialog;
 };
 
-var original_dialogGetButton = AP.dialog.getButton.prototype.constructor.bind({});
+let original_dialogGetButton = AP.dialog.getButton.prototype.constructor.bind({});
 
 AP.dialog.getButton = AP._hostModules.dialog.getButton = function(name) {
   try {
@@ -116,10 +116,10 @@ AP.dialog.getButton = AP._hostModules.dialog.getButton = function(name) {
   }
 };
 
-var original_dialogCreateButton = AP.dialog.createButton.prototype.constructor.bind({});
+let original_dialogCreateButton = AP.dialog.createButton.prototype.constructor.bind({});
 
 AP.dialog.createButton = AP._hostModules.dialog.createButton = function(options) {
-  var buttonProperties = {};
+  let buttonProperties = {};
   if(typeof options !== "object") {
     buttonProperties.text = options;
   } else {
@@ -129,7 +129,7 @@ AP.dialog.createButton = AP._hostModules.dialog.createButton = function(options)
 
     buttonProperties.identifier = 'user.button.' + customButtonIncrement++;
   }
-  var createButton = original_dialogCreateButton(buttonProperties);
+  let createButton = original_dialogCreateButton(buttonProperties);
   return AP.dialog.getButton(buttonProperties.identifier);
 };
 

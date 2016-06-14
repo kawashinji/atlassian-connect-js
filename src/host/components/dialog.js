@@ -145,9 +145,12 @@ class Dialog {
       id: DLGID_PREFIX + sanitizedOptions.id
     });
     $dialog.attr('data-aui-modal', 'true');
-    $dialog.data('aui-remove-on-hide', true);
+    $dialog.data({
+      'aui-remove-on-hide': true,
+      'extension': sanitizedOptions.extension
+    });
     $dialog.addClass('aui-layer aui-dialog2 ' + DIALOG_CLASS);
-    $dialog.extension = sanitizedOptions.extension;
+
     if (_.contains(DIALOG_SIZES, sanitizedOptions.size)) {
       $dialog.addClass('aui-dialog2-' + sanitizedOptions.size);
     }
@@ -182,7 +185,7 @@ class Dialog {
       AJS.layer($dialog).changeSize(sanitizedOptions.width, sanitizedOptions.height);
     }
     dialog.show();
-    dialog.$el[0].extension = sanitizedOptions.extension;
+    dialog.$el.data('extension', sanitizedOptions.extension);
     return $dialog;
   }
 
@@ -205,8 +208,9 @@ class Dialog {
     } else {
       var keys = Object.getOwnPropertyNames(extension);
       filterFunction = function($dialog) {
+        var dialogData = $dialog.data('extension');
         return keys.every((key) => {
-          return $dialog.extension[key] === extension[key];
+          return dialogData[key] === extension[key];
         });
       };
     }
@@ -286,7 +290,7 @@ EventDispatcher.register('button-clicked', (data) => {
     var $dialog = $button.parents('.' + DIALOG_CLASS);
     var $iframe = $dialog.find('iframe');
     if ($iframe.length && $iframe[0].bridgeEstablished) {
-      DialogActions.clickButton(Button.getIdentifier($button), $button, $dialog[0].extension);
+      DialogActions.clickButton(Button.getIdentifier($button), $button, $dialog.data('extension'));
     } else {
       DialogActions.close({
         dialog: getActiveDialog(),

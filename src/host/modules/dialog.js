@@ -325,7 +325,7 @@ module.exports = {
   },
   /**
    * Creates a dialog button that can be controlled with javascript
-   * @method getButton
+   * @method createButton
    * @returns {Dialog~DialogButton}
    * @noDemo
    * @example

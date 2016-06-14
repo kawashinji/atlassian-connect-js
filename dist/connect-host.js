@@ -2808,9 +2808,12 @@ var Dialog = (function () {
         id: DLGID_PREFIX + sanitizedOptions.id
       });
       $dialog.attr('data-aui-modal', 'true');
-      $dialog.data('aui-remove-on-hide', true);
+      $dialog.data({
+        'aui-remove-on-hide': true,
+        'extension': sanitizedOptions.extension
+      });
       $dialog.addClass('aui-layer aui-dialog2 ' + DIALOG_CLASS);
-      $dialog.extension = sanitizedOptions.extension;
+
       if (_underscore2['default'].contains(DIALOG_SIZES, sanitizedOptions.size)) {
         $dialog.addClass('aui-dialog2-' + sanitizedOptions.size);
       }
@@ -2845,7 +2848,7 @@ var Dialog = (function () {
         AJS.layer($dialog).changeSize(sanitizedOptions.width, sanitizedOptions.height);
       }
       dialog.show();
-      dialog.$el[0].extension = sanitizedOptions.extension;
+      dialog.$el.data('extension', sanitizedOptions.extension);
       return $dialog;
     }
   }, {
@@ -2872,8 +2875,9 @@ var Dialog = (function () {
       } else {
         var keys = Object.getOwnPropertyNames(extension);
         filterFunction = function ($dialog) {
+          var dialogData = $dialog.data('extension');
           return keys.every(function (key) {
-            return $dialog.extension[key] === extension[key];
+            return dialogData[key] === extension[key];
           });
         };
       }
@@ -2958,7 +2962,7 @@ _dispatchersEvent_dispatcher2['default'].register('button-clicked', function (da
     var $dialog = $button.parents('.' + DIALOG_CLASS);
     var $iframe = $dialog.find('iframe');
     if ($iframe.length && $iframe[0].bridgeEstablished) {
-      _actionsDialog_actions2['default'].clickButton(_componentsButton2['default'].getIdentifier($button), $button, $dialog[0].extension);
+      _actionsDialog_actions2['default'].clickButton(_componentsButton2['default'].getIdentifier($button), $button, $dialog.data('extension'));
     } else {
       _actionsDialog_actions2['default'].close({
         dialog: getActiveDialog(),
@@ -4795,7 +4799,7 @@ module.exports = {
   },
   /**
    * Creates a dialog button that can be controlled with javascript
-   * @method getButton
+   * @method createButton
    * @returns {Dialog~DialogButton}
    * @noDemo
    * @example

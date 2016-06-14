@@ -133,7 +133,7 @@ class DialogUtils {
       extension: options.extension,
       actions: this._actions(options),
       id: this._id(options.id),
-      size: options.size,
+      size: options.size
     };
     sanitized.size = this._size(sanitized);
 
