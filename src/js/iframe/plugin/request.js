@@ -1,4 +1,4 @@
-AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
+AP.define("request", ["_dollar", "_rpc", "_file"], function ($, rpc) {
 
   "use strict";
 
@@ -38,6 +38,14 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
         return str;
       }
     });
+  }
+
+  // wrap blobs into an object so that it's extra properties can make it through the xdm bridge
+  function wrapBlob(value) {
+    if (value instanceof Blob && value.name) {
+      return {blob: value, name: value.name, _isBlob: true};
+    }
+    return value;
   }
 
   /**
@@ -138,6 +146,20 @@ AP.define("request", ["_dollar", "_rpc"], function ($, rpc) {
           delete options.success;
           error = options.error || nop;
           delete options.error;
+
+          if (options.contentType === 'multipart/form-data') {
+            Object.keys(options.data).forEach(function(key) {
+              var item = options.data[key];
+              if (Array.isArray(item)) {
+                item.forEach(function (val, index) {
+                  options.data[key][index] = wrapBlob(val);
+                })
+              } else {
+                options.data[key] = wrapBlob(item);
+              }
+            })
+          }
+
           // execute the request
           remote.request(options, done, fail);
         }
