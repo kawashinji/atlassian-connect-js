@@ -2874,8 +2874,8 @@ var Dialog = (function () {
         filterFunction = extension;
       } else {
         var keys = Object.getOwnPropertyNames(extension);
-        filterFunction = function ($dialog) {
-          var dialogData = $dialog.data('extension');
+        filterFunction = function (dialog) {
+          var dialogData = (0, _dollar2['default'])(dialog).data('extension');
           return keys.every(function (key) {
             return dialogData[key] === extension[key];
           });

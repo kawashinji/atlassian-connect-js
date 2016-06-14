@@ -207,8 +207,8 @@ class Dialog {
       filterFunction = extension;
     } else {
       var keys = Object.getOwnPropertyNames(extension);
-      filterFunction = function($dialog) {
-        var dialogData = $dialog.data('extension');
+      filterFunction = function(dialog) {
+        var dialogData = $(dialog).data('extension');
         return keys.every((key) => {
           return dialogData[key] === extension[key];
         });
