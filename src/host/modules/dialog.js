@@ -4,6 +4,7 @@ import DialogActions from 'actions/dialog_actions';
 import EventActions from 'actions/event_actions';
 import DialogExtensionComponent from 'components/dialog_extension';
 import util from '../util';
+import ButtonComponent from 'components/button';
 import DialogUtils from 'utils/dialog';
 import _ from '../underscore';
 
@@ -19,9 +20,27 @@ EventDispatcher.register('dialog-close', function (data) {
 });
 
 EventDispatcher.register('dialog-button-click', (data) => {
-  EventActions.broadcast(`dialog.${data.name}`, {
-    addon_key: data.extension.addon_key
-  });
+  var eventData = {
+    button: {
+      name: ButtonComponent.getName(data.$el),
+      identifier: ButtonComponent.getIdentifier(data.$el),
+      text: ButtonComponent.getText(data.$el)
+    }
+  };
+
+  // Old buttons, (submit and cancel) use old events
+  if(!data.$el.hasClass('ap-dialog-custom-button')) {
+    EventActions.broadcast(`dialog.${eventData.button.name}`, {
+      addon_key: data.extension.addon_key
+    }, eventData);
+
+  } else {
+    // new buttons only target the dialog
+    EventActions.broadcast('dialog.button.click', {
+      addon_key: data.extension.addon_key,
+      key: data.extension.key
+    }, eventData);
+  }
 });
 
 /**
@@ -57,7 +76,8 @@ class Dialog {
       hint: options.hint,
       actions: options.actions,
       submitText: options.submitText,
-      cancelText: options.cancelText
+      cancelText: options.cancelText,
+      buttons: options.buttons
     };
 
     DialogExtensionActions.open(dialogExtension, dialogOptions);
@@ -77,7 +97,6 @@ class Button {
     }
     this.name = name;
     this.enabled = true;
-    this.hidden = false;
   }
   /**
    * Sets the button state to enabled
@@ -170,61 +189,19 @@ class Button {
       });
     }
   }
-  /**
-   * Query a button for its current hidden/visible state.
-   * @method isHidden
-   * @memberOf Dialog~DialogButton
-   * @param {Function} callback function to receive the button state.
-   * @noDemo
-   * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getButton('submit').isHidden(function(hidden){
-   *     if(hidden){
-   *       //button is hidden
-   *     }
-   *   });
-   * });
-   */
-  isHidden(callback) {
-    callback(this.hidden);
-  }
-  /**
-   * Sets the button state to hidden
-   * @method hide
-   * @memberOf Dialog~DialogButton
-   * @noDemo
-   * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getButton('submit').hide();
-   * });
-   */
-  hide() {
-    this.setHidden(true);
-  }
-  /**
-   * Sets the button state to visible
-   * @method show
-   * @memberOf Dialog~DialogButton
-   * @noDemo
-   * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getButton('submit').show();
-   * });
-   */
-  show() {
-    this.setHidden(false);
-  }
-  setHidden(hidden) {
-    this.hidden = hidden;
-    DialogActions.toggleButtonVisibility({
-      name: this.name,
-      isHidden: this.hidden
-    });
-  }
 }
 
 function getDialogFromContext(context) {
   return  _dialogs[context.extension.options.dialogId];
+}
+
+class CreateButton {
+  constructor(options, callback) {
+    DialogExtensionActions.addUserButton({
+      identifier: options.identifier,
+      text: options.text
+    }, callback._context.extension);
+  }
 }
 
 /**
@@ -259,6 +236,7 @@ module.exports = {
    * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
    * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
    * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC will close the dialog (default is true).
+   * @property {Array}         buttons     (optional) an array of custom buttons to be added to the dialog if opening a dialog with chrome.
    */
 
   /**
@@ -272,7 +250,13 @@ module.exports = {
    *     key: 'my-module-key',
    *     width: '500px',
    *     height: '200px',
-   *     chrome: true
+   *     chrome: true,
+   *     buttons: [
+   *      {
+   *        text: 'my button',
+   *        identifier: 'my_unique_identifier'
+   *      }
+   *     ]
    *   }).on("close", callbackFunc);
    * });
    *
@@ -337,9 +321,22 @@ module.exports = {
     disable: Button.prototype.disable,
     toggle: Button.prototype.toggle,
     isEnabled: Button.prototype.isEnabled,
-    trigger: Button.prototype.trigger,
-    isHidden: Button.prototype.isHidden,
-    hide: Button.prototype.hide,
-    show: Button.prototype.show
+    trigger: Button.prototype.trigger
+  },
+  /**
+   * Creates a dialog button that can be controlled with javascript
+   * @method createButton
+   * @returns {Dialog~DialogButton}
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.createButton({
+   *     text: 'button text',
+   *     identifier: 'button.1'
+   *   }).bind(function mycallback(){});
+   * });
+   */
+  createButton: {
+    constructor: CreateButton
   }
 };

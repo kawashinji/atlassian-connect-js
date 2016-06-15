@@ -9,5 +9,17 @@ module.exports = {
   },
   close: () => {
     EventDispatcher.dispatch('dialog-close-active', {});
+  },
+  addUserButton: (options, extension) => {
+    EventDispatcher.dispatch('dialog-button-add', {
+      button: {
+        text: options.text,
+        identifier: options.identifier,
+        data: {
+          userButton: true
+        }
+      },
+      extension: extension
+    });
   }
 };

@@ -29,6 +29,15 @@ describe('dialog extension component', () => {
       baseDialogComponentTests.testChrome(options);      
     });
 
+    it('renders a dialog with chrome in fullscreen', () => {
+      var options = baseDialogComponentTests.getFullscreenOptions();
+      expect($('.aui-dialog2').length).toEqual(0);
+      DialogExtensionComponent.render(extension, options);
+      expect($('.aui-dialog2').length).toEqual(1);
+      baseDialogComponentTests.testFullScreen(options);
+    });
+
+
     it('contains an iframe', () => {
       DialogExtensionComponent.render(extension);
       expect($('.aui-dialog2 iframe').length).toEqual(1);

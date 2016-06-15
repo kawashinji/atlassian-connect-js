@@ -1,5 +1,6 @@
 import $ from '../dollar';
 import util from '../util';
+import buttonUtils from './button';
 
 class DialogUtils {
   _size (options){
@@ -38,10 +39,13 @@ class DialogUtils {
     return '';
   }
 
-  _chrome(chrome){
+  _chrome(options){
     var returnval = true;
-    if (typeof chrome === 'boolean') {
-      returnval = chrome;
+    if (typeof options.chrome === 'boolean') {
+      returnval = options.chrome;
+    }
+    if(options.size === 'fullscreen') {
+      returnval = true;
     }
     return returnval;
   }
@@ -58,6 +62,7 @@ class DialogUtils {
     var sanitizedActions = [];
     options = options || {};
     if (!options.actions) {
+
       sanitizedActions = [
         {
           name: 'submit',
@@ -71,6 +76,11 @@ class DialogUtils {
         }
       ];
     }
+
+    if(options.buttons) {
+      sanitizedActions = sanitizedActions.concat(this._buttons(options));
+    }
+
     return sanitizedActions;
 
   }
@@ -81,11 +91,40 @@ class DialogUtils {
     }
     return str;
   }
+  // user defined action buttons
+  _buttons(options) {
+    var buttons = [];
+    if(options.buttons && Array.isArray(options.buttons)) {
+      options.buttons.forEach((button) => {
+        var text, identifier, disabled = false;
+        if(button.text && typeof button.text === 'string') {
+          text = button.text;
+        }
+        if(button.identifier && typeof button.identifier === 'string') {
+          identifier = button.identifier;
+        } else {
+          identifier = buttonUtils.randomIdentifier();
+        }
+        if(button.disabled && button.disabled === true) {
+          disabled === true;
+        }
+
+        buttons.push({
+          text: text,
+          identifier: identifier,
+          type: 'secondary',
+          custom: true,
+          disabled: disabled
+        });
+      });
+    }
+    return buttons;
+  }
 
   sanitizeOptions(options){
     options = options || {};
     var sanitized = {
-      chrome: this._chrome(options.chrome),
+      chrome: this._chrome(options),
       header: this._header(options.header),
       hint: this._hint(options.hint),
       width: this._width(options.width),

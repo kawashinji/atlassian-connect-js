@@ -1,5 +1,6 @@
 import util from './util';
 import events from './events';
+let customButtonIncrement = 1;
 
 const getCustomData = util.deprecateApi(() => {
   return AP._data.options.customData;
@@ -13,28 +14,50 @@ Object.defineProperty(AP.dialog, 'customData', {
   get: getCustomData
 });
 
-const dialogHandlers = {};
+const dialogHandlers = {};  
 
-events.onAny((name, args) => {
-  let dialogEventMatch = name.match(/^dialog\.(\w+)$/);
-  if (dialogEventMatch) {
-    let dialogEvent = dialogEventMatch[1];
-    let handlers = dialogHandlers[dialogEvent];
-    let shouldClose = dialogEvent !== 'close';
-    try {
-      if (handlers) {
-        shouldClose = handlers.reduce((result, cb) => cb(args) && result, shouldClose);
-      }
+events.onAny(eventDelegator);
+function eventDelegator(name, args) {
+  let dialogEventMatch = name.match(/^dialog\.(\w+)/);
+  if(!dialogEventMatch) {
+    return;
+  }
+  if(name === 'dialog.button.click') {
+    customButtonEvent(args.button.identifier, args);
+  } else {
+    submitOrCancelEvent(dialogEventMatch[1], args);
+  }
+}
+
+function customButtonEvent(buttonIdentifier, args) {
+  var callbacks = dialogHandlers[buttonIdentifier];
+  if(callbacks && callbacks.length !== 0){
+    try{
+      callbacks.forEach((callback) => {
+        callback.call(null, args);
+      });
     } catch (err) {
       console.error(err);
-    } finally {
-      delete dialogHandlers[dialogEvent];
-    }
-    if (shouldClose) {
-      AP.dialog.close();
     }
   }
-});
+}
+
+function submitOrCancelEvent(name, args) {
+  let handlers = dialogHandlers[name];
+  let shouldClose = name !== 'close';
+  try {
+    if (handlers) {
+      shouldClose = handlers.reduce((result, cb) => cb(args) && result, shouldClose);
+    }
+  } catch (err) {
+    console.error(err);
+  } finally {
+    delete dialogHandlers[name];
+  }
+  if (shouldClose) {
+    AP.dialog.close();
+  }
+}
 
 function registerHandler(event, callback) {
   if (typeof callback === 'function') {
@@ -66,13 +89,10 @@ AP.dialog.create = AP._hostModules.dialog.create = (...args) => {
   return dialog;
 };
 
-// the constructor is the function you want to keep a copy of.
-var original_dialogGetButton = AP.dialog.getButton.prototype.constructor.bind({});
+let original_dialogGetButton = AP.dialog.getButton.prototype.constructor.bind({});
 
-// this overwrites the constructor (yeah it's not obvious), but don't worry cause we copied the function above.
 AP.dialog.getButton = AP._hostModules.dialog.getButton = function(name) {
   try {
-
     const button = original_dialogGetButton(name);
     /**
      * Registers a function to be called when the button is clicked.
@@ -94,6 +114,23 @@ AP.dialog.getButton = AP._hostModules.dialog.getButton = function(name) {
   } catch (e) {
     return {};
   }
+};
+
+let original_dialogCreateButton = AP.dialog.createButton.prototype.constructor.bind({});
+
+AP.dialog.createButton = AP._hostModules.dialog.createButton = function(options) {
+  let buttonProperties = {};
+  if(typeof options !== "object") {
+    buttonProperties.text = options;
+  } else {
+    buttonProperties = options;
+  }
+  if(!buttonProperties.identifier) {
+
+    buttonProperties.identifier = 'user.button.' + customButtonIncrement++;
+  }
+  let createButton = original_dialogCreateButton(buttonProperties);
+  return AP.dialog.getButton(buttonProperties.identifier);
 };
 
 AP.dialog.onDialogMessage = AP._hostModules.dialog.onDialogMessage = util.deprecateApi(registerHandler,
