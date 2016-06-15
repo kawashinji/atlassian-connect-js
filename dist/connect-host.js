@@ -2115,6 +2115,9 @@ module.exports = {
   },
   toggleButton: function toggleButton(data) {
     _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-toggle', data);
+  },
+  toggleButtonVisibility: function toggleButtonVisibility(data) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-toggle-visibility', data);
   }
 };
 
@@ -2969,6 +2972,16 @@ _dispatchersEvent_dispatcher2['default'].register('button-clicked', function (da
         extension: $button.extension
       });
     }
+  }
+});
+
+_dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle-visibility', function (data) {
+  var dialog = getActiveDialog();
+  if (dialog) {
+    var $button = dialog.$el.find(".aui-dialog2-footer-actions .aui-button").filter(function () {
+      return (0, _dollar2['default'])(this).data('name') === data.name;
+    });
+    $button.toggle(!data.hidden);
   }
 });
 
@@ -4548,6 +4561,7 @@ var Button = (function () {
     }
     this.name = name;
     this.enabled = true;
+    this.hidden = false;
   }
 
   /**
@@ -4657,6 +4671,69 @@ var Button = (function () {
           extension: callback._context.extension
         });
       }
+    }
+
+    /**
+     * Query a button for its current hidden/visible state.
+     * @method isHidden
+     * @memberOf Dialog~DialogButton
+     * @param {Function} callback function to receive the button state.
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').isHidden(function(hidden){
+     *     if(hidden){
+     *       //button is hidden
+     *     }
+     *   });
+     * });
+     */
+  }, {
+    key: 'isHidden',
+    value: function isHidden(callback) {
+      callback(this.hidden);
+    }
+
+    /**
+     * Sets the button state to hidden
+     * @method hide
+     * @memberOf Dialog~DialogButton
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').hide();
+     * });
+     */
+  }, {
+    key: 'hide',
+    value: function hide() {
+      this.setHidden(true);
+    }
+
+    /**
+     * Sets the button state to visible
+     * @method show
+     * @memberOf Dialog~DialogButton
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').show();
+     * });
+     */
+  }, {
+    key: 'show',
+    value: function show() {
+      this.setHidden(false);
+    }
+  }, {
+    key: 'setHidden',
+    value: function setHidden(hidden) {
+      console.log(this.name);
+      this.hidden = hidden;
+      _actionsDialog_actions2['default'].toggleButtonVisibility({
+        name: this.name,
+        hidden: this.hidden
+      });
     }
   }]);
 
@@ -4795,7 +4872,10 @@ module.exports = {
     disable: Button.prototype.disable,
     toggle: Button.prototype.toggle,
     isEnabled: Button.prototype.isEnabled,
-    trigger: Button.prototype.trigger
+    trigger: Button.prototype.trigger,
+    hide: Button.prototype.hide,
+    show: Button.prototype.show,
+    isHidden: Button.prototype.isHidden
   },
   /**
    * Creates a dialog button that can be controlled with javascript

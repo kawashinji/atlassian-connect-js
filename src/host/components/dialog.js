@@ -306,7 +306,7 @@ EventDispatcher.register('dialog-button-toggle-visibility', (data) => {
     const $button = dialog.$el.find(".aui-dialog2-footer-actions .aui-button").filter(function () {
       return $(this).data('name') === data.name;
     });
-    $button.toggle(!data.isHidden);
+    $button.toggle(!data.hidden);
   }
 });
 
