@@ -5,7 +5,6 @@ define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri", "host/_util", "
     var each = $.each,
         extend = $.extend,
         isFn = $.isFunction,
-        rpcCollection = [],
         apis = {},
         stubs = [],
         internals = {},
@@ -63,7 +62,6 @@ define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri", "host/_util", "
                 // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
                 var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internals)}, iframe.contentWindow, iframe);
 
-                rpcCollection[rpc.id] = rpc;
                 each(inits, function (_, init) {
                     try { init(extend({}, options), rpc); }
                     catch (ex) { console.log(ex); }
@@ -79,7 +77,6 @@ define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri", "host/_util", "
             // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
             var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internals)}, target, undefined);
 
-            rpcCollection[rpc.id] = rpc;
             each(inits, function (_, init) {
                 try { init(extend({}, options), rpc); }
                 catch (ex) { console.log(ex); }

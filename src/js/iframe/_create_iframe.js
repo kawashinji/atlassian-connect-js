@@ -1,4 +1,4 @@
-( (typeof _AP !== "undefined") ? define : AP.define)("_create_iframe", ["_ui-params"], function (uiParams) {
+( (typeof _AP !== "undefined") ? define : AP.define)("_create_iframe", ["_ui-params", "_dispatch_custom_event"], function (uiParams, dispatchCustomEvent) {
     /**
      * Creates an iframe element from based on the given config
      * @param config {Object}
@@ -31,14 +31,7 @@
 
         iframe.src = config.remote;
 
-        if (window.CustomEvent) {
-            event = new CustomEvent('ra.iframe.create');
-        } else {
-            event = document.createEvent('ra.iframe.create');
-            iframe.initCustomEvent('ra.iframe.create', true, true, null);
-        }
-
-        iframe.dispatchEvent(event);
+        dispatchCustomEvent(iframe, 'ra.iframe.create');
 
         return iframe;
     }

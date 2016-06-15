@@ -1,4 +1,4 @@
-AP.define("_rpc", ["_dollar", "_xdm", "_util", "_create_iframe"], function ($, XdmRpc, util, createIframe) {
+AP.define("_rpc", ["_dollar", "_xdm", "_util", "_create_iframe", "_dispatch_custom_event"], function ($, XdmRpc, util, createIframe, dispatchCustomEvent) {
 
   "use strict";
 
@@ -48,14 +48,11 @@ AP.define("_rpc", ["_dollar", "_xdm", "_util", "_create_iframe"], function ($, X
     },
 
     initWithFrame: function (options, xdmConfig) {
-      // if there is already an iframe created. Destroy it. It's an old version.
-      //TODO: Investigate consequences of lack of remove event.
-      //$("#" + util.escapeSelector(xdmConfig.container)).find('iframe').trigger('ra.iframe.destroy');
-
       var containerEl = document.getElementById(xdmConfig.container);
       if (containerEl) {
         var existingFrameList = containerEl.getElementsByTagName('iframe');
         if(existingFrameList.length > 0) {
+          dispatchCustomEvent(existingFrameList[0], 'ra.iframe.destroy')
           existingFrameList[0].remove();
         }
       }
@@ -65,11 +62,14 @@ AP.define("_rpc", ["_dollar", "_xdm", "_util", "_create_iframe"], function ($, X
       // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
       var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internalsForFrame)}, iframe.contentWindow, iframe);
 
-      //Not currently keeping a reference of all of our bridge objects.
-      //rpcCollection[rpc.id] = rpc;
-      each(initsForFrame, function (_, init) {
-        try { init(extend({}, options), rpc); }
-        catch (ex) { console.log(ex); }
+      each(initsForFrame, function (key, initForFrame) {
+        try {
+          var options = extend({}, options);
+          initForFrame(options, rpc);
+        }
+        catch (ex) {
+          console.log(ex);
+        }
       });
     }
 
