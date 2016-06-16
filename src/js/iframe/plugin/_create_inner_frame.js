@@ -1,10 +1,10 @@
 AP.define("_create_inner_frame", ['_ui-params', '_initialise_iframe_request', '_rpc', "_util"], function(uiParams, initialiseIframeRequest, rpc, util) {
 
-    function contentDiv(ns) {
-        if(!ns){
+    function contentDiv(namespace) {
+        if(!namespace){
             throw new Error("ns undefined");
         }
-        return document.getElementById("#embedded-" + util.escapeSelector(ns));
+        return document.getElementById("#embedded-" + namespace);
     }
 
     /* @name Options
