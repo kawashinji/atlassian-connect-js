@@ -15,13 +15,14 @@ AP.require(["_rpc", "_util", "_dispatch_custom_event"], function (rpc, util, dis
     }
 
     /**
-     * Looks for a parent with the given className
+     * Looks if the target element has the given class, if not traverses up till it finds a parent that does.
+     * Sort of like $.closests but without full css-selector support
      *
      * @param target {Object} The target for which to find the parent for
      * @param className {String} The className for which to look
      * @returns {Object} the parent with the className
      */
-    function getParentWithClass(target, className) {
+    function getClosestWithClass(target, className) {
         if(target === document.body) {
             return;
         }
@@ -30,7 +31,7 @@ AP.require(["_rpc", "_util", "_dispatch_custom_event"], function (rpc, util, dis
             return target;
         }
 
-        return getParentWithClass(target.parentNode, className)
+        return getClosestWithClass(target.parentNode, className)
     }
 
     rpc.extend(function () {
@@ -41,7 +42,7 @@ AP.require(["_rpc", "_util", "_dispatch_custom_event"], function (rpc, util, dis
                 }
 
                 xdm.resize = util.debounce(function resize (width, height) {
-                    var nexus = getParentWithClass(this.iframe, 'ap-container');
+                    var nexus = getClosestWithClass(this.iframe, 'ap-container');
 
                     dispatchCustomEvent(nexus, 'resized', {width: width, height: height});
 
