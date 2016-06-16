@@ -932,6 +932,4034 @@ function isUndefined(arg) {
 
 },{}],4:[function(_dereq_,module,exports){
 (function (global){
+/*! https://mths.be/utf8js v2.0.0 by @mathias */
+;(function(root) {
+
+	// Detect free variables `exports`
+	var freeExports = typeof exports == 'object' && exports;
+
+	// Detect free variable `module`
+	var freeModule = typeof module == 'object' && module &&
+		module.exports == freeExports && module;
+
+	// Detect free variable `global`, from Node.js or Browserified code,
+	// and use it as `root`
+	var freeGlobal = typeof global == 'object' && global;
+	if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal) {
+		root = freeGlobal;
+	}
+
+	/*--------------------------------------------------------------------------*/
+
+	var stringFromCharCode = String.fromCharCode;
+
+	// Taken from https://mths.be/punycode
+	function ucs2decode(string) {
+		var output = [];
+		var counter = 0;
+		var length = string.length;
+		var value;
+		var extra;
+		while (counter < length) {
+			value = string.charCodeAt(counter++);
+			if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+				// high surrogate, and there is a next character
+				extra = string.charCodeAt(counter++);
+				if ((extra & 0xFC00) == 0xDC00) { // low surrogate
+					output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+				} else {
+					// unmatched surrogate; only append this code unit, in case the next
+					// code unit is the high surrogate of a surrogate pair
+					output.push(value);
+					counter--;
+				}
+			} else {
+				output.push(value);
+			}
+		}
+		return output;
+	}
+
+	// Taken from https://mths.be/punycode
+	function ucs2encode(array) {
+		var length = array.length;
+		var index = -1;
+		var value;
+		var output = '';
+		while (++index < length) {
+			value = array[index];
+			if (value > 0xFFFF) {
+				value -= 0x10000;
+				output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
+				value = 0xDC00 | value & 0x3FF;
+			}
+			output += stringFromCharCode(value);
+		}
+		return output;
+	}
+
+	function checkScalarValue(codePoint) {
+		if (codePoint >= 0xD800 && codePoint <= 0xDFFF) {
+			throw Error(
+				'Lone surrogate U+' + codePoint.toString(16).toUpperCase() +
+				' is not a scalar value'
+			);
+		}
+	}
+	/*--------------------------------------------------------------------------*/
+
+	function createByte(codePoint, shift) {
+		return stringFromCharCode(((codePoint >> shift) & 0x3F) | 0x80);
+	}
+
+	function encodeCodePoint(codePoint) {
+		if ((codePoint & 0xFFFFFF80) == 0) { // 1-byte sequence
+			return stringFromCharCode(codePoint);
+		}
+		var symbol = '';
+		if ((codePoint & 0xFFFFF800) == 0) { // 2-byte sequence
+			symbol = stringFromCharCode(((codePoint >> 6) & 0x1F) | 0xC0);
+		}
+		else if ((codePoint & 0xFFFF0000) == 0) { // 3-byte sequence
+			checkScalarValue(codePoint);
+			symbol = stringFromCharCode(((codePoint >> 12) & 0x0F) | 0xE0);
+			symbol += createByte(codePoint, 6);
+		}
+		else if ((codePoint & 0xFFE00000) == 0) { // 4-byte sequence
+			symbol = stringFromCharCode(((codePoint >> 18) & 0x07) | 0xF0);
+			symbol += createByte(codePoint, 12);
+			symbol += createByte(codePoint, 6);
+		}
+		symbol += stringFromCharCode((codePoint & 0x3F) | 0x80);
+		return symbol;
+	}
+
+	function utf8encode(string) {
+		var codePoints = ucs2decode(string);
+		var length = codePoints.length;
+		var index = -1;
+		var codePoint;
+		var byteString = '';
+		while (++index < length) {
+			codePoint = codePoints[index];
+			byteString += encodeCodePoint(codePoint);
+		}
+		return byteString;
+	}
+
+	/*--------------------------------------------------------------------------*/
+
+	function readContinuationByte() {
+		if (byteIndex >= byteCount) {
+			throw Error('Invalid byte index');
+		}
+
+		var continuationByte = byteArray[byteIndex] & 0xFF;
+		byteIndex++;
+
+		if ((continuationByte & 0xC0) == 0x80) {
+			return continuationByte & 0x3F;
+		}
+
+		// If we end up here, it’s not a continuation byte
+		throw Error('Invalid continuation byte');
+	}
+
+	function decodeSymbol() {
+		var byte1;
+		var byte2;
+		var byte3;
+		var byte4;
+		var codePoint;
+
+		if (byteIndex > byteCount) {
+			throw Error('Invalid byte index');
+		}
+
+		if (byteIndex == byteCount) {
+			return false;
+		}
+
+		// Read first byte
+		byte1 = byteArray[byteIndex] & 0xFF;
+		byteIndex++;
+
+		// 1-byte sequence (no continuation bytes)
+		if ((byte1 & 0x80) == 0) {
+			return byte1;
+		}
+
+		// 2-byte sequence
+		if ((byte1 & 0xE0) == 0xC0) {
+			var byte2 = readContinuationByte();
+			codePoint = ((byte1 & 0x1F) << 6) | byte2;
+			if (codePoint >= 0x80) {
+				return codePoint;
+			} else {
+				throw Error('Invalid continuation byte');
+			}
+		}
+
+		// 3-byte sequence (may include unpaired surrogates)
+		if ((byte1 & 0xF0) == 0xE0) {
+			byte2 = readContinuationByte();
+			byte3 = readContinuationByte();
+			codePoint = ((byte1 & 0x0F) << 12) | (byte2 << 6) | byte3;
+			if (codePoint >= 0x0800) {
+				checkScalarValue(codePoint);
+				return codePoint;
+			} else {
+				throw Error('Invalid continuation byte');
+			}
+		}
+
+		// 4-byte sequence
+		if ((byte1 & 0xF8) == 0xF0) {
+			byte2 = readContinuationByte();
+			byte3 = readContinuationByte();
+			byte4 = readContinuationByte();
+			codePoint = ((byte1 & 0x0F) << 0x12) | (byte2 << 0x0C) |
+				(byte3 << 0x06) | byte4;
+			if (codePoint >= 0x010000 && codePoint <= 0x10FFFF) {
+				return codePoint;
+			}
+		}
+
+		throw Error('Invalid UTF-8 detected');
+	}
+
+	var byteArray;
+	var byteCount;
+	var byteIndex;
+	function utf8decode(byteString) {
+		byteArray = ucs2decode(byteString);
+		byteCount = byteArray.length;
+		byteIndex = 0;
+		var codePoints = [];
+		var tmp;
+		while ((tmp = decodeSymbol()) !== false) {
+			codePoints.push(tmp);
+		}
+		return ucs2encode(codePoints);
+	}
+
+	/*--------------------------------------------------------------------------*/
+
+	var utf8 = {
+		'version': '2.0.0',
+		'encode': utf8encode,
+		'decode': utf8decode
+	};
+
+	// Some AMD build optimizers, like r.js, check for specific condition patterns
+	// like the following:
+	if (
+		typeof define == 'function' &&
+		typeof define.amd == 'object' &&
+		define.amd
+	) {
+		define(function() {
+			return utf8;
+		});
+	}	else if (freeExports && !freeExports.nodeType) {
+		if (freeModule) { // in Node.js or RingoJS v0.8.0+
+			freeModule.exports = utf8;
+		} else { // in Narwhal or RingoJS v0.7.0-
+			var object = {};
+			var hasOwnProperty = object.hasOwnProperty;
+			for (var key in utf8) {
+				hasOwnProperty.call(utf8, key) && (freeExports[key] = utf8[key]);
+			}
+		}
+	} else { // in Rhino or a web browser
+		root.utf8 = utf8;
+	}
+
+}(this));
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
+},{}],5:[function(_dereq_,module,exports){
+"use strict";
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+module.exports = {
+  clicked: function clicked($el) {
+    _dispatchersEvent_dispatcher2["default"].dispatch("button-clicked", {
+      $el: $el
+    });
+  },
+  toggle: function toggle($el, disabled) {
+    _dispatchersEvent_dispatcher2["default"].dispatch("button-toggle", {
+      $el: $el,
+      disabled: disabled
+    });
+  }
+};
+
+},{"dispatchers/event_dispatcher":31}],6:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+module.exports = {
+  close: function close(data) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close', data);
+  },
+  closeActive: function closeActive(data) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close-active', data);
+  },
+  clickButton: function clickButton(identifier, $el, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-click', {
+      identifier: identifier,
+      $el: $el,
+      extension: extension
+    });
+  },
+  toggleButton: function toggleButton(data) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-toggle', data);
+  }
+};
+
+},{"dispatchers/event_dispatcher":31}],7:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+module.exports = {
+  open: function open(extension, options) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-extension-open', {
+      extension: extension,
+      options: options
+    });
+  },
+  close: function close() {
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close-active', {});
+  },
+  addUserButton: function addUserButton(options, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-add', {
+      button: {
+        text: options.text,
+        identifier: options.identifier,
+        data: {
+          userButton: true
+        }
+      },
+      extension: extension
+    });
+  }
+};
+
+},{"dispatchers/event_dispatcher":31}],8:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
+
+var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
+
+module.exports = {
+  registerKeyEvent: function registerKeyEvent(data) {
+    _simpleXdmDistHost2['default'].registerKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
+    _dispatchersEvent_dispatcher2['default'].dispatch('dom-event-register', data);
+  },
+  unregisterKeyEvent: function unregisterKeyEvent(data) {
+    _simpleXdmDistHost2['default'].unregisterKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
+    _dispatchersEvent_dispatcher2['default'].dispatch('dom-event-unregister', data);
+  },
+  registerWindowKeyEvent: function registerWindowKeyEvent(data) {
+    window.addEventListener('keydown', function (event) {
+      if (event.keyCode === data.keyCode) {
+        data.callback();
+      }
+    });
+  }
+};
+
+},{"dispatchers/event_dispatcher":31,"simple-xdm/dist/host":47}],9:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var _componentsIframe = _dereq_('components/iframe');
+
+var _componentsIframe2 = _interopRequireDefault(_componentsIframe);
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
+  _componentsIframe2['default'].resize(data.width, data.height, data.$el);
+});
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-size-to-parent', function (data) {
+  var height = AJS.$(document).height() - AJS.$('#header > nav').outerHeight() - AJS.$('#footer').outerHeight() - 20;
+  var $el = _util2['default'].getIframeByExtensionId(data.context.extension_id);
+  _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: '100%', height: height + 'px', $el: $el });
+});
+
+AJS.$(window).on('resize', function (e) {
+  _dispatchersEvent_dispatcher2['default'].dispatch('host-window-resize', e);
+});
+
+module.exports = {
+  iframeResize: function iframeResize(width, height, context) {
+    var $el;
+    if (context.extension_id) {
+      $el = _util2['default'].getIframeByExtensionId(context.extension_id);
+    } else {
+      $el = context;
+    }
+
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
+  },
+  sizeToParent: function sizeToParent(context) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-size-to-parent', { context: context });
+  }
+};
+
+},{"../util":40,"components/iframe":23,"dispatchers/event_dispatcher":31}],10:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
+
+var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
+
+module.exports = {
+  broadcast: function broadcast(type, targetSpec, event) {
+    _simpleXdmDistHost2['default'].dispatch(type, targetSpec, event);
+    _dispatchersEvent_dispatcher2['default'].dispatch('event-dispatch', {
+      type: type,
+      targetSpec: targetSpec,
+      event: event
+    });
+  }
+};
+
+},{"dispatchers/event_dispatcher":31,"simple-xdm/dist/host":47}],11:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+module.exports = {
+  open: function open(flagId) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('flag-open', { id: flagId });
+  },
+  //called to close a flag
+  close: function close(flagId) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('flag-close', { id: flagId });
+  },
+  //called by AUI when closed
+  closed: function closed(flagId) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('flag-closed', { id: flagId });
+  }
+};
+
+},{"dispatchers/event_dispatcher":31}],12:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
+
+var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
+
+module.exports = {
+  notifyIframeCreated: function notifyIframeCreated($el, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-create', { $el: $el, extension: extension });
+  },
+
+  notifyBridgeEstablished: function notifyBridgeEstablished($el, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-estabilshed', { $el: $el, extension: extension });
+  },
+
+  notifyIframeDestroyed: function notifyIframeDestroyed(extension_id) {
+    var extension = _simpleXdmDistHost2['default'].getExtensions({
+      extension_id: extension_id
+    });
+    if (extension.length === 1) {
+      extension = extension[0];
+    }
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-destroyed', { extension: extension });
+    _simpleXdmDistHost2['default'].unregisterExtension({ extension_id: extension_id });
+  }
+};
+
+},{"dispatchers/event_dispatcher":31,"simple-xdm/dist/host":47}],13:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+module.exports = {
+  hide: function hide(extension_id) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-hide', { extension_id: extension_id });
+  },
+  refresh: function refresh($el) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-refresh', { $el: $el });
+  },
+  hideTriggered: function hideTriggered(extension_id, $el) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
+  },
+  created: function created(data) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-opened', {
+      $el: data.$el,
+      trigger: data.trigger,
+      extension: data.extension
+    });
+  }
+};
+
+},{"dispatchers/event_dispatcher":31}],14:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+module.exports = {
+  registerContentResolver: function registerContentResolver(data) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('content-resolver-register-by-extension', data);
+  },
+  requestRefreshUrl: function requestRefreshUrl(data) {
+    if (!data.resolver) {
+      throw Error('ACJS: No content resolver supplied');
+    }
+    var promise = data.resolver.call(null, _underscore2['default'].extend({ classifier: 'json' }, data.extension));
+    promise.done(function (promiseData) {
+      var newExtensionConfiguration = {};
+      if (_underscore2['default'].isObject(promiseData)) {
+        newExtensionConfiguration = promiseData;
+      } else if (_underscore2['default'].isString(promiseData)) {
+        try {
+          newExtensionConfiguration = JSON.parse(promiseData);
+        } catch (e) {
+          console.error('ACJS: invalid response from content resolver');
+        }
+      }
+      data.extension.url = newExtensionConfiguration.url;
+      _underscore2['default'].extend(data.extension.options, newExtensionConfiguration.options);
+      _dispatchersEvent_dispatcher2['default'].dispatch('jwt-url-refreshed', {
+        extension: data.extension,
+        $container: data.$container,
+        url: data.extension.url
+      });
+    });
+    _dispatchersEvent_dispatcher2['default'].dispatch('jwt-url-refresh-request', { data: data });
+  }
+
+};
+
+},{"../underscore":39,"dispatchers/event_dispatcher":31}],15:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+exports['default'] = {
+  timeout: function timeout($el, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-timeout', { $el: $el, extension: extension });
+  },
+  cancelled: function cancelled($el, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-cancelled', { $el: $el, extension: extension });
+  }
+};
+module.exports = exports['default'];
+
+},{"dispatchers/event_dispatcher":31}],16:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+module.exports = {
+  defineCustomModule: function defineCustomModule(name, methods) {
+    var data = {};
+    if (!methods) {
+      data.methods = name;
+    } else {
+      data.methods = methods;
+      data.name = name;
+    }
+    _dispatchersEvent_dispatcher2['default'].dispatch('module-define-custom', data);
+  }
+};
+
+},{"dispatchers/event_dispatcher":31}],17:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _componentsWebitem = _dereq_('components/webitem');
+
+var _componentsWebitem2 = _interopRequireDefault(_componentsWebitem);
+
+var _utilsWebitem = _dereq_('utils/webitem');
+
+var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
+
+exports['default'] = {
+  addWebItem: function addWebItem(potentialWebItem) {
+    var webitem = undefined;
+    var existing = _componentsWebitem2['default'].getWebItemsBySelector(potentialWebItem.selector);
+
+    if (existing) {
+      return false;
+    } else {
+      webitem = _componentsWebitem2['default'].setWebItem(potentialWebItem);
+      _dispatchersEvent_dispatcher2['default'].dispatch('webitem-added', { webitem: webitem });
+    }
+  },
+
+  webitemInvoked: function webitemInvoked(webitem, event, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('webitem-invoked:' + webitem.name, { webitem: webitem, event: event, extension: extension });
+  }
+
+};
+module.exports = exports['default'];
+
+},{"components/webitem":28,"dispatchers/event_dispatcher":31,"utils/webitem":46}],18:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var _actionsButton_actions = _dereq_('actions/button_actions');
+
+var _actionsButton_actions2 = _interopRequireDefault(_actionsButton_actions);
+
+var _utilsButton = _dereq_('utils/button');
+
+var _utilsButton2 = _interopRequireDefault(_utilsButton);
+
+var BUTTON_TYPES = ['primary', 'link', 'secondary'];
+var buttonId = 0;
+
+var Button = (function () {
+  function Button() {
+    _classCallCheck(this, Button);
+
+    this.AP_BUTTON_CLASS = "ap-aui-button";
+  }
+
+  _createClass(Button, [{
+    key: 'setType',
+    value: function setType($button, type) {
+      if (type && _underscore2['default'].contains(BUTTON_TYPES, type)) {
+        $button.addClass("aui-button-" + type);
+      }
+      return $button;
+    }
+  }, {
+    key: 'setDisabled',
+    value: function setDisabled($button, disabled) {
+      if (typeof disabled !== "undefined") {
+        $button.attr('aria-disabled', disabled);
+      }
+      return $button;
+    }
+  }, {
+    key: '_setId',
+    value: function _setId($button, id) {
+      if (!id) {
+        id = "ap-button-" + buttonId;
+        buttonId++;
+      }
+      $button.attr("id", id);
+      return $button;
+    }
+  }, {
+    key: '_additionalClasses',
+    value: function _additionalClasses($button, classes) {
+      if (classes) {
+        if (typeof classes !== "string") {
+          classes = classes.join(" ");
+        }
+        $button.addClass(classes);
+      }
+      return $button;
+    }
+  }, {
+    key: 'getName',
+    value: function getName($button) {
+      return (0, _dollar2['default'])($button).data("name");
+    }
+  }, {
+    key: 'getText',
+    value: function getText($button) {
+      return (0, _dollar2['default'])($button).text();
+    }
+  }, {
+    key: 'getIdentifier',
+    value: function getIdentifier($button) {
+      return (0, _dollar2['default'])($button).data('identifier');
+    }
+  }, {
+    key: 'render',
+    value: function render(options) {
+      var $button = (0, _dollar2['default'])("<button />");
+      options = options || {};
+      $button.addClass("aui-button " + this.AP_BUTTON_CLASS);
+      $button.text(options.text);
+      $button.data(options.data);
+      $button.data({
+        name: options.name,
+        identifier: options.identifier || _utilsButton2['default'].randomIdentifier()
+      });
+      this._additionalClasses($button, options.additionalClasses);
+      this.setType($button, options.type);
+      this.setDisabled($button, options.disabled || false);
+      this._setId($button, options.id);
+      return $button;
+    }
+  }]);
+
+  return Button;
+})();
+
+var ButtonComponent = new Button();
+// register 1 button listener globally on dom load
+(0, _dollar2['default'])(function () {
+  (0, _dollar2['default'])("body").on("click", "." + ButtonComponent.AP_BUTTON_CLASS, function (e) {
+    var $button = (0, _dollar2['default'])(e.target).closest("." + ButtonComponent.AP_BUTTON_CLASS);
+    if ($button.attr('aria-disabled') !== 'true') {
+      _actionsButton_actions2['default'].clicked($button);
+    }
+  });
+});
+
+_dispatchersEvent_dispatcher2['default'].register("button-toggle", function (data) {
+  data.$el.attr('aria-disabled', data.disabled);
+});
+
+exports['default'] = ButtonComponent;
+module.exports = exports['default'];
+
+},{"../dollar":32,"../underscore":39,"actions/button_actions":5,"dispatchers/event_dispatcher":31,"utils/button":41}],19:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _actionsDom_event_actions = _dereq_('actions/dom_event_actions');
+
+var _actionsDom_event_actions2 = _interopRequireDefault(_actionsDom_event_actions);
+
+var _actionsDialog_actions = _dereq_('actions/dialog_actions');
+
+var _actionsDialog_actions2 = _interopRequireDefault(_actionsDialog_actions);
+
+var _utilsDialog = _dereq_('utils/dialog');
+
+var _utilsDialog2 = _interopRequireDefault(_utilsDialog);
+
+var _componentsIframe = _dereq_('components/iframe');
+
+var _componentsIframe2 = _interopRequireDefault(_componentsIframe);
+
+var _componentsButton = _dereq_('components/button');
+
+var _componentsButton2 = _interopRequireDefault(_componentsButton);
+
+var _actionsButton_actions = _dereq_('actions/button_actions');
+
+var _actionsButton_actions2 = _interopRequireDefault(_actionsButton_actions);
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var DLGID_PREFIX = 'ap-dialog-';
+var DIALOG_CLASS = 'ap-aui-dialog2';
+var DLGID_REGEXP = new RegExp('^' + DLGID_PREFIX + '[0-9A-Za-z]+$');
+var DIALOG_SIZES = ['small', 'medium', 'large', 'xlarge', 'fullscreen'];
+var DIALOG_BUTTON_CLASS = 'ap-aui-dialog-button';
+var DIALOG_BUTTON_CUSTOM_CLASS = 'ap-dialog-custom-button';
+var DIALOG_FOOTER_CLASS = 'aui-dialog2-footer';
+var DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
+var DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
+
+function getActiveDialog() {
+  var $el = AJS.LayerManager.global.getTopLayer();
+  if ($el && DLGID_REGEXP.test($el.attr('id'))) {
+    var dialog = AJS.dialog2($el);
+    dialog._id = dialog.$el.attr('id').replace(DLGID_PREFIX, '');
+    return dialog;
+  }
+}
+
+var Dialog = (function () {
+  function Dialog() {
+    _classCallCheck(this, Dialog);
+  }
+
+  _createClass(Dialog, [{
+    key: '_renderHeaderCloseBtn',
+    value: function _renderHeaderCloseBtn() {
+      var $close = (0, _dollar2['default'])('<a />').addClass('aui-dialog2-header-close');
+      var $closeBtn = (0, _dollar2['default'])('<span />').addClass('aui-icon aui-icon-small aui-iconfont-close-dialog').text('Close');
+      $close.append($closeBtn);
+      return $close;
+    }
+
+    //v3 ask DT about this DOM.
+  }, {
+    key: '_renderFullScreenHeader',
+    value: function _renderFullScreenHeader($header, options) {
+      var $titleContainer = (0, _dollar2['default'])('<div />').addClass('header-title-container aui-item expanded');
+      var $title = (0, _dollar2['default'])('<div />').append((0, _dollar2['default'])('<span />').addClass('header-title').text(options.header || ''));
+      $titleContainer.append($title);
+      $header.append($titleContainer).append(this._renderHeaderActions(options.actions, options.extension));
+      return $header;
+    }
+  }, {
+    key: '_renderHeader',
+    value: function _renderHeader(options) {
+      var $header = (0, _dollar2['default'])('<header />').addClass('aui-dialog2-header');
+      if (options.size === 'fullscreen') {
+        return this._renderFullScreenHeader($header, options);
+      }
+      if (options.header) {
+        var $title = (0, _dollar2['default'])('<h2 />').addClass('aui-dialog2-header-main').text(options.header);
+        $header.append($title);
+      }
+      $header.append(this._renderHeaderCloseBtn());
+      return $header;
+    }
+  }, {
+    key: '_renderHeaderActions',
+    value: function _renderHeaderActions(actions, extension) {
+      var $headerControls = (0, _dollar2['default'])('<div />').addClass('aui-item ' + DIALOG_HEADER_ACTIONS_CLASS);
+      actions[0].additionalClasses = ['aui-icon', 'aui-icon-small', 'aui-iconfont-success'];
+      actions[1].additionalClasses = ['aui-icon', 'aui-icon-small', 'aui-iconfont-close-dialog'];
+      var $actions = this._renderActionButtons(actions, extension);
+      $actions.forEach(function ($action) {
+        $headerControls.append($action);
+      });
+      return $headerControls;
+    }
+  }, {
+    key: '_renderContent',
+    value: function _renderContent($content) {
+      var $el = (0, _dollar2['default'])('<div />').addClass('aui-dialog2-content');
+      if ($content) {
+        $el.append($content);
+      }
+      return $el;
+    }
+  }, {
+    key: '_renderFooter',
+    value: function _renderFooter(options) {
+      var $footer = (0, _dollar2['default'])('<footer />').addClass(DIALOG_FOOTER_CLASS);
+      if (options.size !== 'fullscreen') {
+        var $actions = this._renderFooterActions(options.actions, options.extension);
+        $footer.append($actions);
+      }
+      if (options.hint) {
+        var $hint = (0, _dollar2['default'])('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
+        $footer.append($hint);
+      }
+      return $footer;
+    }
+  }, {
+    key: '_renderActionButtons',
+    value: function _renderActionButtons(actions, extension) {
+      var _this = this;
+
+      var actionButtons = [];
+      [].concat(_toConsumableArray(actions)).forEach(function (action) {
+        actionButtons.push(_this._renderDialogButton({
+          text: action.text,
+          name: action.name,
+          type: action.type,
+          additionalClasses: action.additionalClasses,
+          custom: action.custom || false,
+          identifier: action.identifier
+        }, extension));
+      });
+      return actionButtons;
+    }
+  }, {
+    key: '_renderFooterActions',
+    value: function _renderFooterActions(actions, extension) {
+      var $actions = (0, _dollar2['default'])('<div />').addClass(DIALOG_FOOTER_ACTIONS_CLASS);
+      var $buttons = this._renderActionButtons(actions, extension);
+      $buttons.forEach(function ($button) {
+        $actions.append($button);
+      });
+      return $actions;
+    }
+  }, {
+    key: '_renderDialogButton',
+    value: function _renderDialogButton(options, extension) {
+      options.additionalClasses = options.additionalClasses || [];
+      options.additionalClasses.push(DIALOG_BUTTON_CLASS);
+      if (options.custom) {
+        options.additionalClasses.push(DIALOG_BUTTON_CUSTOM_CLASS);
+      }
+      var $button = _componentsButton2['default'].render(options);
+      $button.extension = extension;
+      return $button;
+    }
+
+    /**
+    {
+      id: 'some-dialog-id',
+      title: 'some header',
+      hint: 'some footer hint',
+      $content: $(<div />).text('my content'),
+      actions: []
+    }
+    **/
+  }, {
+    key: 'render',
+    value: function render(options) {
+      var sanitizedOptions = _utilsDialog2['default'].sanitizeOptions(options);
+      var $dialog = (0, _dollar2['default'])('<section />').attr({
+        role: 'dialog',
+        id: DLGID_PREFIX + sanitizedOptions.id
+      });
+      $dialog.attr('data-aui-modal', 'true');
+      $dialog.data({
+        'aui-remove-on-hide': true,
+        'extension': sanitizedOptions.extension
+      });
+      $dialog.addClass('aui-layer aui-dialog2 ' + DIALOG_CLASS);
+
+      if (_underscore2['default'].contains(DIALOG_SIZES, sanitizedOptions.size)) {
+        $dialog.addClass('aui-dialog2-' + sanitizedOptions.size);
+      }
+
+      if (sanitizedOptions.size === 'fullscreen') {
+        $dialog.addClass('ap-header-controls');
+        $dialog.addClass('aui-dialog2-maximum');
+      }
+
+      $dialog.append(this._renderContent(sanitizedOptions.$content));
+
+      if (sanitizedOptions.chrome) {
+        $dialog.prepend(this._renderHeader({
+          header: sanitizedOptions.header,
+          actions: sanitizedOptions.actions,
+          size: sanitizedOptions.size
+        }));
+
+        $dialog.append(this._renderFooter({
+          extension: sanitizedOptions.extension,
+          actions: sanitizedOptions.actions,
+          hint: sanitizedOptions.hint,
+          size: sanitizedOptions.size
+        }));
+      } else {
+        $dialog.addClass('aui-dialog2-chromeless');
+      }
+
+      var dialog = AJS.dialog2($dialog);
+      dialog._id = sanitizedOptions.id;
+      if (!sanitizedOptions.size || sanitizedOptions.size === 'fullscreen') {
+        AJS.layer($dialog).changeSize(sanitizedOptions.width, sanitizedOptions.height);
+      }
+      dialog.show();
+      dialog.$el.data('extension', sanitizedOptions.extension);
+      return $dialog;
+    }
+  }, {
+    key: 'setIframeDimensions',
+    value: function setIframeDimensions($iframe) {
+      _componentsIframe2['default'].resize('100%', '100%', $iframe);
+    }
+  }, {
+    key: 'getActive',
+    value: function getActive() {
+      return getActiveDialog();
+    }
+
+    /**
+    * takes either a target spec or a filter function
+    * returns all matching dialogs
+    */
+  }, {
+    key: 'getByExtension',
+    value: function getByExtension(extension) {
+      var filterFunction;
+      if (typeof extension === 'function') {
+        filterFunction = extension;
+      } else {
+        var keys = Object.getOwnPropertyNames(extension);
+        filterFunction = function (dialog) {
+          var dialogData = (0, _dollar2['default'])(dialog).data('extension');
+          return keys.every(function (key) {
+            return dialogData[key] === extension[key];
+          });
+        };
+      }
+
+      return (0, _dollar2['default'])('.' + DIALOG_CLASS).toArray().filter(filterFunction);
+    }
+
+    // add user defined button to an existing dialog
+  }, {
+    key: 'addButton',
+    value: function addButton(extension, options) {
+      options.custom = true;
+      var $button = this._renderDialogButton(options, extension);
+      var $dialog = (0, _dollar2['default'])(this.getByExtension({
+        addon_key: extension.addon_key,
+        key: extension.key
+      }));
+      var $actionBar = $dialog.find('.' + DIALOG_HEADER_ACTIONS_CLASS);
+      if (!$actionBar.length) {
+        $actionBar = $dialog.find('.' + DIALOG_FOOTER_ACTIONS_CLASS);
+      }
+      $actionBar.append($button);
+      return $dialog;
+    }
+  }]);
+
+  return Dialog;
+})();
+
+var DialogComponent = new Dialog();
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
+  if (data.extension.options.isDialog) {
+    _actionsDom_event_actions2['default'].registerKeyEvent({
+      extension_id: data.extension.id,
+      key: 27,
+      callback: function callback() {
+        _actionsDialog_actions2['default'].close({
+          dialog: getActiveDialog(),
+          extension: data.extension
+        });
+      }
+    });
+
+    _dispatchersEvent_dispatcher2['default'].registerOnce('dialog-close', function (d) {
+      _actionsDom_event_actions2['default'].unregisterKeyEvent({
+        extension_id: data.extension.id,
+        key: 27
+      });
+    });
+  }
+});
+
+_dispatchersEvent_dispatcher2['default'].register('dialog-close-active', function (data) {
+  var activeDialog = getActiveDialog();
+  if (activeDialog) {
+    _actionsDialog_actions2['default'].close({
+      customData: data.customData,
+      dialog: activeDialog,
+      extension: data.extension
+    });
+  }
+});
+
+_dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data) {
+  data.dialog.hide();
+});
+
+_dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', function (data) {
+  var dialog = getActiveDialog();
+  if (dialog) {
+    var $button = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
+      return _componentsButton2['default'].getName(this) === data.name;
+    });
+    _actionsButton_actions2['default'].toggle($button, !data.enabled);
+  }
+});
+
+_dispatchersEvent_dispatcher2['default'].register('button-clicked', function (data) {
+  var $button = data.$el;
+  if ($button.hasClass(DIALOG_BUTTON_CLASS)) {
+    var $dialog = $button.parents('.' + DIALOG_CLASS);
+    var $iframe = $dialog.find('iframe');
+    if ($iframe.length && $iframe[0].bridgeEstablished) {
+      _actionsDialog_actions2['default'].clickButton(_componentsButton2['default'].getIdentifier($button), $button, $dialog.data('extension'));
+    } else {
+      _actionsDialog_actions2['default'].close({
+        dialog: getActiveDialog(),
+        extension: $button.extension
+      });
+    }
+  }
+});
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
+  if (data.extension.options && data.extension.options.isDialog) {
+    DialogComponent.setIframeDimensions(data.extension.$el);
+  }
+});
+
+_dispatchersEvent_dispatcher2['default'].register('dialog-button-add', function (data) {
+  DialogComponent.addButton(data.extension, data.button);
+});
+
+_actionsDom_event_actions2['default'].registerWindowKeyEvent({
+  keyCode: 27,
+  callback: function callback() {
+    _actionsDialog_actions2['default'].closeActive({
+      customData: {},
+      extension: null
+    });
+  }
+});
+
+exports['default'] = DialogComponent;
+module.exports = exports['default'];
+
+},{"../dollar":32,"../underscore":39,"actions/button_actions":5,"actions/dialog_actions":6,"actions/dom_event_actions":8,"components/button":18,"components/iframe":23,"dispatchers/event_dispatcher":31,"utils/dialog":42}],20:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _componentsDialog = _dereq_('components/dialog');
+
+var _componentsDialog2 = _interopRequireDefault(_componentsDialog);
+
+var _componentsIframe_container = _dereq_('components/iframe_container');
+
+var _componentsIframe_container2 = _interopRequireDefault(_componentsIframe_container);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var DialogExtension = (function () {
+  function DialogExtension() {
+    _classCallCheck(this, DialogExtension);
+  }
+
+  _createClass(DialogExtension, [{
+    key: 'render',
+    value: function render(extension, dialogOptions) {
+      extension.options = extension.options || {};
+      dialogOptions = dialogOptions || {};
+      extension.options.isDialog = true;
+      var $iframeContainer = _componentsIframe_container2['default'].createExtension(extension);
+      var $dialog = _componentsDialog2['default'].render({
+        extension: extension,
+        $content: $iframeContainer,
+        chrome: dialogOptions.chrome,
+        width: dialogOptions.width,
+        height: dialogOptions.height,
+        size: dialogOptions.size,
+        header: dialogOptions.header,
+        hint: dialogOptions.hint,
+        submitText: dialogOptions.submitText,
+        cancelText: dialogOptions.cancelText,
+        buttons: dialogOptions.buttons
+      });
+      return $dialog;
+    }
+  }, {
+    key: 'getActiveDialog',
+    value: function getActiveDialog() {
+      return _componentsDialog2['default'].getActive();
+    }
+  }]);
+
+  return DialogExtension;
+})();
+
+var DialogExtensionComponent = new DialogExtension();
+_dispatchersEvent_dispatcher2['default'].register('dialog-extension-open', function (data) {
+  DialogExtensionComponent.render(data.extension, data.options);
+});
+
+exports['default'] = DialogExtensionComponent;
+module.exports = exports['default'];
+
+},{"components/dialog":19,"components/iframe_container":24,"dispatchers/event_dispatcher":31}],21:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _actionsWebitem_actions = _dereq_('actions/webitem_actions');
+
+var _actionsWebitem_actions2 = _interopRequireDefault(_actionsWebitem_actions);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _utilsWebitem = _dereq_('utils/webitem');
+
+var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
+
+var _utilsDialog = _dereq_('utils/dialog');
+
+var _utilsDialog2 = _interopRequireDefault(_utilsDialog);
+
+var _actionsDialog_extension_actions = _dereq_('actions/dialog_extension_actions');
+
+var _actionsDialog_extension_actions2 = _interopRequireDefault(_actionsDialog_extension_actions);
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var ITEM_NAME = 'dialog';
+var SELECTOR = '.ap-dialog';
+var TRIGGERS = ['click'];
+var WEBITEM_UID_KEY = 'dialog-target-uid';
+var DEFAULT_WEBITEM_OPTIONS = {
+  chrome: true
+};
+
+var DialogWebItem = (function () {
+  function DialogWebItem() {
+    _classCallCheck(this, DialogWebItem);
+
+    this._dialogWebItem = {
+      name: ITEM_NAME,
+      selector: SELECTOR,
+      triggers: TRIGGERS
+    };
+  }
+
+  _createClass(DialogWebItem, [{
+    key: 'getWebItem',
+    value: function getWebItem() {
+      return this._dialogWebItem;
+    }
+  }, {
+    key: '_dialogOptions',
+    value: function _dialogOptions(options) {
+      return _underscore2['default'].extend({}, DEFAULT_WEBITEM_OPTIONS, options || {});
+    }
+  }, {
+    key: 'triggered',
+    value: function triggered(data) {
+      var $target = $(data.event.target);
+      if (!$target.hasClass('ap-dialog')) {
+        $target = $target.closest('.ap-dialog');
+      }
+      var webitemId = $target.data(WEBITEM_UID_KEY);
+      var dialogOptions = this._dialogOptions(data.extension.options);
+      dialogOptions.id = webitemId;
+      _actionsDialog_extension_actions2['default'].open(data.extension, dialogOptions);
+    }
+  }, {
+    key: 'createIfNotExists',
+    value: function createIfNotExists(data) {
+      var $target = $(data.event.target);
+      var uid = $target.data(WEBITEM_UID_KEY);
+
+      if (!uid) {
+        uid = _utilsWebitem2['default'].uniqueId();
+        $target.data(WEBITEM_UID_KEY, uid);
+      }
+    }
+  }]);
+
+  return DialogWebItem;
+})();
+
+var dialogInstance = new DialogWebItem();
+var webitem = dialogInstance.getWebItem();
+_dispatchersEvent_dispatcher2['default'].register('webitem-invoked:' + webitem.name, function (data) {
+  dialogInstance.triggered(data);
+});
+_dispatchersEvent_dispatcher2['default'].register('before:webitem-invoked:' + webitem.name, dialogInstance.createIfNotExists);
+
+_actionsWebitem_actions2['default'].addWebItem(webitem);
+exports['default'] = dialogInstance;
+module.exports = exports['default'];
+
+},{"../underscore":39,"actions/dialog_extension_actions":7,"actions/webitem_actions":17,"dispatchers/event_dispatcher":31,"utils/dialog":42,"utils/webitem":46}],22:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _actionsFlag_actions = _dereq_('actions/flag_actions');
+
+var _actionsFlag_actions2 = _interopRequireDefault(_actionsFlag_actions);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var FLAGID_PREFIX = 'ap-flag-';
+var AUI_FLAG = undefined;
+
+window.require(['aui/flag'], function (f) {
+  AUI_FLAG = f;
+});
+
+var Flag = (function () {
+  function Flag() {
+    _classCallCheck(this, Flag);
+  }
+
+  _createClass(Flag, [{
+    key: '_toHtmlString',
+    value: function _toHtmlString(str) {
+      if (_dollar2['default'].type(str) === 'string') {
+        return str;
+      } else if (_dollar2['default'].type(str) === 'object' && str instanceof _dollar2['default']) {
+        return str.html();
+      }
+    }
+  }, {
+    key: 'render',
+    value: function render(options) {
+      var _id = FLAGID_PREFIX + options.id;
+      var auiFlag = AUI_FLAG({
+        type: options.type,
+        title: options.title,
+        body: this._toHtmlString(options.body),
+        close: options.close
+      });
+      auiFlag.setAttribute('id', _id);
+      var $auiFlag = (0, _dollar2['default'])(auiFlag);
+      $auiFlag.close = auiFlag.close;
+
+      return $auiFlag;
+    }
+  }, {
+    key: 'close',
+    value: function close(id) {
+      var f = document.getElementById(id);
+      f.close();
+    }
+  }]);
+
+  return Flag;
+})();
+
+var FlagComponent = new Flag();
+
+(0, _dollar2['default'])(document).on('aui-flag-close', function (e) {
+  var _id = e.target.id;
+  _actionsFlag_actions2['default'].closed(_id);
+});
+
+_dispatchersEvent_dispatcher2['default'].register('flag-close', function (data) {
+  FlagComponent.close(data.id);
+});
+
+exports['default'] = FlagComponent;
+module.exports = exports['default'];
+
+},{"../dollar":32,"actions/flag_actions":11,"dispatchers/event_dispatcher":31}],23:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _actionsIframe_actions = _dereq_('actions/iframe_actions');
+
+var _actionsIframe_actions2 = _interopRequireDefault(_actionsIframe_actions);
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
+
+var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
+
+var _utilsUrl = _dereq_('utils/url');
+
+var _utilsUrl2 = _interopRequireDefault(_utilsUrl);
+
+var _actionsJwt_actions = _dereq_('actions/jwt_actions');
+
+var _actionsJwt_actions2 = _interopRequireDefault(_actionsJwt_actions);
+
+var _utilsIframe = _dereq_('utils/iframe');
+
+var _utilsIframe2 = _interopRequireDefault(_utilsIframe);
+
+var CONTAINER_CLASSES = ['ap-container'];
+
+var Iframe = (function () {
+  function Iframe() {
+    _classCallCheck(this, Iframe);
+
+    this._contentResolver = false;
+  }
+
+  _createClass(Iframe, [{
+    key: 'setContentResolver',
+    value: function setContentResolver(callback) {
+      this._contentResolver = callback;
+    }
+  }, {
+    key: 'resize',
+    value: function resize(width, height, $el) {
+      width = _util2['default'].stringToDimension(width);
+      height = _util2['default'].stringToDimension(height);
+      $el.css({
+        width: width,
+        height: height
+      });
+      $el.trigger('resized', { width: width, height: height });
+    }
+  }, {
+    key: 'simpleXdmExtension',
+    value: function simpleXdmExtension(extension, $container) {
+      if (!extension.url || _utilsUrl2['default'].hasJwt(extension.url) && _utilsUrl2['default'].isJwtExpired(extension.url)) {
+        if (this._contentResolver) {
+          _actionsJwt_actions2['default'].requestRefreshUrl({
+            extension: extension,
+            resolver: this._contentResolver,
+            $container: $container
+          });
+        } else {
+          console.error('JWT is expired and no content resolver was specified');
+        }
+      } else {
+        this._appendExtension($container, this._simpleXdmCreate(extension));
+      }
+    }
+  }, {
+    key: '_simpleXdmCreate',
+    value: function _simpleXdmCreate(extension) {
+      var iframeAttributes = _simpleXdmDistHost2['default'].create(extension, function () {
+        if (!extension.options) {
+          extension.options = {};
+        }
+        _actionsIframe_actions2['default'].notifyBridgeEstablished(extension.$el, extension);
+      });
+      extension.id = iframeAttributes.id;
+      _dollar2['default'].extend(iframeAttributes, _utilsIframe2['default'].optionsToAttributes(extension.options));
+      extension.$el = this.render(iframeAttributes);
+      return extension;
+    }
+  }, {
+    key: '_appendExtension',
+    value: function _appendExtension($container, extension) {
+      var existingFrame = $container.find('iframe');
+      if (existingFrame.length > 0) {
+        existingFrame.destroy();
+      }
+      $container.prepend(extension.$el);
+      _actionsIframe_actions2['default'].notifyIframeCreated(extension.$el, extension);
+    }
+  }, {
+    key: 'resolverResponse',
+    value: function resolverResponse(data) {
+      var simpleExtension = this._simpleXdmCreate(data.extension);
+      this._appendExtension(data.$container, simpleExtension);
+    }
+  }, {
+    key: 'render',
+    value: function render(attributes) {
+      return (0, _dollar2['default'])('<iframe />').attr(attributes).addClass('ap-iframe');
+    }
+  }]);
+
+  return Iframe;
+})();
+
+var IframeComponent = new Iframe();
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
+  IframeComponent.resize(data.width, data.height, data.$el);
+});
+
+_dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-extension', function (data) {
+  IframeComponent.setContentResolver(data.callback);
+});
+
+_dispatchersEvent_dispatcher2['default'].register('jwt-url-refreshed', function (data) {
+  IframeComponent.resolverResponse(data);
+});
+
+_dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-estabilshed', function (data) {
+  data.$el[0].bridgeEstablished = true;
+});
+
+exports['default'] = IframeComponent;
+module.exports = exports['default'];
+
+},{"../dollar":32,"../util":40,"actions/iframe_actions":12,"actions/jwt_actions":14,"dispatchers/event_dispatcher":31,"simple-xdm/dist/host":47,"utils/iframe":43,"utils/url":45}],24:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _componentsIframe = _dereq_('components/iframe');
+
+var _componentsIframe2 = _interopRequireDefault(_componentsIframe);
+
+var _componentsLoading_indicator = _dereq_('components/loading_indicator');
+
+var _componentsLoading_indicator2 = _interopRequireDefault(_componentsLoading_indicator);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var CONTAINER_CLASSES = ['ap-iframe-container'];
+
+var IframeContainer = (function () {
+  function IframeContainer() {
+    _classCallCheck(this, IframeContainer);
+  }
+
+  _createClass(IframeContainer, [{
+    key: 'createExtension',
+    value: function createExtension(extension, options) {
+      var $container = this._renderContainer();
+      if (!options || options.loadingIndicator !== false) {
+        $container.append(this._renderLoadingIndicator());
+      }
+      _componentsIframe2['default'].simpleXdmExtension(extension, $container);
+      return $container;
+    }
+  }, {
+    key: '_renderContainer',
+    value: function _renderContainer(attributes) {
+      var container = (0, _dollar2['default'])('<div />').attr(attributes || {});
+      container.addClass(CONTAINER_CLASSES.join(' '));
+      return container;
+    }
+  }, {
+    key: '_renderLoadingIndicator',
+    value: function _renderLoadingIndicator() {
+      return _componentsLoading_indicator2['default'].render();
+    }
+  }]);
+
+  return IframeContainer;
+})();
+
+var IframeContainerComponent = new IframeContainer();
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
+  var id = 'embedded-' + data.extension.id;
+  data.extension.$el.parents('.ap-iframe-container').attr('id', id);
+});
+
+exports['default'] = IframeContainerComponent;
+module.exports = exports['default'];
+
+},{"../dollar":32,"components/iframe":23,"components/loading_indicator":27,"dispatchers/event_dispatcher":31}],25:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _actionsInline_dialog_actions = _dereq_('actions/inline_dialog_actions');
+
+var _actionsInline_dialog_actions2 = _interopRequireDefault(_actionsInline_dialog_actions);
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var InlineDialog = (function () {
+  function InlineDialog() {
+    _classCallCheck(this, InlineDialog);
+  }
+
+  _createClass(InlineDialog, [{
+    key: 'resize',
+    value: function resize(data) {
+      var width = _util2['default'].stringToDimension(data.width);
+      var height = _util2['default'].stringToDimension(data.height);
+      var $content = data.$el.find('.contents');
+      if ($content.length === 1) {
+        $content.css({
+          width: width,
+          height: height
+        });
+        _actionsInline_dialog_actions2['default'].refresh(data.$el);
+      }
+    }
+  }, {
+    key: 'refresh',
+    value: function refresh($el) {
+      $el[0].popup.reset();
+    }
+  }, {
+    key: '_getInlineDialog',
+    value: function _getInlineDialog($el) {
+      return AJS.InlineDialog($el);
+    }
+  }, {
+    key: '_renderContainer',
+    value: function _renderContainer() {
+      return (0, _dollar2['default'])("<div />").addClass("aui-inline-dialog-contents");
+    }
+  }, {
+    key: '_displayInlineDialog',
+    value: function _displayInlineDialog(data) {
+      _actionsInline_dialog_actions2['default'].created({
+        $el: data.$el,
+        trigger: data.trigger,
+        extension: data.extension
+      });
+    }
+  }, {
+    key: 'render',
+    value: function render(data) {
+      var _this = this;
+
+      var $inlineDialog = (0, _dollar2['default'])(document.getElementById('inline-dialog-' + data.id));
+
+      if ($inlineDialog.length !== 0) {
+        $inlineDialog.remove();
+      }
+
+      var $el = AJS.InlineDialog(data.bindTo,
+      //assign unique id to inline Dialog
+      data.id, function ($placeholder, trigger, showInlineDialog) {
+        $placeholder.append(data.$content);
+        _this._displayInlineDialog({
+          extension: data.extension,
+          $el: $placeholder,
+          trigger: trigger
+        });
+        showInlineDialog();
+      }, data.dialogOptions);
+      return $el;
+    }
+  }]);
+
+  return InlineDialog;
+})();
+
+var InlineDialogComponent = new InlineDialog();
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
+  var container = data.$el.parents(".aui-inline-dialog");
+  if (container.length === 1) {
+    InlineDialogComponent.resize({
+      width: data.width,
+      height: data.height,
+      $el: container
+    });
+  }
+});
+
+_dispatchersEvent_dispatcher2['default'].register('inline-dialog-refresh', function (data) {
+  InlineDialogComponent.refresh(data.$el);
+});
+
+exports['default'] = InlineDialogComponent;
+module.exports = exports['default'];
+
+},{"../dollar":32,"../util":40,"actions/inline_dialog_actions":13,"dispatchers/event_dispatcher":31}],26:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _actionsWebitem_actions = _dereq_('actions/webitem_actions');
+
+var _actionsWebitem_actions2 = _interopRequireDefault(_actionsWebitem_actions);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _componentsInline_dialog = _dereq_('components/inline_dialog');
+
+var _componentsInline_dialog2 = _interopRequireDefault(_componentsInline_dialog);
+
+var _componentsWebitem = _dereq_('components/webitem');
+
+var _componentsWebitem2 = _interopRequireDefault(_componentsWebitem);
+
+var _utilsWebitem = _dereq_('utils/webitem');
+
+var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
+
+var _componentsIframe_container = _dereq_('components/iframe_container');
+
+var _componentsIframe_container2 = _interopRequireDefault(_componentsIframe_container);
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _create = _dereq_('../create');
+
+var _create2 = _interopRequireDefault(_create);
+
+var ITEM_NAME = 'inline-dialog';
+var SELECTOR = '.ap-inline-dialog';
+var TRIGGERS = ['mouseover', 'click'];
+var WEBITEM_UID_KEY = 'inline-dialog-target-uid';
+
+var InlineDialogWebItem = (function () {
+  function InlineDialogWebItem() {
+    _classCallCheck(this, InlineDialogWebItem);
+
+    this._inlineDialogWebItemSpec = {
+      name: ITEM_NAME,
+      selector: SELECTOR,
+      triggers: TRIGGERS
+    };
+    this._inlineDialogWebItems = {};
+  }
+
+  _createClass(InlineDialogWebItem, [{
+    key: 'getWebItem',
+    value: function getWebItem() {
+      return this._inlineDialogWebItemSpec;
+    }
+  }, {
+    key: '_createInlineDialog',
+    value: function _createInlineDialog(data) {
+      var $iframeContainer = _componentsIframe_container2['default'].createExtension(data.extension);
+      var $inlineDialog = _componentsInline_dialog2['default'].render({
+        extension: data.extension,
+        id: data.id,
+        bindTo: data.$target,
+        $content: $iframeContainer,
+        dialogOptions: {} // fill this with dialog options.
+      });
+
+      return $inlineDialog;
+    }
+  }, {
+    key: 'triggered',
+    value: function triggered(data) {
+      var $target = (0, _dollar2['default'])(data.event.target);
+      if (!$target.hasClass('ap-inline-dialog')) {
+        $target = $target.closest('.ap-inline-dialog');
+      }
+      var webitemId = $target.data(WEBITEM_UID_KEY);
+
+      var $inlineDialog = this._createInlineDialog({
+        id: webitemId,
+        extension: data.extension,
+        $target: $target,
+        options: data.options || {}
+      });
+
+      $inlineDialog.show();
+    }
+  }, {
+    key: 'opened',
+    value: function opened(data) {
+      var contentRequest = _componentsWebitem2['default'].requestContent(data.extension);
+      if (!contentRequest) {
+        console.warn('no content resolver found');
+        return false;
+      }
+      contentRequest.then(function (content) {
+        content.options = {
+          autoresize: true,
+          widthinpx: true
+        };
+        var addon = (0, _create2['default'])(content);
+        data.$el.empty().append(addon);
+      });
+    }
+  }, {
+    key: 'createIfNotExists',
+    value: function createIfNotExists(data) {
+      var $target = (0, _dollar2['default'])(data.event.target);
+      var uid = $target.data(WEBITEM_UID_KEY);
+
+      if (!uid) {
+        uid = _utilsWebitem2['default'].uniqueId();
+        $target.data(WEBITEM_UID_KEY, uid);
+      }
+    }
+  }]);
+
+  return InlineDialogWebItem;
+})();
+
+var inlineDialogInstance = new InlineDialogWebItem();
+var webitem = inlineDialogInstance.getWebItem();
+_dispatchersEvent_dispatcher2['default'].register('before:webitem-invoked:' + webitem.name, function (data) {
+  inlineDialogInstance.createIfNotExists(data);
+});
+_dispatchersEvent_dispatcher2['default'].register('webitem-invoked:' + webitem.name, function (data) {
+  inlineDialogInstance.triggered(data);
+});
+_dispatchersEvent_dispatcher2['default'].register('inline-dialog-opened', function (data) {
+  inlineDialogInstance.opened(data);
+});
+_actionsWebitem_actions2['default'].addWebItem(webitem);
+
+exports['default'] = inlineDialogInstance;
+module.exports = exports['default'];
+
+},{"../create":29,"../dollar":32,"actions/webitem_actions":17,"components/iframe_container":24,"components/inline_dialog":25,"components/webitem":28,"dispatchers/event_dispatcher":31,"utils/webitem":46}],27:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _actionsLoading_indicator_actions = _dereq_('actions/loading_indicator_actions');
+
+var _actionsLoading_indicator_actions2 = _interopRequireDefault(_actionsLoading_indicator_actions);
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var LOADING_INDICATOR_CLASS = 'ap-status-indicator';
+
+var LOADING_STATUSES = {
+  loading: '<div class="ap-loading"><div class="small-spinner"></div>Loading add-on...</div>',
+  'load-timeout': '<div class="ap-load-timeout"><div class="small-spinner"></div>Add-on is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?</div>',
+  'load-error': 'Add-on failed to load.'
+};
+
+var LOADING_TIMEOUT = 12000;
+
+var LoadingIndicator = (function () {
+  function LoadingIndicator() {
+    _classCallCheck(this, LoadingIndicator);
+
+    this._stateRegistry = {};
+  }
+
+  _createClass(LoadingIndicator, [{
+    key: '_loadingContainer',
+    value: function _loadingContainer($iframeContainer) {
+      return $iframeContainer.find('.' + LOADING_INDICATOR_CLASS);
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var $container = (0, _dollar2['default'])('<div />').addClass(LOADING_INDICATOR_CLASS);
+      $container.append(LOADING_STATUSES.loading);
+      var spinner = $container.find('.small-spinner');
+      if (spinner.length && spinner.spin) {
+        spinner.spin({ lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1 });
+      }
+      return $container;
+    }
+  }, {
+    key: 'hide',
+    value: function hide($iframeContainer, extensionId) {
+      clearTimeout(this._stateRegistry[extensionId]);
+      delete this._stateRegistry[extensionId];
+      this._loadingContainer($iframeContainer).hide();
+    }
+  }, {
+    key: 'cancelled',
+    value: function cancelled($iframeContainer, extensionId) {
+      var status = LOADING_STATUSES['load-error'];
+      this._loadingContainer($iframeContainer).empty().text(status);
+    }
+  }, {
+    key: '_setupTimeout',
+    value: function _setupTimeout($container, extension) {
+      this._stateRegistry[extension.id] = setTimeout(function () {
+        _actionsLoading_indicator_actions2['default'].timeout($container, extension);
+      }, LOADING_TIMEOUT);
+    }
+  }, {
+    key: 'timeout',
+    value: function timeout($iframeContainer, extensionId) {
+      var status = (0, _dollar2['default'])(LOADING_STATUSES['load-timeout']);
+      var container = this._loadingContainer($iframeContainer);
+      container.empty().append(status);
+      (0, _dollar2['default'])('a.ap-btn-cancel', container).click(function () {
+        _actionsLoading_indicator_actions2['default'].cancelled($iframeContainer, extensionId);
+      });
+      delete this._stateRegistry[extensionId];
+      return container;
+    }
+  }]);
+
+  return LoadingIndicator;
+})();
+
+var LoadingComponent = new LoadingIndicator();
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
+  LoadingComponent._setupTimeout(data.$el.parents('.ap-iframe-container'), data.extension);
+});
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
+  LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
+});
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-timeout', function (data) {
+  LoadingComponent.timeout(data.$el, data.extension.id);
+});
+
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', function (data) {
+  LoadingComponent.cancelled(data.$el, data.extension.id);
+});
+
+exports['default'] = LoadingComponent;
+module.exports = exports['default'];
+
+},{"../dollar":32,"../util":40,"actions/loading_indicator_actions":15,"dispatchers/event_dispatcher":31}],28:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _actionsWebitem_actions = _dereq_('actions/webitem_actions');
+
+var _actionsWebitem_actions2 = _interopRequireDefault(_actionsWebitem_actions);
+
+var _utilsWebitem = _dereq_('utils/webitem');
+
+var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
+
+var WebItem = (function () {
+  function WebItem() {
+    _classCallCheck(this, WebItem);
+
+    this._webitems = {};
+    this._contentResolver = function noop() {};
+  }
+
+  _createClass(WebItem, [{
+    key: 'setContentResolver',
+    value: function setContentResolver(resolver) {
+      this._contentResolver = resolver;
+    }
+  }, {
+    key: 'requestContent',
+    value: function requestContent(extension) {
+      if (extension.addon_key && extension.key) {
+        return this._contentResolver.call(null, _underscore2['default'].extend({ classifier: 'json' }, extension));
+      }
+    }
+  }, {
+    key: 'getWebItemsBySelector',
+    value: function getWebItemsBySelector(selector) {
+      return _underscore2['default'].find(this._webitems, function (obj) {
+        if (obj.selector) {
+          return obj.selector.trim() === selector.trim();
+        }
+        return false;
+      });
+    }
+  }, {
+    key: 'setWebItem',
+    value: function setWebItem(potentialWebItem) {
+      return this._webitems[potentialWebItem.name] = {
+        name: potentialWebItem.name,
+        selector: potentialWebItem.selector,
+        triggers: potentialWebItem.triggers
+      };
+    }
+  }, {
+    key: '_removeTriggers',
+    value: function _removeTriggers(webitem) {
+      var _this = this;
+
+      var onTriggers = _utilsWebitem2['default'].sanitizeTriggers(webitem.triggers);
+      (0, _dollar2['default'])(function () {
+        (0, _dollar2['default'])('body').off(onTriggers, webitem.selector, _this._webitems[webitem.name]._on);
+      });
+      delete this._webitems[webitem.name]._on;
+    }
+  }, {
+    key: '_addTriggers',
+    value: function _addTriggers(webitem) {
+      var onTriggers = _utilsWebitem2['default'].sanitizeTriggers(webitem.triggers);
+      webitem._on = function (event) {
+        event.preventDefault();
+        var $target = (0, _dollar2['default'])(event.target).closest(webitem.selector);
+        var extension = {
+          addon_key: _utilsWebitem2['default'].getExtensionKey($target),
+          key: _utilsWebitem2['default'].getKey($target),
+          options: _utilsWebitem2['default'].getOptionsForWebItem($target)
+        };
+
+        _actionsWebitem_actions2['default'].webitemInvoked(webitem, event, extension);
+      };
+      (0, _dollar2['default'])(function () {
+        (0, _dollar2['default'])('body').on(onTriggers, webitem.selector, webitem._on);
+      });
+    }
+  }]);
+
+  return WebItem;
+})();
+
+var webItemInstance = new WebItem();
+
+_dispatchersEvent_dispatcher2['default'].register('webitem-added', function (data) {
+  webItemInstance._addTriggers(data.webitem);
+});
+
+_dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-extension', function (data) {
+  webItemInstance.setContentResolver(data.callback);
+});
+
+exports['default'] = webItemInstance;
+module.exports = exports['default'];
+
+},{"../dollar":32,"../underscore":39,"actions/webitem_actions":17,"dispatchers/event_dispatcher":31,"utils/webitem":46}],29:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dollar = _dereq_('./dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _componentsIframe_container = _dereq_('components/iframe_container');
+
+var _componentsIframe_container2 = _interopRequireDefault(_componentsIframe_container);
+
+function create(extension) {
+  var simpleXdmExtension = {
+    addon_key: extension.addon_key,
+    key: extension.key,
+    url: extension.url,
+    options: extension.options
+  };
+  return _componentsIframe_container2['default'].createExtension(simpleXdmExtension);
+
+  // return IframeComponent.simpleXdmExtension(simpleXdmExtension);
+}
+
+module.exports = create;
+
+},{"./dollar":32,"components/iframe_container":24,"dispatchers/event_dispatcher":31}],30:[function(_dereq_,module,exports){
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var EVENT_NAME_PREFIX = 'connect.addon.';
+
+/**
+ * Timings beyond 20 seconds (connect's load timeout) will be clipped to an X.
+ * @const
+ * @type {int}
+ */
+var LOADING_TIME_THRESHOLD = 20000;
+
+/**
+ * Trim extra zeros from the load time.
+ * @const
+ * @type {int}
+ */
+var LOADING_TIME_TRIMP_PRECISION = 100;
+
+var AnalyticsDispatcher = (function () {
+  function AnalyticsDispatcher() {
+    _classCallCheck(this, AnalyticsDispatcher);
+
+    this._addons = {};
+  }
+
+  _createClass(AnalyticsDispatcher, [{
+    key: '_track',
+    value: function _track(name, data) {
+      var w = window;
+      var prefixedName = EVENT_NAME_PREFIX + name;
+
+      if (w.AJS.Analytics) {
+        w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
+      } else if (w.AJS.trigger) {
+        // BTF fallback
+        AJS.trigger('analyticsEvent', {
+          name: prefixedName,
+          data: data
+        });
+      } else {
+        return false;
+      }
+      return true;
+    }
+  }, {
+    key: '_time',
+    value: function _time() {
+      return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
+    }
+  }, {
+    key: 'trackLoadingStarted',
+    value: function trackLoadingStarted(extension) {
+      extension.startLoading = this._time();
+      this._addons[extension.id] = extension;
+    }
+  }, {
+    key: 'trackLoadingEnded',
+    value: function trackLoadingEnded(extension) {
+      var value = this._time() - this._addons[extension.id].startLoading;
+      this._track('iframe.performance.load', {
+        addonKey: extension.addon_key,
+        moduleKey: extension.key,
+        value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil(value / LOADING_TIME_TRIMP_PRECISION)
+      });
+    }
+  }, {
+    key: 'trackLoadingTimeout',
+    value: function trackLoadingTimeout(extension) {
+      this._track('iframe.performance.timeout', {
+        addonKey: extension.addon_key,
+        moduleKey: extension.key
+      });
+      //track an end event during a timeout so we always have complete start / end data.
+      this.trackLoadingEnded(extension);
+    }
+  }, {
+    key: 'trackLoadingCancel',
+    value: function trackLoadingCancel(extension) {
+      this._track('iframe.performance.cancel', {
+        addonKey: extension.addon_key,
+        moduleKey: extension.key
+      });
+    }
+  }, {
+    key: 'dispatch',
+    value: function dispatch(name, data) {
+      this._track(name, data);
+    }
+  }]);
+
+  return AnalyticsDispatcher;
+})();
+
+var analytics = new AnalyticsDispatcher();
+_dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
+  analytics.trackLoadingStarted(data.extension);
+});
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
+  analytics.trackLoadingEnded(data.extension);
+});
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-timeout', function (data) {
+  analytics.trackLoadingTimeout(data.extension);
+});
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', function (data) {
+  analytics.trackLoadingCancel(data.extension);
+});
+
+module.exports = analytics;
+
+},{"dispatchers/event_dispatcher":31}],31:[function(_dereq_,module,exports){
+/**
+* pub/sub for extension state (created, destroyed, initialized)
+* taken from hipchat webcore
+**/
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var _events = _dereq_('events');
+
+var EventDispatcher = (function (_EventEmitter) {
+  _inherits(EventDispatcher, _EventEmitter);
+
+  function EventDispatcher() {
+    _classCallCheck(this, EventDispatcher);
+
+    _get(Object.getPrototypeOf(EventDispatcher.prototype), 'constructor', this).call(this);
+    this.setMaxListeners(20);
+  }
+
+  _createClass(EventDispatcher, [{
+    key: 'dispatch',
+    value: function dispatch(action) {
+      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      this.emit.apply(this, ['before:' + action].concat(args));
+      this.emit.apply(this, arguments);
+      this.emit.apply(this, ['after:' + action].concat(args));
+    }
+  }, {
+    key: 'registerOnce',
+    value: function registerOnce(action, callback) {
+      var _this = this;
+
+      if (_underscore2['default'].isString(action)) {
+        this.once(action, callback);
+      } else if (_underscore2['default'].isObject(action)) {
+        _underscore2['default'].keys(action).forEach(function (val, key) {
+          _this.once(key, val);
+        }, this);
+      }
+    }
+  }, {
+    key: 'register',
+    value: function register(action, callback) {
+      var _this2 = this;
+
+      if (_underscore2['default'].isString(action)) {
+        this.on(action, callback);
+      } else if (_underscore2['default'].isObject(action)) {
+        _underscore2['default'].keys(action).forEach(function (val, key) {
+          _this2.on(key, val);
+        }, this);
+      }
+    }
+  }, {
+    key: 'unregister',
+    value: function unregister(action, callback) {
+      var _this3 = this;
+
+      if (_underscore2['default'].isString(action)) {
+        this.removeListener(action, callback);
+      } else if (_underscore2['default'].isObject(action)) {
+        _underscore2['default'].keys(action).forEach(function (val, key) {
+          _this3.removeListener(key, val);
+        }, this);
+      }
+    }
+  }]);
+
+  return EventDispatcher;
+})(_events.EventEmitter);
+
+module.exports = new EventDispatcher();
+
+},{"../underscore":39,"events":2}],32:[function(_dereq_,module,exports){
+/**
+ * The iframe-side code exposes a jquery-like implementation via _dollar.
+ * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
+ * to code that runs on host and iframe.
+ */
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = AJS.$;
+module.exports = exports["default"];
+
+},{}],33:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersAnalytics_dispatcher = _dereq_('dispatchers/analytics_dispatcher');
+
+var _dispatchersAnalytics_dispatcher2 = _interopRequireDefault(_dispatchersAnalytics_dispatcher);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
+
+var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
+
+var _actionsJwt_actions = _dereq_('actions/jwt_actions');
+
+var _actionsJwt_actions2 = _interopRequireDefault(_actionsJwt_actions);
+
+var _modulesEvents = _dereq_('./modules/events');
+
+var _modulesEvents2 = _interopRequireDefault(_modulesEvents);
+
+var _create = _dereq_('./create');
+
+var _create2 = _interopRequireDefault(_create);
+
+var _modulesDialog = _dereq_('./modules/dialog');
+
+var _modulesDialog2 = _interopRequireDefault(_modulesDialog);
+
+var _modulesEnv = _dereq_('./modules/env');
+
+var _modulesEnv2 = _interopRequireDefault(_modulesEnv);
+
+var _componentsLoading_indicator = _dereq_('./components/loading_indicator');
+
+var _componentsLoading_indicator2 = _interopRequireDefault(_componentsLoading_indicator);
+
+var _modulesMessages = _dereq_('./modules/messages');
+
+var _modulesMessages2 = _interopRequireDefault(_modulesMessages);
+
+var _modulesFlag = _dereq_('./modules/flag');
+
+var _modulesFlag2 = _interopRequireDefault(_modulesFlag);
+
+var _actionsModule_actions = _dereq_('actions/module_actions');
+
+var _actionsModule_actions2 = _interopRequireDefault(_actionsModule_actions);
+
+var _actionsDom_event_actions = _dereq_('actions/dom_event_actions');
+
+var _actionsDom_event_actions2 = _interopRequireDefault(_actionsDom_event_actions);
+
+var _underscore = _dereq_('./underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var _actionsEvent_actions = _dereq_('actions/event_actions');
+
+var _actionsEvent_actions2 = _interopRequireDefault(_actionsEvent_actions);
+
+var _actionsIframe_actions = _dereq_('actions/iframe_actions');
+
+var _actionsIframe_actions2 = _interopRequireDefault(_actionsIframe_actions);
+
+var _actionsDialog_extension_actions = _dereq_('actions/dialog_extension_actions');
+
+var _actionsDialog_extension_actions2 = _interopRequireDefault(_actionsDialog_extension_actions);
+
+var _componentsInline_dialog_webitem = _dereq_('components/inline_dialog_webitem');
+
+var _componentsInline_dialog_webitem2 = _interopRequireDefault(_componentsInline_dialog_webitem);
+
+var _componentsDialog_webitem = _dereq_('components/dialog_webitem');
+
+var _componentsDialog_webitem2 = _interopRequireDefault(_componentsDialog_webitem);
+
+var _componentsDialog_extension = _dereq_('components/dialog_extension');
+
+var _componentsDialog_extension2 = _interopRequireDefault(_componentsDialog_extension);
+
+/**
+ * Private namespace for host-side code.
+ * @type {*|{}}
+ * @private
+ * @deprecated use AMD instead of global namespaces. The only thing that should be on _AP is _AP.define and _AP.require.
+ */
+if (!window._AP) {
+  window._AP = {};
+}
+
+/*
+ * Add version
+ */
+if (!window._AP.version) {
+  window._AP.version = "v5.0.0";
+}
+
+_simpleXdmDistHost2['default'].defineModule('messages', _modulesMessages2['default']);
+_simpleXdmDistHost2['default'].defineModule('flag', _modulesFlag2['default']);
+_simpleXdmDistHost2['default'].defineModule('dialog', _modulesDialog2['default']);
+_simpleXdmDistHost2['default'].defineModule('env', _modulesEnv2['default']);
+_simpleXdmDistHost2['default'].defineModule('events', _modulesEvents2['default']);
+
+// rpc.extend(propagator);
+
+_dispatchersEvent_dispatcher2['default'].register('module-define-custom', function (data) {
+  _simpleXdmDistHost2['default'].defineModule(data.name, data.methods);
+});
+
+_simpleXdmDistHost2['default'].registerRequestNotifier(function (data) {
+  _dispatchersAnalytics_dispatcher2['default'].dispatch('bridge.invokemethod', {
+    module: data.module,
+    fn: data.fn,
+    addonKey: data.addon_key,
+    moduleKey: data.key
+  });
+});
+
+exports['default'] = {
+  dialog: {
+    create: function create(extension, dialogOptions) {
+      _actionsDialog_extension_actions2['default'].open(extension, dialogOptions);
+    },
+    close: function close() {
+      _actionsDialog_extension_actions2['default'].close();
+    }
+  },
+  onKeyEvent: function onKeyEvent(extension_id, key, modifiers, callback) {
+    _actionsDom_event_actions2['default'].registerKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
+  },
+  offKeyEvent: function offKeyEvent(extension_id, key, modifiers, callback) {
+    _actionsDom_event_actions2['default'].unregisterKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
+  },
+  onIframeEstablished: function onIframeEstablished(callback) {
+    _dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-estabilshed', function (data) {
+      callback.call(null, {
+        $el: data.$el,
+        extension: _underscore2['default'].pick(data.extension, ['id', 'addon_key', 'id', 'key', 'options', 'url'])
+      });
+    });
+  },
+  destroy: function destroy(extension_id) {
+    _actionsIframe_actions2['default'].notifyIframeDestroyed({ extension_id: extension_id });
+  },
+  registerContentResolver: {
+    resolveByExtension: function resolveByExtension(callback) {
+      _actionsJwt_actions2['default'].registerContentResolver({ callback: callback });
+    }
+  },
+  defineModule: function defineModule(name, methods) {
+    _actionsModule_actions2['default'].defineCustomModule(name, methods);
+  },
+  broadcastEvent: function broadcastEvent(type, targetSpec, event) {
+    _actionsEvent_actions2['default'].broadcast(type, targetSpec, event);
+  },
+  create: _create2['default']
+};
+module.exports = exports['default'];
+
+},{"./components/loading_indicator":27,"./create":29,"./modules/dialog":34,"./modules/env":35,"./modules/events":36,"./modules/flag":37,"./modules/messages":38,"./underscore":39,"actions/dialog_extension_actions":7,"actions/dom_event_actions":8,"actions/event_actions":10,"actions/iframe_actions":12,"actions/jwt_actions":14,"actions/module_actions":16,"components/dialog_extension":20,"components/dialog_webitem":21,"components/inline_dialog_webitem":26,"dispatchers/analytics_dispatcher":30,"dispatchers/event_dispatcher":31,"simple-xdm/dist/host":47}],34:[function(_dereq_,module,exports){
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _actionsDialog_extension_actions = _dereq_('actions/dialog_extension_actions');
+
+var _actionsDialog_extension_actions2 = _interopRequireDefault(_actionsDialog_extension_actions);
+
+var _actionsDialog_actions = _dereq_('actions/dialog_actions');
+
+var _actionsDialog_actions2 = _interopRequireDefault(_actionsDialog_actions);
+
+var _actionsEvent_actions = _dereq_('actions/event_actions');
+
+var _actionsEvent_actions2 = _interopRequireDefault(_actionsEvent_actions);
+
+var _componentsDialog_extension = _dereq_('components/dialog_extension');
+
+var _componentsDialog_extension2 = _interopRequireDefault(_componentsDialog_extension);
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var _componentsButton = _dereq_('components/button');
+
+var _componentsButton2 = _interopRequireDefault(_componentsButton);
+
+var _utilsDialog = _dereq_('utils/dialog');
+
+var _utilsDialog2 = _interopRequireDefault(_utilsDialog);
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var _dialogs = {};
+
+_dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data) {
+  var dialog = data.dialog;
+  if (dialog && data.extension) {
+    _actionsEvent_actions2['default'].broadcast('dialog.close', {
+      addon_key: data.extension.addon_key
+    }, data.customData);
+  }
+});
+
+_dispatchersEvent_dispatcher2['default'].register('dialog-button-click', function (data) {
+  var eventData = {
+    button: {
+      name: _componentsButton2['default'].getName(data.$el),
+      identifier: _componentsButton2['default'].getIdentifier(data.$el),
+      text: _componentsButton2['default'].getText(data.$el)
+    }
+  };
+
+  // Old buttons, (submit and cancel) use old events
+  if (!data.$el.hasClass('ap-dialog-custom-button')) {
+    _actionsEvent_actions2['default'].broadcast('dialog.' + eventData.button.name, {
+      addon_key: data.extension.addon_key
+    }, eventData);
+  } else {
+    // new buttons only target the dialog
+    _actionsEvent_actions2['default'].broadcast('dialog.button.click', {
+      addon_key: data.extension.addon_key,
+      key: data.extension.key
+    }, eventData);
+  }
+});
+
+/**
+ * @class Dialog~Dialog
+ * @description A dialog object that is returned when a dialog is created using the [dialog module](module-Dialog.html).
+ */
+
+var Dialog = function Dialog(options, callback) {
+  _classCallCheck(this, Dialog);
+
+  var _id = callback._id;
+  var extension = callback._context.extension;
+
+  var dialogExtension = {
+    addon_key: extension.addon_key,
+    key: options.key,
+    options: extension.options
+  };
+
+  // ACJS-185: the following is a really bad idea but we need it
+  // for compat until AP.dialog.customData has been deprecated
+  dialogExtension.options.customData = options.customData;
+
+  // terrible idea! - we need to remove this from p2 ASAP!
+  var dialogModuleOptions = _utilsDialog2['default'].moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
+  options = _underscore2['default'].extend({}, dialogModuleOptions || {}, options);
+
+  var dialogOptions = {
+    id: _id,
+    size: options.size,
+    width: options.width,
+    height: options.height,
+    chrome: !!options.chrome,
+    header: options.header,
+    hint: options.hint,
+    actions: options.actions,
+    submitText: options.submitText,
+    cancelText: options.cancelText,
+    buttons: options.buttons
+  };
+
+  _actionsDialog_extension_actions2['default'].open(dialogExtension, dialogOptions);
+  this.customData = options.customData;
+  _dialogs[_id] = this;
+}
+
+/**
+ * @class Dialog~DialogButton
+ * @description A dialog button that can be controlled with JavaScript
+ */
+;
+
+var Button = (function () {
+  function Button(name) {
+    _classCallCheck(this, Button);
+
+    if (!_componentsDialog_extension2['default'].getActiveDialog()) {
+      throw new Error('Failed to find an active dialog.');
+    }
+    this.name = name;
+    this.enabled = true;
+  }
+
+  /**
+   * Sets the button state to enabled
+   * @method enable
+   * @memberOf Dialog~DialogButton
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit').enable();
+   * });
+   */
+
+  _createClass(Button, [{
+    key: 'enable',
+    value: function enable() {
+      this.setState({
+        enabled: true
+      });
+    }
+
+    /**
+     * Sets the button state to disabled. A disabled button cannot be clicked and emits no events.
+     * @method disable
+     * @memberOf Dialog~DialogButton
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').disable();
+     * });
+     */
+  }, {
+    key: 'disable',
+    value: function disable() {
+      this.setState({
+        enabled: false
+      });
+    }
+
+    /**
+     * Query a button for its current state.
+     * @method isEnabled
+     * @memberOf Dialog~DialogButton
+     * @param {Function} callback function to receive the button state.
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').isEnabled(function(enabled){
+     *     if(enabled){
+     *       //button is enabled
+     *     }
+     *   });
+     * });
+     */
+  }, {
+    key: 'isEnabled',
+    value: function isEnabled(callback) {
+      callback(this.enabled);
+    }
+
+    /**
+     * Toggle the button state between enabled and disabled.
+     * @method toggle
+     * @memberOf Dialog~DialogButton
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').toggle();
+     * });
+     */
+  }, {
+    key: 'toggle',
+    value: function toggle() {
+      this.setState({
+        enabled: !this.enabled
+      });
+    }
+  }, {
+    key: 'setState',
+    value: function setState(state) {
+      this.enabled = state.enabled;
+      _actionsDialog_actions2['default'].toggleButton({
+        name: this.name,
+        enabled: this.enabled
+      });
+    }
+
+    /**
+     * Trigger a callback bound to a button.
+     * @method trigger
+     * @memberOf Dialog~DialogButton
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').bind(function(){
+     *     alert('clicked!');
+     *   });
+     *   dialog.getButton('submit').trigger();
+     * });
+     */
+  }, {
+    key: 'trigger',
+    value: function trigger(callback) {
+      if (this.enabled) {
+        _actionsDialog_actions2['default'].dialogMessage({
+          name: this.name,
+          extension: callback._context.extension
+        });
+      }
+    }
+  }]);
+
+  return Button;
+})();
+
+function getDialogFromContext(context) {
+  return _dialogs[context.extension.options.dialogId];
+}
+
+var CreateButton = function CreateButton(options, callback) {
+  _classCallCheck(this, CreateButton);
+
+  _actionsDialog_extension_actions2['default'].addUserButton({
+    identifier: options.identifier,
+    text: options.text
+  }, callback._context.extension);
+}
+
+/**
+ * The Dialog module provides a mechanism for launching an add-on's modules as modal dialogs from within an add-on's iframe.
+ * A modal dialog displays information without requiring the user to leave the current page.
+ * The dialog is opened over the entire window, rather than within the iframe itself.
+ *
+ * <h3>Styling your dialog to look like a standard Atlassian dialog</h3>
+ *
+ * By default the dialog iframe is undecorated. It's up to you to style the dialog.
+ * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
+ *
+ * In order to maintain a consistent look and feel between the host application and the add-on,
+ * we encourage you to style your dialogs to match Atlassian's Design Guidelines for modal dialogs.
+ * To do that, you'll need to add the AUI styles to your dialog.
+ *
+ * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog.html).
+ * @exports Dialog
+ */
+;
+
+module.exports = {
+  /**
+   * @class Dialog~DialogOptions
+   * @description The options supplied to a [dialog.create()](module-Dialog.html) call.
+   *
+   * @property {String}        key         The module key of a dialog, or the key of a page or web-item that you want to open as a dialog.
+   * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or fullscreen (with chrome).
+   * @property {Number|String} width       if size is not set, define the width as a percentage (append a % to the number) or pixels.
+   * @property {Number|String} height      if size is not set, define the height as a percentage (append a % to the number) or pixels.
+   * @property {Boolean}       chrome      (optional) opens the dialog with heading and buttons.
+   * @property {String}        header      (optional) text to display in the header if opening a dialog with chrome.
+   * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
+   * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
+   * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
+   * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC will close the dialog (default is true).
+   * @property {Array}         buttons     (optional) an array of custom buttons to be added to the dialog if opening a dialog with chrome.
+   */
+
+  /**
+   * Creates a dialog for a common dialog, page or web-item module key.
+   * @param {Dialog~DialogOptions} options configuration object of dialog options.
+   * @method create
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.create({
+   *     key: 'my-module-key',
+   *     width: '500px',
+   *     height: '200px',
+   *     chrome: true,
+   *     buttons: [
+   *      {
+   *        text: 'my button',
+   *        identifier: 'my_unique_identifier'
+   *      }
+   *     ]
+   *   }).on("close", callbackFunc);
+   * });
+   *
+   * @return {Dialog~Dialog} Dialog object allowing for callback registrations
+   */
+  create: {
+    constructor: Dialog
+  },
+  /**
+   * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.
+   * This will only close a dialog that has been opened by your add-on.
+   * You can register for close events using the `dialog.close` event and the [events module](module-Events.html).
+   * @param {Object} data An object to be emitted on dialog close.
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+         *   dialog.close({foo: 'bar'});
+         * });
+   */
+  close: function close(data, callback) {
+    if (!$.isFunction(callback)) {
+      callback = data;
+      data = {};
+    }
+    _actionsDialog_actions2['default'].closeActive({
+      customData: data,
+      extension: callback._context.extension
+    });
+  },
+  /**
+   * Returns the data Object passed to the dialog at creation.
+   * @noDemo
+   * @name customData
+   * @method
+   * @param {Function} callback - Callback method to be executed with the custom data.
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   var myDataVariable = dialog.customData.myDataVariable;
+   * });
+   *
+   * @return {Object} Data Object passed to the dialog on creation.
+   */
+  getCustomData: function getCustomData(callback) {
+    var dialog = getDialogFromContext(callback._context);
+    if (dialog) {
+      callback(dialog.customData);
+    }
+  },
+  /**
+   * Returns the button that was requested (either cancel or submit). If the requested button does not exist, an empty Object will be returned instead.
+   * @method getButton
+   * @returns {Dialog~DialogButton}
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit');
+   * });
+   */
+  getButton: {
+    constructor: Button,
+    enable: Button.prototype.enable,
+    disable: Button.prototype.disable,
+    toggle: Button.prototype.toggle,
+    isEnabled: Button.prototype.isEnabled,
+    trigger: Button.prototype.trigger
+  },
+  /**
+   * Creates a dialog button that can be controlled with javascript
+   * @method createButton
+   * @returns {Dialog~DialogButton}
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.createButton({
+   *     text: 'button text',
+   *     identifier: 'button.1'
+   *   }).bind(function mycallback(){});
+   * });
+   */
+  createButton: {
+    constructor: CreateButton
+  }
+};
+
+},{"../underscore":39,"../util":40,"actions/dialog_actions":6,"actions/dialog_extension_actions":7,"actions/event_actions":10,"components/button":18,"components/dialog_extension":20,"dispatchers/event_dispatcher":31,"utils/dialog":42}],35:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _actionsEnv_actions = _dereq_('actions/env_actions');
+
+var _actionsEnv_actions2 = _interopRequireDefault(_actionsEnv_actions);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var debounce = AJS.debounce || _dollar2['default'].debounce;
+
+exports['default'] = {
+  getLocation: function getLocation(callback) {
+    callback(window.location.href);
+  },
+  resize: debounce(function (width, height, callback) {
+    var options = callback._context.extension.options;
+    if (options && !options.isDialog) {
+      _actionsEnv_actions2['default'].iframeResize(width, height, callback._context);
+    }
+  }),
+
+  sizeToParent: debounce(function (callback) {
+    // sizeToParent is only available for general-pages
+    if (callback._context.extension.options.isFullPage) {
+      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
+      _util2['default'].getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
+      _dispatchersEvent_dispatcher2['default'].register('host-window-resize', function (data) {
+        _actionsEnv_actions2['default'].sizeToParent(callback._context);
+      });
+      _actionsEnv_actions2['default'].sizeToParent(callback._context);
+    } else {
+      // This is only here to support integration testing
+      // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
+      _util2['default'].getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
+    }
+  })
+};
+module.exports = exports['default'];
+
+},{"../dollar":32,"../util":40,"actions/env_actions":9,"dispatchers/event_dispatcher":31}],36:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var _actionsEvent_actions = _dereq_('actions/event_actions');
+
+var _actionsEvent_actions2 = _interopRequireDefault(_actionsEvent_actions);
+
+exports['default'] = {
+  emit: function emit(name) {
+    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
+    }
+
+    var callback = _underscore2['default'].last(args);
+    args = _underscore2['default'].first(args, -1);
+    _actionsEvent_actions2['default'].broadcast(name, {
+      addon_key: callback._context.extension.addon_key
+    }, args);
+  }
+};
+module.exports = exports['default'];
+
+},{"../underscore":39,"actions/event_actions":10}],37:[function(_dereq_,module,exports){
+/**
+* Flags are the primary method for providing system feedback in the product user interface. Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
+* @module Flag
+*/
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+var _actionsFlag_actions = _dereq_('actions/flag_actions');
+
+var _actionsFlag_actions2 = _interopRequireDefault(_actionsFlag_actions);
+
+var _componentsFlag = _dereq_('components/flag');
+
+var _componentsFlag2 = _interopRequireDefault(_componentsFlag);
+
+var _flags = {};
+
+/**
+* @class Flag~Flag
+* @description A flag object created by the [AP.flag]{@link module:Flag} module.
+*/
+
+var Flag = (function () {
+  function Flag(options, callback) {
+    _classCallCheck(this, Flag);
+
+    this.flag = _componentsFlag2['default'].render({
+      type: options.type,
+      title: options.title,
+      body: AJS.escapeHtml(options.body),
+      close: options.close,
+      id: callback._id
+    });
+
+    _actionsFlag_actions2['default'].open(this.flag.attr('id'));
+
+    this.onTriggers = {};
+
+    _flags[this.flag.attr('id')] = this;
+  }
+
+  /**
+  * @name on
+  * @memberof Flag~Flag
+  * @method
+  * @description Binds a callback function to an event that is triggered by the Flag.
+  * @param {Event} event A flag event; currently, the only valid option is 'close'.
+  * @param {Function} callback The function that runs when the event occurs.
+  * @example
+  * // Display a nice green flag using the Flags JavaScript API.
+  * var flag = AP.flag.create({
+  *   title: 'Succesfully created a flag.',
+  *   body: 'This is a flag.',
+  *   type: 'info'
+  * });
+  *
+  * // Log a message to the console when the flag has closed.
+  * flag.on('close', function (data) {
+  *   console.log('Flag has been closed!');
+  * })
+  *
+  */
+
+  _createClass(Flag, [{
+    key: 'on',
+    value: function on(event, callback) {
+      var id = this.flag.id;
+      if (_dollar2['default'].isFunction(callback)) {
+        this.onTriggers[event] = callback;
+      }
+    }
+
+    /**
+    * @name close
+    * @memberof Flag~Flag
+    * @method
+    * @description Closes the Flag.
+    * @example
+    * // Display a nice green flag using the Flags JavaScript API.
+    * var flag = AP.flag.create({
+    *   title: 'Succesfully created a flag.',
+    *   body: 'This is a flag.',
+    *   type: 'info'
+    * });
+    *
+    * // Close the flag.
+    * flag.close()
+    *
+    */
+  }, {
+    key: 'close',
+    value: function close() {
+      this.flag.close();
+    }
+  }]);
+
+  return Flag;
+})();
+
+_dispatchersEvent_dispatcher2['default'].register('flag-closed', function (data) {
+  if (_flags[data.id] && _dollar2['default'].isFunction(_flags[data.id].onTriggers['close'])) {
+    _flags[data.id].onTriggers['close']();
+  }
+  if (_flags[data.id]) {
+    delete _flags[data.id];
+  }
+});
+
+exports['default'] = {
+  /**
+  * @name create
+  * @method
+  * @description Creates a new flag.
+  * @param {Object} options           Options of the flag.
+  * @param {String} options.title     The title text of the flag.
+  * @param {String} options.body      The body text of the flag.
+  * @param {String} options.type=info Sets the type of the message. Valid options are "info", "success", "warning" and "error".
+  * @param {String} options.close     The closing behaviour that this flag has. Valid options are "manual", "auto" and "never".
+  * @returns {Flag~Flag}
+  * @example
+  * // Display a nice green flag using the Flags JavaScript API.
+  * var flag = AP.flag.create({
+  *   title: 'Succesfully created a flag.',
+  *   body: 'This is a flag.',
+  *   type: 'success'
+  * });
+  */
+  create: {
+    constructor: Flag,
+    on: Flag.prototype.on,
+    close: Flag.prototype.close
+  }
+};
+module.exports = exports['default'];
+
+},{"../dollar":32,"actions/flag_actions":11,"components/flag":22,"dispatchers/event_dispatcher":31}],38:[function(_dereq_,module,exports){
+/**
+* Messages are the primary method for providing system feedback in the product user interface.
+* Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
+* For visual examples of each kind please see the [Design guide](https://developer.atlassian.com/design/latest/communicators/messages/).
+* ### Example ###
+* ```
+* AP.require("messages", function(messages){
+*   //create a message
+*   var message = messages.info('plain text title', 'plain text body');
+* });
+* ```
+* This module has been deprecated and may be removed in future releases. Please use the [Flag module](module-Flag.html) instead.
+* @name messages
+* @module
+*/
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var MESSAGE_BAR_ID = 'ac-message-container';
+var MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
+var MSGID_PREFIX = 'ap-message-';
+var MSGID_REGEXP = new RegExp('^' + MSGID_PREFIX + '[0-9A-fa-f]+$');
+var _messages = {};
+
+function validateMessageId(msgId) {
+  return MSGID_REGEXP.test(msgId);
+}
+
+function getMessageBar() {
+  var $msgBar = (0, _dollar2['default'])('#' + MESSAGE_BAR_ID);
+
+  if ($msgBar.length < 1) {
+    $msgBar = (0, _dollar2['default'])('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
+  }
+  return $msgBar;
+}
+
+function filterMessageOptions(options) {
+  var copy = {};
+  var allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
+  if (_underscore2['default'].isObject(options)) {
+    allowed.forEach(function (key) {
+      if (key in options) {
+        copy[key] = options[key];
+      }
+    });
+  }
+  return copy;
+}
+
+function showMessage(name, title, body, options) {
+  var $msgBar = getMessageBar();
+  options = filterMessageOptions(options);
+  _dollar2['default'].extend(options, {
+    title: title,
+    body: AJS.escapeHtml(body)
+  });
+
+  if (_dollar2['default'].inArray(name, MESSAGE_TYPES) < 0) {
+    throw 'Invalid message type. Must be: ' + MESSAGE_TYPES.join(', ');
+  }
+  if (validateMessageId(options.id)) {
+    AJS.messages[name]($msgBar, options);
+    // Calculate the left offset based on the content width.
+    // This ensures the message always stays in the centre of the window.
+    $msgBar.css('margin-left', '-' + $msgBar.innerWidth() / 2 + 'px');
+  }
+}
+
+var deprecatedShowMessage = AJS.deprecate.fn(showMessage, 'AP.messages', {
+  deprecationType: 'API',
+  alternativeName: 'AP.flag',
+  sinceVersion: 'ACJS 5.0'
+});
+
+(0, _dollar2['default'])(document).on('aui-message-close', function (e, $msg) {
+  var _id = $msg.attr('id').replace(MSGID_PREFIX, '');
+  if (_messages[_id]) {
+    if (_dollar2['default'].isFunction(_messages[_id].onCloseTrigger)) {
+      _messages[_id].onCloseTrigger();
+    }
+    _messages[_id]._destroy();
+  }
+});
+
+var toExport = {
+  /**
+  * Close a message
+  * @name clear
+  * @method
+  * @memberof module:messages#
+  * @param    {String}    id  The id that was returned when the message was created.
+  * @example
+  * AP.require("messages", function(messages){
+  *   //create a message
+  *   var message = messages.info('title', 'body');
+  *   setTimeout(function(){
+  *     messages.clear(message);
+  *   }, 2000);
+  * });
+  */
+  clear: function clear(msg) {
+    var id = MSGID_PREFIX + msg._id;
+    if (validateMessageId(id)) {
+      (0, _dollar2['default'])('#' + id).closeMessage();
+    }
+  },
+
+  /**
+  * Trigger an event when a message is closed
+  * @name onClose
+  * @method
+  * @memberof module:messages#
+  * @param    {String}    id  The id that was returned when the message was created.
+  * @param    {Function}  callback  The function that is run when the event is triggered
+  * @example
+  * AP.require("messages", function(messages){
+  *   //create a message
+  *   var message = messages.info('title', 'body');
+  *   messages.onClose(message, function() {
+  *       console.log(message, ' has been closed!');
+  *   });
+  * });
+  */
+  onClose: function onClose(msg, callback) {
+    var id = msg._id;
+    if (_messages[id]) {
+      _messages[id].onCloseTrigger = callback;
+    }
+  }
+};
+
+/**
+* Show a generic message
+* @name generic
+* @method
+* @memberof module:messages#
+* @param    {String}            title       Sets the title text of the message.
+* @param    {String}            body        The main content of the message.
+* @param    {Object}            options             Message Options
+* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+* @returns  {String}    The id to be used when clearing the message
+* @example
+* AP.require("messages", function(messages){
+*   //create a message
+*   var message = messages.generic('title', 'generic message example');
+* });
+*/
+
+/**
+* Show an error message
+* @name error
+* @method
+* @memberof module:messages#
+* @param    {String}            title       Sets the title text of the message.
+* @param    {String}            body        The main content of the message.
+* @param    {Object}            options             Message Options
+* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+* @returns  {String}    The id to be used when clearing the message
+* @example
+* AP.require("messages", function(messages){
+*   //create a message
+*   var message = messages.error('title', 'error message example');
+* });
+*/
+
+/**
+* Show a warning message
+* @name warning
+* @method
+* @memberof module:messages#
+* @param    {String}            title       Sets the title text of the message.
+* @param    {String}            body        The main content of the message.
+* @param    {Object}            options             Message Options
+* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+* @returns  {String}    The id to be used when clearing the message
+* @example
+* AP.require("messages", function(messages){
+*   //create a message
+*   var message = messages.warning('title', 'warning message example');
+* });
+*/
+
+/**
+* Show a success message
+* @name success
+* @method
+* @memberof module:messages#
+* @param    {String}            title       Sets the title text of the message.
+* @param    {String}            body        The main content of the message.
+* @param    {Object}            options             Message Options
+* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+* @returns  {String}    The id to be used when clearing the message
+* @example
+* AP.require("messages", function(messages){
+*   //create a message
+*   var message = messages.success('title', 'success message example');
+* });
+*/
+
+/**
+* Show an info message
+* @name info
+* @method
+* @memberof module:messages#
+* @param    {String}            title       Sets the title text of the message.
+* @param    {String}            body        The main content of the message.
+* @param    {Object}            options             Message Options
+* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+* @returns  {String}    The id to be used when clearing the message
+* @example
+* AP.require("messages", function(messages){
+*   //create a message
+*   var message = messages.info('title', 'info message example');
+* });
+*/
+
+/**
+* Show a hint message
+* @name hint
+* @method
+* @memberof module:messages#
+* @param    {String}            title               Sets the title text of the message.
+* @param    {String}            body                The main content of the message.
+* @param    {Object}            options             Message Options
+* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+* @returns  {String}    The id to be used when clearing the message
+* @example
+* AP.require("messages", function(messages){
+*   //create a message
+*   var message = messages.hint('title', 'hint message example');
+* });
+*/
+MESSAGE_TYPES.forEach(function (messageType) {
+  toExport[messageType] = {
+    constructor: function constructor(title, body, options, callback) {
+      if (options._context) {
+        callback = options;
+        options = {};
+      }
+      var _id = callback._id;
+      options.id = MSGID_PREFIX + _id;
+      deprecatedShowMessage(messageType, title, body, options);
+      _messages[_id] = this;
+    }
+  };
+}, undefined);
+
+exports['default'] = toExport;
+module.exports = exports['default'];
+
+},{"../dollar":32,"../underscore":39}],39:[function(_dereq_,module,exports){
+// AUI includes underscore and exposes it globally.
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = window._;
+module.exports = exports["default"];
+
+},{}],40:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _underscore = _dereq_('./underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+function escapeSelector(s) {
+  if (!s) {
+    throw new Error('No selector to escape');
+  }
+  return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
+}
+
+function stringToDimension(value) {
+  var percent = false;
+  var unit = 'px';
+
+  if (_underscore2['default'].isString(value)) {
+    percent = value.indexOf('%') === value.length - 1;
+    value = parseInt(value, 10);
+    if (percent) {
+      unit = '%';
+    }
+  }
+
+  if (!isNaN(value)) {
+    return value + unit;
+  }
+}
+
+function getIframeByExtensionId(id) {
+  return AJS.$('iframe#' + escapeSelector(id));
+}
+
+exports['default'] = {
+  escapeSelector: escapeSelector,
+  stringToDimension: stringToDimension,
+  getIframeByExtensionId: getIframeByExtensionId
+};
+module.exports = exports['default'];
+
+},{"./underscore":39}],41:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var ButtonUtils = (function () {
+  function ButtonUtils() {
+    _classCallCheck(this, ButtonUtils);
+  }
+
+  _createClass(ButtonUtils, [{
+    key: "randomIdentifier",
+
+    // button identifier for XDM. NOT an id attribute
+    value: function randomIdentifier() {
+      return Math.random().toString(16).substring(7);
+    }
+  }]);
+
+  return ButtonUtils;
+})();
+
+var buttonUtilsInstance = new ButtonUtils();
+
+exports["default"] = buttonUtilsInstance;
+module.exports = exports["default"];
+
+},{}],42:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _dollar = _dereq_('../dollar');
+
+var _dollar2 = _interopRequireDefault(_dollar);
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var _button = _dereq_('./button');
+
+var _button2 = _interopRequireDefault(_button);
+
+var DialogUtils = (function () {
+  function DialogUtils() {
+    _classCallCheck(this, DialogUtils);
+  }
+
+  _createClass(DialogUtils, [{
+    key: '_size',
+    value: function _size(options) {
+      var size = options.size;
+      if (options.size === 'x-large') {
+        size = 'xlarge';
+      }
+      if (options.width === '100%' && options.height === '100%') {
+        size = 'fullscreen';
+      }
+      if (!options.size && !options.width && !options.height) {
+        size = 'medium';
+      }
+      return size;
+    }
+  }, {
+    key: '_header',
+    value: function _header(text) {
+      var headerText = '';
+      switch (typeof text) {
+        case 'string':
+          headerText = text;
+          break;
+
+        case 'object':
+          headerText = text.value;
+          break;
+      }
+
+      return headerText;
+    }
+  }, {
+    key: '_hint',
+    value: function _hint(text) {
+      if (typeof text === 'string') {
+        return text;
+      }
+      return '';
+    }
+  }, {
+    key: '_chrome',
+    value: function _chrome(options) {
+      var returnval = true;
+      if (typeof options.chrome === 'boolean') {
+        returnval = options.chrome;
+      }
+      if (options.size === 'fullscreen') {
+        returnval = true;
+      }
+      return returnval;
+    }
+  }, {
+    key: '_width',
+    value: function _width(dimension) {
+      return _util2['default'].stringToDimension(dimension);
+    }
+  }, {
+    key: '_height',
+    value: function _height(dimension) {
+      return _util2['default'].stringToDimension(dimension);
+    }
+  }, {
+    key: '_actions',
+    value: function _actions(options) {
+      var sanitizedActions = [];
+      options = options || {};
+      if (!options.actions) {
+
+        sanitizedActions = [{
+          name: 'submit',
+          text: options.submitText || 'Submit',
+          type: 'primary'
+        }, {
+          name: 'cancel',
+          text: options.cancelText || 'Cancel',
+          type: 'link'
+        }];
+      }
+
+      if (options.buttons) {
+        sanitizedActions = sanitizedActions.concat(this._buttons(options));
+      }
+
+      return sanitizedActions;
+    }
+  }, {
+    key: '_id',
+    value: function _id(str) {
+      if (typeof str !== 'string') {
+        str = Math.random().toString(36).substring(2, 8);
+      }
+      return str;
+    }
+
+    // user defined action buttons
+  }, {
+    key: '_buttons',
+    value: function _buttons(options) {
+      var buttons = [];
+      if (options.buttons && Array.isArray(options.buttons)) {
+        options.buttons.forEach(function (button) {
+          var text,
+              identifier,
+              disabled = false;
+          if (button.text && typeof button.text === 'string') {
+            text = button.text;
+          }
+          if (button.identifier && typeof button.identifier === 'string') {
+            identifier = button.identifier;
+          } else {
+            identifier = _button2['default'].randomIdentifier();
+          }
+          if (button.disabled && button.disabled === true) {
+            disabled === true;
+          }
+
+          buttons.push({
+            text: text,
+            identifier: identifier,
+            type: 'secondary',
+            custom: true,
+            disabled: disabled
+          });
+        });
+      }
+      return buttons;
+    }
+  }, {
+    key: 'sanitizeOptions',
+    value: function sanitizeOptions(options) {
+      options = options || {};
+      var sanitized = {
+        chrome: this._chrome(options),
+        header: this._header(options.header),
+        hint: this._hint(options.hint),
+        width: this._width(options.width),
+        height: this._height(options.height),
+        $content: options.$content,
+        extension: options.extension,
+        actions: this._actions(options),
+        id: this._id(options.id),
+        size: options.size
+      };
+      sanitized.size = this._size(sanitized);
+
+      return sanitized;
+    }
+
+    // such a bad idea! this entire concept needs rewriting in the p2 plugin.
+  }, {
+    key: 'moduleOptionsFromGlobal',
+    value: function moduleOptionsFromGlobal(addon_key, key) {
+      if (window._AP && window._AP.dialogModules && window._AP.dialogModules[addon_key] && window._AP.dialogModules[addon_key][key]) {
+        return window._AP.dialogModules[addon_key][key].options;
+      }
+      return false;
+    }
+  }]);
+
+  return DialogUtils;
+})();
+
+var dialogUtilsInstance = new DialogUtils();
+
+exports['default'] = dialogUtilsInstance;
+module.exports = exports['default'];
+
+},{"../dollar":32,"../util":40,"./button":41}],43:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _util = _dereq_('../util');
+
+var _util2 = _interopRequireDefault(_util);
+
+module.exports = {
+  optionsToAttributes: function optionsToAttributes(options) {
+    var sanitized = {};
+    if (options && typeof options === 'object') {
+      if (options.width) {
+        sanitized.width = _util2['default'].stringToDimension(options.width);
+      }
+      if (options.height) {
+        sanitized.height = _util2['default'].stringToDimension(options.height);
+      }
+    }
+    return sanitized;
+  }
+};
+
+},{"../util":40}],44:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _base64 = _dereq_('base-64');
+
+var _base642 = _interopRequireDefault(_base64);
+
+var _utf8 = _dereq_('utf8');
+
+var _utf82 = _interopRequireDefault(_utf8);
+
+function parseJwtIssuer(jwt) {
+  return parseJwtClaims(jwt)['iss'];
+}
+
+function parseJwtClaims(jwt) {
+
+  if (null === jwt || '' === jwt) {
+    throw 'Invalid JWT: must be neither null nor empty-string.';
+  }
+
+  var firstPeriodIndex = jwt.indexOf('.');
+  var secondPeriodIndex = jwt.indexOf('.', firstPeriodIndex + 1);
+
+  if (firstPeriodIndex < 0 || secondPeriodIndex <= firstPeriodIndex) {
+    throw 'Invalid JWT: must contain 2 period (".") characters.';
+  }
+
+  var encodedClaims = jwt.substring(firstPeriodIndex + 1, secondPeriodIndex);
+
+  if (null === encodedClaims || '' === encodedClaims) {
+    throw 'Invalid JWT: encoded claims must be neither null nor empty-string.';
+  }
+
+  var claimsString = _utf82['default'].decode(_base642['default'].decode.call(window, encodedClaims));
+  return JSON.parse(claimsString);
+}
+
+function isJwtExpired(jwtString, skew) {
+  if (skew === undefined) {
+    skew = 60; // give a minute of leeway to allow clock skew
+  }
+  var claims = parseJwtClaims(jwtString);
+  var expires = 0;
+  var now = Math.floor(Date.now() / 1000); // UTC timestamp now
+
+  if (claims && claims.exp) {
+    expires = claims.exp;
+  }
+
+  if (expires - now < skew) {
+    return true;
+  }
+
+  return false;
+}
+
+exports['default'] = {
+  parseJwtIssuer: parseJwtIssuer,
+  parseJwtClaims: parseJwtClaims,
+  isJwtExpired: isJwtExpired
+};
+module.exports = exports['default'];
+
+},{"base-64":1,"utf8":4}],45:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _jsuri = _dereq_('jsuri');
+
+var _jsuri2 = _interopRequireDefault(_jsuri);
+
+var _utilsJwt = _dereq_('utils/jwt');
+
+var _utilsJwt2 = _interopRequireDefault(_utilsJwt);
+
+function isJwtExpired(urlStr) {
+  var jwtStr = _getJwt(urlStr);
+  return _utilsJwt2['default'].isJwtExpired(jwtStr);
+}
+
+function _getJwt(urlStr) {
+  var url = new _jsuri2['default'](urlStr);
+  return url.getQueryParamValue('jwt');
+}
+
+function hasJwt(url) {
+  var jwt = _getJwt(url);
+  return jwt && _getJwt(url).length !== 0;
+}
+
+module.exports = {
+  hasJwt: hasJwt,
+  isJwtExpired: isJwtExpired
+};
+
+},{"jsuri":3,"utils/jwt":44}],46:[function(_dereq_,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _underscore = _dereq_('../underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var _jsuri = _dereq_('jsuri');
+
+var _jsuri2 = _interopRequireDefault(_jsuri);
+
+function sanitizeTriggers(triggers) {
+  var onTriggers;
+  if (_underscore2['default'].isArray(triggers)) {
+    onTriggers = triggers.join(' ');
+  } else if (_underscore2['default'].isString(triggers)) {
+    onTriggers = triggers.trim();
+  }
+  return onTriggers;
+}
+
+function uniqueId() {
+  return 'webitem-' + Math.floor(Math.random() * 1000000000).toString(16);
+}
+
+// LEGACY: get addon key by webitem for p2
+function getExtensionKey($target) {
+  var cssClass = $target.attr('class');
+  var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
+  return _underscore2['default'].isArray(m) ? m[1] : false;
+}
+
+// LEGACY: get module key by webitem for p2
+function getKey($target) {
+  var cssClass = $target.attr('class');
+  var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
+  return _underscore2['default'].isArray(m) ? m[1] : false;
+}
+
+function getTargetKey($target) {
+  var cssClass = $target.attr('class');
+  var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
+  return _underscore2['default'].isArray(m) ? m[1] : false;
+}
+
+function getFullKey($target) {
+  return getExtensionKey($target) + '__' + getKey($target);
+}
+
+function getModuleOptionsForWebitem(type, $target) {
+  var addon_key = getExtensionKey($target);
+  var targetKey = getTargetKey($target);
+  var moduleType = type + 'Modules';
+  if (window._AP && window._AP[moduleType] && window._AP[moduleType][addon_key] && window._AP[moduleType][addon_key][targetKey]) {
+    return window._AP[moduleType][addon_key][targetKey].options;
+  }
+}
+
+// LEGACY - method for handling webitem options for p2
+function getOptionsForWebItem($target) {
+  var fullKey = getFullKey($target);
+
+  var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
+  var options = getModuleOptionsForWebitem(type, $target);
+  if (window._AP && window._AP[type + 'Options']) {
+    options = window._AP[type + 'Options'][fullKey] || {};
+  }
+  if (!options) {
+    options = {};
+    console.warn('no webitem ' + type + 'Options for ' + fullKey);
+  }
+  options.productContext = options.productContext || {};
+  // create product context from url params
+  new _jsuri2['default']($target.attr('href')).queryPairs.forEach(function (param) {
+    options.productContext[param[0]] = param[1];
+  });
+
+  return options;
+}
+
+module.exports = {
+  sanitizeTriggers: sanitizeTriggers,
+  uniqueId: uniqueId,
+  getExtensionKey: getExtensionKey,
+  getKey: getKey,
+  getOptionsForWebItem: getOptionsForWebItem
+};
+
+},{"../underscore":39,"jsuri":3}],47:[function(_dereq_,module,exports){
+(function (global){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.host = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 'use strict';
 
@@ -1818,4115 +5846,7 @@ module.exports = XDMRPC;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],5:[function(_dereq_,module,exports){
-(function (global){
-/*! https://mths.be/utf8js v2.0.0 by @mathias */
-;(function(root) {
-
-	// Detect free variables `exports`
-	var freeExports = typeof exports == 'object' && exports;
-
-	// Detect free variable `module`
-	var freeModule = typeof module == 'object' && module &&
-		module.exports == freeExports && module;
-
-	// Detect free variable `global`, from Node.js or Browserified code,
-	// and use it as `root`
-	var freeGlobal = typeof global == 'object' && global;
-	if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal) {
-		root = freeGlobal;
-	}
-
-	/*--------------------------------------------------------------------------*/
-
-	var stringFromCharCode = String.fromCharCode;
-
-	// Taken from https://mths.be/punycode
-	function ucs2decode(string) {
-		var output = [];
-		var counter = 0;
-		var length = string.length;
-		var value;
-		var extra;
-		while (counter < length) {
-			value = string.charCodeAt(counter++);
-			if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
-				// high surrogate, and there is a next character
-				extra = string.charCodeAt(counter++);
-				if ((extra & 0xFC00) == 0xDC00) { // low surrogate
-					output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
-				} else {
-					// unmatched surrogate; only append this code unit, in case the next
-					// code unit is the high surrogate of a surrogate pair
-					output.push(value);
-					counter--;
-				}
-			} else {
-				output.push(value);
-			}
-		}
-		return output;
-	}
-
-	// Taken from https://mths.be/punycode
-	function ucs2encode(array) {
-		var length = array.length;
-		var index = -1;
-		var value;
-		var output = '';
-		while (++index < length) {
-			value = array[index];
-			if (value > 0xFFFF) {
-				value -= 0x10000;
-				output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
-				value = 0xDC00 | value & 0x3FF;
-			}
-			output += stringFromCharCode(value);
-		}
-		return output;
-	}
-
-	function checkScalarValue(codePoint) {
-		if (codePoint >= 0xD800 && codePoint <= 0xDFFF) {
-			throw Error(
-				'Lone surrogate U+' + codePoint.toString(16).toUpperCase() +
-				' is not a scalar value'
-			);
-		}
-	}
-	/*--------------------------------------------------------------------------*/
-
-	function createByte(codePoint, shift) {
-		return stringFromCharCode(((codePoint >> shift) & 0x3F) | 0x80);
-	}
-
-	function encodeCodePoint(codePoint) {
-		if ((codePoint & 0xFFFFFF80) == 0) { // 1-byte sequence
-			return stringFromCharCode(codePoint);
-		}
-		var symbol = '';
-		if ((codePoint & 0xFFFFF800) == 0) { // 2-byte sequence
-			symbol = stringFromCharCode(((codePoint >> 6) & 0x1F) | 0xC0);
-		}
-		else if ((codePoint & 0xFFFF0000) == 0) { // 3-byte sequence
-			checkScalarValue(codePoint);
-			symbol = stringFromCharCode(((codePoint >> 12) & 0x0F) | 0xE0);
-			symbol += createByte(codePoint, 6);
-		}
-		else if ((codePoint & 0xFFE00000) == 0) { // 4-byte sequence
-			symbol = stringFromCharCode(((codePoint >> 18) & 0x07) | 0xF0);
-			symbol += createByte(codePoint, 12);
-			symbol += createByte(codePoint, 6);
-		}
-		symbol += stringFromCharCode((codePoint & 0x3F) | 0x80);
-		return symbol;
-	}
-
-	function utf8encode(string) {
-		var codePoints = ucs2decode(string);
-		var length = codePoints.length;
-		var index = -1;
-		var codePoint;
-		var byteString = '';
-		while (++index < length) {
-			codePoint = codePoints[index];
-			byteString += encodeCodePoint(codePoint);
-		}
-		return byteString;
-	}
-
-	/*--------------------------------------------------------------------------*/
-
-	function readContinuationByte() {
-		if (byteIndex >= byteCount) {
-			throw Error('Invalid byte index');
-		}
-
-		var continuationByte = byteArray[byteIndex] & 0xFF;
-		byteIndex++;
-
-		if ((continuationByte & 0xC0) == 0x80) {
-			return continuationByte & 0x3F;
-		}
-
-		// If we end up here, it’s not a continuation byte
-		throw Error('Invalid continuation byte');
-	}
-
-	function decodeSymbol() {
-		var byte1;
-		var byte2;
-		var byte3;
-		var byte4;
-		var codePoint;
-
-		if (byteIndex > byteCount) {
-			throw Error('Invalid byte index');
-		}
-
-		if (byteIndex == byteCount) {
-			return false;
-		}
-
-		// Read first byte
-		byte1 = byteArray[byteIndex] & 0xFF;
-		byteIndex++;
-
-		// 1-byte sequence (no continuation bytes)
-		if ((byte1 & 0x80) == 0) {
-			return byte1;
-		}
-
-		// 2-byte sequence
-		if ((byte1 & 0xE0) == 0xC0) {
-			var byte2 = readContinuationByte();
-			codePoint = ((byte1 & 0x1F) << 6) | byte2;
-			if (codePoint >= 0x80) {
-				return codePoint;
-			} else {
-				throw Error('Invalid continuation byte');
-			}
-		}
-
-		// 3-byte sequence (may include unpaired surrogates)
-		if ((byte1 & 0xF0) == 0xE0) {
-			byte2 = readContinuationByte();
-			byte3 = readContinuationByte();
-			codePoint = ((byte1 & 0x0F) << 12) | (byte2 << 6) | byte3;
-			if (codePoint >= 0x0800) {
-				checkScalarValue(codePoint);
-				return codePoint;
-			} else {
-				throw Error('Invalid continuation byte');
-			}
-		}
-
-		// 4-byte sequence
-		if ((byte1 & 0xF8) == 0xF0) {
-			byte2 = readContinuationByte();
-			byte3 = readContinuationByte();
-			byte4 = readContinuationByte();
-			codePoint = ((byte1 & 0x0F) << 0x12) | (byte2 << 0x0C) |
-				(byte3 << 0x06) | byte4;
-			if (codePoint >= 0x010000 && codePoint <= 0x10FFFF) {
-				return codePoint;
-			}
-		}
-
-		throw Error('Invalid UTF-8 detected');
-	}
-
-	var byteArray;
-	var byteCount;
-	var byteIndex;
-	function utf8decode(byteString) {
-		byteArray = ucs2decode(byteString);
-		byteCount = byteArray.length;
-		byteIndex = 0;
-		var codePoints = [];
-		var tmp;
-		while ((tmp = decodeSymbol()) !== false) {
-			codePoints.push(tmp);
-		}
-		return ucs2encode(codePoints);
-	}
-
-	/*--------------------------------------------------------------------------*/
-
-	var utf8 = {
-		'version': '2.0.0',
-		'encode': utf8encode,
-		'decode': utf8decode
-	};
-
-	// Some AMD build optimizers, like r.js, check for specific condition patterns
-	// like the following:
-	if (
-		typeof define == 'function' &&
-		typeof define.amd == 'object' &&
-		define.amd
-	) {
-		define(function() {
-			return utf8;
-		});
-	}	else if (freeExports && !freeExports.nodeType) {
-		if (freeModule) { // in Node.js or RingoJS v0.8.0+
-			freeModule.exports = utf8;
-		} else { // in Narwhal or RingoJS v0.7.0-
-			var object = {};
-			var hasOwnProperty = object.hasOwnProperty;
-			for (var key in utf8) {
-				hasOwnProperty.call(utf8, key) && (freeExports[key] = utf8[key]);
-			}
-		}
-	} else { // in Rhino or a web browser
-		root.utf8 = utf8;
-	}
-
-}(this));
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
-},{}],6:[function(_dereq_,module,exports){
-"use strict";
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-module.exports = {
-  clicked: function clicked($el) {
-    _dispatchersEvent_dispatcher2["default"].dispatch("button-clicked", {
-      $el: $el
-    });
-  },
-  toggle: function toggle($el, disabled) {
-    _dispatchersEvent_dispatcher2["default"].dispatch("button-toggle", {
-      $el: $el,
-      disabled: disabled
-    });
-  }
-};
-
-},{"dispatchers/event_dispatcher":32}],7:[function(_dereq_,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-module.exports = {
-  close: function close(data) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close', data);
-  },
-  closeActive: function closeActive(data) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close-active', data);
-  },
-  clickButton: function clickButton(identifier, $el, extension) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-click', {
-      identifier: identifier,
-      $el: $el,
-      extension: extension
-    });
-  },
-  toggleButton: function toggleButton(data) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-toggle', data);
-  },
-  toggleButtonVisibility: function toggleButtonVisibility(data) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-toggle-visibility', data);
-  }
-};
-
-},{"dispatchers/event_dispatcher":32}],8:[function(_dereq_,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-module.exports = {
-  open: function open(extension, options) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-extension-open', {
-      extension: extension,
-      options: options
-    });
-  },
-  close: function close() {
-    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close-active', {});
-  },
-  addUserButton: function addUserButton(options, extension) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-add', {
-      button: {
-        text: options.text,
-        identifier: options.identifier,
-        data: {
-          userButton: true
-        }
-      },
-      extension: extension
-    });
-  }
-};
-
-},{"dispatchers/event_dispatcher":32}],9:[function(_dereq_,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
-
-var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
-
-module.exports = {
-  registerKeyEvent: function registerKeyEvent(data) {
-    _simpleXdmDistHost2['default'].registerKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
-    _dispatchersEvent_dispatcher2['default'].dispatch('dom-event-register', data);
-  },
-  unregisterKeyEvent: function unregisterKeyEvent(data) {
-    _simpleXdmDistHost2['default'].unregisterKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
-    _dispatchersEvent_dispatcher2['default'].dispatch('dom-event-unregister', data);
-  },
-  registerWindowKeyEvent: function registerWindowKeyEvent(data) {
-    window.addEventListener('keydown', function (event) {
-      if (event.keyCode === data.keyCode) {
-        data.callback();
-      }
-    });
-  }
-};
-
-},{"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4}],10:[function(_dereq_,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _util = _dereq_('../util');
-
-var _util2 = _interopRequireDefault(_util);
-
-var _componentsIframe = _dereq_('components/iframe');
-
-var _componentsIframe2 = _interopRequireDefault(_componentsIframe);
-
-_dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
-  _componentsIframe2['default'].resize(data.width, data.height, data.$el);
-});
-
-_dispatchersEvent_dispatcher2['default'].register('iframe-size-to-parent', function (data) {
-  var height = AJS.$(document).height() - AJS.$('#header > nav').outerHeight() - AJS.$('#footer').outerHeight() - 20;
-  var $el = _util2['default'].getIframeByExtensionId(data.context.extension_id);
-  _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: '100%', height: height + 'px', $el: $el });
-});
-
-AJS.$(window).on('resize', function (e) {
-  _dispatchersEvent_dispatcher2['default'].dispatch('host-window-resize', e);
-});
-
-module.exports = {
-  iframeResize: function iframeResize(width, height, context) {
-    var $el;
-    if (context.extension_id) {
-      $el = _util2['default'].getIframeByExtensionId(context.extension_id);
-    } else {
-      $el = context;
-    }
-
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
-  },
-  sizeToParent: function sizeToParent(context) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-size-to-parent', { context: context });
-  }
-};
-
-},{"../util":41,"components/iframe":24,"dispatchers/event_dispatcher":32}],11:[function(_dereq_,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
-
-var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
-
-module.exports = {
-  broadcast: function broadcast(type, targetSpec, event) {
-    _simpleXdmDistHost2['default'].dispatch(type, targetSpec, event);
-    _dispatchersEvent_dispatcher2['default'].dispatch('event-dispatch', {
-      type: type,
-      targetSpec: targetSpec,
-      event: event
-    });
-  }
-};
-
-},{"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4}],12:[function(_dereq_,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-module.exports = {
-  open: function open(flagId) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('flag-open', { id: flagId });
-  },
-  //called to close a flag
-  close: function close(flagId) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('flag-close', { id: flagId });
-  },
-  //called by AUI when closed
-  closed: function closed(flagId) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('flag-closed', { id: flagId });
-  }
-};
-
-},{"dispatchers/event_dispatcher":32}],13:[function(_dereq_,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
-
-var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
-
-module.exports = {
-  notifyIframeCreated: function notifyIframeCreated($el, extension) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-create', { $el: $el, extension: extension });
-  },
-
-  notifyBridgeEstablished: function notifyBridgeEstablished($el, extension) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-estabilshed', { $el: $el, extension: extension });
-  },
-
-  notifyIframeDestroyed: function notifyIframeDestroyed(extension_id) {
-    var extension = _simpleXdmDistHost2['default'].getExtensions({
-      extension_id: extension_id
-    });
-    if (extension.length === 1) {
-      extension = extension[0];
-    }
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-destroyed', { extension: extension });
-    _simpleXdmDistHost2['default'].unregisterExtension({ extension_id: extension_id });
-  }
-};
-
-},{"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4}],14:[function(_dereq_,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-module.exports = {
-  hide: function hide(extension_id) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-hide', { extension_id: extension_id });
-  },
-  refresh: function refresh($el) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-refresh', { $el: $el });
-  },
-  hideTriggered: function hideTriggered(extension_id, $el) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
-  },
-  created: function created(data) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-opened', {
-      $el: data.$el,
-      trigger: data.trigger,
-      extension: data.extension
-    });
-  }
-};
-
-},{"dispatchers/event_dispatcher":32}],15:[function(_dereq_,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _underscore = _dereq_('../underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-module.exports = {
-  registerContentResolver: function registerContentResolver(data) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('content-resolver-register-by-extension', data);
-  },
-  requestRefreshUrl: function requestRefreshUrl(data) {
-    if (!data.resolver) {
-      throw Error('ACJS: No content resolver supplied');
-    }
-    var promise = data.resolver.call(null, _underscore2['default'].extend({ classifier: 'json' }, data.extension));
-    promise.done(function (promiseData) {
-      var newExtensionConfiguration = {};
-      if (_underscore2['default'].isObject(promiseData)) {
-        newExtensionConfiguration = promiseData;
-      } else if (_underscore2['default'].isString(promiseData)) {
-        try {
-          newExtensionConfiguration = JSON.parse(promiseData);
-        } catch (e) {
-          console.error('ACJS: invalid response from content resolver');
-        }
-      }
-      data.extension.url = newExtensionConfiguration.url;
-      _underscore2['default'].extend(data.extension.options, newExtensionConfiguration.options);
-      _dispatchersEvent_dispatcher2['default'].dispatch('jwt-url-refreshed', {
-        extension: data.extension,
-        $container: data.$container,
-        url: data.extension.url
-      });
-    });
-    _dispatchersEvent_dispatcher2['default'].dispatch('jwt-url-refresh-request', { data: data });
-  }
-
-};
-
-},{"../underscore":40,"dispatchers/event_dispatcher":32}],16:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-exports['default'] = {
-  timeout: function timeout($el, extension) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-timeout', { $el: $el, extension: extension });
-  },
-  cancelled: function cancelled($el, extension) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-cancelled', { $el: $el, extension: extension });
-  }
-};
-module.exports = exports['default'];
-
-},{"dispatchers/event_dispatcher":32}],17:[function(_dereq_,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-module.exports = {
-  defineCustomModule: function defineCustomModule(name, methods) {
-    var data = {};
-    if (!methods) {
-      data.methods = name;
-    } else {
-      data.methods = methods;
-      data.name = name;
-    }
-    _dispatchersEvent_dispatcher2['default'].dispatch('module-define-custom', data);
-  }
-};
-
-},{"dispatchers/event_dispatcher":32}],18:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _componentsWebitem = _dereq_('components/webitem');
-
-var _componentsWebitem2 = _interopRequireDefault(_componentsWebitem);
-
-var _utilsWebitem = _dereq_('utils/webitem');
-
-var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
-
-exports['default'] = {
-  addWebItem: function addWebItem(potentialWebItem) {
-    var webitem = undefined;
-    var existing = _componentsWebitem2['default'].getWebItemsBySelector(potentialWebItem.selector);
-
-    if (existing) {
-      return false;
-    } else {
-      webitem = _componentsWebitem2['default'].setWebItem(potentialWebItem);
-      _dispatchersEvent_dispatcher2['default'].dispatch('webitem-added', { webitem: webitem });
-    }
-  },
-
-  webitemInvoked: function webitemInvoked(webitem, event, extension) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('webitem-invoked:' + webitem.name, { webitem: webitem, event: event, extension: extension });
-  }
-
-};
-module.exports = exports['default'];
-
-},{"components/webitem":29,"dispatchers/event_dispatcher":32,"utils/webitem":47}],19:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _underscore = _dereq_('../underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-var _actionsButton_actions = _dereq_('actions/button_actions');
-
-var _actionsButton_actions2 = _interopRequireDefault(_actionsButton_actions);
-
-var _utilsButton = _dereq_('utils/button');
-
-var _utilsButton2 = _interopRequireDefault(_utilsButton);
-
-var BUTTON_TYPES = ['primary', 'link', 'secondary'];
-var buttonId = 0;
-
-var Button = (function () {
-  function Button() {
-    _classCallCheck(this, Button);
-
-    this.AP_BUTTON_CLASS = "ap-aui-button";
-  }
-
-  _createClass(Button, [{
-    key: 'setType',
-    value: function setType($button, type) {
-      if (type && _underscore2['default'].contains(BUTTON_TYPES, type)) {
-        $button.addClass("aui-button-" + type);
-      }
-      return $button;
-    }
-  }, {
-    key: 'setDisabled',
-    value: function setDisabled($button, disabled) {
-      if (typeof disabled !== "undefined") {
-        $button.attr('aria-disabled', disabled);
-      }
-      return $button;
-    }
-  }, {
-    key: '_setId',
-    value: function _setId($button, id) {
-      if (!id) {
-        id = "ap-button-" + buttonId;
-        buttonId++;
-      }
-      $button.attr("id", id);
-      return $button;
-    }
-  }, {
-    key: '_additionalClasses',
-    value: function _additionalClasses($button, classes) {
-      if (classes) {
-        if (typeof classes !== "string") {
-          classes = classes.join(" ");
-        }
-        $button.addClass(classes);
-      }
-      return $button;
-    }
-  }, {
-    key: 'getName',
-    value: function getName($button) {
-      return (0, _dollar2['default'])($button).data("name");
-    }
-  }, {
-    key: 'getText',
-    value: function getText($button) {
-      return (0, _dollar2['default'])($button).text();
-    }
-  }, {
-    key: 'getIdentifier',
-    value: function getIdentifier($button) {
-      return (0, _dollar2['default'])($button).data('identifier');
-    }
-  }, {
-    key: 'render',
-    value: function render(options) {
-      var $button = (0, _dollar2['default'])("<button />");
-      options = options || {};
-      $button.addClass("aui-button " + this.AP_BUTTON_CLASS);
-      $button.text(options.text);
-      $button.data(options.data);
-      $button.data({
-        name: options.name,
-        identifier: options.identifier || _utilsButton2['default'].randomIdentifier()
-      });
-      this._additionalClasses($button, options.additionalClasses);
-      this.setType($button, options.type);
-      this.setDisabled($button, options.disabled || false);
-      this._setId($button, options.id);
-      return $button;
-    }
-  }]);
-
-  return Button;
-})();
-
-var ButtonComponent = new Button();
-// register 1 button listener globally on dom load
-(0, _dollar2['default'])(function () {
-  (0, _dollar2['default'])("body").on("click", "." + ButtonComponent.AP_BUTTON_CLASS, function (e) {
-    var $button = (0, _dollar2['default'])(e.target).closest("." + ButtonComponent.AP_BUTTON_CLASS);
-    if ($button.attr('aria-disabled') !== 'true') {
-      _actionsButton_actions2['default'].clicked($button);
-    }
-  });
-});
-
-_dispatchersEvent_dispatcher2['default'].register("button-toggle", function (data) {
-  data.$el.attr('aria-disabled', data.disabled);
-});
-
-exports['default'] = ButtonComponent;
-module.exports = exports['default'];
-
-},{"../dollar":33,"../underscore":40,"actions/button_actions":6,"dispatchers/event_dispatcher":32,"utils/button":42}],20:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _actionsDom_event_actions = _dereq_('actions/dom_event_actions');
-
-var _actionsDom_event_actions2 = _interopRequireDefault(_actionsDom_event_actions);
-
-var _actionsDialog_actions = _dereq_('actions/dialog_actions');
-
-var _actionsDialog_actions2 = _interopRequireDefault(_actionsDialog_actions);
-
-var _utilsDialog = _dereq_('utils/dialog');
-
-var _utilsDialog2 = _interopRequireDefault(_utilsDialog);
-
-var _componentsIframe = _dereq_('components/iframe');
-
-var _componentsIframe2 = _interopRequireDefault(_componentsIframe);
-
-var _componentsButton = _dereq_('components/button');
-
-var _componentsButton2 = _interopRequireDefault(_componentsButton);
-
-var _actionsButton_actions = _dereq_('actions/button_actions');
-
-var _actionsButton_actions2 = _interopRequireDefault(_actionsButton_actions);
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _underscore = _dereq_('../underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-var DLGID_PREFIX = 'ap-dialog-';
-var DIALOG_CLASS = 'ap-aui-dialog2';
-var DLGID_REGEXP = new RegExp('^' + DLGID_PREFIX + '[0-9A-Za-z]+$');
-var DIALOG_SIZES = ['small', 'medium', 'large', 'xlarge', 'fullscreen'];
-var DIALOG_BUTTON_CLASS = 'ap-aui-dialog-button';
-var DIALOG_BUTTON_CUSTOM_CLASS = 'ap-dialog-custom-button';
-var DIALOG_FOOTER_CLASS = 'aui-dialog2-footer';
-var DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
-var DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
-
-function getActiveDialog() {
-  var $el = AJS.LayerManager.global.getTopLayer();
-  if ($el && DLGID_REGEXP.test($el.attr('id'))) {
-    var dialog = AJS.dialog2($el);
-    dialog._id = dialog.$el.attr('id').replace(DLGID_PREFIX, '');
-    return dialog;
-  }
-}
-
-var Dialog = (function () {
-  function Dialog() {
-    _classCallCheck(this, Dialog);
-  }
-
-  _createClass(Dialog, [{
-    key: '_renderHeaderCloseBtn',
-    value: function _renderHeaderCloseBtn() {
-      var $close = (0, _dollar2['default'])('<a />').addClass('aui-dialog2-header-close');
-      var $closeBtn = (0, _dollar2['default'])('<span />').addClass('aui-icon aui-icon-small aui-iconfont-close-dialog').text('Close');
-      $close.append($closeBtn);
-      return $close;
-    }
-
-    //v3 ask DT about this DOM.
-  }, {
-    key: '_renderFullScreenHeader',
-    value: function _renderFullScreenHeader($header, options) {
-      var $titleContainer = (0, _dollar2['default'])('<div />').addClass('header-title-container aui-item expanded');
-      var $title = (0, _dollar2['default'])('<div />').append((0, _dollar2['default'])('<span />').addClass('header-title').text(options.header || ''));
-      $titleContainer.append($title);
-      $header.append($titleContainer).append(this._renderHeaderActions(options.actions, options.extension));
-      return $header;
-    }
-  }, {
-    key: '_renderHeader',
-    value: function _renderHeader(options) {
-      var $header = (0, _dollar2['default'])('<header />').addClass('aui-dialog2-header');
-      if (options.size === 'fullscreen') {
-        return this._renderFullScreenHeader($header, options);
-      }
-      if (options.header) {
-        var $title = (0, _dollar2['default'])('<h2 />').addClass('aui-dialog2-header-main').text(options.header);
-        $header.append($title);
-      }
-      $header.append(this._renderHeaderCloseBtn());
-      return $header;
-    }
-  }, {
-    key: '_renderHeaderActions',
-    value: function _renderHeaderActions(actions, extension) {
-      var $headerControls = (0, _dollar2['default'])('<div />').addClass('aui-item ' + DIALOG_HEADER_ACTIONS_CLASS);
-      actions[0].additionalClasses = ['aui-icon', 'aui-icon-small', 'aui-iconfont-success'];
-      actions[1].additionalClasses = ['aui-icon', 'aui-icon-small', 'aui-iconfont-close-dialog'];
-      var $actions = this._renderActionButtons(actions, extension);
-      $actions.forEach(function ($action) {
-        $headerControls.append($action);
-      });
-      return $headerControls;
-    }
-  }, {
-    key: '_renderContent',
-    value: function _renderContent($content) {
-      var $el = (0, _dollar2['default'])('<div />').addClass('aui-dialog2-content');
-      if ($content) {
-        $el.append($content);
-      }
-      return $el;
-    }
-  }, {
-    key: '_renderFooter',
-    value: function _renderFooter(options) {
-      var $footer = (0, _dollar2['default'])('<footer />').addClass(DIALOG_FOOTER_CLASS);
-      if (options.size !== 'fullscreen') {
-        var $actions = this._renderFooterActions(options.actions, options.extension);
-        $footer.append($actions);
-      }
-      if (options.hint) {
-        var $hint = (0, _dollar2['default'])('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
-        $footer.append($hint);
-      }
-      return $footer;
-    }
-  }, {
-    key: '_renderActionButtons',
-    value: function _renderActionButtons(actions, extension) {
-      var _this = this;
-
-      var actionButtons = [];
-      [].concat(_toConsumableArray(actions)).forEach(function (action) {
-        actionButtons.push(_this._renderDialogButton({
-          text: action.text,
-          name: action.name,
-          type: action.type,
-          additionalClasses: action.additionalClasses,
-          custom: action.custom || false,
-          identifier: action.identifier
-        }, extension));
-      });
-      return actionButtons;
-    }
-  }, {
-    key: '_renderFooterActions',
-    value: function _renderFooterActions(actions, extension) {
-      var $actions = (0, _dollar2['default'])('<div />').addClass(DIALOG_FOOTER_ACTIONS_CLASS);
-      var $buttons = this._renderActionButtons(actions, extension);
-      $buttons.forEach(function ($button) {
-        $actions.append($button);
-      });
-      return $actions;
-    }
-  }, {
-    key: '_renderDialogButton',
-    value: function _renderDialogButton(options, extension) {
-      options.additionalClasses = options.additionalClasses || [];
-      options.additionalClasses.push(DIALOG_BUTTON_CLASS);
-      if (options.custom) {
-        options.additionalClasses.push(DIALOG_BUTTON_CUSTOM_CLASS);
-      }
-      var $button = _componentsButton2['default'].render(options);
-      $button.extension = extension;
-      return $button;
-    }
-
-    /**
-    {
-      id: 'some-dialog-id',
-      title: 'some header',
-      hint: 'some footer hint',
-      $content: $(<div />).text('my content'),
-      actions: []
-    }
-    **/
-  }, {
-    key: 'render',
-    value: function render(options) {
-      var sanitizedOptions = _utilsDialog2['default'].sanitizeOptions(options);
-      var $dialog = (0, _dollar2['default'])('<section />').attr({
-        role: 'dialog',
-        id: DLGID_PREFIX + sanitizedOptions.id
-      });
-      $dialog.attr('data-aui-modal', 'true');
-      $dialog.data({
-        'aui-remove-on-hide': true,
-        'extension': sanitizedOptions.extension
-      });
-      $dialog.addClass('aui-layer aui-dialog2 ' + DIALOG_CLASS);
-
-      if (_underscore2['default'].contains(DIALOG_SIZES, sanitizedOptions.size)) {
-        $dialog.addClass('aui-dialog2-' + sanitizedOptions.size);
-      }
-
-      if (sanitizedOptions.size === 'fullscreen') {
-        $dialog.addClass('ap-header-controls');
-        $dialog.addClass('aui-dialog2-maximum');
-      }
-
-      $dialog.append(this._renderContent(sanitizedOptions.$content));
-
-      if (sanitizedOptions.chrome) {
-        $dialog.prepend(this._renderHeader({
-          header: sanitizedOptions.header,
-          actions: sanitizedOptions.actions,
-          size: sanitizedOptions.size
-        }));
-
-        $dialog.append(this._renderFooter({
-          extension: sanitizedOptions.extension,
-          actions: sanitizedOptions.actions,
-          hint: sanitizedOptions.hint,
-          size: sanitizedOptions.size
-        }));
-      } else {
-        $dialog.addClass('aui-dialog2-chromeless');
-      }
-
-      var dialog = AJS.dialog2($dialog);
-      dialog._id = sanitizedOptions.id;
-      if (!sanitizedOptions.size || sanitizedOptions.size === 'fullscreen') {
-        AJS.layer($dialog).changeSize(sanitizedOptions.width, sanitizedOptions.height);
-      }
-      dialog.show();
-      dialog.$el.data('extension', sanitizedOptions.extension);
-      return $dialog;
-    }
-  }, {
-    key: 'setIframeDimensions',
-    value: function setIframeDimensions($iframe) {
-      _componentsIframe2['default'].resize('100%', '100%', $iframe);
-    }
-  }, {
-    key: 'getActive',
-    value: function getActive() {
-      return getActiveDialog();
-    }
-
-    /**
-    * takes either a target spec or a filter function
-    * returns all matching dialogs
-    */
-  }, {
-    key: 'getByExtension',
-    value: function getByExtension(extension) {
-      var filterFunction;
-      if (typeof extension === 'function') {
-        filterFunction = extension;
-      } else {
-        var keys = Object.getOwnPropertyNames(extension);
-        filterFunction = function (dialog) {
-          var dialogData = (0, _dollar2['default'])(dialog).data('extension');
-          return keys.every(function (key) {
-            return dialogData[key] === extension[key];
-          });
-        };
-      }
-
-      return (0, _dollar2['default'])('.' + DIALOG_CLASS).toArray().filter(filterFunction);
-    }
-
-    // add user defined button to an existing dialog
-  }, {
-    key: 'addButton',
-    value: function addButton(extension, options) {
-      options.custom = true;
-      var $button = this._renderDialogButton(options, extension);
-      var $dialog = (0, _dollar2['default'])(this.getByExtension({
-        addon_key: extension.addon_key,
-        key: extension.key
-      }));
-      var $actionBar = $dialog.find('.' + DIALOG_HEADER_ACTIONS_CLASS);
-      if (!$actionBar.length) {
-        $actionBar = $dialog.find('.' + DIALOG_FOOTER_ACTIONS_CLASS);
-      }
-      $actionBar.append($button);
-      return $dialog;
-    }
-  }]);
-
-  return Dialog;
-})();
-
-var DialogComponent = new Dialog();
-
-_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
-  if (data.extension.options.isDialog) {
-    _actionsDom_event_actions2['default'].registerKeyEvent({
-      extension_id: data.extension.id,
-      key: 27,
-      callback: function callback() {
-        _actionsDialog_actions2['default'].close({
-          dialog: getActiveDialog(),
-          extension: data.extension
-        });
-      }
-    });
-
-    _dispatchersEvent_dispatcher2['default'].registerOnce('dialog-close', function (d) {
-      _actionsDom_event_actions2['default'].unregisterKeyEvent({
-        extension_id: data.extension.id,
-        key: 27
-      });
-    });
-  }
-});
-
-_dispatchersEvent_dispatcher2['default'].register('dialog-close-active', function (data) {
-  var activeDialog = getActiveDialog();
-  if (activeDialog) {
-    _actionsDialog_actions2['default'].close({
-      customData: data.customData,
-      dialog: activeDialog,
-      extension: data.extension
-    });
-  }
-});
-
-_dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data) {
-  data.dialog.hide();
-});
-
-_dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', function (data) {
-  var dialog = getActiveDialog();
-  if (dialog) {
-    var $button = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
-      return _componentsButton2['default'].getName(this) === data.name;
-    });
-    _actionsButton_actions2['default'].toggle($button, !data.enabled);
-  }
-});
-
-_dispatchersEvent_dispatcher2['default'].register('button-clicked', function (data) {
-  var $button = data.$el;
-  if ($button.hasClass(DIALOG_BUTTON_CLASS)) {
-    var $dialog = $button.parents('.' + DIALOG_CLASS);
-    var $iframe = $dialog.find('iframe');
-    if ($iframe.length && $iframe[0].bridgeEstablished) {
-      _actionsDialog_actions2['default'].clickButton(_componentsButton2['default'].getIdentifier($button), $button, $dialog.data('extension'));
-    } else {
-      _actionsDialog_actions2['default'].close({
-        dialog: getActiveDialog(),
-        extension: $button.extension
-      });
-    }
-  }
-});
-
-_dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle-visibility', function (data) {
-  var dialog = getActiveDialog();
-  if (dialog) {
-    var $button = dialog.$el.find(".aui-dialog2-footer-actions .aui-button").filter(function () {
-      return (0, _dollar2['default'])(this).data('name') === data.name;
-    });
-    $button.toggle(!data.hidden);
-  }
-});
-
-_dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
-  if (data.extension.options && data.extension.options.isDialog) {
-    DialogComponent.setIframeDimensions(data.extension.$el);
-  }
-});
-
-_dispatchersEvent_dispatcher2['default'].register('dialog-button-add', function (data) {
-  DialogComponent.addButton(data.extension, data.button);
-});
-
-_actionsDom_event_actions2['default'].registerWindowKeyEvent({
-  keyCode: 27,
-  callback: function callback() {
-    _actionsDialog_actions2['default'].closeActive({
-      customData: {},
-      extension: null
-    });
-  }
-});
-
-exports['default'] = DialogComponent;
-module.exports = exports['default'];
-
-},{"../dollar":33,"../underscore":40,"actions/button_actions":6,"actions/dialog_actions":7,"actions/dom_event_actions":9,"components/button":19,"components/iframe":24,"dispatchers/event_dispatcher":32,"utils/dialog":43}],21:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _componentsDialog = _dereq_('components/dialog');
-
-var _componentsDialog2 = _interopRequireDefault(_componentsDialog);
-
-var _componentsIframe_container = _dereq_('components/iframe_container');
-
-var _componentsIframe_container2 = _interopRequireDefault(_componentsIframe_container);
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var DialogExtension = (function () {
-  function DialogExtension() {
-    _classCallCheck(this, DialogExtension);
-  }
-
-  _createClass(DialogExtension, [{
-    key: 'render',
-    value: function render(extension, dialogOptions) {
-      extension.options = extension.options || {};
-      dialogOptions = dialogOptions || {};
-      extension.options.isDialog = true;
-      var $iframeContainer = _componentsIframe_container2['default'].createExtension(extension);
-      var $dialog = _componentsDialog2['default'].render({
-        extension: extension,
-        $content: $iframeContainer,
-        chrome: dialogOptions.chrome,
-        width: dialogOptions.width,
-        height: dialogOptions.height,
-        size: dialogOptions.size,
-        header: dialogOptions.header,
-        hint: dialogOptions.hint,
-        submitText: dialogOptions.submitText,
-        cancelText: dialogOptions.cancelText,
-        buttons: dialogOptions.buttons
-      });
-      return $dialog;
-    }
-  }, {
-    key: 'getActiveDialog',
-    value: function getActiveDialog() {
-      return _componentsDialog2['default'].getActive();
-    }
-  }]);
-
-  return DialogExtension;
-})();
-
-var DialogExtensionComponent = new DialogExtension();
-_dispatchersEvent_dispatcher2['default'].register('dialog-extension-open', function (data) {
-  DialogExtensionComponent.render(data.extension, data.options);
-});
-
-exports['default'] = DialogExtensionComponent;
-module.exports = exports['default'];
-
-},{"components/dialog":20,"components/iframe_container":25,"dispatchers/event_dispatcher":32}],22:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _actionsWebitem_actions = _dereq_('actions/webitem_actions');
-
-var _actionsWebitem_actions2 = _interopRequireDefault(_actionsWebitem_actions);
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _utilsWebitem = _dereq_('utils/webitem');
-
-var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
-
-var _utilsDialog = _dereq_('utils/dialog');
-
-var _utilsDialog2 = _interopRequireDefault(_utilsDialog);
-
-var _actionsDialog_extension_actions = _dereq_('actions/dialog_extension_actions');
-
-var _actionsDialog_extension_actions2 = _interopRequireDefault(_actionsDialog_extension_actions);
-
-var _underscore = _dereq_('../underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-var ITEM_NAME = 'dialog';
-var SELECTOR = '.ap-dialog';
-var TRIGGERS = ['click'];
-var WEBITEM_UID_KEY = 'dialog-target-uid';
-var DEFAULT_WEBITEM_OPTIONS = {
-  chrome: true
-};
-
-var DialogWebItem = (function () {
-  function DialogWebItem() {
-    _classCallCheck(this, DialogWebItem);
-
-    this._dialogWebItem = {
-      name: ITEM_NAME,
-      selector: SELECTOR,
-      triggers: TRIGGERS
-    };
-  }
-
-  _createClass(DialogWebItem, [{
-    key: 'getWebItem',
-    value: function getWebItem() {
-      return this._dialogWebItem;
-    }
-  }, {
-    key: '_dialogOptions',
-    value: function _dialogOptions(options) {
-      return _underscore2['default'].extend({}, DEFAULT_WEBITEM_OPTIONS, options || {});
-    }
-  }, {
-    key: 'triggered',
-    value: function triggered(data) {
-      var $target = $(data.event.target);
-      if (!$target.hasClass('ap-dialog')) {
-        $target = $target.closest('.ap-dialog');
-      }
-      var webitemId = $target.data(WEBITEM_UID_KEY);
-      var dialogOptions = this._dialogOptions(data.extension.options);
-      dialogOptions.id = webitemId;
-      _actionsDialog_extension_actions2['default'].open(data.extension, dialogOptions);
-    }
-  }, {
-    key: 'createIfNotExists',
-    value: function createIfNotExists(data) {
-      var $target = $(data.event.target);
-      var uid = $target.data(WEBITEM_UID_KEY);
-
-      if (!uid) {
-        uid = _utilsWebitem2['default'].uniqueId();
-        $target.data(WEBITEM_UID_KEY, uid);
-      }
-    }
-  }]);
-
-  return DialogWebItem;
-})();
-
-var dialogInstance = new DialogWebItem();
-var webitem = dialogInstance.getWebItem();
-_dispatchersEvent_dispatcher2['default'].register('webitem-invoked:' + webitem.name, function (data) {
-  dialogInstance.triggered(data);
-});
-_dispatchersEvent_dispatcher2['default'].register('before:webitem-invoked:' + webitem.name, dialogInstance.createIfNotExists);
-
-_actionsWebitem_actions2['default'].addWebItem(webitem);
-exports['default'] = dialogInstance;
-module.exports = exports['default'];
-
-},{"../underscore":40,"actions/dialog_extension_actions":8,"actions/webitem_actions":18,"dispatchers/event_dispatcher":32,"utils/dialog":43,"utils/webitem":47}],23:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _actionsFlag_actions = _dereq_('actions/flag_actions');
-
-var _actionsFlag_actions2 = _interopRequireDefault(_actionsFlag_actions);
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var FLAGID_PREFIX = 'ap-flag-';
-var AUI_FLAG = undefined;
-
-window.require(['aui/flag'], function (f) {
-  AUI_FLAG = f;
-});
-
-var Flag = (function () {
-  function Flag() {
-    _classCallCheck(this, Flag);
-  }
-
-  _createClass(Flag, [{
-    key: '_toHtmlString',
-    value: function _toHtmlString(str) {
-      if (_dollar2['default'].type(str) === 'string') {
-        return str;
-      } else if (_dollar2['default'].type(str) === 'object' && str instanceof _dollar2['default']) {
-        return str.html();
-      }
-    }
-  }, {
-    key: 'render',
-    value: function render(options) {
-      var _id = FLAGID_PREFIX + options.id;
-      var auiFlag = AUI_FLAG({
-        type: options.type,
-        title: options.title,
-        body: this._toHtmlString(options.body),
-        close: options.close
-      });
-      auiFlag.setAttribute('id', _id);
-      var $auiFlag = (0, _dollar2['default'])(auiFlag);
-      $auiFlag.close = auiFlag.close;
-
-      return $auiFlag;
-    }
-  }, {
-    key: 'close',
-    value: function close(id) {
-      var f = document.getElementById(id);
-      f.close();
-    }
-  }]);
-
-  return Flag;
-})();
-
-var FlagComponent = new Flag();
-
-(0, _dollar2['default'])(document).on('aui-flag-close', function (e) {
-  var _id = e.target.id;
-  _actionsFlag_actions2['default'].closed(_id);
-});
-
-_dispatchersEvent_dispatcher2['default'].register('flag-close', function (data) {
-  FlagComponent.close(data.id);
-});
-
-exports['default'] = FlagComponent;
-module.exports = exports['default'];
-
-},{"../dollar":33,"actions/flag_actions":12,"dispatchers/event_dispatcher":32}],24:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _actionsIframe_actions = _dereq_('actions/iframe_actions');
-
-var _actionsIframe_actions2 = _interopRequireDefault(_actionsIframe_actions);
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _util = _dereq_('../util');
-
-var _util2 = _interopRequireDefault(_util);
-
-var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
-
-var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
-
-var _utilsUrl = _dereq_('utils/url');
-
-var _utilsUrl2 = _interopRequireDefault(_utilsUrl);
-
-var _actionsJwt_actions = _dereq_('actions/jwt_actions');
-
-var _actionsJwt_actions2 = _interopRequireDefault(_actionsJwt_actions);
-
-var _utilsIframe = _dereq_('utils/iframe');
-
-var _utilsIframe2 = _interopRequireDefault(_utilsIframe);
-
-var CONTAINER_CLASSES = ['ap-container'];
-
-var Iframe = (function () {
-  function Iframe() {
-    _classCallCheck(this, Iframe);
-
-    this._contentResolver = false;
-  }
-
-  _createClass(Iframe, [{
-    key: 'setContentResolver',
-    value: function setContentResolver(callback) {
-      this._contentResolver = callback;
-    }
-  }, {
-    key: 'resize',
-    value: function resize(width, height, $el) {
-      width = _util2['default'].stringToDimension(width);
-      height = _util2['default'].stringToDimension(height);
-      $el.css({
-        width: width,
-        height: height
-      });
-      $el.trigger('resized', { width: width, height: height });
-    }
-  }, {
-    key: 'simpleXdmExtension',
-    value: function simpleXdmExtension(extension, $container) {
-      if (!extension.url || _utilsUrl2['default'].hasJwt(extension.url) && _utilsUrl2['default'].isJwtExpired(extension.url)) {
-        if (this._contentResolver) {
-          _actionsJwt_actions2['default'].requestRefreshUrl({
-            extension: extension,
-            resolver: this._contentResolver,
-            $container: $container
-          });
-        } else {
-          console.error('JWT is expired and no content resolver was specified');
-        }
-      } else {
-        this._appendExtension($container, this._simpleXdmCreate(extension));
-      }
-    }
-  }, {
-    key: '_simpleXdmCreate',
-    value: function _simpleXdmCreate(extension) {
-      var iframeAttributes = _simpleXdmDistHost2['default'].create(extension, function () {
-        if (!extension.options) {
-          extension.options = {};
-        }
-        _actionsIframe_actions2['default'].notifyBridgeEstablished(extension.$el, extension);
-      });
-      extension.id = iframeAttributes.id;
-      _dollar2['default'].extend(iframeAttributes, _utilsIframe2['default'].optionsToAttributes(extension.options));
-      extension.$el = this.render(iframeAttributes);
-      return extension;
-    }
-  }, {
-    key: '_appendExtension',
-    value: function _appendExtension($container, extension) {
-      var existingFrame = $container.find('iframe');
-      if (existingFrame.length > 0) {
-        existingFrame.destroy();
-      }
-      $container.prepend(extension.$el);
-      _actionsIframe_actions2['default'].notifyIframeCreated(extension.$el, extension);
-    }
-  }, {
-    key: 'resolverResponse',
-    value: function resolverResponse(data) {
-      var simpleExtension = this._simpleXdmCreate(data.extension);
-      this._appendExtension(data.$container, simpleExtension);
-    }
-  }, {
-    key: 'render',
-    value: function render(attributes) {
-      return (0, _dollar2['default'])('<iframe />').attr(attributes).addClass('ap-iframe');
-    }
-  }]);
-
-  return Iframe;
-})();
-
-var IframeComponent = new Iframe();
-
-_dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
-  IframeComponent.resize(data.width, data.height, data.$el);
-});
-
-_dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-extension', function (data) {
-  IframeComponent.setContentResolver(data.callback);
-});
-
-_dispatchersEvent_dispatcher2['default'].register('jwt-url-refreshed', function (data) {
-  IframeComponent.resolverResponse(data);
-});
-
-_dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-estabilshed', function (data) {
-  data.$el[0].bridgeEstablished = true;
-});
-
-exports['default'] = IframeComponent;
-module.exports = exports['default'];
-
-},{"../dollar":33,"../util":41,"actions/iframe_actions":13,"actions/jwt_actions":15,"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4,"utils/iframe":44,"utils/url":46}],25:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _componentsIframe = _dereq_('components/iframe');
-
-var _componentsIframe2 = _interopRequireDefault(_componentsIframe);
-
-var _componentsLoading_indicator = _dereq_('components/loading_indicator');
-
-var _componentsLoading_indicator2 = _interopRequireDefault(_componentsLoading_indicator);
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var CONTAINER_CLASSES = ['ap-iframe-container'];
-
-var IframeContainer = (function () {
-  function IframeContainer() {
-    _classCallCheck(this, IframeContainer);
-  }
-
-  _createClass(IframeContainer, [{
-    key: 'createExtension',
-    value: function createExtension(extension, options) {
-      var $container = this._renderContainer();
-      if (!options || options.loadingIndicator !== false) {
-        $container.append(this._renderLoadingIndicator());
-      }
-      _componentsIframe2['default'].simpleXdmExtension(extension, $container);
-      return $container;
-    }
-  }, {
-    key: '_renderContainer',
-    value: function _renderContainer(attributes) {
-      var container = (0, _dollar2['default'])('<div />').attr(attributes || {});
-      container.addClass(CONTAINER_CLASSES.join(' '));
-      return container;
-    }
-  }, {
-    key: '_renderLoadingIndicator',
-    value: function _renderLoadingIndicator() {
-      return _componentsLoading_indicator2['default'].render();
-    }
-  }]);
-
-  return IframeContainer;
-})();
-
-var IframeContainerComponent = new IframeContainer();
-
-_dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
-  var id = 'embedded-' + data.extension.id;
-  data.extension.$el.parents('.ap-iframe-container').attr('id', id);
-});
-
-exports['default'] = IframeContainerComponent;
-module.exports = exports['default'];
-
-},{"../dollar":33,"components/iframe":24,"components/loading_indicator":28,"dispatchers/event_dispatcher":32}],26:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _actionsInline_dialog_actions = _dereq_('actions/inline_dialog_actions');
-
-var _actionsInline_dialog_actions2 = _interopRequireDefault(_actionsInline_dialog_actions);
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _util = _dereq_('../util');
-
-var _util2 = _interopRequireDefault(_util);
-
-var InlineDialog = (function () {
-  function InlineDialog() {
-    _classCallCheck(this, InlineDialog);
-  }
-
-  _createClass(InlineDialog, [{
-    key: 'resize',
-    value: function resize(data) {
-      var width = _util2['default'].stringToDimension(data.width);
-      var height = _util2['default'].stringToDimension(data.height);
-      var $content = data.$el.find('.contents');
-      if ($content.length === 1) {
-        $content.css({
-          width: width,
-          height: height
-        });
-        _actionsInline_dialog_actions2['default'].refresh(data.$el);
-      }
-    }
-  }, {
-    key: 'refresh',
-    value: function refresh($el) {
-      $el[0].popup.reset();
-    }
-  }, {
-    key: '_getInlineDialog',
-    value: function _getInlineDialog($el) {
-      return AJS.InlineDialog($el);
-    }
-  }, {
-    key: '_renderContainer',
-    value: function _renderContainer() {
-      return (0, _dollar2['default'])("<div />").addClass("aui-inline-dialog-contents");
-    }
-  }, {
-    key: '_displayInlineDialog',
-    value: function _displayInlineDialog(data) {
-      _actionsInline_dialog_actions2['default'].created({
-        $el: data.$el,
-        trigger: data.trigger,
-        extension: data.extension
-      });
-    }
-  }, {
-    key: 'render',
-    value: function render(data) {
-      var _this = this;
-
-      var $inlineDialog = (0, _dollar2['default'])(document.getElementById('inline-dialog-' + data.id));
-
-      if ($inlineDialog.length !== 0) {
-        $inlineDialog.remove();
-      }
-
-      var $el = AJS.InlineDialog(data.bindTo,
-      //assign unique id to inline Dialog
-      data.id, function ($placeholder, trigger, showInlineDialog) {
-        $placeholder.append(data.$content);
-        _this._displayInlineDialog({
-          extension: data.extension,
-          $el: $placeholder,
-          trigger: trigger
-        });
-        showInlineDialog();
-      }, data.dialogOptions);
-      return $el;
-    }
-  }]);
-
-  return InlineDialog;
-})();
-
-var InlineDialogComponent = new InlineDialog();
-
-_dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
-  var container = data.$el.parents(".aui-inline-dialog");
-  if (container.length === 1) {
-    InlineDialogComponent.resize({
-      width: data.width,
-      height: data.height,
-      $el: container
-    });
-  }
-});
-
-_dispatchersEvent_dispatcher2['default'].register('inline-dialog-refresh', function (data) {
-  InlineDialogComponent.refresh(data.$el);
-});
-
-exports['default'] = InlineDialogComponent;
-module.exports = exports['default'];
-
-},{"../dollar":33,"../util":41,"actions/inline_dialog_actions":14,"dispatchers/event_dispatcher":32}],27:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _actionsWebitem_actions = _dereq_('actions/webitem_actions');
-
-var _actionsWebitem_actions2 = _interopRequireDefault(_actionsWebitem_actions);
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _componentsInline_dialog = _dereq_('components/inline_dialog');
-
-var _componentsInline_dialog2 = _interopRequireDefault(_componentsInline_dialog);
-
-var _componentsWebitem = _dereq_('components/webitem');
-
-var _componentsWebitem2 = _interopRequireDefault(_componentsWebitem);
-
-var _utilsWebitem = _dereq_('utils/webitem');
-
-var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
-
-var _componentsIframe_container = _dereq_('components/iframe_container');
-
-var _componentsIframe_container2 = _interopRequireDefault(_componentsIframe_container);
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _create = _dereq_('../create');
-
-var _create2 = _interopRequireDefault(_create);
-
-var ITEM_NAME = 'inline-dialog';
-var SELECTOR = '.ap-inline-dialog';
-var TRIGGERS = ['mouseover', 'click'];
-var WEBITEM_UID_KEY = 'inline-dialog-target-uid';
-
-var InlineDialogWebItem = (function () {
-  function InlineDialogWebItem() {
-    _classCallCheck(this, InlineDialogWebItem);
-
-    this._inlineDialogWebItemSpec = {
-      name: ITEM_NAME,
-      selector: SELECTOR,
-      triggers: TRIGGERS
-    };
-    this._inlineDialogWebItems = {};
-  }
-
-  _createClass(InlineDialogWebItem, [{
-    key: 'getWebItem',
-    value: function getWebItem() {
-      return this._inlineDialogWebItemSpec;
-    }
-  }, {
-    key: '_createInlineDialog',
-    value: function _createInlineDialog(data) {
-      var $iframeContainer = _componentsIframe_container2['default'].createExtension(data.extension);
-      var $inlineDialog = _componentsInline_dialog2['default'].render({
-        extension: data.extension,
-        id: data.id,
-        bindTo: data.$target,
-        $content: $iframeContainer,
-        dialogOptions: {} // fill this with dialog options.
-      });
-
-      return $inlineDialog;
-    }
-  }, {
-    key: 'triggered',
-    value: function triggered(data) {
-      var $target = (0, _dollar2['default'])(data.event.target);
-      if (!$target.hasClass('ap-inline-dialog')) {
-        $target = $target.closest('.ap-inline-dialog');
-      }
-      var webitemId = $target.data(WEBITEM_UID_KEY);
-
-      var $inlineDialog = this._createInlineDialog({
-        id: webitemId,
-        extension: data.extension,
-        $target: $target,
-        options: data.options || {}
-      });
-
-      $inlineDialog.show();
-    }
-  }, {
-    key: 'opened',
-    value: function opened(data) {
-      var contentRequest = _componentsWebitem2['default'].requestContent(data.extension);
-      if (!contentRequest) {
-        console.warn('no content resolver found');
-        return false;
-      }
-      contentRequest.then(function (content) {
-        content.options = {
-          autoresize: true,
-          widthinpx: true
-        };
-        var addon = (0, _create2['default'])(content);
-        data.$el.empty().append(addon);
-      });
-    }
-  }, {
-    key: 'createIfNotExists',
-    value: function createIfNotExists(data) {
-      var $target = (0, _dollar2['default'])(data.event.target);
-      var uid = $target.data(WEBITEM_UID_KEY);
-
-      if (!uid) {
-        uid = _utilsWebitem2['default'].uniqueId();
-        $target.data(WEBITEM_UID_KEY, uid);
-      }
-    }
-  }]);
-
-  return InlineDialogWebItem;
-})();
-
-var inlineDialogInstance = new InlineDialogWebItem();
-var webitem = inlineDialogInstance.getWebItem();
-_dispatchersEvent_dispatcher2['default'].register('before:webitem-invoked:' + webitem.name, function (data) {
-  inlineDialogInstance.createIfNotExists(data);
-});
-_dispatchersEvent_dispatcher2['default'].register('webitem-invoked:' + webitem.name, function (data) {
-  inlineDialogInstance.triggered(data);
-});
-_dispatchersEvent_dispatcher2['default'].register('inline-dialog-opened', function (data) {
-  inlineDialogInstance.opened(data);
-});
-_actionsWebitem_actions2['default'].addWebItem(webitem);
-
-exports['default'] = inlineDialogInstance;
-module.exports = exports['default'];
-
-},{"../create":30,"../dollar":33,"actions/webitem_actions":18,"components/iframe_container":25,"components/inline_dialog":26,"components/webitem":29,"dispatchers/event_dispatcher":32,"utils/webitem":47}],28:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _actionsLoading_indicator_actions = _dereq_('actions/loading_indicator_actions');
-
-var _actionsLoading_indicator_actions2 = _interopRequireDefault(_actionsLoading_indicator_actions);
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _util = _dereq_('../util');
-
-var _util2 = _interopRequireDefault(_util);
-
-var LOADING_INDICATOR_CLASS = 'ap-status-indicator';
-
-var LOADING_STATUSES = {
-  loading: '<div class="ap-loading"><div class="small-spinner"></div>Loading add-on...</div>',
-  'load-timeout': '<div class="ap-load-timeout"><div class="small-spinner"></div>Add-on is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?</div>',
-  'load-error': 'Add-on failed to load.'
-};
-
-var LOADING_TIMEOUT = 12000;
-
-var LoadingIndicator = (function () {
-  function LoadingIndicator() {
-    _classCallCheck(this, LoadingIndicator);
-
-    this._stateRegistry = {};
-  }
-
-  _createClass(LoadingIndicator, [{
-    key: '_loadingContainer',
-    value: function _loadingContainer($iframeContainer) {
-      return $iframeContainer.find('.' + LOADING_INDICATOR_CLASS);
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      var $container = (0, _dollar2['default'])('<div />').addClass(LOADING_INDICATOR_CLASS);
-      $container.append(LOADING_STATUSES.loading);
-      var spinner = $container.find('.small-spinner');
-      if (spinner.length && spinner.spin) {
-        spinner.spin({ lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1 });
-      }
-      return $container;
-    }
-  }, {
-    key: 'hide',
-    value: function hide($iframeContainer, extensionId) {
-      clearTimeout(this._stateRegistry[extensionId]);
-      delete this._stateRegistry[extensionId];
-      this._loadingContainer($iframeContainer).hide();
-    }
-  }, {
-    key: 'cancelled',
-    value: function cancelled($iframeContainer, extensionId) {
-      var status = LOADING_STATUSES['load-error'];
-      this._loadingContainer($iframeContainer).empty().text(status);
-    }
-  }, {
-    key: '_setupTimeout',
-    value: function _setupTimeout($container, extension) {
-      this._stateRegistry[extension.id] = setTimeout(function () {
-        _actionsLoading_indicator_actions2['default'].timeout($container, extension);
-      }, LOADING_TIMEOUT);
-    }
-  }, {
-    key: 'timeout',
-    value: function timeout($iframeContainer, extensionId) {
-      var status = (0, _dollar2['default'])(LOADING_STATUSES['load-timeout']);
-      var container = this._loadingContainer($iframeContainer);
-      container.empty().append(status);
-      (0, _dollar2['default'])('a.ap-btn-cancel', container).click(function () {
-        _actionsLoading_indicator_actions2['default'].cancelled($iframeContainer, extensionId);
-      });
-      delete this._stateRegistry[extensionId];
-      return container;
-    }
-  }]);
-
-  return LoadingIndicator;
-})();
-
-var LoadingComponent = new LoadingIndicator();
-
-_dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
-  LoadingComponent._setupTimeout(data.$el.parents('.ap-iframe-container'), data.extension);
-});
-
-_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
-  LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
-});
-
-_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-timeout', function (data) {
-  LoadingComponent.timeout(data.$el, data.extension.id);
-});
-
-_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', function (data) {
-  LoadingComponent.cancelled(data.$el, data.extension.id);
-});
-
-exports['default'] = LoadingComponent;
-module.exports = exports['default'];
-
-},{"../dollar":33,"../util":41,"actions/loading_indicator_actions":16,"dispatchers/event_dispatcher":32}],29:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _underscore = _dereq_('../underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _actionsWebitem_actions = _dereq_('actions/webitem_actions');
-
-var _actionsWebitem_actions2 = _interopRequireDefault(_actionsWebitem_actions);
-
-var _utilsWebitem = _dereq_('utils/webitem');
-
-var _utilsWebitem2 = _interopRequireDefault(_utilsWebitem);
-
-var WebItem = (function () {
-  function WebItem() {
-    _classCallCheck(this, WebItem);
-
-    this._webitems = {};
-    this._contentResolver = function noop() {};
-  }
-
-  _createClass(WebItem, [{
-    key: 'setContentResolver',
-    value: function setContentResolver(resolver) {
-      this._contentResolver = resolver;
-    }
-  }, {
-    key: 'requestContent',
-    value: function requestContent(extension) {
-      if (extension.addon_key && extension.key) {
-        return this._contentResolver.call(null, _underscore2['default'].extend({ classifier: 'json' }, extension));
-      }
-    }
-  }, {
-    key: 'getWebItemsBySelector',
-    value: function getWebItemsBySelector(selector) {
-      return _underscore2['default'].find(this._webitems, function (obj) {
-        if (obj.selector) {
-          return obj.selector.trim() === selector.trim();
-        }
-        return false;
-      });
-    }
-  }, {
-    key: 'setWebItem',
-    value: function setWebItem(potentialWebItem) {
-      return this._webitems[potentialWebItem.name] = {
-        name: potentialWebItem.name,
-        selector: potentialWebItem.selector,
-        triggers: potentialWebItem.triggers
-      };
-    }
-  }, {
-    key: '_removeTriggers',
-    value: function _removeTriggers(webitem) {
-      var _this = this;
-
-      var onTriggers = _utilsWebitem2['default'].sanitizeTriggers(webitem.triggers);
-      (0, _dollar2['default'])(function () {
-        (0, _dollar2['default'])('body').off(onTriggers, webitem.selector, _this._webitems[webitem.name]._on);
-      });
-      delete this._webitems[webitem.name]._on;
-    }
-  }, {
-    key: '_addTriggers',
-    value: function _addTriggers(webitem) {
-      var onTriggers = _utilsWebitem2['default'].sanitizeTriggers(webitem.triggers);
-      webitem._on = function (event) {
-        event.preventDefault();
-        var $target = (0, _dollar2['default'])(event.target).closest(webitem.selector);
-        var extension = {
-          addon_key: _utilsWebitem2['default'].getExtensionKey($target),
-          key: _utilsWebitem2['default'].getKey($target),
-          options: _utilsWebitem2['default'].getOptionsForWebItem($target)
-        };
-
-        _actionsWebitem_actions2['default'].webitemInvoked(webitem, event, extension);
-      };
-      (0, _dollar2['default'])(function () {
-        (0, _dollar2['default'])('body').on(onTriggers, webitem.selector, webitem._on);
-      });
-    }
-  }]);
-
-  return WebItem;
-})();
-
-var webItemInstance = new WebItem();
-
-_dispatchersEvent_dispatcher2['default'].register('webitem-added', function (data) {
-  webItemInstance._addTriggers(data.webitem);
-});
-
-_dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-extension', function (data) {
-  webItemInstance.setContentResolver(data.callback);
-});
-
-exports['default'] = webItemInstance;
-module.exports = exports['default'];
-
-},{"../dollar":33,"../underscore":40,"actions/webitem_actions":18,"dispatchers/event_dispatcher":32,"utils/webitem":47}],30:[function(_dereq_,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('./dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _componentsIframe_container = _dereq_('components/iframe_container');
-
-var _componentsIframe_container2 = _interopRequireDefault(_componentsIframe_container);
-
-function create(extension) {
-  var simpleXdmExtension = {
-    addon_key: extension.addon_key,
-    key: extension.key,
-    url: extension.url,
-    options: extension.options
-  };
-  return _componentsIframe_container2['default'].createExtension(simpleXdmExtension);
-
-  // return IframeComponent.simpleXdmExtension(simpleXdmExtension);
-}
-
-module.exports = create;
-
-},{"./dollar":33,"components/iframe_container":25,"dispatchers/event_dispatcher":32}],31:[function(_dereq_,module,exports){
-'use strict';
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var EVENT_NAME_PREFIX = 'connect.addon.';
-
-/**
- * Timings beyond 20 seconds (connect's load timeout) will be clipped to an X.
- * @const
- * @type {int}
- */
-var LOADING_TIME_THRESHOLD = 20000;
-
-/**
- * Trim extra zeros from the load time.
- * @const
- * @type {int}
- */
-var LOADING_TIME_TRIMP_PRECISION = 100;
-
-var AnalyticsDispatcher = (function () {
-  function AnalyticsDispatcher() {
-    _classCallCheck(this, AnalyticsDispatcher);
-
-    this._addons = {};
-  }
-
-  _createClass(AnalyticsDispatcher, [{
-    key: '_track',
-    value: function _track(name, data) {
-      var w = window;
-      var prefixedName = EVENT_NAME_PREFIX + name;
-
-      if (w.AJS.Analytics) {
-        w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
-      } else if (w.AJS.trigger) {
-        // BTF fallback
-        AJS.trigger('analyticsEvent', {
-          name: prefixedName,
-          data: data
-        });
-      } else {
-        return false;
-      }
-      return true;
-    }
-  }, {
-    key: '_time',
-    value: function _time() {
-      return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
-    }
-  }, {
-    key: 'trackLoadingStarted',
-    value: function trackLoadingStarted(extension) {
-      extension.startLoading = this._time();
-      this._addons[extension.id] = extension;
-    }
-  }, {
-    key: 'trackLoadingEnded',
-    value: function trackLoadingEnded(extension) {
-      var value = this._time() - this._addons[extension.id].startLoading;
-      this._track('iframe.performance.load', {
-        addonKey: extension.addon_key,
-        moduleKey: extension.key,
-        value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil(value / LOADING_TIME_TRIMP_PRECISION)
-      });
-    }
-  }, {
-    key: 'trackLoadingTimeout',
-    value: function trackLoadingTimeout(extension) {
-      this._track('iframe.performance.timeout', {
-        addonKey: extension.addon_key,
-        moduleKey: extension.key
-      });
-      //track an end event during a timeout so we always have complete start / end data.
-      this.trackLoadingEnded(extension);
-    }
-  }, {
-    key: 'trackLoadingCancel',
-    value: function trackLoadingCancel(extension) {
-      this._track('iframe.performance.cancel', {
-        addonKey: extension.addon_key,
-        moduleKey: extension.key
-      });
-    }
-  }, {
-    key: 'dispatch',
-    value: function dispatch(name, data) {
-      this._track(name, data);
-    }
-  }]);
-
-  return AnalyticsDispatcher;
-})();
-
-var analytics = new AnalyticsDispatcher();
-_dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
-  analytics.trackLoadingStarted(data.extension);
-});
-_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
-  analytics.trackLoadingEnded(data.extension);
-});
-_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-timeout', function (data) {
-  analytics.trackLoadingTimeout(data.extension);
-});
-_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', function (data) {
-  analytics.trackLoadingCancel(data.extension);
-});
-
-module.exports = analytics;
-
-},{"dispatchers/event_dispatcher":32}],32:[function(_dereq_,module,exports){
-/**
-* pub/sub for extension state (created, destroyed, initialized)
-* taken from hipchat webcore
-**/
-'use strict';
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _underscore = _dereq_('../underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-var _events = _dereq_('events');
-
-var EventDispatcher = (function (_EventEmitter) {
-  _inherits(EventDispatcher, _EventEmitter);
-
-  function EventDispatcher() {
-    _classCallCheck(this, EventDispatcher);
-
-    _get(Object.getPrototypeOf(EventDispatcher.prototype), 'constructor', this).call(this);
-    this.setMaxListeners(20);
-  }
-
-  _createClass(EventDispatcher, [{
-    key: 'dispatch',
-    value: function dispatch(action) {
-      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        args[_key - 1] = arguments[_key];
-      }
-
-      this.emit.apply(this, ['before:' + action].concat(args));
-      this.emit.apply(this, arguments);
-      this.emit.apply(this, ['after:' + action].concat(args));
-    }
-  }, {
-    key: 'registerOnce',
-    value: function registerOnce(action, callback) {
-      var _this = this;
-
-      if (_underscore2['default'].isString(action)) {
-        this.once(action, callback);
-      } else if (_underscore2['default'].isObject(action)) {
-        _underscore2['default'].keys(action).forEach(function (val, key) {
-          _this.once(key, val);
-        }, this);
-      }
-    }
-  }, {
-    key: 'register',
-    value: function register(action, callback) {
-      var _this2 = this;
-
-      if (_underscore2['default'].isString(action)) {
-        this.on(action, callback);
-      } else if (_underscore2['default'].isObject(action)) {
-        _underscore2['default'].keys(action).forEach(function (val, key) {
-          _this2.on(key, val);
-        }, this);
-      }
-    }
-  }, {
-    key: 'unregister',
-    value: function unregister(action, callback) {
-      var _this3 = this;
-
-      if (_underscore2['default'].isString(action)) {
-        this.removeListener(action, callback);
-      } else if (_underscore2['default'].isObject(action)) {
-        _underscore2['default'].keys(action).forEach(function (val, key) {
-          _this3.removeListener(key, val);
-        }, this);
-      }
-    }
-  }]);
-
-  return EventDispatcher;
-})(_events.EventEmitter);
-
-module.exports = new EventDispatcher();
-
-},{"../underscore":40,"events":2}],33:[function(_dereq_,module,exports){
-/**
- * The iframe-side code exposes a jquery-like implementation via _dollar.
- * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
- * to code that runs on host and iframe.
- */
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = AJS.$;
-module.exports = exports["default"];
-
-},{}],34:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dispatchersAnalytics_dispatcher = _dereq_('dispatchers/analytics_dispatcher');
-
-var _dispatchersAnalytics_dispatcher2 = _interopRequireDefault(_dispatchersAnalytics_dispatcher);
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _simpleXdmDistHost = _dereq_('simple-xdm/dist/host');
-
-var _simpleXdmDistHost2 = _interopRequireDefault(_simpleXdmDistHost);
-
-var _actionsJwt_actions = _dereq_('actions/jwt_actions');
-
-var _actionsJwt_actions2 = _interopRequireDefault(_actionsJwt_actions);
-
-var _modulesEvents = _dereq_('./modules/events');
-
-var _modulesEvents2 = _interopRequireDefault(_modulesEvents);
-
-var _create = _dereq_('./create');
-
-var _create2 = _interopRequireDefault(_create);
-
-var _modulesDialog = _dereq_('./modules/dialog');
-
-var _modulesDialog2 = _interopRequireDefault(_modulesDialog);
-
-var _modulesEnv = _dereq_('./modules/env');
-
-var _modulesEnv2 = _interopRequireDefault(_modulesEnv);
-
-var _componentsLoading_indicator = _dereq_('./components/loading_indicator');
-
-var _componentsLoading_indicator2 = _interopRequireDefault(_componentsLoading_indicator);
-
-var _modulesMessages = _dereq_('./modules/messages');
-
-var _modulesMessages2 = _interopRequireDefault(_modulesMessages);
-
-var _modulesFlag = _dereq_('./modules/flag');
-
-var _modulesFlag2 = _interopRequireDefault(_modulesFlag);
-
-var _actionsModule_actions = _dereq_('actions/module_actions');
-
-var _actionsModule_actions2 = _interopRequireDefault(_actionsModule_actions);
-
-var _actionsDom_event_actions = _dereq_('actions/dom_event_actions');
-
-var _actionsDom_event_actions2 = _interopRequireDefault(_actionsDom_event_actions);
-
-var _underscore = _dereq_('./underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-var _actionsEvent_actions = _dereq_('actions/event_actions');
-
-var _actionsEvent_actions2 = _interopRequireDefault(_actionsEvent_actions);
-
-var _actionsIframe_actions = _dereq_('actions/iframe_actions');
-
-var _actionsIframe_actions2 = _interopRequireDefault(_actionsIframe_actions);
-
-var _actionsDialog_extension_actions = _dereq_('actions/dialog_extension_actions');
-
-var _actionsDialog_extension_actions2 = _interopRequireDefault(_actionsDialog_extension_actions);
-
-var _componentsInline_dialog_webitem = _dereq_('components/inline_dialog_webitem');
-
-var _componentsInline_dialog_webitem2 = _interopRequireDefault(_componentsInline_dialog_webitem);
-
-var _componentsDialog_webitem = _dereq_('components/dialog_webitem');
-
-var _componentsDialog_webitem2 = _interopRequireDefault(_componentsDialog_webitem);
-
-var _componentsDialog_extension = _dereq_('components/dialog_extension');
-
-var _componentsDialog_extension2 = _interopRequireDefault(_componentsDialog_extension);
-
-/**
- * Private namespace for host-side code.
- * @type {*|{}}
- * @private
- * @deprecated use AMD instead of global namespaces. The only thing that should be on _AP is _AP.define and _AP.require.
- */
-if (!window._AP) {
-  window._AP = {};
-}
-
-/*
- * Add version
- */
-if (!window._AP.version) {
-  window._AP.version = "v5.0.0";
-}
-
-_simpleXdmDistHost2['default'].defineModule('messages', _modulesMessages2['default']);
-_simpleXdmDistHost2['default'].defineModule('flag', _modulesFlag2['default']);
-_simpleXdmDistHost2['default'].defineModule('dialog', _modulesDialog2['default']);
-_simpleXdmDistHost2['default'].defineModule('env', _modulesEnv2['default']);
-_simpleXdmDistHost2['default'].defineModule('events', _modulesEvents2['default']);
-
-// rpc.extend(propagator);
-
-_dispatchersEvent_dispatcher2['default'].register('module-define-custom', function (data) {
-  _simpleXdmDistHost2['default'].defineModule(data.name, data.methods);
-});
-
-_simpleXdmDistHost2['default'].registerRequestNotifier(function (data) {
-  _dispatchersAnalytics_dispatcher2['default'].dispatch('bridge.invokemethod', {
-    module: data.module,
-    fn: data.fn,
-    addonKey: data.addon_key,
-    moduleKey: data.key
-  });
-});
-
-exports['default'] = {
-  dialog: {
-    create: function create(extension, dialogOptions) {
-      _actionsDialog_extension_actions2['default'].open(extension, dialogOptions);
-    },
-    close: function close() {
-      _actionsDialog_extension_actions2['default'].close();
-    }
-  },
-  onKeyEvent: function onKeyEvent(extension_id, key, modifiers, callback) {
-    _actionsDom_event_actions2['default'].registerKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
-  },
-  offKeyEvent: function offKeyEvent(extension_id, key, modifiers, callback) {
-    _actionsDom_event_actions2['default'].unregisterKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
-  },
-  onIframeEstablished: function onIframeEstablished(callback) {
-    _dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-estabilshed', function (data) {
-      callback.call(null, {
-        $el: data.$el,
-        extension: _underscore2['default'].pick(data.extension, ['id', 'addon_key', 'id', 'key', 'options', 'url'])
-      });
-    });
-  },
-  destroy: function destroy(extension_id) {
-    _actionsIframe_actions2['default'].notifyIframeDestroyed({ extension_id: extension_id });
-  },
-  registerContentResolver: {
-    resolveByExtension: function resolveByExtension(callback) {
-      _actionsJwt_actions2['default'].registerContentResolver({ callback: callback });
-    }
-  },
-  defineModule: function defineModule(name, methods) {
-    _actionsModule_actions2['default'].defineCustomModule(name, methods);
-  },
-  broadcastEvent: function broadcastEvent(type, targetSpec, event) {
-    _actionsEvent_actions2['default'].broadcast(type, targetSpec, event);
-  },
-  create: _create2['default']
-};
-module.exports = exports['default'];
-
-},{"./components/loading_indicator":28,"./create":30,"./modules/dialog":35,"./modules/env":36,"./modules/events":37,"./modules/flag":38,"./modules/messages":39,"./underscore":40,"actions/dialog_extension_actions":8,"actions/dom_event_actions":9,"actions/event_actions":11,"actions/iframe_actions":13,"actions/jwt_actions":15,"actions/module_actions":17,"components/dialog_extension":21,"components/dialog_webitem":22,"components/inline_dialog_webitem":27,"dispatchers/analytics_dispatcher":31,"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4}],35:[function(_dereq_,module,exports){
-'use strict';
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _actionsDialog_extension_actions = _dereq_('actions/dialog_extension_actions');
-
-var _actionsDialog_extension_actions2 = _interopRequireDefault(_actionsDialog_extension_actions);
-
-var _actionsDialog_actions = _dereq_('actions/dialog_actions');
-
-var _actionsDialog_actions2 = _interopRequireDefault(_actionsDialog_actions);
-
-var _actionsEvent_actions = _dereq_('actions/event_actions');
-
-var _actionsEvent_actions2 = _interopRequireDefault(_actionsEvent_actions);
-
-var _componentsDialog_extension = _dereq_('components/dialog_extension');
-
-var _componentsDialog_extension2 = _interopRequireDefault(_componentsDialog_extension);
-
-var _util = _dereq_('../util');
-
-var _util2 = _interopRequireDefault(_util);
-
-var _componentsButton = _dereq_('components/button');
-
-var _componentsButton2 = _interopRequireDefault(_componentsButton);
-
-var _utilsDialog = _dereq_('utils/dialog');
-
-var _utilsDialog2 = _interopRequireDefault(_utilsDialog);
-
-var _underscore = _dereq_('../underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-var _dialogs = {};
-
-_dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data) {
-  var dialog = data.dialog;
-  if (dialog && data.extension) {
-    _actionsEvent_actions2['default'].broadcast('dialog.close', {
-      addon_key: data.extension.addon_key
-    }, data.customData);
-  }
-});
-
-_dispatchersEvent_dispatcher2['default'].register('dialog-button-click', function (data) {
-  var eventData = {
-    button: {
-      name: _componentsButton2['default'].getName(data.$el),
-      identifier: _componentsButton2['default'].getIdentifier(data.$el),
-      text: _componentsButton2['default'].getText(data.$el)
-    }
-  };
-
-  // Old buttons, (submit and cancel) use old events
-  if (!data.$el.hasClass('ap-dialog-custom-button')) {
-    _actionsEvent_actions2['default'].broadcast('dialog.' + eventData.button.name, {
-      addon_key: data.extension.addon_key
-    }, eventData);
-  } else {
-    // new buttons only target the dialog
-    _actionsEvent_actions2['default'].broadcast('dialog.button.click', {
-      addon_key: data.extension.addon_key,
-      key: data.extension.key
-    }, eventData);
-  }
-});
-
-/**
- * @class Dialog~Dialog
- * @description A dialog object that is returned when a dialog is created using the [dialog module](module-Dialog.html).
- */
-
-var Dialog = function Dialog(options, callback) {
-  _classCallCheck(this, Dialog);
-
-  var _id = callback._id;
-  var extension = callback._context.extension;
-
-  var dialogExtension = {
-    addon_key: extension.addon_key,
-    key: options.key,
-    options: extension.options
-  };
-
-  // ACJS-185: the following is a really bad idea but we need it
-  // for compat until AP.dialog.customData has been deprecated
-  dialogExtension.options.customData = options.customData;
-
-  // terrible idea! - we need to remove this from p2 ASAP!
-  var dialogModuleOptions = _utilsDialog2['default'].moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
-  options = _underscore2['default'].extend({}, dialogModuleOptions || {}, options);
-
-  var dialogOptions = {
-    id: _id,
-    size: options.size,
-    width: options.width,
-    height: options.height,
-    chrome: !!options.chrome,
-    header: options.header,
-    hint: options.hint,
-    actions: options.actions,
-    submitText: options.submitText,
-    cancelText: options.cancelText,
-    buttons: options.buttons
-  };
-
-  _actionsDialog_extension_actions2['default'].open(dialogExtension, dialogOptions);
-  this.customData = options.customData;
-  _dialogs[_id] = this;
-}
-
-/**
- * @class Dialog~DialogButton
- * @description A dialog button that can be controlled with JavaScript
- */
-;
-
-var Button = (function () {
-  function Button(name) {
-    _classCallCheck(this, Button);
-
-    if (!_componentsDialog_extension2['default'].getActiveDialog()) {
-      throw new Error('Failed to find an active dialog.');
-    }
-    this.name = name;
-    this.enabled = true;
-    this.hidden = false;
-  }
-
-  /**
-   * Sets the button state to enabled
-   * @method enable
-   * @memberOf Dialog~DialogButton
-   * @noDemo
-   * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getButton('submit').enable();
-   * });
-   */
-
-  _createClass(Button, [{
-    key: 'enable',
-    value: function enable() {
-      this.setState({
-        enabled: true
-      });
-    }
-
-    /**
-     * Sets the button state to disabled. A disabled button cannot be clicked and emits no events.
-     * @method disable
-     * @memberOf Dialog~DialogButton
-     * @noDemo
-     * @example
-     * AP.require('dialog', function(dialog){
-     *   dialog.getButton('submit').disable();
-     * });
-     */
-  }, {
-    key: 'disable',
-    value: function disable() {
-      this.setState({
-        enabled: false
-      });
-    }
-
-    /**
-     * Query a button for its current state.
-     * @method isEnabled
-     * @memberOf Dialog~DialogButton
-     * @param {Function} callback function to receive the button state.
-     * @noDemo
-     * @example
-     * AP.require('dialog', function(dialog){
-     *   dialog.getButton('submit').isEnabled(function(enabled){
-     *     if(enabled){
-     *       //button is enabled
-     *     }
-     *   });
-     * });
-     */
-  }, {
-    key: 'isEnabled',
-    value: function isEnabled(callback) {
-      callback(this.enabled);
-    }
-
-    /**
-     * Toggle the button state between enabled and disabled.
-     * @method toggle
-     * @memberOf Dialog~DialogButton
-     * @noDemo
-     * @example
-     * AP.require('dialog', function(dialog){
-     *   dialog.getButton('submit').toggle();
-     * });
-     */
-  }, {
-    key: 'toggle',
-    value: function toggle() {
-      this.setState({
-        enabled: !this.enabled
-      });
-    }
-  }, {
-    key: 'setState',
-    value: function setState(state) {
-      this.enabled = state.enabled;
-      _actionsDialog_actions2['default'].toggleButton({
-        name: this.name,
-        enabled: this.enabled
-      });
-    }
-
-    /**
-     * Trigger a callback bound to a button.
-     * @method trigger
-     * @memberOf Dialog~DialogButton
-     * @noDemo
-     * @example
-     * AP.require('dialog', function(dialog){
-     *   dialog.getButton('submit').bind(function(){
-     *     alert('clicked!');
-     *   });
-     *   dialog.getButton('submit').trigger();
-     * });
-     */
-  }, {
-    key: 'trigger',
-    value: function trigger(callback) {
-      if (this.enabled) {
-        _actionsDialog_actions2['default'].dialogMessage({
-          name: this.name,
-          extension: callback._context.extension
-        });
-      }
-    }
-
-    /**
-     * Query a button for its current hidden/visible state.
-     * @method isHidden
-     * @memberOf Dialog~DialogButton
-     * @param {Function} callback function to receive the button state.
-     * @noDemo
-     * @example
-     * AP.require('dialog', function(dialog){
-     *   dialog.getButton('submit').isHidden(function(hidden){
-     *     if(hidden){
-     *       //button is hidden
-     *     }
-     *   });
-     * });
-     */
-  }, {
-    key: 'isHidden',
-    value: function isHidden(callback) {
-      callback(this.hidden);
-    }
-
-    /**
-     * Sets the button state to hidden
-     * @method hide
-     * @memberOf Dialog~DialogButton
-     * @noDemo
-     * @example
-     * AP.require('dialog', function(dialog){
-     *   dialog.getButton('submit').hide();
-     * });
-     */
-  }, {
-    key: 'hide',
-    value: function hide() {
-      this.setHidden(true);
-    }
-
-    /**
-     * Sets the button state to visible
-     * @method show
-     * @memberOf Dialog~DialogButton
-     * @noDemo
-     * @example
-     * AP.require('dialog', function(dialog){
-     *   dialog.getButton('submit').show();
-     * });
-     */
-  }, {
-    key: 'show',
-    value: function show() {
-      this.setHidden(false);
-    }
-  }, {
-    key: 'setHidden',
-    value: function setHidden(hidden) {
-      console.log(this.name);
-      this.hidden = hidden;
-      _actionsDialog_actions2['default'].toggleButtonVisibility({
-        name: this.name,
-        hidden: this.hidden
-      });
-    }
-  }]);
-
-  return Button;
-})();
-
-function getDialogFromContext(context) {
-  return _dialogs[context.extension.options.dialogId];
-}
-
-var CreateButton = function CreateButton(options, callback) {
-  _classCallCheck(this, CreateButton);
-
-  _actionsDialog_extension_actions2['default'].addUserButton({
-    identifier: options.identifier,
-    text: options.text
-  }, callback._context.extension);
-}
-
-/**
- * The Dialog module provides a mechanism for launching an add-on's modules as modal dialogs from within an add-on's iframe.
- * A modal dialog displays information without requiring the user to leave the current page.
- * The dialog is opened over the entire window, rather than within the iframe itself.
- *
- * <h3>Styling your dialog to look like a standard Atlassian dialog</h3>
- *
- * By default the dialog iframe is undecorated. It's up to you to style the dialog.
- * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
- *
- * In order to maintain a consistent look and feel between the host application and the add-on,
- * we encourage you to style your dialogs to match Atlassian's Design Guidelines for modal dialogs.
- * To do that, you'll need to add the AUI styles to your dialog.
- *
- * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog.html).
- * @exports Dialog
- */
-;
-
-module.exports = {
-  /**
-   * @class Dialog~DialogOptions
-   * @description The options supplied to a [dialog.create()](module-Dialog.html) call.
-   *
-   * @property {String}        key         The module key of a dialog, or the key of a page or web-item that you want to open as a dialog.
-   * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or fullscreen (with chrome).
-   * @property {Number|String} width       if size is not set, define the width as a percentage (append a % to the number) or pixels.
-   * @property {Number|String} height      if size is not set, define the height as a percentage (append a % to the number) or pixels.
-   * @property {Boolean}       chrome      (optional) opens the dialog with heading and buttons.
-   * @property {String}        header      (optional) text to display in the header if opening a dialog with chrome.
-   * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
-   * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
-   * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
-   * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC will close the dialog (default is true).
-   * @property {Array}         buttons     (optional) an array of custom buttons to be added to the dialog if opening a dialog with chrome.
-   */
-
-  /**
-   * Creates a dialog for a common dialog, page or web-item module key.
-   * @param {Dialog~DialogOptions} options configuration object of dialog options.
-   * @method create
-   * @noDemo
-   * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.create({
-   *     key: 'my-module-key',
-   *     width: '500px',
-   *     height: '200px',
-   *     chrome: true,
-   *     buttons: [
-   *      {
-   *        text: 'my button',
-   *        identifier: 'my_unique_identifier'
-   *      }
-   *     ]
-   *   }).on("close", callbackFunc);
-   * });
-   *
-   * @return {Dialog~Dialog} Dialog object allowing for callback registrations
-   */
-  create: {
-    constructor: Dialog
-  },
-  /**
-   * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.
-   * This will only close a dialog that has been opened by your add-on.
-   * You can register for close events using the `dialog.close` event and the [events module](module-Events.html).
-   * @param {Object} data An object to be emitted on dialog close.
-   * @noDemo
-   * @example
-   * AP.require('dialog', function(dialog){
-         *   dialog.close({foo: 'bar'});
-         * });
-   */
-  close: function close(data, callback) {
-    if (!$.isFunction(callback)) {
-      callback = data;
-      data = {};
-    }
-    _actionsDialog_actions2['default'].closeActive({
-      customData: data,
-      extension: callback._context.extension
-    });
-  },
-  /**
-   * Returns the data Object passed to the dialog at creation.
-   * @noDemo
-   * @name customData
-   * @method
-   * @param {Function} callback - Callback method to be executed with the custom data.
-   * @example
-   * AP.require('dialog', function(dialog){
-   *   var myDataVariable = dialog.customData.myDataVariable;
-   * });
-   *
-   * @return {Object} Data Object passed to the dialog on creation.
-   */
-  getCustomData: function getCustomData(callback) {
-    var dialog = getDialogFromContext(callback._context);
-    if (dialog) {
-      callback(dialog.customData);
-    }
-  },
-  /**
-   * Returns the button that was requested (either cancel or submit). If the requested button does not exist, an empty Object will be returned instead.
-   * @method getButton
-   * @returns {Dialog~DialogButton}
-   * @noDemo
-   * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getButton('submit');
-   * });
-   */
-  getButton: {
-    constructor: Button,
-    enable: Button.prototype.enable,
-    disable: Button.prototype.disable,
-    toggle: Button.prototype.toggle,
-    isEnabled: Button.prototype.isEnabled,
-    trigger: Button.prototype.trigger,
-    hide: Button.prototype.hide,
-    show: Button.prototype.show,
-    isHidden: Button.prototype.isHidden
-  },
-  /**
-   * Creates a dialog button that can be controlled with javascript
-   * @method createButton
-   * @returns {Dialog~DialogButton}
-   * @noDemo
-   * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.createButton({
-   *     text: 'button text',
-   *     identifier: 'button.1'
-   *   }).bind(function mycallback(){});
-   * });
-   */
-  createButton: {
-    constructor: CreateButton
-  }
-};
-
-},{"../underscore":40,"../util":41,"actions/dialog_actions":7,"actions/dialog_extension_actions":8,"actions/event_actions":11,"components/button":19,"components/dialog_extension":21,"dispatchers/event_dispatcher":32,"utils/dialog":43}],36:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _actionsEnv_actions = _dereq_('actions/env_actions');
-
-var _actionsEnv_actions2 = _interopRequireDefault(_actionsEnv_actions);
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _util = _dereq_('../util');
-
-var _util2 = _interopRequireDefault(_util);
-
-var debounce = AJS.debounce || _dollar2['default'].debounce;
-
-exports['default'] = {
-  getLocation: function getLocation(callback) {
-    callback(window.location.href);
-  },
-  resize: debounce(function (width, height, callback) {
-    var options = callback._context.extension.options;
-    if (options && !options.isDialog) {
-      _actionsEnv_actions2['default'].iframeResize(width, height, callback._context);
-    }
-  }),
-
-  sizeToParent: debounce(function (callback) {
-    // sizeToParent is only available for general-pages
-    if (callback._context.extension.options.isFullPage) {
-      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
-      _util2['default'].getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
-      _dispatchersEvent_dispatcher2['default'].register('host-window-resize', function (data) {
-        _actionsEnv_actions2['default'].sizeToParent(callback._context);
-      });
-      _actionsEnv_actions2['default'].sizeToParent(callback._context);
-    } else {
-      // This is only here to support integration testing
-      // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-      _util2['default'].getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
-    }
-  })
-};
-module.exports = exports['default'];
-
-},{"../dollar":33,"../util":41,"actions/env_actions":10,"dispatchers/event_dispatcher":32}],37:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _underscore = _dereq_('../underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-var _actionsEvent_actions = _dereq_('actions/event_actions');
-
-var _actionsEvent_actions2 = _interopRequireDefault(_actionsEvent_actions);
-
-exports['default'] = {
-  emit: function emit(name) {
-    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
-
-    var callback = _underscore2['default'].last(args);
-    args = _underscore2['default'].first(args, -1);
-    _actionsEvent_actions2['default'].broadcast(name, {
-      addon_key: callback._context.extension.addon_key
-    }, args);
-  }
-};
-module.exports = exports['default'];
-
-},{"../underscore":40,"actions/event_actions":11}],38:[function(_dereq_,module,exports){
-/**
-* Flags are the primary method for providing system feedback in the product user interface. Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
-* @module Flag
-*/
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
-
-var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
-
-var _actionsFlag_actions = _dereq_('actions/flag_actions');
-
-var _actionsFlag_actions2 = _interopRequireDefault(_actionsFlag_actions);
-
-var _componentsFlag = _dereq_('components/flag');
-
-var _componentsFlag2 = _interopRequireDefault(_componentsFlag);
-
-var _flags = {};
-
-/**
-* @class Flag~Flag
-* @description A flag object created by the [AP.flag]{@link module:Flag} module.
-*/
-
-var Flag = (function () {
-  function Flag(options, callback) {
-    _classCallCheck(this, Flag);
-
-    this.flag = _componentsFlag2['default'].render({
-      type: options.type,
-      title: options.title,
-      body: AJS.escapeHtml(options.body),
-      close: options.close,
-      id: callback._id
-    });
-
-    _actionsFlag_actions2['default'].open(this.flag.attr('id'));
-
-    this.onTriggers = {};
-
-    _flags[this.flag.attr('id')] = this;
-  }
-
-  /**
-  * @name on
-  * @memberof Flag~Flag
-  * @method
-  * @description Binds a callback function to an event that is triggered by the Flag.
-  * @param {Event} event A flag event; currently, the only valid option is 'close'.
-  * @param {Function} callback The function that runs when the event occurs.
-  * @example
-  * // Display a nice green flag using the Flags JavaScript API.
-  * var flag = AP.flag.create({
-  *   title: 'Succesfully created a flag.',
-  *   body: 'This is a flag.',
-  *   type: 'info'
-  * });
-  *
-  * // Log a message to the console when the flag has closed.
-  * flag.on('close', function (data) {
-  *   console.log('Flag has been closed!');
-  * })
-  *
-  */
-
-  _createClass(Flag, [{
-    key: 'on',
-    value: function on(event, callback) {
-      var id = this.flag.id;
-      if (_dollar2['default'].isFunction(callback)) {
-        this.onTriggers[event] = callback;
-      }
-    }
-
-    /**
-    * @name close
-    * @memberof Flag~Flag
-    * @method
-    * @description Closes the Flag.
-    * @example
-    * // Display a nice green flag using the Flags JavaScript API.
-    * var flag = AP.flag.create({
-    *   title: 'Succesfully created a flag.',
-    *   body: 'This is a flag.',
-    *   type: 'info'
-    * });
-    *
-    * // Close the flag.
-    * flag.close()
-    *
-    */
-  }, {
-    key: 'close',
-    value: function close() {
-      this.flag.close();
-    }
-  }]);
-
-  return Flag;
-})();
-
-_dispatchersEvent_dispatcher2['default'].register('flag-closed', function (data) {
-  if (_flags[data.id] && _dollar2['default'].isFunction(_flags[data.id].onTriggers['close'])) {
-    _flags[data.id].onTriggers['close']();
-  }
-  if (_flags[data.id]) {
-    delete _flags[data.id];
-  }
-});
-
-exports['default'] = {
-  /**
-  * @name create
-  * @method
-  * @description Creates a new flag.
-  * @param {Object} options           Options of the flag.
-  * @param {String} options.title     The title text of the flag.
-  * @param {String} options.body      The body text of the flag.
-  * @param {String} options.type=info Sets the type of the message. Valid options are "info", "success", "warning" and "error".
-  * @param {String} options.close     The closing behaviour that this flag has. Valid options are "manual", "auto" and "never".
-  * @returns {Flag~Flag}
-  * @example
-  * // Display a nice green flag using the Flags JavaScript API.
-  * var flag = AP.flag.create({
-  *   title: 'Succesfully created a flag.',
-  *   body: 'This is a flag.',
-  *   type: 'success'
-  * });
-  */
-  create: {
-    constructor: Flag,
-    on: Flag.prototype.on,
-    close: Flag.prototype.close
-  }
-};
-module.exports = exports['default'];
-
-},{"../dollar":33,"actions/flag_actions":12,"components/flag":23,"dispatchers/event_dispatcher":32}],39:[function(_dereq_,module,exports){
-/**
-* Messages are the primary method for providing system feedback in the product user interface.
-* Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
-* For visual examples of each kind please see the [Design guide](https://developer.atlassian.com/design/latest/communicators/messages/).
-* ### Example ###
-* ```
-* AP.require("messages", function(messages){
-*   //create a message
-*   var message = messages.info('plain text title', 'plain text body');
-* });
-* ```
-* This module has been deprecated and may be removed in future releases. Please use the [Flag module](module-Flag.html) instead.
-* @name messages
-* @module
-*/
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _underscore = _dereq_('../underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-var MESSAGE_BAR_ID = 'ac-message-container';
-var MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
-var MSGID_PREFIX = 'ap-message-';
-var MSGID_REGEXP = new RegExp('^' + MSGID_PREFIX + '[0-9A-fa-f]+$');
-var _messages = {};
-
-function validateMessageId(msgId) {
-  return MSGID_REGEXP.test(msgId);
-}
-
-function getMessageBar() {
-  var $msgBar = (0, _dollar2['default'])('#' + MESSAGE_BAR_ID);
-
-  if ($msgBar.length < 1) {
-    $msgBar = (0, _dollar2['default'])('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
-  }
-  return $msgBar;
-}
-
-function filterMessageOptions(options) {
-  var copy = {};
-  var allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
-  if (_underscore2['default'].isObject(options)) {
-    allowed.forEach(function (key) {
-      if (key in options) {
-        copy[key] = options[key];
-      }
-    });
-  }
-  return copy;
-}
-
-function showMessage(name, title, body, options) {
-  var $msgBar = getMessageBar();
-  options = filterMessageOptions(options);
-  _dollar2['default'].extend(options, {
-    title: title,
-    body: AJS.escapeHtml(body)
-  });
-
-  if (_dollar2['default'].inArray(name, MESSAGE_TYPES) < 0) {
-    throw 'Invalid message type. Must be: ' + MESSAGE_TYPES.join(', ');
-  }
-  if (validateMessageId(options.id)) {
-    AJS.messages[name]($msgBar, options);
-    // Calculate the left offset based on the content width.
-    // This ensures the message always stays in the centre of the window.
-    $msgBar.css('margin-left', '-' + $msgBar.innerWidth() / 2 + 'px');
-  }
-}
-
-var deprecatedShowMessage = AJS.deprecate.fn(showMessage, 'AP.messages', {
-  deprecationType: 'API',
-  alternativeName: 'AP.flag',
-  sinceVersion: 'ACJS 5.0'
-});
-
-(0, _dollar2['default'])(document).on('aui-message-close', function (e, $msg) {
-  var _id = $msg.attr('id').replace(MSGID_PREFIX, '');
-  if (_messages[_id]) {
-    if (_dollar2['default'].isFunction(_messages[_id].onCloseTrigger)) {
-      _messages[_id].onCloseTrigger();
-    }
-    _messages[_id]._destroy();
-  }
-});
-
-var toExport = {
-  /**
-  * Close a message
-  * @name clear
-  * @method
-  * @memberof module:messages#
-  * @param    {String}    id  The id that was returned when the message was created.
-  * @example
-  * AP.require("messages", function(messages){
-  *   //create a message
-  *   var message = messages.info('title', 'body');
-  *   setTimeout(function(){
-  *     messages.clear(message);
-  *   }, 2000);
-  * });
-  */
-  clear: function clear(msg) {
-    var id = MSGID_PREFIX + msg._id;
-    if (validateMessageId(id)) {
-      (0, _dollar2['default'])('#' + id).closeMessage();
-    }
-  },
-
-  /**
-  * Trigger an event when a message is closed
-  * @name onClose
-  * @method
-  * @memberof module:messages#
-  * @param    {String}    id  The id that was returned when the message was created.
-  * @param    {Function}  callback  The function that is run when the event is triggered
-  * @example
-  * AP.require("messages", function(messages){
-  *   //create a message
-  *   var message = messages.info('title', 'body');
-  *   messages.onClose(message, function() {
-  *       console.log(message, ' has been closed!');
-  *   });
-  * });
-  */
-  onClose: function onClose(msg, callback) {
-    var id = msg._id;
-    if (_messages[id]) {
-      _messages[id].onCloseTrigger = callback;
-    }
-  }
-};
-
-/**
-* Show a generic message
-* @name generic
-* @method
-* @memberof module:messages#
-* @param    {String}            title       Sets the title text of the message.
-* @param    {String}            body        The main content of the message.
-* @param    {Object}            options             Message Options
-* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-* @returns  {String}    The id to be used when clearing the message
-* @example
-* AP.require("messages", function(messages){
-*   //create a message
-*   var message = messages.generic('title', 'generic message example');
-* });
-*/
-
-/**
-* Show an error message
-* @name error
-* @method
-* @memberof module:messages#
-* @param    {String}            title       Sets the title text of the message.
-* @param    {String}            body        The main content of the message.
-* @param    {Object}            options             Message Options
-* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-* @returns  {String}    The id to be used when clearing the message
-* @example
-* AP.require("messages", function(messages){
-*   //create a message
-*   var message = messages.error('title', 'error message example');
-* });
-*/
-
-/**
-* Show a warning message
-* @name warning
-* @method
-* @memberof module:messages#
-* @param    {String}            title       Sets the title text of the message.
-* @param    {String}            body        The main content of the message.
-* @param    {Object}            options             Message Options
-* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-* @returns  {String}    The id to be used when clearing the message
-* @example
-* AP.require("messages", function(messages){
-*   //create a message
-*   var message = messages.warning('title', 'warning message example');
-* });
-*/
-
-/**
-* Show a success message
-* @name success
-* @method
-* @memberof module:messages#
-* @param    {String}            title       Sets the title text of the message.
-* @param    {String}            body        The main content of the message.
-* @param    {Object}            options             Message Options
-* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-* @returns  {String}    The id to be used when clearing the message
-* @example
-* AP.require("messages", function(messages){
-*   //create a message
-*   var message = messages.success('title', 'success message example');
-* });
-*/
-
-/**
-* Show an info message
-* @name info
-* @method
-* @memberof module:messages#
-* @param    {String}            title       Sets the title text of the message.
-* @param    {String}            body        The main content of the message.
-* @param    {Object}            options             Message Options
-* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-* @returns  {String}    The id to be used when clearing the message
-* @example
-* AP.require("messages", function(messages){
-*   //create a message
-*   var message = messages.info('title', 'info message example');
-* });
-*/
-
-/**
-* Show a hint message
-* @name hint
-* @method
-* @memberof module:messages#
-* @param    {String}            title               Sets the title text of the message.
-* @param    {String}            body                The main content of the message.
-* @param    {Object}            options             Message Options
-* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-* @returns  {String}    The id to be used when clearing the message
-* @example
-* AP.require("messages", function(messages){
-*   //create a message
-*   var message = messages.hint('title', 'hint message example');
-* });
-*/
-MESSAGE_TYPES.forEach(function (messageType) {
-  toExport[messageType] = {
-    constructor: function constructor(title, body, options, callback) {
-      if (options._context) {
-        callback = options;
-        options = {};
-      }
-      var _id = callback._id;
-      options.id = MSGID_PREFIX + _id;
-      deprecatedShowMessage(messageType, title, body, options);
-      _messages[_id] = this;
-    }
-  };
-}, undefined);
-
-exports['default'] = toExport;
-module.exports = exports['default'];
-
-},{"../dollar":33,"../underscore":40}],40:[function(_dereq_,module,exports){
-// AUI includes underscore and exposes it globally.
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = window._;
-module.exports = exports["default"];
-
-},{}],41:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _underscore = _dereq_('./underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-function escapeSelector(s) {
-  if (!s) {
-    throw new Error('No selector to escape');
-  }
-  return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
-}
-
-function stringToDimension(value) {
-  var percent = false;
-  var unit = 'px';
-
-  if (_underscore2['default'].isString(value)) {
-    percent = value.indexOf('%') === value.length - 1;
-    value = parseInt(value, 10);
-    if (percent) {
-      unit = '%';
-    }
-  }
-
-  if (!isNaN(value)) {
-    return value + unit;
-  }
-}
-
-function getIframeByExtensionId(id) {
-  return AJS.$('iframe#' + escapeSelector(id));
-}
-
-exports['default'] = {
-  escapeSelector: escapeSelector,
-  stringToDimension: stringToDimension,
-  getIframeByExtensionId: getIframeByExtensionId
-};
-module.exports = exports['default'];
-
-},{"./underscore":40}],42:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var ButtonUtils = (function () {
-  function ButtonUtils() {
-    _classCallCheck(this, ButtonUtils);
-  }
-
-  _createClass(ButtonUtils, [{
-    key: "randomIdentifier",
-
-    // button identifier for XDM. NOT an id attribute
-    value: function randomIdentifier() {
-      return Math.random().toString(16).substring(7);
-    }
-  }]);
-
-  return ButtonUtils;
-})();
-
-var buttonUtilsInstance = new ButtonUtils();
-
-exports["default"] = buttonUtilsInstance;
-module.exports = exports["default"];
-
-},{}],43:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _dollar = _dereq_('../dollar');
-
-var _dollar2 = _interopRequireDefault(_dollar);
-
-var _util = _dereq_('../util');
-
-var _util2 = _interopRequireDefault(_util);
-
-var _button = _dereq_('./button');
-
-var _button2 = _interopRequireDefault(_button);
-
-var DialogUtils = (function () {
-  function DialogUtils() {
-    _classCallCheck(this, DialogUtils);
-  }
-
-  _createClass(DialogUtils, [{
-    key: '_size',
-    value: function _size(options) {
-      var size = options.size;
-      if (options.size === 'x-large') {
-        size = 'xlarge';
-      }
-      if (options.width === '100%' && options.height === '100%') {
-        size = 'fullscreen';
-      }
-      if (!options.size && !options.width && !options.height) {
-        size = 'medium';
-      }
-      return size;
-    }
-  }, {
-    key: '_header',
-    value: function _header(text) {
-      var headerText = '';
-      switch (typeof text) {
-        case 'string':
-          headerText = text;
-          break;
-
-        case 'object':
-          headerText = text.value;
-          break;
-      }
-
-      return headerText;
-    }
-  }, {
-    key: '_hint',
-    value: function _hint(text) {
-      if (typeof text === 'string') {
-        return text;
-      }
-      return '';
-    }
-  }, {
-    key: '_chrome',
-    value: function _chrome(options) {
-      var returnval = true;
-      if (typeof options.chrome === 'boolean') {
-        returnval = options.chrome;
-      }
-      if (options.size === 'fullscreen') {
-        returnval = true;
-      }
-      return returnval;
-    }
-  }, {
-    key: '_width',
-    value: function _width(dimension) {
-      return _util2['default'].stringToDimension(dimension);
-    }
-  }, {
-    key: '_height',
-    value: function _height(dimension) {
-      return _util2['default'].stringToDimension(dimension);
-    }
-  }, {
-    key: '_actions',
-    value: function _actions(options) {
-      var sanitizedActions = [];
-      options = options || {};
-      if (!options.actions) {
-
-        sanitizedActions = [{
-          name: 'submit',
-          text: options.submitText || 'Submit',
-          type: 'primary'
-        }, {
-          name: 'cancel',
-          text: options.cancelText || 'Cancel',
-          type: 'link'
-        }];
-      }
-
-      if (options.buttons) {
-        sanitizedActions = sanitizedActions.concat(this._buttons(options));
-      }
-
-      return sanitizedActions;
-    }
-  }, {
-    key: '_id',
-    value: function _id(str) {
-      if (typeof str !== 'string') {
-        str = Math.random().toString(36).substring(2, 8);
-      }
-      return str;
-    }
-
-    // user defined action buttons
-  }, {
-    key: '_buttons',
-    value: function _buttons(options) {
-      var buttons = [];
-      if (options.buttons && Array.isArray(options.buttons)) {
-        options.buttons.forEach(function (button) {
-          var text,
-              identifier,
-              disabled = false;
-          if (button.text && typeof button.text === 'string') {
-            text = button.text;
-          }
-          if (button.identifier && typeof button.identifier === 'string') {
-            identifier = button.identifier;
-          } else {
-            identifier = _button2['default'].randomIdentifier();
-          }
-          if (button.disabled && button.disabled === true) {
-            disabled === true;
-          }
-
-          buttons.push({
-            text: text,
-            identifier: identifier,
-            type: 'secondary',
-            custom: true,
-            disabled: disabled
-          });
-        });
-      }
-      return buttons;
-    }
-  }, {
-    key: 'sanitizeOptions',
-    value: function sanitizeOptions(options) {
-      options = options || {};
-      var sanitized = {
-        chrome: this._chrome(options),
-        header: this._header(options.header),
-        hint: this._hint(options.hint),
-        width: this._width(options.width),
-        height: this._height(options.height),
-        $content: options.$content,
-        extension: options.extension,
-        actions: this._actions(options),
-        id: this._id(options.id),
-        size: options.size
-      };
-      sanitized.size = this._size(sanitized);
-
-      return sanitized;
-    }
-
-    // such a bad idea! this entire concept needs rewriting in the p2 plugin.
-  }, {
-    key: 'moduleOptionsFromGlobal',
-    value: function moduleOptionsFromGlobal(addon_key, key) {
-      if (window._AP && window._AP.dialogModules && window._AP.dialogModules[addon_key] && window._AP.dialogModules[addon_key][key]) {
-        return window._AP.dialogModules[addon_key][key].options;
-      }
-      return false;
-    }
-  }]);
-
-  return DialogUtils;
-})();
-
-var dialogUtilsInstance = new DialogUtils();
-
-exports['default'] = dialogUtilsInstance;
-module.exports = exports['default'];
-
-},{"../dollar":33,"../util":41,"./button":42}],44:[function(_dereq_,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _util = _dereq_('../util');
-
-var _util2 = _interopRequireDefault(_util);
-
-module.exports = {
-  optionsToAttributes: function optionsToAttributes(options) {
-    var sanitized = {};
-    if (options && typeof options === 'object') {
-      if (options.width) {
-        sanitized.width = _util2['default'].stringToDimension(options.width);
-      }
-      if (options.height) {
-        sanitized.height = _util2['default'].stringToDimension(options.height);
-      }
-    }
-    return sanitized;
-  }
-};
-
-},{"../util":41}],45:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _base64 = _dereq_('base-64');
-
-var _base642 = _interopRequireDefault(_base64);
-
-var _utf8 = _dereq_('utf8');
-
-var _utf82 = _interopRequireDefault(_utf8);
-
-function parseJwtIssuer(jwt) {
-  return parseJwtClaims(jwt)['iss'];
-}
-
-function parseJwtClaims(jwt) {
-
-  if (null === jwt || '' === jwt) {
-    throw 'Invalid JWT: must be neither null nor empty-string.';
-  }
-
-  var firstPeriodIndex = jwt.indexOf('.');
-  var secondPeriodIndex = jwt.indexOf('.', firstPeriodIndex + 1);
-
-  if (firstPeriodIndex < 0 || secondPeriodIndex <= firstPeriodIndex) {
-    throw 'Invalid JWT: must contain 2 period (".") characters.';
-  }
-
-  var encodedClaims = jwt.substring(firstPeriodIndex + 1, secondPeriodIndex);
-
-  if (null === encodedClaims || '' === encodedClaims) {
-    throw 'Invalid JWT: encoded claims must be neither null nor empty-string.';
-  }
-
-  var claimsString = _utf82['default'].decode(_base642['default'].decode.call(window, encodedClaims));
-  return JSON.parse(claimsString);
-}
-
-function isJwtExpired(jwtString, skew) {
-  if (skew === undefined) {
-    skew = 60; // give a minute of leeway to allow clock skew
-  }
-  var claims = parseJwtClaims(jwtString);
-  var expires = 0;
-  var now = Math.floor(Date.now() / 1000); // UTC timestamp now
-
-  if (claims && claims.exp) {
-    expires = claims.exp;
-  }
-
-  if (expires - now < skew) {
-    return true;
-  }
-
-  return false;
-}
-
-exports['default'] = {
-  parseJwtIssuer: parseJwtIssuer,
-  parseJwtClaims: parseJwtClaims,
-  isJwtExpired: isJwtExpired
-};
-module.exports = exports['default'];
-
-},{"base-64":1,"utf8":5}],46:[function(_dereq_,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _jsuri = _dereq_('jsuri');
-
-var _jsuri2 = _interopRequireDefault(_jsuri);
-
-var _utilsJwt = _dereq_('utils/jwt');
-
-var _utilsJwt2 = _interopRequireDefault(_utilsJwt);
-
-function isJwtExpired(urlStr) {
-  var jwtStr = _getJwt(urlStr);
-  return _utilsJwt2['default'].isJwtExpired(jwtStr);
-}
-
-function _getJwt(urlStr) {
-  var url = new _jsuri2['default'](urlStr);
-  return url.getQueryParamValue('jwt');
-}
-
-function hasJwt(url) {
-  var jwt = _getJwt(url);
-  return jwt && _getJwt(url).length !== 0;
-}
-
-module.exports = {
-  hasJwt: hasJwt,
-  isJwtExpired: isJwtExpired
-};
-
-},{"jsuri":3,"utils/jwt":45}],47:[function(_dereq_,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _underscore = _dereq_('../underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-var _jsuri = _dereq_('jsuri');
-
-var _jsuri2 = _interopRequireDefault(_jsuri);
-
-function sanitizeTriggers(triggers) {
-  var onTriggers;
-  if (_underscore2['default'].isArray(triggers)) {
-    onTriggers = triggers.join(' ');
-  } else if (_underscore2['default'].isString(triggers)) {
-    onTriggers = triggers.trim();
-  }
-  return onTriggers;
-}
-
-function uniqueId() {
-  return 'webitem-' + Math.floor(Math.random() * 1000000000).toString(16);
-}
-
-// LEGACY: get addon key by webitem for p2
-function getExtensionKey($target) {
-  var cssClass = $target.attr('class');
-  var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
-  return _underscore2['default'].isArray(m) ? m[1] : false;
-}
-
-// LEGACY: get module key by webitem for p2
-function getKey($target) {
-  var cssClass = $target.attr('class');
-  var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
-  return _underscore2['default'].isArray(m) ? m[1] : false;
-}
-
-function getTargetKey($target) {
-  var cssClass = $target.attr('class');
-  var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
-  return _underscore2['default'].isArray(m) ? m[1] : false;
-}
-
-function getFullKey($target) {
-  return getExtensionKey($target) + '__' + getKey($target);
-}
-
-function getModuleOptionsForWebitem(type, $target) {
-  var addon_key = getExtensionKey($target);
-  var targetKey = getTargetKey($target);
-  var moduleType = type + 'Modules';
-  if (window._AP && window._AP[moduleType] && window._AP[moduleType][addon_key] && window._AP[moduleType][addon_key][targetKey]) {
-    return window._AP[moduleType][addon_key][targetKey].options;
-  }
-}
-
-// LEGACY - method for handling webitem options for p2
-function getOptionsForWebItem($target) {
-  var fullKey = getFullKey($target);
-
-  var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-  var options = getModuleOptionsForWebitem(type, $target);
-  if (window._AP && window._AP[type + 'Options']) {
-    options = window._AP[type + 'Options'][fullKey] || {};
-  }
-  if (!options) {
-    options = {};
-    console.warn('no webitem ' + type + 'Options for ' + fullKey);
-  }
-  options.productContext = options.productContext || {};
-  // create product context from url params
-  new _jsuri2['default']($target.attr('href')).queryPairs.forEach(function (param) {
-    options.productContext[param[0]] = param[1];
-  });
-
-  return options;
-}
-
-module.exports = {
-  sanitizeTriggers: sanitizeTriggers,
-  uniqueId: uniqueId,
-  getExtensionKey: getExtensionKey,
-  getKey: getKey,
-  getOptionsForWebItem: getOptionsForWebItem
-};
-
-},{"../underscore":40,"jsuri":3}]},{},[34])(34)
+},{}]},{},[33])(33)
 });
 
 

@@ -43,5 +43,17 @@ describe('dialog extension component', () => {
       expect($('.aui-dialog2 iframe').length).toEqual(1);
     });
 
+    it('correct dimensions', () => {
+      var dimensions = {
+        width: 456,
+        height: 321
+      };
+      DialogExtensionComponent.render(extension, dimensions);
+      var $iframe = $('.aui-dialog2 iframe');
+      expect($iframe.length).toEqual(1);
+      expect($iframe.width()).toEqual(dimensions.width);
+      expect($iframe.height()).toEqual(dimensions.height);
+    });
+
   });
 });
