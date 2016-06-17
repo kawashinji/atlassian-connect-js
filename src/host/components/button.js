@@ -72,7 +72,7 @@ class Button {
     $button.text(options.text);
     $button.data(options.data);
     $button.data({
-      name: options.name,
+      name: options.name || options.identifier,
       identifier: options.identifier || ButtonUtils.randomIdentifier()
     });
     this._additionalClasses($button, options.additionalClasses);
