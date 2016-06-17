@@ -57,6 +57,14 @@ class Button {
     return $($button).data('identifier');
   }
 
+  isVisible($button) {
+    return $($button).is(":visible");
+  }
+
+  isEnabled($button) {
+    return !($($button).attr('aria-disabled') === 'true');
+  }
+
   render (options) {
     var $button = $("<button />");
     options = options || {};

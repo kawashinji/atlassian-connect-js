@@ -96,8 +96,8 @@ class Button {
       throw new Error('Failed to find an active dialog.');
     }
     this.name = name;
-    this.enabled = true;
-    this.hidden = false;
+    this.enabled = DialogExtensionComponent.buttonIsEnabled(name);
+    this.hidden = !DialogExtensionComponent.buttonIsVisible(name);
   }
   /**
    * Sets the button state to enabled

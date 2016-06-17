@@ -37,6 +37,13 @@ function getActionBar($dialog) {
   return $actionBar;
 }
 
+function getButtonByName(name, $dialog) {
+  const $actionBar = getActionBar($dialog);
+  return $actionBar.find('.aui-button').filter(function () {
+    return Button.getName(this) === name;
+  });
+}
+
 class Dialog {
   constructor () {
   }
@@ -206,6 +213,22 @@ class Dialog {
     return getActiveDialog();
   }
 
+  buttonIsEnabled(name) {
+    const $dialog = getActiveDialog();
+    if ($dialog) {
+      const $button = getButtonByName(name, $dialog);
+      return Button.isEnabled($button);
+    }
+  }
+
+  buttonIsVisible(name) {
+    const $dialog = getActiveDialog();
+    if ($dialog) {
+      const $button = getButtonByName(name, $dialog);
+      return Button.isVisible($button);
+    }
+  }
+
   /**
   * takes either a target spec or a filter function
   * returns all matching dialogs
@@ -283,11 +306,16 @@ EventDispatcher.register('dialog-close', (data) => {
 EventDispatcher.register('dialog-button-toggle', (data) => {
   const $dialog = getActiveDialog();
   if ($dialog) {
-    const $actionBar = getActionBar($dialog);
-    const $button = $actionBar.find('.aui-button').filter(function () {
-      return Button.getName(this) === data.name;
-    });
+    const $button = getButtonByName(data.name, $dialog);
     ButtonActions.toggle($button, !data.enabled);
+  }
+});
+
+EventDispatcher.register('dialog-button-toggle-visibility', (data) => {
+  const $dialog = getActiveDialog();
+  if ($dialog) {
+    const $button = getButtonByName(data.name, $dialog);
+    $button.toggle(!data.hidden);
   }
 });
 
@@ -304,17 +332,6 @@ EventDispatcher.register('button-clicked', (data) => {
         extension: $button.extension
       });
     }
-  }
-});
-
-EventDispatcher.register('dialog-button-toggle-visibility', (data) => {
-  const $dialog = getActiveDialog();
-  if ($dialog) {
-    const $actionBar = getActionBar($dialog);
-    const $button = $actionBar.find('.aui-button').filter(function () {
-      return $(this).data('name') === data.name;
-    });
-    $button.toggle(!data.hidden);
   }
 });
 
