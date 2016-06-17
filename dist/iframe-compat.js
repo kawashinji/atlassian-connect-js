@@ -210,7 +210,6 @@ AP.dialog.createButton = AP._hostModules.dialog.createButton = function (options
     buttonProperties = options;
   }
   if (!buttonProperties.identifier) {
-
     buttonProperties.identifier = 'user.button.' + customButtonIncrement++;
   }
   var createButton = original_dialogCreateButton(buttonProperties);

@@ -2587,7 +2587,7 @@ var Button = (function () {
       $button.text(options.text);
       $button.data(options.data);
       $button.data({
-        name: options.name,
+        name: options.name || options.text,
         identifier: options.identifier || _utilsButton2['default'].randomIdentifier()
       });
       this._additionalClasses($button, options.additionalClasses);
