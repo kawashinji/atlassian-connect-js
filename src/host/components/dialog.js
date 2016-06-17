@@ -28,6 +28,15 @@ function getActiveDialog() {
   }
 }
 
+function getActionBar($dialog) {
+  $dialog = $dialog.$el || $dialog;
+  var $actionBar = $dialog.find('.' + DIALOG_HEADER_ACTIONS_CLASS);
+  if(!$actionBar.length) {
+    $actionBar = $dialog.find('.' + DIALOG_FOOTER_ACTIONS_CLASS);
+  }
+  return $actionBar;
+}
+
 class Dialog {
   constructor () {
   }
@@ -226,10 +235,7 @@ class Dialog {
       addon_key: extension.addon_key,
       key: extension.key
     }));
-    var $actionBar = $dialog.find('.' + DIALOG_HEADER_ACTIONS_CLASS);    
-    if(!$actionBar.length) {
-      $actionBar = $dialog.find('.' + DIALOG_FOOTER_ACTIONS_CLASS);
-    }
+    var $actionBar = getActionBar($dialog);
     $actionBar.append($button);
     return $dialog;
   }
@@ -275,9 +281,10 @@ EventDispatcher.register('dialog-close', (data) => {
 });
 
 EventDispatcher.register('dialog-button-toggle', (data) => {
-  const dialog = getActiveDialog();
-  if (dialog) {
-    const $button = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
+  const $dialog = getActiveDialog();
+  if ($dialog) {
+    const $actionBar = getActionBar($dialog);
+    const $button = $actionBar.find('.aui-button').filter(function () {
       return Button.getName(this) === data.name;
     });
     ButtonActions.toggle($button, !data.enabled);
@@ -301,9 +308,10 @@ EventDispatcher.register('button-clicked', (data) => {
 });
 
 EventDispatcher.register('dialog-button-toggle-visibility', (data) => {
-  const dialog = getActiveDialog();
-  if (dialog) {
-    const $button = dialog.$el.find(".aui-dialog2-footer-actions .aui-button").filter(function () {
+  const $dialog = getActiveDialog();
+  if ($dialog) {
+    const $actionBar = getActionBar($dialog);
+    const $button = $actionBar.find('.aui-button').filter(function () {
       return $(this).data('name') === data.name;
     });
     $button.toggle(!data.hidden);

@@ -237,7 +237,6 @@ class Button {
   }
 
   setHidden(hidden) {
-    console.log(this.name);
     this.hidden = hidden;
     DialogActions.toggleButtonVisibility({
       name: this.name,
