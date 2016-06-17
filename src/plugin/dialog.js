@@ -121,7 +121,7 @@ let original_dialogCreateButton = AP.dialog.createButton.prototype.constructor.b
 AP.dialog.createButton = AP._hostModules.dialog.createButton = function(options) {
   let buttonProperties = {};
   if(typeof options !== "object") {
-    buttonProperties.name = buttonProperties.text = options;
+    buttonProperties.text = options;
   } else {
     buttonProperties = options;
   }
