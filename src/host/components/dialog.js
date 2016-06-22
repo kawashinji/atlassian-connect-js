@@ -37,10 +37,10 @@ function getActionBar($dialog) {
   return $actionBar;
 }
 
-function getButtonByName(name, $dialog) {
+function getButtonByIdentifier(id, $dialog) {
   const $actionBar = getActionBar($dialog);
   return $actionBar.find('.aui-button').filter(function () {
-    return Button.getName(this) === name;
+    return Button.getIdentifier(this) === id;
   });
 }
 
@@ -213,18 +213,18 @@ class Dialog {
     return getActiveDialog();
   }
 
-  buttonIsEnabled(name) {
+  buttonIsEnabled(identifier) {
     const $dialog = getActiveDialog();
     if ($dialog) {
-      const $button = getButtonByName(name, $dialog);
+      const $button = getButtonByIdentifier(name, $dialog);
       return Button.isEnabled($button);
     }
   }
 
-  buttonIsVisible(name) {
+  buttonIsVisible(identifier) {
     const $dialog = getActiveDialog();
     if ($dialog) {
-      const $button = getButtonByName(name, $dialog);
+      const $button = getButtonByIdentifier(name, $dialog);
       return Button.isVisible($button);
     }
   }
@@ -306,7 +306,7 @@ EventDispatcher.register('dialog-close', (data) => {
 EventDispatcher.register('dialog-button-toggle', (data) => {
   const $dialog = getActiveDialog();
   if ($dialog) {
-    const $button = getButtonByName(data.name, $dialog);
+    const $button = getButtonByIdentifier(data.identifier, $dialog);
     ButtonActions.toggle($button, !data.enabled);
   }
 });
@@ -314,7 +314,7 @@ EventDispatcher.register('dialog-button-toggle', (data) => {
 EventDispatcher.register('dialog-button-toggle-visibility', (data) => {
   const $dialog = getActiveDialog();
   if ($dialog) {
-    const $button = getButtonByName(data.name, $dialog);
+    const $button = getButtonByIdentifier(data.identifier, $dialog);
     $button.toggle(!data.hidden);
   }
 });

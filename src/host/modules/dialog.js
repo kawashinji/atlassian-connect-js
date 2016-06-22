@@ -91,13 +91,14 @@ class Dialog {
  * @description A dialog button that can be controlled with JavaScript
  */
 class Button {
-  constructor(name) {
+  constructor(identifier) {
     if (!DialogExtensionComponent.getActiveDialog()) {
       throw new Error('Failed to find an active dialog.');
     }
-    this.name = name;
-    this.enabled = DialogExtensionComponent.buttonIsEnabled(name);
-    this.hidden = !DialogExtensionComponent.buttonIsVisible(name);
+    this.name = identifier;
+    this.identifier = identifier;
+    this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
+    this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
   }
   /**
    * Sets the button state to enabled
@@ -165,7 +166,7 @@ class Button {
   setState(state) {
     this.enabled = state.enabled;
     DialogActions.toggleButton({
-      name: this.name,
+      identifier: this.identifier,
       enabled: this.enabled
     });
   }
@@ -239,7 +240,7 @@ class Button {
   setHidden(hidden) {
     this.hidden = hidden;
     DialogActions.toggleButtonVisibility({
-      name: this.name,
+      identifier: this.identifier,
       hidden: this.hidden
     });
   }
