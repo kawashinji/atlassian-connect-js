@@ -1,4 +1,4 @@
-AP.define("_rpc", ["_dollar", "_xdm", "_util", "_create_iframe", "_dispatch_custom_event"], function ($, XdmRpc, util, createIframe, dispatchCustomEvent) {
+AP.define("_rpc", ["_dollar", "_xdm", "_util", "_create-iframe", "_dispatch-custom-event"], function ($, XdmRpc, util, createIframe, dispatchCustomEvent) {
 
   "use strict";
 
@@ -36,11 +36,11 @@ AP.define("_rpc", ["_dollar", "_xdm", "_util", "_create_iframe", "_dispatch_cust
         // add stubs for each public api
         each(apis, function (method) { stubs.push(method); });
         // empty config for add-on-side ctor
-        rpc = this.rpc = new XdmRpc($, {}, {remote: stubs, local: internals}, window.top, undefined);
+        rpc = this.rpc = new XdmRpc($, { noIframe: true, target: window.top }, {remote: stubs, local: internals});
         rpc.init();
         extend(proxy, rpc);
         each(inits, function (_, init) {
-          try { init(extend({}, options)); }
+          try { init(extend({}, options), rpc); }
           catch (ex) { $.handleError(ex); }
         });
         isInited = true;
@@ -52,20 +52,18 @@ AP.define("_rpc", ["_dollar", "_xdm", "_util", "_create_iframe", "_dispatch_cust
       if (containerEl) {
         var existingFrameList = containerEl.getElementsByTagName('iframe');
         if(existingFrameList.length > 0) {
-          dispatchCustomEvent(existingFrameList[0], 'ra.iframe.destroy')
+          dispatchCustomEvent(existingFrameList[0], 'ra.iframe.destroy');
           existingFrameList[0].remove();
         }
       }
 
-      var iframe = createIframe(xdmConfig);
-
       // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
-      var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internalsForFrame)}, iframe.contentWindow, iframe);
+      var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internalsForFrame)});
 
       each(initsForFrame, function (key, initForFrame) {
         try {
-          var options = extend({}, options);
-          initForFrame(options, rpc);
+          var optionsClone = extend({}, options);
+          initForFrame(optionsClone, rpc);
         }
         catch (ex) {
           console.log(ex);

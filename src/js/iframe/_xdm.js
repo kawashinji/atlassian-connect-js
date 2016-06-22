@@ -1,8 +1,6 @@
-var deps = ["_events", "_jwt", "_uri"];
-if(this.AP){
-  deps = ["_events", "_jwt", "_uri"];
-}
-( (typeof _AP !== "undefined") ? define : AP.define)("_xdm", deps, function (events, jwt, uri) {
+var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
+
+( (typeof _AP !== "undefined") ? define : AP.define)("_xdm", deps, function (events, jwt, uri, createIframe) {
   "use strict";
 
   // Capture some common values and symbol aliases
@@ -36,8 +34,9 @@ if(this.AP){
    *    XdmRpc creates stubs to these functions that can be invoked from the current page.
    * @returns XdmRpc instance
    * @constructor
+   *
    */
-  function XdmRpc($, config, bindings, target, iframe) {
+  function XdmRpc($, config, bindings) {
 
     var self, id, remoteOrigin, channel, mixin,
         localKey, remoteKey, addonKey, realAddonKey,
@@ -92,7 +91,18 @@ if(this.AP){
     //  - xdm_c contains a unique channel name; this is a holdover from easyXDM that was used to distinguish
     //    postMessage events between multiple iframes with identical xdm_e values, though this may now be
     //    redundant with the current internal implementation of the XdmRpc and should be considered for removal
-    if (!/xdm_e/.test(loc)) { //If we're on Confluence
+    var isHost = !/xdm_e/.test(loc);
+
+    var target, iframe;
+
+    if(config.noIframe) {
+      target = config.target;
+    } else {
+      iframe = createIframe(config);
+      target = iframe.contentWindow;
+    }
+
+    if (isHost || iframe !== undefined) {
       // Host-side constructor branch
       //TODO: This is put into the event bus, but is never really used. If _event was used, when this was set, then that event would never match any of the channels in addons.js. This should be refactored away.
       localKey = "IsNotUsed";
@@ -106,7 +116,23 @@ if(this.AP){
         isHost: true,
         iframe: iframe,
         uiParams: config.uiParams,
-        destroy: function () {
+        isActive: function () {
+          // Host-side instances are only active as long as the iframe they communicate with still exists in the DOM
+          if (!isHost && target !== window.top) {
+            return document.contains(self.iframe);
+          }
+
+          if(isHost && iframe) {
+            return $.contains(document.documentElement, self.iframe);
+          }
+
+          //This is a bridge for a frame of a frame. We can't tell if the frame is still there.
+          return true; //Bridges for frames of frames are never destroyed. This should be ok, because each bridge only has a single target frame, and that frame should never change.
+        }
+      };
+
+      if(isHost) {
+        mixin.destroy = function () {
           window.clearTimeout(self.timeout); //clear the iframe load time.
           // Unbind postMessage handler when destroyed
           unbind();
@@ -115,40 +141,12 @@ if(this.AP){
             $(self.iframe).remove();
             delete self.iframe;
           }
-        },
-        isActive: function () {
-          // Host-side instances are only active as long as the iframe they communicate with still exists in the DOM
-          if(iframe) {
-            return $.contains(document.documentElement, self.iframe);
-          } else {
-            //This is a bridge for a frame of a frame. We can't tell if the frame is still there.
-            return true; //Bridges for frames of frames are never destroyed. This should be ok, because each bridge only has a single target frame, and that frame should never change.
-          }
+        };
+
+        if (iframe) {
+          $(iframe).on('ra.iframe.destroy', mixin.destroy);
         }
-      };
-      if (iframe) {
-        $(iframe).on('ra.iframe.destroy', mixin.destroy);
       }
-    } else if (iframe != undefined) { //If we're at a middle frame
-      localKey = "IsNotUsed";
-      remoteKey = config.remoteKey;
-      realAddonKey = remoteKey;
-      addonKey = remoteKey;
-      remoteOrigin = (config.remoteOrigin ? config.remoteOrigin : getBaseUrl(config.remote)).toLowerCase();
-      channel = config.channel;
-      // Define the host-side mixin
-      mixin = {
-        isHost: true,
-        iframe: iframe,
-        uiParams: config.uiParams,
-        isActive: function () {
-          if (target !== window.top) {
-            return document.contains(self.iframe);
-          } else {
-            return true;
-          }
-        }
-      };
     } else {
       // Add-on-side constructor branch
       localKey = "local"; // Would be better to make this the add-on key, but it's not readily available at this time
@@ -178,31 +176,41 @@ if(this.AP){
 
     // Sends a message of a specific type to the remote peer via a post-message event
     function send(sid, type, message) {
+      message = message || {};
       try {
         // Sanitize the incoming message arguments
-        if (message && message.a) {
+        if (message.a) {
           message.a = sanitizeStructuredClone(message.a);
         }
 
-        var toParentMethods = ["resize", "sizeToParent", "init"];
-        //If the method name is in the parent whitelist
-        if (message && toParentMethods.indexOf(message.n) !== -1 && target === window.top) {
-          window.parent.postMessage({
+        if(message.n === 'registerInnerIframe') {
+          return window.top.postMessage({
             c: channel,
             i: sid,
             k: realAddonKey,
             t: type,
             m: message
           }, "*");
-        } else {
-          target.postMessage({
+        }
+
+        var middleFrameMethods = ["resize", "sizeToParent", "init"];
+        if (middleFrameMethods.indexOf(message.n) > -1 && target === window.top) {
+          return window.parent.postMessage({
             c: channel,
             i: sid,
             k: realAddonKey,
             t: type,
             m: message
-          }, remoteOrigin);
+          }, "*");
         }
+
+        return target.postMessage({
+          c: channel,
+          i: sid,
+          k: realAddonKey,
+          t: type,
+          m: message
+        }, remoteOrigin);
       } catch (ex) {
         log(errmsg(ex));
       }
@@ -229,20 +237,20 @@ if(this.AP){
     }
 
     // Handles an normalized, incoming post-message event
-    function receive(e) {
+    function receive(event) {
       try {
         // Extract message payload from the event
-        var payload = e.data,
-            pid = payload.i, pchannel = payload.c, ptype = payload.t, pmessage = payload.m;
+        var payload = event.data,
+            pid = payload.i, pchannel = payload.c, ptype = payload.t, pmessage = payload.m, name = pmessage.n;
 
         // If the payload doesn't match our expected event signature, assume its not part of the xdm-rpc protocol
-        if (e.source !== target || e.origin.toLowerCase() !== remoteOrigin || pchannel !== channel){
+        if (name !== 'registerInnerIframe' && (event.source !== target || event.origin.toLowerCase() !== remoteOrigin || pchannel !== channel)){
           return;
         }
 
         if (ptype === "request") {
           // If the payload type is request, this is an incoming method invocation
-          var name = pmessage.n, args = pmessage.a,
+          var args = pmessage.a,
               local = locals[name], done, fail, async;
           if (local) {
             // The message name matches a locally defined RPC method, so inspect and invoke it according
@@ -257,7 +265,7 @@ if(this.AP){
             var context = locals;
             if(self.isHost === true){
                 context = self;
-                if(context.analytics){
+                if(context.analytics) {
                   context.analytics.trackBridgeMethod(name);
                 }
             } else {
@@ -269,7 +277,7 @@ if(this.AP){
                 local.apply(context, args.concat([done, fail]));
               } else {
                 // Otherwise, immediately respond with the result
-                done(local.apply(context, args));
+                done(local.apply(context, args.concat([event])));
               }
             } catch (ex) {
               // If the invocation threw an error, invoke the fail responder callback with it
@@ -495,7 +503,7 @@ if(this.AP){
     bind();
 
     var bridgeThis = this;
-    
+
     self.bridgeReceive = function(){
       return receive.apply(bridgeThis, arguments);
     };

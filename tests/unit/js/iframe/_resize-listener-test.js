@@ -36,15 +36,15 @@
         });
 
         test('iframe is created at the specified width', function () {
-            this.createXdm("blank.html", { width:10, height: 11});
+            this.createXdm("blank.html", { width:'10', height: '11'});
 
-            equal($("iframe#" + this.iframeId())[0].offsetWidth, 10, "iframe starts at 10px wide");
+            equal($("iframe#" + this.iframeId()).width(), 10, "iframe starts at 10px wide");
         });
 
         test('iframe is created at the specified height', function () {
             this.createXdm("blank.html", { width:10, height: 11});
 
-            equal($("iframe#" + this.iframeId())[0].offsetHeight, 11, "iframe starts at 11px high");
+            equal($("iframe#" + this.iframeId()).height(), 11, "iframe starts at 11px high");
         });
 
         test('AP.resize crosses the bridge', function () {

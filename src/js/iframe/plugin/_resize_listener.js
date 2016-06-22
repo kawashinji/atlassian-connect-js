@@ -1,4 +1,4 @@
-(window.AP || window._AP).define("_resize_listener", ["_dollar"], function ($) {
+(window.AP || window._AP).define("_resize_listener", ["_dollar", "_dispatch-custom-event"], function ($, dispatchCustomEvent) {
 
     "use strict";
 
@@ -53,9 +53,7 @@
                     y = height;
                 }
                 if (change && event.currentTarget != element) {
-                    var event = document.createEvent('Event');
-                    event.initEvent('resize', true, true);
-                    element.dispatchEvent(event);
+                    dispatchCustomEvent(element, 'resize');
                 }
             };
 

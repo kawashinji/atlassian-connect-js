@@ -1,4 +1,4 @@
-AP.require(["_rpc", "_util", "_dispatch_custom_event"], function (rpc, util, dispatchCustomEvent) {
+AP.require(["_rpc", "_util", "_dispatch-custom-event"], function (rpc, util, dispatchCustomEvent) {
     "use strict";
 
     /**

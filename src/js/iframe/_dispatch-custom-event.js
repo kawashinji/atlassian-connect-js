@@ -1,4 +1,4 @@
-( (typeof _AP !== "undefined") ? define : AP.define)("_dispatch_custom_event", [], function () {
+( (typeof _AP !== "undefined") ? define : AP.define)("_dispatch-custom-event", [], function () {
 
     /**
      * Dispatches a custom event to the given target element

@@ -1,8 +1,8 @@
 /* stand in _init for iframe fixtures */
 AP.require(
-  ["_dollar", "_rpc", "_resize_listener", "env", "request", "dialog"],
+  ["_dollar", "_rpc", "_resize_listener", "env", "request", "dialog", "register-inner-iframe"],
 
-  function ($, rpc, resizeListener, env, request, dialog) {
+  function ($, rpc, resizeListener, env, request, dialog, registerInnerIframe) {
   "use strict";
 
   function injectBase() {
@@ -96,7 +96,7 @@ AP.require(
                   $.log("Your page should have a root block element with an ID called #content or class called .ac-content if you want your page to dynamically resize after the initial load.");
               }
           });
-        }
+          }
       }
     }
 

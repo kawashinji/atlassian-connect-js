@@ -1,4 +1,4 @@
-AP.define("_create_inner_frame", ['_ui-params', '_initialise_iframe_request', '_rpc', "_util"], function(uiParams, initialiseIframeRequest, rpc, util) {
+AP.define("_create_inner_frame", ['_ui-params', '_rpc', "_util"], function(uiParams, rpc, util) {
 
     function contentDiv(namespace) {
         if(!namespace){
@@ -29,10 +29,8 @@ AP.define("_create_inner_frame", ['_ui-params', '_initialise_iframe_request', '_
      * @param {Options} options These values come from the velocity template and can be overridden using uiParams
      */
     function create(options) {
-
-        window.mostRecentMacroOptions = options;
         if(typeof options.uiParams !== "object"){
-            options.uiParams = uiParams.fromUrl(options.src);
+            options.uiParams = uiParams.fromUrl(options.src) || {};
         }
 
         var ns = options.ns,
@@ -41,13 +39,7 @@ AP.define("_create_inner_frame", ['_ui-params', '_initialise_iframe_request', '_
                 initWidth = options.w || "100%",
                 initHeight = options.h || "0";
 
-        if(typeof options.uiParams !== "object"){
-            options.uiParams = {};
-        }
-
-        if(!!options.general) {
-            options.uiParams.isGeneral = true;
-        }
+        options.uiParams.isGeneral = !!options.general;
 
         var xdmOptions = {
             remote: options.src,
@@ -67,7 +59,6 @@ AP.define("_create_inner_frame", ['_ui-params', '_initialise_iframe_request', '_
     }
 
     //TODO: In the future send the JSON blob up to the top frame.
-
     return function(iframeData) {
 
         var attemptCounter = 0;
@@ -88,5 +79,5 @@ AP.define("_create_inner_frame", ['_ui-params', '_initialise_iframe_request', '_
         doCreate();
     };
 
-    
+
 });

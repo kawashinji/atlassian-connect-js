@@ -39,13 +39,13 @@
         '_events': 'iframe/_events',
         'env': 'iframe/host/env',
         'resize': 'iframe/host/resize',
-        'inner-bridge-create': 'iframe/host/inner-bridge-create',
+        'register-inner-iframe': 'iframe/host/register-inner-iframe',
         'loading-indicator': 'iframe/host/loading-indicator',
         'content': 'iframe/host/content',
         'host/_addons': 'iframe/host/_addons',
         '_base64': 'iframe/_base64',
-        '_create_iframe': 'iframe/_create_iframe',
-        '_dispatch_custom_event': 'iframe/_dispatch_custom_event',
+        '_create-iframe': 'iframe/_create-iframe',
+        '_dispatch-custom-event': 'iframe/_dispatch-custom-event',
         '_jwt': 'iframe/_jwt',
         'host/jwt-keepalive': 'iframe/host/jwt-keepalive',
         '_xdm': 'iframe/_xdm',
@@ -62,14 +62,14 @@
         '_events',
         'resize',
         'loading-indicator',
-        'inner-bridge-create',
         'content',
         '_uri',
         '_uritemplate',
         'host/_addons',
         '_base64',
-        '_create_iframe',
-        '_dispatch_custom_event',
+        '_create-iframe',
+        'register-inner-iframe',
+        '_dispatch-custom-event',
         'analytics/analytics',
         '_jwt',
         'host/jwt-keepalive',
@@ -187,7 +187,7 @@
                 },
                 shim: {
                     '_jwt': ['_base64'],
-                    '_xdm': ["_events", "_jwt", "_uri",  "_ui-params", "_util", "_create_iframe", "_dispatch_custom_event"]
+                    '_xdm': ["_events", "_jwt", "_uri",  "_ui-params", "_util", "_create-iframe", "_dispatch-custom-event"]
                 },
                 modules: [
                 {

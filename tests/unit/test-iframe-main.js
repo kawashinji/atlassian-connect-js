@@ -15,6 +15,7 @@ requirejs.config({
         'iframe/host/analytics': '../host/analytics',
         'iframe/_events': '../_events',
         'iframe/_uri': '../_uri',
+        'iframe/_create-iframe': '../_create_iframe',
         '_events': '../_events',
         '_ui-params': '../_ui-params',
         '_uritemplate': '../_uritemplate'

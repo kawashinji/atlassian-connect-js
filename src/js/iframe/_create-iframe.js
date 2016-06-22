@@ -1,4 +1,4 @@
-( (typeof _AP !== "undefined") ? define : AP.define)("_create_iframe", ["_ui-params", "_dispatch_custom_event"], function (uiParams, dispatchCustomEvent) {
+( (typeof _AP !== "undefined") ? define : AP.define)("_create-iframe", ["_ui-params", "_dispatch-custom-event"], function (uiParams, dispatchCustomEvent) {
     /**
      * Creates an iframe element from based on the given config
      * @param config {Object}
@@ -13,8 +13,7 @@
         }
         var iframe = document.createElement("iframe"),
             id = "easyXDM_" + config.container + "_provider",
-            windowName = "",
-            event;
+            windowName = "";
 
         if(config.uiParams){
             windowName = uiParams.encode(config.uiParams);
@@ -23,16 +22,23 @@
         iframe.id = id;
         iframe.name = windowName;
         iframe.frameBorder = "0";
-        iframe.width = config.props.width;
-        iframe.height = config.props.height;
+
+        Object.keys(config.props).forEach(function (prop) {
+            iframe[prop] = config.props[prop];
+        });
+
         iframe.setAttribute("rel", "nofollow");
         iframe.className = "ap-iframe";
-        document.getElementById(config.container).appendChild(iframe);
 
-        iframe.src = config.remote;
+        var containerElement = document.getElementById(config.container);
+        if(containerElement) {
+            //Mimick jQuery append behaviour
+            containerElement.appendChild(iframe);
+        }
 
         dispatchCustomEvent(iframe, 'ra.iframe.create');
+        iframe.src = config.remote;
 
         return iframe;
-    }
+    };
 });
