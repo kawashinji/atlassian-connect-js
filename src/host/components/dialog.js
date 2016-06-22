@@ -303,17 +303,17 @@ EventDispatcher.register('dialog-close', (data) => {
 });
 
 EventDispatcher.register('dialog-button-toggle', (data) => {
-  const $dialog = getActiveDialog();
-  if ($dialog) {
-    const $button = getButtonByIdentifier(data.identifier, $dialog.$el);
+  const dialog = getActiveDialog();
+  if (dialog) {
+    const $button = getButtonByIdentifier(data.identifier, dialog.$el);
     ButtonActions.toggle($button, !data.enabled);
   }
 });
 
 EventDispatcher.register('dialog-button-toggle-visibility', (data) => {
-  const $dialog = getActiveDialog();
-  if ($dialog) {
-    const $button = getButtonByIdentifier(data.identifier, $dialog.$el);
+  const dialog = getActiveDialog();
+  if (dialog) {
+    const $button = getButtonByIdentifier(data.identifier, dialog.$el);
     $button.toggle(!data.hidden);
   }
 });
