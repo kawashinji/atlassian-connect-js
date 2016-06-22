@@ -206,6 +206,7 @@ AP.dialog.createButton = AP._hostModules.dialog.createButton = function (options
   var buttonProperties = {};
   if (typeof options !== "object") {
     buttonProperties.text = options;
+    buttonProperties.identifier = options;
   } else {
     buttonProperties = options;
   }

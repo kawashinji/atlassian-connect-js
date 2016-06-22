@@ -2587,7 +2587,7 @@ var Button = (function () {
       $button.text(options.text);
       $button.data(options.data);
       $button.data({
-        name: options.name || options.text,
+        name: options.name || options.identifier,
         identifier: options.identifier || _utilsButton2['default'].randomIdentifier()
       });
       this._additionalClasses($button, options.additionalClasses);
@@ -2690,7 +2690,6 @@ function getActiveDialog() {
 }
 
 function getActionBar($dialog) {
-  $dialog = $dialog.$el || $dialog;
   var $actionBar = $dialog.find('.' + DIALOG_HEADER_ACTIONS_CLASS);
   if (!$actionBar.length) {
     $actionBar = $dialog.find('.' + DIALOG_FOOTER_ACTIONS_CLASS);
@@ -2698,10 +2697,10 @@ function getActionBar($dialog) {
   return $actionBar;
 }
 
-function getButtonByName(name, $dialog) {
+function getButtonByIdentifier(id, $dialog) {
   var $actionBar = getActionBar($dialog);
   return $actionBar.find('.aui-button').filter(function () {
-    return _componentsButton2['default'].getName(this) === name;
+    return _componentsButton2['default'].getIdentifier(this) === id;
   });
 }
 
@@ -2892,19 +2891,19 @@ var Dialog = (function () {
     }
   }, {
     key: 'buttonIsEnabled',
-    value: function buttonIsEnabled(name) {
+    value: function buttonIsEnabled(identifier) {
       var $dialog = getActiveDialog();
       if ($dialog) {
-        var $button = getButtonByName(name, $dialog);
+        var $button = getButtonByIdentifier(name, $dialog);
         return _componentsButton2['default'].isEnabled($button);
       }
     }
   }, {
     key: 'buttonIsVisible',
-    value: function buttonIsVisible(name) {
+    value: function buttonIsVisible(identifier) {
       var $dialog = getActiveDialog();
       if ($dialog) {
-        var $button = getButtonByName(name, $dialog);
+        var $button = getButtonByIdentifier(name, $dialog);
         return _componentsButton2['default'].isVisible($button);
       }
     }
@@ -2991,17 +2990,17 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data
 });
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', function (data) {
-  var $dialog = getActiveDialog();
-  if ($dialog) {
-    var $button = getButtonByName(data.name, $dialog);
+  var dialog = getActiveDialog();
+  if (dialog) {
+    var $button = getButtonByIdentifier(data.identifier, dialog.$el);
     _actionsButton_actions2['default'].toggle($button, !data.enabled);
   }
 });
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle-visibility', function (data) {
-  var $dialog = getActiveDialog();
-  if ($dialog) {
-    var $button = getButtonByName(data.name, $dialog);
+  var dialog = getActiveDialog();
+  if (dialog) {
+    var $button = getButtonByIdentifier(data.identifier, dialog.$el);
     $button.toggle(!data.hidden);
   }
 });
@@ -4600,15 +4599,16 @@ var Dialog = function Dialog(options, callback) {
 ;
 
 var Button = (function () {
-  function Button(name) {
+  function Button(identifier) {
     _classCallCheck(this, Button);
 
     if (!_componentsDialog_extension2['default'].getActiveDialog()) {
       throw new Error('Failed to find an active dialog.');
     }
-    this.name = name;
-    this.enabled = _componentsDialog_extension2['default'].buttonIsEnabled(name);
-    this.hidden = !_componentsDialog_extension2['default'].buttonIsVisible(name);
+    this.name = identifier;
+    this.identifier = identifier;
+    this.enabled = _componentsDialog_extension2['default'].buttonIsEnabled(identifier);
+    this.hidden = !_componentsDialog_extension2['default'].buttonIsVisible(identifier);
   }
 
   /**
@@ -4691,7 +4691,7 @@ var Button = (function () {
     value: function setState(state) {
       this.enabled = state.enabled;
       _actionsDialog_actions2['default'].toggleButton({
-        name: this.name,
+        identifier: this.identifier,
         enabled: this.enabled
       });
     }
@@ -4777,7 +4777,7 @@ var Button = (function () {
     value: function setHidden(hidden) {
       this.hidden = hidden;
       _actionsDialog_actions2['default'].toggleButtonVisibility({
-        name: this.name,
+        identifier: this.identifier,
         hidden: this.hidden
       });
     }
