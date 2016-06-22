@@ -29,7 +29,6 @@ function getActiveDialog() {
 }
 
 function getActionBar($dialog) {
-  $dialog = $dialog.$el || $dialog;
   var $actionBar = $dialog.find('.' + DIALOG_HEADER_ACTIONS_CLASS);
   if(!$actionBar.length) {
     $actionBar = $dialog.find('.' + DIALOG_FOOTER_ACTIONS_CLASS);
@@ -306,7 +305,7 @@ EventDispatcher.register('dialog-close', (data) => {
 EventDispatcher.register('dialog-button-toggle', (data) => {
   const $dialog = getActiveDialog();
   if ($dialog) {
-    const $button = getButtonByIdentifier(data.identifier, $dialog);
+    const $button = getButtonByIdentifier(data.identifier, $dialog.$el);
     ButtonActions.toggle($button, !data.enabled);
   }
 });
@@ -314,7 +313,7 @@ EventDispatcher.register('dialog-button-toggle', (data) => {
 EventDispatcher.register('dialog-button-toggle-visibility', (data) => {
   const $dialog = getActiveDialog();
   if ($dialog) {
-    const $button = getButtonByIdentifier(data.identifier, $dialog);
+    const $button = getButtonByIdentifier(data.identifier, $dialog.$el);
     $button.toggle(!data.hidden);
   }
 });
