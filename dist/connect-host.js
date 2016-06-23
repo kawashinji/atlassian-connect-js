@@ -4393,7 +4393,10 @@ exports['default'] = {
   broadcastEvent: function broadcastEvent(type, targetSpec, event) {
     _actionsEvent_actions2['default'].broadcast(type, targetSpec, event);
   },
-  create: _create2['default']
+  create: _create2['default'],
+  getExtensions: function getExtensions(filter) {
+    return _simpleXdmDistHost2['default'].getExtensions(filter);
+  }
 };
 module.exports = exports['default'];
 

@@ -95,5 +95,8 @@ export default {
   broadcastEvent: (type, targetSpec, event) => {
     EventActions.broadcast(type, targetSpec, event);
   },
-  create
+  create: create,
+  getExtensions: (filter) => {
+    return simpleXDM.getExtensions(filter);
+  }
 };
