@@ -102,6 +102,35 @@ describe('dialog component', () => {
           expect($header.find('.aui-dialog2-header-close').length).toEqual(1);          
         });
       });
+
+      describe('buttons', () => {
+        it('gets the button visibility', () => {
+          DialogComponent.render();
+          expect(DialogComponent.buttonIsVisible('submit')).toBe(true);
+          expect(DialogComponent.buttonIsVisible('cancel')).toBe(true);
+          $('.aui-dialog2-footer-actions .ap-aui-button').hide();
+        });
+
+        it('gets the button visibility of hidden buttons', () => {
+          DialogComponent.render();
+          $('.aui-dialog2-footer-actions .ap-aui-button').hide();
+          expect(DialogComponent.buttonIsVisible('submit')).toBe(false);
+          expect(DialogComponent.buttonIsVisible('cancel')).toBe(false);
+        });
+
+        it('gets the button state', () => {
+          DialogComponent.render();
+          expect(DialogComponent.buttonIsEnabled('submit')).toBe(true);
+          expect(DialogComponent.buttonIsEnabled('cancel')).toBe(true);
+        });
+
+        it('gets the state of disabled buttons', () => {
+          DialogComponent.render();
+          $('.aui-dialog2-footer-actions .ap-aui-button').attr('aria-disabled', true);
+          expect(DialogComponent.buttonIsEnabled('submit')).toBe(false);
+          expect(DialogComponent.buttonIsEnabled('cancel')).toBe(false);
+        });
+      })
     });
 
     describe('chromeless', () => {
