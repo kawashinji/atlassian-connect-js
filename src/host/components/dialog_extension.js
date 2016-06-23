@@ -29,12 +29,12 @@ class DialogExtension {
     return DialogComponent.getActive();
   }
 
-  buttonIsEnabled(name) {
-    return DialogComponent.buttonIsEnabled(name);
+  buttonIsEnabled(identifier) {
+    return DialogComponent.buttonIsEnabled(identifier);
   }
 
-  buttonIsVisible(name) {
-    return DialogComponent.buttonIsVisible(name);
+  buttonIsVisible(identifier) {
+    return DialogComponent.buttonIsVisible(identifier);
   }
 
 }
