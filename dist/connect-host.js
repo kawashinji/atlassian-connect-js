@@ -228,8 +228,12 @@ EventEmitter.prototype.emit = function(type) {
       er = arguments[1];
       if (er instanceof Error) {
         throw er; // Unhandled 'error' event
+      } else {
+        // At least give some kind of context to the user
+        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
+        err.context = er;
+        throw err;
       }
-      throw TypeError('Uncaught, unspecified "error" event.');
     }
   }
 
@@ -958,9 +962,9 @@ var Connect = (function () {
 
   /**
    * Send a message to iframes matching the targetSpec. This message is added to
-   *  a message queue for delivery to ensure the message is received if an iframe 
+   *  a message queue for delivery to ensure the message is received if an iframe
    *  has not yet loaded
-   * 
+   *
    * @param type The name of the event type
    * @param targetSpec The spec to match against extensions when sending this event
    * @param event The event payload
@@ -975,10 +979,10 @@ var Connect = (function () {
     }
 
     /**
-     * Send a message to iframes matching the targetSpec immediately. This message will 
+     * Send a message to iframes matching the targetSpec immediately. This message will
      *  only be sent to iframes that are already open, and will not be delivered if none
      *  are currently open.
-     * 
+     *
      * @param type The name of the event type
      * @param targetSpec The spec to match against extensions when sending this event
      * @param event The event payload
@@ -1143,181 +1147,163 @@ module.exports = PostMessage;
 },{"./util":3}],3:[function(_dereq_,module,exports){
 "use strict";
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 var LOG_PREFIX = "[Simple-XDM] ";
 
-var Util = (function () {
-  function Util() {
-    _classCallCheck(this, Util);
-  }
+var util = {
 
-  _createClass(Util, [{
-    key: "locationOrigin",
-    value: function locationOrigin() {
-      if (!window.location.origin) {
-        return window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+  locationOrigin: function locationOrigin() {
+    if (!window.location.origin) {
+      return window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+    } else {
+      return window.location.origin;
+    }
+  },
+
+  randomString: function randomString() {
+    return Math.floor(Math.random() * 1000000000).toString(16);
+  },
+
+  isString: function isString(str) {
+    return typeof str === "string" || str instanceof String;
+  },
+
+  argumentsToArray: function argumentsToArray(arrayLike) {
+    return Array.prototype.slice.call(arrayLike);
+  },
+
+  argumentNames: function argumentNames(fn) {
+    return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
+    .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
+    .match(/([^\s,]+)/g) || [];
+  },
+
+  hasCallback: function hasCallback(args) {
+    var length = args.length;
+    return length > 0 && typeof args[length - 1] === 'function';
+  },
+
+  error: function error(msg) {
+    if (window.console) {
+      console.error(LOG_PREFIX + msg);
+    }
+  },
+
+  warn: function warn(msg) {
+    if (window.console) {
+      console.warn(LOG_PREFIX + msg);
+    }
+  },
+
+  _bind: function _bind(thisp, fn) {
+    if (Function.prototype.bind) {
+      return fn.bind(thisp);
+    }
+    return function () {
+      return fn.apply(thisp, arguments);
+    };
+  },
+
+  each: function each(list, iteratee) {
+    var length;
+    var key;
+    if (list) {
+      length = list.length;
+      if (length != null && typeof list !== 'function') {
+        key = 0;
+        while (key < length) {
+          if (iteratee.call(list[key], key, list[key]) === false) {
+            break;
+          }
+          key += 1;
+        }
       } else {
-        return window.location.origin;
-      }
-    }
-  }, {
-    key: "randomString",
-    value: function randomString() {
-      return Math.floor(Math.random() * 1000000000).toString(16);
-    }
-  }, {
-    key: "isString",
-    value: function isString(str) {
-      return typeof str === "string" || str instanceof String;
-    }
-  }, {
-    key: "argumentsToArray",
-    value: function argumentsToArray(arrayLike) {
-      return Array.prototype.slice.call(arrayLike);
-    }
-  }, {
-    key: "argumentNames",
-    value: function argumentNames(fn) {
-      return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
-      .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
-      .match(/([^\s,]+)/g) || [];
-    }
-  }, {
-    key: "hasCallback",
-    value: function hasCallback(args) {
-      var length = args.length;
-      return length > 0 && typeof args[length - 1] === 'function';
-    }
-  }, {
-    key: "error",
-    value: function error(msg) {
-      if (window.console) {
-        console.error(LOG_PREFIX + msg);
-      }
-    }
-  }, {
-    key: "warn",
-    value: function warn(msg) {
-      if (window.console) {
-        console.warn(LOG_PREFIX + msg);
-      }
-    }
-  }, {
-    key: "_bind",
-    value: function _bind(thisp, fn) {
-      if (Function.prototype.bind) {
-        return fn.bind(thisp);
-      }
-      return function () {
-        return fn.apply(thisp, arguments);
-      };
-    }
-  }, {
-    key: "each",
-    value: function each(o, it) {
-      var l;
-      var k;
-      if (o) {
-        l = o.length;
-        if (l != null && typeof o !== 'function') {
-          k = 0;
-          while (k < l) {
-            if (it.call(o[k], k, o[k]) === false) {
+        for (key in list) {
+          if (list.hasOwnProperty(key)) {
+            if (iteratee.call(list[key], key, list[key]) === false) {
               break;
             }
-            k += 1;
-          }
-        } else {
-          for (k in o) {
-            if (o.hasOwnProperty(k)) {
-              if (it.call(o[k], k, o[k]) === false) {
-                break;
-              }
-            }
           }
         }
       }
     }
-  }, {
-    key: "extend",
-    value: function extend(dest) {
-      var args = arguments;
-      var srcs = [].slice.call(args, 1, args.length);
-      srcs.forEach(function (source) {
-        if (typeof source === "object") {
-          Object.getOwnPropertyNames(source).forEach(function (name) {
-            dest[name] = source[name];
-          });
-        }
-      });
-      return dest;
-    }
-  }, {
-    key: "sanitizeStructuredClone",
-    value: function sanitizeStructuredClone(object) {
-      var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
-      var blackList = [Error, Node];
-      var warn = this.warn;
-      var visitedObjects = [];
+  },
 
-      function _clone(value) {
-        if (typeof value === 'function') {
-          warn("A function was detected and removed from the message.");
+  extend: function extend(dest) {
+    var args = arguments;
+    var srcs = [].slice.call(args, 1, args.length);
+    srcs.forEach(function (source) {
+      if (typeof source === "object") {
+        Object.getOwnPropertyNames(source).forEach(function (name) {
+          dest[name] = source[name];
+        });
+      }
+    });
+    return dest;
+  },
+
+  sanitizeStructuredClone: function sanitizeStructuredClone(object) {
+    var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
+    var blackList = [Error, Node];
+    var warn = util.warn;
+    var visitedObjects = [];
+
+    function _clone(value) {
+      if (typeof value === 'function') {
+        warn("A function was detected and removed from the message.");
+        return null;
+      }
+
+      if (blackList.some(function (t) {
+        if (value instanceof t) {
+          warn(t.name + " object was detected and removed from the message.");
+          return true;
+        }
+        return false;
+      })) {
+        return {};
+      }
+
+      if (value && typeof value === 'object' && whiteList.every(function (t) {
+        return !(value instanceof t);
+      })) {
+        if (visitedObjects.indexOf(value) > -1) {
+          warn("A circular reference was detected and removed from the message.");
           return null;
         }
 
-        if (blackList.some(function (t) {
-          if (value instanceof t) {
-            warn(t.name + " object was detected and removed from the message.");
-            return true;
-          }
-          return false;
-        })) {
-          return {};
-        }
+        visitedObjects.push(value);
 
-        if (value && typeof value === 'object' && whiteList.every(function (t) {
-          return !(value instanceof t);
-        })) {
-          if (visitedObjects.indexOf(value) > -1) {
-            warn("A circular reference was detected and removed from the message.");
-            return null;
-          }
+        var newValue = undefined;
 
-          visitedObjects.push(value);
-
-          var newValue = undefined;
-
-          if (Array.isArray(value)) {
-            newValue = value.map(function (element) {
-              return _clone(element);
-            });
-          } else {
-            newValue = {};
-            for (var _name in value) {
-              if (value.hasOwnProperty(_name)) {
-                var clonedValue = _clone(value[_name]);
-                if (clonedValue !== null) {
-                  newValue[_name] = clonedValue;
-                }
+        if (Array.isArray(value)) {
+          newValue = value.map(function (element) {
+            return _clone(element);
+          });
+        } else {
+          newValue = {};
+          for (var _name in value) {
+            if (value.hasOwnProperty(_name)) {
+              var clonedValue = _clone(value[_name]);
+              if (clonedValue !== null) {
+                newValue[_name] = clonedValue;
               }
             }
           }
-          return newValue;
         }
-        return value;
+        return newValue;
       }
-      return _clone(object);
+      return value;
     }
-  }]);
 
-  return Util;
-})();
+    return _clone(object);
+  }
+};
 
-module.exports = new Util();
+exports["default"] = util;
+module.exports = exports["default"];
 
 },{}],4:[function(_dereq_,module,exports){
 /**
@@ -4059,6 +4045,7 @@ var AnalyticsDispatcher = (function () {
     value: function _track(name, data) {
       var w = window;
       var prefixedName = EVENT_NAME_PREFIX + name;
+      data.version = w._AP.version;
 
       if (w.AJS.Analytics) {
         w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
