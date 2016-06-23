@@ -213,17 +213,17 @@ class Dialog {
   }
 
   buttonIsEnabled(identifier) {
-    const $dialog = getActiveDialog();
-    if ($dialog) {
-      const $button = getButtonByIdentifier(name, $dialog);
+    const dialog = getActiveDialog();
+    if (dialog) {
+      const $button = getButtonByIdentifier(identifier, dialog.$el);
       return Button.isEnabled($button);
     }
   }
 
   buttonIsVisible(identifier) {
-    const $dialog = getActiveDialog();
-    if ($dialog) {
-      const $button = getButtonByIdentifier(name, $dialog);
+    const dialog = getActiveDialog();
+    if (dialog) {
+      const $button = getButtonByIdentifier(identifier, dialog.$el);
       return Button.isVisible($button);
     }
   }

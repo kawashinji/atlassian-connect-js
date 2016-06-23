@@ -2892,18 +2892,18 @@ var Dialog = (function () {
   }, {
     key: 'buttonIsEnabled',
     value: function buttonIsEnabled(identifier) {
-      var $dialog = getActiveDialog();
-      if ($dialog) {
-        var $button = getButtonByIdentifier(name, $dialog);
+      var dialog = getActiveDialog();
+      if (dialog) {
+        var $button = getButtonByIdentifier(identifier, dialog.$el);
         return _componentsButton2['default'].isEnabled($button);
       }
     }
   }, {
     key: 'buttonIsVisible',
     value: function buttonIsVisible(identifier) {
-      var $dialog = getActiveDialog();
-      if ($dialog) {
-        var $button = getButtonByIdentifier(name, $dialog);
+      var dialog = getActiveDialog();
+      if (dialog) {
+        var $button = getButtonByIdentifier(identifier, dialog.$el);
         return _componentsButton2['default'].isVisible($button);
       }
     }
@@ -5658,10 +5658,12 @@ var DialogUtils = (function () {
 
         sanitizedActions = [{
           name: 'submit',
+          identifier: 'submit',
           text: options.submitText || 'Submit',
           type: 'primary'
         }, {
           name: 'cancel',
+          identifier: 'cancel',
           text: options.cancelText || 'Cancel',
           type: 'link'
         }];
