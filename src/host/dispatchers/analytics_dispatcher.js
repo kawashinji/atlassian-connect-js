@@ -26,6 +26,7 @@ class AnalyticsDispatcher {
   _track(name, data) {
     var w = window;
     var prefixedName = EVENT_NAME_PREFIX + name;
+    data.version = w._AP.version;
 
     if(w.AJS.Analytics){
       w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
