@@ -104,33 +104,83 @@ describe('dialog component', () => {
       });
 
       describe('buttons', () => {
-        it('gets the button visibility', () => {
-          DialogComponent.render();
-          expect(DialogComponent.buttonIsVisible('submit')).toBe(true);
-          expect(DialogComponent.buttonIsVisible('cancel')).toBe(true);
-          $('.aui-dialog2-footer-actions .ap-aui-button').hide();
+
+        describe('default', () => {
+          it('gets the button visibility', () => {
+            DialogComponent.render();
+            expect(DialogComponent.buttonIsVisible('submit')).toBe(true);
+            expect(DialogComponent.buttonIsVisible('cancel')).toBe(true);
+          });
+
+          it('gets the button visibility of hidden buttons', () => {
+            DialogComponent.render();
+            $('.aui-dialog2-footer-actions .ap-aui-button').hide();
+            expect(DialogComponent.buttonIsVisible('submit')).toBe(false);
+            expect(DialogComponent.buttonIsVisible('cancel')).toBe(false);
+          });
+
+          it('gets the button state', () => {
+            DialogComponent.render();
+            expect(DialogComponent.buttonIsEnabled('submit')).toBe(true);
+            expect(DialogComponent.buttonIsEnabled('cancel')).toBe(true);
+          });
+
+          it('gets the state of disabled buttons', () => {
+            DialogComponent.render();
+            $('.aui-dialog2-footer-actions .ap-aui-button').attr('aria-disabled', true);
+            expect(DialogComponent.buttonIsEnabled('submit')).toBe(false);
+            expect(DialogComponent.buttonIsEnabled('cancel')).toBe(false);
+          });
         });
 
-        it('gets the button visibility of hidden buttons', () => {
-          DialogComponent.render();
-          $('.aui-dialog2-footer-actions .ap-aui-button').hide();
-          expect(DialogComponent.buttonIsVisible('submit')).toBe(false);
-          expect(DialogComponent.buttonIsVisible('cancel')).toBe(false);
-        });
+        describe('custom', () => {
+          it('gets the button visibility', () => {
+            DialogComponent.render();
+            var $button = DialogComponent._renderDialogButton({
+              text: 'custom button',
+              name: 'custom button',
+              identifier: 'custom-button-1'
+            });
+            $('.aui-dialog2-footer-actions').append($button);
+            expect(DialogComponent.buttonIsVisible('custom-button-1')).toBe(true);
+          });
 
-        it('gets the button state', () => {
-          DialogComponent.render();
-          expect(DialogComponent.buttonIsEnabled('submit')).toBe(true);
-          expect(DialogComponent.buttonIsEnabled('cancel')).toBe(true);
-        });
+          it('gets the button visibility of hidden buttons', () => {
+            DialogComponent.render();
+            var $button = DialogComponent._renderDialogButton({
+              text: 'custom button',
+              name: 'custom button',
+              identifier: 'custom-button-1'
+            });
+            $('.aui-dialog2-footer-actions').append($button);
+            $('.aui-dialog2-footer-actions .ap-aui-button').hide();
+            expect(DialogComponent.buttonIsVisible('custom-button-1')).toBe(false);
+          });
 
-        it('gets the state of disabled buttons', () => {
-          DialogComponent.render();
-          $('.aui-dialog2-footer-actions .ap-aui-button').attr('aria-disabled', true);
-          expect(DialogComponent.buttonIsEnabled('submit')).toBe(false);
-          expect(DialogComponent.buttonIsEnabled('cancel')).toBe(false);
+          it('gets the button state', () => {
+            DialogComponent.render();
+            var $button = DialogComponent._renderDialogButton({
+              text: 'custom button',
+              name: 'custom button',
+              identifier: 'custom-button-1'
+            });
+            $('.aui-dialog2-footer-actions').append($button);
+            expect(DialogComponent.buttonIsEnabled('custom-button-1')).toBe(true);
+          });
+
+          it('gets the state of disabled buttons', () => {
+            DialogComponent.render();
+            var $button = DialogComponent._renderDialogButton({
+              text: 'custom button',
+              name: 'custom button',
+              identifier: 'custom-button-1'
+            });
+            $('.aui-dialog2-footer-actions').append($button);
+            $('.aui-dialog2-footer-actions .ap-aui-button').attr('aria-disabled', true);
+            expect(DialogComponent.buttonIsEnabled('custom-button-1')).toBe(false);
+          });
         });
-      })
+      });
     });
 
     describe('chromeless', () => {
