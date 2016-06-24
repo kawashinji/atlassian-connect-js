@@ -3103,13 +3103,13 @@ var DialogExtension = (function () {
     }
   }, {
     key: 'buttonIsEnabled',
-    value: function buttonIsEnabled(name) {
-      return _componentsDialog2['default'].buttonIsEnabled(name);
+    value: function buttonIsEnabled(identifier) {
+      return _componentsDialog2['default'].buttonIsEnabled(identifier);
     }
   }, {
     key: 'buttonIsVisible',
-    value: function buttonIsVisible(name) {
-      return _componentsDialog2['default'].buttonIsVisible(name);
+    value: function buttonIsVisible(identifier) {
+      return _componentsDialog2['default'].buttonIsVisible(identifier);
     }
   }]);
 
