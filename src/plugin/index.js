@@ -1,10 +1,9 @@
-//INSERT AMD STUBBER HERE!
-// import amd from './amd';
 import util from './util';
 import $ from './dollar';
 import consumerOptions from './consumer-options';
 import EventsModule from './events';
 import DialogCompat from './dialog';
+import amd from './amd';
 
 AP._hostModules._dollar = $;
 

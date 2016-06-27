@@ -1,8 +1,13 @@
-// import util from './util';
-// import $ from './dollar';
+var modules = {};
 
-var modules = {
-};
+for (let key of Object.keys(AP)) {
+  if (!key.startsWith('_')) {
+    modules[key] = {
+      name: key,
+      exports: AP[key]
+    }
+  }
+}
 
 function reqAll(deps, callback) {
   var mods = [];
@@ -82,7 +87,6 @@ export default {
     }
   },
   require: function (deps, callback) {
-
     reqAll(typeof deps === 'string' ? [deps] : deps, callback);
   }
 };
