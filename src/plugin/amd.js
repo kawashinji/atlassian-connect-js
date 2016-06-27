@@ -1,10 +1,11 @@
 var modules = {};
 
-for (let key of Object.keys(AP)) {
+// populate modules with existing ACJS modules
+for (let key of Object.keys(AP._hostModules)) {
   if (!key.startsWith('_')) {
     modules[key] = {
       name: key,
-      exports: AP[key]
+      exports: AP._hostModules[key]
     }
   }
 }
