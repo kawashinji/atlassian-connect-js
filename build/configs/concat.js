@@ -31,7 +31,7 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/_create-iframe.js',
             '<%= paths.jsSource %>' + 'iframe/_dispatch-custom-event.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_rpc.js',
-            '<%= paths.jsSource %>' + 'iframe/plugin/_create_inner_frame.js',
+            '<%= paths.jsSource %>' + 'iframe/plugin/_create-inner-frame.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/resize.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/events.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/env.js',
@@ -42,7 +42,7 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/plugin/messages.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/cookie.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/history.js',
-            '<%= paths.jsSource %>' + 'iframe/plugin/_resize_listener.js',
+            '<%= paths.jsSource %>' + 'iframe/plugin/_resize-listener.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/navigator.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_file.js'
         ],
