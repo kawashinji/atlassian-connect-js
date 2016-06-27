@@ -14,3 +14,9 @@ if(consumerOptions.get('sizeToParent') === true) {
 $.each(EventsModule, (i, method) => {
   AP._hostModules.events[i] = AP.events[i] = method;
 });
+
+AP.define = util.deprecateApi((...args) => amd.define(...args),
+  'AP.define()', null, '5.0');
+
+AP.require = util.deprecateApi((...args) => amd.require(...args),
+  'AP.require()', null, '5.0');
