@@ -18,11 +18,12 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore.js',
-      'https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.js',
-      'https://aui-cdn.atlassian.com/aui-adg/5.7.31/js/aui.js',
-      'https://aui-cdn.atlassian.com/aui-adg/5.7.31/css/aui.min.css',
+      'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js',
+      'https://aui-cdn.atlassian.com/aui-adg/5.9.17/js/aui.js',
+      'https://aui-cdn.atlassian.com/aui-adg/5.9.17/css/aui.min.css',
       'https://cdn.rawgit.com/requirejs/almond/0.3.1/almond.js',
-      'https://aui-cdn.atlassian.com/aui-adg/5.7.31/js/aui-experimental.js'
+      'https://aui-cdn.atlassian.com/aui-adg/5.9.17/js/aui-experimental.js',
+      {pattern: 'src/css/host/**', included: true, served: true}
       // {pattern: 'fixtures/**', included: false, served: true},
       // {pattern: 'dist/**', included: false, served: true}
     ],

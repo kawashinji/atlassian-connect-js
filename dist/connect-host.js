@@ -2115,6 +2115,9 @@ module.exports = {
   },
   toggleButton: function toggleButton(data) {
     _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-toggle', data);
+  },
+  toggleButtonVisibility: function toggleButtonVisibility(data) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-toggle-visibility', data);
   }
 };
 
@@ -2566,6 +2569,16 @@ var Button = (function () {
       return (0, _dollar2['default'])($button).data('identifier');
     }
   }, {
+    key: 'isVisible',
+    value: function isVisible($button) {
+      return (0, _dollar2['default'])($button).is(":visible");
+    }
+  }, {
+    key: 'isEnabled',
+    value: function isEnabled($button) {
+      return !((0, _dollar2['default'])($button).attr('aria-disabled') === 'true');
+    }
+  }, {
     key: 'render',
     value: function render(options) {
       var $button = (0, _dollar2['default'])("<button />");
@@ -2574,7 +2587,7 @@ var Button = (function () {
       $button.text(options.text);
       $button.data(options.data);
       $button.data({
-        name: options.name,
+        name: options.name || options.identifier,
         identifier: options.identifier || _utilsButton2['default'].randomIdentifier()
       });
       this._additionalClasses($button, options.additionalClasses);
@@ -2674,6 +2687,21 @@ function getActiveDialog() {
     dialog._id = dialog.$el.attr('id').replace(DLGID_PREFIX, '');
     return dialog;
   }
+}
+
+function getActionBar($dialog) {
+  var $actionBar = $dialog.find('.' + DIALOG_HEADER_ACTIONS_CLASS);
+  if (!$actionBar.length) {
+    $actionBar = $dialog.find('.' + DIALOG_FOOTER_ACTIONS_CLASS);
+  }
+  return $actionBar;
+}
+
+function getButtonByIdentifier(id, $dialog) {
+  var $actionBar = getActionBar($dialog);
+  return $actionBar.find('.aui-button').filter(function () {
+    return _componentsButton2['default'].getIdentifier(this) === id;
+  });
 }
 
 var Dialog = (function () {
@@ -2861,6 +2889,24 @@ var Dialog = (function () {
     value: function getActive() {
       return getActiveDialog();
     }
+  }, {
+    key: 'buttonIsEnabled',
+    value: function buttonIsEnabled(identifier) {
+      var dialog = getActiveDialog();
+      if (dialog) {
+        var $button = getButtonByIdentifier(identifier, dialog.$el);
+        return _componentsButton2['default'].isEnabled($button);
+      }
+    }
+  }, {
+    key: 'buttonIsVisible',
+    value: function buttonIsVisible(identifier) {
+      var dialog = getActiveDialog();
+      if (dialog) {
+        var $button = getButtonByIdentifier(identifier, dialog.$el);
+        return _componentsButton2['default'].isVisible($button);
+      }
+    }
 
     /**
     * takes either a target spec or a filter function
@@ -2895,10 +2941,7 @@ var Dialog = (function () {
         addon_key: extension.addon_key,
         key: extension.key
       }));
-      var $actionBar = $dialog.find('.' + DIALOG_HEADER_ACTIONS_CLASS);
-      if (!$actionBar.length) {
-        $actionBar = $dialog.find('.' + DIALOG_FOOTER_ACTIONS_CLASS);
-      }
+      var $actionBar = getActionBar($dialog);
       $actionBar.append($button);
       return $dialog;
     }
@@ -2949,10 +2992,16 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data
 _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', function (data) {
   var dialog = getActiveDialog();
   if (dialog) {
-    var $button = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
-      return _componentsButton2['default'].getName(this) === data.name;
-    });
+    var $button = getButtonByIdentifier(data.identifier, dialog.$el);
     _actionsButton_actions2['default'].toggle($button, !data.enabled);
+  }
+});
+
+_dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle-visibility', function (data) {
+  var dialog = getActiveDialog();
+  if (dialog) {
+    var $button = getButtonByIdentifier(data.identifier, dialog.$el);
+    $button.toggle(!data.hidden);
   }
 });
 
@@ -3051,6 +3100,16 @@ var DialogExtension = (function () {
     key: 'getActiveDialog',
     value: function getActiveDialog() {
       return _componentsDialog2['default'].getActive();
+    }
+  }, {
+    key: 'buttonIsEnabled',
+    value: function buttonIsEnabled(identifier) {
+      return _componentsDialog2['default'].buttonIsEnabled(identifier);
+    }
+  }, {
+    key: 'buttonIsVisible',
+    value: function buttonIsVisible(identifier) {
+      return _componentsDialog2['default'].buttonIsVisible(identifier);
     }
   }]);
 
@@ -4541,14 +4600,16 @@ var Dialog = function Dialog(options, callback) {
 ;
 
 var Button = (function () {
-  function Button(name) {
+  function Button(identifier) {
     _classCallCheck(this, Button);
 
     if (!_componentsDialog_extension2['default'].getActiveDialog()) {
       throw new Error('Failed to find an active dialog.');
     }
-    this.name = name;
-    this.enabled = true;
+    this.name = identifier;
+    this.identifier = identifier;
+    this.enabled = _componentsDialog_extension2['default'].buttonIsEnabled(identifier);
+    this.hidden = !_componentsDialog_extension2['default'].buttonIsVisible(identifier);
   }
 
   /**
@@ -4631,7 +4692,7 @@ var Button = (function () {
     value: function setState(state) {
       this.enabled = state.enabled;
       _actionsDialog_actions2['default'].toggleButton({
-        name: this.name,
+        identifier: this.identifier,
         enabled: this.enabled
       });
     }
@@ -4658,6 +4719,68 @@ var Button = (function () {
           extension: callback._context.extension
         });
       }
+    }
+
+    /**
+     * Query a button for its current hidden/visible state.
+     * @method isHidden
+     * @memberOf Dialog~DialogButton
+     * @param {Function} callback function to receive the button state.
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').isHidden(function(hidden){
+     *     if(hidden){
+     *       //button is hidden
+     *     }
+     *   });
+     * });
+     */
+  }, {
+    key: 'isHidden',
+    value: function isHidden(callback) {
+      callback(this.hidden);
+    }
+
+    /**
+     * Sets the button state to hidden
+     * @method hide
+     * @memberOf Dialog~DialogButton
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').hide();
+     * });
+     */
+  }, {
+    key: 'hide',
+    value: function hide() {
+      this.setHidden(true);
+    }
+
+    /**
+     * Sets the button state to visible
+     * @method show
+     * @memberOf Dialog~DialogButton
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').show();
+     * });
+     */
+  }, {
+    key: 'show',
+    value: function show() {
+      this.setHidden(false);
+    }
+  }, {
+    key: 'setHidden',
+    value: function setHidden(hidden) {
+      this.hidden = hidden;
+      _actionsDialog_actions2['default'].toggleButtonVisibility({
+        identifier: this.identifier,
+        hidden: this.hidden
+      });
     }
   }]);
 
@@ -4796,7 +4919,10 @@ module.exports = {
     disable: Button.prototype.disable,
     toggle: Button.prototype.toggle,
     isEnabled: Button.prototype.isEnabled,
-    trigger: Button.prototype.trigger
+    trigger: Button.prototype.trigger,
+    hide: Button.prototype.hide,
+    show: Button.prototype.show,
+    isHidden: Button.prototype.isHidden
   },
   /**
    * Creates a dialog button that can be controlled with javascript
@@ -5533,10 +5659,12 @@ var DialogUtils = (function () {
 
         sanitizedActions = [{
           name: 'submit',
+          identifier: 'submit',
           text: options.submitText || 'Submit',
           type: 'primary'
         }, {
           name: 'cancel',
+          identifier: 'cancel',
           text: options.cancelText || 'Cancel',
           type: 'link'
         }];
