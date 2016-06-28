@@ -122,15 +122,15 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
             return;
         }
 
-        if (alreadyInitialised(origin)) {
+        if (alreadyInitialised(channelId)) {
             return;
         }
-
-        initialisedChildren.push(origin);
 
         if (!keyMatchesOrigin(addonKey, origin)){
             return;
         }
+
+        initialisedChildren.push(channelId);
 
         var settings = rememberedIframeOptions.filter(function (settings) {
             return settings && settings.xdmOptions && settings.xdmOptions.channel === channelId;
