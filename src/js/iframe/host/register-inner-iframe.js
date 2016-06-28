@@ -9,21 +9,20 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
      * Setups up the bridge with a iframe inside a iframe
      * @param event
      */
-    function registerInnerFrameOptions(options, event) {
+    function registerInnerFrameOptions(options) {
         var addonKey = options.key;
-        var payload = event.data;
         var origin = options.origin.toLowerCase();
 
         var innerFrameOptions = $.extend({}, options);
+        var channelId = 'channel-' + innerFrameOptions.ns;
+
         innerFrameOptions.ns = innerFrameOptions.ns + "." + addonKey + "." + count++;
         innerFrameOptions.key = addonKey;
         innerFrameOptions.origin = origin;
 
         innerFrameOptions.uiParams = uiParams.fromUrl(window.location.toString()) || {};
 
-        var ns = innerFrameOptions.ns,
-            contentId = "embedded-" + ns,
-            channelId = payload.c,
+        var contentId = "embedded-" + innerFrameOptions.ns,
             initWidth = innerFrameOptions.w || "100%",
             initHeight = innerFrameOptions.h || "0";
 
@@ -54,9 +53,7 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
         return {
             internals: {
                 registerInnerIframe: function (options) {
-                    var event = arguments[1];
-
-                    registerInnerFrameOptions(options, event);
+                    registerInnerFrameOptions(options);
                 }
             }
         };
@@ -106,7 +103,8 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
         var payload = event.data,
             addonKey = payload.k,
             source = event.source,
-            origin = event.origin;
+            origin = event.origin,
+            channelId = payload.c;
 
         if(event.data.m.n === 'registerInnerIframe') {
             return;
@@ -134,7 +132,7 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
         }
 
         var settings = rememberedIframeOptions.filter(function (settings) {
-            return settings.origin === origin;
+            return settings && settings.xdmOptions && settings.xdmOptions.channel === channelId;
         })[0];
 
         var bridge = rpc.initInner(settings.innerFrameOptions, settings.xdmOptions, event.source);

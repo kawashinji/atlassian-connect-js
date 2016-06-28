@@ -277,7 +277,7 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
                 local.apply(context, args.concat([done, fail]));
               } else {
                 // Otherwise, immediately respond with the result
-                done(local.apply(context, args.concat([event])));
+                done(local.apply(context, args));
               }
             } catch (ex) {
               // If the invocation threw an error, invoke the fail responder callback with it
