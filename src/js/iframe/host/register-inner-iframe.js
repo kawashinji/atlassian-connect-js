@@ -3,13 +3,13 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
 
     var initialisedChildren = [];
     var count = 0;
-    var rememberedInnerIframeSettings = [];
+    var rememberedIframeOptions = [];
 
     /**
      * Setups up the bridge with a iframe inside a iframe
      * @param event
      */
-    function setupInnerFrameBridge(options, event) {
+    function registerInnerFrameOptions(options, event) {
         var addonKey = options.key;
         var payload = event.data;
         var origin = options.origin.toLowerCase();
@@ -43,14 +43,12 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
             uiParams: innerFrameOptions.uiParams
         };
 
-        rememberedInnerIframeSettings.push({
+        rememberedIframeOptions.push({
             innerFrameOptions: innerFrameOptions,
             xdmOptions: xdmOptions,
             origin: innerFrameOptions.origin
         });
     }
-
-
 
     rpc.extend(function () {
         return {
@@ -58,7 +56,7 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
                 registerInnerIframe: function (options) {
                     var event = arguments[1];
 
-                    setupInnerFrameBridge(options, event);
+                    registerInnerFrameOptions(options, event);
                 }
             }
         };
@@ -96,7 +94,8 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
     }
 
     /***
-     * Listens for messages coming from iframes inside iframes
+     * Listens for messages coming from iframes that dont have a bridge yet(usually iframes inside iframes)
+     * Then tries to setup a bridge on the host for the iframe inside the iframe
      *
      * @param event {Object} the message event
      */
@@ -134,7 +133,7 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
             return;
         }
 
-        var settings = rememberedInnerIframeSettings.filter(function (settings) {
+        var settings = rememberedIframeOptions.filter(function (settings) {
             return settings.origin === origin;
         })[0];
 
@@ -144,8 +143,7 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
     }
 
     /**
-     * Sets up a message listener for inner iframe messages
-     * @param options {Object} the options object containing the options needed for setting up a new bridge
+     * Listens for messages originating from a iframe without a bridge on the host
      */
     function init() {
         window.addEventListener('message', innerFrameListener);
