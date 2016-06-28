@@ -3,6 +3,16 @@ import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import dialogUtils from 'src/host/utils/dialog';
 import DialogActions from 'src/host/actions/dialog_actions';
 
+function renderDialogWithCustomButton() {
+  DialogComponent.render({
+    buttons: [{
+      text: 'custom button',
+      name: 'custom button',
+      identifier: 'custom-button-1'
+    }]
+  });
+}
+
 describe('dialog component', () => {
   afterEach(() => {
     $('.aui-dialog2').remove();
@@ -135,47 +145,23 @@ describe('dialog component', () => {
 
         describe('custom', () => {
           it('gets the button visibility', () => {
-            DialogComponent.render();
-            var $button = DialogComponent._renderDialogButton({
-              text: 'custom button',
-              name: 'custom button',
-              identifier: 'custom-button-1'
-            });
-            $('.aui-dialog2-footer-actions').append($button);
+            renderDialogWithCustomButton()
             expect(DialogComponent.buttonIsVisible('custom-button-1')).toBe(true);
           });
 
           it('gets the button visibility of hidden buttons', () => {
-            DialogComponent.render();
-            var $button = DialogComponent._renderDialogButton({
-              text: 'custom button',
-              name: 'custom button',
-              identifier: 'custom-button-1'
-            });
-            $('.aui-dialog2-footer-actions').append($button);
+            renderDialogWithCustomButton()
             $('.aui-dialog2-footer-actions .ap-aui-button').hide();
             expect(DialogComponent.buttonIsVisible('custom-button-1')).toBe(false);
           });
 
           it('gets the button state', () => {
-            DialogComponent.render();
-            var $button = DialogComponent._renderDialogButton({
-              text: 'custom button',
-              name: 'custom button',
-              identifier: 'custom-button-1'
-            });
-            $('.aui-dialog2-footer-actions').append($button);
+            renderDialogWithCustomButton()
             expect(DialogComponent.buttonIsEnabled('custom-button-1')).toBe(true);
           });
 
           it('gets the state of disabled buttons', () => {
-            DialogComponent.render();
-            var $button = DialogComponent._renderDialogButton({
-              text: 'custom button',
-              name: 'custom button',
-              identifier: 'custom-button-1'
-            });
-            $('.aui-dialog2-footer-actions').append($button);
+            renderDialogWithCustomButton()
             $('.aui-dialog2-footer-actions .ap-aui-button').attr('aria-disabled', true);
             expect(DialogComponent.buttonIsEnabled('custom-button-1')).toBe(false);
           });
