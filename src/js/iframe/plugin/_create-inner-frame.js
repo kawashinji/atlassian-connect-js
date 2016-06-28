@@ -1,4 +1,4 @@
-AP.define("_create_inner_frame", ['_ui-params', '_rpc', "_util"], function(uiParams, rpc, util) {
+AP.define("_create-inner-frame", ['_ui-params', '_rpc', "_util"], function(uiParams, rpc, util) {
 
     function contentDiv(namespace) {
         if(!namespace){

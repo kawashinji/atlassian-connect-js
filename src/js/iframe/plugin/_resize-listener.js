@@ -1,4 +1,4 @@
-(window.AP || window._AP).define("_resize_listener", ["_dollar", "_dispatch-custom-event"], function ($, dispatchCustomEvent) {
+(window.AP || window._AP).define("_resize-listener", ["_dollar", "_dispatch-custom-event"], function ($, dispatchCustomEvent) {
 
     "use strict";
 
