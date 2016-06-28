@@ -67,7 +67,7 @@ describe('AMD', () => {
   });
 
   describe('require', () => {
-    it('xisting host modules', () => {
+    it('existing host modules', () => {
       AP.require('existingModule', (existingModule) => {
         expect(existingModule).not.toBeUndefined();
         expect(existingModule.hasOwnProperty('testFunction')).toBe(true);
