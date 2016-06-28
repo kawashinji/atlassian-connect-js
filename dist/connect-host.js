@@ -228,12 +228,8 @@ EventEmitter.prototype.emit = function(type) {
       er = arguments[1];
       if (er instanceof Error) {
         throw er; // Unhandled 'error' event
-      } else {
-        // At least give some kind of context to the user
-        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
-        err.context = er;
-        throw err;
       }
+      throw TypeError('Uncaught, unspecified "error" event.');
     }
   }
 
@@ -962,9 +958,9 @@ var Connect = (function () {
 
   /**
    * Send a message to iframes matching the targetSpec. This message is added to
-   *  a message queue for delivery to ensure the message is received if an iframe
+   *  a message queue for delivery to ensure the message is received if an iframe 
    *  has not yet loaded
-   *
+   * 
    * @param type The name of the event type
    * @param targetSpec The spec to match against extensions when sending this event
    * @param event The event payload
@@ -979,10 +975,10 @@ var Connect = (function () {
     }
 
     /**
-     * Send a message to iframes matching the targetSpec immediately. This message will
+     * Send a message to iframes matching the targetSpec immediately. This message will 
      *  only be sent to iframes that are already open, and will not be delivered if none
      *  are currently open.
-     *
+     * 
      * @param type The name of the event type
      * @param targetSpec The spec to match against extensions when sending this event
      * @param event The event payload
@@ -1147,163 +1143,181 @@ module.exports = PostMessage;
 },{"./util":3}],3:[function(_dereq_,module,exports){
 "use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var LOG_PREFIX = "[Simple-XDM] ";
 
-var util = {
+var Util = (function () {
+  function Util() {
+    _classCallCheck(this, Util);
+  }
 
-  locationOrigin: function locationOrigin() {
-    if (!window.location.origin) {
-      return window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-    } else {
-      return window.location.origin;
-    }
-  },
-
-  randomString: function randomString() {
-    return Math.floor(Math.random() * 1000000000).toString(16);
-  },
-
-  isString: function isString(str) {
-    return typeof str === "string" || str instanceof String;
-  },
-
-  argumentsToArray: function argumentsToArray(arrayLike) {
-    return Array.prototype.slice.call(arrayLike);
-  },
-
-  argumentNames: function argumentNames(fn) {
-    return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
-    .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
-    .match(/([^\s,]+)/g) || [];
-  },
-
-  hasCallback: function hasCallback(args) {
-    var length = args.length;
-    return length > 0 && typeof args[length - 1] === 'function';
-  },
-
-  error: function error(msg) {
-    if (window.console) {
-      console.error(LOG_PREFIX + msg);
-    }
-  },
-
-  warn: function warn(msg) {
-    if (window.console) {
-      console.warn(LOG_PREFIX + msg);
-    }
-  },
-
-  _bind: function _bind(thisp, fn) {
-    if (Function.prototype.bind) {
-      return fn.bind(thisp);
-    }
-    return function () {
-      return fn.apply(thisp, arguments);
-    };
-  },
-
-  each: function each(list, iteratee) {
-    var length;
-    var key;
-    if (list) {
-      length = list.length;
-      if (length != null && typeof list !== 'function') {
-        key = 0;
-        while (key < length) {
-          if (iteratee.call(list[key], key, list[key]) === false) {
-            break;
-          }
-          key += 1;
-        }
+  _createClass(Util, [{
+    key: "locationOrigin",
+    value: function locationOrigin() {
+      if (!window.location.origin) {
+        return window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
       } else {
-        for (key in list) {
-          if (list.hasOwnProperty(key)) {
-            if (iteratee.call(list[key], key, list[key]) === false) {
+        return window.location.origin;
+      }
+    }
+  }, {
+    key: "randomString",
+    value: function randomString() {
+      return Math.floor(Math.random() * 1000000000).toString(16);
+    }
+  }, {
+    key: "isString",
+    value: function isString(str) {
+      return typeof str === "string" || str instanceof String;
+    }
+  }, {
+    key: "argumentsToArray",
+    value: function argumentsToArray(arrayLike) {
+      return Array.prototype.slice.call(arrayLike);
+    }
+  }, {
+    key: "argumentNames",
+    value: function argumentNames(fn) {
+      return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
+      .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
+      .match(/([^\s,]+)/g) || [];
+    }
+  }, {
+    key: "hasCallback",
+    value: function hasCallback(args) {
+      var length = args.length;
+      return length > 0 && typeof args[length - 1] === 'function';
+    }
+  }, {
+    key: "error",
+    value: function error(msg) {
+      if (window.console) {
+        console.error(LOG_PREFIX + msg);
+      }
+    }
+  }, {
+    key: "warn",
+    value: function warn(msg) {
+      if (window.console) {
+        console.warn(LOG_PREFIX + msg);
+      }
+    }
+  }, {
+    key: "_bind",
+    value: function _bind(thisp, fn) {
+      if (Function.prototype.bind) {
+        return fn.bind(thisp);
+      }
+      return function () {
+        return fn.apply(thisp, arguments);
+      };
+    }
+  }, {
+    key: "each",
+    value: function each(o, it) {
+      var l;
+      var k;
+      if (o) {
+        l = o.length;
+        if (l != null && typeof o !== 'function') {
+          k = 0;
+          while (k < l) {
+            if (it.call(o[k], k, o[k]) === false) {
               break;
             }
+            k += 1;
           }
-        }
-      }
-    }
-  },
-
-  extend: function extend(dest) {
-    var args = arguments;
-    var srcs = [].slice.call(args, 1, args.length);
-    srcs.forEach(function (source) {
-      if (typeof source === "object") {
-        Object.getOwnPropertyNames(source).forEach(function (name) {
-          dest[name] = source[name];
-        });
-      }
-    });
-    return dest;
-  },
-
-  sanitizeStructuredClone: function sanitizeStructuredClone(object) {
-    var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
-    var blackList = [Error, Node];
-    var warn = util.warn;
-    var visitedObjects = [];
-
-    function _clone(value) {
-      if (typeof value === 'function') {
-        warn("A function was detected and removed from the message.");
-        return null;
-      }
-
-      if (blackList.some(function (t) {
-        if (value instanceof t) {
-          warn(t.name + " object was detected and removed from the message.");
-          return true;
-        }
-        return false;
-      })) {
-        return {};
-      }
-
-      if (value && typeof value === 'object' && whiteList.every(function (t) {
-        return !(value instanceof t);
-      })) {
-        if (visitedObjects.indexOf(value) > -1) {
-          warn("A circular reference was detected and removed from the message.");
-          return null;
-        }
-
-        visitedObjects.push(value);
-
-        var newValue = undefined;
-
-        if (Array.isArray(value)) {
-          newValue = value.map(function (element) {
-            return _clone(element);
-          });
         } else {
-          newValue = {};
-          for (var _name in value) {
-            if (value.hasOwnProperty(_name)) {
-              var clonedValue = _clone(value[_name]);
-              if (clonedValue !== null) {
-                newValue[_name] = clonedValue;
+          for (k in o) {
+            if (o.hasOwnProperty(k)) {
+              if (it.call(o[k], k, o[k]) === false) {
+                break;
               }
             }
           }
         }
-        return newValue;
       }
-      return value;
     }
+  }, {
+    key: "extend",
+    value: function extend(dest) {
+      var args = arguments;
+      var srcs = [].slice.call(args, 1, args.length);
+      srcs.forEach(function (source) {
+        if (typeof source === "object") {
+          Object.getOwnPropertyNames(source).forEach(function (name) {
+            dest[name] = source[name];
+          });
+        }
+      });
+      return dest;
+    }
+  }, {
+    key: "sanitizeStructuredClone",
+    value: function sanitizeStructuredClone(object) {
+      var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
+      var blackList = [Error, Node];
+      var warn = this.warn;
+      var visitedObjects = [];
 
-    return _clone(object);
-  }
-};
+      function _clone(value) {
+        if (typeof value === 'function') {
+          warn("A function was detected and removed from the message.");
+          return null;
+        }
 
-exports["default"] = util;
-module.exports = exports["default"];
+        if (blackList.some(function (t) {
+          if (value instanceof t) {
+            warn(t.name + " object was detected and removed from the message.");
+            return true;
+          }
+          return false;
+        })) {
+          return {};
+        }
+
+        if (value && typeof value === 'object' && whiteList.every(function (t) {
+          return !(value instanceof t);
+        })) {
+          if (visitedObjects.indexOf(value) > -1) {
+            warn("A circular reference was detected and removed from the message.");
+            return null;
+          }
+
+          visitedObjects.push(value);
+
+          var newValue = undefined;
+
+          if (Array.isArray(value)) {
+            newValue = value.map(function (element) {
+              return _clone(element);
+            });
+          } else {
+            newValue = {};
+            for (var _name in value) {
+              if (value.hasOwnProperty(_name)) {
+                var clonedValue = _clone(value[_name]);
+                if (clonedValue !== null) {
+                  newValue[_name] = clonedValue;
+                }
+              }
+            }
+          }
+          return newValue;
+        }
+        return value;
+      }
+      return _clone(object);
+    }
+  }]);
+
+  return Util;
+})();
+
+module.exports = new Util();
 
 },{}],4:[function(_dereq_,module,exports){
 /**
@@ -2101,6 +2115,9 @@ module.exports = {
   },
   toggleButton: function toggleButton(data) {
     _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-toggle', data);
+  },
+  toggleButtonVisibility: function toggleButtonVisibility(data) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-button-toggle-visibility', data);
   }
 };
 
@@ -2552,6 +2569,16 @@ var Button = (function () {
       return (0, _dollar2['default'])($button).data('identifier');
     }
   }, {
+    key: 'isVisible',
+    value: function isVisible($button) {
+      return (0, _dollar2['default'])($button).is(":visible");
+    }
+  }, {
+    key: 'isEnabled',
+    value: function isEnabled($button) {
+      return !((0, _dollar2['default'])($button).attr('aria-disabled') === 'true');
+    }
+  }, {
     key: 'render',
     value: function render(options) {
       var $button = (0, _dollar2['default'])("<button />");
@@ -2560,7 +2587,7 @@ var Button = (function () {
       $button.text(options.text);
       $button.data(options.data);
       $button.data({
-        name: options.name,
+        name: options.name || options.identifier,
         identifier: options.identifier || _utilsButton2['default'].randomIdentifier()
       });
       this._additionalClasses($button, options.additionalClasses);
@@ -2660,6 +2687,21 @@ function getActiveDialog() {
     dialog._id = dialog.$el.attr('id').replace(DLGID_PREFIX, '');
     return dialog;
   }
+}
+
+function getActionBar($dialog) {
+  var $actionBar = $dialog.find('.' + DIALOG_HEADER_ACTIONS_CLASS);
+  if (!$actionBar.length) {
+    $actionBar = $dialog.find('.' + DIALOG_FOOTER_ACTIONS_CLASS);
+  }
+  return $actionBar;
+}
+
+function getButtonByIdentifier(id, $dialog) {
+  var $actionBar = getActionBar($dialog);
+  return $actionBar.find('.aui-button').filter(function () {
+    return _componentsButton2['default'].getIdentifier(this) === id;
+  });
 }
 
 var Dialog = (function () {
@@ -2847,6 +2889,24 @@ var Dialog = (function () {
     value: function getActive() {
       return getActiveDialog();
     }
+  }, {
+    key: 'buttonIsEnabled',
+    value: function buttonIsEnabled(identifier) {
+      var dialog = getActiveDialog();
+      if (dialog) {
+        var $button = getButtonByIdentifier(identifier, dialog.$el);
+        return _componentsButton2['default'].isEnabled($button);
+      }
+    }
+  }, {
+    key: 'buttonIsVisible',
+    value: function buttonIsVisible(identifier) {
+      var dialog = getActiveDialog();
+      if (dialog) {
+        var $button = getButtonByIdentifier(identifier, dialog.$el);
+        return _componentsButton2['default'].isVisible($button);
+      }
+    }
 
     /**
     * takes either a target spec or a filter function
@@ -2881,10 +2941,7 @@ var Dialog = (function () {
         addon_key: extension.addon_key,
         key: extension.key
       }));
-      var $actionBar = $dialog.find('.' + DIALOG_HEADER_ACTIONS_CLASS);
-      if (!$actionBar.length) {
-        $actionBar = $dialog.find('.' + DIALOG_FOOTER_ACTIONS_CLASS);
-      }
+      var $actionBar = getActionBar($dialog);
       $actionBar.append($button);
       return $dialog;
     }
@@ -2935,10 +2992,16 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data
 _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', function (data) {
   var dialog = getActiveDialog();
   if (dialog) {
-    var $button = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
-      return _componentsButton2['default'].getName(this) === data.name;
-    });
+    var $button = getButtonByIdentifier(data.identifier, dialog.$el);
     _actionsButton_actions2['default'].toggle($button, !data.enabled);
+  }
+});
+
+_dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle-visibility', function (data) {
+  var dialog = getActiveDialog();
+  if (dialog) {
+    var $button = getButtonByIdentifier(data.identifier, dialog.$el);
+    $button.toggle(!data.hidden);
   }
 });
 
@@ -3037,6 +3100,16 @@ var DialogExtension = (function () {
     key: 'getActiveDialog',
     value: function getActiveDialog() {
       return _componentsDialog2['default'].getActive();
+    }
+  }, {
+    key: 'buttonIsEnabled',
+    value: function buttonIsEnabled(identifier) {
+      return _componentsDialog2['default'].buttonIsEnabled(identifier);
+    }
+  }, {
+    key: 'buttonIsVisible',
+    value: function buttonIsVisible(identifier) {
+      return _componentsDialog2['default'].buttonIsVisible(identifier);
     }
   }]);
 
@@ -4527,14 +4600,16 @@ var Dialog = function Dialog(options, callback) {
 ;
 
 var Button = (function () {
-  function Button(name) {
+  function Button(identifier) {
     _classCallCheck(this, Button);
 
     if (!_componentsDialog_extension2['default'].getActiveDialog()) {
       throw new Error('Failed to find an active dialog.');
     }
-    this.name = name;
-    this.enabled = true;
+    this.name = identifier;
+    this.identifier = identifier;
+    this.enabled = _componentsDialog_extension2['default'].buttonIsEnabled(identifier);
+    this.hidden = !_componentsDialog_extension2['default'].buttonIsVisible(identifier);
   }
 
   /**
@@ -4617,7 +4692,7 @@ var Button = (function () {
     value: function setState(state) {
       this.enabled = state.enabled;
       _actionsDialog_actions2['default'].toggleButton({
-        name: this.name,
+        identifier: this.identifier,
         enabled: this.enabled
       });
     }
@@ -4644,6 +4719,68 @@ var Button = (function () {
           extension: callback._context.extension
         });
       }
+    }
+
+    /**
+     * Query a button for its current hidden/visible state.
+     * @method isHidden
+     * @memberOf Dialog~DialogButton
+     * @param {Function} callback function to receive the button state.
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').isHidden(function(hidden){
+     *     if(hidden){
+     *       //button is hidden
+     *     }
+     *   });
+     * });
+     */
+  }, {
+    key: 'isHidden',
+    value: function isHidden(callback) {
+      callback(this.hidden);
+    }
+
+    /**
+     * Sets the button state to hidden
+     * @method hide
+     * @memberOf Dialog~DialogButton
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').hide();
+     * });
+     */
+  }, {
+    key: 'hide',
+    value: function hide() {
+      this.setHidden(true);
+    }
+
+    /**
+     * Sets the button state to visible
+     * @method show
+     * @memberOf Dialog~DialogButton
+     * @noDemo
+     * @example
+     * AP.require('dialog', function(dialog){
+     *   dialog.getButton('submit').show();
+     * });
+     */
+  }, {
+    key: 'show',
+    value: function show() {
+      this.setHidden(false);
+    }
+  }, {
+    key: 'setHidden',
+    value: function setHidden(hidden) {
+      this.hidden = hidden;
+      _actionsDialog_actions2['default'].toggleButtonVisibility({
+        identifier: this.identifier,
+        hidden: this.hidden
+      });
     }
   }]);
 
@@ -4782,7 +4919,10 @@ module.exports = {
     disable: Button.prototype.disable,
     toggle: Button.prototype.toggle,
     isEnabled: Button.prototype.isEnabled,
-    trigger: Button.prototype.trigger
+    trigger: Button.prototype.trigger,
+    hide: Button.prototype.hide,
+    show: Button.prototype.show,
+    isHidden: Button.prototype.isHidden
   },
   /**
    * Creates a dialog button that can be controlled with javascript
@@ -5519,10 +5659,12 @@ var DialogUtils = (function () {
 
         sanitizedActions = [{
           name: 'submit',
+          identifier: 'submit',
           text: options.submitText || 'Submit',
           type: 'primary'
         }, {
           name: 'cancel',
+          identifier: 'cancel',
           text: options.cancelText || 'Cancel',
           type: 'link'
         }];

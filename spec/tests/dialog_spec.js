@@ -3,6 +3,16 @@ import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import dialogUtils from 'src/host/utils/dialog';
 import DialogActions from 'src/host/actions/dialog_actions';
 
+function renderDialogWithCustomButton() {
+  DialogComponent.render({
+    buttons: [{
+      text: 'custom button',
+      name: 'custom button',
+      identifier: 'custom-button-1'
+    }]
+  });
+}
+
 describe('dialog component', () => {
   afterEach(() => {
     $('.aui-dialog2').remove();
@@ -100,6 +110,61 @@ describe('dialog component', () => {
           var sanitizedOptions = dialogUtils.sanitizeOptions();
           var $header = DialogComponent._renderHeader(sanitizedOptions);
           expect($header.find('.aui-dialog2-header-close').length).toEqual(1);          
+        });
+      });
+
+      describe('buttons', () => {
+
+        describe('default', () => {
+          it('gets the button visibility', () => {
+            DialogComponent.render();
+            expect(DialogComponent.buttonIsVisible('submit')).toBe(true);
+            expect(DialogComponent.buttonIsVisible('cancel')).toBe(true);
+          });
+
+          it('gets the button visibility of hidden buttons', () => {
+            DialogComponent.render();
+            $('.aui-dialog2-footer-actions .ap-aui-button').hide();
+            expect(DialogComponent.buttonIsVisible('submit')).toBe(false);
+            expect(DialogComponent.buttonIsVisible('cancel')).toBe(false);
+          });
+
+          it('gets the button state', () => {
+            DialogComponent.render();
+            expect(DialogComponent.buttonIsEnabled('submit')).toBe(true);
+            expect(DialogComponent.buttonIsEnabled('cancel')).toBe(true);
+          });
+
+          it('gets the state of disabled buttons', () => {
+            DialogComponent.render();
+            $('.aui-dialog2-footer-actions .ap-aui-button').attr('aria-disabled', true);
+            expect(DialogComponent.buttonIsEnabled('submit')).toBe(false);
+            expect(DialogComponent.buttonIsEnabled('cancel')).toBe(false);
+          });
+        });
+
+        describe('custom', () => {
+          it('gets the button visibility', () => {
+            renderDialogWithCustomButton()
+            expect(DialogComponent.buttonIsVisible('custom-button-1')).toBe(true);
+          });
+
+          it('gets the button visibility of hidden buttons', () => {
+            renderDialogWithCustomButton()
+            $('.aui-dialog2-footer-actions .ap-aui-button').hide();
+            expect(DialogComponent.buttonIsVisible('custom-button-1')).toBe(false);
+          });
+
+          it('gets the button state', () => {
+            renderDialogWithCustomButton()
+            expect(DialogComponent.buttonIsEnabled('custom-button-1')).toBe(true);
+          });
+
+          it('gets the state of disabled buttons', () => {
+            renderDialogWithCustomButton()
+            $('.aui-dialog2-footer-actions .ap-aui-button').attr('aria-disabled', true);
+            expect(DialogComponent.buttonIsEnabled('custom-button-1')).toBe(false);
+          });
         });
       });
     });

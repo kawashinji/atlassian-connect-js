@@ -16,5 +16,8 @@ module.exports = {
   },
   toggleButton: (data) => {
     EventDispatcher.dispatch('dialog-button-toggle', data);
+  },
+  toggleButtonVisibility: (data) => {
+    EventDispatcher.dispatch('dialog-button-toggle-visibility', data);
   }
 };
