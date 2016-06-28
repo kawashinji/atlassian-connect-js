@@ -104,9 +104,10 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
             addonKey = payload.k,
             source = event.source,
             origin = event.origin,
-            channelId = payload.c;
+            channelId = payload.c,
+            message = payload.m;
 
-        if(event.data.m.n === 'registerInnerIframe') {
+        if(message.n === 'registerInnerIframe') {
             return;
         }
 
@@ -135,7 +136,7 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
             return settings && settings.xdmOptions && settings.xdmOptions.channel === channelId;
         })[0];
 
-        var bridge = rpc.initInner(settings.innerFrameOptions, settings.xdmOptions, event.source);
+        var bridge = rpc.initInner(settings.innerFrameOptions, settings.xdmOptions, source);
 
         bridge.bridgeReceive(event);
     }
