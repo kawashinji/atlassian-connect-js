@@ -1,41 +1,7 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.APCompat = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
 var modules = {};
-
-// populate modules with existing ACJS modules
-var _iteratorNormalCompletion = true;
-var _didIteratorError = false;
-var _iteratorError = undefined;
-
-try {
-  for (var _iterator = Object.keys(AP._hostModules)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-    var key = _step.value;
-
-    if (!key.startsWith('_')) {
-      modules[key] = {
-        name: key,
-        exports: AP._hostModules[key]
-      };
-    }
-  }
-} catch (err) {
-  _didIteratorError = true;
-  _iteratorError = err;
-} finally {
-  try {
-    if (!_iteratorNormalCompletion && _iterator['return']) {
-      _iterator['return']();
-    }
-  } finally {
-    if (_didIteratorError) {
-      throw _iteratorError;
-    }
-  }
-}
 
 function reqAll(deps, callback) {
   var mods = [];
@@ -87,38 +53,71 @@ function getOrCreate(name) {
 
 // define(name, objOrFn)
 // define(name, deps, fn(dep1, dep2, ...))
-exports['default'] = {
-  define: function define(name, deps, exports) {
-    var mod = getOrCreate(name);
-    var factory;
-    if (!exports) {
-      exports = deps;
-      deps = [];
+module.exports = function (AP) {
+  // populate modules with existing ACJS modules
+  if (AP) {
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = Object.keys(AP._hostModules)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var key = _step.value;
+
+        if (!key.startsWith('_')) {
+          modules[key] = {
+            name: key,
+            exports: AP._hostModules[key]
+          };
+        }
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator['return']) {
+          _iterator['return']();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
     }
-    if (exports) {
-      factory = typeof exports !== 'function' ? function () {
-        return exports;
-      } : exports;
-      reqAll(deps, function () {
-        var exports = factory.apply(window, arguments);
-        if (exports) {
-          if (typeof exports === 'function') {
-            mod.exports.__target__ = exports;
-          }
-          for (var k in exports) {
-            if (exports.hasOwnProperty(k)) {
-              mod.exports[k] = exports[k];
+  }
+  return {
+    define: function define(name, deps, exports) {
+      var mod = getOrCreate(name);
+      var factory;
+      if (!exports) {
+        exports = deps;
+        deps = [];
+      }
+      if (exports) {
+        factory = typeof exports !== 'function' ? function () {
+          return exports;
+        } : exports;
+        reqAll(deps, function () {
+          var exports = factory.apply(window, arguments);
+          if (exports) {
+            if (typeof exports === 'function') {
+              mod.exports.__target__ = exports;
+            }
+            for (var k in exports) {
+              if (exports.hasOwnProperty(k)) {
+                mod.exports[k] = exports[k];
+              }
             }
           }
-        }
-      });
+        });
+      }
+    },
+    require: function _dereq_(deps, callback) {
+      reqAll(typeof deps === 'string' ? [deps] : deps, callback);
     }
-  },
-  require: function _dereq_(deps, callback) {
-    reqAll(typeof deps === 'string' ? [deps] : deps, callback);
-  }
+  };
 };
-module.exports = exports['default'];
 
 },{}],2:[function(_dereq_,module,exports){
 'use strict';
@@ -615,6 +614,7 @@ var _amd = _dereq_('./amd');
 
 var _amd2 = _interopRequireDefault(_amd);
 
+var AMD = (0, _amd2['default'])(AP);
 AP._hostModules._dollar = _dollar2['default'];
 
 if (_consumerOptions2['default'].get('sizeToParent') === true) {
@@ -626,11 +626,11 @@ _dollar2['default'].each(_events2['default'], function (i, method) {
 });
 
 AP.define = _util2['default'].deprecateApi(function () {
-  return _amd2['default'].define.apply(_amd2['default'], arguments);
+  return AMD.define.apply(AMD, arguments);
 }, 'AP.define()', null, '5.0');
 
 AP.require = _util2['default'].deprecateApi(function () {
-  return _amd2['default'].require.apply(_amd2['default'], arguments);
+  return AMD.require.apply(AMD, arguments);
 }, 'AP.require()', null, '5.0');
 
 },{"./amd":1,"./consumer-options":2,"./dialog":3,"./dollar":4,"./events":5,"./util":7}],7:[function(_dereq_,module,exports){

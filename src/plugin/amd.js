@@ -1,15 +1,5 @@
 var modules = {};
 
-// populate modules with existing ACJS modules
-for (let key of Object.keys(AP._hostModules)) {
-  if (!key.startsWith('_')) {
-    modules[key] = {
-      name: key,
-      exports: AP._hostModules[key]
-    }
-  }
-}
-
 function reqAll(deps, callback) {
   var mods = [];
   var i = 0;
@@ -60,34 +50,47 @@ function getOrCreate(name) {
 
 // define(name, objOrFn)
 // define(name, deps, fn(dep1, dep2, ...))
-export default {
-  define: function (name, deps, exports) {
-    var mod = getOrCreate(name);
-    var factory;
-    if (!exports) {
-      exports = deps;
-      deps = [];
+module.exports = function(AP) {
+  // populate modules with existing ACJS modules
+  if (AP) {
+    for (let key of Object.keys(AP._hostModules)) {
+      if (!key.startsWith('_')) {
+        modules[key] = {
+          name: key,
+          exports: AP._hostModules[key]
+        }
+      }
     }
-    if (exports) {
-      factory = typeof exports !== 'function' ? function () {
-        return exports;
-      } : exports;
-      reqAll(deps, function () {
-        var exports = factory.apply(window, arguments);
-        if (exports) {
-          if (typeof exports === 'function') {
-            mod.exports.__target__ = exports;
-          }
-          for (var k in exports) {
-            if (exports.hasOwnProperty(k)) {
-              mod.exports[k] = exports[k];
+  }
+  return {
+    define: function (name, deps, exports) {
+      var mod = getOrCreate(name);
+      var factory;
+      if (!exports) {
+        exports = deps;
+        deps = [];
+      }
+      if (exports) {
+        factory = typeof exports !== 'function' ? function () {
+          return exports;
+        } : exports;
+        reqAll(deps, function () {
+          var exports = factory.apply(window, arguments);
+          if (exports) {
+            if (typeof exports === 'function') {
+              mod.exports.__target__ = exports;
+            }
+            for (var k in exports) {
+              if (exports.hasOwnProperty(k)) {
+                mod.exports[k] = exports[k];
+              }
             }
           }
-        }
-      });
+        });
+      }
+    },
+    require: function (deps, callback) {
+      reqAll(typeof deps === 'string' ? [deps] : deps, callback);
     }
-  },
-  require: function (deps, callback) {
-    reqAll(typeof deps === 'string' ? [deps] : deps, callback);
-  }
+  };
 };
