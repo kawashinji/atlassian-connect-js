@@ -117,7 +117,8 @@ class Dialog {
           type: action.type,
           additionalClasses: action.additionalClasses,
           custom: action.custom || false,
-          identifier: action.identifier
+          identifier: action.identifier,
+          immutable: action.immutable
         }, extension)
       );
     });
@@ -306,7 +307,9 @@ EventDispatcher.register('dialog-button-toggle', (data) => {
   const dialog = getActiveDialog();
   if (dialog) {
     const $button = getButtonByIdentifier(data.identifier, dialog.$el);
-    ButtonActions.toggle($button, !data.enabled);
+    if (!$button.data('immutable')) {
+      ButtonActions.toggle($button, !data.enabled);
+    }
   }
 });
 
@@ -314,7 +317,9 @@ EventDispatcher.register('dialog-button-toggle-visibility', (data) => {
   const dialog = getActiveDialog();
   if (dialog) {
     const $button = getButtonByIdentifier(data.identifier, dialog.$el);
-    $button.toggle(!data.hidden);
+    if (!$button.data('immutable')) {
+      $button.toggle(!data.hidden);
+    }
   }
 });
 

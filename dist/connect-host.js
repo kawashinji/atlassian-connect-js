@@ -2588,7 +2588,8 @@ var Button = (function () {
       $button.data(options.data);
       $button.data({
         name: options.name || options.identifier,
-        identifier: options.identifier || _utilsButton2['default'].randomIdentifier()
+        identifier: options.identifier || _utilsButton2['default'].randomIdentifier(),
+        immutable: options.immutable || false
       });
       this._additionalClasses($button, options.additionalClasses);
       this.setType($button, options.type);
@@ -2790,7 +2791,8 @@ var Dialog = (function () {
           type: action.type,
           additionalClasses: action.additionalClasses,
           custom: action.custom || false,
-          identifier: action.identifier
+          identifier: action.identifier,
+          immutable: action.immutable
         }, extension));
       });
       return actionButtons;
@@ -2993,7 +2995,9 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', functi
   var dialog = getActiveDialog();
   if (dialog) {
     var $button = getButtonByIdentifier(data.identifier, dialog.$el);
-    _actionsButton_actions2['default'].toggle($button, !data.enabled);
+    if (!$button.data('immutable')) {
+      _actionsButton_actions2['default'].toggle($button, !data.enabled);
+    }
   }
 });
 
@@ -3001,7 +3005,9 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle-visibili
   var dialog = getActiveDialog();
   if (dialog) {
     var $button = getButtonByIdentifier(data.identifier, dialog.$el);
-    $button.toggle(!data.hidden);
+    if (!$button.data('immutable')) {
+      $button.toggle(!data.hidden);
+    }
   }
 });
 
@@ -5666,7 +5672,8 @@ var DialogUtils = (function () {
           name: 'cancel',
           identifier: 'cancel',
           text: options.cancelText || 'Cancel',
-          type: 'link'
+          type: 'link',
+          immutable: true
         }];
       }
 

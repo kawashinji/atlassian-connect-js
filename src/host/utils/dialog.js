@@ -74,7 +74,8 @@ class DialogUtils {
           name: 'cancel',
           identifier: 'cancel',
           text: options.cancelText || 'Cancel',
-          type: 'link'
+          type: 'link',
+          immutable: true
         }
       ];
     }

@@ -73,7 +73,8 @@ class Button {
     $button.data(options.data);
     $button.data({
       name: options.name || options.identifier,
-      identifier: options.identifier || ButtonUtils.randomIdentifier()
+      identifier: options.identifier || ButtonUtils.randomIdentifier(),
+      immutable: options.immutable || false
     });
     this._additionalClasses($button, options.additionalClasses);
     this.setType($button, options.type);
