@@ -155,6 +155,26 @@ describe('Iframe component', () => {
       }, 300);
     });
 
+    it('triggers an event on iframe reload', (done) => {
+      var extension = {
+        addon_key: 'some-addon-key',
+        key: 'some-module-key',
+        url: 'https://www.example2.com'
+      };
+      var $container = $('<div />');
+
+      EventDispatcher.registerOnce('iframe-unload', (data) => {
+        expect(data.$el[0].nodeName).toEqual("IFRAME");
+        expect(data.extension).toEqual(extension);
+        done();
+      });
+      var spy = spyOn(simpleXDM, 'create').and.returnValue({id: 'abc123'});
+      IframeComponent.simpleXdmExtension(extension, $container);
+      setTimeout(function(){
+        spy.calls.first().args[2]();
+      }, 300);
+    });
+
   });
 
   it('render returns an iframe with attributes', () => {
