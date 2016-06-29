@@ -89,4 +89,55 @@ describe('Button component', () => {
     });
 
   });
+
+  describe('button toggle', () => {
+    it('state to disabled', () => {
+      var $button = ButtonComponent.render();
+      expect(ButtonComponent.isEnabled($button)).toBe(true);
+      ButtonComponent.setDisabled($button, true);
+      expect(ButtonComponent.isEnabled($button)).toBe(false);
+    });
+
+    it('state to enabled', () => {
+      var $button = ButtonComponent.render({disabled: true});
+      expect(ButtonComponent.isEnabled($button)).toBe(false);
+      ButtonComponent.setDisabled($button, false);
+      expect(ButtonComponent.isEnabled($button)).toBe(true);
+    });
+
+    it('visibility to hidden', () => {
+      var $button = ButtonComponent.render();
+      document.body.appendChild($button[0]);
+      expect($button.is(':visible')).toBe(true);
+      ButtonComponent.setHidden($button, true);
+      expect($button.is(':visible')).toBe(false);
+    });
+
+    it('visibility to visible', () => {
+      var $button = ButtonComponent.render();
+      document.body.appendChild($button[0]);
+      $button.hide();
+      expect($button.is(':visible')).toBe(false);
+      ButtonComponent.setHidden($button, false);
+      expect($button.is(':visible')).toBe(true);
+    });
+  });
+
+  describe('immutable button toggle', () => {
+    it('state to disabled', () => {
+      var $button = ButtonComponent.render({immutable: true});
+      expect(ButtonComponent.isEnabled($button)).toBe(true);
+      ButtonComponent.setDisabled($button, true);
+      expect(ButtonComponent.isEnabled($button)).toBe(true);
+    });
+
+    it('visibility to hidden', () => {
+      var $button = ButtonComponent.render({immutable: true});
+      document.body.appendChild($button[0]);
+      expect($button.is(':visible')).toBe(true);
+      ButtonComponent.setHidden($button, true);
+      expect($button.is(':visible')).toBe(true);
+    });
+  });
+
 });
