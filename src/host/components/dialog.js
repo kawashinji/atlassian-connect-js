@@ -307,9 +307,7 @@ EventDispatcher.register('dialog-button-toggle', (data) => {
   const dialog = getActiveDialog();
   if (dialog) {
     const $button = getButtonByIdentifier(data.identifier, dialog.$el);
-    if (!$button.data('immutable')) {
-      ButtonActions.toggle($button, !data.enabled);
-    }
+    ButtonActions.toggle($button, !data.enabled);
   }
 });
 
@@ -317,9 +315,7 @@ EventDispatcher.register('dialog-button-toggle-visibility', (data) => {
   const dialog = getActiveDialog();
   if (dialog) {
     const $button = getButtonByIdentifier(data.identifier, dialog.$el);
-    if (!$button.data('immutable')) {
-      $button.toggle(!data.hidden);
-    }
+    ButtonActions.toggleVisibility($button, data.hidden);
   }
 });
 

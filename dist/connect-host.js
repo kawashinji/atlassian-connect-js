@@ -2087,6 +2087,12 @@ module.exports = {
       $el: $el,
       disabled: disabled
     });
+  },
+  toggleVisibility: function toggleVisibility($el, hidden) {
+    _dispatchersEvent_dispatcher2["default"].dispatch("button-toggle-visibility", {
+      $el: $el,
+      hidden: hidden
+    });
   }
 };
 
@@ -2527,8 +2533,16 @@ var Button = (function () {
   }, {
     key: 'setDisabled',
     value: function setDisabled($button, disabled) {
-      if (typeof disabled !== "undefined") {
+      if (typeof disabled !== "undefined" && !$button.data('immutable')) {
         $button.attr('aria-disabled', disabled);
+      }
+      return $button;
+    }
+  }, {
+    key: 'setHidden',
+    value: function setHidden($button, hidden) {
+      if (typeof hidden !== "undefined" && !$button.data('immutable')) {
+        $button.toggle(!hidden);
       }
       return $button;
     }
@@ -2614,7 +2628,11 @@ var ButtonComponent = new Button();
 });
 
 _dispatchersEvent_dispatcher2['default'].register("button-toggle", function (data) {
-  data.$el.attr('aria-disabled', data.disabled);
+  ButtonComponent.setDisabled(data.$el, data.disabled);
+});
+
+_dispatchersEvent_dispatcher2['default'].register("button-toggle-visibility", function (data) {
+  ButtonComponent.setHidden(data.$el, data.hidden);
 });
 
 exports['default'] = ButtonComponent;
@@ -2995,9 +3013,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', functi
   var dialog = getActiveDialog();
   if (dialog) {
     var $button = getButtonByIdentifier(data.identifier, dialog.$el);
-    if (!$button.data('immutable')) {
-      _actionsButton_actions2['default'].toggle($button, !data.enabled);
-    }
+    _actionsButton_actions2['default'].toggle($button, !data.enabled);
   }
 });
 
@@ -3005,9 +3021,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle-visibili
   var dialog = getActiveDialog();
   if (dialog) {
     var $button = getButtonByIdentifier(data.identifier, dialog.$el);
-    if (!$button.data('immutable')) {
-      $button.toggle(!data.hidden);
-    }
+    _actionsButton_actions2['default'].toggleVisibility($button, data.hidden);
   }
 });
 
