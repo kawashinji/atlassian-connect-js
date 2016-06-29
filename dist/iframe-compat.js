@@ -56,35 +56,14 @@ function getOrCreate(name) {
 module.exports = function (AP) {
   // populate modules with existing ACJS modules
   if (AP) {
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = Object.keys(AP._hostModules)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var key = _step.value;
-
-        if (!key.startsWith('_')) {
-          modules[key] = {
-            name: key,
-            exports: AP._hostModules[key]
-          };
-        }
+    Object.keys(AP._hostModules).forEach(function (key) {
+      if (key[0] !== '_') {
+        modules[key] = {
+          name: key,
+          exports: AP._hostModules[key]
+        };
       }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator['return']) {
-          _iterator['return']();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
+    });
   }
   return {
     define: function define(name, deps, exports) {
