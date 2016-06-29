@@ -54,7 +54,7 @@ module.exports = function(AP) {
   // populate modules with existing ACJS modules
   if (AP) {
     Object.keys(AP._hostModules).forEach(function(key) {
-      if (!key.startsWith('_')) {
+      if (key[0] !== '_') {
         modules[key] = {
           name: key,
           exports: AP._hostModules[key]
