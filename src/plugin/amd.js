@@ -53,14 +53,14 @@ function getOrCreate(name) {
 module.exports = function(AP) {
   // populate modules with existing ACJS modules
   if (AP) {
-    for (let key of Object.keys(AP._hostModules)) {
+    Object.keys(AP._hostModules).forEach(function(key) {
       if (!key.startsWith('_')) {
         modules[key] = {
           name: key,
           exports: AP._hostModules[key]
-        }
+        };
       }
-    }
+    });
   }
   return {
     define: function (name, deps, exports) {

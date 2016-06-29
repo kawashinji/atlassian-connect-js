@@ -15,7 +15,7 @@ var AP = {
 
 describe('AMD', () => {
   beforeEach(() => {
-    const AMD = amd(AP);
+    var AMD = amd(AP);
     AP.define = AMD.define;
     AP.require = AMD.require;
   });
