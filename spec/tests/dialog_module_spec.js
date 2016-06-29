@@ -4,6 +4,7 @@ import DialogExtensionComponent from 'src/host/components/dialog_extension';
 import EventActions from 'src/host/actions/event_actions';
 import baseDialogComponentTests from 'fixtures/base_dialog_component_tests';
 import IframeActions from 'src/host/actions/iframe_actions';
+import ButtonActions from 'src/host/actions/button_actions';
 
 describe('Dialog module', () => {
 
@@ -115,5 +116,70 @@ describe('Dialog module', () => {
     spyOn(EventActions, 'broadcast');
     $dialogExtension.find('button').first().click();
     expect(EventActions.broadcast.calls.count()).toEqual(0);
+  });
+  
+  describe('button modifier', () => {
+    it('hide dispatches an event', () => {
+      var extension = {
+        addon_key: 'some-key',
+        key: 'module-key',
+        url: 'http://www.example.com'
+      };
+
+      var options = baseDialogComponentTests.getChromeOptions();
+      DialogExtensionComponent.render(extension, options);
+      spyOn(ButtonActions, 'toggle');
+      spyOn(ButtonActions, 'toggleVisibility');
+      var button = new DialogModule.getButton.constructor('submit');
+      button.disable();
+      button.hide();
+      expect(ButtonActions.toggle.calls.count()).toEqual(1);
+      expect(ButtonActions.toggleVisibility.calls.count()).toEqual(1);
+    });
+
+    it('show dispatches an event', () => {
+      var extension = {
+        addon_key: 'some-key',
+        key: 'module-key',
+        url: 'http://www.example.com'
+      };
+
+      var options = baseDialogComponentTests.getChromeOptions();
+      DialogExtensionComponent.render(extension, options);
+      spyOn(ButtonActions, 'toggleVisibility');
+      var button = new DialogModule.getButton.constructor('submit');
+      button.show();
+      expect(ButtonActions.toggleVisibility.calls.count()).toEqual(1);
+    });
+
+    it('enable dispatches an event', () => {
+      var extension = {
+        addon_key: 'some-key',
+        key: 'module-key',
+        url: 'http://www.example.com'
+      };
+
+      var options = baseDialogComponentTests.getChromeOptions();
+      DialogExtensionComponent.render(extension, options);
+      spyOn(ButtonActions, 'toggle');
+      var button = new DialogModule.getButton.constructor('submit');
+      button.enable();
+      expect(ButtonActions.toggle.calls.count()).toEqual(1);
+    });
+
+    it('disable dispatches an event', () => {
+      var extension = {
+        addon_key: 'some-key',
+        key: 'module-key',
+        url: 'http://www.example.com'
+      };
+
+      var options = baseDialogComponentTests.getChromeOptions();
+      DialogExtensionComponent.render(extension, options);
+      spyOn(ButtonActions, 'toggle');
+      var button = new DialogModule.getButton.constructor('submit');
+      button.disable();
+      expect(ButtonActions.toggle.calls.count()).toEqual(1);
+    });
   });
 });
