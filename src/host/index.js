@@ -77,7 +77,15 @@ export default {
     EventDispatcher.register('after:iframe-bridge-estabilshed', function(data) {
       callback.call(null, {
         $el: data.$el,
-        extension: _.pick(data.extension, ['id', 'addon_key', 'id', 'key', 'options', 'url'])
+        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
+      });
+    });
+  },
+  onIframeUnload: (callback) => {
+    EventDispatcher.register('after:iframe-unload', function(data) {
+      callback.call(null, {
+        $el: data.$el,
+        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
       });
     });
   },

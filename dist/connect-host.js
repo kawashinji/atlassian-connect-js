@@ -1423,6 +1423,10 @@ module.exports = {
     }
     _dispatchersEvent_dispatcher2['default'].dispatch('iframe-destroyed', { extension: extension });
     _simpleXdmDistHost2['default'].unregisterExtension({ extension_id: extension_id });
+  },
+
+  notifyUnloaded: function notifyUnloaded($el, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-unload', { $el: $el, extension: extension });
   }
 };
 
@@ -2468,6 +2472,8 @@ var Iframe = (function () {
           extension.options = {};
         }
         _actionsIframe_actions2['default'].notifyBridgeEstablished(extension.$el, extension);
+      }, function () {
+        _actionsIframe_actions2['default'].notifyUnloaded(extension.$el, extension);
       });
       extension.id = iframeAttributes.id;
       _dollar2['default'].extend(iframeAttributes, _utilsIframe2['default'].optionsToAttributes(extension.options));
@@ -3505,7 +3511,15 @@ exports['default'] = {
     _dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-estabilshed', function (data) {
       callback.call(null, {
         $el: data.$el,
-        extension: _underscore2['default'].pick(data.extension, ['id', 'addon_key', 'id', 'key', 'options', 'url'])
+        extension: _underscore2['default'].pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
+      });
+    });
+  },
+  onIframeUnload: function onIframeUnload(callback) {
+    _dispatchersEvent_dispatcher2['default'].register('after:iframe-unload', function (data) {
+      callback.call(null, {
+        $el: data.$el,
+        extension: _underscore2['default'].pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
       });
     });
   },
@@ -5074,11 +5088,12 @@ var Connect = (function () {
     }
   }, {
     key: 'registerExtension',
-    value: function registerExtension(extension, initCallback) {
+    value: function registerExtension(extension, initCallback, unloadCallback) {
       var extension_id = this._createId(extension);
       this._xdm.registerExtension(extension_id, {
         extension: extension,
-        initCallback: initCallback
+        initCallback: initCallback,
+        unloadCallback: unloadCallback
       });
       return extension_id;
     }
@@ -5421,7 +5436,8 @@ var XDMRPC = (function (_PostMessage) {
       resp: this._handleResponse,
       event_query: this._handleEventQuery,
       broadcast: this._handleBroadcast,
-      key_listen: this._handleKeyListen
+      key_listen: this._handleKeyListen,
+      unload: this._handleUnload
     };
   }
 
@@ -5614,6 +5630,14 @@ var XDMRPC = (function (_PostMessage) {
       return executed;
     }
   }, {
+    key: '_handleUnload',
+    value: function _handleUnload(event, reg) {
+      delete this._registeredExtensions[reg.extension_id].source;
+      if (reg.unloadCallback) {
+        reg.unloadCallback(event.data.eid);
+      }
+    }
+  }, {
     key: 'dispatch',
     value: function dispatch(type, targetSpec, event, callback, source) {
       function sendEvent(reg, evnt) {
@@ -5788,6 +5812,12 @@ var XDMRPC = (function (_PostMessage) {
       var sourceTypeMatches = reg && event.source === reg.source;
       var hasExtensionUrl = reg && reg.extension.url.indexOf(event.origin) === 0;
       var isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches);
+
+      // check undefined for chromium (Issue 395010)
+      if (event.data.type === 'unload' && (sourceTypeMatches || event.source === undefined)) {
+        isValidOrigin = true;
+      }
+
       if (!isValidOrigin) {
         _commonUtil2['default'].warn("Failed to validate origin: " + event.origin);
       }

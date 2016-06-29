@@ -51,6 +51,8 @@ class Iframe {
         extension.options = {};
       }
       IframeActions.notifyBridgeEstablished(extension.$el, extension);
+    }, () => {
+      IframeActions.notifyUnloaded(extension.$el, extension);
     });
     extension.id = iframeAttributes.id;
     $.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
