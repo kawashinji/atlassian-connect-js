@@ -29,6 +29,14 @@ class DialogExtension {
     return DialogComponent.getActive();
   }
 
+  buttonIsEnabled(identifier) {
+    return DialogComponent.buttonIsEnabled(identifier);
+  }
+
+  buttonIsVisible(identifier) {
+    return DialogComponent.buttonIsVisible(identifier);
+  }
+
 }
 
 var DialogExtensionComponent = new DialogExtension();

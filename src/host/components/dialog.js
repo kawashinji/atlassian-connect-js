@@ -28,6 +28,21 @@ function getActiveDialog() {
   }
 }
 
+function getActionBar($dialog) {
+  var $actionBar = $dialog.find('.' + DIALOG_HEADER_ACTIONS_CLASS);
+  if(!$actionBar.length) {
+    $actionBar = $dialog.find('.' + DIALOG_FOOTER_ACTIONS_CLASS);
+  }
+  return $actionBar;
+}
+
+function getButtonByIdentifier(id, $dialog) {
+  const $actionBar = getActionBar($dialog);
+  return $actionBar.find('.aui-button').filter(function () {
+    return Button.getIdentifier(this) === id;
+  });
+}
+
 class Dialog {
   constructor () {
   }
@@ -197,6 +212,22 @@ class Dialog {
     return getActiveDialog();
   }
 
+  buttonIsEnabled(identifier) {
+    const dialog = getActiveDialog();
+    if (dialog) {
+      const $button = getButtonByIdentifier(identifier, dialog.$el);
+      return Button.isEnabled($button);
+    }
+  }
+
+  buttonIsVisible(identifier) {
+    const dialog = getActiveDialog();
+    if (dialog) {
+      const $button = getButtonByIdentifier(identifier, dialog.$el);
+      return Button.isVisible($button);
+    }
+  }
+
   /**
   * takes either a target spec or a filter function
   * returns all matching dialogs
@@ -226,10 +257,7 @@ class Dialog {
       addon_key: extension.addon_key,
       key: extension.key
     }));
-    var $actionBar = $dialog.find('.' + DIALOG_HEADER_ACTIONS_CLASS);    
-    if(!$actionBar.length) {
-      $actionBar = $dialog.find('.' + DIALOG_FOOTER_ACTIONS_CLASS);
-    }
+    var $actionBar = getActionBar($dialog);
     $actionBar.append($button);
     return $dialog;
   }
@@ -277,10 +305,16 @@ EventDispatcher.register('dialog-close', (data) => {
 EventDispatcher.register('dialog-button-toggle', (data) => {
   const dialog = getActiveDialog();
   if (dialog) {
-    const $button = dialog.$el.find('.aui-dialog2-footer-actions .aui-button').filter(function () {
-      return Button.getName(this) === data.name;
-    });
+    const $button = getButtonByIdentifier(data.identifier, dialog.$el);
     ButtonActions.toggle($button, !data.enabled);
+  }
+});
+
+EventDispatcher.register('dialog-button-toggle-visibility', (data) => {
+  const dialog = getActiveDialog();
+  if (dialog) {
+    const $button = getButtonByIdentifier(data.identifier, dialog.$el);
+    $button.toggle(!data.hidden);
   }
 });
 

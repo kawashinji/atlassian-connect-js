@@ -91,12 +91,14 @@ class Dialog {
  * @description A dialog button that can be controlled with JavaScript
  */
 class Button {
-  constructor(name) {
+  constructor(identifier) {
     if (!DialogExtensionComponent.getActiveDialog()) {
       throw new Error('Failed to find an active dialog.');
     }
-    this.name = name;
-    this.enabled = true;
+    this.name = identifier;
+    this.identifier = identifier;
+    this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
+    this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
   }
   /**
    * Sets the button state to enabled
@@ -164,7 +166,7 @@ class Button {
   setState(state) {
     this.enabled = state.enabled;
     DialogActions.toggleButton({
-      name: this.name,
+      identifier: this.identifier,
       enabled: this.enabled
     });
   }
@@ -188,6 +190,59 @@ class Button {
         extension: callback._context.extension
       });
     }
+  }
+
+  /**
+   * Query a button for its current hidden/visible state.
+   * @method isHidden
+   * @memberOf Dialog~DialogButton
+   * @param {Function} callback function to receive the button state.
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit').isHidden(function(hidden){
+   *     if(hidden){
+   *       //button is hidden
+   *     }
+   *   });
+   * });
+   */
+  isHidden(callback) {
+    callback(this.hidden);
+  }
+  /**
+   * Sets the button state to hidden
+   * @method hide
+   * @memberOf Dialog~DialogButton
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit').hide();
+   * });
+   */
+  hide() {
+    this.setHidden(true);
+  }
+  /**
+   * Sets the button state to visible
+   * @method show
+   * @memberOf Dialog~DialogButton
+   * @noDemo
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   dialog.getButton('submit').show();
+   * });
+   */
+  show() {
+    this.setHidden(false);
+  }
+
+  setHidden(hidden) {
+    this.hidden = hidden;
+    DialogActions.toggleButtonVisibility({
+      identifier: this.identifier,
+      hidden: this.hidden
+    });
   }
 }
 
@@ -321,7 +376,10 @@ module.exports = {
     disable: Button.prototype.disable,
     toggle: Button.prototype.toggle,
     isEnabled: Button.prototype.isEnabled,
-    trigger: Button.prototype.trigger
+    trigger: Button.prototype.trigger,
+    hide: Button.prototype.hide,
+    show: Button.prototype.show,
+    isHidden: Button.prototype.isHidden
   },
   /**
    * Creates a dialog button that can be controlled with javascript
