@@ -178,39 +178,33 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
     function send(sid, type, message) {
       message = message || {};
       try {
+        var sendTarget = target,
+            targetOrigin = remoteOrigin;
+
         // Sanitize the incoming message arguments
         if (message.a) {
           message.a = sanitizeStructuredClone(message.a);
         }
 
         if(message.n === 'registerInnerIframe') {
-          return window.top.postMessage({
-            c: channel,
-            i: sid,
-            k: realAddonKey,
-            t: type,
-            m: message
-          }, "*");
+          sendTarget = window.top;
+          //Origin not yet in the origin-map so set it to *
+          targetOrigin = '*';
         }
 
         var middleFrameMethods = ["resize", "sizeToParent", "init"];
-        if (middleFrameMethods.indexOf(message.n) > -1 && target === window.top) {
-          return window.parent.postMessage({
-            c: channel,
-            i: sid,
-            k: realAddonKey,
-            t: type,
-            m: message
-          }, "*");
+        if (middleFrameMethods.indexOf(message.n) > -1) {
+          sendTarget = window.parent;
+          targetOrigin = '*';
         }
 
-        return target.postMessage({
+        return sendTarget.postMessage({
           c: channel,
           i: sid,
           k: realAddonKey,
           t: type,
           m: message
-        }, remoteOrigin);
+        }, targetOrigin);
       } catch (ex) {
         log(errmsg(ex));
       }
