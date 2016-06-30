@@ -6,31 +6,34 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
     var rememberedIframeOptions = [];
 
     /**
-     * Setups up the bridge with a iframe inside a iframe
-     * @param event
+     * Processes and saves the given framedata for later use when creating a inner iframe bridge
+     *
+     * @param {Object} frameData the AC framedata to remember
+     * @param {String} frameData.key the addonkey for the plugin
+     * @param {String} frameData.origin the origin for the plugin
+     * @param {String} frameData.ns the namespace for the plugin
+     * @param {Object} frameData.productContext the product specific context for the plugin
+     * @param {Object} frameData.productCtx the stringified product specific context for the plugin
+     *
      */
-    function registerInnerFrameOptions(options) {
-        var addonKey = options.key;
-        var origin = options.origin.toLowerCase();
+    function registerInnerFrameOptions(frameData) {
+        var addonKey = frameData.key;
+        var origin = frameData.origin.toLowerCase();
 
-        var innerFrameOptions = $.extend({}, options);
+        var innerFrameOptions = $.extend({}, frameData);
         var channelId = 'channel-' + innerFrameOptions.ns;
 
         innerFrameOptions.ns = innerFrameOptions.ns + "." + addonKey + "." + count++;
         innerFrameOptions.key = addonKey;
         innerFrameOptions.origin = origin;
-
         innerFrameOptions.uiParams = uiParams.fromUrl(window.location.toString()) || {};
-
-        var contentId = "embedded-" + innerFrameOptions.ns,
-            initWidth = innerFrameOptions.w || "100%",
-            initHeight = innerFrameOptions.h || "0";
-
         innerFrameOptions.uiParams.isGeneral = !!innerFrameOptions.general;
 
         if(innerFrameOptions.productCtx && !innerFrameOptions.productContext){
             innerFrameOptions.productContext = JSON.parse(innerFrameOptions.productCtx);
         }
+
+        var contentId = 'embedded-' + innerFrameOptions.ns;
 
         var xdmOptions = {
             remote: innerFrameOptions.src,
@@ -38,7 +41,7 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
             remoteKey: innerFrameOptions.key,
             container: contentId,
             channel: channelId,
-            props: {width: initWidth, height: initHeight},
+            props: {},
             uiParams: innerFrameOptions.uiParams
         };
 

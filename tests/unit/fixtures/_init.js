@@ -96,7 +96,7 @@ AP.require(
                   $.log("Your page should have a root block element with an ID called #content or class called .ac-content if you want your page to dynamically resize after the initial load.");
               }
           });
-          }
+        }
       }
     }
 

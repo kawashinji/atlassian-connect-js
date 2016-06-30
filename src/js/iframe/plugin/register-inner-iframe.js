@@ -1,11 +1,11 @@
 AP.require(['_dollar', '_rpc'],
 
     /**
-     * The Navigator API allows your add-on to change the current page using Javascript.
+     * Register inner iframe rpc method.
+     * When creating a AC iframe from a plugin this method is used to sent the
+     * appropriate framedata to the parent frame
      *
-     * Note: This API is currently only implemented for Confluence.
-     *
-     * @exports Navigator
+     * @exports RegisterInnerIframe
      */
 
     function ($, rpc) {

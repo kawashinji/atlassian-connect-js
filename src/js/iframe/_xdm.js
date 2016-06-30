@@ -25,9 +25,9 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
    * @param {String} config.container The id of element to which the generated iframe is appended (host only)
    * @param {Object} config.props Additional attributes to add to iframe element (host only)
    * @param {String} config.channel Channel (host only); deprecated
+   * @param {Boolean} [config.noIframe=false] When true xdmRpc is setup for the given target
+   * @param {Object} [config.target] When noIframe is true this is the target to be used for the bridge.
    * @param {Object} bindings RPC method stubs and implementations
-   * @param {Object} target the iframe content window/top browser window
-   * @param {Object} iframe if the target has an associated iframe on the page, then that iframe's DOM element
    * @param {Object} bindings.local Local function implementations - functions that exist in the current context.
    *    XdmRpc exposes these functions so that they can be invoked by code running in the other side of the iframe.
    * @param {Array} bindings.remote Names of functions which exist on the other side of the iframe.

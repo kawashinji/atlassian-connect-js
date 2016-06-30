@@ -4,7 +4,7 @@ AP.define("_create-inner-frame", ['_ui-params', '_rpc', "_util"], function(uiPar
         if(!namespace){
             throw new Error("ns undefined");
         }
-        return document.getElementById("#embedded-" + namespace);
+        return document.getElementById("embedded-" + namespace);
     }
 
     /* @name Options
