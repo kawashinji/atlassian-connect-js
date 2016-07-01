@@ -1,15 +1,14 @@
 import amd from 'src/plugin/amd';
 
+var testFunctionSpy = jasmine.createSpy('testFunction').and.callFake(() => 1337);
+var otherThingSpy = jasmine.createSpy('otherThing').and.callFake((thing) => thing);
+
 var AP = {
   _hostModules: {
     existingModule: {
-      testFunction: () => {
-        return 1337;
-      }
+      testFunction: testFunctionSpy
     },
-    otherThing: (test) => {
-      return test;
-    }
+    otherThing: otherThingSpy
   }
 };
 
@@ -38,30 +37,36 @@ describe('AMD', () => {
       AP.define('newThing', ['existingModule'], (existingModule) => {
         expect(existingModule).not.toBeUndefined();
         expect(existingModule.hasOwnProperty('testFunction')).toBe(true);
-        expect(existingModule.testFunction()).toEqual(1337);
+        existingModule.testFunction();
+        expect(testFunctionSpy).toHaveBeenCalled();
       });
     });
 
     it('create module with multiple dependencies', () => {
       AP.define('newThing', ['existingModule', 'otherThing'], (existingModule, otherThing) => {
+        var testVal = Date.now();
         expect(existingModule).not.toBeUndefined();
         expect(existingModule.hasOwnProperty('testFunction')).toBe(true);
-        expect(existingModule.testFunction()).toEqual(1337);
         expect(otherThing).not.toBeUndefined();
-        expect(otherThing('test')).toEqual('test');
+        expect(existingModule.testFunction()).toEqual(1337);
+        expect(otherThing(testVal)).toEqual(testVal);
+        expect(testFunctionSpy).toHaveBeenCalled();
+        expect(otherThingSpy).toHaveBeenCalledWith(testVal);
       });
     });
 
     it('overwrite an existing module', () => {
+      var bonusFunctionSpy = jasmine.createSpy('bonusFunction').and.callFake(() => '+1');
       AP.define('existingModule', () => {
         return {
-          bonusFunction: () => '+1'
+          bonusFunction: bonusFunctionSpy
         }
       });
 
       AP.require('existingModule', (existingModule) => {
         expect(existingModule.hasOwnProperty('bonusFunction')).toBe(true);
         expect(existingModule.bonusFunction()).toEqual('+1');
+        expect(bonusFunctionSpy).toHaveBeenCalled();
       });
     });
   });
@@ -72,16 +77,20 @@ describe('AMD', () => {
         expect(existingModule).not.toBeUndefined();
         expect(existingModule.hasOwnProperty('testFunction')).toBe(true);
         expect(existingModule.testFunction()).toEqual(1337);
+        expect(testFunctionSpy).toHaveBeenCalled();
       });
     });
 
     it('multiple modules', () => {
       AP.require(['existingModule', 'otherThing'], (existingModule, otherThing) => {
+        var testVal = Date.now();
         expect(existingModule).not.toBeUndefined();
         expect(existingModule.hasOwnProperty('testFunction')).toBe(true);
         expect(existingModule.testFunction()).toEqual(1337);
         expect(otherThing).not.toBeUndefined();
-        expect(otherThing('test')).toEqual('test');
+        expect(otherThing(testVal)).toEqual(testVal);
+        expect(testFunctionSpy).toHaveBeenCalled();
+        expect(otherThingSpy).toHaveBeenCalledWith(testVal);
       });
     });
 
