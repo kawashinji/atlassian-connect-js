@@ -281,7 +281,7 @@ AP.dialog.getButton = AP._hostModules.dialog.getButton = function (name) {
      * Registers a function to be called when the button is clicked.
      * @method bind
      * @memberOf Dialog~DialogButton
-     * @param {Function} callback function to be triggered on click or programatically.
+     * @param {Function} callback function to be triggered on click or programmatically.
      * @noDemo
      * @example
      * AP.require('dialog', function(dialog){

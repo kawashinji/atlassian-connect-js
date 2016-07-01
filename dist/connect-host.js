@@ -2304,7 +2304,7 @@ module.exports = {
   },
 
   notifyBridgeEstablished: function notifyBridgeEstablished($el, extension) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-estabilshed', { $el: $el, extension: extension });
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-established', { $el: $el, extension: extension });
   },
 
   notifyIframeDestroyed: function notifyIframeDestroyed(extension_id) {
@@ -2976,7 +2976,7 @@ var Dialog = (function () {
 
 var DialogComponent = new Dialog();
 
-_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-established', function (data) {
   if (data.extension.options.isDialog) {
     _actionsDom_event_actions2['default'].registerKeyEvent({
       extension_id: data.extension.id,
@@ -3483,7 +3483,7 @@ _dispatchersEvent_dispatcher2['default'].register('jwt-url-refreshed', function 
   IframeComponent.resolverResponse(data);
 });
 
-_dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-estabilshed', function (data) {
+_dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-established', function (data) {
   data.$el[0].bridgeEstablished = true;
 });
 
@@ -3937,7 +3937,7 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-create', function (dat
   LoadingComponent._setupTimeout(data.$el.parents('.ap-iframe-container'), data.extension);
 });
 
-_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-established', function (data) {
   LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
 });
 
@@ -4212,7 +4212,7 @@ var analytics = new AnalyticsDispatcher();
 _dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
   analytics.trackLoadingStarted(data.extension);
 });
-_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-established', function (data) {
   analytics.trackLoadingEnded(data.extension);
 });
 _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-timeout', function (data) {
@@ -4471,7 +4471,7 @@ exports['default'] = {
     _actionsDom_event_actions2['default'].unregisterKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
   },
   onIframeEstablished: function onIframeEstablished(callback) {
-    _dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-estabilshed', function (data) {
+    _dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-established', function (data) {
       callback.call(null, {
         $el: data.$el,
         extension: _underscore2['default'].pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
@@ -5137,7 +5137,7 @@ var Flag = (function () {
   * @example
   * // Display a nice green flag using the Flags JavaScript API.
   * var flag = AP.flag.create({
-  *   title: 'Succesfully created a flag.',
+  *   title: 'Successfully created a flag.',
   *   body: 'This is a flag.',
   *   type: 'info'
   * });
@@ -5166,7 +5166,7 @@ var Flag = (function () {
     * @example
     * // Display a nice green flag using the Flags JavaScript API.
     * var flag = AP.flag.create({
-    *   title: 'Succesfully created a flag.',
+    *   title: 'Successfully created a flag.',
     *   body: 'This is a flag.',
     *   type: 'info'
     * });
@@ -5208,7 +5208,7 @@ exports['default'] = {
   * @example
   * // Display a nice green flag using the Flags JavaScript API.
   * var flag = AP.flag.create({
-  *   title: 'Succesfully created a flag.',
+  *   title: 'Successfully created a flag.',
   *   body: 'This is a flag.',
   *   type: 'success'
   * });
