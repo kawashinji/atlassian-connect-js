@@ -228,8 +228,12 @@ EventEmitter.prototype.emit = function(type) {
       er = arguments[1];
       if (er instanceof Error) {
         throw er; // Unhandled 'error' event
+      } else {
+        // At least give some kind of context to the user
+        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
+        err.context = er;
+        throw err;
       }
-      throw TypeError('Uncaught, unspecified "error" event.');
     }
   }
 
@@ -932,894 +936,6 @@ function isUndefined(arg) {
 
 },{}],4:[function(_dereq_,module,exports){
 (function (global){
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.host = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-'use strict';
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _xdmrpc = _dereq_('./xdmrpc');
-
-var _xdmrpc2 = _interopRequireDefault(_xdmrpc);
-
-var _commonUtil = _dereq_('../common/util');
-
-var _commonUtil2 = _interopRequireDefault(_commonUtil);
-
-var Connect = (function () {
-  function Connect() {
-    _classCallCheck(this, Connect);
-
-    this._xdm = new _xdmrpc2['default']();
-  }
-
-  /**
-   * Send a message to iframes matching the targetSpec. This message is added to
-   *  a message queue for delivery to ensure the message is received if an iframe 
-   *  has not yet loaded
-   * 
-   * @param type The name of the event type
-   * @param targetSpec The spec to match against extensions when sending this event
-   * @param event The event payload
-   * @param callback A callback to be executed when the remote iframe calls its callback
-   */
-
-  _createClass(Connect, [{
-    key: 'dispatch',
-    value: function dispatch(type, targetSpec, event, callback) {
-      this._xdm.queueEvent(type, targetSpec, event, callback);
-      return this.getExtensions(targetSpec);
-    }
-
-    /**
-     * Send a message to iframes matching the targetSpec immediately. This message will 
-     *  only be sent to iframes that are already open, and will not be delivered if none
-     *  are currently open.
-     * 
-     * @param type The name of the event type
-     * @param targetSpec The spec to match against extensions when sending this event
-     * @param event The event payload
-     */
-  }, {
-    key: 'broadcast',
-    value: function broadcast(type, targetSpec, event) {
-      this._xdm.dispatch(type, targetSpec, event, null, null);
-      return this.getExtensions(targetSpec);
-    }
-  }, {
-    key: '_createId',
-    value: function _createId(extension) {
-      if (!extension.addon_key || !extension.key) {
-        throw Error('Extensions require addon_key and key');
-      }
-      return extension.addon_key + '__' + extension.key + '__' + _commonUtil2['default'].randomString();
-    }
-
-    /**
-    * Creates a new iframed module, without actually creating the DOM element.
-    * The iframe attributes are passed to the 'setupCallback', which is responsible for creating
-    * the DOM element and returning the window reference.
-    *
-    * @param extension The extension definition. Example:
-    *   {
-    *     addon_key: 'my-addon',
-    *     key: 'my-module',
-    *     url: 'https://example.com/my-module',
-    *     options: { autoresize: false }
-    *   }
-    *
-    * @param initCallback The optional initCallback is called when the bridge between host and iframe is established.
-    **/
-  }, {
-    key: 'create',
-    value: function create(extension, initCallback) {
-      var extension_id = this.registerExtension(extension, initCallback);
-
-      var data = {
-        extension_id: extension_id,
-        api: this._xdm.getApiSpec(),
-        origin: _commonUtil2['default'].locationOrigin(),
-        options: extension.options || {}
-      };
-
-      return {
-        id: extension_id,
-        name: JSON.stringify(data),
-        src: extension.url
-      };
-    }
-  }, {
-    key: 'registerRequestNotifier',
-    value: function registerRequestNotifier(callback) {
-      this._xdm.registerRequestNotifier(callback);
-    }
-  }, {
-    key: 'registerExtension',
-    value: function registerExtension(extension, initCallback) {
-      var extension_id = this._createId(extension);
-      this._xdm.registerExtension(extension_id, {
-        extension: extension,
-        initCallback: initCallback
-      });
-      return extension_id;
-    }
-  }, {
-    key: 'registerKeyListener',
-    value: function registerKeyListener(extension_id, key, modifiers, callback) {
-      this._xdm.registerKeyListener(extension_id, key, modifiers, callback);
-    }
-  }, {
-    key: 'unregisterKeyListener',
-    value: function unregisterKeyListener(extension_id, key, modifiers, callback) {
-      this._xdm.unregisterKeyListener(extension_id, key, modifiers, callback);
-    }
-  }, {
-    key: 'defineModule',
-    value: function defineModule(moduleName, module) {
-      this._xdm.defineAPIModule(module, moduleName);
-    }
-  }, {
-    key: 'defineGlobals',
-    value: function defineGlobals(module) {
-      this._xdm.defineAPIModule(module);
-    }
-  }, {
-    key: 'getExtensions',
-    value: function getExtensions(filter) {
-      return this._xdm.getRegisteredExtensions(filter);
-    }
-  }, {
-    key: 'unregisterExtension',
-    value: function unregisterExtension(filter) {
-      return this._xdm.unregisterExtension(filter);
-    }
-  }]);
-
-  return Connect;
-})();
-
-module.exports = new Connect();
-
-},{"../common/util":3,"./xdmrpc":4}],2:[function(_dereq_,module,exports){
-"use strict";
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var _util = _dereq_('./util');
-
-var _util2 = _interopRequireDefault(_util);
-
-var PostMessage = (function () {
-  function PostMessage(data) {
-    _classCallCheck(this, PostMessage);
-
-    var d = data || {};
-    this._registerListener(d.listenOn);
-  }
-
-  // listen for postMessage events (defaults to window).
-
-  _createClass(PostMessage, [{
-    key: "_registerListener",
-    value: function _registerListener(listenOn) {
-      if (!listenOn || !listenOn.addEventListener) {
-        listenOn = window;
-      }
-      listenOn.addEventListener("message", _util2["default"]._bind(this, this._receiveMessage), false);
-    }
-  }, {
-    key: "_receiveMessage",
-    value: function _receiveMessage(event) {
-      var extensionId = event.data.eid,
-          reg = undefined;
-
-      if (extensionId && this._registeredExtensions) {
-        reg = this._registeredExtensions[extensionId];
-      }
-
-      if (!this._checkOrigin(event, reg)) {
-        return false;
-      }
-
-      var handler = this._messageHandlers[event.data.type];
-      if (handler) {
-        handler.call(this, event, reg);
-      }
-    }
-  }]);
-
-  return PostMessage;
-})();
-
-module.exports = PostMessage;
-
-},{"./util":3}],3:[function(_dereq_,module,exports){
-"use strict";
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var LOG_PREFIX = "[Simple-XDM] ";
-
-var Util = (function () {
-  function Util() {
-    _classCallCheck(this, Util);
-  }
-
-  _createClass(Util, [{
-    key: "locationOrigin",
-    value: function locationOrigin() {
-      if (!window.location.origin) {
-        return window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-      } else {
-        return window.location.origin;
-      }
-    }
-  }, {
-    key: "randomString",
-    value: function randomString() {
-      return Math.floor(Math.random() * 1000000000).toString(16);
-    }
-  }, {
-    key: "isString",
-    value: function isString(str) {
-      return typeof str === "string" || str instanceof String;
-    }
-  }, {
-    key: "argumentsToArray",
-    value: function argumentsToArray(arrayLike) {
-      return Array.prototype.slice.call(arrayLike);
-    }
-  }, {
-    key: "argumentNames",
-    value: function argumentNames(fn) {
-      return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
-      .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
-      .match(/([^\s,]+)/g) || [];
-    }
-  }, {
-    key: "hasCallback",
-    value: function hasCallback(args) {
-      var length = args.length;
-      return length > 0 && typeof args[length - 1] === 'function';
-    }
-  }, {
-    key: "error",
-    value: function error(msg) {
-      if (window.console) {
-        console.error(LOG_PREFIX + msg);
-      }
-    }
-  }, {
-    key: "warn",
-    value: function warn(msg) {
-      if (window.console) {
-        console.warn(LOG_PREFIX + msg);
-      }
-    }
-  }, {
-    key: "_bind",
-    value: function _bind(thisp, fn) {
-      if (Function.prototype.bind) {
-        return fn.bind(thisp);
-      }
-      return function () {
-        return fn.apply(thisp, arguments);
-      };
-    }
-  }, {
-    key: "each",
-    value: function each(o, it) {
-      var l;
-      var k;
-      if (o) {
-        l = o.length;
-        if (l != null && typeof o !== 'function') {
-          k = 0;
-          while (k < l) {
-            if (it.call(o[k], k, o[k]) === false) {
-              break;
-            }
-            k += 1;
-          }
-        } else {
-          for (k in o) {
-            if (o.hasOwnProperty(k)) {
-              if (it.call(o[k], k, o[k]) === false) {
-                break;
-              }
-            }
-          }
-        }
-      }
-    }
-  }, {
-    key: "extend",
-    value: function extend(dest) {
-      var args = arguments;
-      var srcs = [].slice.call(args, 1, args.length);
-      srcs.forEach(function (source) {
-        if (typeof source === "object") {
-          Object.getOwnPropertyNames(source).forEach(function (name) {
-            dest[name] = source[name];
-          });
-        }
-      });
-      return dest;
-    }
-  }, {
-    key: "sanitizeStructuredClone",
-    value: function sanitizeStructuredClone(object) {
-      var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
-      var blackList = [Error, Node];
-      var warn = this.warn;
-      var visitedObjects = [];
-
-      function _clone(value) {
-        if (typeof value === 'function') {
-          warn("A function was detected and removed from the message.");
-          return null;
-        }
-
-        if (blackList.some(function (t) {
-          if (value instanceof t) {
-            warn(t.name + " object was detected and removed from the message.");
-            return true;
-          }
-          return false;
-        })) {
-          return {};
-        }
-
-        if (value && typeof value === 'object' && whiteList.every(function (t) {
-          return !(value instanceof t);
-        })) {
-          if (visitedObjects.indexOf(value) > -1) {
-            warn("A circular reference was detected and removed from the message.");
-            return null;
-          }
-
-          visitedObjects.push(value);
-
-          var newValue = undefined;
-
-          if (Array.isArray(value)) {
-            newValue = value.map(function (element) {
-              return _clone(element);
-            });
-          } else {
-            newValue = {};
-            for (var _name in value) {
-              if (value.hasOwnProperty(_name)) {
-                var clonedValue = _clone(value[_name]);
-                if (clonedValue !== null) {
-                  newValue[_name] = clonedValue;
-                }
-              }
-            }
-          }
-          return newValue;
-        }
-        return value;
-      }
-      return _clone(object);
-    }
-  }]);
-
-  return Util;
-})();
-
-module.exports = new Util();
-
-},{}],4:[function(_dereq_,module,exports){
-/**
-* Postmessage format:
-*
-* Initialization
-* --------------
-* {
-*   type: 'init',
-*   eid: 'my-addon__my-module-xyz'  // the extension identifier, unique across iframes
-* }
-*
-* Request
-* -------
-* {
-*   type: 'req',
-*   eid: 'my-addon__my-module-xyz',  // the extension identifier, unique for iframe
-*   mid: 'xyz',  // a unique message identifier, required for callbacks
-*   mod: 'cookie',  // the module name
-*   fn: 'read',  // the method name
-*   args: [arguments]  // the method arguments
-* }
-*
-* Response
-* --------
-* {
-*   type: 'resp'
-*   eid: 'my-addon__my-module-xyz',  // the extension identifier, unique for iframe
-*   mid: 'xyz',  // a unique message identifier, obtained from the request
-*   args: [arguments]  // the callback arguments
-* }
-*
-* Event
-* -----
-* {
-*   type: 'evt',
-*   etyp: 'some-event',
-*   evnt: { ... }  // the event data
-*   mid: 'xyz', // a unique message identifier for the event
-* }
-**/
-
-'use strict';
-
-var _bind = Function.prototype.bind;
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _commonUtil = _dereq_('../common/util');
-
-var _commonUtil2 = _interopRequireDefault(_commonUtil);
-
-var _commonPostmessage = _dereq_('../common/postmessage');
-
-var _commonPostmessage2 = _interopRequireDefault(_commonPostmessage);
-
-var VALID_EVENT_TIME_MS = 30000; //30 seconds
-
-var XDMRPC = (function (_PostMessage) {
-  _inherits(XDMRPC, _PostMessage);
-
-  function XDMRPC(config) {
-    _classCallCheck(this, XDMRPC);
-
-    config = config || {};
-    _get(Object.getPrototypeOf(XDMRPC.prototype), 'constructor', this).call(this, config);
-    this._registeredExtensions = config.extensions || {};
-    this._registeredAPIModules = {};
-    this._pendingCallbacks = {};
-    this._keycodeCallbacks = {};
-    this._pendingEvents = {};
-    this._messageHandlers = {
-      init: this._handleInit,
-      req: this._handleRequest,
-      resp: this._handleResponse,
-      event_query: this._handleEventQuery,
-      broadcast: this._handleBroadcast,
-      key_listen: this._handleKeyListen
-    };
-  }
-
-  _createClass(XDMRPC, [{
-    key: '_handleInit',
-    value: function _handleInit(event, reg) {
-      this._registeredExtensions[reg.extension_id].source = event.source;
-      if (reg.initCallback) {
-        reg.initCallback(event.data.eid);
-        delete reg.initCallback;
-      }
-    }
-  }, {
-    key: '_handleResponse',
-    value: function _handleResponse(event) {
-      var data = event.data;
-      var pendingCallback = this._pendingCallbacks[data.mid];
-      if (pendingCallback) {
-        delete this._pendingCallbacks[data.mid];
-        pendingCallback.apply(window, data.args);
-      }
-    }
-  }, {
-    key: 'registerRequestNotifier',
-    value: function registerRequestNotifier(cb) {
-      this._registeredRequestNotifier = cb;
-    }
-  }, {
-    key: '_handleRequest',
-    value: function _handleRequest(event, reg) {
-      function sendResponse() {
-        var args = _commonUtil2['default'].sanitizeStructuredClone(_commonUtil2['default'].argumentsToArray(arguments));
-        event.source.postMessage({
-          mid: event.data.mid,
-          type: 'resp',
-          args: args
-        }, reg.extension.url);
-      }
-
-      var data = event.data;
-      var module = this._registeredAPIModules[data.mod];
-      var extension = this.getRegisteredExtensions(reg.extension)[0];
-      if (module) {
-        var fnName = data.fn;
-        if (data._cls) {
-          (function () {
-            var Cls = module[data._cls];
-            var ns = data.mod + '-' + data._cls + '-';
-            sendResponse._id = data._id;
-            if (fnName === 'constructor') {
-              if (!Cls._construct) {
-                Cls.constructor.prototype._destroy = function () {
-                  delete this._context._proxies[ns + this._id];
-                };
-                Cls._construct = function () {
-                  for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-                    args[_key] = arguments[_key];
-                  }
-
-                  var inst = new (_bind.apply(Cls.constructor, [null].concat(args)))();
-                  var callback = args[args.length - 1];
-                  inst._id = callback._id;
-                  inst._context = callback._context;
-                  inst._context._proxies[ns + inst._id] = inst;
-                  return inst;
-                };
-              }
-              module = Cls;
-              fnName = '_construct';
-            } else {
-              module = extension._proxies[ns + data._id];
-            }
-          })();
-        }
-        var method = module[fnName];
-        if (method) {
-          var methodArgs = data.args;
-          sendResponse._context = extension;
-          methodArgs.push(sendResponse);
-          method.apply(module, methodArgs);
-          if (this._registeredRequestNotifier) {
-            this._registeredRequestNotifier.call(null, {
-              module: data.mod,
-              fn: data.fn,
-              type: data.type,
-              addon_key: reg.extension.addon_key,
-              key: reg.extension.key,
-              extension_id: reg.extension_id
-            });
-          }
-        }
-      }
-    }
-  }, {
-    key: '_handleBroadcast',
-    value: function _handleBroadcast(event, reg) {
-      var event_data = event.data;
-      var targetSpec = function targetSpec(r) {
-        return r.extension.addon_key === reg.extension.addon_key && r.extension_id !== reg.extension_id;
-      };
-      this.dispatch(event_data.etyp, targetSpec, event_data.evnt, null, null);
-    }
-  }, {
-    key: '_handleKeyListen',
-    value: function _handleKeyListen(event, reg) {
-      var eventData = event.data;
-      var keycodeEntry = this._keycodeKey(eventData.keycode, eventData.modifiers, reg.extension_id);
-      var listeners = this._keycodeCallbacks[keycodeEntry];
-      if (listeners) {
-        listeners.forEach(function (listener) {
-          listener.call(null, {
-            addon_key: reg.extension.addon_key,
-            key: reg.extension.key,
-            extension_id: reg.extension_id,
-            keycode: eventData.keycode,
-            modifiers: eventData.modifiers
-          });
-        }, this);
-      }
-    }
-  }, {
-    key: 'defineAPIModule',
-    value: function defineAPIModule(module, moduleName) {
-      if (moduleName) {
-        this._registeredAPIModules[moduleName] = module;
-      } else {
-        this._registeredAPIModules._globals = _commonUtil2['default'].extend({}, this._registeredAPIModules._globals, module);
-      }
-      return this._registeredAPIModules;
-    }
-  }, {
-    key: '_fullKey',
-    value: function _fullKey(targetSpec) {
-      var key = targetSpec.addon_key || 'global';
-      if (targetSpec.key) {
-        key = key + '@@' + targetSpec.key;
-      }
-
-      return key;
-    }
-  }, {
-    key: 'queueEvent',
-    value: function queueEvent(type, targetSpec, event, callback) {
-      var loaded_frame,
-          targets = this._findRegistrations(targetSpec);
-
-      loaded_frame = targets.some(function (target) {
-        return target.registered_events !== undefined;
-      }, this);
-
-      if (loaded_frame) {
-        this.dispatch(type, targetSpec, event, callback);
-      } else {
-        this._pendingEvents[this._fullKey(targetSpec)] = {
-          type: type,
-          targetSpec: targetSpec,
-          event: event,
-          callback: callback,
-          time: new Date().getTime(),
-          uid: _commonUtil2['default'].randomString()
-        };
-      }
-    }
-  }, {
-    key: '_handleEventQuery',
-    value: function _handleEventQuery(message, extension) {
-      var _this = this;
-
-      var executed = {};
-      var now = new Date().getTime();
-      var keys = Object.keys(this._pendingEvents);
-      keys.forEach(function (index) {
-        var element = _this._pendingEvents[index];
-        var eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
-        var isSameTarget = !element.targetSpec || _this._findRegistrations(element.targetSpec).length !== 0;
-
-        if (eventIsValid && isSameTarget) {
-          executed[index] = element;
-          element.targetSpec = element.targetSpec || {};
-          element.targetSpec.addon_key = extension.extension.addon_key;
-          element.targetSpec.key = extension.extension.key;
-          _this.dispatch(element.type, element.targetSpec, element.event, element.callback, message.source);
-        } else if (!eventIsValid) {
-          delete _this._pendingEvents[index];
-        }
-      });
-
-      this._registeredExtensions[extension.extension_id].registered_events = message.data.args;
-
-      return executed;
-    }
-  }, {
-    key: 'dispatch',
-    value: function dispatch(type, targetSpec, event, callback, source) {
-      function sendEvent(reg, evnt) {
-        if (reg.source) {
-          var mid;
-          if (callback) {
-            mid = _commonUtil2['default'].randomString();
-            this._pendingCallbacks[mid] = callback;
-          }
-
-          reg.source.postMessage({
-            type: 'evt',
-            mid: mid,
-            etyp: type,
-            evnt: evnt
-          }, reg.extension.url);
-        }
-      }
-
-      var registrations = this._findRegistrations(targetSpec || {});
-      registrations.forEach(function (reg) {
-        if (source) {
-          reg.source = source;
-        }
-
-        if (reg.source) {
-          _commonUtil2['default']._bind(this, sendEvent)(reg, event);
-        }
-      }, this);
-    }
-  }, {
-    key: '_findRegistrations',
-    value: function _findRegistrations(targetSpec) {
-      var _this2 = this;
-
-      if (this._registeredExtensions.length === 0) {
-        _commonUtil2['default'].error('no registered extensions', this._registeredExtensions);
-        return [];
-      }
-      var keys = Object.getOwnPropertyNames(targetSpec);
-      var registrations = Object.getOwnPropertyNames(this._registeredExtensions).map(function (key) {
-        return _this2._registeredExtensions[key];
-      });
-
-      if (targetSpec instanceof Function) {
-        return registrations.filter(targetSpec);
-      } else {
-        return registrations.filter(function (reg) {
-          return keys.every(function (key) {
-            return reg.extension[key] === targetSpec[key];
-          });
-        });
-      }
-    }
-  }, {
-    key: 'registerExtension',
-    value: function registerExtension(extension_id, data) {
-      // delete duplicate registrations
-      if (data.extension.addon_key && data.extension.key) {
-        var existingView = this._findRegistrations({
-          addon_key: data.extension.addon_key,
-          key: data.extension.key
-        });
-        if (existingView.length !== 0) {
-          delete this._registeredExtensions[existingView[0].extension_id];
-        }
-      }
-      data._proxies = {};
-      data.extension_id = extension_id;
-      this._registeredExtensions[extension_id] = data;
-    }
-  }, {
-    key: '_keycodeKey',
-    value: function _keycodeKey(key, modifiers, extension_id) {
-      var code = key;
-
-      if (modifiers) {
-        if (typeof modifiers === "string") {
-          modifiers = [modifiers];
-        }
-        modifiers.sort();
-        modifiers.forEach(function (modifier) {
-          code += '$$' + modifier;
-        }, this);
-      }
-
-      return code + '__' + extension_id;
-    }
-  }, {
-    key: 'registerKeyListener',
-    value: function registerKeyListener(extension_id, key, modifiers, callback) {
-      if (typeof modifiers === "string") {
-        modifiers = [modifiers];
-      }
-      var reg = this._registeredExtensions[extension_id];
-      var keycodeEntry = this._keycodeKey(key, modifiers, extension_id);
-      if (!this._keycodeCallbacks[keycodeEntry]) {
-        this._keycodeCallbacks[keycodeEntry] = [];
-        reg.source.postMessage({
-          type: 'key_listen',
-          keycode: key,
-          modifiers: modifiers,
-          action: 'add'
-        }, reg.extension.url);
-      }
-      this._keycodeCallbacks[keycodeEntry].push(callback);
-    }
-  }, {
-    key: 'unregisterKeyListener',
-    value: function unregisterKeyListener(extension_id, key, modifiers, callback) {
-      var keycodeEntry = this._keycodeKey(key, modifiers, extension_id);
-      var potentialCallbacks = this._keycodeCallbacks[keycodeEntry];
-      var reg = this._registeredExtensions[extension_id];
-
-      if (potentialCallbacks) {
-        if (callback) {
-          var index = potentialCallbacks.indexOf(callback);
-          this._keycodeCallbacks[keycodeEntry].splice(index, 1);
-        } else {
-          delete this._keycodeCallbacks[keycodeEntry];
-        }
-
-        reg.source.postMessage({
-          type: 'key_listen',
-          keycode: key,
-          modifiers: modifiers,
-          action: 'remove'
-        }, reg.extension.url);
-      }
-    }
-  }, {
-    key: 'getApiSpec',
-    value: function getApiSpec() {
-      var that = this;
-      function createModule(moduleName) {
-        var module = that._registeredAPIModules[moduleName];
-        if (!module) {
-          throw new Error("unregistered API module: " + moduleName);
-        }
-        function getModuleDefinition(mod) {
-          return Object.getOwnPropertyNames(mod).reduce(function (accumulator, memberName) {
-            var member = mod[memberName];
-            switch (typeof member) {
-              case 'function':
-                accumulator[memberName] = {
-                  args: _commonUtil2['default'].argumentNames(member)
-                };
-                break;
-              case 'object':
-                if (member.hasOwnProperty('constructor')) {
-                  accumulator[memberName] = getModuleDefinition(member);
-                }
-                break;
-            }
-            return accumulator;
-          }, {});
-        }
-        return getModuleDefinition(module);
-      }
-      return Object.getOwnPropertyNames(this._registeredAPIModules).reduce(function (accumulator, moduleName) {
-        accumulator[moduleName] = createModule(moduleName);
-        return accumulator;
-      }, {});
-    }
-
-    // validate origin of postMessage
-  }, {
-    key: '_checkOrigin',
-    value: function _checkOrigin(event, reg) {
-      var no_source_types = ['init', 'event_query'];
-      var isNoSourceType = reg && !reg.source && no_source_types.indexOf(event.data.type) > -1;
-      var sourceTypeMatches = reg && event.source === reg.source;
-      var hasExtensionUrl = reg && reg.extension.url.indexOf(event.origin) === 0;
-      var isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches);
-      if (!isValidOrigin) {
-        _commonUtil2['default'].warn("Failed to validate origin: " + event.origin);
-      }
-      return isValidOrigin;
-    }
-  }, {
-    key: 'getRegisteredExtensions',
-    value: function getRegisteredExtensions(filter) {
-      if (filter) {
-        return this._findRegistrations(filter);
-      }
-      return this._registeredExtensions;
-    }
-  }, {
-    key: 'unregisterExtension',
-    value: function unregisterExtension(filter) {
-      var registrations = this._findRegistrations(filter);
-      if (registrations.length !== 0) {
-        registrations.forEach(function (registration) {
-          var _this3 = this;
-
-          var keys = Object.keys(this._pendingEvents);
-          keys.forEach(function (index) {
-            var element = _this3._pendingEvents[index];
-            var targetSpec = element.targetSpec || {};
-
-            if (targetSpec.addon_key === registration.extension.addon_key) {
-              delete _this3._pendingEvents[index];
-            }
-          });
-
-          delete this._registeredExtensions[registration.extension_id];
-        }, this);
-      }
-    }
-  }]);
-
-  return XDMRPC;
-})(_commonPostmessage2['default']);
-
-module.exports = XDMRPC;
-
-},{"../common/postmessage":2,"../common/util":3}]},{},[1])(1)
-});
-
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
-},{}],5:[function(_dereq_,module,exports){
-(function (global){
 /*! https://mths.be/utf8js v2.0.0 by @mathias */
 ;(function(root) {
 
@@ -2067,7 +1183,7 @@ module.exports = XDMRPC;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],6:[function(_dereq_,module,exports){
+},{}],5:[function(_dereq_,module,exports){
 "use strict";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -2090,7 +1206,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32}],7:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":31}],6:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2101,7 +1217,11 @@ var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dis
 
 module.exports = {
   close: function close(data) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close', data);
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close', {
+      dialog: data.dialog,
+      extension: data.extension,
+      customData: data.customData
+    });
   },
   closeActive: function closeActive(data) {
     _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close-active', data);
@@ -2121,7 +1241,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32}],8:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":31}],7:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2154,7 +1274,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32}],9:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":31}],8:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2185,7 +1305,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4}],10:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":31,"simple-xdm/dist/host":47}],9:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2232,7 +1352,7 @@ module.exports = {
   }
 };
 
-},{"../util":41,"components/iframe":24,"dispatchers/event_dispatcher":32}],11:[function(_dereq_,module,exports){
+},{"../util":40,"components/iframe":23,"dispatchers/event_dispatcher":31}],10:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2256,7 +1376,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4}],12:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":31,"simple-xdm/dist/host":47}],11:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2279,7 +1399,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32}],13:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":31}],12:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2313,7 +1433,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4}],14:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":31,"simple-xdm/dist/host":47}],13:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2341,7 +1461,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32}],15:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":31}],14:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2387,7 +1507,7 @@ module.exports = {
 
 };
 
-},{"../underscore":40,"dispatchers/event_dispatcher":32}],16:[function(_dereq_,module,exports){
+},{"../underscore":39,"dispatchers/event_dispatcher":31}],15:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2410,7 +1530,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"dispatchers/event_dispatcher":32}],17:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":31}],16:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2432,7 +1552,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32}],18:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":31}],17:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2473,7 +1593,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"components/webitem":29,"dispatchers/event_dispatcher":32,"utils/webitem":47}],19:[function(_dereq_,module,exports){
+},{"components/webitem":28,"dispatchers/event_dispatcher":31,"utils/webitem":46}],18:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2619,7 +1739,7 @@ _dispatchersEvent_dispatcher2['default'].register("button-toggle", function (dat
 exports['default'] = ButtonComponent;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../underscore":40,"actions/button_actions":6,"dispatchers/event_dispatcher":32,"utils/button":42}],20:[function(_dereq_,module,exports){
+},{"../dollar":32,"../underscore":39,"actions/button_actions":5,"dispatchers/event_dispatcher":31,"utils/button":41}],19:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2940,7 +2060,7 @@ var Dialog = (function () {
       var $dialog = (0, _dollar2['default'])(this.getByExtension({
         addon_key: extension.addon_key,
         key: extension.key
-      }));
+      })[0]);
       var $actionBar = getActionBar($dialog);
       $actionBar.append($button);
       return $dialog;
@@ -2986,7 +2106,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-close-active', functio
 });
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data) {
-  data.dialog.hide();
+  AJS.dialog2((0, _dollar2['default'])('#' + (0, _dollar2['default'])(data.dialog).attr('id'))).hide();
 });
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', function (data) {
@@ -3044,7 +2164,7 @@ _actionsDom_event_actions2['default'].registerWindowKeyEvent({
 exports['default'] = DialogComponent;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../underscore":40,"actions/button_actions":6,"actions/dialog_actions":7,"actions/dom_event_actions":9,"components/button":19,"components/iframe":24,"dispatchers/event_dispatcher":32,"utils/dialog":43}],21:[function(_dereq_,module,exports){
+},{"../dollar":32,"../underscore":39,"actions/button_actions":5,"actions/dialog_actions":6,"actions/dom_event_actions":8,"components/button":18,"components/iframe":23,"dispatchers/event_dispatcher":31,"utils/dialog":42}],20:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3111,6 +2231,16 @@ var DialogExtension = (function () {
     value: function buttonIsVisible(identifier) {
       return _componentsDialog2['default'].buttonIsVisible(identifier);
     }
+  }, {
+    key: 'getByExtension',
+    value: function getByExtension(extension) {
+      if (typeof extension === "string") {
+        extension = {
+          id: extension
+        };
+      }
+      return _componentsDialog2['default'].getByExtension(extension);
+    }
   }]);
 
   return DialogExtension;
@@ -3124,7 +2254,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-extension-open', funct
 exports['default'] = DialogExtensionComponent;
 module.exports = exports['default'];
 
-},{"components/dialog":20,"components/iframe_container":25,"dispatchers/event_dispatcher":32}],22:[function(_dereq_,module,exports){
+},{"components/dialog":19,"components/iframe_container":24,"dispatchers/event_dispatcher":31}],21:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3229,7 +2359,7 @@ _actionsWebitem_actions2['default'].addWebItem(webitem);
 exports['default'] = dialogInstance;
 module.exports = exports['default'];
 
-},{"../underscore":40,"actions/dialog_extension_actions":8,"actions/webitem_actions":18,"dispatchers/event_dispatcher":32,"utils/dialog":43,"utils/webitem":47}],23:[function(_dereq_,module,exports){
+},{"../underscore":39,"actions/dialog_extension_actions":7,"actions/webitem_actions":17,"dispatchers/event_dispatcher":31,"utils/dialog":42,"utils/webitem":46}],22:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3316,7 +2446,7 @@ _dispatchersEvent_dispatcher2['default'].register('flag-close', function (data) 
 exports['default'] = FlagComponent;
 module.exports = exports['default'];
 
-},{"../dollar":33,"actions/flag_actions":12,"dispatchers/event_dispatcher":32}],24:[function(_dereq_,module,exports){
+},{"../dollar":32,"actions/flag_actions":11,"dispatchers/event_dispatcher":31}],23:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3464,7 +2594,7 @@ _dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-estabilsh
 exports['default'] = IframeComponent;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../util":41,"actions/iframe_actions":13,"actions/jwt_actions":15,"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4,"utils/iframe":44,"utils/url":46}],25:[function(_dereq_,module,exports){
+},{"../dollar":32,"../util":40,"actions/iframe_actions":12,"actions/jwt_actions":14,"dispatchers/event_dispatcher":31,"simple-xdm/dist/host":47,"utils/iframe":43,"utils/url":45}],24:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3537,7 +2667,7 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-create', function (dat
 exports['default'] = IframeContainerComponent;
 module.exports = exports['default'];
 
-},{"../dollar":33,"components/iframe":24,"components/loading_indicator":28,"dispatchers/event_dispatcher":32}],26:[function(_dereq_,module,exports){
+},{"../dollar":32,"components/iframe":23,"components/loading_indicator":27,"dispatchers/event_dispatcher":31}],25:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3658,7 +2788,7 @@ _dispatchersEvent_dispatcher2['default'].register('inline-dialog-refresh', funct
 exports['default'] = InlineDialogComponent;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../util":41,"actions/inline_dialog_actions":14,"dispatchers/event_dispatcher":32}],27:[function(_dereq_,module,exports){
+},{"../dollar":32,"../util":40,"actions/inline_dialog_actions":13,"dispatchers/event_dispatcher":31}],26:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3806,7 +2936,7 @@ _actionsWebitem_actions2['default'].addWebItem(webitem);
 exports['default'] = inlineDialogInstance;
 module.exports = exports['default'];
 
-},{"../create":30,"../dollar":33,"actions/webitem_actions":18,"components/iframe_container":25,"components/inline_dialog":26,"components/webitem":29,"dispatchers/event_dispatcher":32,"utils/webitem":47}],28:[function(_dereq_,module,exports){
+},{"../create":29,"../dollar":32,"actions/webitem_actions":17,"components/iframe_container":24,"components/inline_dialog":25,"components/webitem":28,"dispatchers/event_dispatcher":31,"utils/webitem":46}],27:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3926,7 +3056,7 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', fun
 exports['default'] = LoadingComponent;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../util":41,"actions/loading_indicator_actions":16,"dispatchers/event_dispatcher":32}],29:[function(_dereq_,module,exports){
+},{"../dollar":32,"../util":40,"actions/loading_indicator_actions":15,"dispatchers/event_dispatcher":31}],28:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4046,7 +3176,7 @@ _dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-
 exports['default'] = webItemInstance;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../underscore":40,"actions/webitem_actions":18,"dispatchers/event_dispatcher":32,"utils/webitem":47}],30:[function(_dereq_,module,exports){
+},{"../dollar":32,"../underscore":39,"actions/webitem_actions":17,"dispatchers/event_dispatcher":31,"utils/webitem":46}],29:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -4077,7 +3207,7 @@ function create(extension) {
 
 module.exports = create;
 
-},{"./dollar":33,"components/iframe_container":25,"dispatchers/event_dispatcher":32}],31:[function(_dereq_,module,exports){
+},{"./dollar":32,"components/iframe_container":24,"dispatchers/event_dispatcher":31}],30:[function(_dereq_,module,exports){
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -4198,7 +3328,7 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', fun
 
 module.exports = analytics;
 
-},{"dispatchers/event_dispatcher":32}],32:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":31}],31:[function(_dereq_,module,exports){
 /**
 * pub/sub for extension state (created, destroyed, initialized)
 * taken from hipchat webcore
@@ -4288,7 +3418,7 @@ var EventDispatcher = (function (_EventEmitter) {
 
 module.exports = new EventDispatcher();
 
-},{"../underscore":40,"events":2}],33:[function(_dereq_,module,exports){
+},{"../underscore":39,"events":2}],32:[function(_dereq_,module,exports){
 /**
  * The iframe-side code exposes a jquery-like implementation via _dollar.
  * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
@@ -4302,7 +3432,7 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = AJS.$;
 module.exports = exports["default"];
 
-},{}],34:[function(_dereq_,module,exports){
+},{}],33:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4470,7 +3600,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./components/loading_indicator":28,"./create":30,"./modules/dialog":35,"./modules/env":36,"./modules/events":37,"./modules/flag":38,"./modules/messages":39,"./underscore":40,"actions/dialog_extension_actions":8,"actions/dom_event_actions":9,"actions/event_actions":11,"actions/iframe_actions":13,"actions/jwt_actions":15,"actions/module_actions":17,"components/dialog_extension":21,"components/dialog_webitem":22,"components/inline_dialog_webitem":27,"dispatchers/analytics_dispatcher":31,"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4}],35:[function(_dereq_,module,exports){
+},{"./components/loading_indicator":27,"./create":29,"./modules/dialog":34,"./modules/env":35,"./modules/events":36,"./modules/flag":37,"./modules/messages":38,"./underscore":39,"actions/dialog_extension_actions":7,"actions/dom_event_actions":8,"actions/event_actions":10,"actions/iframe_actions":12,"actions/jwt_actions":14,"actions/module_actions":16,"components/dialog_extension":20,"components/dialog_webitem":21,"components/inline_dialog_webitem":26,"dispatchers/analytics_dispatcher":30,"dispatchers/event_dispatcher":31,"simple-xdm/dist/host":47}],34:[function(_dereq_,module,exports){
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -4534,19 +3664,17 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-click', functio
       text: _componentsButton2['default'].getText(data.$el)
     }
   };
+  var eventName = 'dialog.button.click';
 
   // Old buttons, (submit and cancel) use old events
   if (!data.$el.hasClass('ap-dialog-custom-button')) {
-    _actionsEvent_actions2['default'].broadcast('dialog.' + eventData.button.name, {
-      addon_key: data.extension.addon_key
-    }, eventData);
-  } else {
-    // new buttons only target the dialog
-    _actionsEvent_actions2['default'].broadcast('dialog.button.click', {
-      addon_key: data.extension.addon_key,
-      key: data.extension.key
-    }, eventData);
+    eventName = 'dialog.' + eventData.button.name;
   }
+
+  _actionsEvent_actions2['default'].broadcast(eventName, {
+    addon_key: data.extension.addon_key,
+    key: data.extension.key
+  }, eventData);
 });
 
 /**
@@ -4563,7 +3691,7 @@ var Dialog = function Dialog(options, callback) {
   var dialogExtension = {
     addon_key: extension.addon_key,
     key: options.key,
-    options: extension.options
+    options: _underscore2['default'].pick(callback._context.extension.options, ['customData', 'productContext'])
   };
 
   // ACJS-185: the following is a really bad idea but we need it
@@ -4879,8 +4007,16 @@ module.exports = {
       callback = data;
       data = {};
     }
-    _actionsDialog_actions2['default'].closeActive({
+    var dialogToClose;
+    if (callback._context.extension.options.isDialog) {
+      dialogToClose = _componentsDialog_extension2['default'].getByExtension(callback._context.extension.id)[0];
+    } else {
+      dialogToClose = _componentsDialog_extension2['default'].getActiveDialog();
+    }
+
+    _actionsDialog_actions2['default'].close({
       customData: data,
+      dialog: dialogToClose,
       extension: callback._context.extension
     });
   },
@@ -4942,7 +4078,7 @@ module.exports = {
   }
 };
 
-},{"../underscore":40,"../util":41,"actions/dialog_actions":7,"actions/dialog_extension_actions":8,"actions/event_actions":11,"components/button":19,"components/dialog_extension":21,"dispatchers/event_dispatcher":32,"utils/dialog":43}],36:[function(_dereq_,module,exports){
+},{"../underscore":39,"../util":40,"actions/dialog_actions":6,"actions/dialog_extension_actions":7,"actions/event_actions":10,"components/button":18,"components/dialog_extension":20,"dispatchers/event_dispatcher":31,"utils/dialog":42}],35:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4998,7 +4134,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":33,"../util":41,"actions/env_actions":10,"dispatchers/event_dispatcher":32}],37:[function(_dereq_,module,exports){
+},{"../dollar":32,"../util":40,"actions/env_actions":9,"dispatchers/event_dispatcher":31}],36:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5030,7 +4166,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../underscore":40,"actions/event_actions":11}],38:[function(_dereq_,module,exports){
+},{"../underscore":39,"actions/event_actions":10}],37:[function(_dereq_,module,exports){
 /**
 * Flags are the primary method for providing system feedback in the product user interface. Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
 * @module Flag
@@ -5184,7 +4320,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":33,"actions/flag_actions":12,"components/flag":23,"dispatchers/event_dispatcher":32}],39:[function(_dereq_,module,exports){
+},{"../dollar":32,"actions/flag_actions":11,"components/flag":22,"dispatchers/event_dispatcher":31}],38:[function(_dereq_,module,exports){
 /**
 * Messages are the primary method for providing system feedback in the product user interface.
 * Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
@@ -5468,7 +4604,7 @@ MESSAGE_TYPES.forEach(function (messageType) {
 exports['default'] = toExport;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../underscore":40}],40:[function(_dereq_,module,exports){
+},{"../dollar":32,"../underscore":39}],39:[function(_dereq_,module,exports){
 // AUI includes underscore and exposes it globally.
 "use strict";
 
@@ -5478,7 +4614,7 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = window._;
 module.exports = exports["default"];
 
-},{}],41:[function(_dereq_,module,exports){
+},{}],40:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5526,7 +4662,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./underscore":40}],42:[function(_dereq_,module,exports){
+},{"./underscore":39}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5559,7 +4695,7 @@ var buttonUtilsInstance = new ButtonUtils();
 exports["default"] = buttonUtilsInstance;
 module.exports = exports["default"];
 
-},{}],43:[function(_dereq_,module,exports){
+},{}],42:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5758,7 +4894,7 @@ var dialogUtilsInstance = new DialogUtils();
 exports['default'] = dialogUtilsInstance;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../util":41,"./button":42}],44:[function(_dereq_,module,exports){
+},{"../dollar":32,"../util":40,"./button":41}],43:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -5782,7 +4918,7 @@ module.exports = {
   }
 };
 
-},{"../util":41}],45:[function(_dereq_,module,exports){
+},{"../util":40}],44:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5852,7 +4988,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"base-64":1,"utf8":5}],46:[function(_dereq_,module,exports){
+},{"base-64":1,"utf8":4}],45:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -5885,7 +5021,7 @@ module.exports = {
   isJwtExpired: isJwtExpired
 };
 
-},{"jsuri":3,"utils/jwt":45}],47:[function(_dereq_,module,exports){
+},{"jsuri":3,"utils/jwt":44}],46:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -5975,7 +5111,893 @@ module.exports = {
   getOptionsForWebItem: getOptionsForWebItem
 };
 
-},{"../underscore":40,"jsuri":3}]},{},[34])(34)
+},{"../underscore":39,"jsuri":3}],47:[function(_dereq_,module,exports){
+(function (global){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.host = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _xdmrpc = _dereq_('./xdmrpc');
+
+var _xdmrpc2 = _interopRequireDefault(_xdmrpc);
+
+var _commonUtil = _dereq_('../common/util');
+
+var _commonUtil2 = _interopRequireDefault(_commonUtil);
+
+var Connect = (function () {
+  function Connect() {
+    _classCallCheck(this, Connect);
+
+    this._xdm = new _xdmrpc2['default']();
+  }
+
+  /**
+   * Send a message to iframes matching the targetSpec. This message is added to
+   *  a message queue for delivery to ensure the message is received if an iframe
+   *  has not yet loaded
+   *
+   * @param type The name of the event type
+   * @param targetSpec The spec to match against extensions when sending this event
+   * @param event The event payload
+   * @param callback A callback to be executed when the remote iframe calls its callback
+   */
+
+  _createClass(Connect, [{
+    key: 'dispatch',
+    value: function dispatch(type, targetSpec, event, callback) {
+      this._xdm.queueEvent(type, targetSpec, event, callback);
+      return this.getExtensions(targetSpec);
+    }
+
+    /**
+     * Send a message to iframes matching the targetSpec immediately. This message will
+     *  only be sent to iframes that are already open, and will not be delivered if none
+     *  are currently open.
+     *
+     * @param type The name of the event type
+     * @param targetSpec The spec to match against extensions when sending this event
+     * @param event The event payload
+     */
+  }, {
+    key: 'broadcast',
+    value: function broadcast(type, targetSpec, event) {
+      this._xdm.dispatch(type, targetSpec, event, null, null);
+      return this.getExtensions(targetSpec);
+    }
+  }, {
+    key: '_createId',
+    value: function _createId(extension) {
+      if (!extension.addon_key || !extension.key) {
+        throw Error('Extensions require addon_key and key');
+      }
+      return extension.addon_key + '__' + extension.key + '__' + _commonUtil2['default'].randomString();
+    }
+
+    /**
+    * Creates a new iframed module, without actually creating the DOM element.
+    * The iframe attributes are passed to the 'setupCallback', which is responsible for creating
+    * the DOM element and returning the window reference.
+    *
+    * @param extension The extension definition. Example:
+    *   {
+    *     addon_key: 'my-addon',
+    *     key: 'my-module',
+    *     url: 'https://example.com/my-module',
+    *     options: { autoresize: false }
+    *   }
+    *
+    * @param initCallback The optional initCallback is called when the bridge between host and iframe is established.
+    **/
+  }, {
+    key: 'create',
+    value: function create(extension, initCallback) {
+      var extension_id = this.registerExtension(extension, initCallback);
+
+      var data = {
+        extension_id: extension_id,
+        api: this._xdm.getApiSpec(),
+        origin: _commonUtil2['default'].locationOrigin(),
+        options: extension.options || {}
+      };
+
+      return {
+        id: extension_id,
+        name: JSON.stringify(data),
+        src: extension.url
+      };
+    }
+  }, {
+    key: 'registerRequestNotifier',
+    value: function registerRequestNotifier(callback) {
+      this._xdm.registerRequestNotifier(callback);
+    }
+  }, {
+    key: 'registerExtension',
+    value: function registerExtension(extension, initCallback, unloadCallback) {
+      var extension_id = this._createId(extension);
+      this._xdm.registerExtension(extension_id, {
+        extension: extension,
+        initCallback: initCallback,
+        unloadCallback: unloadCallback
+      });
+      return extension_id;
+    }
+  }, {
+    key: 'registerKeyListener',
+    value: function registerKeyListener(extension_id, key, modifiers, callback) {
+      this._xdm.registerKeyListener(extension_id, key, modifiers, callback);
+    }
+  }, {
+    key: 'unregisterKeyListener',
+    value: function unregisterKeyListener(extension_id, key, modifiers, callback) {
+      this._xdm.unregisterKeyListener(extension_id, key, modifiers, callback);
+    }
+  }, {
+    key: 'defineModule',
+    value: function defineModule(moduleName, module) {
+      this._xdm.defineAPIModule(module, moduleName);
+    }
+  }, {
+    key: 'defineGlobals',
+    value: function defineGlobals(module) {
+      this._xdm.defineAPIModule(module);
+    }
+  }, {
+    key: 'getExtensions',
+    value: function getExtensions(filter) {
+      return this._xdm.getRegisteredExtensions(filter);
+    }
+  }, {
+    key: 'unregisterExtension',
+    value: function unregisterExtension(filter) {
+      return this._xdm.unregisterExtension(filter);
+    }
+  }]);
+
+  return Connect;
+})();
+
+module.exports = new Connect();
+
+},{"../common/util":3,"./xdmrpc":4}],2:[function(_dereq_,module,exports){
+"use strict";
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var _util = _dereq_('./util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var PostMessage = (function () {
+  function PostMessage(data) {
+    _classCallCheck(this, PostMessage);
+
+    var d = data || {};
+    this._registerListener(d.listenOn);
+  }
+
+  // listen for postMessage events (defaults to window).
+
+  _createClass(PostMessage, [{
+    key: "_registerListener",
+    value: function _registerListener(listenOn) {
+      if (!listenOn || !listenOn.addEventListener) {
+        listenOn = window;
+      }
+      listenOn.addEventListener("message", _util2["default"]._bind(this, this._receiveMessage), false);
+    }
+  }, {
+    key: "_receiveMessage",
+    value: function _receiveMessage(event) {
+      var extensionId = event.data.eid,
+          reg = undefined;
+
+      if (extensionId && this._registeredExtensions) {
+        reg = this._registeredExtensions[extensionId];
+      }
+
+      if (!this._checkOrigin(event, reg)) {
+        return false;
+      }
+
+      var handler = this._messageHandlers[event.data.type];
+      if (handler) {
+        handler.call(this, event, reg);
+      }
+    }
+  }]);
+
+  return PostMessage;
+})();
+
+module.exports = PostMessage;
+
+},{"./util":3}],3:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var LOG_PREFIX = "[Simple-XDM] ";
+
+var util = {
+
+  locationOrigin: function locationOrigin() {
+    if (!window.location.origin) {
+      return window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+    } else {
+      return window.location.origin;
+    }
+  },
+
+  randomString: function randomString() {
+    return Math.floor(Math.random() * 1000000000).toString(16);
+  },
+
+  isString: function isString(str) {
+    return typeof str === "string" || str instanceof String;
+  },
+
+  argumentsToArray: function argumentsToArray(arrayLike) {
+    return Array.prototype.slice.call(arrayLike);
+  },
+
+  argumentNames: function argumentNames(fn) {
+    return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
+    .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
+    .match(/([^\s,]+)/g) || [];
+  },
+
+  hasCallback: function hasCallback(args) {
+    var length = args.length;
+    return length > 0 && typeof args[length - 1] === 'function';
+  },
+
+  error: function error(msg) {
+    if (window.console) {
+      console.error(LOG_PREFIX + msg);
+    }
+  },
+
+  warn: function warn(msg) {
+    if (window.console) {
+      console.warn(LOG_PREFIX + msg);
+    }
+  },
+
+  _bind: function _bind(thisp, fn) {
+    if (Function.prototype.bind) {
+      return fn.bind(thisp);
+    }
+    return function () {
+      return fn.apply(thisp, arguments);
+    };
+  },
+
+  each: function each(list, iteratee) {
+    var length;
+    var key;
+    if (list) {
+      length = list.length;
+      if (length != null && typeof list !== 'function') {
+        key = 0;
+        while (key < length) {
+          if (iteratee.call(list[key], key, list[key]) === false) {
+            break;
+          }
+          key += 1;
+        }
+      } else {
+        for (key in list) {
+          if (list.hasOwnProperty(key)) {
+            if (iteratee.call(list[key], key, list[key]) === false) {
+              break;
+            }
+          }
+        }
+      }
+    }
+  },
+
+  extend: function extend(dest) {
+    var args = arguments;
+    var srcs = [].slice.call(args, 1, args.length);
+    srcs.forEach(function (source) {
+      if (typeof source === "object") {
+        Object.getOwnPropertyNames(source).forEach(function (name) {
+          dest[name] = source[name];
+        });
+      }
+    });
+    return dest;
+  },
+
+  sanitizeStructuredClone: function sanitizeStructuredClone(object) {
+    var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
+    var blackList = [Error, Node];
+    var warn = util.warn;
+    var visitedObjects = [];
+
+    function _clone(value) {
+      if (typeof value === 'function') {
+        warn("A function was detected and removed from the message.");
+        return null;
+      }
+
+      if (blackList.some(function (t) {
+        if (value instanceof t) {
+          warn(t.name + " object was detected and removed from the message.");
+          return true;
+        }
+        return false;
+      })) {
+        return {};
+      }
+
+      if (value && typeof value === 'object' && whiteList.every(function (t) {
+        return !(value instanceof t);
+      })) {
+        if (visitedObjects.indexOf(value) > -1) {
+          warn("A circular reference was detected and removed from the message.");
+          return null;
+        }
+
+        visitedObjects.push(value);
+
+        var newValue = undefined;
+
+        if (Array.isArray(value)) {
+          newValue = value.map(function (element) {
+            return _clone(element);
+          });
+        } else {
+          newValue = {};
+          for (var _name in value) {
+            if (value.hasOwnProperty(_name)) {
+              var clonedValue = _clone(value[_name]);
+              if (clonedValue !== null) {
+                newValue[_name] = clonedValue;
+              }
+            }
+          }
+        }
+        return newValue;
+      }
+      return value;
+    }
+
+    return _clone(object);
+  }
+};
+
+exports["default"] = util;
+module.exports = exports["default"];
+
+},{}],4:[function(_dereq_,module,exports){
+/**
+* Postmessage format:
+*
+* Initialization
+* --------------
+* {
+*   type: 'init',
+*   eid: 'my-addon__my-module-xyz'  // the extension identifier, unique across iframes
+* }
+*
+* Request
+* -------
+* {
+*   type: 'req',
+*   eid: 'my-addon__my-module-xyz',  // the extension identifier, unique for iframe
+*   mid: 'xyz',  // a unique message identifier, required for callbacks
+*   mod: 'cookie',  // the module name
+*   fn: 'read',  // the method name
+*   args: [arguments]  // the method arguments
+* }
+*
+* Response
+* --------
+* {
+*   type: 'resp'
+*   eid: 'my-addon__my-module-xyz',  // the extension identifier, unique for iframe
+*   mid: 'xyz',  // a unique message identifier, obtained from the request
+*   args: [arguments]  // the callback arguments
+* }
+*
+* Event
+* -----
+* {
+*   type: 'evt',
+*   etyp: 'some-event',
+*   evnt: { ... }  // the event data
+*   mid: 'xyz', // a unique message identifier for the event
+* }
+**/
+
+'use strict';
+
+var _bind = Function.prototype.bind;
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _commonUtil = _dereq_('../common/util');
+
+var _commonUtil2 = _interopRequireDefault(_commonUtil);
+
+var _commonPostmessage = _dereq_('../common/postmessage');
+
+var _commonPostmessage2 = _interopRequireDefault(_commonPostmessage);
+
+var VALID_EVENT_TIME_MS = 30000; //30 seconds
+
+var XDMRPC = (function (_PostMessage) {
+  _inherits(XDMRPC, _PostMessage);
+
+  function XDMRPC(config) {
+    _classCallCheck(this, XDMRPC);
+
+    config = config || {};
+    _get(Object.getPrototypeOf(XDMRPC.prototype), 'constructor', this).call(this, config);
+    this._registeredExtensions = config.extensions || {};
+    this._registeredAPIModules = {};
+    this._pendingCallbacks = {};
+    this._keycodeCallbacks = {};
+    this._pendingEvents = {};
+    this._messageHandlers = {
+      init: this._handleInit,
+      req: this._handleRequest,
+      resp: this._handleResponse,
+      event_query: this._handleEventQuery,
+      broadcast: this._handleBroadcast,
+      key_listen: this._handleKeyListen,
+      unload: this._handleUnload
+    };
+  }
+
+  _createClass(XDMRPC, [{
+    key: '_handleInit',
+    value: function _handleInit(event, reg) {
+      this._registeredExtensions[reg.extension_id].source = event.source;
+      if (reg.initCallback) {
+        reg.initCallback(event.data.eid);
+        delete reg.initCallback;
+      }
+    }
+  }, {
+    key: '_handleResponse',
+    value: function _handleResponse(event) {
+      var data = event.data;
+      var pendingCallback = this._pendingCallbacks[data.mid];
+      if (pendingCallback) {
+        delete this._pendingCallbacks[data.mid];
+        pendingCallback.apply(window, data.args);
+      }
+    }
+  }, {
+    key: 'registerRequestNotifier',
+    value: function registerRequestNotifier(cb) {
+      this._registeredRequestNotifier = cb;
+    }
+  }, {
+    key: '_handleRequest',
+    value: function _handleRequest(event, reg) {
+      function sendResponse() {
+        var args = _commonUtil2['default'].sanitizeStructuredClone(_commonUtil2['default'].argumentsToArray(arguments));
+        event.source.postMessage({
+          mid: event.data.mid,
+          type: 'resp',
+          args: args
+        }, reg.extension.url);
+      }
+
+      var data = event.data;
+      var module = this._registeredAPIModules[data.mod];
+      var extension = this.getRegisteredExtensions(reg.extension)[0];
+      if (module) {
+        var fnName = data.fn;
+        if (data._cls) {
+          (function () {
+            var Cls = module[data._cls];
+            var ns = data.mod + '-' + data._cls + '-';
+            sendResponse._id = data._id;
+            if (fnName === 'constructor') {
+              if (!Cls._construct) {
+                Cls.constructor.prototype._destroy = function () {
+                  delete this._context._proxies[ns + this._id];
+                };
+                Cls._construct = function () {
+                  for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                    args[_key] = arguments[_key];
+                  }
+
+                  var inst = new (_bind.apply(Cls.constructor, [null].concat(args)))();
+                  var callback = args[args.length - 1];
+                  inst._id = callback._id;
+                  inst._context = callback._context;
+                  inst._context._proxies[ns + inst._id] = inst;
+                  return inst;
+                };
+              }
+              module = Cls;
+              fnName = '_construct';
+            } else {
+              module = extension._proxies[ns + data._id];
+            }
+          })();
+        }
+        var method = module[fnName];
+        if (method) {
+          var methodArgs = data.args;
+          sendResponse._context = extension;
+          methodArgs.push(sendResponse);
+          method.apply(module, methodArgs);
+          if (this._registeredRequestNotifier) {
+            this._registeredRequestNotifier.call(null, {
+              module: data.mod,
+              fn: data.fn,
+              type: data.type,
+              addon_key: reg.extension.addon_key,
+              key: reg.extension.key,
+              extension_id: reg.extension_id
+            });
+          }
+        }
+      }
+    }
+  }, {
+    key: '_handleBroadcast',
+    value: function _handleBroadcast(event, reg) {
+      var event_data = event.data;
+      var targetSpec = function targetSpec(r) {
+        return r.extension.addon_key === reg.extension.addon_key && r.extension_id !== reg.extension_id;
+      };
+      this.dispatch(event_data.etyp, targetSpec, event_data.evnt, null, null);
+    }
+  }, {
+    key: '_handleKeyListen',
+    value: function _handleKeyListen(event, reg) {
+      var eventData = event.data;
+      var keycodeEntry = this._keycodeKey(eventData.keycode, eventData.modifiers, reg.extension_id);
+      var listeners = this._keycodeCallbacks[keycodeEntry];
+      if (listeners) {
+        listeners.forEach(function (listener) {
+          listener.call(null, {
+            addon_key: reg.extension.addon_key,
+            key: reg.extension.key,
+            extension_id: reg.extension_id,
+            keycode: eventData.keycode,
+            modifiers: eventData.modifiers
+          });
+        }, this);
+      }
+    }
+  }, {
+    key: 'defineAPIModule',
+    value: function defineAPIModule(module, moduleName) {
+      if (moduleName) {
+        this._registeredAPIModules[moduleName] = module;
+      } else {
+        this._registeredAPIModules._globals = _commonUtil2['default'].extend({}, this._registeredAPIModules._globals, module);
+      }
+      return this._registeredAPIModules;
+    }
+  }, {
+    key: '_fullKey',
+    value: function _fullKey(targetSpec) {
+      var key = targetSpec.addon_key || 'global';
+      if (targetSpec.key) {
+        key = key + '@@' + targetSpec.key;
+      }
+
+      return key;
+    }
+  }, {
+    key: 'queueEvent',
+    value: function queueEvent(type, targetSpec, event, callback) {
+      var loaded_frame,
+          targets = this._findRegistrations(targetSpec);
+
+      loaded_frame = targets.some(function (target) {
+        return target.registered_events !== undefined;
+      }, this);
+
+      if (loaded_frame) {
+        this.dispatch(type, targetSpec, event, callback);
+      } else {
+        this._pendingEvents[this._fullKey(targetSpec)] = {
+          type: type,
+          targetSpec: targetSpec,
+          event: event,
+          callback: callback,
+          time: new Date().getTime(),
+          uid: _commonUtil2['default'].randomString()
+        };
+      }
+    }
+  }, {
+    key: '_handleEventQuery',
+    value: function _handleEventQuery(message, extension) {
+      var _this = this;
+
+      var executed = {};
+      var now = new Date().getTime();
+      var keys = Object.keys(this._pendingEvents);
+      keys.forEach(function (index) {
+        var element = _this._pendingEvents[index];
+        var eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
+        var isSameTarget = !element.targetSpec || _this._findRegistrations(element.targetSpec).length !== 0;
+
+        if (eventIsValid && isSameTarget) {
+          executed[index] = element;
+          element.targetSpec = element.targetSpec || {};
+          element.targetSpec.addon_key = extension.extension.addon_key;
+          element.targetSpec.key = extension.extension.key;
+          _this.dispatch(element.type, element.targetSpec, element.event, element.callback, message.source);
+        } else if (!eventIsValid) {
+          delete _this._pendingEvents[index];
+        }
+      });
+
+      this._registeredExtensions[extension.extension_id].registered_events = message.data.args;
+
+      return executed;
+    }
+  }, {
+    key: '_handleUnload',
+    value: function _handleUnload(event, reg) {
+      delete this._registeredExtensions[reg.extension_id].source;
+      if (reg.unloadCallback) {
+        reg.unloadCallback(event.data.eid);
+      }
+    }
+  }, {
+    key: 'dispatch',
+    value: function dispatch(type, targetSpec, event, callback, source) {
+      function sendEvent(reg, evnt) {
+        if (reg.source) {
+          var mid;
+          if (callback) {
+            mid = _commonUtil2['default'].randomString();
+            this._pendingCallbacks[mid] = callback;
+          }
+
+          reg.source.postMessage({
+            type: 'evt',
+            mid: mid,
+            etyp: type,
+            evnt: evnt
+          }, reg.extension.url);
+        }
+      }
+
+      var registrations = this._findRegistrations(targetSpec || {});
+      registrations.forEach(function (reg) {
+        if (source) {
+          reg.source = source;
+        }
+
+        if (reg.source) {
+          _commonUtil2['default']._bind(this, sendEvent)(reg, event);
+        }
+      }, this);
+    }
+  }, {
+    key: '_findRegistrations',
+    value: function _findRegistrations(targetSpec) {
+      var _this2 = this;
+
+      if (this._registeredExtensions.length === 0) {
+        _commonUtil2['default'].error('no registered extensions', this._registeredExtensions);
+        return [];
+      }
+      var keys = Object.getOwnPropertyNames(targetSpec);
+      var registrations = Object.getOwnPropertyNames(this._registeredExtensions).map(function (key) {
+        return _this2._registeredExtensions[key];
+      });
+
+      if (targetSpec instanceof Function) {
+        return registrations.filter(targetSpec);
+      } else {
+        return registrations.filter(function (reg) {
+          return keys.every(function (key) {
+            return reg.extension[key] === targetSpec[key];
+          });
+        });
+      }
+    }
+  }, {
+    key: 'registerExtension',
+    value: function registerExtension(extension_id, data) {
+      // delete duplicate registrations
+      if (data.extension.addon_key && data.extension.key) {
+        var existingView = this._findRegistrations({
+          addon_key: data.extension.addon_key,
+          key: data.extension.key
+        });
+        if (existingView.length !== 0) {
+          delete this._registeredExtensions[existingView[0].extension_id];
+        }
+      }
+      data._proxies = {};
+      data.extension_id = extension_id;
+      this._registeredExtensions[extension_id] = data;
+    }
+  }, {
+    key: '_keycodeKey',
+    value: function _keycodeKey(key, modifiers, extension_id) {
+      var code = key;
+
+      if (modifiers) {
+        if (typeof modifiers === "string") {
+          modifiers = [modifiers];
+        }
+        modifiers.sort();
+        modifiers.forEach(function (modifier) {
+          code += '$$' + modifier;
+        }, this);
+      }
+
+      return code + '__' + extension_id;
+    }
+  }, {
+    key: 'registerKeyListener',
+    value: function registerKeyListener(extension_id, key, modifiers, callback) {
+      if (typeof modifiers === "string") {
+        modifiers = [modifiers];
+      }
+      var reg = this._registeredExtensions[extension_id];
+      var keycodeEntry = this._keycodeKey(key, modifiers, extension_id);
+      if (!this._keycodeCallbacks[keycodeEntry]) {
+        this._keycodeCallbacks[keycodeEntry] = [];
+        reg.source.postMessage({
+          type: 'key_listen',
+          keycode: key,
+          modifiers: modifiers,
+          action: 'add'
+        }, reg.extension.url);
+      }
+      this._keycodeCallbacks[keycodeEntry].push(callback);
+    }
+  }, {
+    key: 'unregisterKeyListener',
+    value: function unregisterKeyListener(extension_id, key, modifiers, callback) {
+      var keycodeEntry = this._keycodeKey(key, modifiers, extension_id);
+      var potentialCallbacks = this._keycodeCallbacks[keycodeEntry];
+      var reg = this._registeredExtensions[extension_id];
+
+      if (potentialCallbacks) {
+        if (callback) {
+          var index = potentialCallbacks.indexOf(callback);
+          this._keycodeCallbacks[keycodeEntry].splice(index, 1);
+        } else {
+          delete this._keycodeCallbacks[keycodeEntry];
+        }
+
+        reg.source.postMessage({
+          type: 'key_listen',
+          keycode: key,
+          modifiers: modifiers,
+          action: 'remove'
+        }, reg.extension.url);
+      }
+    }
+  }, {
+    key: 'getApiSpec',
+    value: function getApiSpec() {
+      var that = this;
+      function createModule(moduleName) {
+        var module = that._registeredAPIModules[moduleName];
+        if (!module) {
+          throw new Error("unregistered API module: " + moduleName);
+        }
+        function getModuleDefinition(mod) {
+          return Object.getOwnPropertyNames(mod).reduce(function (accumulator, memberName) {
+            var member = mod[memberName];
+            switch (typeof member) {
+              case 'function':
+                accumulator[memberName] = {
+                  args: _commonUtil2['default'].argumentNames(member)
+                };
+                break;
+              case 'object':
+                if (member.hasOwnProperty('constructor')) {
+                  accumulator[memberName] = getModuleDefinition(member);
+                }
+                break;
+            }
+            return accumulator;
+          }, {});
+        }
+        return getModuleDefinition(module);
+      }
+      return Object.getOwnPropertyNames(this._registeredAPIModules).reduce(function (accumulator, moduleName) {
+        accumulator[moduleName] = createModule(moduleName);
+        return accumulator;
+      }, {});
+    }
+
+    // validate origin of postMessage
+  }, {
+    key: '_checkOrigin',
+    value: function _checkOrigin(event, reg) {
+      var no_source_types = ['init', 'event_query'];
+      var isNoSourceType = reg && !reg.source && no_source_types.indexOf(event.data.type) > -1;
+      var sourceTypeMatches = reg && event.source === reg.source;
+      var hasExtensionUrl = reg && reg.extension.url.indexOf(event.origin) === 0;
+      var isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches);
+
+      // check undefined for chromium (Issue 395010)
+      if (event.data.type === 'unload' && (sourceTypeMatches || event.source === undefined)) {
+        isValidOrigin = true;
+      }
+
+      if (!isValidOrigin) {
+        _commonUtil2['default'].warn("Failed to validate origin: " + event.origin);
+      }
+      return isValidOrigin;
+    }
+  }, {
+    key: 'getRegisteredExtensions',
+    value: function getRegisteredExtensions(filter) {
+      if (filter) {
+        return this._findRegistrations(filter);
+      }
+      return this._registeredExtensions;
+    }
+  }, {
+    key: 'unregisterExtension',
+    value: function unregisterExtension(filter) {
+      var registrations = this._findRegistrations(filter);
+      if (registrations.length !== 0) {
+        registrations.forEach(function (registration) {
+          var _this3 = this;
+
+          var keys = Object.keys(this._pendingEvents);
+          keys.forEach(function (index) {
+            var element = _this3._pendingEvents[index];
+            var targetSpec = element.targetSpec || {};
+
+            if (targetSpec.addon_key === registration.extension.addon_key) {
+              delete _this3._pendingEvents[index];
+            }
+          });
+
+          delete this._registeredExtensions[registration.extension_id];
+        }, this);
+      }
+    }
+  }]);
+
+  return XDMRPC;
+})(_commonPostmessage2['default']);
+
+module.exports = XDMRPC;
+
+},{"../common/postmessage":2,"../common/util":3}]},{},[1])(1)
+});
+
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
+},{}]},{},[33])(33)
 });
 
 

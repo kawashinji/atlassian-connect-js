@@ -37,6 +37,15 @@ class DialogExtension {
     return DialogComponent.buttonIsVisible(identifier);
   }
 
+  getByExtension(extension) {
+    if(typeof extension === "string"){
+      extension = {
+        id: extension
+      };
+    }
+    return DialogComponent.getByExtension(extension);
+  }
+
 }
 
 var DialogExtensionComponent = new DialogExtension();

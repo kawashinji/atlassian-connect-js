@@ -256,7 +256,7 @@ class Dialog {
     var $dialog = $(this.getByExtension({
       addon_key: extension.addon_key,
       key: extension.key
-    }));
+    })[0]);
     var $actionBar = getActionBar($dialog);
     $actionBar.append($button);
     return $dialog;
@@ -299,7 +299,7 @@ EventDispatcher.register('dialog-close-active', (data) => {
 });
 
 EventDispatcher.register('dialog-close', (data) => {
-  data.dialog.hide();
+  AJS.dialog2($('#' + $(data.dialog).attr('id'))).hide();
 });
 
 EventDispatcher.register('dialog-button-toggle', (data) => {
