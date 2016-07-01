@@ -74,7 +74,7 @@ export default {
     DomEventActions.unregisterKeyEvent({extension_id, key, modifiers, callback});
   },
   onIframeEstablished: (callback) => {
-    EventDispatcher.register('after:iframe-bridge-estabilshed', function(data) {
+    EventDispatcher.register('after:iframe-bridge-established', function(data) {
       callback.call(null, {
         $el: data.$el,
         extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
