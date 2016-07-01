@@ -117,7 +117,8 @@ class Dialog {
           type: action.type,
           additionalClasses: action.additionalClasses,
           custom: action.custom || false,
-          identifier: action.identifier
+          identifier: action.identifier,
+          immutable: action.immutable
         }, extension)
       );
     });
@@ -314,7 +315,7 @@ EventDispatcher.register('dialog-button-toggle-visibility', (data) => {
   const dialog = getActiveDialog();
   if (dialog) {
     const $button = getButtonByIdentifier(data.identifier, dialog.$el);
-    $button.toggle(!data.hidden);
+    ButtonActions.toggleVisibility($button, data.hidden);
   }
 });
 

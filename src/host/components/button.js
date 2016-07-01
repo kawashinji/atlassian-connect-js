@@ -20,8 +20,15 @@ class Button {
   }
 
   setDisabled($button, disabled) {
-    if(typeof disabled !== "undefined") {
+    if(typeof disabled !== "undefined" && !$button.data('immutable')) {
       $button.attr('aria-disabled', disabled);
+    }
+    return $button;
+  }
+
+  setHidden($button, hidden) {
+    if(typeof hidden !== "undefined" && !$button.data('immutable')) {
+      $button.toggle(!hidden);
     }
     return $button;
   }
@@ -73,7 +80,8 @@ class Button {
     $button.data(options.data);
     $button.data({
       name: options.name || options.identifier,
-      identifier: options.identifier || ButtonUtils.randomIdentifier()
+      identifier: options.identifier || ButtonUtils.randomIdentifier(),
+      immutable: options.immutable || false
     });
     this._additionalClasses($button, options.additionalClasses);
     this.setType($button, options.type);
@@ -95,7 +103,11 @@ $(function(){
 });
 
 EventDispatcher.register("button-toggle", (data) => {
-  data.$el.attr('aria-disabled', data.disabled);
+  ButtonComponent.setDisabled(data.$el, data.disabled);
+});
+
+EventDispatcher.register("button-toggle-visibility", (data) => {
+  ButtonComponent.setHidden(data.$el, data.hidden);
 });
 
 export default ButtonComponent;

@@ -4,6 +4,7 @@ import DialogExtensionComponent from 'src/host/components/dialog_extension';
 import EventActions from 'src/host/actions/event_actions';
 import baseDialogComponentTests from 'fixtures/base_dialog_component_tests';
 import IframeActions from 'src/host/actions/iframe_actions';
+import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 
 describe('Dialog module', () => {
 
@@ -115,5 +116,80 @@ describe('Dialog module', () => {
     spyOn(EventActions, 'broadcast');
     $dialogExtension.find('button').first().click();
     expect(EventActions.broadcast.calls.count()).toEqual(0);
+  });
+  
+  describe('button modifier', () => {
+    it('hide dispatches an event', (done) => {
+      var extension = {
+        addon_key: 'some-key',
+        key: 'module-key',
+        url: 'http://www.example.com'
+      };
+      var options = baseDialogComponentTests.getChromeOptions();
+      DialogExtensionComponent.render(extension, options);
+
+      EventDispatcher.registerOnce('button-toggle-visibility', (data) => {
+        expect(data.hidden).toEqual(true);
+        expect(data.$el).not.toBeUndefined();
+        done();
+      });
+
+      var button = new DialogModule.getButton.constructor('submit');
+      button.hide();
+    });
+
+    it('show dispatches an event', (done) => {
+      var extension = {
+        addon_key: 'some-key',
+        key: 'module-key',
+        url: 'http://www.example.com'
+      };
+
+      var options = baseDialogComponentTests.getChromeOptions();
+      DialogExtensionComponent.render(extension, options);
+      EventDispatcher.registerOnce('button-toggle-visibility', (data) => {
+        expect(data.hidden).toEqual(false);
+        expect(data.$el).not.toBeUndefined();
+        done();
+      });
+      var button = new DialogModule.getButton.constructor('submit');
+      button.show();
+    });
+
+    it('enable dispatches an event', (done) => {
+      var extension = {
+        addon_key: 'some-key',
+        key: 'module-key',
+        url: 'http://www.example.com'
+      };
+
+      var options = baseDialogComponentTests.getChromeOptions();
+      DialogExtensionComponent.render(extension, options);
+      EventDispatcher.registerOnce('button-toggle', (data) => {
+        expect(data.disabled).toEqual(false);
+        expect(data.$el).not.toBeUndefined();
+        done();
+      });
+      var button = new DialogModule.getButton.constructor('submit');
+      button.enable();
+    });
+
+    it('disable dispatches an event', (done) => {
+      var extension = {
+        addon_key: 'some-key',
+        key: 'module-key',
+        url: 'http://www.example.com'
+      };
+
+      var options = baseDialogComponentTests.getChromeOptions();
+      DialogExtensionComponent.render(extension, options);
+      EventDispatcher.registerOnce('button-toggle', (data) => {
+        expect(data.disabled).toEqual(true);
+        expect(data.$el).not.toBeUndefined();
+        done();
+      });
+      var button = new DialogModule.getButton.constructor('submit');
+      button.disable();
+    });
   });
 });
