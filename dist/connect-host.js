@@ -5087,7 +5087,7 @@ function getOptionsForWebItem($target) {
 
   var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
   var options = getModuleOptionsForWebitem(type, $target);
-  if (window._AP && window._AP[type + 'Options']) {
+  if (!options && window._AP && window._AP[type + 'Options']) {
     options = window._AP[type + 'Options'][fullKey] || {};
   }
   if (!options) {
