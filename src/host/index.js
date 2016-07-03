@@ -74,10 +74,18 @@ export default {
     DomEventActions.unregisterKeyEvent({extension_id, key, modifiers, callback});
   },
   onIframeEstablished: (callback) => {
-    EventDispatcher.register('after:iframe-bridge-estabilshed', function(data) {
+    EventDispatcher.register('after:iframe-bridge-established', function(data) {
       callback.call(null, {
         $el: data.$el,
-        extension: _.pick(data.extension, ['id', 'addon_key', 'id', 'key', 'options', 'url'])
+        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
+      });
+    });
+  },
+  onIframeUnload: (callback) => {
+    EventDispatcher.register('after:iframe-unload', function(data) {
+      callback.call(null, {
+        $el: data.$el,
+        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
       });
     });
   },
@@ -95,5 +103,8 @@ export default {
   broadcastEvent: (type, targetSpec, event) => {
     EventActions.broadcast(type, targetSpec, event);
   },
-  create
+  create: create,
+  getExtensions: (filter) => {
+    return simpleXDM.getExtensions(filter);
+  }
 };

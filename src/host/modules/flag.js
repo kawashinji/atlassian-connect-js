@@ -42,7 +42,7 @@ class Flag {
   * @example
   * // Display a nice green flag using the Flags JavaScript API.
   * var flag = AP.flag.create({
-  *   title: 'Succesfully created a flag.',
+  *   title: 'Successfully created a flag.',
   *   body: 'This is a flag.',
   *   type: 'info'
   * });
@@ -68,7 +68,7 @@ class Flag {
   * @example
   * // Display a nice green flag using the Flags JavaScript API.
   * var flag = AP.flag.create({
-  *   title: 'Succesfully created a flag.',
+  *   title: 'Successfully created a flag.',
   *   body: 'This is a flag.',
   *   type: 'info'
   * });
@@ -105,7 +105,7 @@ export default {
   * @example
   * // Display a nice green flag using the Flags JavaScript API.
   * var flag = AP.flag.create({
-  *   title: 'Succesfully created a flag.',
+  *   title: 'Successfully created a flag.',
   *   body: 'This is a flag.',
   *   type: 'success'
   * });

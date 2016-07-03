@@ -7,7 +7,7 @@ module.exports = {
   },
 
   notifyBridgeEstablished: function($el, extension){
-    EventDispatcher.dispatch('iframe-bridge-estabilshed', {$el, extension});
+    EventDispatcher.dispatch('iframe-bridge-established', {$el, extension});
   },
 
   notifyIframeDestroyed: function(extension_id){
@@ -19,5 +19,9 @@ module.exports = {
     }
     EventDispatcher.dispatch('iframe-destroyed', {extension});
     simpleXDM.unregisterExtension({extension_id: extension_id});
+  },
+
+  notifyUnloaded: function($el, extension){
+    EventDispatcher.dispatch('iframe-unload', {$el, extension});
   }
 };

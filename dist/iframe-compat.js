@@ -1,6 +1,106 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.APCompat = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 'use strict';
 
+var modules = {};
+
+function reqAll(deps, callback) {
+  var mods = [];
+  var i = 0;
+  var len = deps.length;
+  function addOne(mod) {
+    mods.push(mod);
+    if (mods.length === len) {
+      var exports = [];
+      var i = 0;
+      for (; i < len; i += 1) {
+        exports[i] = mods[i].exports;
+      }
+      if (callback) {
+        callback.apply(window, exports);
+      }
+    }
+  }
+  if (deps && deps.length > 0) {
+    for (; i < len; i += 1) {
+      reqOne(deps[i], addOne);
+    }
+  } else {
+    if (callback) {
+      callback();
+    }
+  }
+}
+
+function reqOne(name, callback) {
+  // naive impl that assumes all modules are already loaded
+  callback(getOrCreate(name));
+}
+
+function getOrCreate(name) {
+  return modules[name] = modules[name] || {
+    name: name,
+    exports: (function () {
+      function exports() {
+        var target = exports.__target__;
+        if (target) {
+          return target.apply(window, arguments);
+        }
+      }
+      return exports;
+    })()
+  };
+}
+
+// define(name, objOrFn)
+// define(name, deps, fn(dep1, dep2, ...))
+module.exports = function (AP) {
+  // populate modules with existing ACJS modules
+  if (AP) {
+    Object.keys(AP._hostModules).forEach(function (key) {
+      if (key[0] !== '_') {
+        modules[key] = {
+          name: key,
+          exports: AP._hostModules[key]
+        };
+      }
+    });
+  }
+  return {
+    define: function define(name, deps, exports) {
+      var mod = getOrCreate(name);
+      var factory;
+      if (!exports) {
+        exports = deps;
+        deps = [];
+      }
+      if (exports) {
+        factory = typeof exports !== 'function' ? function () {
+          return exports;
+        } : exports;
+        reqAll(deps, function () {
+          var exports = factory.apply(window, arguments);
+          if (exports) {
+            if (typeof exports === 'function') {
+              mod.exports.__target__ = exports;
+            }
+            for (var k in exports) {
+              if (exports.hasOwnProperty(k)) {
+                mod.exports[k] = exports[k];
+              }
+            }
+          }
+        });
+      }
+    },
+    require: function _dereq_(deps, callback) {
+      reqAll(typeof deps === 'string' ? [deps] : deps, callback);
+    }
+  };
+};
+
+},{}],2:[function(_dereq_,module,exports){
+'use strict';
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -70,7 +170,7 @@ var ConsumerOptions = (function () {
 
 module.exports = new ConsumerOptions();
 
-},{"./dollar":3}],2:[function(_dereq_,module,exports){
+},{"./dollar":4}],3:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -181,7 +281,7 @@ AP.dialog.getButton = AP._hostModules.dialog.getButton = function (name) {
      * Registers a function to be called when the button is clicked.
      * @method bind
      * @memberOf Dialog~DialogButton
-     * @param {Function} callback function to be triggered on click or programatically.
+     * @param {Function} callback function to be triggered on click or programmatically.
      * @noDemo
      * @example
      * AP.require('dialog', function(dialog){
@@ -223,7 +323,7 @@ if (!AP.Dialog) {
   AP.Dialog = AP._hostModules.Dialog = AP.dialog;
 }
 
-},{"./events":4,"./util":6}],3:[function(_dereq_,module,exports){
+},{"./events":5,"./util":7}],4:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -314,7 +414,7 @@ function $(sel, context) {
 exports['default'] = extend($, _util2['default']);
 module.exports = exports['default'];
 
-},{"./util":6}],4:[function(_dereq_,module,exports){
+},{"./util":7}],5:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -464,9 +564,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./dollar":3}],5:[function(_dereq_,module,exports){
-//INSERT AMD STUBBER HERE!
-// import amd from './amd';
+},{"./dollar":4}],6:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -491,6 +589,11 @@ var _dialog = _dereq_('./dialog');
 
 var _dialog2 = _interopRequireDefault(_dialog);
 
+var _amd = _dereq_('./amd');
+
+var _amd2 = _interopRequireDefault(_amd);
+
+var AMD = (0, _amd2['default'])(AP);
 AP._hostModules._dollar = _dollar2['default'];
 
 if (_consumerOptions2['default'].get('sizeToParent') === true) {
@@ -501,7 +604,15 @@ _dollar2['default'].each(_events2['default'], function (i, method) {
   AP._hostModules.events[i] = AP.events[i] = method;
 });
 
-},{"./consumer-options":1,"./dialog":2,"./dollar":3,"./events":4,"./util":6}],6:[function(_dereq_,module,exports){
+AP.define = _util2['default'].deprecateApi(function () {
+  return AMD.define.apply(AMD, arguments);
+}, 'AP.define()', null, '5.0');
+
+AP.require = _util2['default'].deprecateApi(function () {
+  return AMD.require.apply(AMD, arguments);
+}, 'AP.require()', null, '5.0');
+
+},{"./amd":1,"./consumer-options":2,"./dialog":3,"./dollar":4,"./events":5,"./util":7}],7:[function(_dereq_,module,exports){
 // universal iterator utility
 'use strict';
 
@@ -566,7 +677,7 @@ function deprecateApi(fn, name, alternate, sinceVersion) {
   return function () {
     if (!called && typeof console !== 'undefined' && console.warn) {
       called = true;
-      console.warn('DEPRECATED API - ' + name + ' has been deprecated since ACJS ' + sinceVersion + (' and will be removed in a future release. Use ' + alternate + ' instead.'));
+      console.warn('DEPRECATED API - ' + name + ' has been deprecated since ACJS ' + sinceVersion + (' and will be removed in a future release. ' + (alternate ? 'Use ' + alternate + ' instead.' : 'No alternative will be provided.')));
     }
     fn.apply(undefined, arguments);
   };
@@ -637,7 +748,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{}]},{},[5])(5)
+},{}]},{},[6])(6)
 });
 
 

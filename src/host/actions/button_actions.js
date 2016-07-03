@@ -11,5 +11,11 @@ module.exports = {
       $el,
       disabled
     });
+  },
+  toggleVisibility: ($el, hidden) => {
+    EventDispatcher.dispatch("button-toggle-visibility", {
+      $el,
+      hidden
+    });
   }
 };

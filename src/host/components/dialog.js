@@ -117,7 +117,8 @@ class Dialog {
           type: action.type,
           additionalClasses: action.additionalClasses,
           custom: action.custom || false,
-          identifier: action.identifier
+          identifier: action.identifier,
+          immutable: action.immutable
         }, extension)
       );
     });
@@ -265,7 +266,7 @@ class Dialog {
 
 const DialogComponent = new Dialog();
 
-EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
+EventDispatcher.register('iframe-bridge-established', (data) => {
   if(data.extension.options.isDialog){
     DomEventActions.registerKeyEvent({
       extension_id: data.extension.id,
@@ -314,7 +315,7 @@ EventDispatcher.register('dialog-button-toggle-visibility', (data) => {
   const dialog = getActiveDialog();
   if (dialog) {
     const $button = getButtonByIdentifier(data.identifier, dialog.$el);
-    $button.toggle(!data.hidden);
+    ButtonActions.toggleVisibility($button, data.hidden);
   }
 });
 

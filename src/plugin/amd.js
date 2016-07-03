@@ -1,8 +1,4 @@
-// import util from './util';
-// import $ from './dollar';
-
-var modules = {
-};
+var modules = {};
 
 function reqAll(deps, callback) {
   var mods = [];
@@ -54,35 +50,47 @@ function getOrCreate(name) {
 
 // define(name, objOrFn)
 // define(name, deps, fn(dep1, dep2, ...))
-export default {
-  define: function (name, deps, exports) {
-    var mod = getOrCreate(name);
-    var factory;
-    if (!exports) {
-      exports = deps;
-      deps = [];
-    }
-    if (exports) {
-      factory = typeof exports !== 'function' ? function () {
-        return exports;
-      } : exports;
-      reqAll(deps, function () {
-        var exports = factory.apply(window, arguments);
-        if (exports) {
-          if (typeof exports === 'function') {
-            mod.exports.__target__ = exports;
-          }
-          for (var k in exports) {
-            if (exports.hasOwnProperty(k)) {
-              mod.exports[k] = exports[k];
+module.exports = function(AP) {
+  // populate modules with existing ACJS modules
+  if (AP) {
+    Object.keys(AP._hostModules).forEach(function(key) {
+      if (key[0] !== '_') {
+        modules[key] = {
+          name: key,
+          exports: AP._hostModules[key]
+        };
+      }
+    });
+  }
+  return {
+    define: function (name, deps, exports) {
+      var mod = getOrCreate(name);
+      var factory;
+      if (!exports) {
+        exports = deps;
+        deps = [];
+      }
+      if (exports) {
+        factory = typeof exports !== 'function' ? function () {
+          return exports;
+        } : exports;
+        reqAll(deps, function () {
+          var exports = factory.apply(window, arguments);
+          if (exports) {
+            if (typeof exports === 'function') {
+              mod.exports.__target__ = exports;
+            }
+            for (var k in exports) {
+              if (exports.hasOwnProperty(k)) {
+                mod.exports[k] = exports[k];
+              }
             }
           }
-        }
-      });
+        });
+      }
+    },
+    require: function (deps, callback) {
+      reqAll(typeof deps === 'string' ? [deps] : deps, callback);
     }
-  },
-  require: function (deps, callback) {
-
-    reqAll(typeof deps === 'string' ? [deps] : deps, callback);
-  }
+  };
 };

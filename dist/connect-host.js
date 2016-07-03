@@ -1203,6 +1203,12 @@ module.exports = {
       $el: $el,
       disabled: disabled
     });
+  },
+  toggleVisibility: function toggleVisibility($el, hidden) {
+    _dispatchersEvent_dispatcher2["default"].dispatch("button-toggle-visibility", {
+      $el: $el,
+      hidden: hidden
+    });
   }
 };
 
@@ -1418,7 +1424,7 @@ module.exports = {
   },
 
   notifyBridgeEstablished: function notifyBridgeEstablished($el, extension) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-estabilshed', { $el: $el, extension: extension });
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-bridge-established', { $el: $el, extension: extension });
   },
 
   notifyIframeDestroyed: function notifyIframeDestroyed(extension_id) {
@@ -1430,6 +1436,10 @@ module.exports = {
     }
     _dispatchersEvent_dispatcher2['default'].dispatch('iframe-destroyed', { extension: extension });
     _simpleXdmDistHost2['default'].unregisterExtension({ extension_id: extension_id });
+  },
+
+  notifyUnloaded: function notifyUnloaded($el, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('iframe-unload', { $el: $el, extension: extension });
   }
 };
 
@@ -1647,8 +1657,16 @@ var Button = (function () {
   }, {
     key: 'setDisabled',
     value: function setDisabled($button, disabled) {
-      if (typeof disabled !== "undefined") {
+      if (typeof disabled !== "undefined" && !$button.data('immutable')) {
         $button.attr('aria-disabled', disabled);
+      }
+      return $button;
+    }
+  }, {
+    key: 'setHidden',
+    value: function setHidden($button, hidden) {
+      if (typeof hidden !== "undefined" && !$button.data('immutable')) {
+        $button.toggle(!hidden);
       }
       return $button;
     }
@@ -1708,7 +1726,8 @@ var Button = (function () {
       $button.data(options.data);
       $button.data({
         name: options.name || options.identifier,
-        identifier: options.identifier || _utilsButton2['default'].randomIdentifier()
+        identifier: options.identifier || _utilsButton2['default'].randomIdentifier(),
+        immutable: options.immutable || false
       });
       this._additionalClasses($button, options.additionalClasses);
       this.setType($button, options.type);
@@ -1733,7 +1752,11 @@ var ButtonComponent = new Button();
 });
 
 _dispatchersEvent_dispatcher2['default'].register("button-toggle", function (data) {
-  data.$el.attr('aria-disabled', data.disabled);
+  ButtonComponent.setDisabled(data.$el, data.disabled);
+});
+
+_dispatchersEvent_dispatcher2['default'].register("button-toggle-visibility", function (data) {
+  ButtonComponent.setHidden(data.$el, data.hidden);
 });
 
 exports['default'] = ButtonComponent;
@@ -1910,7 +1933,8 @@ var Dialog = (function () {
           type: action.type,
           additionalClasses: action.additionalClasses,
           custom: action.custom || false,
-          identifier: action.identifier
+          identifier: action.identifier,
+          immutable: action.immutable
         }, extension));
       });
       return actionButtons;
@@ -2072,7 +2096,7 @@ var Dialog = (function () {
 
 var DialogComponent = new Dialog();
 
-_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-established', function (data) {
   if (data.extension.options.isDialog) {
     _actionsDom_event_actions2['default'].registerKeyEvent({
       extension_id: data.extension.id,
@@ -2121,7 +2145,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle-visibili
   var dialog = getActiveDialog();
   if (dialog) {
     var $button = getButtonByIdentifier(data.identifier, dialog.$el);
-    $button.toggle(!data.hidden);
+    _actionsButton_actions2['default'].toggleVisibility($button, data.hidden);
   }
 });
 
@@ -2541,6 +2565,8 @@ var Iframe = (function () {
           extension.options = {};
         }
         _actionsIframe_actions2['default'].notifyBridgeEstablished(extension.$el, extension);
+      }, function () {
+        _actionsIframe_actions2['default'].notifyUnloaded(extension.$el, extension);
       });
       extension.id = iframeAttributes.id;
       _dollar2['default'].extend(iframeAttributes, _utilsIframe2['default'].optionsToAttributes(extension.options));
@@ -2587,7 +2613,7 @@ _dispatchersEvent_dispatcher2['default'].register('jwt-url-refreshed', function 
   IframeComponent.resolverResponse(data);
 });
 
-_dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-estabilshed', function (data) {
+_dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-established', function (data) {
   data.$el[0].bridgeEstablished = true;
 });
 
@@ -3041,7 +3067,7 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-create', function (dat
   LoadingComponent._setupTimeout(data.$el.parents('.ap-iframe-container'), data.extension);
 });
 
-_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-established', function (data) {
   LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
 });
 
@@ -3316,7 +3342,7 @@ var analytics = new AnalyticsDispatcher();
 _dispatchersEvent_dispatcher2['default'].register('iframe-create', function (data) {
   analytics.trackLoadingStarted(data.extension);
 });
-_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-estabilshed', function (data) {
+_dispatchersEvent_dispatcher2['default'].register('iframe-bridge-established', function (data) {
   analytics.trackLoadingEnded(data.extension);
 });
 _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-timeout', function (data) {
@@ -3575,10 +3601,18 @@ exports['default'] = {
     _actionsDom_event_actions2['default'].unregisterKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
   },
   onIframeEstablished: function onIframeEstablished(callback) {
-    _dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-estabilshed', function (data) {
+    _dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-established', function (data) {
       callback.call(null, {
         $el: data.$el,
-        extension: _underscore2['default'].pick(data.extension, ['id', 'addon_key', 'id', 'key', 'options', 'url'])
+        extension: _underscore2['default'].pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
+      });
+    });
+  },
+  onIframeUnload: function onIframeUnload(callback) {
+    _dispatchersEvent_dispatcher2['default'].register('after:iframe-unload', function (data) {
+      callback.call(null, {
+        $el: data.$el,
+        extension: _underscore2['default'].pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
       });
     });
   },
@@ -3596,7 +3630,10 @@ exports['default'] = {
   broadcastEvent: function broadcastEvent(type, targetSpec, event) {
     _actionsEvent_actions2['default'].broadcast(type, targetSpec, event);
   },
-  create: _create2['default']
+  create: _create2['default'],
+  getExtensions: function getExtensions(filter) {
+    return _simpleXdmDistHost2['default'].getExtensions(filter);
+  }
 };
 module.exports = exports['default'];
 
@@ -4236,7 +4273,7 @@ var Flag = (function () {
   * @example
   * // Display a nice green flag using the Flags JavaScript API.
   * var flag = AP.flag.create({
-  *   title: 'Succesfully created a flag.',
+  *   title: 'Successfully created a flag.',
   *   body: 'This is a flag.',
   *   type: 'info'
   * });
@@ -4265,7 +4302,7 @@ var Flag = (function () {
     * @example
     * // Display a nice green flag using the Flags JavaScript API.
     * var flag = AP.flag.create({
-    *   title: 'Succesfully created a flag.',
+    *   title: 'Successfully created a flag.',
     *   body: 'This is a flag.',
     *   type: 'info'
     * });
@@ -4307,7 +4344,7 @@ exports['default'] = {
   * @example
   * // Display a nice green flag using the Flags JavaScript API.
   * var flag = AP.flag.create({
-  *   title: 'Succesfully created a flag.',
+  *   title: 'Successfully created a flag.',
   *   body: 'This is a flag.',
   *   type: 'success'
   * });
@@ -4802,7 +4839,8 @@ var DialogUtils = (function () {
           name: 'cancel',
           identifier: 'cancel',
           text: options.cancelText || 'Cancel',
-          type: 'link'
+          type: 'link',
+          immutable: true
         }];
       }
 
