@@ -3039,7 +3039,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-close-active', functio
 });
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-close', function (data) {
-  AJS.dialog2((0, _dollar2['default'])('#' + (0, _dollar2['default'])(data.dialog).attr('id'))).hide();
+  data.dialog.hide();
 });
 
 _dispatchersEvent_dispatcher2['default'].register('dialog-button-toggle', function (data) {

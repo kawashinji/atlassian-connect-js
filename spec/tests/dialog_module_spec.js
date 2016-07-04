@@ -98,7 +98,8 @@ describe('Dialog module', () => {
       $dialogExtension.find('button').first().click();
       expect(EventActions.broadcast.calls.count()).toEqual(1);
       expect(EventActions.broadcast.calls.first().args[1]).toEqual({
-        addon_key: extension.addon_key
+        addon_key: extension.addon_key,
+        key: extension.key
       });
       done();
     });

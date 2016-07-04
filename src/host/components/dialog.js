@@ -303,7 +303,7 @@ EventDispatcher.register('dialog-close-active', (data) => {
 });
 
 EventDispatcher.register('dialog-close', (data) => {
-  AJS.dialog2($('#' + $(data.dialog).attr('id'))).hide();
+  data.dialog.hide();
 });
 
 EventDispatcher.register('dialog-button-toggle', (data) => {
