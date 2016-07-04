@@ -52,23 +52,10 @@ function decodeQueryComponent(encodedURI) {
   return encodedURI == null ? null : decodeURIComponent(encodedURI.replace(/\+/g, '%20'));
 }
 
-function deprecateApi(fn, name, alternate, sinceVersion) {
-  let called = false;
-  return (...args) => {
-    if (!called && typeof console !== 'undefined' && console.warn) {
-      called = true;
-      console.warn(`DEPRECATED API - ${name} has been deprecated since ACJS ${sinceVersion}` +
-        ` and will be removed in a future release. ${ alternate ? `Use ${alternate} instead.` : 'No alternative will be provided.' }`);
-    }
-    fn(...args);
-  }
-}
-
 export default {
   each,
   log,
   decodeQueryComponent,
-  deprecateApi,
   bind: binder('add', 'attach'),
   unbind: binder('remove', 'detach'),
 

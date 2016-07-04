@@ -2070,6 +2070,26 @@ module.exports = XDMRPC;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
 },{}],6:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
+
+var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
+
+exports['default'] = {
+  trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, extension) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('analytics-deprecated-method-used', { methodUsed: methodUsed, extension: extension });
+  }
+};
+module.exports = exports['default'];
+
+},{"dispatchers/event_dispatcher":33}],7:[function(_dereq_,module,exports){
 "use strict";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -2098,7 +2118,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32}],7:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":33}],8:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2133,7 +2153,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32}],8:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":33}],9:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2166,7 +2186,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32}],9:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":33}],10:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2197,7 +2217,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4}],10:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":33,"simple-xdm/dist/host":4}],11:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2244,7 +2264,7 @@ module.exports = {
   }
 };
 
-},{"../util":41,"components/iframe":24,"dispatchers/event_dispatcher":32}],11:[function(_dereq_,module,exports){
+},{"../util":43,"components/iframe":25,"dispatchers/event_dispatcher":33}],12:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2268,7 +2288,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4}],12:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":33,"simple-xdm/dist/host":4}],13:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2291,7 +2311,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32}],13:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":33}],14:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2329,7 +2349,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4}],14:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":33,"simple-xdm/dist/host":4}],15:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2357,7 +2377,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32}],15:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":33}],16:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2403,7 +2423,7 @@ module.exports = {
 
 };
 
-},{"../underscore":40,"dispatchers/event_dispatcher":32}],16:[function(_dereq_,module,exports){
+},{"../underscore":42,"dispatchers/event_dispatcher":33}],17:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2426,7 +2446,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"dispatchers/event_dispatcher":32}],17:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":33}],18:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2448,7 +2468,7 @@ module.exports = {
   }
 };
 
-},{"dispatchers/event_dispatcher":32}],18:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":33}],19:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2489,7 +2509,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"components/webitem":29,"dispatchers/event_dispatcher":32,"utils/webitem":47}],19:[function(_dereq_,module,exports){
+},{"components/webitem":30,"dispatchers/event_dispatcher":33,"utils/webitem":49}],20:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2648,7 +2668,7 @@ _dispatchersEvent_dispatcher2['default'].register("button-toggle-visibility", fu
 exports['default'] = ButtonComponent;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../underscore":40,"actions/button_actions":6,"dispatchers/event_dispatcher":32,"utils/button":42}],20:[function(_dereq_,module,exports){
+},{"../dollar":34,"../underscore":42,"actions/button_actions":7,"dispatchers/event_dispatcher":33,"utils/button":44}],21:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3077,7 +3097,7 @@ _actionsDom_event_actions2['default'].registerWindowKeyEvent({
 exports['default'] = DialogComponent;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../underscore":40,"actions/button_actions":6,"actions/dialog_actions":7,"actions/dom_event_actions":9,"components/button":19,"components/iframe":24,"dispatchers/event_dispatcher":32,"utils/dialog":43}],21:[function(_dereq_,module,exports){
+},{"../dollar":34,"../underscore":42,"actions/button_actions":7,"actions/dialog_actions":8,"actions/dom_event_actions":10,"components/button":20,"components/iframe":25,"dispatchers/event_dispatcher":33,"utils/dialog":45}],22:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3167,7 +3187,7 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-extension-open', funct
 exports['default'] = DialogExtensionComponent;
 module.exports = exports['default'];
 
-},{"components/dialog":20,"components/iframe_container":25,"dispatchers/event_dispatcher":32}],22:[function(_dereq_,module,exports){
+},{"components/dialog":21,"components/iframe_container":26,"dispatchers/event_dispatcher":33}],23:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3272,7 +3292,7 @@ _actionsWebitem_actions2['default'].addWebItem(webitem);
 exports['default'] = dialogInstance;
 module.exports = exports['default'];
 
-},{"../underscore":40,"actions/dialog_extension_actions":8,"actions/webitem_actions":18,"dispatchers/event_dispatcher":32,"utils/dialog":43,"utils/webitem":47}],23:[function(_dereq_,module,exports){
+},{"../underscore":42,"actions/dialog_extension_actions":9,"actions/webitem_actions":19,"dispatchers/event_dispatcher":33,"utils/dialog":45,"utils/webitem":49}],24:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3359,7 +3379,7 @@ _dispatchersEvent_dispatcher2['default'].register('flag-close', function (data) 
 exports['default'] = FlagComponent;
 module.exports = exports['default'];
 
-},{"../dollar":33,"actions/flag_actions":12,"dispatchers/event_dispatcher":32}],24:[function(_dereq_,module,exports){
+},{"../dollar":34,"actions/flag_actions":13,"dispatchers/event_dispatcher":33}],25:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3509,7 +3529,7 @@ _dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-establish
 exports['default'] = IframeComponent;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../util":41,"actions/iframe_actions":13,"actions/jwt_actions":15,"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4,"utils/iframe":44,"utils/url":46}],25:[function(_dereq_,module,exports){
+},{"../dollar":34,"../util":43,"actions/iframe_actions":14,"actions/jwt_actions":16,"dispatchers/event_dispatcher":33,"simple-xdm/dist/host":4,"utils/iframe":46,"utils/url":48}],26:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3582,7 +3602,7 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-create', function (dat
 exports['default'] = IframeContainerComponent;
 module.exports = exports['default'];
 
-},{"../dollar":33,"components/iframe":24,"components/loading_indicator":28,"dispatchers/event_dispatcher":32}],26:[function(_dereq_,module,exports){
+},{"../dollar":34,"components/iframe":25,"components/loading_indicator":29,"dispatchers/event_dispatcher":33}],27:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3703,7 +3723,7 @@ _dispatchersEvent_dispatcher2['default'].register('inline-dialog-refresh', funct
 exports['default'] = InlineDialogComponent;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../util":41,"actions/inline_dialog_actions":14,"dispatchers/event_dispatcher":32}],27:[function(_dereq_,module,exports){
+},{"../dollar":34,"../util":43,"actions/inline_dialog_actions":15,"dispatchers/event_dispatcher":33}],28:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3851,7 +3871,7 @@ _actionsWebitem_actions2['default'].addWebItem(webitem);
 exports['default'] = inlineDialogInstance;
 module.exports = exports['default'];
 
-},{"../create":30,"../dollar":33,"actions/webitem_actions":18,"components/iframe_container":25,"components/inline_dialog":26,"components/webitem":29,"dispatchers/event_dispatcher":32,"utils/webitem":47}],28:[function(_dereq_,module,exports){
+},{"../create":31,"../dollar":34,"actions/webitem_actions":19,"components/iframe_container":26,"components/inline_dialog":27,"components/webitem":30,"dispatchers/event_dispatcher":33,"utils/webitem":49}],29:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3971,7 +3991,7 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', fun
 exports['default'] = LoadingComponent;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../util":41,"actions/loading_indicator_actions":16,"dispatchers/event_dispatcher":32}],29:[function(_dereq_,module,exports){
+},{"../dollar":34,"../util":43,"actions/loading_indicator_actions":17,"dispatchers/event_dispatcher":33}],30:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4091,7 +4111,7 @@ _dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-
 exports['default'] = webItemInstance;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../underscore":40,"actions/webitem_actions":18,"dispatchers/event_dispatcher":32,"utils/webitem":47}],30:[function(_dereq_,module,exports){
+},{"../dollar":34,"../underscore":42,"actions/webitem_actions":19,"dispatchers/event_dispatcher":33,"utils/webitem":49}],31:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -4122,7 +4142,7 @@ function create(extension) {
 
 module.exports = create;
 
-},{"./dollar":33,"components/iframe_container":25,"dispatchers/event_dispatcher":32}],31:[function(_dereq_,module,exports){
+},{"./dollar":34,"components/iframe_container":26,"dispatchers/event_dispatcher":33}],32:[function(_dereq_,module,exports){
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -4218,6 +4238,15 @@ var AnalyticsDispatcher = (function () {
       });
     }
   }, {
+    key: 'trackUseOfDeprecatedMethod',
+    value: function trackUseOfDeprecatedMethod(methodUsed, extension) {
+      this._track('jsapi.deprecated', {
+        addonKey: extension.addon_key,
+        moduleKey: extension.key,
+        methodUsed: methodUsed
+      });
+    }
+  }, {
     key: 'dispatch',
     value: function dispatch(name, data) {
       this._track(name, data);
@@ -4240,10 +4269,13 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-timeout', funct
 _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', function (data) {
   analytics.trackLoadingCancel(data.extension);
 });
+_dispatchersEvent_dispatcher2['default'].register('analytics-deprecated-method-used', function (data) {
+  analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
+});
 
 module.exports = analytics;
 
-},{"dispatchers/event_dispatcher":32}],32:[function(_dereq_,module,exports){
+},{"dispatchers/event_dispatcher":33}],33:[function(_dereq_,module,exports){
 /**
 * pub/sub for extension state (created, destroyed, initialized)
 * taken from hipchat webcore
@@ -4333,7 +4365,7 @@ var EventDispatcher = (function (_EventEmitter) {
 
 module.exports = new EventDispatcher();
 
-},{"../underscore":40,"events":2}],33:[function(_dereq_,module,exports){
+},{"../underscore":42,"events":2}],34:[function(_dereq_,module,exports){
 /**
  * The iframe-side code exposes a jquery-like implementation via _dollar.
  * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
@@ -4347,7 +4379,7 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = AJS.$;
 module.exports = exports["default"];
 
-},{}],34:[function(_dereq_,module,exports){
+},{}],35:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4399,6 +4431,10 @@ var _modulesMessages2 = _interopRequireDefault(_modulesMessages);
 var _modulesFlag = _dereq_('./modules/flag');
 
 var _modulesFlag2 = _interopRequireDefault(_modulesFlag);
+
+var _modulesAnalytics = _dereq_('./modules/analytics');
+
+var _modulesAnalytics2 = _interopRequireDefault(_modulesAnalytics);
 
 var _actionsModule_actions = _dereq_('actions/module_actions');
 
@@ -4458,6 +4494,7 @@ _simpleXdmDistHost2['default'].defineModule('flag', _modulesFlag2['default']);
 _simpleXdmDistHost2['default'].defineModule('dialog', _modulesDialog2['default']);
 _simpleXdmDistHost2['default'].defineModule('env', _modulesEnv2['default']);
 _simpleXdmDistHost2['default'].defineModule('events', _modulesEvents2['default']);
+_simpleXdmDistHost2['default'].defineModule('_analytics', _modulesAnalytics2['default']);
 
 // rpc.extend(propagator);
 
@@ -4526,7 +4563,27 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./components/loading_indicator":28,"./create":30,"./modules/dialog":35,"./modules/env":36,"./modules/events":37,"./modules/flag":38,"./modules/messages":39,"./underscore":40,"actions/dialog_extension_actions":8,"actions/dom_event_actions":9,"actions/event_actions":11,"actions/iframe_actions":13,"actions/jwt_actions":15,"actions/module_actions":17,"components/dialog_extension":21,"components/dialog_webitem":22,"components/inline_dialog_webitem":27,"dispatchers/analytics_dispatcher":31,"dispatchers/event_dispatcher":32,"simple-xdm/dist/host":4}],35:[function(_dereq_,module,exports){
+},{"./components/loading_indicator":29,"./create":31,"./modules/analytics":36,"./modules/dialog":37,"./modules/env":38,"./modules/events":39,"./modules/flag":40,"./modules/messages":41,"./underscore":42,"actions/dialog_extension_actions":9,"actions/dom_event_actions":10,"actions/event_actions":12,"actions/iframe_actions":14,"actions/jwt_actions":16,"actions/module_actions":18,"components/dialog_extension":22,"components/dialog_webitem":23,"components/inline_dialog_webitem":28,"dispatchers/analytics_dispatcher":32,"dispatchers/event_dispatcher":33,"simple-xdm/dist/host":4}],36:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _actionsAnalytics_action = _dereq_('actions/analytics_action');
+
+var _actionsAnalytics_action2 = _interopRequireDefault(_actionsAnalytics_action);
+
+exports['default'] = {
+  trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, callback) {
+    _actionsAnalytics_action2['default'].trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
+  }
+};
+module.exports = exports['default'];
+
+},{"actions/analytics_action":6}],37:[function(_dereq_,module,exports){
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -5004,7 +5061,7 @@ module.exports = {
   }
 };
 
-},{"../underscore":40,"../util":41,"actions/dialog_actions":7,"actions/dialog_extension_actions":8,"actions/event_actions":11,"components/button":19,"components/dialog_extension":21,"dispatchers/event_dispatcher":32,"utils/dialog":43}],36:[function(_dereq_,module,exports){
+},{"../underscore":42,"../util":43,"actions/dialog_actions":8,"actions/dialog_extension_actions":9,"actions/event_actions":12,"components/button":20,"components/dialog_extension":22,"dispatchers/event_dispatcher":33,"utils/dialog":45}],38:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5060,7 +5117,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":33,"../util":41,"actions/env_actions":10,"dispatchers/event_dispatcher":32}],37:[function(_dereq_,module,exports){
+},{"../dollar":34,"../util":43,"actions/env_actions":11,"dispatchers/event_dispatcher":33}],39:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5092,7 +5149,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../underscore":40,"actions/event_actions":11}],38:[function(_dereq_,module,exports){
+},{"../underscore":42,"actions/event_actions":12}],40:[function(_dereq_,module,exports){
 /**
 * Flags are the primary method for providing system feedback in the product user interface. Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
 * @module Flag
@@ -5246,7 +5303,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":33,"actions/flag_actions":12,"components/flag":23,"dispatchers/event_dispatcher":32}],39:[function(_dereq_,module,exports){
+},{"../dollar":34,"actions/flag_actions":13,"components/flag":24,"dispatchers/event_dispatcher":33}],41:[function(_dereq_,module,exports){
 /**
 * Messages are the primary method for providing system feedback in the product user interface.
 * Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
@@ -5530,7 +5587,7 @@ MESSAGE_TYPES.forEach(function (messageType) {
 exports['default'] = toExport;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../underscore":40}],40:[function(_dereq_,module,exports){
+},{"../dollar":34,"../underscore":42}],42:[function(_dereq_,module,exports){
 // AUI includes underscore and exposes it globally.
 "use strict";
 
@@ -5540,7 +5597,7 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = window._;
 module.exports = exports["default"];
 
-},{}],41:[function(_dereq_,module,exports){
+},{}],43:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5588,7 +5645,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./underscore":40}],42:[function(_dereq_,module,exports){
+},{"./underscore":42}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5621,7 +5678,7 @@ var buttonUtilsInstance = new ButtonUtils();
 exports["default"] = buttonUtilsInstance;
 module.exports = exports["default"];
 
-},{}],43:[function(_dereq_,module,exports){
+},{}],45:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5821,7 +5878,7 @@ var dialogUtilsInstance = new DialogUtils();
 exports['default'] = dialogUtilsInstance;
 module.exports = exports['default'];
 
-},{"../dollar":33,"../util":41,"./button":42}],44:[function(_dereq_,module,exports){
+},{"../dollar":34,"../util":43,"./button":44}],46:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -5845,7 +5902,7 @@ module.exports = {
   }
 };
 
-},{"../util":41}],45:[function(_dereq_,module,exports){
+},{"../util":43}],47:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5915,7 +5972,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"base-64":1,"utf8":5}],46:[function(_dereq_,module,exports){
+},{"base-64":1,"utf8":5}],48:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -5948,7 +6005,7 @@ module.exports = {
   isJwtExpired: isJwtExpired
 };
 
-},{"jsuri":3,"utils/jwt":45}],47:[function(_dereq_,module,exports){
+},{"jsuri":3,"utils/jwt":47}],49:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -6038,7 +6095,7 @@ module.exports = {
   getOptionsForWebItem: getOptionsForWebItem
 };
 
-},{"../underscore":40,"jsuri":3}]},{},[34])(34)
+},{"../underscore":42,"jsuri":3}]},{},[35])(35)
 });
 
 

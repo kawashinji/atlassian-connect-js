@@ -76,6 +76,14 @@ class AnalyticsDispatcher {
     });
   }
 
+  trackUseOfDeprecatedMethod(methodUsed, extension) {
+    this._track('jsapi.deprecated', {
+      addonKey: extension.addon_key,
+      moduleKey: extension.key,
+      methodUsed: methodUsed
+    });
+  }
+
   dispatch(name, data) {
     this._track(name, data);
   }
@@ -93,6 +101,9 @@ EventDispatcher.register('iframe-bridge-timeout', function (data) {
 });
 EventDispatcher.register('iframe-bridge-cancelled', function(data) {
   analytics.trackLoadingCancel(data.extension);
+});
+EventDispatcher.register('analytics-deprecated-method-used', function(data) {
+  analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
 });
 
 module.exports = analytics;

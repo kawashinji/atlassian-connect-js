@@ -166,22 +166,44 @@ var ConsumerOptions = (function () {
 
 module.exports = new ConsumerOptions();
 
-},{"./dollar":4}],3:[function(_dereq_,module,exports){
+},{"./dollar":5}],3:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+exports['default'] = function (fn, name, alternate, sinceVersion) {
+  var called = false;
+  return function () {
+    if (!called && typeof console !== 'undefined' && console.warn) {
+      called = true;
+      console.warn('DEPRECATED API - ' + name + ' has been deprecated since ACJS ' + sinceVersion + (' and will be removed in a future release. ' + (alternate ? 'Use ' + alternate + ' instead.' : 'No alternative will be provided.')));
+      AP._analytics.trackDeprecatedMethodUsed(name);
+    }
+    fn.apply(undefined, arguments);
+  };
+};
+
+;
+module.exports = exports['default'];
+
+},{}],4:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _util = _dereq_('./util');
-
-var _util2 = _interopRequireDefault(_util);
 
 var _events = _dereq_('./events');
 
 var _events2 = _interopRequireDefault(_events);
 
+var _deprecate = _dereq_('./deprecate');
+
+var _deprecate2 = _interopRequireDefault(_deprecate);
+
 var customButtonIncrement = 1;
 
-var getCustomData = _util2['default'].deprecateApi(function () {
+var getCustomData = (0, _deprecate2['default'])(function () {
   return AP._data.options.customData;
 }, 'AP.dialog.customData', 'AP.dialog.getCustomData()', '5.0');
 
@@ -264,7 +286,7 @@ AP.dialog.create = AP._hostModules.dialog.create = function () {
    *   dialog.create(opts).on("close", callbackFunc);
    * });
    */
-  dialog.on = _util2['default'].deprecateApi(registerHandler, 'AP.dialog.on("close", callback)', 'AP.events.on("dialog.close", callback)', '5.0');
+  dialog.on = (0, _deprecate2['default'])(registerHandler, 'AP.dialog.on("close", callback)', 'AP.events.on("dialog.close", callback)', '5.0');
   return dialog;
 };
 
@@ -277,7 +299,7 @@ AP.dialog.getButton = AP._hostModules.dialog.getButton = function (name) {
      * Registers a function to be called when the button is clicked.
      * @method bind
      * @memberOf Dialog~DialogButton
-     * @param {Function} callback function to be triggered on click or programmatically.
+     * @param {Function} callback function to be triggered on click or programatically.
      * @noDemo
      * @example
      * AP.require('dialog', function(dialog){
@@ -286,7 +308,7 @@ AP.dialog.getButton = AP._hostModules.dialog.getButton = function (name) {
      *   });
      * });
      */
-    button.bind = _util2['default'].deprecateApi(function (callback) {
+    button.bind = (0, _deprecate2['default'])(function (callback) {
       return registerHandler(name, callback);
     }, 'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
 
@@ -313,13 +335,13 @@ AP.dialog.createButton = AP._hostModules.dialog.createButton = function (options
   return AP.dialog.getButton(buttonProperties.identifier);
 };
 
-AP.dialog.onDialogMessage = AP._hostModules.dialog.onDialogMessage = _util2['default'].deprecateApi(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');
+AP.dialog.onDialogMessage = AP._hostModules.dialog.onDialogMessage = (0, _deprecate2['default'])(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');
 
 if (!AP.Dialog) {
   AP.Dialog = AP._hostModules.Dialog = AP.dialog;
 }
 
-},{"./events":5,"./util":7}],4:[function(_dereq_,module,exports){
+},{"./deprecate":3,"./events":6}],5:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -410,7 +432,7 @@ function $(sel, context) {
 exports['default'] = extend($, _util2['default']);
 module.exports = exports['default'];
 
-},{"./util":7}],5:[function(_dereq_,module,exports){
+},{"./util":8}],6:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -560,14 +582,14 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./dollar":4}],6:[function(_dereq_,module,exports){
+},{"./dollar":5}],7:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _util = _dereq_('./util');
+var _deprecate = _dereq_('./deprecate');
 
-var _util2 = _interopRequireDefault(_util);
+var _deprecate2 = _interopRequireDefault(_deprecate);
 
 var _dollar = _dereq_('./dollar');
 
@@ -599,15 +621,15 @@ _dollar2['default'].each(_events2['default'], function (i, method) {
   AP._hostModules.events[i] = AP.events[i] = method;
 });
 
-AP.define = _util2['default'].deprecateApi(function () {
+AP.define = (0, _deprecate2['default'])(function () {
   return _amd2['default'].define.apply(_amd2['default'], arguments);
 }, 'AP.define()', null, '5.0');
 
-AP.require = _util2['default'].deprecateApi(function () {
+AP.require = (0, _deprecate2['default'])(function () {
   return _amd2['default'].require.apply(_amd2['default'], arguments);
 }, 'AP.require()', null, '5.0');
 
-},{"./amd":1,"./consumer-options":2,"./dialog":3,"./dollar":4,"./events":5,"./util":7}],7:[function(_dereq_,module,exports){
+},{"./amd":1,"./consumer-options":2,"./deprecate":3,"./dialog":4,"./dollar":5,"./events":6}],8:[function(_dereq_,module,exports){
 // universal iterator utility
 'use strict';
 
@@ -667,22 +689,10 @@ function decodeQueryComponent(encodedURI) {
   return encodedURI == null ? null : decodeURIComponent(encodedURI.replace(/\+/g, '%20'));
 }
 
-function deprecateApi(fn, name, alternate, sinceVersion) {
-  var called = false;
-  return function () {
-    if (!called && typeof console !== 'undefined' && console.warn) {
-      called = true;
-      console.warn('DEPRECATED API - ' + name + ' has been deprecated since ACJS ' + sinceVersion + (' and will be removed in a future release. ' + (alternate ? 'Use ' + alternate + ' instead.' : 'No alternative will be provided.')));
-    }
-    fn.apply(undefined, arguments);
-  };
-}
-
 exports['default'] = {
   each: each,
   log: log,
   decodeQueryComponent: decodeQueryComponent,
-  deprecateApi: deprecateApi,
   bind: binder('add', 'attach'),
   unbind: binder('remove', 'detach'),
 
@@ -743,7 +753,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{}]},{},[6])(6)
+},{}]},{},[7])(7)
 });
 
 
