@@ -35,6 +35,7 @@ describe('Analytics Dispatcher', () => {
       moduleKey: extension.key
     });
   });
+
   it('trackLoadingCancel triggers iframe.performance.cancel', () => {
     spyOn(AnalyticsDispatcher, '_track');
     AnalyticsDispatcher.trackLoadingCancel(extension);
@@ -42,6 +43,18 @@ describe('Analytics Dispatcher', () => {
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.cancel', {
       addonKey: extension.addon_key,
       moduleKey: extension.key
+    });
+  });
+
+  it('trackUseOfDeprecatedMethod triggers jsapi.deprecated', () => {
+    spyOn(AnalyticsDispatcher, '_track');
+    var methodUsed = 'someDeprecatedMethodName';
+    AnalyticsDispatcher.trackUseOfDeprecatedMethod(methodUsed, extension);
+    expect(AnalyticsDispatcher._track).toHaveBeenCalled();
+    expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('jsapi.deprecated', {
+      addonKey: extension.addon_key,
+      moduleKey: extension.key,
+      methodUsed: methodUsed
     });
   });
 
