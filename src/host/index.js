@@ -1,5 +1,4 @@
 import AnalyticsDispatcher from 'dispatchers/analytics_dispatcher';
-import ClientSideAnalyticsDispatcher from 'dispatchers/client_side_analytics_dispatcher';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import simpleXDM from 'simple-xdm/dist/host';
 import jwtActions from 'actions/jwt_actions';

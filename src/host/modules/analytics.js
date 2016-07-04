@@ -1,7 +1,7 @@
 import AnalyticsAction from 'actions/analytics_action';
 
 export default {
-  trackDeprecatedMethodUsed: (data, callback) => {
-    AnalyticsAction.trackDeprecatedMethodUsed(data, callback._context.extension);
+  trackDeprecatedMethodUsed: (methodUsed, callback) => {
+    AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
   }
 }

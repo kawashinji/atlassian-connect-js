@@ -1,7 +1,7 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
 
 export default {
-  trackDeprecatedMethodUsed(data, extension) {
-    EventDispatcher.dispatch('analytics-deprecated-method-used', {data, extension});
+  trackDeprecatedMethodUsed(methodUsed, extension) {
+    EventDispatcher.dispatch('analytics-deprecated-method-used', {methodUsed, extension});
   }
 };

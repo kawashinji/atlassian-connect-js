@@ -1,8 +1,9 @@
 import util from './util';
 import events from './events';
+import deprecate from './deprecate';
 let customButtonIncrement = 1;
 
-const getCustomData = util.deprecateApi(() => {
+const getCustomData = deprecate(() => {
   return AP._data.options.customData;
 }, 'AP.dialog.customData', 'AP.dialog.getCustomData()', '5.0');
 
@@ -14,7 +15,7 @@ Object.defineProperty(AP.dialog, 'customData', {
   get: getCustomData
 });
 
-const dialogHandlers = {};  
+const dialogHandlers = {};
 
 events.onAny(eventDelegator);
 function eventDelegator(name, args) {
@@ -84,7 +85,7 @@ AP.dialog.create = AP._hostModules.dialog.create = (...args) => {
    *   dialog.create(opts).on("close", callbackFunc);
    * });
    */
-  dialog.on = util.deprecateApi(registerHandler,
+  dialog.on = deprecate(registerHandler,
     'AP.dialog.on("close", callback)', 'AP.events.on("dialog.close", callback)', '5.0');
   return dialog;
 };
@@ -107,7 +108,7 @@ AP.dialog.getButton = AP._hostModules.dialog.getButton = function(name) {
      *   });
      * });
      */
-    button.bind = util.deprecateApi((callback) => registerHandler(name, callback),
+    button.bind = deprecate((callback) => registerHandler(name, callback),
       'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
 
     return button;
@@ -133,7 +134,7 @@ AP.dialog.createButton = AP._hostModules.dialog.createButton = function(options)
   return AP.dialog.getButton(buttonProperties.identifier);
 };
 
-AP.dialog.onDialogMessage = AP._hostModules.dialog.onDialogMessage = util.deprecateApi(registerHandler,
+AP.dialog.onDialogMessage = AP._hostModules.dialog.onDialogMessage = deprecate(registerHandler,
   'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');
 
 if(!AP.Dialog){
