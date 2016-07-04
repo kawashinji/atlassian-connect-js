@@ -37,65 +37,61 @@ function reqOne(name, callback) {
 }
 
 function getOrCreate(name) {
-  return modules[name] = modules[name] || {
-    name: name,
-    exports: (function () {
-      function exports() {
-        var target = exports.__target__;
-        if (target) {
-          return target.apply(window, arguments);
+  if (modules[name]) {
+    return modules[name] = modules[name];
+  } else if (AP._hostModules[name]) {
+    return modules[name] = {
+      name: name,
+      exports: AP._hostModules[name]
+    };
+  } else {
+    return modules[name] = {
+      name: name,
+      exports: (function () {
+        function exports() {
+          var target = exports.__target__;
+          if (target) {
+            return target.apply(window, arguments);
+          }
         }
-      }
-      return exports;
-    })()
-  };
+        return exports;
+      })()
+    };
+  }
 }
 
 // define(name, objOrFn)
 // define(name, deps, fn(dep1, dep2, ...))
-module.exports = function (AP) {
-  // populate modules with existing ACJS modules
-  if (AP) {
-    Object.keys(AP._hostModules).forEach(function (key) {
-      if (key[0] !== '_') {
-        modules[key] = {
-          name: key,
-          exports: AP._hostModules[key]
-        };
-      }
-    });
-  }
-  return {
-    define: function define(name, deps, exports) {
-      var mod = getOrCreate(name);
-      var factory;
-      if (!exports) {
-        exports = deps;
-        deps = [];
-      }
-      if (exports) {
-        factory = typeof exports !== 'function' ? function () {
-          return exports;
-        } : exports;
-        reqAll(deps, function () {
-          var exports = factory.apply(window, arguments);
-          if (exports) {
-            if (typeof exports === 'function') {
-              mod.exports.__target__ = exports;
-            }
-            for (var k in exports) {
-              if (exports.hasOwnProperty(k)) {
-                mod.exports[k] = exports[k];
-              }
+module.exports = {
+  define: function define(name, deps, exports) {
+    var mod = getOrCreate(name);
+    var factory;
+    if (!exports) {
+      exports = deps;
+      deps = [];
+    }
+    if (exports) {
+      factory = typeof exports !== 'function' ? function () {
+        return exports;
+      } : exports;
+      reqAll(deps, function () {
+        var exports = factory.apply(window, arguments);
+        if (exports) {
+          if (typeof exports === 'function') {
+            mod.exports.__target__ = exports;
+          }
+          for (var k in exports) {
+            if (exports.hasOwnProperty(k)) {
+              mod.exports[k] = exports[k];
             }
           }
-        });
-      }
-    },
-    require: function _dereq_(deps, callback) {
-      reqAll(typeof deps === 'string' ? [deps] : deps, callback);
+        }
+      });
     }
-  };
+  },
+  require: function _dereq_(deps, callback) {
+    reqAll(typeof deps === 'string' ? [deps] : deps, callback);
+  }
 };
 
 },{}],2:[function(_dereq_,module,exports){
@@ -593,7 +589,6 @@ var _amd = _dereq_('./amd');
 
 var _amd2 = _interopRequireDefault(_amd);
 
-var AMD = (0, _amd2['default'])(AP);
 AP._hostModules._dollar = _dollar2['default'];
 
 if (_consumerOptions2['default'].get('sizeToParent') === true) {
@@ -605,11 +600,11 @@ _dollar2['default'].each(_events2['default'], function (i, method) {
 });
 
 AP.define = _util2['default'].deprecateApi(function () {
-  return AMD.define.apply(AMD, arguments);
+  return _amd2['default'].define.apply(_amd2['default'], arguments);
 }, 'AP.define()', null, '5.0');
 
 AP.require = _util2['default'].deprecateApi(function () {
-  return AMD.require.apply(AMD, arguments);
+  return _amd2['default'].require.apply(_amd2['default'], arguments);
 }, 'AP.require()', null, '5.0');
 
 },{"./amd":1,"./consumer-options":2,"./dialog":3,"./dollar":4,"./events":5,"./util":7}],7:[function(_dereq_,module,exports){

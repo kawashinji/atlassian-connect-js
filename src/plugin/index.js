@@ -3,9 +3,8 @@ import $ from './dollar';
 import consumerOptions from './consumer-options';
 import EventsModule from './events';
 import DialogCompat from './dialog';
-import amd from './amd';
+import AMD from './amd';
 
-const AMD = amd(AP);
 AP._hostModules._dollar = $;
 
 if(consumerOptions.get('sizeToParent') === true) {
