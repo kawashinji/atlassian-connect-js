@@ -1,4 +1,3 @@
-import util from './util';
 import events from './events';
 import deprecate from './deprecate';
 let customButtonIncrement = 1;

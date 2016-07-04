@@ -39,6 +39,8 @@ function fullscreen($el, options){
   expect($el.hasClass('aui-dialog2-fullscreen')).toEqual(true);
   expect($el.hasClass('ap-header-controls')).toEqual(true);
   expect($el.hasClass('aui-dialog2-maximum')).toEqual(true);
+  expect($el.height()).toEqual($(window).height());
+  expect($el.width()).toEqual($(window).width());
   fullscreenHeader($el, options);
   hint($el, options);
   footer($el, options);
@@ -137,6 +139,8 @@ module.exports = {
       header: {
         value: 'a fullscreen header'
       },
+      width: 1000,
+      height: 321,
       submitText: 'a submit text',
       cancelText: 'a cancel text',
       hint: 'fullscreen hint',

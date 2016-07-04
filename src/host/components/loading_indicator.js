@@ -67,7 +67,7 @@ EventDispatcher.register('iframe-create', (data) => {
   LoadingComponent._setupTimeout(data.$el.parents('.ap-iframe-container'), data.extension);
 });
 
-EventDispatcher.register('iframe-bridge-estabilshed', (data) => {
+EventDispatcher.register('iframe-bridge-established', (data) => {
   LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
 });
 

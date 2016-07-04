@@ -7,7 +7,7 @@ module.exports = {
   },
 
   notifyBridgeEstablished: function($el, extension){
-    EventDispatcher.dispatch('iframe-bridge-estabilshed', {$el, extension});
+    EventDispatcher.dispatch('iframe-bridge-established', {$el, extension});
   },
 
   notifyIframeDestroyed: function(extension_id){

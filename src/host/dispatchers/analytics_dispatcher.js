@@ -93,7 +93,7 @@ var analytics = new AnalyticsDispatcher();
 EventDispatcher.register('iframe-create', function(data) {
   analytics.trackLoadingStarted(data.extension);
 });
-EventDispatcher.register('iframe-bridge-estabilshed', function(data) {
+EventDispatcher.register('iframe-bridge-established', function(data) {
   analytics.trackLoadingEnded(data.extension);
 });
 EventDispatcher.register('iframe-bridge-timeout', function (data) {
