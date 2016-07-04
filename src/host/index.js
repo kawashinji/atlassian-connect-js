@@ -1,4 +1,5 @@
 import AnalyticsDispatcher from 'dispatchers/analytics_dispatcher';
+import ClientSideAnalyticsDispatcher from 'dispatchers/client_side_analytics_dispatcher';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 import simpleXDM from 'simple-xdm/dist/host';
 import jwtActions from 'actions/jwt_actions';
@@ -9,6 +10,7 @@ import env from './modules/env';
 import loadingIndicator from './components/loading_indicator';
 import messages from './modules/messages';
 import flag from './modules/flag';
+import analytics from './modules/analytics';
 import ModuleActions from 'actions/module_actions';
 import DomEventActions from 'actions/dom_event_actions';
 import _ from './underscore';
@@ -42,6 +44,7 @@ simpleXDM.defineModule('flag', flag);
 simpleXDM.defineModule('dialog', dialog);
 simpleXDM.defineModule('env', env);
 simpleXDM.defineModule('events', events);
+simpleXDM.defineModule('_analytics', analytics);
 
 // rpc.extend(propagator);
 
