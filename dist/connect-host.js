@@ -228,8 +228,12 @@ EventEmitter.prototype.emit = function(type) {
       er = arguments[1];
       if (er instanceof Error) {
         throw er; // Unhandled 'error' event
+      } else {
+        // At least give some kind of context to the user
+        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
+        err.context = er;
+        throw err;
       }
-      throw TypeError('Uncaught, unspecified "error" event.');
     }
   }
 
@@ -958,9 +962,9 @@ var Connect = (function () {
 
   /**
    * Send a message to iframes matching the targetSpec. This message is added to
-   *  a message queue for delivery to ensure the message is received if an iframe 
+   *  a message queue for delivery to ensure the message is received if an iframe
    *  has not yet loaded
-   * 
+   *
    * @param type The name of the event type
    * @param targetSpec The spec to match against extensions when sending this event
    * @param event The event payload
@@ -975,10 +979,10 @@ var Connect = (function () {
     }
 
     /**
-     * Send a message to iframes matching the targetSpec immediately. This message will 
+     * Send a message to iframes matching the targetSpec immediately. This message will
      *  only be sent to iframes that are already open, and will not be delivered if none
      *  are currently open.
-     * 
+     *
      * @param type The name of the event type
      * @param targetSpec The spec to match against extensions when sending this event
      * @param event The event payload
@@ -1038,11 +1042,12 @@ var Connect = (function () {
     }
   }, {
     key: 'registerExtension',
-    value: function registerExtension(extension, initCallback) {
+    value: function registerExtension(extension, initCallback, unloadCallback) {
       var extension_id = this._createId(extension);
       this._xdm.registerExtension(extension_id, {
         extension: extension,
-        initCallback: initCallback
+        initCallback: initCallback,
+        unloadCallback: unloadCallback
       });
       return extension_id;
     }
@@ -1143,181 +1148,163 @@ module.exports = PostMessage;
 },{"./util":3}],3:[function(_dereq_,module,exports){
 "use strict";
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 var LOG_PREFIX = "[Simple-XDM] ";
 
-var Util = (function () {
-  function Util() {
-    _classCallCheck(this, Util);
-  }
+var util = {
 
-  _createClass(Util, [{
-    key: "locationOrigin",
-    value: function locationOrigin() {
-      if (!window.location.origin) {
-        return window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+  locationOrigin: function locationOrigin() {
+    if (!window.location.origin) {
+      return window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+    } else {
+      return window.location.origin;
+    }
+  },
+
+  randomString: function randomString() {
+    return Math.floor(Math.random() * 1000000000).toString(16);
+  },
+
+  isString: function isString(str) {
+    return typeof str === "string" || str instanceof String;
+  },
+
+  argumentsToArray: function argumentsToArray(arrayLike) {
+    return Array.prototype.slice.call(arrayLike);
+  },
+
+  argumentNames: function argumentNames(fn) {
+    return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
+    .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
+    .match(/([^\s,]+)/g) || [];
+  },
+
+  hasCallback: function hasCallback(args) {
+    var length = args.length;
+    return length > 0 && typeof args[length - 1] === 'function';
+  },
+
+  error: function error(msg) {
+    if (window.console) {
+      console.error(LOG_PREFIX + msg);
+    }
+  },
+
+  warn: function warn(msg) {
+    if (window.console) {
+      console.warn(LOG_PREFIX + msg);
+    }
+  },
+
+  _bind: function _bind(thisp, fn) {
+    if (Function.prototype.bind) {
+      return fn.bind(thisp);
+    }
+    return function () {
+      return fn.apply(thisp, arguments);
+    };
+  },
+
+  each: function each(list, iteratee) {
+    var length;
+    var key;
+    if (list) {
+      length = list.length;
+      if (length != null && typeof list !== 'function') {
+        key = 0;
+        while (key < length) {
+          if (iteratee.call(list[key], key, list[key]) === false) {
+            break;
+          }
+          key += 1;
+        }
       } else {
-        return window.location.origin;
-      }
-    }
-  }, {
-    key: "randomString",
-    value: function randomString() {
-      return Math.floor(Math.random() * 1000000000).toString(16);
-    }
-  }, {
-    key: "isString",
-    value: function isString(str) {
-      return typeof str === "string" || str instanceof String;
-    }
-  }, {
-    key: "argumentsToArray",
-    value: function argumentsToArray(arrayLike) {
-      return Array.prototype.slice.call(arrayLike);
-    }
-  }, {
-    key: "argumentNames",
-    value: function argumentNames(fn) {
-      return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
-      .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
-      .match(/([^\s,]+)/g) || [];
-    }
-  }, {
-    key: "hasCallback",
-    value: function hasCallback(args) {
-      var length = args.length;
-      return length > 0 && typeof args[length - 1] === 'function';
-    }
-  }, {
-    key: "error",
-    value: function error(msg) {
-      if (window.console) {
-        console.error(LOG_PREFIX + msg);
-      }
-    }
-  }, {
-    key: "warn",
-    value: function warn(msg) {
-      if (window.console) {
-        console.warn(LOG_PREFIX + msg);
-      }
-    }
-  }, {
-    key: "_bind",
-    value: function _bind(thisp, fn) {
-      if (Function.prototype.bind) {
-        return fn.bind(thisp);
-      }
-      return function () {
-        return fn.apply(thisp, arguments);
-      };
-    }
-  }, {
-    key: "each",
-    value: function each(o, it) {
-      var l;
-      var k;
-      if (o) {
-        l = o.length;
-        if (l != null && typeof o !== 'function') {
-          k = 0;
-          while (k < l) {
-            if (it.call(o[k], k, o[k]) === false) {
+        for (key in list) {
+          if (list.hasOwnProperty(key)) {
+            if (iteratee.call(list[key], key, list[key]) === false) {
               break;
             }
-            k += 1;
-          }
-        } else {
-          for (k in o) {
-            if (o.hasOwnProperty(k)) {
-              if (it.call(o[k], k, o[k]) === false) {
-                break;
-              }
-            }
           }
         }
       }
     }
-  }, {
-    key: "extend",
-    value: function extend(dest) {
-      var args = arguments;
-      var srcs = [].slice.call(args, 1, args.length);
-      srcs.forEach(function (source) {
-        if (typeof source === "object") {
-          Object.getOwnPropertyNames(source).forEach(function (name) {
-            dest[name] = source[name];
-          });
-        }
-      });
-      return dest;
-    }
-  }, {
-    key: "sanitizeStructuredClone",
-    value: function sanitizeStructuredClone(object) {
-      var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
-      var blackList = [Error, Node];
-      var warn = this.warn;
-      var visitedObjects = [];
+  },
 
-      function _clone(value) {
-        if (typeof value === 'function') {
-          warn("A function was detected and removed from the message.");
+  extend: function extend(dest) {
+    var args = arguments;
+    var srcs = [].slice.call(args, 1, args.length);
+    srcs.forEach(function (source) {
+      if (typeof source === "object") {
+        Object.getOwnPropertyNames(source).forEach(function (name) {
+          dest[name] = source[name];
+        });
+      }
+    });
+    return dest;
+  },
+
+  sanitizeStructuredClone: function sanitizeStructuredClone(object) {
+    var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
+    var blackList = [Error, Node];
+    var warn = util.warn;
+    var visitedObjects = [];
+
+    function _clone(value) {
+      if (typeof value === 'function') {
+        warn("A function was detected and removed from the message.");
+        return null;
+      }
+
+      if (blackList.some(function (t) {
+        if (value instanceof t) {
+          warn(t.name + " object was detected and removed from the message.");
+          return true;
+        }
+        return false;
+      })) {
+        return {};
+      }
+
+      if (value && typeof value === 'object' && whiteList.every(function (t) {
+        return !(value instanceof t);
+      })) {
+        if (visitedObjects.indexOf(value) > -1) {
+          warn("A circular reference was detected and removed from the message.");
           return null;
         }
 
-        if (blackList.some(function (t) {
-          if (value instanceof t) {
-            warn(t.name + " object was detected and removed from the message.");
-            return true;
-          }
-          return false;
-        })) {
-          return {};
-        }
+        visitedObjects.push(value);
 
-        if (value && typeof value === 'object' && whiteList.every(function (t) {
-          return !(value instanceof t);
-        })) {
-          if (visitedObjects.indexOf(value) > -1) {
-            warn("A circular reference was detected and removed from the message.");
-            return null;
-          }
+        var newValue = undefined;
 
-          visitedObjects.push(value);
-
-          var newValue = undefined;
-
-          if (Array.isArray(value)) {
-            newValue = value.map(function (element) {
-              return _clone(element);
-            });
-          } else {
-            newValue = {};
-            for (var _name in value) {
-              if (value.hasOwnProperty(_name)) {
-                var clonedValue = _clone(value[_name]);
-                if (clonedValue !== null) {
-                  newValue[_name] = clonedValue;
-                }
+        if (Array.isArray(value)) {
+          newValue = value.map(function (element) {
+            return _clone(element);
+          });
+        } else {
+          newValue = {};
+          for (var _name in value) {
+            if (value.hasOwnProperty(_name)) {
+              var clonedValue = _clone(value[_name]);
+              if (clonedValue !== null) {
+                newValue[_name] = clonedValue;
               }
             }
           }
-          return newValue;
         }
-        return value;
+        return newValue;
       }
-      return _clone(object);
+      return value;
     }
-  }]);
 
-  return Util;
-})();
+    return _clone(object);
+  }
+};
 
-module.exports = new Util();
+exports["default"] = util;
+module.exports = exports["default"];
 
 },{}],4:[function(_dereq_,module,exports){
 /**
@@ -1403,7 +1390,8 @@ var XDMRPC = (function (_PostMessage) {
       resp: this._handleResponse,
       event_query: this._handleEventQuery,
       broadcast: this._handleBroadcast,
-      key_listen: this._handleKeyListen
+      key_listen: this._handleKeyListen,
+      unload: this._handleUnload
     };
   }
 
@@ -1596,6 +1584,14 @@ var XDMRPC = (function (_PostMessage) {
       return executed;
     }
   }, {
+    key: '_handleUnload',
+    value: function _handleUnload(event, reg) {
+      delete this._registeredExtensions[reg.extension_id].source;
+      if (reg.unloadCallback) {
+        reg.unloadCallback(event.data.eid);
+      }
+    }
+  }, {
     key: 'dispatch',
     value: function dispatch(type, targetSpec, event, callback, source) {
       function sendEvent(reg, evnt) {
@@ -1770,6 +1766,12 @@ var XDMRPC = (function (_PostMessage) {
       var sourceTypeMatches = reg && event.source === reg.source;
       var hasExtensionUrl = reg && reg.extension.url.indexOf(event.origin) === 0;
       var isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches);
+
+      // check undefined for chromium (Issue 395010)
+      if (event.data.type === 'unload' && (sourceTypeMatches || event.source === undefined)) {
+        isValidOrigin = true;
+      }
+
       if (!isValidOrigin) {
         _commonUtil2['default'].warn("Failed to validate origin: " + event.origin);
       }
@@ -2127,7 +2129,11 @@ var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dis
 
 module.exports = {
   close: function close(data) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close', data);
+    _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close', {
+      dialog: data.dialog,
+      extension: data.extension,
+      customData: data.customData
+    });
   },
   closeActive: function closeActive(data) {
     _dispatchersEvent_dispatcher2['default'].dispatch('dialog-close-active', data);
@@ -2987,7 +2993,7 @@ var Dialog = (function () {
       var $dialog = (0, _dollar2['default'])(this.getByExtension({
         addon_key: extension.addon_key,
         key: extension.key
-      }));
+      })[0]);
       var $actionBar = getActionBar($dialog);
       $actionBar.append($button);
       return $dialog;
@@ -3157,6 +3163,16 @@ var DialogExtension = (function () {
     key: 'buttonIsVisible',
     value: function buttonIsVisible(identifier) {
       return _componentsDialog2['default'].buttonIsVisible(identifier);
+    }
+  }, {
+    key: 'getByExtension',
+    value: function getByExtension(extension) {
+      if (typeof extension === "string") {
+        extension = {
+          id: extension
+        };
+      }
+      return _componentsDialog2['default'].getByExtension(extension);
     }
   }]);
 
@@ -4631,19 +4647,17 @@ _dispatchersEvent_dispatcher2['default'].register('dialog-button-click', functio
       text: _componentsButton2['default'].getText(data.$el)
     }
   };
+  var eventName = 'dialog.button.click';
 
   // Old buttons, (submit and cancel) use old events
   if (!data.$el.hasClass('ap-dialog-custom-button')) {
-    _actionsEvent_actions2['default'].broadcast('dialog.' + eventData.button.name, {
-      addon_key: data.extension.addon_key
-    }, eventData);
-  } else {
-    // new buttons only target the dialog
-    _actionsEvent_actions2['default'].broadcast('dialog.button.click', {
-      addon_key: data.extension.addon_key,
-      key: data.extension.key
-    }, eventData);
+    eventName = 'dialog.' + eventData.button.name;
   }
+
+  _actionsEvent_actions2['default'].broadcast(eventName, {
+    addon_key: data.extension.addon_key,
+    key: data.extension.key
+  }, eventData);
 });
 
 /**
@@ -4660,7 +4674,7 @@ var Dialog = function Dialog(options, callback) {
   var dialogExtension = {
     addon_key: extension.addon_key,
     key: options.key,
-    options: extension.options
+    options: _underscore2['default'].pick(callback._context.extension.options, ['customData', 'productContext'])
   };
 
   // ACJS-185: the following is a really bad idea but we need it
@@ -4976,8 +4990,16 @@ module.exports = {
       callback = data;
       data = {};
     }
-    _actionsDialog_actions2['default'].closeActive({
+    var dialogToClose;
+    if (callback._context.extension.options.isDialog) {
+      dialogToClose = _componentsDialog_extension2['default'].getByExtension(callback._context.extension.id)[0];
+    } else {
+      dialogToClose = _componentsDialog_extension2['default'].getActiveDialog();
+    }
+
+    _actionsDialog_actions2['default'].close({
       customData: data,
+      dialog: dialogToClose,
       extension: callback._context.extension
     });
   },
@@ -6049,7 +6071,7 @@ function getOptionsForWebItem($target) {
 
   var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
   var options = getModuleOptionsForWebitem(type, $target);
-  if (window._AP && window._AP[type + 'Options']) {
+  if (!options && window._AP && window._AP[type + 'Options']) {
     options = window._AP[type + 'Options'][fullKey] || {};
   }
   if (!options) {

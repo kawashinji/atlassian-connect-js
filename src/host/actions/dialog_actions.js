@@ -2,7 +2,11 @@ import EventDispatcher from 'dispatchers/event_dispatcher';
 
 module.exports = {
   close: (data) => {
-    EventDispatcher.dispatch('dialog-close', data);
+    EventDispatcher.dispatch('dialog-close', {
+      dialog: data.dialog,
+      extension: data.extension,
+      customData: data.customData
+    });
   },
   closeActive: (data) => {
     EventDispatcher.dispatch('dialog-close-active', data);

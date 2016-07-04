@@ -260,7 +260,7 @@ class Dialog {
     var $dialog = $(this.getByExtension({
       addon_key: extension.addon_key,
       key: extension.key
-    }));
+    })[0]);
     var $actionBar = getActionBar($dialog);
     $actionBar.append($button);
     return $dialog;

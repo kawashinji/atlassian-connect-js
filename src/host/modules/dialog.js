@@ -27,20 +27,17 @@ EventDispatcher.register('dialog-button-click', (data) => {
       text: ButtonComponent.getText(data.$el)
     }
   };
+  var eventName = 'dialog.button.click';
 
   // Old buttons, (submit and cancel) use old events
   if(!data.$el.hasClass('ap-dialog-custom-button')) {
-    EventActions.broadcast(`dialog.${eventData.button.name}`, {
-      addon_key: data.extension.addon_key
-    }, eventData);
-
-  } else {
-    // new buttons only target the dialog
-    EventActions.broadcast('dialog.button.click', {
-      addon_key: data.extension.addon_key,
-      key: data.extension.key
-    }, eventData);
+    eventName = `dialog.${eventData.button.name}`;
   }
+
+  EventActions.broadcast(eventName, {
+    addon_key: data.extension.addon_key,
+    key: data.extension.key
+  }, eventData);
 });
 
 /**
@@ -55,7 +52,7 @@ class Dialog {
     var dialogExtension = {
       addon_key: extension.addon_key,
       key: options.key,
-      options: extension.options
+      options: _.pick(callback._context.extension.options, ['customData', 'productContext'])
     };
 
     // ACJS-185: the following is a really bad idea but we need it
@@ -336,8 +333,16 @@ module.exports = {
       callback = data;
       data = {};
     }
-    DialogActions.closeActive({
+    var dialogToClose;
+    if(callback._context.extension.options.isDialog){
+      dialogToClose = DialogExtensionComponent.getByExtension(callback._context.extension.id)[0];
+    } else {
+      dialogToClose = DialogExtensionComponent.getActiveDialog();
+    }
+
+    DialogActions.close({
       customData: data,
+      dialog: dialogToClose,
       extension: callback._context.extension
     });
   },
