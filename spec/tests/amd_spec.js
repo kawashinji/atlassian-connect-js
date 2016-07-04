@@ -1,35 +1,45 @@
-import amd from 'src/plugin/amd';
+import AMD from 'src/plugin/amd';
 
 var testFunctionSpy = jasmine.createSpy('testFunction').and.callFake(() => 1337);
 var otherThingSpy = jasmine.createSpy('otherThing').and.callFake((thing) => thing);
-
-var AP = {
-  _hostModules: {
-    existingModule: {
-      testFunction: testFunctionSpy
-    },
-    otherThing: otherThingSpy
-  }
-};
+var newThingSpy = jasmine.createSpy('newThing').and.callFake((thing) => thing);
 
 describe('AMD', () => {
   beforeEach(() => {
-    var AMD = amd(AP);
-    AP.define = AMD.define;
-    AP.require = AMD.require;
+    window.AP = {
+      _hostModules: {
+        existingModule: {
+          testFunction: testFunctionSpy
+        },
+        otherThing: otherThingSpy
+      }
+    };
+
+    window.AP.define = AMD.define;
+    window.AP.require = AMD.require;
+
+    window.AP._hostModules.newThing = {
+      newHostFunction: newThingSpy
+    };
+  });
+
+  afterEach(() => {
+    window.AP = null;
   });
 
   describe('define', () => {
     it('creates a module', () => {
+      var bonusFunctionSpy = jasmine.createSpy('bonusFunction').and.callFake(() => '+1');
       AP.define('myObject', () => {
         return {
-          bonusFunction: () => '+1'
+          bonusFunction: bonusFunctionSpy
         }
       });
       AP.require('myObject', function(myObject) {
         expect(myObject).not.toBeUndefined();
         expect(myObject.hasOwnProperty('bonusFunction')).toBe(true);
         expect(myObject.bonusFunction()).toEqual('+1');
+        expect(bonusFunctionSpy).toHaveBeenCalled();
       });
     });
 
@@ -99,5 +109,15 @@ describe('AMD', () => {
         expect(notAThing()).toBeUndefined();
       });
     });
+
+    it('new host module after initialisation', () => {
+      AP.require('newThing', (newThing) => {
+        var testVal = Date.now();
+        expect(newThing).not.toBeUndefined();
+        expect(newThing.hasOwnProperty('newHostFunction')).toBe(true);
+        expect(newThing.newHostFunction(testVal)).toEqual(testVal);
+        expect(newThingSpy).toHaveBeenCalledWith(testVal);
+      });
+    })
   });
 });

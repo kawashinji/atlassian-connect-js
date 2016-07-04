@@ -34,63 +34,59 @@ function reqOne(name, callback) {
 }
 
 function getOrCreate(name) {
-  return modules[name] = modules[name] || {
-    name: name,
-    exports: function () {
-      function exports() {
-        var target = exports.__target__;
-        if (target) {
-          return target.apply(window, arguments);
+  if (modules[name]) {
+    return modules[name] = modules[name];
+  } else if (AP._hostModules[name]){
+    return modules[name] = {
+      name: name,
+      exports: AP._hostModules[name]
+    };
+  } else {
+    return modules[name] = {
+      name: name,
+      exports: function () {
+        function exports() {
+          var target = exports.__target__;
+          if (target) {
+            return target.apply(window, arguments);
+          }
         }
-      }
-      return exports;
-    }()
-  };
+        return exports;
+      }()
+    };
+  }
 }
 
 // define(name, objOrFn)
 // define(name, deps, fn(dep1, dep2, ...))
-module.exports = function(AP) {
-  // populate modules with existing ACJS modules
-  if (AP) {
-    Object.keys(AP._hostModules).forEach(function(key) {
-      if (key[0] !== '_') {
-        modules[key] = {
-          name: key,
-          exports: AP._hostModules[key]
-        };
-      }
-    });
-  }
-  return {
-    define: function (name, deps, exports) {
-      var mod = getOrCreate(name);
-      var factory;
-      if (!exports) {
-        exports = deps;
-        deps = [];
-      }
-      if (exports) {
-        factory = typeof exports !== 'function' ? function () {
-          return exports;
-        } : exports;
-        reqAll(deps, function () {
-          var exports = factory.apply(window, arguments);
-          if (exports) {
-            if (typeof exports === 'function') {
-              mod.exports.__target__ = exports;
-            }
-            for (var k in exports) {
-              if (exports.hasOwnProperty(k)) {
-                mod.exports[k] = exports[k];
-              }
+module.exports = {
+  define: function (name, deps, exports) {
+    var mod = getOrCreate(name);
+    var factory;
+    if (!exports) {
+      exports = deps;
+      deps = [];
+    }
+    if (exports) {
+      factory = typeof exports !== 'function' ? function () {
+        return exports;
+      } : exports;
+      reqAll(deps, function () {
+        var exports = factory.apply(window, arguments);
+        if (exports) {
+          if (typeof exports === 'function') {
+            mod.exports.__target__ = exports;
+          }
+          for (var k in exports) {
+            if (exports.hasOwnProperty(k)) {
+              mod.exports[k] = exports[k];
             }
           }
-        });
-      }
-    },
-    require: function (deps, callback) {
-      reqAll(typeof deps === 'string' ? [deps] : deps, callback);
+        }
+      });
     }
-  };
+  },
+  require: function (deps, callback) {
+    reqAll(typeof deps === 'string' ? [deps] : deps, callback);
+  }
 };
