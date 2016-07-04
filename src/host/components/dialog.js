@@ -197,6 +197,9 @@ class Dialog {
 
     const dialog = AJS.dialog2($dialog);
     dialog._id = sanitizedOptions.id;
+    if(sanitizedOptions.size === 'fullscreen'){
+      sanitizedOptions.height = sanitizedOptions.width = '100%';
+    }
     if (!sanitizedOptions.size || sanitizedOptions.size === 'fullscreen') {
       AJS.layer($dialog).changeSize(sanitizedOptions.width, sanitizedOptions.height);
     }
