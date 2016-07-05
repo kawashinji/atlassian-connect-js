@@ -14,10 +14,8 @@ function each(o, it) {
       }
     } else {
       for (k in o) {
-        if (o.hasOwnProperty(k)) {
-          if (it.call(o[k], k, o[k]) === false) {
-            break
-          }
+        if (o.hasOwnProperty(k) && it.call(o[k], k, o[k]) === false) {
+          break
         }
       }
     }
