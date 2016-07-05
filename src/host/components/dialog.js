@@ -250,7 +250,7 @@ class Dialog {
       };
     }
 
-    return $('.' + DIALOG_CLASS).toArray().filter(filterFunction);
+    return $('.' + DIALOG_CLASS).toArray().filter(filterFunction).map(($el) => { return AJS.dialog2($el); });
   }
 
   // add user defined button to an existing dialog
