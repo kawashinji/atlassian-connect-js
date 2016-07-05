@@ -9,6 +9,7 @@
  */
 
 import EventDispatcher from 'dispatchers/event_dispatcher';
+import InlineDialogActions from 'actions/inline_dialog_actions';
 import util from '../util';
 
 function hideInlineDialog(data){

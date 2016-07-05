@@ -104,22 +104,22 @@ describe('Dialog Webitem', () => {
     });
 
     it('renders a chromeless dialog with dimensions', (done) => {
-        var extension = {
-          addon_key: 'my-plugin',
-          key: 'key'
-        };
-        var options = baseDialogComponentTests.getChromelessOptions();
-        delete options.size;
-        options.width = '123px';
-        options.height = '100px';
-        window._AP.dialogOptions[extension.addon_key + '__' + extension.key] = options;
-        EventDispatcher.registerOnce('after:webitem-invoked:dialog', function(){
-          baseDialogComponentTests.testChromeless(options);
-          done();
-        });
-        $(function(){
-          $('.ap-dialog').click();
-        });
+      var extension = {
+        addon_key: 'my-plugin',
+        key: 'key'
+      };
+      var options = baseDialogComponentTests.getChromelessOptions();
+      delete options.size;
+      options.width = '123px';
+      options.height = '100px';
+      window._AP.dialogOptions[extension.addon_key + '__' + extension.key] = options;
+      EventDispatcher.registerOnce('after:webitem-invoked:dialog', function(){
+        baseDialogComponentTests.testChromeless(options);
+        done();
+      });
+      $(function(){
+        $('.ap-dialog').click();
+      });
     });
   });
 

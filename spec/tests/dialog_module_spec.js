@@ -118,7 +118,7 @@ describe('Dialog module', () => {
     $dialogExtension.find('button').first().click();
     expect(EventActions.broadcast.calls.count()).toEqual(0);
   });
-  
+
   describe('button modifier', () => {
     it('hide dispatches an event', (done) => {
       var extension = {

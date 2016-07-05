@@ -11,7 +11,7 @@ module.exports = {
   closeActive: (data) => {
     EventDispatcher.dispatch('dialog-close-active', data);
   },
-  clickButton: (identifier, $el, extension) => {  
+  clickButton: (identifier, $el, extension) => {
     EventDispatcher.dispatch('dialog-button-click', {
       identifier,
       $el,

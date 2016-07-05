@@ -128,7 +128,7 @@ module.exports = function(config) {
     karmaConfig.concurrency = 5;
   }
 
-  if(coverage == 'true') {
+  if(coverage === 'true') {
     karmaConfig.webpack.module.postLoaders.push(
       {
         test: /\/src\/host\/.*?\.js$/,

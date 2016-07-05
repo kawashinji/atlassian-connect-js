@@ -53,10 +53,10 @@ class WebItem {
       event.preventDefault();
       var $target = $(event.target).closest(webitem.selector);
       var extension = {
-          addon_key: WebItemUtils.getExtensionKey($target),
-          key: WebItemUtils.getKey($target),
-          options: WebItemUtils.getOptionsForWebItem($target)
-        };
+        addon_key: WebItemUtils.getExtensionKey($target),
+        key: WebItemUtils.getKey($target),
+        options: WebItemUtils.getOptionsForWebItem($target)
+      };
 
       WebItemActions.webitemInvoked(webitem, event, extension);
     };

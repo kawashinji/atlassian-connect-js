@@ -20,12 +20,12 @@ class DialogUtils {
   _header(text){
     var headerText = '';
     switch(typeof text) {
-        case 'string':
-        headerText = text;
+    case 'string':
+      headerText = text;
       break;
 
-        case 'object':
-        headerText = text.value;
+    case 'object':
+      headerText = text.value;
       break;
     }
 
@@ -99,7 +99,9 @@ class DialogUtils {
     var buttons = [];
     if(options.buttons && Array.isArray(options.buttons)) {
       options.buttons.forEach((button) => {
-        var text, identifier, disabled = false;
+        var text;
+        var identifier;
+        var disabled = false;
         if(button.text && typeof button.text === 'string') {
           text = button.text;
         }
@@ -147,8 +149,7 @@ class DialogUtils {
     if(window._AP
       && window._AP.dialogModules
       && window._AP.dialogModules[addon_key]
-      && window._AP.dialogModules[addon_key][key])
-    {
+      && window._AP.dialogModules[addon_key][key]) {
       return window._AP.dialogModules[addon_key][key].options;
     }
     return false;

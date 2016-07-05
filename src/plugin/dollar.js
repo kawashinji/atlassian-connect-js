@@ -1,8 +1,8 @@
 import util from './util';
 
-var each = util.each,
-  extend = util.extend,
-  document = window.document;
+var each = util.each;
+var extend = util.extend;
+var document = window.document;
 
 function $(sel, context) {
 
@@ -12,12 +12,12 @@ function $(sel, context) {
   if (sel) {
     if (typeof sel === 'string') {
       var results = context.querySelectorAll(sel);
-      each(results, function (i, v) { els.push(v); });
-    }
-    else if (sel.nodeType === 1) {
+      each(results, function (i, v) {
+        els.push(v);
+      });
+    } else if (sel.nodeType === 1) {
       els.push(sel);
-    }
-    else if (sel === window) {
+    } else if (sel === window) {
       els.push(sel);
     }
   }
@@ -59,12 +59,10 @@ function $(sel, context) {
           if (k === '$text') {
             if (el.styleSheet) { // style tags in ie
               el.styleSheet.cssText = v;
-            }
-            else {
+            } else {
               el.appendChild(context.createTextNode(v));
             }
-          }
-          else if (k !== 'tag') {
+          } else if (k !== 'tag') {
             el[k] = v;
           }
         });

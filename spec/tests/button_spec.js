@@ -1,7 +1,7 @@
 import ButtonComponent from 'src/host/components/button';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 
-describe('Button component', () => {  
+describe('Button component', () => {
   afterEach(() => {
     $('.aui-button').remove();
   });
