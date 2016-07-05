@@ -125,7 +125,7 @@ describe('Dialog module', () => {
       done();
     });
   });
-// jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000000;
+
   it('creates a custom button', () => {
     var extension = {
       addon_key: 'some-key',
