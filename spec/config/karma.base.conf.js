@@ -23,6 +23,7 @@ module.exports = function(config) {
       'https://aui-cdn.atlassian.com/aui-adg/5.9.17/css/aui.min.css',
       'https://cdn.rawgit.com/requirejs/almond/0.3.1/almond.js',
       'https://aui-cdn.atlassian.com/aui-adg/5.9.17/js/aui-experimental.js',
+      {pattern: 'src/**/*.js', included: false},
       {pattern: 'src/css/host/**', included: true, served: true}
       // {pattern: 'fixtures/**', included: false, served: true},
       // {pattern: 'dist/**', included: false, served: true}
@@ -31,7 +32,7 @@ module.exports = function(config) {
     //do not process my html files.
     preprocessors: {
       'spec/tests/*.js': ['webpack'],
-      'src/**/*.js': ['webpack']
+      'src/**/*.js': ['eslint']
     },
 
     webpack: {
@@ -66,6 +67,7 @@ module.exports = function(config) {
     },
 
     plugins: [
+      'karma-eslint',
       'karma-jasmine',
       'karma-webpack',
       'karma-junit-reporter',
