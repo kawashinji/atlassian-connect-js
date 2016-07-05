@@ -2981,7 +2981,9 @@ var Dialog = (function () {
         };
       }
 
-      return (0, _dollar2['default'])('.' + DIALOG_CLASS).toArray().filter(filterFunction);
+      return (0, _dollar2['default'])('.' + DIALOG_CLASS).toArray().filter(filterFunction).map(function ($el) {
+        return AJS.dialog2($el);
+      });
     }
 
     // add user defined button to an existing dialog
@@ -2990,10 +2992,10 @@ var Dialog = (function () {
     value: function addButton(extension, options) {
       options.custom = true;
       var $button = this._renderDialogButton(options, extension);
-      var $dialog = (0, _dollar2['default'])(this.getByExtension({
+      var $dialog = this.getByExtension({
         addon_key: extension.addon_key,
         key: extension.key
-      })[0]);
+      })[0].$el;
       var $actionBar = getActionBar($dialog);
       $actionBar.append($button);
       return $dialog;

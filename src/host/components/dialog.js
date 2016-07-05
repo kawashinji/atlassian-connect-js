@@ -250,17 +250,17 @@ class Dialog {
       };
     }
 
-    return $('.' + DIALOG_CLASS).toArray().filter(filterFunction);
+    return $('.' + DIALOG_CLASS).toArray().filter(filterFunction).map(($el) => { return AJS.dialog2($el); });
   }
 
   // add user defined button to an existing dialog
   addButton(extension, options) {
     options.custom = true;
     var $button = this._renderDialogButton(options, extension);
-    var $dialog = $(this.getByExtension({
+    var $dialog = this.getByExtension({
       addon_key: extension.addon_key,
       key: extension.key
-    })[0]);
+    })[0].$el;
     var $actionBar = getActionBar($dialog);
     $actionBar.append($button);
     return $dialog;
