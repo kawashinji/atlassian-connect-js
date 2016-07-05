@@ -4,6 +4,8 @@ pipelines:
     default:
         - step:
             script:
-                - printf "//`node -p \"require('url').parse(process.env.NPM_REGISTRY_URL || 'https://registry.npmjs.org').host\"`/:_authToken=${NPM_TOKEN}\nregistry=${NPM_REGISTRY_URL:-https://registry.npmjs.org}\n" >> ~/.npmrc
+                - npm set //npm-private.atlassian.io/:_authToken $NPM_TOKEN
+                - npm config set @atlassian:registry https://npm-private.atlassian.io
+                - npm config set loglevel silent
                 - npm install
                 - npm test
