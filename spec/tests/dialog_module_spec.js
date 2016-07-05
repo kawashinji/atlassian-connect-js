@@ -125,6 +125,27 @@ describe('Dialog module', () => {
       done();
     });
   });
+// jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000000;
+  it('creates a custom button', () => {
+    var extension = {
+      addon_key: 'some-key',
+      key: 'module-key',
+      url: 'http://www.example.com',
+      options: {
+        isDialog: true
+      }
+    };
+    var options = baseDialogComponentTests.getChromeOptions();
+    var $dialogExtension = DialogExtensionComponent.render(extension, options);
+    $dialogExtension.find('iframe')[0].bridgeEstablished = true;
+    var callback = function(){};
+    callback._context = {
+      extension: extension
+    };
+    expect($('.aui-dialog2').length).toEqual(1);
+    new DialogModule.createButton.constructor({text: 'abc123'}, callback);
+    expect($('.aui-dialog2 button').filter((i, button) => { return button.innerHTML === 'abc123'; }).length).toEqual(1);
+  });
 
   it('button click is ignored if iframe has not loaded', () => {
     var extension = {

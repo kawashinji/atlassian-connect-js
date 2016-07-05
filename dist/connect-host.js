@@ -2992,10 +2992,10 @@ var Dialog = (function () {
     value: function addButton(extension, options) {
       options.custom = true;
       var $button = this._renderDialogButton(options, extension);
-      var $dialog = (0, _dollar2['default'])(this.getByExtension({
+      var $dialog = this.getByExtension({
         addon_key: extension.addon_key,
         key: extension.key
-      })[0]);
+      })[0].$el;
       var $actionBar = getActionBar($dialog);
       $actionBar.append($button);
       return $dialog;
