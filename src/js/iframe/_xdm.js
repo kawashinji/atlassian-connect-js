@@ -246,7 +246,11 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
       try {
         // Extract message payload from the event
         var payload = event.data,
-            pid = payload.i, pchannel = payload.c, ptype = payload.t, pmessage = payload.m, name = pmessage.n;
+            pid = payload.i, pchannel = payload.c, ptype = payload.t, pmessage = payload.m, name;
+
+        if (typeof pmessage === 'object') {
+          name =  pmessage.n;
+        }
 
         // If the payload doesn't match our expected event signature, assume its not part of the xdm-rpc protocol
         if (name !== 'registerInnerIframe' && (event.source !== target || event.origin.toLowerCase() !== remoteOrigin || pchannel !== channel)){
