@@ -21,10 +21,10 @@ class Flag {
   render (options) {
     var _id = FLAGID_PREFIX + options.id;
     var auiFlag = AUI_FLAG({
-        type: options.type,
-        title: options.title,
-        body: this._toHtmlString(options.body),
-        close: options.close
+      type: options.type,
+      title: options.title,
+      body: this._toHtmlString(options.body),
+      close: options.close
     });
     auiFlag.setAttribute('id', _id);
     var $auiFlag = $(auiFlag);

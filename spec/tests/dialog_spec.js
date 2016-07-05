@@ -109,7 +109,7 @@ describe('dialog component', () => {
         it('has a close button', () => {
           var sanitizedOptions = dialogUtils.sanitizeOptions();
           var $header = DialogComponent._renderHeader(sanitizedOptions);
-          expect($header.find('.aui-dialog2-header-close').length).toEqual(1);          
+          expect($header.find('.aui-dialog2-header-close').length).toEqual(1);
         });
       });
 

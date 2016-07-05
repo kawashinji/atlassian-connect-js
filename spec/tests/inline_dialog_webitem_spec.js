@@ -17,7 +17,7 @@ describe('Inline Dialog Webitem', () => {
     webitemButton.remove();
   });
 
-  it("getWebItem returns a webitem compatible object", function(){
+  it('getWebItem returns a webitem compatible object', function(){
     var inlineDialogWebitemSpec = InlineDialogWebitem.getWebItem();
     expect(inlineDialogWebitemSpec).toEqual({
       name: 'inline-dialog',

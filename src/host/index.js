@@ -35,7 +35,7 @@ if (!window._AP) {
  * Add version
  */
 if (!window._AP.version) {
-  window._AP.version = "%%GULP_INJECT_VERSION%%";
+  window._AP.version = '%%GULP_INJECT_VERSION%%';
 }
 
 simpleXDM.defineModule('messages', messages);

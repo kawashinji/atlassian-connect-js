@@ -30,7 +30,7 @@ describe('Inline Dialog Component', () => {
     it('contains the inline dialog content', () => {
       var $inlineDialog = InlineDialogComponent.render({
         id: 'some-id',
-        bindTo: $("body"),
+        bindTo: $('body'),
         $content: $content
       });
       $inlineDialog.show();

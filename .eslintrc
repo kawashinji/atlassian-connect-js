@@ -17,6 +17,7 @@
   },
   "globals": {
     "AJS": true,
-    "aui": true
+    "aui": true,
+    "AP": true
   }
 }

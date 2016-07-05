@@ -9,25 +9,25 @@ var buttonId = 0;
 
 class Button {
   constructor() {
-    this.AP_BUTTON_CLASS = "ap-aui-button";
+    this.AP_BUTTON_CLASS = 'ap-aui-button';
   }
 
   setType($button, type){
     if(type && _.contains(BUTTON_TYPES, type)) {
-      $button.addClass("aui-button-" + type);
+      $button.addClass('aui-button-' + type);
     }
     return $button;
   }
 
   setDisabled($button, disabled) {
-    if(typeof disabled !== "undefined" && !$button.data('immutable')) {
+    if(typeof disabled !== 'undefined' && !$button.data('immutable')) {
       $button.attr('aria-disabled', disabled);
     }
     return $button;
   }
 
   setHidden($button, hidden) {
-    if(typeof hidden !== "undefined" && !$button.data('immutable')) {
+    if(typeof hidden !== 'undefined' && !$button.data('immutable')) {
       $button.toggle(!hidden);
     }
     return $button;
@@ -35,17 +35,17 @@ class Button {
 
   _setId($button, id) {
     if(!id) {
-      id = "ap-button-" + buttonId;
+      id = 'ap-button-' + buttonId;
       buttonId++;
     }
-    $button.attr("id", id);
+    $button.attr('id', id);
     return $button;
   }
 
   _additionalClasses($button, classes) {
     if(classes) {
-      if(typeof classes !== "string") {
-        classes = classes.join(" ");
+      if(typeof classes !== 'string') {
+        classes = classes.join(' ');
       }
       $button.addClass(classes);
     }
@@ -53,7 +53,7 @@ class Button {
   }
 
   getName($button) {
-    return $($button).data("name");
+    return $($button).data('name');
   }
 
   getText($button) {
@@ -65,7 +65,7 @@ class Button {
   }
 
   isVisible($button) {
-    return $($button).is(":visible");
+    return $($button).is(':visible');
   }
 
   isEnabled($button) {
@@ -73,9 +73,9 @@ class Button {
   }
 
   render (options) {
-    var $button = $("<button />");
+    var $button = $('<button />');
     options = options || {};
-    $button.addClass("aui-button " + this.AP_BUTTON_CLASS);
+    $button.addClass('aui-button ' + this.AP_BUTTON_CLASS);
     $button.text(options.text);
     $button.data(options.data);
     $button.data({
@@ -94,19 +94,19 @@ class Button {
 var ButtonComponent = new Button();
 // register 1 button listener globally on dom load
 $(function(){
-  $("body").on("click", "." + ButtonComponent.AP_BUTTON_CLASS, function(e){
-      var $button = $(e.target).closest("." + ButtonComponent.AP_BUTTON_CLASS);
-      if ($button.attr('aria-disabled') !== 'true') {
-        ButtonActions.clicked($button);
-      }
+  $('body').on('click', '.' + ButtonComponent.AP_BUTTON_CLASS, function(e){
+    var $button = $(e.target).closest('.' + ButtonComponent.AP_BUTTON_CLASS);
+    if ($button.attr('aria-disabled') !== 'true') {
+      ButtonActions.clicked($button);
+    }
   });
 });
 
-EventDispatcher.register("button-toggle", (data) => {
+EventDispatcher.register('button-toggle', (data) => {
   ButtonComponent.setDisabled(data.$el, data.disabled);
 });
 
-EventDispatcher.register("button-toggle-visibility", (data) => {
+EventDispatcher.register('button-toggle-visibility', (data) => {
   ButtonComponent.setHidden(data.$el, data.hidden);
 });
 

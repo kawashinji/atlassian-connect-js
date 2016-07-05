@@ -11,8 +11,8 @@ class InlineDialog {
     var $content = data.$el.find('.contents');
     if($content.length === 1){
       $content.css({
-          width: width,
-          height: height
+        width: width,
+        height: height
       });
       InlineDialogActions.refresh(data.$el);
     }
@@ -26,7 +26,7 @@ class InlineDialog {
     return AJS.InlineDialog($el);
   }
   _renderContainer(){
-    return $("<div />").addClass("aui-inline-dialog-contents");
+    return $('<div />').addClass('aui-inline-dialog-contents');
   }
   _displayInlineDialog(data){
     InlineDialogActions.created({
@@ -39,7 +39,7 @@ class InlineDialog {
     var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
 
     if ($inlineDialog.length !== 0) {
-        $inlineDialog.remove();
+      $inlineDialog.remove();
     }
 
     var $el = AJS.InlineDialog(
@@ -65,7 +65,7 @@ class InlineDialog {
 var InlineDialogComponent = new InlineDialog();
 
 EventDispatcher.register('iframe-resize', function(data) {
-  var container = data.$el.parents(".aui-inline-dialog");
+  var container = data.$el.parents('.aui-inline-dialog');
   if(container.length === 1) {
     InlineDialogComponent.resize({
       width: data.width,
