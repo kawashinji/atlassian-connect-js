@@ -3,6 +3,7 @@ pipelines:
         - step:
             script:
                 - /usr/bin/Xvfb :99 -ac -screen 0 1024x768x16 +extension RANDR &
+                - node -v
                 - npm install
                 - npm test
                 - pkill Xvfb
