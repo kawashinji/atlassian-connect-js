@@ -176,24 +176,35 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
 
     // Sends a message of a specific type to the remote peer via a post-message event
     function send(sid, type, message) {
-      message = message || {};
       try {
         var sendTarget = target,
             targetOrigin = remoteOrigin;
+
+        if(!message) {
+          return sendTarget.postMessage({
+            c: channel,
+            i: sid,
+            k: realAddonKey,
+            t: type,
+            m: undefined
+          }, targetOrigin);
+        }
+
+        var messageName = message.n;
 
         // Sanitize the incoming message arguments
         if (message.a) {
           message.a = sanitizeStructuredClone(message.a);
         }
 
-        if(message.n === 'registerInnerIframe') {
+        if(messageName === 'registerInnerIframe') {
           sendTarget = window.top;
           //Origin not yet in the origin-map so set it to *
           targetOrigin = '*';
         }
 
         var middleFrameMethods = ["resize", "sizeToParent", "init"];
-        if (middleFrameMethods.indexOf(message.n) > -1) {
+        if (middleFrameMethods.indexOf(messageName) > -1) {
           sendTarget = window.parent;
           targetOrigin = '*';
         }
