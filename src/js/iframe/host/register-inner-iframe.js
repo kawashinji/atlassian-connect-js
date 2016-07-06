@@ -80,7 +80,7 @@ require(["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
      * @returns {boolean}
      */
     function keyMatchesOrigin(addonKey, origin) {
-        return   _AP.addonOriginMap[addonKey] === origin.toLowerCase();
+        return   _AP.addonOriginMap[addonKey].toLowerCase() === origin.toLowerCase();
     }
 
 
@@ -151,5 +151,4 @@ require(["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
         window.addEventListener('message', innerFrameListener);
     }
     init();
-
 });
