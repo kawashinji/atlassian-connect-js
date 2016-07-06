@@ -31,10 +31,7 @@ class DialogWebItem {
   }
 
   triggered(data) {
-    var $target = $(data.event.target);
-    if(!$target.hasClass('ap-dialog')){
-      $target = $target.closest('.ap-dialog');
-    }
+    var $target = $(data.event.currentTarget);
     var webitemId = $target.data(WEBITEM_UID_KEY);
     var dialogOptions = this._dialogOptions(data.extension.options);
     dialogOptions.id = webitemId;
@@ -42,7 +39,7 @@ class DialogWebItem {
   }
 
   createIfNotExists(data) {
-    var $target = $(data.event.target);
+    var $target = $(data.event.currentTarget);
     var uid = $target.data(WEBITEM_UID_KEY);
 
     if(!uid) {

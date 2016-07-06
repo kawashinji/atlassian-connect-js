@@ -3277,10 +3277,7 @@ var DialogWebItem = (function () {
   }, {
     key: 'triggered',
     value: function triggered(data) {
-      var $target = $(data.event.target);
-      if (!$target.hasClass('ap-dialog')) {
-        $target = $target.closest('.ap-dialog');
-      }
+      var $target = $(data.event.currentTarget);
       var webitemId = $target.data(WEBITEM_UID_KEY);
       var dialogOptions = this._dialogOptions(data.extension.options);
       dialogOptions.id = webitemId;
@@ -3289,7 +3286,7 @@ var DialogWebItem = (function () {
   }, {
     key: 'createIfNotExists',
     value: function createIfNotExists(data) {
-      var $target = $(data.event.target);
+      var $target = $(data.event.currentTarget);
       var uid = $target.data(WEBITEM_UID_KEY);
 
       if (!uid) {
@@ -3837,10 +3834,7 @@ var InlineDialogWebItem = (function () {
   }, {
     key: 'triggered',
     value: function triggered(data) {
-      var $target = (0, _dollar2['default'])(data.event.target);
-      if (!$target.hasClass('ap-inline-dialog')) {
-        $target = $target.closest('.ap-inline-dialog');
-      }
+      var $target = (0, _dollar2['default'])(data.event.currentTarget);
       var webitemId = $target.data(WEBITEM_UID_KEY);
 
       var $inlineDialog = this._createInlineDialog({
@@ -3872,7 +3866,7 @@ var InlineDialogWebItem = (function () {
   }, {
     key: 'createIfNotExists',
     value: function createIfNotExists(data) {
-      var $target = (0, _dollar2['default'])(data.event.target);
+      var $target = (0, _dollar2['default'])(data.event.currentTarget);
       var uid = $target.data(WEBITEM_UID_KEY);
 
       if (!uid) {
