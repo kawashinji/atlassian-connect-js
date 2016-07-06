@@ -1,4 +1,4 @@
-define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
+require(["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
     "use strict";
 
     var initialisedChildren = [];
@@ -153,5 +153,3 @@ define("register-inner-iframe", ["_dollar", "_rpc", "_ui-params"], function ($, 
     init();
 
 });
-
-require("register-inner-iframe");
