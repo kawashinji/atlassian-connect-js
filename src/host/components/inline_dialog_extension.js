@@ -3,7 +3,7 @@ import InlineDialogComponent from 'components/inline_dialog';
 class InlineDialogExtension {
 
   close(extension) {
-    $(".aui-inline-dialog").filter('.ap-iframe-container').remove();
+    $(".aui-inline-dialog").filter(function(){ return $(this).find('.ap-iframe-container').length > 0; }).hide();
   }
 
 }
