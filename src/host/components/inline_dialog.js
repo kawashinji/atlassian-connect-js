@@ -38,6 +38,13 @@ class InlineDialog {
   hideInlineDialog($el){
     $el.hide();
   }
+
+  closeInlineDialog(){
+    $(".aui-inline-dialog").filter(function(){
+      return $(this).find('.ap-iframe-container').length > 0;
+    }).hide();
+  }
+
   render(data){
     var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
 
@@ -85,5 +92,10 @@ EventDispatcher.register('inline-dialog-refresh', function(data){
 EventDispatcher.register('inline-dialog-hide', function(data) {
   InlineDialogComponent.hideInlineDialog(data.$el);
 });
+
+EventDispatcher.register('inline-dialog-close', function(data) {
+  InlineDialogComponent.closeInlineDialog();
+});
+
 
 export default InlineDialogComponent;

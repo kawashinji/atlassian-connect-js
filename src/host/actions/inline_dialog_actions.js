@@ -12,6 +12,10 @@ module.exports = {
   hideTriggered: function(extension_id, $el){
     EventDispatcher.dispatch('inline-dialog-hidden', {extension_id, $el});
   },
+  close: function(){
+    EventDispatcher.dispatch('inline-dialog-close', {
+    });
+  },
   created: function(data) {
     EventDispatcher.dispatch('inline-dialog-opened', {
       $el: data.$el,
