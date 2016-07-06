@@ -23,7 +23,7 @@ require(["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
         var innerFrameOptions = $.extend({}, frameData);
         var channelId = 'channel-' + innerFrameOptions.ns;
 
-        innerFrameOptions.ns = innerFrameOptions.ns + "." + addonKey + "." + count++;
+        innerFrameOptions.ns = innerFrameOptions.ns + "-" + addonKey + "-" + count++;
         innerFrameOptions.key = addonKey;
         innerFrameOptions.origin = origin;
         innerFrameOptions.uiParams = uiParams.fromUrl(window.location.toString()) || {};
