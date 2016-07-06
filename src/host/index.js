@@ -6,6 +6,7 @@ import events from './modules/events';
 import create from './create';
 import dialog from './modules/dialog';
 import env from './modules/env';
+import inlineDialog from './modules/inline-dialog';
 import loadingIndicator from './components/loading_indicator';
 import messages from './modules/messages';
 import flag from './modules/flag';
@@ -41,6 +42,7 @@ if (!window._AP.version) {
 simpleXDM.defineModule('messages', messages);
 simpleXDM.defineModule('flag', flag);
 simpleXDM.defineModule('dialog', dialog);
+simpleXDM.defineModule('inlineDialog', inlineDialog);
 simpleXDM.defineModule('env', env);
 simpleXDM.defineModule('events', events);
 simpleXDM.defineModule('_analytics', analytics);

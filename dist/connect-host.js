@@ -2264,7 +2264,7 @@ module.exports = {
   }
 };
 
-},{"../util":43,"components/iframe":25,"dispatchers/event_dispatcher":33}],12:[function(_dereq_,module,exports){
+},{"../util":44,"components/iframe":25,"dispatchers/event_dispatcher":33}],12:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -2359,8 +2359,10 @@ var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
 var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dispatcher);
 
 module.exports = {
-  hide: function hide(extension_id) {
-    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-hide', { extension_id: extension_id });
+  hide: function hide($el) {
+    _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-hide', {
+      $el: $el
+    });
   },
   refresh: function refresh($el) {
     _dispatchersEvent_dispatcher2['default'].dispatch('inline-dialog-refresh', { $el: $el });
@@ -2423,7 +2425,7 @@ module.exports = {
 
 };
 
-},{"../underscore":42,"dispatchers/event_dispatcher":33}],17:[function(_dereq_,module,exports){
+},{"../underscore":43,"dispatchers/event_dispatcher":33}],17:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2509,7 +2511,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"components/webitem":30,"dispatchers/event_dispatcher":33,"utils/webitem":49}],20:[function(_dereq_,module,exports){
+},{"components/webitem":30,"dispatchers/event_dispatcher":33,"utils/webitem":50}],20:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2668,7 +2670,7 @@ _dispatchersEvent_dispatcher2['default'].register("button-toggle-visibility", fu
 exports['default'] = ButtonComponent;
 module.exports = exports['default'];
 
-},{"../dollar":34,"../underscore":42,"actions/button_actions":7,"dispatchers/event_dispatcher":33,"utils/button":44}],21:[function(_dereq_,module,exports){
+},{"../dollar":34,"../underscore":43,"actions/button_actions":7,"dispatchers/event_dispatcher":33,"utils/button":45}],21:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3099,7 +3101,7 @@ _actionsDom_event_actions2['default'].registerWindowKeyEvent({
 exports['default'] = DialogComponent;
 module.exports = exports['default'];
 
-},{"../dollar":34,"../underscore":42,"actions/button_actions":7,"actions/dialog_actions":8,"actions/dom_event_actions":10,"components/button":20,"components/iframe":25,"dispatchers/event_dispatcher":33,"utils/dialog":45}],22:[function(_dereq_,module,exports){
+},{"../dollar":34,"../underscore":43,"actions/button_actions":7,"actions/dialog_actions":8,"actions/dom_event_actions":10,"components/button":20,"components/iframe":25,"dispatchers/event_dispatcher":33,"utils/dialog":46}],22:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3294,7 +3296,7 @@ _actionsWebitem_actions2['default'].addWebItem(webitem);
 exports['default'] = dialogInstance;
 module.exports = exports['default'];
 
-},{"../underscore":42,"actions/dialog_extension_actions":9,"actions/webitem_actions":19,"dispatchers/event_dispatcher":33,"utils/dialog":45,"utils/webitem":49}],24:[function(_dereq_,module,exports){
+},{"../underscore":43,"actions/dialog_extension_actions":9,"actions/webitem_actions":19,"dispatchers/event_dispatcher":33,"utils/dialog":46,"utils/webitem":50}],24:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3531,7 +3533,7 @@ _dispatchersEvent_dispatcher2['default'].register('after:iframe-bridge-establish
 exports['default'] = IframeComponent;
 module.exports = exports['default'];
 
-},{"../dollar":34,"../util":43,"actions/iframe_actions":14,"actions/jwt_actions":16,"dispatchers/event_dispatcher":33,"simple-xdm/dist/host":4,"utils/iframe":46,"utils/url":48}],26:[function(_dereq_,module,exports){
+},{"../dollar":34,"../util":44,"actions/iframe_actions":14,"actions/jwt_actions":16,"dispatchers/event_dispatcher":33,"simple-xdm/dist/host":4,"utils/iframe":47,"utils/url":49}],26:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3677,6 +3679,11 @@ var InlineDialog = (function () {
       });
     }
   }, {
+    key: 'hideInlineDialog',
+    value: function hideInlineDialog($el) {
+      $el.remove();
+    }
+  }, {
     key: 'render',
     value: function render(data) {
       var _this = this;
@@ -3722,10 +3729,14 @@ _dispatchersEvent_dispatcher2['default'].register('inline-dialog-refresh', funct
   InlineDialogComponent.refresh(data.$el);
 });
 
+_dispatchersEvent_dispatcher2['default'].register('inline-dialog-hide', function (data) {
+  InlineDialogComponent.hideInlineDialog(data.$el);
+});
+
 exports['default'] = InlineDialogComponent;
 module.exports = exports['default'];
 
-},{"../dollar":34,"../util":43,"actions/inline_dialog_actions":15,"dispatchers/event_dispatcher":33}],28:[function(_dereq_,module,exports){
+},{"../dollar":34,"../util":44,"actions/inline_dialog_actions":15,"dispatchers/event_dispatcher":33}],28:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3873,7 +3884,7 @@ _actionsWebitem_actions2['default'].addWebItem(webitem);
 exports['default'] = inlineDialogInstance;
 module.exports = exports['default'];
 
-},{"../create":31,"../dollar":34,"actions/webitem_actions":19,"components/iframe_container":26,"components/inline_dialog":27,"components/webitem":30,"dispatchers/event_dispatcher":33,"utils/webitem":49}],29:[function(_dereq_,module,exports){
+},{"../create":31,"../dollar":34,"actions/webitem_actions":19,"components/iframe_container":26,"components/inline_dialog":27,"components/webitem":30,"dispatchers/event_dispatcher":33,"utils/webitem":50}],29:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3993,7 +4004,7 @@ _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-cancelled', fun
 exports['default'] = LoadingComponent;
 module.exports = exports['default'];
 
-},{"../dollar":34,"../util":43,"actions/loading_indicator_actions":17,"dispatchers/event_dispatcher":33}],30:[function(_dereq_,module,exports){
+},{"../dollar":34,"../util":44,"actions/loading_indicator_actions":17,"dispatchers/event_dispatcher":33}],30:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4113,7 +4124,7 @@ _dispatchersEvent_dispatcher2['default'].register('content-resolver-register-by-
 exports['default'] = webItemInstance;
 module.exports = exports['default'];
 
-},{"../dollar":34,"../underscore":42,"actions/webitem_actions":19,"dispatchers/event_dispatcher":33,"utils/webitem":49}],31:[function(_dereq_,module,exports){
+},{"../dollar":34,"../underscore":43,"actions/webitem_actions":19,"dispatchers/event_dispatcher":33,"utils/webitem":50}],31:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -4367,7 +4378,7 @@ var EventDispatcher = (function (_EventEmitter) {
 
 module.exports = new EventDispatcher();
 
-},{"../underscore":42,"events":2}],34:[function(_dereq_,module,exports){
+},{"../underscore":43,"events":2}],34:[function(_dereq_,module,exports){
 /**
  * The iframe-side code exposes a jquery-like implementation via _dollar.
  * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
@@ -4421,6 +4432,10 @@ var _modulesDialog2 = _interopRequireDefault(_modulesDialog);
 var _modulesEnv = _dereq_('./modules/env');
 
 var _modulesEnv2 = _interopRequireDefault(_modulesEnv);
+
+var _modulesInlineDialog = _dereq_('./modules/inline-dialog');
+
+var _modulesInlineDialog2 = _interopRequireDefault(_modulesInlineDialog);
 
 var _componentsLoading_indicator = _dereq_('./components/loading_indicator');
 
@@ -4494,6 +4509,7 @@ if (!window._AP.version) {
 _simpleXdmDistHost2['default'].defineModule('messages', _modulesMessages2['default']);
 _simpleXdmDistHost2['default'].defineModule('flag', _modulesFlag2['default']);
 _simpleXdmDistHost2['default'].defineModule('dialog', _modulesDialog2['default']);
+_simpleXdmDistHost2['default'].defineModule('inlineDialog', _modulesInlineDialog2['default']);
 _simpleXdmDistHost2['default'].defineModule('env', _modulesEnv2['default']);
 _simpleXdmDistHost2['default'].defineModule('events', _modulesEvents2['default']);
 _simpleXdmDistHost2['default'].defineModule('_analytics', _modulesAnalytics2['default']);
@@ -4565,7 +4581,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./components/loading_indicator":29,"./create":31,"./modules/analytics":36,"./modules/dialog":37,"./modules/env":38,"./modules/events":39,"./modules/flag":40,"./modules/messages":41,"./underscore":42,"actions/dialog_extension_actions":9,"actions/dom_event_actions":10,"actions/event_actions":12,"actions/iframe_actions":14,"actions/jwt_actions":16,"actions/module_actions":18,"components/dialog_extension":22,"components/dialog_webitem":23,"components/inline_dialog_webitem":28,"dispatchers/analytics_dispatcher":32,"dispatchers/event_dispatcher":33,"simple-xdm/dist/host":4}],36:[function(_dereq_,module,exports){
+},{"./components/loading_indicator":29,"./create":31,"./modules/analytics":36,"./modules/dialog":37,"./modules/env":38,"./modules/events":39,"./modules/flag":40,"./modules/inline-dialog":41,"./modules/messages":42,"./underscore":43,"actions/dialog_extension_actions":9,"actions/dom_event_actions":10,"actions/event_actions":12,"actions/iframe_actions":14,"actions/jwt_actions":16,"actions/module_actions":18,"components/dialog_extension":22,"components/dialog_webitem":23,"components/inline_dialog_webitem":28,"dispatchers/analytics_dispatcher":32,"dispatchers/event_dispatcher":33,"simple-xdm/dist/host":4}],36:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5063,7 +5079,7 @@ module.exports = {
   }
 };
 
-},{"../underscore":42,"../util":43,"actions/dialog_actions":8,"actions/dialog_extension_actions":9,"actions/event_actions":12,"components/button":20,"components/dialog_extension":22,"dispatchers/event_dispatcher":33,"utils/dialog":45}],38:[function(_dereq_,module,exports){
+},{"../underscore":43,"../util":44,"actions/dialog_actions":8,"actions/dialog_extension_actions":9,"actions/event_actions":12,"components/button":20,"components/dialog_extension":22,"dispatchers/event_dispatcher":33,"utils/dialog":46}],38:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5119,7 +5135,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../dollar":34,"../util":43,"actions/env_actions":11,"dispatchers/event_dispatcher":33}],39:[function(_dereq_,module,exports){
+},{"../dollar":34,"../util":44,"actions/env_actions":11,"dispatchers/event_dispatcher":33}],39:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5151,7 +5167,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../underscore":42,"actions/event_actions":12}],40:[function(_dereq_,module,exports){
+},{"../underscore":43,"actions/event_actions":12}],40:[function(_dereq_,module,exports){
 /**
 * Flags are the primary method for providing system feedback in the product user interface. Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
 * @module Flag
@@ -5306,6 +5322,46 @@ exports['default'] = {
 module.exports = exports['default'];
 
 },{"../dollar":34,"actions/flag_actions":13,"components/flag":24,"dispatchers/event_dispatcher":33}],41:[function(_dereq_,module,exports){
+/**
+ * The inline dialog is a wrapper for secondary content/controls to be displayed on user request. Consider this component as displayed in context to the triggering control with the dialog overlaying the page content.
+ * A inline dialog should be preferred over a modal dialog when a connection between the action has a clear benefit versus having a lower user focus.
+ *
+ * Inline dialogs can be shown via a [web item target](../modules/common/web-item.html#target).
+ *
+ * For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inline-dialog.html).
+ * @module inline-dialog
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _actionsInline_dialog_actions = _dereq_('actions/inline_dialog_actions');
+
+var _actionsInline_dialog_actions2 = _interopRequireDefault(_actionsInline_dialog_actions);
+
+exports['default'] = {
+  /**
+   * Hide the inline dialog that contains the iframe where this method is called from.
+   * @memberOf module:inline-dialog
+   * @method hide
+   * @noDemo
+   * @example
+   * AP.require('inline-dialog', function(inlineDialog){
+   *   inlineDialog.hide();
+   * });
+   */
+  hide: function hide(callback) {
+    _actionsInline_dialog_actions2['default'].hide(callback._context.extension.$el);
+  }
+};
+module.exports = exports['default'];
+
+},{"actions/inline_dialog_actions":15}],42:[function(_dereq_,module,exports){
 /**
 * Messages are the primary method for providing system feedback in the product user interface.
 * Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
@@ -5589,7 +5645,7 @@ MESSAGE_TYPES.forEach(function (messageType) {
 exports['default'] = toExport;
 module.exports = exports['default'];
 
-},{"../dollar":34,"../underscore":42}],42:[function(_dereq_,module,exports){
+},{"../dollar":34,"../underscore":43}],43:[function(_dereq_,module,exports){
 // AUI includes underscore and exposes it globally.
 "use strict";
 
@@ -5599,7 +5655,7 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = window._;
 module.exports = exports["default"];
 
-},{}],43:[function(_dereq_,module,exports){
+},{}],44:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5647,7 +5703,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"./underscore":42}],44:[function(_dereq_,module,exports){
+},{"./underscore":43}],45:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5680,7 +5736,7 @@ var buttonUtilsInstance = new ButtonUtils();
 exports["default"] = buttonUtilsInstance;
 module.exports = exports["default"];
 
-},{}],45:[function(_dereq_,module,exports){
+},{}],46:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5880,7 +5936,7 @@ var dialogUtilsInstance = new DialogUtils();
 exports['default'] = dialogUtilsInstance;
 module.exports = exports['default'];
 
-},{"../dollar":34,"../util":43,"./button":44}],46:[function(_dereq_,module,exports){
+},{"../dollar":34,"../util":44,"./button":45}],47:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -5904,7 +5960,7 @@ module.exports = {
   }
 };
 
-},{"../util":43}],47:[function(_dereq_,module,exports){
+},{"../util":44}],48:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5974,7 +6030,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"base-64":1,"utf8":5}],48:[function(_dereq_,module,exports){
+},{"base-64":1,"utf8":5}],49:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -6007,7 +6063,7 @@ module.exports = {
   isJwtExpired: isJwtExpired
 };
 
-},{"jsuri":3,"utils/jwt":47}],49:[function(_dereq_,module,exports){
+},{"jsuri":3,"utils/jwt":48}],50:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -6097,7 +6153,7 @@ module.exports = {
   getOptionsForWebItem: getOptionsForWebItem
 };
 
-},{"../underscore":42,"jsuri":3}]},{},[35])(35)
+},{"../underscore":43,"jsuri":3}]},{},[35])(35)
 });
 
 

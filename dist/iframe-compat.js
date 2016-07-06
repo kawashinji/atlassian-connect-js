@@ -612,6 +612,7 @@ var _amd = _dereq_('./amd');
 var _amd2 = _interopRequireDefault(_amd);
 
 AP._hostModules._dollar = _dollar2['default'];
+AP._hostModules['inline-dialog'] = AP._hostModules.inlineDialog;
 
 if (_consumerOptions2['default'].get('sizeToParent') === true) {
   AP.env.sizeToParent();

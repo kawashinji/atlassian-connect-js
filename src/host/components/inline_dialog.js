@@ -35,6 +35,9 @@ class InlineDialog {
       extension: data.extension
     });
   }
+  hideInlineDialog($el){
+    $el.remove();
+  }
   render(data){
     var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
 
@@ -78,5 +81,10 @@ EventDispatcher.register('iframe-resize', function(data) {
 EventDispatcher.register('inline-dialog-refresh', function(data){
   InlineDialogComponent.refresh(data.$el);
 });
+
+EventDispatcher.register('inline-dialog-hide', function(data) {
+  InlineDialogComponent.hideInlineDialog(data.$el);
+});
+
 
 export default InlineDialogComponent;
