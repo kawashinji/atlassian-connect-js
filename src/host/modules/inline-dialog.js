@@ -8,7 +8,7 @@
  * @module inline-dialog
  */
 
-import InlineDialogActions from 'actions/inline_dialog_actions';
+import InlineDialogExtensionActions from 'actions/inline_dialog_extension_actions';
 
 export default {
   /**
@@ -22,6 +22,6 @@ export default {
    * });
    */
   hide: function(callback){
-    InlineDialogActions.hide(callback._context.extension.$el);
+    InlineDialogExtensionActions.close();
   }
 };

@@ -43,7 +43,8 @@ describe('Inline Dialog Webitem', () => {
     it('does not render multiple times for the same extension', (done) => {
       $(function(){
         $('.ap-inline-dialog').click();
-        InlineDialogActions.hide($('.ap-inline-dialog'));
+        expect($('.aui-inline-dialog').length).toBe(1);
+        expect($('.ap-iframe-container').length).toEqual(1);
         $('.ap-inline-dialog').click();
         expect($('.aui-inline-dialog').length).toBe(1);
         expect($('.ap-iframe-container').length).toEqual(1);

@@ -22,7 +22,7 @@ class InlineDialog {
     $el[0].popup.reset();
   }
 
-  _getInlineDialog($el) {
+  _getInlineDialog($el){
     return AJS.InlineDialog($el);
   }
   _renderContainer(){
@@ -36,7 +36,7 @@ class InlineDialog {
     });
   }
   hideInlineDialog($el){
-    $el.remove();
+    $el.hide();
   }
   render(data){
     var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
@@ -85,6 +85,5 @@ EventDispatcher.register('inline-dialog-refresh', function(data){
 EventDispatcher.register('inline-dialog-hide', function(data) {
   InlineDialogComponent.hideInlineDialog(data.$el);
 });
-
 
 export default InlineDialogComponent;
