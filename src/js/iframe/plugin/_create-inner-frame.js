@@ -58,7 +58,6 @@ AP.define("_create-inner-frame", ['_ui-params', '_rpc', "_util"], function(uiPar
         rpc.initWithFrame(options, xdmOptions);
     }
 
-    //TODO: In the future send the JSON blob up to the top frame.
     return function(iframeData) {
 
         var attemptCounter = 0;
