@@ -40,7 +40,7 @@ class InlineDialog {
   }
 
   closeInlineDialog(){
-    $(".aui-inline-dialog").filter(function(){
+    $('.aui-inline-dialog').filter(function(){
       return $(this).find('.ap-iframe-container').length > 0;
     }).hide();
   }

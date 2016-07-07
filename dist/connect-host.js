@@ -3686,7 +3686,7 @@ var InlineDialog = (function () {
   }, {
     key: 'closeInlineDialog',
     value: function closeInlineDialog() {
-      (0, _dollar2['default'])(".aui-inline-dialog").filter(function () {
+      (0, _dollar2['default'])('.aui-inline-dialog').filter(function () {
         return (0, _dollar2['default'])(this).find('.ap-iframe-container').length > 0;
       }).hide();
     }
