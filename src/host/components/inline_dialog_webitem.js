@@ -40,10 +40,7 @@ class InlineDialogWebItem {
   }
 
   triggered(data) {
-    var $target = $(data.event.target);
-    if(!$target.hasClass('ap-inline-dialog')){
-      $target = $target.closest('.ap-inline-dialog');
-    }
+    var $target = $(data.event.currentTarget);
     var webitemId = $target.data(WEBITEM_UID_KEY);
 
     var $inlineDialog = this._createInlineDialog({
@@ -73,7 +70,7 @@ class InlineDialogWebItem {
   }
 
   createIfNotExists(data) {
-    var $target = $(data.event.target);
+    var $target = $(data.event.currentTarget);
     var uid = $target.data(WEBITEM_UID_KEY);
 
     if(!uid) {

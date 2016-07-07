@@ -1,4 +1,5 @@
 import InlineDialogWebitem from 'src/host/components/inline_dialog_webitem';
+import InlineDialogActions from 'src/host/actions/inline_dialog_actions';
 import WebItemActions from 'src/host/actions/webitem_actions';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 
@@ -38,6 +39,19 @@ describe('Inline Dialog Webitem', () => {
         $('.ap-inline-dialog').click();
       });
     });
+
+    it('does not render multiple times for the same extension', (done) => {
+      $(function(){
+        $('.ap-inline-dialog').click();
+        expect($('.aui-inline-dialog').length).toBe(1);
+        expect($('.ap-iframe-container').length).toEqual(1);
+        $('.ap-inline-dialog').click();
+        expect($('.aui-inline-dialog').length).toBe(1);
+        expect($('.ap-iframe-container').length).toEqual(1);
+        done();
+      });
+    });
+
   });
 
   describe('triggers', () => {

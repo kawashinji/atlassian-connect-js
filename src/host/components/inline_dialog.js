@@ -22,7 +22,7 @@ class InlineDialog {
     $el[0].popup.reset();
   }
 
-  _getInlineDialog($el) {
+  _getInlineDialog($el){
     return AJS.InlineDialog($el);
   }
   _renderContainer(){
@@ -35,6 +35,16 @@ class InlineDialog {
       extension: data.extension
     });
   }
+  hideInlineDialog($el){
+    $el.hide();
+  }
+
+  closeInlineDialog(){
+    $('.aui-inline-dialog').filter(function(){
+      return $(this).find('.ap-iframe-container').length > 0;
+    }).hide();
+  }
+
   render(data){
     var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
 
@@ -78,5 +88,14 @@ EventDispatcher.register('iframe-resize', function(data) {
 EventDispatcher.register('inline-dialog-refresh', function(data){
   InlineDialogComponent.refresh(data.$el);
 });
+
+EventDispatcher.register('inline-dialog-hide', function(data) {
+  InlineDialogComponent.hideInlineDialog(data.$el);
+});
+
+EventDispatcher.register('inline-dialog-close', function(data) {
+  InlineDialogComponent.closeInlineDialog();
+});
+
 
 export default InlineDialogComponent;
