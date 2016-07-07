@@ -1,0 +1,11 @@
+image: node:argon
+
+pipelines:
+    default:
+        - step:
+            script:
+                - npm set @atlassian:registry "https://npm-private-proxy.atlassian.io/"
+                - npm set //npm-private-proxy.atlassian.io/:_authToken=$NPM_TOKEN
+                - npm config set loglevel silent
+                - npm install
+                - npm test

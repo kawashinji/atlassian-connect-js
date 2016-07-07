@@ -38,7 +38,7 @@ class DialogExtension {
   }
 
   getByExtension(extension) {
-    if(typeof extension === "string"){
+    if(typeof extension === 'string'){
       extension = {
         id: extension
       };

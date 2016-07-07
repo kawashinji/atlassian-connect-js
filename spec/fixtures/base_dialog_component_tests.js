@@ -12,15 +12,15 @@ function size($el, options){
 }
 
 function chrome($el, options){
-    expect($el.hasClass('aui-dialog2')).toEqual(true);
-    expect($el.hasClass('ap-aui-dialog2')).toEqual(true);
-    expect($el.hasClass('aui-layer')).toEqual(true);
-    header($el, options);
-    hint($el, options);
-    footer($el, options);
-    buttons($el, options);
-    customButtons($el, options);
-    size($el, options);
+  expect($el.hasClass('aui-dialog2')).toEqual(true);
+  expect($el.hasClass('ap-aui-dialog2')).toEqual(true);
+  expect($el.hasClass('aui-layer')).toEqual(true);
+  header($el, options);
+  hint($el, options);
+  footer($el, options);
+  buttons($el, options);
+  customButtons($el, options);
+  size($el, options);
 }
 
 function chromeless($el, options){

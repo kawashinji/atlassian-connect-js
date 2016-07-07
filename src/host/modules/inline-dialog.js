@@ -7,7 +7,7 @@
  * For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inline-dialog.html).
  * @module inline-dialog
  */
-
+ 
 import InlineDialogActions from 'actions/inline_dialog_actions';
 
 export default {

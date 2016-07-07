@@ -2090,9 +2090,9 @@ exports['default'] = {
 module.exports = exports['default'];
 
 },{"dispatchers/event_dispatcher":33}],7:[function(_dereq_,module,exports){
-"use strict";
+'use strict';
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _dispatchersEvent_dispatcher = _dereq_('dispatchers/event_dispatcher');
 
@@ -2100,18 +2100,18 @@ var _dispatchersEvent_dispatcher2 = _interopRequireDefault(_dispatchersEvent_dis
 
 module.exports = {
   clicked: function clicked($el) {
-    _dispatchersEvent_dispatcher2["default"].dispatch("button-clicked", {
+    _dispatchersEvent_dispatcher2['default'].dispatch('button-clicked', {
       $el: $el
     });
   },
   toggle: function toggle($el, disabled) {
-    _dispatchersEvent_dispatcher2["default"].dispatch("button-toggle", {
+    _dispatchersEvent_dispatcher2['default'].dispatch('button-toggle', {
       $el: $el,
       disabled: disabled
     });
   },
   toggleVisibility: function toggleVisibility($el, hidden) {
-    _dispatchersEvent_dispatcher2["default"].dispatch("button-toggle-visibility", {
+    _dispatchersEvent_dispatcher2['default'].dispatch('button-toggle-visibility', {
       $el: $el,
       hidden: hidden
     });
@@ -2554,21 +2554,21 @@ var Button = (function () {
   function Button() {
     _classCallCheck(this, Button);
 
-    this.AP_BUTTON_CLASS = "ap-aui-button";
+    this.AP_BUTTON_CLASS = 'ap-aui-button';
   }
 
   _createClass(Button, [{
     key: 'setType',
     value: function setType($button, type) {
       if (type && _underscore2['default'].contains(BUTTON_TYPES, type)) {
-        $button.addClass("aui-button-" + type);
+        $button.addClass('aui-button-' + type);
       }
       return $button;
     }
   }, {
     key: 'setDisabled',
     value: function setDisabled($button, disabled) {
-      if (typeof disabled !== "undefined" && !$button.data('immutable')) {
+      if (typeof disabled !== 'undefined' && !$button.data('immutable')) {
         $button.attr('aria-disabled', disabled);
       }
       return $button;
@@ -2576,7 +2576,7 @@ var Button = (function () {
   }, {
     key: 'setHidden',
     value: function setHidden($button, hidden) {
-      if (typeof hidden !== "undefined" && !$button.data('immutable')) {
+      if (typeof hidden !== 'undefined' && !$button.data('immutable')) {
         $button.toggle(!hidden);
       }
       return $button;
@@ -2585,18 +2585,18 @@ var Button = (function () {
     key: '_setId',
     value: function _setId($button, id) {
       if (!id) {
-        id = "ap-button-" + buttonId;
+        id = 'ap-button-' + buttonId;
         buttonId++;
       }
-      $button.attr("id", id);
+      $button.attr('id', id);
       return $button;
     }
   }, {
     key: '_additionalClasses',
     value: function _additionalClasses($button, classes) {
       if (classes) {
-        if (typeof classes !== "string") {
-          classes = classes.join(" ");
+        if (typeof classes !== 'string') {
+          classes = classes.join(' ');
         }
         $button.addClass(classes);
       }
@@ -2605,7 +2605,7 @@ var Button = (function () {
   }, {
     key: 'getName',
     value: function getName($button) {
-      return (0, _dollar2['default'])($button).data("name");
+      return (0, _dollar2['default'])($button).data('name');
     }
   }, {
     key: 'getText',
@@ -2620,7 +2620,7 @@ var Button = (function () {
   }, {
     key: 'isVisible',
     value: function isVisible($button) {
-      return (0, _dollar2['default'])($button).is(":visible");
+      return (0, _dollar2['default'])($button).is(':visible');
     }
   }, {
     key: 'isEnabled',
@@ -2630,9 +2630,9 @@ var Button = (function () {
   }, {
     key: 'render',
     value: function render(options) {
-      var $button = (0, _dollar2['default'])("<button />");
+      var $button = (0, _dollar2['default'])('<button />');
       options = options || {};
-      $button.addClass("aui-button " + this.AP_BUTTON_CLASS);
+      $button.addClass('aui-button ' + this.AP_BUTTON_CLASS);
       $button.text(options.text);
       $button.data(options.data);
       $button.data({
@@ -2654,19 +2654,19 @@ var Button = (function () {
 var ButtonComponent = new Button();
 // register 1 button listener globally on dom load
 (0, _dollar2['default'])(function () {
-  (0, _dollar2['default'])("body").on("click", "." + ButtonComponent.AP_BUTTON_CLASS, function (e) {
-    var $button = (0, _dollar2['default'])(e.target).closest("." + ButtonComponent.AP_BUTTON_CLASS);
+  (0, _dollar2['default'])('body').on('click', '.' + ButtonComponent.AP_BUTTON_CLASS, function (e) {
+    var $button = (0, _dollar2['default'])(e.target).closest('.' + ButtonComponent.AP_BUTTON_CLASS);
     if ($button.attr('aria-disabled') !== 'true') {
       _actionsButton_actions2['default'].clicked($button);
     }
   });
 });
 
-_dispatchersEvent_dispatcher2['default'].register("button-toggle", function (data) {
+_dispatchersEvent_dispatcher2['default'].register('button-toggle', function (data) {
   ButtonComponent.setDisabled(data.$el, data.disabled);
 });
 
-_dispatchersEvent_dispatcher2['default'].register("button-toggle-visibility", function (data) {
+_dispatchersEvent_dispatcher2['default'].register('button-toggle-visibility', function (data) {
   ButtonComponent.setHidden(data.$el, data.hidden);
 });
 
@@ -3174,7 +3174,7 @@ var DialogExtension = (function () {
   }, {
     key: 'getByExtension',
     value: function getByExtension(extension) {
-      if (typeof extension === "string") {
+      if (typeof extension === 'string') {
         extension = {
           id: extension
         };
@@ -3667,7 +3667,7 @@ var InlineDialog = (function () {
   }, {
     key: '_renderContainer',
     value: function _renderContainer() {
-      return (0, _dollar2['default'])("<div />").addClass("aui-inline-dialog-contents");
+      return (0, _dollar2['default'])('<div />').addClass('aui-inline-dialog-contents');
     }
   }, {
     key: '_displayInlineDialog',
@@ -3722,7 +3722,7 @@ var InlineDialog = (function () {
 var InlineDialogComponent = new InlineDialog();
 
 _dispatchersEvent_dispatcher2['default'].register('iframe-resize', function (data) {
-  var container = data.$el.parents(".aui-inline-dialog");
+  var container = data.$el.parents('.aui-inline-dialog');
   if (container.length === 1) {
     InlineDialogComponent.resize({
       width: data.width,
@@ -4511,7 +4511,7 @@ if (!window._AP) {
  * Add version
  */
 if (!window._AP.version) {
-  window._AP.version = "v5.0.0";
+  window._AP.version = 'v5.0.0';
 }
 
 _simpleXdmDistHost2['default'].defineModule('messages', _modulesMessages2['default']);
@@ -5878,9 +5878,9 @@ var DialogUtils = (function () {
       var buttons = [];
       if (options.buttons && Array.isArray(options.buttons)) {
         options.buttons.forEach(function (button) {
-          var text,
-              identifier,
-              disabled = false;
+          var text;
+          var identifier;
+          var disabled = false;
           if (button.text && typeof button.text === 'string') {
             text = button.text;
           }

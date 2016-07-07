@@ -1,10 +1,10 @@
 import WebItem from 'src/host/components/webitem';
 
-describe("webitem component", () => {
+describe('webitem component', () => {
 
-  describe("content resolver", () => {
+  describe('content resolver', () => {
 
-    it("contains a default content resolver", () => {
+    it('contains a default content resolver', () => {
       expect(WebItem._contentResolver).toEqual(jasmine.any(Function));
     });
 

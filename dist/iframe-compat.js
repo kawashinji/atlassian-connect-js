@@ -322,7 +322,7 @@ var original_dialogCreateButton = AP.dialog.createButton.prototype.constructor.b
 
 AP.dialog.createButton = AP._hostModules.dialog.createButton = function (options) {
   var buttonProperties = {};
-  if (typeof options !== "object") {
+  if (typeof options !== 'object') {
     buttonProperties.text = options;
     buttonProperties.identifier = options;
   } else {
@@ -354,9 +354,9 @@ var _util = _dereq_('./util');
 
 var _util2 = _interopRequireDefault(_util);
 
-var _each = _util2['default'].each,
-    extend = _util2['default'].extend,
-    document = window.document;
+var _each = _util2['default'].each;
+var extend = _util2['default'].extend;
+var document = window.document;
 
 function $(sel, context) {
 
@@ -645,13 +645,15 @@ function each(o, it) {
     if (l != null && typeof o !== 'function') {
       k = 0;
       while (k < l) {
-        if (it.call(o[k], k, o[k]) === false) break;
+        if (it.call(o[k], k, o[k]) === false) {
+          break;
+        }
         k += 1;
       }
     } else {
       for (k in o) {
-        if (o.hasOwnProperty(k)) {
-          if (it.call(o[k], k, o[k]) === false) break;
+        if (o.hasOwnProperty(k) && it.call(o[k], k, o[k]) === false) {
+          break;
         }
       }
     }
@@ -734,10 +736,12 @@ exports['default'] = {
       return Array.prototype.indexOf.call(array, value, fromIndex);
     }
 
-    var k = fromIndex >>> 0,
-        len = array.length >>> 0;
+    var k = fromIndex >>> 0;
+    var len = array.length >>> 0;
     for (; k < len; k += 1) {
-      if (array[k] === value) return k;
+      if (array[k] === value) {
+        return k;
+      }
     }
     return -1;
   },

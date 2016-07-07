@@ -144,7 +144,7 @@ describe('Iframe component', () => {
       var $container = $('<div />');
 
       EventDispatcher.registerOnce('iframe-bridge-established', (data) => {
-        expect(data.$el[0].nodeName).toEqual("IFRAME");
+        expect(data.$el[0].nodeName).toEqual('IFRAME');
         expect(data.extension).toEqual(extension);
         done();
       });
@@ -164,7 +164,7 @@ describe('Iframe component', () => {
       var $container = $('<div />');
 
       EventDispatcher.registerOnce('iframe-unload', (data) => {
-        expect(data.$el[0].nodeName).toEqual("IFRAME");
+        expect(data.$el[0].nodeName).toEqual('IFRAME');
         expect(data.extension).toEqual(extension);
         done();
       });

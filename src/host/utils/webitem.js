@@ -46,8 +46,7 @@ function getModuleOptionsForWebitem(type, $target){
   if(window._AP
     && window._AP[moduleType]
     && window._AP[moduleType][addon_key]
-    && window._AP[moduleType][addon_key][targetKey])
-  {
+    && window._AP[moduleType][addon_key][targetKey]) {
     return window._AP[moduleType][addon_key][targetKey].options;
   }
 }
