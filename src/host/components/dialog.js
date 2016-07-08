@@ -272,7 +272,7 @@ class Dialog {
 const DialogComponent = new Dialog();
 
 EventDispatcher.register('iframe-bridge-established', (data) => {
-  if(data.extension.options.isDialog){
+  if(data.extension.options.isDialog && data.extension.options.closeOnEscape){
     DomEventActions.registerKeyEvent({
       extension_id: data.extension.id,
       key: 27,
