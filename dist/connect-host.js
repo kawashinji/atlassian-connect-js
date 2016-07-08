@@ -3013,7 +3013,7 @@ var Dialog = (function () {
 var DialogComponent = new Dialog();
 
 _dispatchersEvent_dispatcher2['default'].register('iframe-bridge-established', function (data) {
-  if (data.extension.options.isDialog) {
+  if (data.extension.options.isDialog && data.extension.options.closeOnEscape) {
     _actionsDom_event_actions2['default'].registerKeyEvent({
       extension_id: data.extension.id,
       key: 27,
@@ -4706,6 +4706,10 @@ var Dialog = function Dialog(options, callback) {
   // ACJS-185: the following is a really bad idea but we need it
   // for compat until AP.dialog.customData has been deprecated
   dialogExtension.options.customData = options.customData;
+
+  // ACJS-268: probably just as bad as the above...
+  // Defaults to true if value is undefined.
+  dialogExtension.options.closeOnEscape = options.closeOnEscape === false ? false : true;
 
   // terrible idea! - we need to remove this from p2 ASAP!
   var dialogModuleOptions = _utilsDialog2['default'].moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
