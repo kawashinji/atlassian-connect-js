@@ -1,5 +1,5 @@
 import EventDispatcher from 'dispatchers/event_dispatcher';
-import SimpleXDM from 'simple-xdm/dist/host';
+import SimpleXDM from 'simple-xdm/host';
 
 module.exports = {
   registerKeyEvent: function(data){

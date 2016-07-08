@@ -23,7 +23,6 @@ module.exports = function(config) {
       'https://aui-cdn.atlassian.com/aui-adg/5.9.17/css/aui.min.css',
       'https://cdn.rawgit.com/requirejs/almond/0.3.1/almond.js',
       'https://aui-cdn.atlassian.com/aui-adg/5.9.17/js/aui-experimental.js',
-      {pattern: 'src/**/*.js', included: false},
       {pattern: 'src/css/host/**', included: true, served: true}
       // {pattern: 'fixtures/**', included: false, served: true},
       // {pattern: 'dist/**', included: false, served: true}
@@ -32,7 +31,7 @@ module.exports = function(config) {
     //do not process my html files.
     preprocessors: {
       'spec/tests/*.js': ['webpack'],
-      'src/**/*.js': ['eslint']
+      'src/**/*.js': ['webpack']
     },
 
     webpack: {
@@ -45,6 +44,14 @@ module.exports = function(config) {
       },
       module: {
         loaders: [
+          {
+            test: /\.js$/,
+            loader: 'babel',
+            query: {
+              cacheDirectory: true,
+              presets: ['es2015', 'stage-2']
+            }
+          }
         ],
         postLoaders: [
         ]
@@ -55,7 +62,7 @@ module.exports = function(config) {
 
     // test results reporter to use
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-    reporters: ['progress', 'dots', 'junit'],
+    reporters: ['progress', 'dots'],
     junitReporter: {
       outputFile: 'test/test-reports/karma-results.xml',
       useBrowserName: false,
@@ -67,10 +74,8 @@ module.exports = function(config) {
     },
 
     plugins: [
-      'karma-eslint',
       'karma-jasmine',
       'karma-webpack',
-      'karma-junit-reporter',
       'karma-chrome-launcher',
       'karma-firefox-launcher',
       'karma-nyan-reporter'
@@ -123,7 +128,10 @@ module.exports = function(config) {
     karmaConfig.captureTimeout = 120000;
     karmaConfig.singleRun = true;
     karmaConfig.sauceLabs = {
-      testName: 'Connect JS unit tests'
+      testName: 'Connect JS unit tests',
+      connectOptions : {
+        verbose: true
+      }
     };
     karmaConfig.customLaunchers = customLaunchers;
     karmaConfig.browsers = Object.keys(customLaunchers);
