@@ -2,11 +2,6 @@ import $ from '../dollar';
 import FlagActions from 'actions/flag_actions';
 import EventDispatcher from 'dispatchers/event_dispatcher';
 const FLAGID_PREFIX = 'ap-flag-';
-var AUI_FLAG = undefined;
-
-window.require(['aui/flag'], function(f){
-  AUI_FLAG = f;
-});
 
 class Flag {
 
@@ -20,7 +15,7 @@ class Flag {
 
   render (options) {
     var _id = FLAGID_PREFIX + options.id;
-    var auiFlag = AUI_FLAG({
+    var auiFlag = AJS.flag({
       type: options.type,
       title: options.title,
       body: this._toHtmlString(options.body),

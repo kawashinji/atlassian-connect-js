@@ -106,6 +106,11 @@ class Button {
    * AP.require('dialog', function(dialog){
    *   dialog.getButton('submit').enable();
    * });
+   * @beforeEach
+   * connectHost.dialog.create({addon_key: 'addon-key', key: 'key'});
+   * $(window.helper.host.body).find('.ap-aui-button').first().attr('aria-disabled', true);
+   * @assert
+   * expect($(window.helper.host.body).find('.ap-aui-button').first().attr('aria-disabled')).toEqual('false');
    */
   enable() {
     this.setState({
