@@ -3267,7 +3267,7 @@ var DialogWebItem = (function () {
       var webitemId = $target.data(WEBITEM_UID_KEY);
       var dialogOptions = this._dialogOptions(data.extension.options);
       dialogOptions.id = webitemId;
-      _actionsDialog_extension_actions2['default'].open(data.extension, dialogOptions);
+      _actionsDialog_extension_actions2['default'].open(_underscore2['default'].extend({}, data.extension), dialogOptions);
     }
   }, {
     key: 'createIfNotExists',
@@ -5827,13 +5827,19 @@ var DialogUtils = (function () {
     }
   }, {
     key: '_width',
-    value: function _width(dimension) {
-      return _util2['default'].stringToDimension(dimension);
+    value: function _width(options) {
+      if (options.size) {
+        return undefined;
+      }
+      return _util2['default'].stringToDimension(options.width);
     }
   }, {
     key: '_height',
-    value: function _height(dimension) {
-      return _util2['default'].stringToDimension(dimension);
+    value: function _height(options) {
+      if (options.size) {
+        return undefined;
+      }
+      return _util2['default'].stringToDimension(options.height);
     }
   }, {
     key: '_actions',
@@ -5912,8 +5918,8 @@ var DialogUtils = (function () {
         chrome: this._chrome(options),
         header: this._header(options.header),
         hint: this._hint(options.hint),
-        width: this._width(options.width),
-        height: this._height(options.height),
+        width: this._width(options),
+        height: this._height(options),
         $content: options.$content,
         extension: options.extension,
         actions: this._actions(options),
