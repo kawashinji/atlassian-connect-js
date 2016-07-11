@@ -50,12 +50,18 @@ class DialogUtils {
     return returnval;
   }
 
-  _width(dimension){
-    return util.stringToDimension(dimension);
+  _width(options){
+    if(options.size) {
+      return undefined;
+    }
+    return util.stringToDimension(options.width);
   }
 
-  _height(dimension){
-    return util.stringToDimension(dimension);
+  _height(options){
+    if(options.size) {
+      return undefined;
+    }
+    return util.stringToDimension(options.height);
   }
 
   _actions(options){
@@ -132,8 +138,8 @@ class DialogUtils {
       chrome: this._chrome(options),
       header: this._header(options.header),
       hint: this._hint(options.hint),
-      width: this._width(options.width),
-      height: this._height(options.height),
+      width: this._width(options),
+      height: this._height(options),
       $content: options.$content,
       extension: options.extension,
       actions: this._actions(options),
