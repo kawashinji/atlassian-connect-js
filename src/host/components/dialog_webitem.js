@@ -35,7 +35,7 @@ class DialogWebItem {
     var webitemId = $target.data(WEBITEM_UID_KEY);
     var dialogOptions = this._dialogOptions(data.extension.options);
     dialogOptions.id = webitemId;
-    DialogExtensionActions.open(_.extend({}, data.extension), dialogOptions);
+    DialogExtensionActions.open(data.extension, dialogOptions);
   }
 
   createIfNotExists(data) {

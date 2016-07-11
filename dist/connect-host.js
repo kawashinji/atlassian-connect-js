@@ -3267,7 +3267,7 @@ var DialogWebItem = (function () {
       var webitemId = $target.data(WEBITEM_UID_KEY);
       var dialogOptions = this._dialogOptions(data.extension.options);
       dialogOptions.id = webitemId;
-      _actionsDialog_extension_actions2['default'].open(_underscore2['default'].extend({}, data.extension), dialogOptions);
+      _actionsDialog_extension_actions2['default'].open(data.extension, dialogOptions);
     }
   }, {
     key: 'createIfNotExists',
