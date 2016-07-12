@@ -58,26 +58,12 @@ class Dialog {
     // ACJS-185: the following is a really bad idea but we need it
     // for compat until AP.dialog.customData has been deprecated
     dialogExtension.options.customData = options.customData;
-
     // terrible idea! - we need to remove this from p2 ASAP!
     var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
     options = _.extend({}, dialogModuleOptions || {}, options);
+    options.id = _id;
 
-    var dialogOptions = {
-      id: _id,
-      size: options.size,
-      width: options.width,
-      height: options.height,
-      chrome: !!options.chrome,
-      header: options.header,
-      hint: options.hint,
-      actions: options.actions,
-      submitText: options.submitText,
-      cancelText: options.cancelText,
-      buttons: options.buttons
-    };
-
-    DialogExtensionActions.open(dialogExtension, dialogOptions);
+    DialogExtensionActions.open(dialogExtension, options);
     this.customData = options.customData;
     _dialogs[_id] = this;
   }
