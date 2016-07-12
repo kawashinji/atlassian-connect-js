@@ -4398,10 +4398,6 @@ exports.default = AJS.$;
 },{}],39:[function(_dereq_,module,exports){
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
 var _analytics_dispatcher = _dereq_('dispatchers/analytics_dispatcher');
 
 var _analytics_dispatcher2 = _interopRequireDefault(_analytics_dispatcher);
@@ -4532,7 +4528,7 @@ _host2.default.registerRequestNotifier(function (data) {
   });
 });
 
-exports.default = {
+module.exports = {
   dialog: {
     create: function create(extension, dialogOptions) {
       _dialog_extension_actions2.default.open(extension, dialogOptions);

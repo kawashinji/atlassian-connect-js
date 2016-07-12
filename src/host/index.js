@@ -62,7 +62,7 @@ simpleXDM.registerRequestNotifier(function(data){
   });
 });
 
-export default {
+module.exports = {
   dialog: {
     create: (extension, dialogOptions) => {
       DialogExtensionActions.open(extension, dialogOptions);
