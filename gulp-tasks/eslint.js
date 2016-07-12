@@ -1,8 +1,6 @@
 module.exports = function (gulp) {
   var filesToLint = [
-    'gulpfile.js',
-    'gulp-tasks/**/*.js',
-    'src/**/*.js',
+    '**/*.js'
   ];
 
   return function () {

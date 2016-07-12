@@ -2,7 +2,7 @@ import EventDispatcher from 'dispatchers/event_dispatcher';
 import IframeActions from 'actions/iframe_actions';
 import $ from '../dollar';
 import util from '../util';
-import simpleXDM from 'simple-xdm/dist/host';
+import simpleXDM from 'simple-xdm/host';
 import urlUtil from 'utils/url';
 import JwtActions from 'actions/jwt_actions';
 import iframeUtils from 'utils/iframe';

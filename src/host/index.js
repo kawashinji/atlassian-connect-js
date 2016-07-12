@@ -1,6 +1,6 @@
 import AnalyticsDispatcher from 'dispatchers/analytics_dispatcher';
 import EventDispatcher from 'dispatchers/event_dispatcher';
-import simpleXDM from 'simple-xdm/dist/host';
+import simpleXDM from 'simple-xdm/host';
 import jwtActions from 'actions/jwt_actions';
 import events from './modules/events';
 import create from './create';

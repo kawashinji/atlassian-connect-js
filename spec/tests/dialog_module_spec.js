@@ -144,7 +144,9 @@ describe('Dialog module', () => {
     };
     expect($('.aui-dialog2').length).toEqual(1);
     new DialogModule.createButton.constructor({text: 'abc123'}, callback);
-    expect($('.aui-dialog2 button').filter((i, button) => { return button.innerHTML === 'abc123'; }).length).toEqual(1);
+    expect($('.aui-dialog2 button').filter((i, button) => {
+      return button.innerHTML === 'abc123';
+    }).length).toEqual(1);
   });
 
   it('button click is ignored if iframe has not loaded', () => {

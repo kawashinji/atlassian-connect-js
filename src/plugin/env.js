@@ -1,3 +1,4 @@
+import AP from 'simple-xdm/plugin';
 import $ from './dollar';
 import rpc from './rpc';
 import UiParams from '../common/ui-params';

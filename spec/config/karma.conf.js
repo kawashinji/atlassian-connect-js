@@ -11,9 +11,7 @@ module.exports = function(config) {
   var baseConfig = require('./karma.base.conf.js')(config);
 
   baseConfig.files.push('spec/tests/**/*.js');
-  // baseConfig.files.push('test/common/**/*.js');
 
-  baseConfig.webpack.module.loaders.push({test: /(?:\/src\/host\/.*?\.js|\/spec\/tests\/.*?\.js)$/, loader: 'babel-loader?cacheDirectory'});
   baseConfig.webpack.plugins.push(new webpack.DefinePlugin({'process.env.ENV': '"host"'}));
 
   getDirs(base).forEach((root) => baseConfig.webpack.resolve.alias[root] = `${base}/${root}`);

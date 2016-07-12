@@ -1,3 +1,5 @@
+import AP from 'simple-xdm/plugin';
+
 var modules = {};
 
 function reqAll(deps, callback) {
