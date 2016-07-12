@@ -1373,6 +1373,13 @@ var VALID_EVENT_TIME_MS = 30000; //30 seconds
 var XDMRPC = function (_PostMessage) {
   _inherits(XDMRPC, _PostMessage);
 
+  _createClass(XDMRPC, [{
+    key: '_padUndefinedArguments',
+    value: function _padUndefinedArguments(array, length) {
+      return array.length >= length ? array : array.concat(new Array(length - array.length));
+    }
+  }]);
+
   function XDMRPC(config) {
     _classCallCheck(this, XDMRPC);
 
@@ -1472,6 +1479,7 @@ var XDMRPC = function (_PostMessage) {
         if (method) {
           var methodArgs = data.args;
           sendResponse._context = extension;
+          methodArgs = this._padUndefinedArguments(methodArgs, method.length - 1);
           methodArgs.push(sendResponse);
           method.apply(module, methodArgs);
           if (this._registeredRequestNotifier) {
