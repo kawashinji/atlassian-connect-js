@@ -73,18 +73,6 @@ require(["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
     }
 
     /**
-     * Checks if the addonOriginMap addonKey matches the origin
-     *
-     * @param addonKey
-     * @param origin
-     * @returns {boolean}
-     */
-    function keyMatchesOrigin(addonKey, origin) {
-        return   _AP.addonOriginMap[addonKey].toLowerCase() === origin.toLowerCase();
-    }
-
-
-    /**
      * Get all the IFrame elements in the page
      *
      * @returns {Array} a array with all the iframe elements
@@ -126,10 +114,6 @@ require(["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
         }
 
         if (alreadyInitialised(channelId)) {
-            return;
-        }
-
-        if (!keyMatchesOrigin(addonKey, origin)){
             return;
         }
 
