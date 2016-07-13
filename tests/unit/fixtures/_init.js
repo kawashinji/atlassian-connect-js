@@ -110,6 +110,8 @@ AP.require(
     Dialog: dialog
   });
 
- rpc.init({});
+ rpc.init({
+   target: window.parent
+ });
 
 });

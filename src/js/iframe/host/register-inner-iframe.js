@@ -92,11 +92,9 @@ require(["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
 
         // Extract message payload from the event
         var payload = event.data,
-            addonKey = payload.k,
             source = event.source,
-            origin = event.origin,
             channelId = payload.c,
-            message = payload.m;
+            message = payload.m || {};
 
         if(message.n === 'registerInnerIframe') {
             return;
@@ -122,6 +120,10 @@ require(["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
         var settings = rememberedIframeOptions.filter(function (settings) {
             return settings && settings.xdmOptions && settings.xdmOptions.channel === channelId;
         })[0];
+
+        if(!settings) {
+            return;
+        }
 
         var bridge = rpc.initInner(settings.innerFrameOptions, settings.xdmOptions, source);
 

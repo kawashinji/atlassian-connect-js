@@ -253,7 +253,7 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
         }
 
         // If the payload doesn't match our expected event signature, assume its not part of the xdm-rpc protocol
-        if (name !== 'registerInnerIframe' && (event.source !== target || event.origin.toLowerCase() !== remoteOrigin || pchannel !== channel)){
+        if (name !== 'registerInnerIframe' && ((event.source !== target && event.source !== window.parent && event.source !== window.top ) || event.origin.toLowerCase() !== remoteOrigin || pchannel !== channel)){
           return;
         }
 

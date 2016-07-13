@@ -51,7 +51,7 @@
                 channel: 'testchannel',
                 props: {}
             }, {
-                local: [],
+                local: {},
                 remote: {}
             });
 
