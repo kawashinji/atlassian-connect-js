@@ -41,7 +41,7 @@
                 throw new Error("For a Multipart request, data must to be an Object");
             }
 
-            // ACJS-293: write something here to explain stuff
+            // Add XSRF bypass flag
             ajaxOptions.headers['X-Atlassian-Token'] = 'no-check';
 
             return ajaxOptions;
@@ -107,7 +107,6 @@
 
                         // Set experimental API header
                         if (args.experimental === true) {
-                            // ACJS-293: write something here to explain stuff
                             ajaxOptions.headers["X-ExperimentalApi"] = "opt-in";
                         }
 
