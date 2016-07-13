@@ -180,7 +180,7 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
         var sendTarget = target,
             targetOrigin = remoteOrigin;
 
-        if(!message) {
+        if(typeof message === 'undefined') {
           return sendTarget.postMessage({
             c: channel,
             i: sid,
