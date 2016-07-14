@@ -93,12 +93,7 @@ require(["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
         // Extract message payload from the event
         var payload = event.data,
             source = event.source,
-            channelId = payload.c,
-            message = payload.m || {};
-
-        if(message.n === 'registerInnerIframe') {
-            return;
-        }
+            channelId = payload.c;
 
         //This module is only used to initialise inner iframes. Ignore all messages from Confluence.
         if (source === window.top) {
