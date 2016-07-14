@@ -180,13 +180,13 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
         var sendTarget = target,
             targetOrigin = remoteOrigin;
 
-        if(typeof message === 'undefined') {
+        if(typeof message === 'undefined' || message == null) {
           return sendTarget.postMessage({
             c: channel,
             i: sid,
             k: realAddonKey,
             t: type,
-            m: undefined
+            m: message
           }, targetOrigin);
         }
 
@@ -248,7 +248,7 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
         var payload = event.data,
             pid = payload.i, pchannel = payload.c, ptype = payload.t, pmessage = payload.m, name;
 
-        if (typeof pmessage === 'object') {
+        if (typeof pmessage === 'object' && pmessage != null) {
           name =  pmessage.n;
         }
 
