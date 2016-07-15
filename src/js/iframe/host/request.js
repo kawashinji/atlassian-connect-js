@@ -7,17 +7,7 @@
             requestHeadersWhitelist = [
                 "If-Match", "If-None-Match"
             ],
-            contextPath = null,
-            experimentify = null,
-            addFileUploadHeader = null;
-
-        function setExperimentify(func) {
-            if ($.isFunction(func)) {
-                experimentify = func;
-            } else {
-                throw new Error("func must be a function");
-            }
-        }
+            contextPath = null;
 
         function appendFormData(formData, key, value) {
             if (value._isBlob && value.blob && value.name) {
@@ -51,19 +41,10 @@
                 throw new Error("For a Multipart request, data must to be an Object");
             }
 
-            if ($.isFunction(addFileUploadHeader)) {
-                ajaxOptions = addFileUploadHeader(ajaxOptions)
-            }
+            // Add XSRF bypass flag
+            ajaxOptions.headers['X-Atlassian-Token'] = 'no-check';
 
             return ajaxOptions;
-        }
-
-        function setAddFileUploadHeader (func) {
-            if ($.isFunction(func)) {
-                addFileUploadHeader = func;
-            } else {
-                throw new Error("func must be a function");
-            }
         }
 
         _AP.extend(function () {
@@ -126,11 +107,7 @@
 
                         // Set experimental API header
                         if (args.experimental === true) {
-                            if ($.isFunction(experimentify)) {
-                                ajaxOptions = experimentify(ajaxOptions);
-                            } else {
-                                console.log("Experimental api is not supported.");
-                            }
+                            ajaxOptions.headers["X-ExperimentalApi"] = "opt-in";
                         }
 
                         $.ajax(ajaxOptions).then(done, fail);
@@ -139,11 +116,5 @@
                 }
             };
         });
-
-        return {
-            setExperimentify: setExperimentify,
-            setAddFileUploadHeader: setAddFileUploadHeader
-        }
-
     });
 })(define, AJS, AJS.$);
