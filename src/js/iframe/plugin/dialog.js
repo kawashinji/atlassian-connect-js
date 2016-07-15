@@ -4,9 +4,9 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
    * The Dialog module provides a mechanism for launching an add-on's modules as modal dialogs from within an add-on's iframe.
    * A modal dialog displays information without requiring the user to leave the current page.
    * The dialog is opened over the entire window, rather than within the iframe itself.
-   * 
+   *
    * <h3>Styling your dialog to look like a standard Atlassian dialog</h3>
-   * 
+   *
    * By default the dialog iframe is undecorated. It's up to you to style the dialog.
    * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
    *
@@ -48,7 +48,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
          * });
          *
          * @return {Object} Data Object passed to the dialog on creation.
-         */        
+         */
         customData: uiParams.customData,
 
         /**
@@ -111,7 +111,7 @@ AP.define("dialog", ["_dollar", "_rpc", "_ui-params", "_uri"],
               // registered for the first dialog would be issued when the second was closed.
               remote.events.once("dialog." + event, callback);
             }
-          }
+          };
         },
         /**
          * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.

@@ -3,21 +3,21 @@ AP.define("_util", function () {
   "use strict";
 
   // universal iterator utility
-  function each(o, it) {
-    var l, k;
-    if (o) {
-      l = o.length;
-      if (l != null && typeof o !== "function") {
-        k = 0;
-        while (k < l) {
-          if (it.call(o[k], k, o[k]) === false) break;
-          k += 1;
+  function each(list, iteratee) {
+    var length, key;
+    if (list) {
+      length = list.length;
+      if (length != null && typeof list !== "function") {
+        key = 0;
+        while (key < length) {
+          if (iteratee.call(list[key], key, list[key]) === false) break;
+          key += 1;
         }
       }
       else {
-        for (k in o) {
-          if (o.hasOwnProperty(k)) {
-            if (it.call(o[k], k, o[k]) === false) break;
+        for (key in list) {
+          if (list.hasOwnProperty(key)) {
+            if (iteratee.call(list[key], key, list[key]) === false) break;
           }
         }
       }

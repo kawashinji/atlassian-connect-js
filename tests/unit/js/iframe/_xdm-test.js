@@ -51,7 +51,7 @@
                 channel: 'testchannel',
                 props: {}
             }, {
-                local: [],
+                local: {},
                 remote: {}
             });
 
@@ -81,23 +81,22 @@
                 xdm.events.emit('hostevent', '9876');
             });
         });
-		
+
 		test('check error message on fail', function(){
 			stop();
 			AJS.error = sinon.spy();
-		
+
 	        var someXdm = this.createXdm('xdm-error.html', {
 	        	'getLocation': function(){
 		           	throw new Exception('an exception!');
 		    }});
-		
+
 			equal(AJS.error.callCount, 0);
-		
 			var testTimeout = setTimeout(function() {
-				ok(false, "Error was not called"); 
+				ok(false, "Error was not called");
 				start();
 			}, 5000);
-	
+
 			$(window).on("message", function(e){
 				var event = e.originalEvent.data;
 				if(event.m.n === 'getLocation'){
@@ -106,7 +105,7 @@
 					clearTimeout(testTimeout);
 				}
 			});
-			
+
 		});
 
     });

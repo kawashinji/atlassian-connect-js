@@ -9,7 +9,12 @@ var xdmMockInlineDialog;
             }
         },
         paths: {
-            '_xdmMockInlineDialogTest': '/base/tests/unit/js/iframe/plugin/_xdmMockInlineDialogTest'
+            '_xdmMockInlineDialogTest': '/base/tests/unit/js/iframe/plugin/_xdmMockInlineDialogTest',
+            '_dispatch-custom-event': '../_dispatch-custom-event',
+            '_ui-params': '../_ui-params',
+            '_base64': '../_base64',
+            '_uri': '../_uri',
+            '_create-iframe': '../_create-iframe'
         }
     });
 

@@ -34,9 +34,10 @@
       /**
       * @param {Options} options These values come from the velocity template and can be overridden using uiParams
       */
-      function create(options) {
+    function create(options) {
+
       if(typeof options.uiParams !== "object"){
-        options.uiParams = uiParams.fromUrl(options.src);
+        options.uiParams = uiParams.fromUrl(options.src) || {};
       }
       var ns = options.ns = utils.addonToNs(options.key, options.moduleKey);
       var contentId = "embedded-" + ns,
@@ -44,13 +45,7 @@
           initWidth = options.w || "100%",
           initHeight = options.h || "0";
 
-      if(typeof options.uiParams !== "object"){
-        options.uiParams = {};
-      }
-
-      if(!!options.general) {
-        options.uiParams.isGeneral = true;
-      }
+      options.uiParams.isGeneral = !!options.general;
 
       var xdmOptions = {
         remote: options.src,
@@ -75,7 +70,6 @@
       });
 
       rpc.init(options, xdmOptions);
-
     }
 
     return function (options) {

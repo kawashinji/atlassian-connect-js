@@ -1,0 +1,44 @@
+( (typeof _AP !== "undefined") ? define : AP.define)("_create-iframe", ["_ui-params", "_dispatch-custom-event"], function (uiParams, dispatchCustomEvent) {
+    /**
+     * Creates an iframe element from based on the given config
+     * @param config {Object}
+     * @param config.container {String}
+     * @param config.uiParams {String}
+     * @param config.props {Object} a map of additional HTML attributes for the new iframe
+     * @param config.remote {String} the src url of the new iframe
+     */
+    return function createIframe(config) {
+        if(!config.container){
+            throw new Error("config.container must be defined");
+        }
+        var iframe = document.createElement("iframe"),
+            id = "easyXDM_" + config.container + "_provider",
+            windowName = "";
+
+        if(config.uiParams){
+            windowName = uiParams.encode(config.uiParams);
+        }
+
+        iframe.id = id;
+        iframe.name = windowName;
+        iframe.frameBorder = "0";
+
+        Object.keys(config.props).forEach(function (prop) {
+            iframe[prop] = config.props[prop];
+        });
+
+        iframe.setAttribute("rel", "nofollow");
+        iframe.className = "ap-iframe";
+
+        var containerElement = document.getElementById(config.container);
+        if(containerElement) {
+            //Mimick jQuery append behaviour
+            containerElement.appendChild(iframe);
+        }
+
+        dispatchCustomEvent(iframe, 'ra.iframe.create');
+        iframe.src = config.remote;
+
+        return iframe;
+    };
+});

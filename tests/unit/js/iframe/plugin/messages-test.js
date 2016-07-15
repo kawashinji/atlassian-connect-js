@@ -9,7 +9,12 @@ var xdmMockMessages;
             }
         },
         paths: {
-            '_xdmMockMessagesTest': '/base/tests/unit/js/iframe/plugin/_xdmMockMessagesTest'
+            '_xdmMockMessagesTest': '/base/tests/unit/js/iframe/plugin/_xdmMockMessagesTest',
+            '_ui-params': '../_ui-params',
+            '_base64': '../_base64',
+            '_uri': '../_uri',
+            '_dispatch-custom-event': '../_dispatch-custom-event',
+            '_create-iframe': '../_create-iframe'
         }
     });
 

@@ -13,14 +13,18 @@ var xdmMockEnv;
             '_xdmMockEnvTest': '/base/tests/unit/js/iframe/plugin/_xdmMockEnvTest',
             '_ui-params': '../_ui-params',
             '_base64': '../_base64',
-            '_uri': '../_uri'
+            '_uri': '../_uri',
+            '_dispatch-custom-event': '../_dispatch-custom-event',
+            '_create-iframe': '../_create-iframe'
         },
         shim: {
             'env': {
                 deps: [
                     '_ui-params',
                     '_base64',
-                    '_uri'
+                    '_uri',
+                    '_create-iframe',
+                    '_dispatch-custom-event'
                 ]
             }
         }

@@ -1,11 +1,10 @@
-define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri"], function ($, XdmRpc, jwtKeepAlive, uri) {
+define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri", "host/_util", "_create-iframe"], function ($, XdmRpc, jwtKeepAlive, uri, util, createIframe) {
 
     "use strict";
 
     var each = $.each,
         extend = $.extend,
         isFn = $.isFunction,
-        rpcCollection = [],
         apis = {},
         stubs = [],
         internals = {},
@@ -27,13 +26,15 @@ define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri"], function ($, X
         // init connect host side
         // options = things that go to all init functions
 
-        init: function (options, xdmConfig) {
+        init: function (options, xdmConfig, bindings) {
 
             var remoteUrl = new uri.init(xdmConfig.remote),
             remoteJwt = remoteUrl.getQueryParamValue('jwt'),
             promise;
 
             options = options || {};
+            bindings = bindings || {remote: stubs, local: $.extend({}, internals)};
+
             // add stubs for each public api
             each(apis, function (method) { stubs.push(method); });
 
@@ -54,18 +55,37 @@ define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri"], function ($, X
                 if(src){
                     xdmConfig.remote = src;
                 }
-                // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
-                var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internals)});
 
-                rpcCollection[rpc.id] = rpc;
+                // if there is already an iframe created. Destroy it. It's an old version.
+                $("#" + util.escapeSelector(xdmConfig.container)).find('iframe').trigger('ra.iframe.destroy');
+
+                // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
+                var rpc = new XdmRpc($, xdmConfig, bindings);
+
                 each(inits, function (_, init) {
                     try { init(extend({}, options), rpc); }
                     catch (ex) { console.log(ex); }
                 });
             });
+        },
 
+        initInner: function (options, xdmConfig, target) {
+
+            // add stubs for each public api
+            each(apis, function (method) { stubs.push(method); });
+
+            xdmConfig.noIframe = true;
+            xdmConfig.target = target;
+
+            // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
+            var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internals)});
+
+            each(inits, function (_, init) {
+                try { init(extend({}, options), rpc); }
+                catch (ex) { console.log(ex); }
+            });
+
+            return rpc;
         }
-
     };
-
 });

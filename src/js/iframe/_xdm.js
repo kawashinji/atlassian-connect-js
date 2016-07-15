@@ -1,9 +1,6 @@
-var deps = ["_events", "_jwt", "_uri",  "_ui-params", "host/_util"];
-if(this.AP){
-  deps = ["_events", "_jwt", "_uri",  "_ui-params"];
-}
-( (typeof _AP !== "undefined") ? define : AP.define)("_xdm", deps, function (events, jwt, uri, uiParams, util) {
+var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
 
+( (typeof _AP !== "undefined") ? define : AP.define)("_xdm", deps, function (events, jwt, uri, createIframe) {
   "use strict";
 
   // Capture some common values and symbol aliases
@@ -28,6 +25,8 @@ if(this.AP){
    * @param {String} config.container The id of element to which the generated iframe is appended (host only)
    * @param {Object} config.props Additional attributes to add to iframe element (host only)
    * @param {String} config.channel Channel (host only); deprecated
+   * @param {Boolean} [config.noIframe=false] When true xdmRpc is setup for the given target
+   * @param {Object} [config.target] When noIframe is true this is the target to be used for the bridge.
    * @param {Object} bindings RPC method stubs and implementations
    * @param {Object} bindings.local Local function implementations - functions that exist in the current context.
    *    XdmRpc exposes these functions so that they can be invoked by code running in the other side of the iframe.
@@ -35,13 +34,13 @@ if(this.AP){
    *    XdmRpc creates stubs to these functions that can be invoked from the current page.
    * @returns XdmRpc instance
    * @constructor
+   *
    */
   function XdmRpc($, config, bindings) {
 
-    var self, id, target, remoteOrigin, channel, mixin,
-        localKey, remoteKey, addonKey,
-        w = window,
-        loc = w.location.toString(),
+    var self, id, remoteOrigin, channel, mixin,
+        localKey, remoteKey, addonKey, realAddonKey,
+        loc = window.location.toString(),
         locals = bindings.local || {},
         remotes = bindings.remote || [],
         localOrigin = getBaseUrl(loc);
@@ -92,16 +91,23 @@ if(this.AP){
     //  - xdm_c contains a unique channel name; this is a holdover from easyXDM that was used to distinguish
     //    postMessage events between multiple iframes with identical xdm_e values, though this may now be
     //    redundant with the current internal implementation of the XdmRpc and should be considered for removal
-    if (!/xdm_e/.test(loc)) {
-      // Host-side constructor branch
+    var isHost = !/xdm_e/.test(loc);
 
-      // if there is already an iframe created. Destroy it. It's an old version.
-      $("#" + util.escapeSelector(config.container)).find('iframe').trigger('ra.iframe.destroy');
+    var target, iframe;
 
-      var iframe = createIframe(config);
+    if(config.noIframe) {
+      target = config.target;
+    } else {
+      iframe = createIframe(config);
       target = iframe.contentWindow;
-      localKey = param(config.remote, "oauth_consumer_key") || param(config.remote, "jwt");
+    }
+
+    if (isHost || iframe !== undefined) {
+      // Host-side constructor branch
+      //TODO: This is put into the event bus, but is never really used. If _event was used, when this was set, then that event would never match any of the channels in addons.js. This should be refactored away.
+      localKey = "IsNotUsed";
       remoteKey = config.remoteKey;
+      realAddonKey = remoteKey;
       addonKey = remoteKey;
       remoteOrigin = (config.remoteOrigin ? config.remoteOrigin : getBaseUrl(config.remote)).toLowerCase();
       channel = config.channel;
@@ -110,7 +116,23 @@ if(this.AP){
         isHost: true,
         iframe: iframe,
         uiParams: config.uiParams,
-        destroy: function () {
+        isActive: function () {
+          // Host-side instances are only active as long as the iframe they communicate with still exists in the DOM
+          if (!isHost && target !== window.top) {
+            return document.contains(self.iframe);
+          }
+
+          if(isHost && iframe) {
+            return $.contains(document.documentElement, self.iframe);
+          }
+
+          //This is a bridge for a frame of a frame. We can't tell if the frame is still there.
+          return true; //Bridges for frames of frames are never destroyed. This should be ok, because each bridge only has a single target frame, and that frame should never change.
+        }
+      };
+
+      if(isHost) {
+        mixin.destroy = function () {
           window.clearTimeout(self.timeout); //clear the iframe load time.
           // Unbind postMessage handler when destroyed
           unbind();
@@ -119,29 +141,16 @@ if(this.AP){
             $(self.iframe).remove();
             delete self.iframe;
           }
-        },
-        isActive: function () {
-          // Host-side instances are only active as long as the iframe they communicate with still exists in the DOM
-          return $.contains(document.documentElement, self.iframe);
+        };
+
+        if (iframe) {
+          $(iframe).on('ra.iframe.destroy', mixin.destroy);
         }
-      };
-      $(iframe).on('ra.iframe.destroy', mixin.destroy);
+      }
     } else {
       // Add-on-side constructor branch
-      target = w.parent;
       localKey = "local"; // Would be better to make this the add-on key, but it's not readily available at this time
-
-      // identify the add-on by unique key: first try JWT issuer claim and fall back to OAuth1 consumer key
-      var jwtParam = param(loc, "jwt");
-      remoteKey = jwtParam ? jwt.parseJwtIssuer(jwtParam) : param(loc, "oauth_consumer_key");
-
-      // if the authentication method is "none" then it is valid to have no jwt and no oauth in the url
-      // but equally we don't trust this iframe as far as we can throw it, so assign it a random id
-      // in order to prevent it from talking to any other iframe
-      if (null === remoteKey) {
-          remoteKey = Math.random(); // unpredictable and unsecured, like an oauth consumer key
-      }
-
+      realAddonKey = param(loc, "xdm_deprecated_addon_key_do_not_use");
       addonKey = localKey;
       remoteOrigin = param(loc, "xdm_e").toLowerCase();
       channel = param(loc, "xdm_c");
@@ -168,17 +177,45 @@ if(this.AP){
     // Sends a message of a specific type to the remote peer via a post-message event
     function send(sid, type, message) {
       try {
+        var sendTarget = target,
+            targetOrigin = remoteOrigin;
+
+        if(typeof message === 'undefined' || message == null) {
+          return sendTarget.postMessage({
+            c: channel,
+            i: sid,
+            k: realAddonKey,
+            t: type,
+            m: message
+          }, targetOrigin);
+        }
+
+        var messageName = message.n;
+
         // Sanitize the incoming message arguments
-        if (message && message.a) {
+        if (message.a) {
           message.a = sanitizeStructuredClone(message.a);
         }
 
-        target.postMessage({
+        if(messageName === 'registerInnerIframe') {
+          sendTarget = window.top;
+          //Origin not yet in the origin-map so set it to *
+          targetOrigin = '*';
+        }
+
+        var middleFrameMethods = ["resize", "sizeToParent", "init"];
+        if (middleFrameMethods.indexOf(messageName) > -1) {
+          sendTarget = window.parent;
+          targetOrigin = '*';
+        }
+
+        return sendTarget.postMessage({
           c: channel,
           i: sid,
+          k: realAddonKey,
           t: type,
           m: message
-        }, remoteOrigin);
+        }, targetOrigin);
       } catch (ex) {
         log(errmsg(ex));
       }
@@ -205,25 +242,24 @@ if(this.AP){
     }
 
     // Handles an normalized, incoming post-message event
-    function receive(e) {
+    function receive(event) {
       try {
         // Extract message payload from the event
-        var payload = e.data,
-            pid = payload.i, pchannel = payload.c, ptype = payload.t, pmessage = payload.m;
+        var payload = event.data,
+            pid = payload.i, pchannel = payload.c, ptype = payload.t, pmessage = payload.m, name;
 
-        // if the iframe has potentially been reloaded. re-attach the source contentWindow object
-        if (e.source !== target && e.origin.toLowerCase() === remoteOrigin && pchannel === channel) {
-          target = e.source;
+        if (typeof pmessage === 'object' && pmessage != null) {
+          name =  pmessage.n;
         }
 
         // If the payload doesn't match our expected event signature, assume its not part of the xdm-rpc protocol
-        if (e.source !== target || e.origin.toLowerCase() !== remoteOrigin || pchannel !== channel){
+        if (name !== 'registerInnerIframe' && ((event.source !== target && event.source !== window.parent && event.source !== window.top ) || event.origin.toLowerCase() !== remoteOrigin || pchannel !== channel)){
           return;
         }
 
         if (ptype === "request") {
           // If the payload type is request, this is an incoming method invocation
-          var name = pmessage.n, args = pmessage.a,
+          var args = pmessage.a,
               local = locals[name], done, fail, async;
           if (local) {
             // The message name matches a locally defined RPC method, so inspect and invoke it according
@@ -238,7 +274,7 @@ if(this.AP){
             var context = locals;
             if(self.isHost === true){
                 context = self;
-                if(context.analytics){
+                if(context.analytics) {
                   context.analytics.trackBridgeMethod(name);
                 }
             } else {
@@ -383,49 +419,23 @@ if(this.AP){
       return url.toString();
     }
 
-    // Creates an iframe element from a config option consisting of the following values:
-    //  - container:  the parent element of the new iframe
-    //  - remote:     the src url of the new iframe
-    //  - props:      a map of additional HTML attributes for the new iframe
-    //  - channel:    deprecated
-    function createIframe(config) {
-      if(!config.container){
-        throw new Error("config.container must be defined");
-      }
-      var iframe = document.createElement("iframe"),
-        id = "easyXDM_" + config.container + "_provider",
-        windowName = "";
-
-      if(config.uiParams){
-        windowName = uiParams.encode(config.uiParams);
-      }
-      $.extend(iframe, {id: id, name: windowName, frameBorder: "0"}, config.props);
-      //$.extend will not add the attribute rel.
-      iframe.setAttribute('rel', 'nofollow');
-      iframe.className = "ap-iframe";
-      $("#" + util.escapeSelector(config.container)).append(iframe);
-      $(iframe).trigger("ra.iframe.create");
-      iframe.src = config.remote;
-      return iframe;
-    }
-
     function errmsg(ex) {
       return ex.message || ex.toString();
     }
 
     function debug() {
-      if (XdmRpc.debug) log.apply(w, ["DEBUG:"].concat([].slice.call(arguments)));
+      if (XdmRpc.debug) log.apply(window, ["DEBUG:"].concat([].slice.call(arguments)));
     }
 
     function log() {
-      var log = $.log || (w.AJS && w.AJS.log);
-      if (log) log.apply(w, arguments);
+      var log = $.log || (window.AJS && window.AJS.log);
+      if (log) log.apply(window, arguments);
     }
 
     function logError() {
       // $.error seems to do the same thing as $.log in client console
-      var error = (w.AJS && w.AJS.error);
-      if (error) error.apply(w, arguments);
+      var error = (window.AJS && window.AJS.error);
+      if (error) error.apply(window, arguments);
     }
 
     // Creates a deep copy of the object, rejecting Functions, Errors and Nodes
@@ -500,6 +510,12 @@ if(this.AP){
 
     // Immediately start listening for events
     bind();
+
+    var bridgeThis = this;
+
+    self.bridgeReceive = function(){
+      return receive.apply(bridgeThis, arguments);
+    };
 
     return self;
   }

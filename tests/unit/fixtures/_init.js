@@ -1,8 +1,8 @@
 /* stand in _init for iframe fixtures */
 AP.require(
-  ["_dollar", "_rpc", "_resize_listener", "env", "request", "dialog"],
+  ["_dollar", "_rpc", "_resize-listener", "env", "request", "dialog", "register-inner-iframe"],
 
-  function ($, rpc, resizeListener, env, request, dialog) {
+  function ($, rpc, resizeListener, env, request, dialog, registerInnerIframe) {
   "use strict";
 
   function injectBase() {
@@ -110,6 +110,8 @@ AP.require(
     Dialog: dialog
   });
 
- rpc.init({});
+ rpc.init({
+   target: window.parent
+ });
 
 });

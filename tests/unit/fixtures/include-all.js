@@ -48,14 +48,14 @@ require.config({
                 'plugin/request'
             ]
         },
-        'plugin/_resize_listener': {
+        'plugin/_resize-listener': {
             deps: [
                 'plugin/dialog'
             ]
         },
         'plugin/jira': {
             deps: [
-                'plugin/_resize_listener'
+                'plugin/_resize-listener'
             ]
         },
         'plugin/confluence': {
@@ -75,7 +75,7 @@ require.config({
                 'plugin/env',
                 'plugin/request',
                 'plugin/dialog',
-                'plugin/_resize_listener',
+                'plugin/_resize-listener',
                 'plugin/jira',
                 'plugin/confluence'
                 ]
