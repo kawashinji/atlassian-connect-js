@@ -282,7 +282,7 @@ var AP = function (_PostMessage) {
     _this._eventHandlers = {};
     _this._pendingCallbacks = {};
     _this._keyListeners = [];
-    _this._version = "v5.0.0-alpha.5";
+    _this._version = "v5.0.0-alpha.6";
     if (_this._data.api) {
       _this._setupAPI(_this._data.api);
       _this._setupAPIWithoutRequire(_this._data.api);

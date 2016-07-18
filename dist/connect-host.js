@@ -4502,7 +4502,7 @@ if (!window._AP) {
  * Add version
  */
 if (!window._AP.version) {
-  window._AP.version = 'v5.0.0-alpha.5';
+  window._AP.version = 'v5.0.0-alpha.6';
 }
 
 _host2.default.defineModule('messages', _messages2.default);
