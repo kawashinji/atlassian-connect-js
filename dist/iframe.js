@@ -1498,9 +1498,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _dollar = _dereq_('./dollar');
+var _plugin = _dereq_('simple-xdm/plugin');
 
-var _dollar2 = _interopRequireDefault(_dollar);
+var _plugin2 = _interopRequireDefault(_plugin);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1521,32 +1521,30 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 var events = {};
 var ANY_PREFIX = '_any';
-if (window.AP && window.AP.registerAny) {
-  window.AP.registerAny(function (data, callback) {
-    var eventName = callback._context.eventName;
-    var any = events[ANY_PREFIX] || [];
-    var byName = events[eventName] || [];
+_plugin2.default.registerAny(function (data, callback) {
+  var eventName = callback._context.eventName;
+  var any = events[ANY_PREFIX] || [];
+  var byName = events[eventName] || [];
 
-    if (!Array.isArray(data)) {
-      data = [data];
-    }
+  if (!Array.isArray(data)) {
+    data = [data];
+  }
 
-    any.forEach(function (handler) {
-      //clone data before modifying
-      var args = data.slice(0);
-      args.unshift(eventName);
-      args.push({
-        args: data,
-        name: eventName
-      });
-      handler.apply(null, args);
+  any.forEach(function (handler) {
+    //clone data before modifying
+    var args = data.slice(0);
+    args.unshift(eventName);
+    args.push({
+      args: data,
+      name: eventName
     });
-
-    byName.forEach(function (handler) {
-      handler.apply(null, data);
-    });
+    handler.apply(null, args);
   });
-}
+
+  byName.forEach(function (handler) {
+    handler.apply(null, data);
+  });
+});
 
 exports.default = {
   off: function off(name, listener) {
@@ -1640,7 +1638,7 @@ exports.default = {
    */
 };
 
-},{"./dollar":16}],18:[function(_dereq_,module,exports){
+},{"simple-xdm/plugin":1}],18:[function(_dereq_,module,exports){
 'use strict';
 
 var _plugin = _dereq_('simple-xdm/plugin');

@@ -1,4 +1,4 @@
-import $ from './dollar';
+import AP from 'simple-xdm/plugin';
 /**
  * The Events module provides a mechanism for emitting and receiving events.
  * <h3>Basic example</h3>
@@ -16,32 +16,30 @@ import $ from './dollar';
  */
 var events = {};
 const ANY_PREFIX = '_any';
-if(window.AP && window.AP.registerAny){
-  window.AP.registerAny(function(data, callback){
-    var eventName = callback._context.eventName;
-    var any = events[ANY_PREFIX] || [];
-    var byName = events[eventName] || [];
+AP.registerAny(function(data, callback){
+  var eventName = callback._context.eventName;
+  var any = events[ANY_PREFIX] || [];
+  var byName = events[eventName] || [];
 
-    if(!Array.isArray(data)){
-      data = [data];
-    }
+  if(!Array.isArray(data)){
+    data = [data];
+  }
 
-    any.forEach((handler) => {
-      //clone data before modifying
-      var args = data.slice(0);
-      args.unshift(eventName);
-      args.push({
-        args: data,
-        name: eventName
-      });
-      handler.apply(null, args);
+  any.forEach((handler) => {
+    //clone data before modifying
+    var args = data.slice(0);
+    args.unshift(eventName);
+    args.push({
+      args: data,
+      name: eventName
     });
-
-    byName.forEach((handler) => {
-      handler.apply(null, data);
-    });
+    handler.apply(null, args);
   });
-}
+
+  byName.forEach((handler) => {
+    handler.apply(null, data);
+  });
+});
 
 export default {
   off: function(name, listener){
