@@ -4,9 +4,9 @@
 */
 
 import $ from '../dollar';
-import EventDispatcher from 'dispatchers/event_dispatcher';
-import FlagActions from 'actions/flag_actions';
-import FlagComponent from 'components/flag';
+import EventDispatcher from '../dispatchers/event_dispatcher';
+import FlagActions from '../actions/flag_actions';
+import FlagComponent from '../components/flag';
 
 const _flags = {};
 

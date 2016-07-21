@@ -1,8 +1,7 @@
-import WebItemActions from 'actions/webitem_actions';
-import EventDispatcher from 'dispatchers/event_dispatcher';
-import WebItemUtils from 'utils/webitem';
-import dialogUtils from 'utils/dialog';
-import DialogExtensionActions from 'actions/dialog_extension_actions';
+import WebItemActions from '../actions/webitem_actions';
+import EventDispatcher from '../dispatchers/event_dispatcher';
+import WebItemUtils from '../utils/webitem';
+import DialogExtensionActions from '../actions/dialog_extension_actions';
 import _ from '../underscore';
 
 const ITEM_NAME = 'dialog';

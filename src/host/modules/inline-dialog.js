@@ -8,7 +8,7 @@
  * @module inline-dialog
  */
 
-import InlineDialogActions from 'actions/inline_dialog_actions';
+import InlineDialogActions from '../actions/inline_dialog_actions';
 
 export default {
   /**

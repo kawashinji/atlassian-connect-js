@@ -1,6 +1,6 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import EventDispatcher from '../dispatchers/event_dispatcher';
 
-module.exports = {
+export default {
   close: (data) => {
     EventDispatcher.dispatch('dialog-close', {
       dialog: data.dialog,

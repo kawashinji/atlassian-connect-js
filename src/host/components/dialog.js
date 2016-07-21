@@ -1,10 +1,10 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
-import DomEventActions from 'actions/dom_event_actions';
-import DialogActions from 'actions/dialog_actions';
-import dialogUtils from 'utils/dialog';
-import IframeComponent from 'components/iframe';
-import Button from 'components/button';
-import ButtonActions from 'actions/button_actions';
+import EventDispatcher from '../dispatchers/event_dispatcher';
+import DomEventActions from '../actions/dom_event_actions';
+import DialogActions from '../actions/dialog_actions';
+import dialogUtils from '../utils/dialog';
+import IframeComponent from './iframe';
+import Button from './button';
+import ButtonActions from '../actions/button_actions';
 
 import $ from '../dollar';
 import _ from '../underscore';

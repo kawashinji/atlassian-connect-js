@@ -1,6 +1,6 @@
 import $ from '../dollar';
-import FlagActions from 'actions/flag_actions';
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import FlagActions from '../actions/flag_actions';
+import EventDispatcher from '../dispatchers/event_dispatcher';
 const FLAGID_PREFIX = 'ap-flag-';
 var AUI_FLAG = undefined;
 

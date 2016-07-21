@@ -1,11 +1,10 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
-import DialogExtensionActions from 'actions/dialog_extension_actions';
-import DialogActions from 'actions/dialog_actions';
-import EventActions from 'actions/event_actions';
-import DialogExtensionComponent from 'components/dialog_extension';
-import util from '../util';
-import ButtonComponent from 'components/button';
-import DialogUtils from 'utils/dialog';
+import EventDispatcher from '../dispatchers/event_dispatcher';
+import DialogExtensionActions from '../actions/dialog_extension_actions';
+import DialogActions from '../actions/dialog_actions';
+import EventActions from '../actions/event_actions';
+import DialogExtensionComponent from '../components/dialog_extension';
+import ButtonComponent from '../components/button';
+import DialogUtils from '../utils/dialog';
 import _ from '../underscore';
 
 const _dialogs = {};
@@ -259,7 +258,7 @@ class CreateButton {
  * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog.html).
  * @exports Dialog
  */
-module.exports = {
+export default {
   /**
    * @class Dialog~DialogOptions
    * @description The options supplied to a [dialog.create()](module-Dialog.html) call.

@@ -1,6 +1,4 @@
-import $ from './dollar';
-import EventDispatcher from 'dispatchers/event_dispatcher';
-import IframeContainerComponent from 'components/iframe_container';
+import IframeContainerComponent from './components/iframe_container';
 
 function create(extension) {
   var simpleXdmExtension = {
@@ -10,9 +8,6 @@ function create(extension) {
     options: extension.options
   };
   return IframeContainerComponent.createExtension(simpleXdmExtension);
-
-  // return IframeComponent.simpleXdmExtension(simpleXdmExtension);
-
 }
 
-module.exports = create;
+export default create;

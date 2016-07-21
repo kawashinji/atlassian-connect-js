@@ -1,7 +1,7 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import EventDispatcher from '../dispatchers/event_dispatcher';
 import _ from '../underscore';
 
-module.exports = {
+export default {
   registerContentResolver: function(data) {
     EventDispatcher.dispatch('content-resolver-register-by-extension', data);
   },

@@ -1,4 +1,4 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import EventDispatcher from './event_dispatcher';
 
 const EVENT_NAME_PREFIX = 'connect.addon.';
 
@@ -106,4 +106,4 @@ EventDispatcher.register('analytics-deprecated-method-used', function(data) {
   analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
 });
 
-module.exports = analytics;
+export default analytics;

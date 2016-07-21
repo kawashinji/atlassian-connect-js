@@ -1,7 +1,7 @@
 import $ from '../dollar';
-import IframeComponent from 'components/iframe';
-import LoadingIndicatorComponent from 'components/loading_indicator';
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import IframeComponent from './iframe';
+import LoadingIndicatorComponent from './loading_indicator';
+import EventDispatcher from '../dispatchers/event_dispatcher';
 
 const CONTAINER_CLASSES = ['ap-iframe-container'];
 

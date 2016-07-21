@@ -1,6 +1,6 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
-import IframeComponent from 'components/iframe';
+import IframeComponent from '../components/iframe';
 
 EventDispatcher.register('iframe-resize', function(data){
   IframeComponent.resize(data.width, data.height, data.$el);
@@ -16,7 +16,7 @@ AJS.$(window).on('resize', function (e) {
   EventDispatcher.dispatch('host-window-resize', e);
 });
 
-module.exports = {
+export default {
   iframeResize: function(width, height, context){
     var $el;
     if(context.extension_id){

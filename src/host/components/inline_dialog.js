@@ -1,5 +1,5 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
-import InlineDialogActions from 'actions/inline_dialog_actions';
+import EventDispatcher from '../dispatchers/event_dispatcher';
+import InlineDialogActions from '../actions/inline_dialog_actions';
 import $ from '../dollar';
 import util from '../util';
 

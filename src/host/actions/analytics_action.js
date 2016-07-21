@@ -1,4 +1,4 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import EventDispatcher from '../dispatchers/event_dispatcher';
 
 export default {
   trackDeprecatedMethodUsed(methodUsed, extension) {

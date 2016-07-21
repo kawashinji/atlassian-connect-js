@@ -3,7 +3,7 @@
 * taken from hipchat webcore
 **/
 import _ from '../underscore';
-import {EventEmitter} from 'events';
+import EventEmitter from 'events';
 
 class EventDispatcher extends EventEmitter {
 
@@ -49,4 +49,4 @@ class EventDispatcher extends EventEmitter {
   }
 }
 
-module.exports = new EventDispatcher();
+export default new EventDispatcher();

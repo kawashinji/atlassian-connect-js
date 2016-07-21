@@ -1,4 +1,3 @@
-import $ from '../dollar';
 import util from '../util';
 import buttonUtils from './button';
 

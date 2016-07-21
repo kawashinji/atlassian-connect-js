@@ -1,7 +1,7 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import EventDispatcher from '../dispatchers/event_dispatcher';
 import SimpleXDM from 'simple-xdm/host';
 
-module.exports = {
+export default {
   registerKeyEvent: function(data){
     SimpleXDM.registerKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
     EventDispatcher.dispatch('dom-event-register', data);

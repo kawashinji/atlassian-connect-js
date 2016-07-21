@@ -1,6 +1,6 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import EventDispatcher from '../dispatchers/event_dispatcher';
 
-module.exports = {
+export default {
   clicked: ($el) => {
     EventDispatcher.dispatch('button-clicked', {
       $el
