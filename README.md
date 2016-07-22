@@ -7,10 +7,113 @@ Based on [Simple XDM](https://bitbucket.org/atlassian/simple-xdm/)
 
 ![build-status](https://bitbucket-badges.atlassian.io/badge/atlassian/atlassian-connect-js.svg)
 
+Hello API example
+-----------------------
+
+Modules allow you to expose new connect API's to add-on iframes.
+```javascript
+connectHost.defineModule('example', {
+    sayHello: function(name){ alert('hello ' + name); }
+});
+```
+
+An add-on may now call:
+```javascript
+AP.example.sayHello('fred');
+```
+which will create an alert with "hello fred"
+
+
+Hello event example
+-----------------------
+
+Events are used when a callback needs to be called multiple times.
+```javascript
+var eventName = 'hello';
+// addonFilter can be a filter function or object to match against add-ons (a blank object denotes sending to all add-ons).
+var addonFilter = {
+    addon_key: 'my-addon',
+    key: 'my-module-key'
+};
+var eventData = {
+    name: 'fred';
+};
+connectHost.broadcastEvent(eventName, addonFilter, eventData);
+```
+
+An addon may listen with:
+```javascript
+AP.register({
+    hello: function(name){ alert('hello ' + name); }
+});
+```
+which will create an alert with "hello fred"
+
+
+Listening to keystrokes example
+-------------------------------
+Keyboard events are only sent to the currently focused frame. To allow a more seamless experience for users we allow a convenient way to listen for events inside an iframe.
+
+```javascript
+var extension_id = 'addon_key__module_key__ab1j4';
+var escapeKeyKeycode = 27;
+var keymodifiers = [];
+function callback(data) {
+    /** data = {
+    * extension_id: addon_key__module_key__ab1j4
+    * addon_key
+    * key
+    * keycode: 27
+    * modifiers: []
+    * }
+    */
+
+    alert(data.keycode + ' key pressed inside add-on iframe');
+}
+// an iframe must load before you can bind to it.
+connectHost.onIframeEstablished(function(extension){
+    connectHost.onKeyEvent(extension.extension_id, escapeKeyKeycode, callback);
+});
+```
+
+Lifecycle
+---------
+
+* connectHost.onIframeEstablished - a callback triggered when an iframe successfully contacts the parent page.
+* connectHost.onIframeUnload - a callback triggered when window.onunload is called inside the iframe.
+* connectHost.destroy - call this to clean up destroyed connect add-ons - helpful for SPA web apps that need to free memory.
+
+
+JWT and the content resolver
+---
+
+There are instances when a connect add-on is created but the URL is unknown (or if you use JWT, that it's expired).
+
+In these instances you can register a function to delegate to. Connect will call this function and wait before creating the iframe until it has responded - usually requiring your application to callback to your server.
+The example below uses jQuery promises, but any promise library should work (note: jQuery.ajax also returns a promise).
+
+```javascript
+function contentResolver(extension) {
+  var promise = jQuery.Deferred(function(defer){
+    // do some work here, then resolve to what would be passed to connectHost.create
+    defer.resolve({
+      url: 'the full iframe url from the server',
+      addon_key: 'my-addon-key',
+      key: 'my-module-key',
+      options: {} // same options as connectHost.create({options:{}})
+    });
+  }).promise();
+  return promise;
+}
+
+connectHost.registerContentResolver.resolveByExtension(contentResolver);
+```
+
+
 Requirements
 ------------
 
-- Node LTS (currently v4.4.2)
+- Node LTS (currently v4.x)
 - NPM
 
 Installation
