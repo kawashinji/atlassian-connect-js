@@ -10,14 +10,14 @@ Based on [Simple XDM](https://bitbucket.org/atlassian/simple-xdm/)
 Hello API example
 -----------------------
 
-Modules allow you to expose new connect API's to plugin iframes.
+Modules allow you to expose new connect API's to add-on iframes.
 ```javascript
 connectHost.defineModule('example', {
     sayHello: function(name){ alert('hello ' + name); }
 });
 ```
 
-An addon may now call:
+An add-on may now call:
 ```javascript
 AP.example.sayHello('fred');
 ```
@@ -36,7 +36,7 @@ var addonFilter = {
     key: 'my-module-key'
 };
 var eventData = {
-    name: 'fed';
+    name: 'fred';
 };
 connectHost.broadcastEvent(eventName, addonFilter, eventData);
 ```
@@ -81,13 +81,13 @@ Lifecycle
 
 * connectHost.onIframeEstablished - a callback triggered when an iframe successfully contacts the parent page.
 * connectHost.onIframeUnload - a callback triggered when window.onunload is called inside the iframe.
-* connectHost.destroy - call this to clean up destroyed connect addons - helpful for SPA web apps that need to free memory.
+* connectHost.destroy - call this to clean up destroyed connect add-ons - helpful for SPA web apps that need to free memory.
 
 
 JWT and the content resolver
 ---
 
-There are instances when a connect add-on is created but the URL is unknown (or if you use JWT it's expired).
+There are instances when a connect add-on is created but the URL is unknown (or if you use JWT, that it's expired).
 
 In these instances you can register a function to delegate to. Connect will call this function and wait before creating the iframe until it has responded - usually requiring your application to callback to your server.
 The example below uses jQuery promises, but any promise library should work (note: jQuery.ajax also returns a promise).
@@ -113,7 +113,7 @@ connectHost.registerContentResolver.resolveByExtension(contentResolver);
 Requirements
 ------------
 
-- Node LTS (currently v4.4.2)
+- Node LTS (currently v4.x)
 - NPM
 
 Installation
