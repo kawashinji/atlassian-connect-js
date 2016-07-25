@@ -40,6 +40,10 @@ class InlineDialogWebItem {
   }
 
   triggered(data) {
+    // don't trigger on hover, when hover is not specified.
+    if(data.event.type !== "click" && !data.extension.options.onHover){
+      return;
+    }
     var $target = $(data.event.currentTarget);
     var webitemId = $target.data(WEBITEM_UID_KEY);
 
