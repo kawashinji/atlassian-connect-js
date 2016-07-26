@@ -636,7 +636,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 /**
 * Extension wide configuration values
 */
-
 var ConfigurationOptions = function () {
   function ConfigurationOptions() {
     _classCallCheck(this, ConfigurationOptions);
