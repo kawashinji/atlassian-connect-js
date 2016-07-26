@@ -49,7 +49,7 @@ function build(entryModule, distModule, options) {
     ]
   }).then(function (bundle) {
     return bundle.write({
-      format: 'umd',
+      format: options.format || 'umd',
       moduleId: options.standalone || distModule,
       moduleName: options.standalone || distModule,
       dest: './dist/' + distModule + '.js'
@@ -62,6 +62,7 @@ function buildPlugin(options) {
   return build('src/plugin/index.js', 'iframe', {
     standalone: 'AP',
     env: {ENV: 'plugin'},
+    format: 'iife',
     watch: options.watch
   });
 }

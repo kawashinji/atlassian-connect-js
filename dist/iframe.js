@@ -1,8 +1,5 @@
-(function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define('AP', factory) :
-  (global.AP = factory());
-}(this, function () { 'use strict';
+var AP = (function () {
+  'use strict';
 
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
     return typeof obj;
@@ -1600,4 +1597,4 @@ var   document$1 = window.document;
 
   return plugin;
 
-}));
+}());
