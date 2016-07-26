@@ -3829,7 +3829,7 @@ var InlineDialogWebItem = function () {
     key: 'triggered',
     value: function triggered(data) {
       // don't trigger on hover, when hover is not specified.
-      if (data.event.type !== "click" && !data.extension.options.onHover) {
+      if (data.event.type !== 'click' && !data.extension.options.onHover) {
         return;
       }
       var $target = (0, _dollar2.default)(data.event.currentTarget);
