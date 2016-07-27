@@ -1521,7 +1521,7 @@ var   document$1 = window.document;
   function getOrCreate(name) {
     // get defined module
     if (modules[name]) {
-      return modules[name] = modules[name];
+      return modules[name];
     }
 
     // get a host module
