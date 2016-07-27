@@ -36,26 +36,47 @@ function reqOne(name, callback) {
 }
 
 function getOrCreate(name) {
+  // get defined module
   if (modules[name]) {
-    return modules[name] = modules[name];
-  } else if (AP._hostModules[name]){
-    return modules[name] = {
-      name: name,
-      exports: AP._hostModules[name]
-    };
-  } else {
-    return modules[name] = {
-      name: name,
-      exports: function () {
-        function exports() {
-          var target = exports.__target__;
-          if (target) {
-            return target.apply(window, arguments);
-          }
+    return modules[name];
+  }
+
+  // get a host module
+  var hostModule = getFromHostModules(name);
+  if (hostModule) {
+    return modules[name] = hostModule
+  }
+
+  // create a new module
+  return modules[name] = {
+    name: name,
+    exports: function () {
+      function exports() {
+        var target = exports.__target__;
+        if (target) {
+          return target.apply(window, arguments);
         }
-        return exports;
-      }()
-    };
+      }
+      return exports;
+    }()
+  };
+}
+
+function getFromHostModules(name) {
+  var module;
+  if (AP._hostModules) {
+    if (AP._hostModules[name]) {
+      module = AP._hostModules[name];
+    }
+    if (AP._hostModules._globals && AP._hostModules._globals[name]) {
+      module = AP._hostModules._globals[name];
+    }
+    if (module) {
+      return {
+        name: name,
+        exports: module
+      }
+    }
   }
 }
 
