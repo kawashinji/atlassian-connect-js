@@ -73,7 +73,7 @@ function getOptionsForWebItem($target) {
   return options;
 }
 
-module.exports = {
+export default {
   sanitizeTriggers,
   uniqueId,
   getExtensionKey,

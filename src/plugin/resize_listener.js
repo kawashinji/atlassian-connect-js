@@ -1,5 +1,3 @@
-import $ from './dollar';
-
 // Normalize overflow/underflow events across browsers
 // http://www.backalleycoder.com/2013/03/14/oft-overlooked-overflow-and-underflow-events/
 function addFlowListener(element, type, fn) {
@@ -70,7 +68,7 @@ function addListener(element, fn) {
     matchFlow({});
   }
   var events = element._flowEvents || (element._flowEvents = []);
-  if ($.inArray(fn, events) === -1) {
+  if (events.indexOf(fn) === -1) {
     events.push(fn);
   }
   if (!resize) {

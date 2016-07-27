@@ -92,22 +92,6 @@ export default {
     };
   },
 
-  inArray: function (value, array, fromIndex) {
-    //optimisation for all browsers after IE8
-    if (Array.prototype.indexOf) {
-      return Array.prototype.indexOf.call(array, value, fromIndex);
-    }
-
-    var k = fromIndex >>> 0;
-    var len = array.length >>> 0;
-    for (; k < len; k += 1) {
-      if (array[k] === value) {
-        return k;
-      }
-    }
-    return -1;
-  },
-
   isFunction: function (fn) {
     return typeof fn === 'function';
   },

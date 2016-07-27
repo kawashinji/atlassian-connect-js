@@ -1,4 +1,4 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import EventDispatcher from '../dispatchers/event_dispatcher';
 
 export default {
   timeout($el, extension) {

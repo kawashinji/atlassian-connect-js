@@ -1,6 +1,5 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
-import WebItemComponent from 'components/webitem';
-import WebItemUtils from 'utils/webitem';
+import EventDispatcher from '../dispatchers/event_dispatcher';
+import WebItemComponent from '../components/webitem';
 
 export default {
   addWebItem: (potentialWebItem) => {

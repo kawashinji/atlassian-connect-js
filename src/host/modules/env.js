@@ -1,6 +1,6 @@
 import $ from '../dollar';
-import EnvActions from 'actions/env_actions';
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import EnvActions from '../actions/env_actions';
+import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
 
 var debounce = AJS.debounce || $.debounce;

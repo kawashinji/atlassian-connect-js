@@ -9,6 +9,6 @@ function prefixCookie (addonKey, name){
   return addonKey + '$$' + name;
 }
 
-module.exports = {
+export default {
   prefixCookie
 };

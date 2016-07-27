@@ -1,6 +1,6 @@
-import DialogComponent from 'components/dialog';
-import IframeContainerComponent from 'components/iframe_container';
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import DialogComponent from './dialog';
+import IframeContainerComponent from './iframe_container';
+import EventDispatcher from '../dispatchers/event_dispatcher';
 
 class DialogExtension {
 

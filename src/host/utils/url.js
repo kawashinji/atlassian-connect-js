@@ -1,5 +1,5 @@
 import jsuri from 'jsuri';
-import jwtUtil from 'utils/jwt';
+import jwtUtil from './jwt';
 
 function isJwtExpired(urlStr) {
   var jwtStr = _getJwt(urlStr);
@@ -17,7 +17,7 @@ function hasJwt(url) {
 
 }
 
-module.exports = {
+export default {
   hasJwt,
   isJwtExpired
 }

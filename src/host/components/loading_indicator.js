@@ -1,7 +1,6 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
-import LoadingIndicatorActions from 'actions/loading_indicator_actions';
+import EventDispatcher from '../dispatchers/event_dispatcher';
+import LoadingIndicatorActions from '../actions/loading_indicator_actions';
 import $ from '../dollar';
-import util from '../util';
 
 const LOADING_INDICATOR_CLASS = 'ap-status-indicator';
 

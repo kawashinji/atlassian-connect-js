@@ -1,7 +1,7 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import EventDispatcher from '../dispatchers/event_dispatcher';
 import simpleXDM from 'simple-xdm/host';
 
-module.exports = {
+export default {
   notifyIframeCreated: function($el, extension) {
     EventDispatcher.dispatch('iframe-create', {$el, extension});
   },

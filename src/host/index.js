@@ -1,7 +1,7 @@
-import AnalyticsDispatcher from 'dispatchers/analytics_dispatcher';
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import AnalyticsDispatcher from './dispatchers/analytics_dispatcher';
+import EventDispatcher from './dispatchers/event_dispatcher';
 import simpleXDM from 'simple-xdm/host';
-import jwtActions from 'actions/jwt_actions';
+import jwtActions from './actions/jwt_actions';
 import events from './modules/events';
 import create from './create';
 import dialog from './modules/dialog';
@@ -11,16 +11,16 @@ import loadingIndicator from './components/loading_indicator';
 import messages from './modules/messages';
 import flag from './modules/flag';
 import analytics from './modules/analytics';
-import ModuleActions from 'actions/module_actions';
-import DomEventActions from 'actions/dom_event_actions';
+import ModuleActions from './actions/module_actions';
+import DomEventActions from './actions/dom_event_actions';
 import _ from './underscore';
-import EventActions from 'actions/event_actions';
-import IframeActions from 'actions/iframe_actions';
-import DialogExtensionActions from 'actions/dialog_extension_actions';
+import EventActions from './actions/event_actions';
+import IframeActions from './actions/iframe_actions';
+import DialogExtensionActions from './actions/dialog_extension_actions';
 
-import InlineDialogWebItemComponent from 'components/inline_dialog_webitem';
-import DialogWebItemComponent from 'components/dialog_webitem';
-import DialogExtensionComponent from 'components/dialog_extension';
+import InlineDialogWebItemComponent from './components/inline_dialog_webitem';
+import DialogWebItemComponent from './components/dialog_webitem';
+import DialogExtensionComponent from './components/dialog_extension';
 
 /**
  * Private namespace for host-side code.
@@ -47,8 +47,6 @@ simpleXDM.defineModule('env', env);
 simpleXDM.defineModule('events', events);
 simpleXDM.defineModule('_analytics', analytics);
 
-// rpc.extend(propagator);
-
 EventDispatcher.register('module-define-custom', function(data){
   simpleXDM.defineModule(data.name, data.methods);
 });
@@ -62,7 +60,7 @@ simpleXDM.registerRequestNotifier(function(data){
   });
 });
 
-module.exports = {
+export default {
   dialog: {
     create: (extension, dialogOptions) => {
       DialogExtensionActions.open(extension, dialogOptions);

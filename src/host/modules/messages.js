@@ -57,7 +57,7 @@ function showMessage(name, title, body, options) {
     body: AJS.escapeHtml(body)
   });
 
-  if ($.inArray(name, MESSAGE_TYPES) < 0) {
+  if (MESSAGE_TYPES.indexOf(name) < 0) {
     throw 'Invalid message type. Must be: ' + MESSAGE_TYPES.join(', ');
   }
   if (validateMessageId(options.id)) {
@@ -84,7 +84,22 @@ $(document).on('aui-message-close', function (e, $msg) {
   }
 });
 
-var toExport = {
+function messageModule(messageType) {
+  return {
+    constructor: function(title, body, options, callback) {
+      if(options._context) {
+        callback = options;
+        options = {};
+      }
+      const _id = callback._id;
+      options.id = MSGID_PREFIX + _id;
+      deprecatedShowMessage(messageType, title, body, options);
+      _messages[_id] = this;
+    }
+  }
+}
+
+export default {
   /**
   * Close a message
   * @name clear
@@ -128,141 +143,131 @@ var toExport = {
     if (_messages[id]) {
       _messages[id].onCloseTrigger = callback;
     }
-  }
+  },
+
+  /**
+  * Show a generic message
+  * @name generic
+  * @method
+  * @memberof module:messages#
+  * @param    {String}            title       Sets the title text of the message.
+  * @param    {String}            body        The main content of the message.
+  * @param    {Object}            options             Message Options
+  * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+  * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+  * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+  * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+  * @returns  {String}    The id to be used when clearing the message
+  * @example
+  * AP.require("messages", function(messages){
+  *   //create a message
+  *   var message = messages.generic('title', 'generic message example');
+  * });
+  */
+  generic: messageModule('generic'),
+
+  /**
+  * Show an error message
+  * @name error
+  * @method
+  * @memberof module:messages#
+  * @param    {String}            title       Sets the title text of the message.
+  * @param    {String}            body        The main content of the message.
+  * @param    {Object}            options             Message Options
+  * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+  * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+  * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+  * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+  * @returns  {String}    The id to be used when clearing the message
+  * @example
+  * AP.require("messages", function(messages){
+  *   //create a message
+  *   var message = messages.error('title', 'error message example');
+  * });
+  */
+  error: messageModule('error'),
+
+  /**
+  * Show a warning message
+  * @name warning
+  * @method
+  * @memberof module:messages#
+  * @param    {String}            title       Sets the title text of the message.
+  * @param    {String}            body        The main content of the message.
+  * @param    {Object}            options             Message Options
+  * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+  * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+  * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+  * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+  * @returns  {String}    The id to be used when clearing the message
+  * @example
+  * AP.require("messages", function(messages){
+  *   //create a message
+  *   var message = messages.warning('title', 'warning message example');
+  * });
+  */
+  warning: messageModule('warning'),
+
+  /**
+  * Show a success message
+  * @name success
+  * @method
+  * @memberof module:messages#
+  * @param    {String}            title       Sets the title text of the message.
+  * @param    {String}            body        The main content of the message.
+  * @param    {Object}            options             Message Options
+  * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+  * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+  * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+  * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+  * @returns  {String}    The id to be used when clearing the message
+  * @example
+  * AP.require("messages", function(messages){
+  *   //create a message
+  *   var message = messages.success('title', 'success message example');
+  * });
+  */
+  success: messageModule('success'),
+
+  /**
+  * Show an info message
+  * @name info
+  * @method
+  * @memberof module:messages#
+  * @param    {String}            title       Sets the title text of the message.
+  * @param    {String}            body        The main content of the message.
+  * @param    {Object}            options             Message Options
+  * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+  * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+  * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+  * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+  * @returns  {String}    The id to be used when clearing the message
+  * @example
+  * AP.require("messages", function(messages){
+  *   //create a message
+  *   var message = messages.info('title', 'info message example');
+  * });
+  */
+  info: messageModule('info'),
+
+  /**
+  * Show a hint message
+  * @name hint
+  * @method
+  * @memberof module:messages#
+  * @param    {String}            title               Sets the title text of the message.
+  * @param    {String}            body                The main content of the message.
+  * @param    {Object}            options             Message Options
+  * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+  * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+  * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+  * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+  * @returns  {String}    The id to be used when clearing the message
+  * @example
+  * AP.require("messages", function(messages){
+  *   //create a message
+  *   var message = messages.hint('title', 'hint message example');
+  * });
+  */
+  hint: messageModule('hint')
 };
-
-/**
-* Show a generic message
-* @name generic
-* @method
-* @memberof module:messages#
-* @param    {String}            title       Sets the title text of the message.
-* @param    {String}            body        The main content of the message.
-* @param    {Object}            options             Message Options
-* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-* @returns  {String}    The id to be used when clearing the message
-* @example
-* AP.require("messages", function(messages){
-*   //create a message
-*   var message = messages.generic('title', 'generic message example');
-* });
-*/
-
-/**
-* Show an error message
-* @name error
-* @method
-* @memberof module:messages#
-* @param    {String}            title       Sets the title text of the message.
-* @param    {String}            body        The main content of the message.
-* @param    {Object}            options             Message Options
-* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-* @returns  {String}    The id to be used when clearing the message
-* @example
-* AP.require("messages", function(messages){
-*   //create a message
-*   var message = messages.error('title', 'error message example');
-* });
-*/
-
-/**
-* Show a warning message
-* @name warning
-* @method
-* @memberof module:messages#
-* @param    {String}            title       Sets the title text of the message.
-* @param    {String}            body        The main content of the message.
-* @param    {Object}            options             Message Options
-* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-* @returns  {String}    The id to be used when clearing the message
-* @example
-* AP.require("messages", function(messages){
-*   //create a message
-*   var message = messages.warning('title', 'warning message example');
-* });
-*/
-
-/**
-* Show a success message
-* @name success
-* @method
-* @memberof module:messages#
-* @param    {String}            title       Sets the title text of the message.
-* @param    {String}            body        The main content of the message.
-* @param    {Object}            options             Message Options
-* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-* @returns  {String}    The id to be used when clearing the message
-* @example
-* AP.require("messages", function(messages){
-*   //create a message
-*   var message = messages.success('title', 'success message example');
-* });
-*/
-
-/**
-* Show an info message
-* @name info
-* @method
-* @memberof module:messages#
-* @param    {String}            title       Sets the title text of the message.
-* @param    {String}            body        The main content of the message.
-* @param    {Object}            options             Message Options
-* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-* @returns  {String}    The id to be used when clearing the message
-* @example
-* AP.require("messages", function(messages){
-*   //create a message
-*   var message = messages.info('title', 'info message example');
-* });
-*/
-
-/**
-* Show a hint message
-* @name hint
-* @method
-* @memberof module:messages#
-* @param    {String}            title               Sets the title text of the message.
-* @param    {String}            body                The main content of the message.
-* @param    {Object}            options             Message Options
-* @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-* @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-* @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-* @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-* @returns  {String}    The id to be used when clearing the message
-* @example
-* AP.require("messages", function(messages){
-*   //create a message
-*   var message = messages.hint('title', 'hint message example');
-* });
-*/
-MESSAGE_TYPES.forEach((messageType) => {
-  toExport[messageType] = {
-    constructor: function(title, body, options, callback) {
-      if(options._context) {
-        callback = options;
-        options = {};
-      }
-      const _id = callback._id;
-      options.id = MSGID_PREFIX + _id;
-      deprecatedShowMessage(messageType, title, body, options);
-      _messages[_id] = this;
-    }
-  };
-}, this);
-
-export default toExport;

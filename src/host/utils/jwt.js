@@ -1,5 +1,4 @@
-import base64 from 'base-64';
-import utf8 from 'utf8';
+import base64 from './base64';
 
 function parseJwtIssuer(jwt) {
   return parseJwtClaims(jwt)['iss'];
@@ -24,7 +23,7 @@ function parseJwtClaims(jwt) {
     throw('Invalid JWT: encoded claims must be neither null nor empty-string.');
   }
 
-  var claimsString = utf8.decode(base64.decode.call(window, encodedClaims));
+  var claimsString = base64.decode.call(window, encodedClaims);
   return JSON.parse(claimsString);
 }
 

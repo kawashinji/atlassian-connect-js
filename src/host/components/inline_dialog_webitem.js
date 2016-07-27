@@ -1,9 +1,9 @@
-import WebItemActions from 'actions/webitem_actions';
-import EventDispatcher from 'dispatchers/event_dispatcher';
-import InlineDialogComponent from 'components/inline_dialog';
-import WebitemComponent from 'components/webitem';
-import WebItemUtils from 'utils/webitem';
-import IframeContainer from 'components/iframe_container';
+import WebItemActions from '../actions/webitem_actions';
+import EventDispatcher from '../dispatchers/event_dispatcher';
+import InlineDialogComponent from './inline_dialog';
+import WebitemComponent from './webitem';
+import WebItemUtils from '../utils/webitem';
+import IframeContainer from './iframe_container';
 import $ from '../dollar';
 import create from '../create';
 

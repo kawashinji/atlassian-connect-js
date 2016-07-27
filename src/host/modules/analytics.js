@@ -1,4 +1,4 @@
-import AnalyticsAction from 'actions/analytics_action';
+import AnalyticsAction from '../actions/analytics_action';
 
 export default {
   trackDeprecatedMethodUsed: (methodUsed, callback) => {

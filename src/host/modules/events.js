@@ -1,5 +1,5 @@
 import _ from '../underscore';
-import EventActions from 'actions/event_actions';
+import EventActions from '../actions/event_actions';
 
 export default {
   emit: function(name, ...args) {

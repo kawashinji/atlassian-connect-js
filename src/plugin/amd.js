@@ -61,7 +61,7 @@ function getOrCreate(name) {
 
 // define(name, objOrFn)
 // define(name, deps, fn(dep1, dep2, ...))
-module.exports = {
+export default {
   define: function (name, deps, exports) {
     var mod = getOrCreate(name);
     var factory;

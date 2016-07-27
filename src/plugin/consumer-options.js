@@ -48,4 +48,4 @@ class ConsumerOptions {
 
 }
 
-module.exports = new ConsumerOptions();
+export default new ConsumerOptions();

@@ -1,8 +1,8 @@
-import EventDispatcher from 'dispatchers/event_dispatcher';
+import EventDispatcher from '../dispatchers/event_dispatcher';
 import $ from '../dollar';
 import _ from '../underscore';
-import ButtonActions from 'actions/button_actions';
-import ButtonUtils from 'utils/button';
+import ButtonActions from '../actions/button_actions';
+import ButtonUtils from '../utils/button';
 
 const BUTTON_TYPES = ['primary', 'link', 'secondary'];
 var buttonId = 0;

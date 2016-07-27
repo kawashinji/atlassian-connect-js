@@ -1,6 +1,6 @@
 import util from '../util';
 
-module.exports = {
+export default {
   optionsToAttributes: function(options){
     var sanitized = {};
     if(options && typeof options ==='object'){
