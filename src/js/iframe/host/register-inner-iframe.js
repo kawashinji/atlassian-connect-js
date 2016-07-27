@@ -73,6 +73,19 @@ require(["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
     }
 
     /**
+     * Checks if the addonOriginMap addonKey matches the origin
+     *
+     * @param addonKey
+     * @param origin
+     * @returns {boolean}
+     */
+    function keyMatchesOrigin(addonKey, origin) {
+        return  addonKey && _AP.addonOriginMap &&
+                _AP.addonOriginMap[addonKey] !== undefined &&
+                _AP.addonOriginMap[addonKey].toLowerCase() === origin.toLowerCase();
+    }
+
+    /**
      * Get all the IFrame elements in the page
      *
      * @returns {Array} a array with all the iframe elements
@@ -93,7 +106,9 @@ require(["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
         // Extract message payload from the event
         var payload = event.data,
             source = event.source,
-            channelId = payload.c;
+            origin = event.origin,
+            channelId = payload.c,
+            addonKey = payload.k;
 
         //This module is only used to initialise inner iframes. Ignore all messages from Confluence.
         if (source === window.top) {
@@ -107,6 +122,10 @@ require(["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
         }
 
         if (alreadyInitialised(channelId)) {
+            return;
+        }
+
+        if (!keyMatchesOrigin(addonKey, origin)){
             return;
         }
 
