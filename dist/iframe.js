@@ -1519,26 +1519,47 @@ var   document$1 = window.document;
   }
 
   function getOrCreate(name) {
+    // get defined module
     if (modules[name]) {
       return modules[name] = modules[name];
-    } else if (plugin._hostModules[name]) {
-      return modules[name] = {
-        name: name,
-        exports: plugin._hostModules[name]
-      };
-    } else {
-      return modules[name] = {
-        name: name,
-        exports: function () {
-          function exports() {
-            var target = exports.__target__;
-            if (target) {
-              return target.apply(window, arguments);
-            }
+    }
+
+    // get a host module
+    var hostModule = getFromHostModules(name);
+    if (hostModule) {
+      return modules[name] = hostModule;
+    }
+
+    // create a new module
+    return modules[name] = {
+      name: name,
+      exports: function () {
+        function exports() {
+          var target = exports.__target__;
+          if (target) {
+            return target.apply(window, arguments);
           }
-          return exports;
-        }()
-      };
+        }
+        return exports;
+      }()
+    };
+  }
+
+  function getFromHostModules(name) {
+    var module;
+    if (plugin._hostModules) {
+      if (plugin._hostModules[name]) {
+        module = plugin._hostModules[name];
+      }
+      if (plugin._hostModules._globals && plugin._hostModules._globals[name]) {
+        module = plugin._hostModules._globals[name];
+      }
+      if (module) {
+        return {
+          name: name,
+          exports: module
+        };
+      }
     }
   }
 
