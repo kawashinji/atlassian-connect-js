@@ -106,6 +106,7 @@ require(["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
         // Extract message payload from the event
         var payload = event.data,
             source = event.source,
+            origin = event.origin,
             channelId = payload.c,
             addonKey = payload.k;
 
