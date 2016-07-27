@@ -38,7 +38,7 @@ function reqOne(name, callback) {
 function getOrCreate(name) {
   // get defined module
   if (modules[name]) {
-    return modules[name] = modules[name];
+    return modules[name];
   }
 
   // get a host module
