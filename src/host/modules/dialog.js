@@ -45,6 +45,7 @@ EventDispatcher.register('dialog-button-click', (data) => {
  */
 class Dialog {
   constructor(options, callback) {
+    callback = _.last(arguments);
     const _id = callback._id;
     const extension = callback._context.extension;
 
@@ -128,6 +129,7 @@ class Button {
    * });
    */
   isEnabled(callback) {
+    callback = _.last(arguments);
     callback(this.enabled);
   }
   /**
@@ -166,6 +168,7 @@ class Button {
    * });
    */
   trigger(callback) {
+    callback = _.last(arguments);
     if (this.enabled) {
       DialogActions.dialogMessage({
         name: this.name,
@@ -190,6 +193,7 @@ class Button {
    * });
    */
   isHidden(callback) {
+    callback = _.last(arguments);
     callback(this.hidden);
   }
   /**
@@ -234,6 +238,7 @@ function getDialogFromContext(context) {
 
 class CreateButton {
   constructor(options, callback) {
+    callback = _.last(arguments);
     DialogExtensionActions.addUserButton({
       identifier: options.identifier,
       text: options.text
@@ -314,10 +319,7 @@ export default {
          * });
    */
   close: (data, callback) => {
-    if (!$.isFunction(callback)) {
-      callback = data;
-      data = {};
-    }
+    callback = _.last(arguments);
     var dialogToClose;
     if(callback._context.extension.options.isDialog){
       dialogToClose = DialogExtensionComponent.getByExtension(callback._context.extension.id)[0];
@@ -345,6 +347,7 @@ export default {
    * @return {Object} Data Object passed to the dialog on creation.
    */
   getCustomData: (callback) => {
+    callback = _.last(arguments);
     const dialog = getDialogFromContext(callback._context);
     if (dialog) {
       callback(dialog.customData);

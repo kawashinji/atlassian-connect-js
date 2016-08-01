@@ -7,6 +7,7 @@ import $ from '../dollar';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import FlagActions from '../actions/flag_actions';
 import FlagComponent from '../components/flag';
+import _ from '../underscore';
 
 const _flags = {};
 
@@ -16,7 +17,7 @@ const _flags = {};
 */
 class Flag {
   constructor(options, callback) {
-
+    callback = _.last(arguments);
     this.flag = FlagComponent.render({
       type: options.type,
       title: options.title,

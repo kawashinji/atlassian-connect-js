@@ -2,14 +2,17 @@ import $ from '../dollar';
 import EnvActions from '../actions/env_actions';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
+import _ from '../underscore';
 
 var debounce = AJS.debounce || $.debounce;
 
 export default {
   getLocation: function (callback) {
+    callback = _.last(arguments);
     callback(window.location.href);
   },
   resize: debounce(function(width, height, callback) {
+    callback = _.last(arguments);
     var options = callback._context.extension.options;
     if (options && !options.isDialog){
       EnvActions.iframeResize(width, height, callback._context);
@@ -17,6 +20,7 @@ export default {
   }),
 
   sizeToParent: debounce(function (callback) {
+    callback = _.last(arguments);
     // sizeToParent is only available for general-pages
     if (callback._context.extension.options.isFullPage) {
       // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this

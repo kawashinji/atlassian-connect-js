@@ -3821,6 +3821,7 @@
 	  DialogExtensionComponent.render(data.extension, data.options);
 	});
 
+	var _arguments = arguments;
 	var _dialogs = {};
 
 	EventDispatcher$1.register('dialog-close', function (data) {
@@ -3861,6 +3862,7 @@
 	var Dialog = function Dialog(options, callback) {
 	  classCallCheck(this, Dialog);
 
+	  callback = _.last(arguments);
 	  var _id = callback._id;
 	  var extension = callback._context.extension;
 
@@ -3957,6 +3959,7 @@
 	  }, {
 	    key: 'isEnabled',
 	    value: function isEnabled(callback) {
+	      callback = _.last(arguments);
 	      callback(this.enabled);
 	    }
 	    /**
@@ -4003,6 +4006,7 @@
 	  }, {
 	    key: 'trigger',
 	    value: function trigger(callback) {
+	      callback = _.last(arguments);
 	      if (this.enabled) {
 	        DialogActions.dialogMessage({
 	          name: this.name,
@@ -4030,6 +4034,7 @@
 	  }, {
 	    key: 'isHidden',
 	    value: function isHidden(callback) {
+	      callback = _.last(arguments);
 	      callback(this.hidden);
 	    }
 	    /**
@@ -4084,6 +4089,7 @@
 	var CreateButton = function CreateButton(options, callback) {
 	  classCallCheck(this, CreateButton);
 
+	  callback = _.last(arguments);
 	  DialogExtensionActions.addUserButton({
 	    identifier: options.identifier,
 	    text: options.text
@@ -4165,10 +4171,7 @@
 	         * });
 	   */
 	  close: function close(data, callback) {
-	    if (!$.isFunction(callback)) {
-	      callback = data;
-	      data = {};
-	    }
+	    callback = _.last(_arguments);
 	    var dialogToClose;
 	    if (callback._context.extension.options.isDialog) {
 	      dialogToClose = DialogExtensionComponent.getByExtension(callback._context.extension.id)[0];
@@ -4196,6 +4199,7 @@
 	   * @return {Object} Data Object passed to the dialog on creation.
 	   */
 	  getCustomData: function getCustomData(callback) {
+	    callback = _.last(_arguments);
 	    var dialog = getDialogFromContext(callback._context);
 	    if (dialog) {
 	      callback(dialog.customData);
@@ -4274,9 +4278,11 @@
 
 	var env = {
 	  getLocation: function getLocation(callback) {
+	    callback = _.last(arguments);
 	    callback(window.location.href);
 	  },
 	  resize: debounce(function (width, height, callback) {
+	    callback = _.last(arguments);
 	    var options = callback._context.extension.options;
 	    if (options && !options.isDialog) {
 	      EnvActions.iframeResize(width, height, callback._context);
@@ -4284,6 +4290,7 @@
 	  }),
 
 	  sizeToParent: debounce(function (callback) {
+	    callback = _.last(arguments);
 	    // sizeToParent is only available for general-pages
 	    if (callback._context.extension.options.isFullPage) {
 	      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
@@ -4410,10 +4417,7 @@
 	function messageModule(messageType) {
 	  return {
 	    constructor: function constructor(title, body, options, callback) {
-	      if (options._context) {
-	        callback = options;
-	        options = {};
-	      }
+	      callback = _.last(arguments);
 	      var _id = callback._id;
 	      options.id = MSGID_PREFIX + _id;
 	      deprecatedShowMessage(messageType, title, body, options);
@@ -4462,6 +4466,7 @@
 	  * });
 	  */
 	  onClose: function onClose(msg, callback) {
+	    callback = _.last(arguments);
 	    var id = msg._id;
 	    if (_messages[id]) {
 	      _messages[id].onCloseTrigger = callback;
@@ -4678,7 +4683,7 @@
 	  function Flag(options, callback) {
 	    classCallCheck(this, Flag);
 
-
+	    callback = _.last(arguments);
 	    this.flag = FlagComponent.render({
 	      type: options.type,
 	      title: options.title,
@@ -4794,8 +4799,10 @@
 	  }
 	};
 
+	var _arguments$1 = arguments;
 	var analytics$1 = {
 	  trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, callback) {
+	    callback = _.last(_arguments$1);
 	    AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
 	  }
 	};
@@ -5276,7 +5283,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-alpha.9';
+	  window._AP.version = '5.0.0-alpha.10';
 	}
 
 	host.defineModule('messages', messages);
