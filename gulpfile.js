@@ -86,8 +86,8 @@ function buildCss(options) {
 
   if(options.minify){
     g.pipe(concat('connect-host.min.css'))
-        .pipe(cleanCSS())
-        .pipe(gulp.dest(options.dest));
+      .pipe(cleanCSS())
+      .pipe(gulp.dest(options.dest));
   }
   return g;
 }
