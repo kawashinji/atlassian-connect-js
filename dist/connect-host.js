@@ -4346,6 +4346,12 @@
 	  }
 	};
 
+	var AnalyticsAction = {
+	  trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, extension) {
+	    EventDispatcher$1.dispatch('analytics-deprecated-method-used', { methodUsed: methodUsed, extension: extension });
+	  }
+	};
+
 	var MESSAGE_BAR_ID = 'ac-message-container';
 	var MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
 	var MSGID_PREFIX = 'ap-message-';
@@ -4397,11 +4403,12 @@
 	  }
 	}
 
-	var deprecatedShowMessage = AJS.deprecate.fn(showMessage, 'AP.messages', {
-	  deprecationType: 'API',
-	  alternativeName: 'AP.flag',
-	  sinceVersion: 'ACJS 5.0'
-	});
+	function deprecatedShowMessage(name, title, body, options, callback) {
+	  var methodUsed = 'AP.messages.' + name;
+	  console.warn('DEPRECATED API - AP.messages.' + name + ' has been deprecated since ACJS 5.0 and will be removed in a future release. Use AP.flag.create instead.');
+	  AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
+	  showMessage(name, title, body, options);
+	}
 
 	$$1(document).on('aui-message-close', function (e, $msg) {
 	  var _id = $msg.attr('id').replace(MSGID_PREFIX, '');
@@ -4419,7 +4426,7 @@
 	      callback = _.last(arguments);
 	      var _id = callback._id;
 	      options.id = MSGID_PREFIX + _id;
-	      deprecatedShowMessage(messageType, title, body, options);
+	      deprecatedShowMessage(messageType, title, body, options, callback);
 	      _messages[_id] = this;
 	    }
 	  };
@@ -4789,12 +4796,6 @@
 	    constructor: Flag,
 	    on: Flag.prototype.on,
 	    close: Flag.prototype.close
-	  }
-	};
-
-	var AnalyticsAction = {
-	  trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, extension) {
-	    EventDispatcher$1.dispatch('analytics-deprecated-method-used', { methodUsed: methodUsed, extension: extension });
 	  }
 	};
 
