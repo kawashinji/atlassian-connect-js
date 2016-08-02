@@ -46,7 +46,8 @@ function customButtonEvent(buttonIdentifier, args) {
 function submitOrCancelEvent(name, args) {
   let handlers = dialogHandlers[name];
 
-  if (typeof handlers === 'undefined') {
+  // ignore events that are triggered by button clicks
+  if (typeof args.button === 'undefined') {
     return;
   }
 
