@@ -1386,6 +1386,11 @@ var   document$1 = window.document;
 
   function submitOrCancelEvent(name, args) {
     var handlers = dialogHandlers[name];
+
+    if (typeof handlers === 'undefined') {
+      return;
+    }
+
     var shouldClose = name !== 'close';
     try {
       if (handlers) {

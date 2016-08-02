@@ -45,6 +45,11 @@ function customButtonEvent(buttonIdentifier, args) {
 
 function submitOrCancelEvent(name, args) {
   let handlers = dialogHandlers[name];
+
+  if (typeof handlers === 'undefined') {
+    return;
+  }
+
   let shouldClose = name !== 'close';
   try {
     if (handlers) {
