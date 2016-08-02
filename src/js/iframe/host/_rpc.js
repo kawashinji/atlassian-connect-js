@@ -42,7 +42,7 @@ define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri", "host/_util", "
             if(remoteJwt && jwtKeepAlive.isExpired(remoteJwt)){
                 promise = jwtKeepAlive.updateUrl({
                     addonKey: xdmConfig.remoteKey,
-                    moduleKey: options.ns,
+                    moduleKey: options.moduleKey,
                     productContext: options.productContext || {},
                     uiParams: xdmConfig.uiParams,
                     width: xdmConfig.props.width,
