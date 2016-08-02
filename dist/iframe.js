@@ -1386,13 +1386,14 @@ var   document$1 = window.document;
 
   function submitOrCancelEvent(name, args) {
     var handlers = dialogHandlers[name];
+    var shouldClose = name !== 'close';
 
     // ignore events that are triggered by button clicks
-    if (typeof args.button === 'undefined') {
+    // allow dialog.close through for close on ESC
+    if (shouldClose && typeof args.button === 'undefined') {
       return;
     }
 
-    var shouldClose = name !== 'close';
     try {
       if (handlers) {
         shouldClose = handlers.reduce(function (result, cb) {
