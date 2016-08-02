@@ -16,6 +16,7 @@
 
 import $ from '../dollar';
 import _ from '../underscore';
+import AnalyticsAction from '../actions/analytics_action';
 
 const MESSAGE_BAR_ID = 'ac-message-container';
 const MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
@@ -68,11 +69,12 @@ function showMessage(name, title, body, options) {
   }
 }
 
-const deprecatedShowMessage = AJS.deprecate.fn(showMessage, 'AP.messages', {
-  deprecationType: 'API',
-  alternativeName:'AP.flag',
-  sinceVersion:'ACJS 5.0'
-});
+function deprecatedShowMessage(name, title, body, options, callback) {
+  const methodUsed = `AP.messages.${name}`;
+  console.warn(`DEPRECATED API - AP.messages.${name} has been deprecated since ACJS 5.0 and will be removed in a future release. Use AP.flag.create instead.`);
+  AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
+  showMessage(name, title, body, options);
+}
 
 $(document).on('aui-message-close', function (e, $msg) {
   const _id = $msg.attr('id').replace(MSGID_PREFIX, '');
@@ -90,7 +92,7 @@ function messageModule(messageType) {
       callback = _.last(arguments);
       const _id = callback._id;
       options.id = MSGID_PREFIX + _id;
-      deprecatedShowMessage(messageType, title, body, options);
+      deprecatedShowMessage(messageType, title, body, options, callback);
       _messages[_id] = this;
     }
   }
