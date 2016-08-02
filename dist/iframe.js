@@ -616,7 +616,7 @@ var   document$1 = window.document;
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-alpha.9";
+      _this._version = "5.0.0-alpha.10";
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
         _this._setupAPIWithoutRequire(_this._data.api);
@@ -1412,7 +1412,7 @@ var   document$1 = window.document;
     }
   }
 
-  var original_dialogCreate = plugin._hostModules.dialog.create;
+  var original_dialogCreate = plugin.dialog.create.prototype.constructor.bind({});
 
   plugin.dialog.create = plugin._hostModules.dialog.create = function () {
     var dialog = original_dialogCreate.apply(undefined, arguments);

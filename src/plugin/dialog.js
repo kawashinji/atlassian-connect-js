@@ -69,7 +69,7 @@ function registerHandler(event, callback) {
   }
 }
 
-const original_dialogCreate = AP._hostModules.dialog.create;
+const original_dialogCreate = AP.dialog.create.prototype.constructor.bind({});
 
 AP.dialog.create = AP._hostModules.dialog.create = (...args) => {
   const dialog = original_dialogCreate(...args);

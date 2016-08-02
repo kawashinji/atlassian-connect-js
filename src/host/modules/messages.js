@@ -87,10 +87,7 @@ $(document).on('aui-message-close', function (e, $msg) {
 function messageModule(messageType) {
   return {
     constructor: function(title, body, options, callback) {
-      if(options._context) {
-        callback = options;
-        options = {};
-      }
+      callback = _.last(arguments);
       const _id = callback._id;
       options.id = MSGID_PREFIX + _id;
       deprecatedShowMessage(messageType, title, body, options);
@@ -139,6 +136,7 @@ export default {
   * });
   */
   onClose: function (msg, callback) {
+    callback = _.last(arguments);
     const id = msg._id;
     if (_messages[id]) {
       _messages[id].onCloseTrigger = callback;
