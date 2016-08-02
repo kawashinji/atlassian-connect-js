@@ -21,14 +21,15 @@ AP.define("navigator", ["_dollar", "_rpc"],
              * @property {String}        spacetools         The space tools page. Takes a `spaceKey` to identify the space.
              * @property {String}        dashboard          The dashboard of Confluence.
              * @property {String}        userprofile        The profile page for a specific user. Takes a `username` to identify the user.
+             * @property {String}        contentlist        The space list page for pages, blogs and custom content. Takes a `spaceKey` and a `contentType` to identify the content type.
              */
 
             /**
              * @class Navigator~context
-             * @property {String}        contentId          Identifies a piece of content. Required for the contentview target.
-             * @property {String}        contentType        Identifies the type of content. Can be either 'page' or 'blogpost'. Required for the contentedit target.
-             * @property {String}        spaceKey           Identifies a space. Required for the spaceview and spacetools targets.
-             * @property {String}        username           Identifies a user. Required for the userprofile target.
+             * @property {String}        contentId          Identifies a piece of content. Required for the `contentview` target.
+             * @property {String}        contentType        Identifies the type of content. Can be 'page', 'blogpost' or content type of custom content (ac:add-on-key:module-key). Required for the `contentlist` target.
+             * @property {String}        spaceKey           Identifies a space. Required for the `spaceview` and `spacetools` targets.
+             * @property {String}        username           Identifies a user. Required for the `userprofile` target.
              */
 
             /**
