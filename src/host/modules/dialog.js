@@ -318,7 +318,7 @@ export default {
          *   dialog.close({foo: 'bar'});
          * });
    */
-  close: (data, callback) => {
+  close: function (data, callback) {
     callback = _.last(arguments);
     var dialogToClose;
     if(callback._context.extension.options.isDialog){
@@ -346,7 +346,7 @@ export default {
    *
    * @return {Object} Data Object passed to the dialog on creation.
    */
-  getCustomData: (callback) => {
+  getCustomData: function (callback) {
     callback = _.last(arguments);
     const dialog = getDialogFromContext(callback._context);
     if (dialog) {

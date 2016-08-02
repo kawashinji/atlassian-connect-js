@@ -3821,7 +3821,6 @@
 	  DialogExtensionComponent.render(data.extension, data.options);
 	});
 
-	var _arguments = arguments;
 	var _dialogs = {};
 
 	EventDispatcher$1.register('dialog-close', function (data) {
@@ -4171,7 +4170,7 @@
 	         * });
 	   */
 	  close: function close(data, callback) {
-	    callback = _.last(_arguments);
+	    callback = _.last(arguments);
 	    var dialogToClose;
 	    if (callback._context.extension.options.isDialog) {
 	      dialogToClose = DialogExtensionComponent.getByExtension(callback._context.extension.id)[0];
@@ -4199,7 +4198,7 @@
 	   * @return {Object} Data Object passed to the dialog on creation.
 	   */
 	  getCustomData: function getCustomData(callback) {
-	    callback = _.last(_arguments);
+	    callback = _.last(arguments);
 	    var dialog = getDialogFromContext(callback._context);
 	    if (dialog) {
 	      callback(dialog.customData);
@@ -4799,10 +4798,9 @@
 	  }
 	};
 
-	var _arguments$1 = arguments;
 	var analytics$1 = {
 	  trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, callback) {
-	    callback = _.last(_arguments$1);
+	    callback = _.last(arguments);
 	    AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
 	  }
 	};

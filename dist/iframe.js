@@ -1412,7 +1412,7 @@ var   document$1 = window.document;
     }
   }
 
-  var original_dialogCreate = plugin._hostModules.dialog.create;
+  var original_dialogCreate = plugin.dialog.create.prototype.constructor.bind({});
 
   plugin.dialog.create = plugin._hostModules.dialog.create = function () {
     var dialog = original_dialogCreate.apply(undefined, arguments);
