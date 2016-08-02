@@ -2969,6 +2969,7 @@
 	    addon_key: extension.addon_key,
 	    key: extension.key,
 	    url: extension.url,
+	    origin: extension.origin,
 	    options: extension.options
 	  };
 	  return IframeContainerComponent.createExtension(simpleXdmExtension);
@@ -5275,7 +5276,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-alpha.7';
+	  window._AP.version = '5.0.0-alpha.8';
 	}
 
 	host.defineModule('messages', messages);
