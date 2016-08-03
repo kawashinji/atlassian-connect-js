@@ -82,6 +82,7 @@ AP.dialog.create = AP._hostModules.dialog.create = (...args) => {
   const dialog = original_dialogCreate(...args);
   /**
    * Allows the add-on to register a callback function for the given event. The listener is only called once and must be re-registered if needed.
+   * @deprecated Please use `AP.events.on("dialog.close", callback)` instead.
    * @memberOf Dialog~Dialog
    * @method on
    * @param {String} event name of the event to listen for, such as 'close'.
@@ -104,6 +105,7 @@ AP.dialog.getButton = AP._hostModules.dialog.getButton = function(name) {
     const button = original_dialogGetButton(name);
     /**
      * Registers a function to be called when the button is clicked.
+     * @deprecated Please use `AP.events.on("dialog.message", callback)` instead.
      * @method bind
      * @memberOf Dialog~DialogButton
      * @param {Function} callback function to be triggered on click or programatically.

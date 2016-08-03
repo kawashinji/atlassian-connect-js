@@ -338,6 +338,7 @@ export default {
   /**
    * Returns the data Object passed to the dialog at creation.
    * @noDemo
+   * @deprecated
    * @name customData
    * @method
    * @param {Function} callback - Callback method to be executed with the custom data.
