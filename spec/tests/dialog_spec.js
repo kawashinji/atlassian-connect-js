@@ -5,11 +5,18 @@ import DialogActions from 'src/host/actions/dialog_actions';
 
 function renderDialogWithCustomButton() {
   DialogComponent.render({
+    chrome: true,
     buttons: [{
       text: 'custom button',
       name: 'custom button',
       identifier: 'custom-button-1'
     }]
+  });
+}
+
+function renderDialogWithChrome() {
+  return DialogComponent.render({
+    chrome: true
   });
 }
 
@@ -44,7 +51,7 @@ describe('dialog component', () => {
     describe('chrome', () => {
 
       it('renders a chromed dialog by default', () => {
-        var $dialog = DialogComponent.render();
+        var $dialog = renderDialogWithChrome();
         expect($dialog.hasClass('aui-dialog2-chromeless')).toEqual(false);
       });
 
@@ -117,26 +124,26 @@ describe('dialog component', () => {
 
         describe('default', () => {
           it('gets the button visibility', () => {
-            DialogComponent.render();
+            renderDialogWithChrome();
             expect(DialogComponent.buttonIsVisible('submit')).toBe(true);
             expect(DialogComponent.buttonIsVisible('cancel')).toBe(true);
           });
 
           it('gets the button visibility of hidden buttons', () => {
-            DialogComponent.render();
+            renderDialogWithChrome();
             $('.aui-dialog2-footer-actions .ap-aui-button').hide();
             expect(DialogComponent.buttonIsVisible('submit')).toBe(false);
             expect(DialogComponent.buttonIsVisible('cancel')).toBe(false);
           });
 
           it('gets the button state', () => {
-            DialogComponent.render();
+            renderDialogWithChrome();
             expect(DialogComponent.buttonIsEnabled('submit')).toBe(true);
             expect(DialogComponent.buttonIsEnabled('cancel')).toBe(true);
           });
 
           it('gets the state of disabled buttons', () => {
-            DialogComponent.render();
+            renderDialogWithChrome();
             $('.aui-dialog2-footer-actions .ap-aui-button').attr('aria-disabled', true);
             expect(DialogComponent.buttonIsEnabled('submit')).toBe(false);
             expect(DialogComponent.buttonIsEnabled('cancel')).toBe(false);
