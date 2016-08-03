@@ -258,9 +258,9 @@ class CreateButton {
  * By default the dialog iframe is undecorated. It's up to you to style the dialog.
  * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
  *
- * <p>In order to maintain a consistent look and feel between the host application and the add-on,
- * we encourage you to style your dialogs to match Atlassian's Design Guidelines for modal dialogs.
- * To do that, you'll need to add the AUI styles to your dialog.</p>
+ * In order to maintain a consistent look and feel between the host application and the add-on, we encourage you to style your dialogs to match Atlassian's Design Guidelines for modal dialogs. 
+ *
+ * To do that, you'll need to add the AUI styles to your dialog.
  *
  * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog.html).
  * @exports Dialog
