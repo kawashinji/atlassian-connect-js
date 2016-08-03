@@ -11,7 +11,7 @@ var debounce = AJS.debounce || $.debounce;
  */
 export default {
   /**
-   * get the location of the host page
+   * Get the location of the current page of the host product.
    *
    * @param {Function} callback function (location) {...}
    * @example
@@ -24,7 +24,7 @@ export default {
     callback(window.location.href);
   },
   /**
-   * resize this iframe
+   * Resize the iframe to a specified width and height.
    *
    * Only content within an element with the class `ac-content` will be resized automatically.
    * Content without this identifier is sized according to the `body` element, and will dynamically grow, but not shrink.
@@ -47,7 +47,9 @@ export default {
     }
   }),
   /**
-   * Resizes the iframe, so it takes the entire page. Add-on may define to hide footer using data-options.
+   * Resize the iframe, so that it takes the entire page. Add-on may define to hide footer using data-options.
+   *
+   * Note that this method is only available for general page modules.
    *
    * @method
    * @param {boolean} hideFooter true if the footer is supposed to be hidden
