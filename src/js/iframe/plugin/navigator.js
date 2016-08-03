@@ -21,7 +21,7 @@ AP.define("navigator", ["_dollar", "_rpc"],
              * @property {String}        spacetools         The space tools page. Takes a `spaceKey` to identify the space.
              * @property {String}        dashboard          The dashboard of Confluence.
              * @property {String}        userprofile        The profile page for a specific user. Takes a `username` to identify the user.
-             * @property {String}        contentlist        The space list page for pages, blogs and custom content. Takes a `spaceKey` and a `contentType` to identify the content type.
+             * @property {String}        contentlist        The list/collector page for pages, blogs and custom content contained in a space. Takes a `spaceKey` and a `contentType` to identify the content type.
              */
 
             /**
