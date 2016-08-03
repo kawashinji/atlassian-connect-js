@@ -43,8 +43,12 @@ AP.registerAny(function(data, callback){
 
 export default {
   off: function(name, listener){
-    var index = events[name].indexOf(listener);
-    events[name].splice(index, 1);
+    if (events[name]) {
+      var index = events[name].indexOf(listener);
+      if (index > -1) {
+        events[name].splice(index, 1);
+      }
+    }
   },
   offAll: function(name){
     delete events[name];
@@ -62,9 +66,10 @@ export default {
     this.on(ANY_PREFIX, listener);
   },
   once: function(name, listener){
+    var eventsRef = this;
     this.on(name, function(){
       listener.call(null, arguments);
-      this.off(name, listener);
+      eventsRef.off(name, listener);
     });
   }
   /**
