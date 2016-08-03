@@ -248,7 +248,9 @@ class CreateButton {
 
 /**
  * The Dialog module provides a mechanism for launching an add-on's modules as modal dialogs from within an add-on's iframe.
+ *
  * A modal dialog displays information without requiring the user to leave the current page.
+ *
  * The dialog is opened over the entire window, rather than within the iframe itself.
  *
  * <h3>Styling your dialog to look like a standard Atlassian dialog</h3>
@@ -256,9 +258,9 @@ class CreateButton {
  * By default the dialog iframe is undecorated. It's up to you to style the dialog.
  * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
  *
- * In order to maintain a consistent look and feel between the host application and the add-on,
+ * <p>In order to maintain a consistent look and feel between the host application and the add-on,
  * we encourage you to style your dialogs to match Atlassian's Design Guidelines for modal dialogs.
- * To do that, you'll need to add the AUI styles to your dialog.
+ * To do that, you'll need to add the AUI styles to your dialog.</p>
  *
  * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog.html).
  * @exports Dialog
