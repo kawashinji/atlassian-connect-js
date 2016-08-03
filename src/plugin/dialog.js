@@ -46,6 +46,13 @@ function customButtonEvent(buttonIdentifier, args) {
 function submitOrCancelEvent(name, args) {
   let handlers = dialogHandlers[name];
   let shouldClose = name !== 'close';
+
+  // ignore events that are triggered by button clicks
+  // allow dialog.close through for close on ESC
+  if (shouldClose && typeof args.button === 'undefined') {
+    return;
+  }
+
   try {
     if (handlers) {
       shouldClose = handlers.reduce((result, cb) => cb(args) && result, shouldClose);

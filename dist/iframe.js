@@ -616,7 +616,7 @@ var   document$1 = window.document;
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-alpha.10";
+      _this._version = "5.0.0-beta";
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
         _this._setupAPIWithoutRequire(_this._data.api);
@@ -1387,6 +1387,13 @@ var   document$1 = window.document;
   function submitOrCancelEvent(name, args) {
     var handlers = dialogHandlers[name];
     var shouldClose = name !== 'close';
+
+    // ignore events that are triggered by button clicks
+    // allow dialog.close through for close on ESC
+    if (shouldClose && typeof args.button === 'undefined') {
+      return;
+    }
+
     try {
       if (handlers) {
         shouldClose = handlers.reduce(function (result, cb) {
