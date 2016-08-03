@@ -149,7 +149,7 @@ AP.dialog.createButton = AP._hostModules.dialog.createButton = function(options)
  * @memberOf module:Dialog
  * @method onDialogMessage
  * @param {String} buttonName - button either "cancel" or "submit"
- * @param {Function} listener - callback function invoked when the requested button is pressed 
+ * @param {Function} listener - callback function invoked when the requested button is pressed
  */
 AP.dialog.onDialogMessage = AP._hostModules.dialog.onDialogMessage = deprecate(registerHandler,
   'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');

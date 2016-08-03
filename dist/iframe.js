@@ -1425,6 +1425,7 @@ var   document$1 = window.document;
     var dialog = original_dialogCreate.apply(undefined, arguments);
     /**
      * Allows the add-on to register a callback function for the given event. The listener is only called once and must be re-registered if needed.
+     * @deprecated Please use `AP.events.on("dialog.close", callback)` instead.
      * @memberOf Dialog~Dialog
      * @method on
      * @param {String} event name of the event to listen for, such as 'close'.
@@ -1446,6 +1447,7 @@ var   document$1 = window.document;
       var button = original_dialogGetButton(name);
       /**
        * Registers a function to be called when the button is clicked.
+       * @deprecated Please use `AP.events.on("dialog.message", callback)` instead.
        * @method bind
        * @memberOf Dialog~DialogButton
        * @param {Function} callback function to be triggered on click or programatically.
@@ -1484,6 +1486,14 @@ var   document$1 = window.document;
     return plugin.dialog.getButton(buttonProperties.identifier);
   };
 
+  /**
+   * Register callbacks responding to messages from the host dialog, such as "submit" or "cancel"
+   * @deprecated Please use `AP.events.on("dialog.message", callback)` instead.
+   * @memberOf module:Dialog
+   * @method onDialogMessage
+   * @param {String} buttonName - button either "cancel" or "submit"
+   * @param {Function} listener - callback function invoked when the requested button is pressed
+   */
   plugin.dialog.onDialogMessage = plugin._hostModules.dialog.onDialogMessage = deprecate(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');
 
   if (!plugin.Dialog) {
