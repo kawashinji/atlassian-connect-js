@@ -3108,7 +3108,7 @@
 	  }, {
 	    key: '_chrome',
 	    value: function _chrome(options) {
-	      var returnval = true;
+	      var returnval = false;
 	      if (typeof options.chrome === 'boolean') {
 	        returnval = options.chrome;
 	      }
@@ -4097,7 +4097,9 @@
 
 	/**
 	 * The Dialog module provides a mechanism for launching an add-on's modules as modal dialogs from within an add-on's iframe.
+	 *
 	 * A modal dialog displays information without requiring the user to leave the current page.
+	 *
 	 * The dialog is opened over the entire window, rather than within the iframe itself.
 	 *
 	 * <h3>Styling your dialog to look like a standard Atlassian dialog</h3>
@@ -4105,8 +4107,8 @@
 	 * By default the dialog iframe is undecorated. It's up to you to style the dialog.
 	 * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
 	 *
-	 * In order to maintain a consistent look and feel between the host application and the add-on,
-	 * we encourage you to style your dialogs to match Atlassian's Design Guidelines for modal dialogs.
+	 * In order to maintain a consistent look and feel between the host application and the add-on, we encourage you to style your dialogs to match Atlassian's Design Guidelines for modal dialogs.
+	 *
 	 * To do that, you'll need to add the AUI styles to your dialog.
 	 *
 	 * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog.html).
@@ -4187,6 +4189,7 @@
 	  /**
 	   * Returns the data Object passed to the dialog at creation.
 	   * @noDemo
+	   * @deprecated Please use the [Events module](module-Events.html) instead.
 	   * @name customData
 	   * @method
 	   * @param {Function} callback - Callback method to be executed with the custom data.
@@ -4274,12 +4277,40 @@
 	};
 
 	var debounce = AJS.debounce || $$1.debounce;
-
+	/**
+	 * Utility methods that are available without requiring additional modules.
+	 * @exports AP
+	 */
 	var env = {
+	  /**
+	   * Get the location of the current page of the host product.
+	   *
+	   * @param {Function} callback function (location) {...}
+	   * @example
+	   * AP.getLocation(function(location){
+	   *   alert(location);
+	   * });
+	   */
 	  getLocation: function getLocation(callback) {
 	    callback = _.last(arguments);
 	    callback(window.location.href);
 	  },
+	  /**
+	   * Resize the iframe to a specified width and height.
+	   *
+	   * Only content within an element with the class `ac-content` will be resized automatically.
+	   * Content without this identifier is sized according to the `body` element, and will dynamically grow, but not shrink.
+	   * ```
+	   * <div class="ac-content">
+	     * <p>Hello World</p>
+	   * </div>
+	   * ```
+	   * Note that this method cannot be used in dialogs.
+	   *
+	   * @method
+	   * @param {String} width   the desired width
+	   * @param {String} height  the desired height
+	   */
 	  resize: debounce(function (width, height, callback) {
 	    callback = _.last(arguments);
 	    var options = callback._context.extension.options;
@@ -4287,7 +4318,14 @@
 	      EnvActions.iframeResize(width, height, callback._context);
 	    }
 	  }),
-
+	  /**
+	   * Resize the iframe, so that it takes the entire page. Add-on may define to hide the footer using data-options.
+	   *
+	   * Note that this method is only available for general page modules.
+	   *
+	   * @method
+	   * @param {boolean} hideFooter true if the footer is supposed to be hidden
+	   */
 	  sizeToParent: debounce(function (callback) {
 	    callback = _.last(arguments);
 	    // sizeToParent is only available for general-pages
@@ -4435,6 +4473,7 @@
 	var messages = {
 	  /**
 	  * Close a message
+	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
 	  * @name clear
 	  * @method
 	  * @memberof module:messages#
@@ -4457,6 +4496,7 @@
 
 	  /**
 	  * Trigger an event when a message is closed
+	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
 	  * @name onClose
 	  * @method
 	  * @memberof module:messages#
@@ -4481,6 +4521,7 @@
 
 	  /**
 	  * Show a generic message
+	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
 	  * @name generic
 	  * @method
 	  * @memberof module:messages#
@@ -4502,6 +4543,7 @@
 
 	  /**
 	  * Show an error message
+	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
 	  * @name error
 	  * @method
 	  * @memberof module:messages#
@@ -4523,6 +4565,7 @@
 
 	  /**
 	  * Show a warning message
+	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
 	  * @name warning
 	  * @method
 	  * @memberof module:messages#
@@ -4544,6 +4587,7 @@
 
 	  /**
 	  * Show a success message
+	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
 	  * @name success
 	  * @method
 	  * @memberof module:messages#
@@ -4565,6 +4609,7 @@
 
 	  /**
 	  * Show an info message
+	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
 	  * @name info
 	  * @method
 	  * @memberof module:messages#
@@ -4586,6 +4631,7 @@
 
 	  /**
 	  * Show a hint message
+	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
 	  * @name hint
 	  * @method
 	  * @memberof module:messages#
