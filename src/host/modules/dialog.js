@@ -338,7 +338,7 @@ export default {
   /**
    * Returns the data Object passed to the dialog at creation.
    * @noDemo
-   * @deprecated
+   * @deprecated Please use the [Events module](module-Events.html) instead.
    * @name customData
    * @method
    * @param {Function} callback - Callback method to be executed with the custom data.

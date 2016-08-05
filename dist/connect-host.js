@@ -4189,7 +4189,7 @@
 	  /**
 	   * Returns the data Object passed to the dialog at creation.
 	   * @noDemo
-	   * @deprecated
+	   * @deprecated Please use the [Events module](module-Events.html) instead.
 	   * @name customData
 	   * @method
 	   * @param {Function} callback - Callback method to be executed with the custom data.
@@ -4319,7 +4319,7 @@
 	    }
 	  }),
 	  /**
-	   * Resize the iframe, so that it takes the entire page. Add-on may define to hide footer using data-options.
+	   * Resize the iframe, so that it takes the entire page. Add-on may define to hide the footer using data-options.
 	   *
 	   * Note that this method is only available for general page modules.
 	   *
