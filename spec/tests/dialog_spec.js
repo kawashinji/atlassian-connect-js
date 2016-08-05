@@ -50,9 +50,9 @@ describe('dialog component', () => {
 
     describe('chrome', () => {
 
-      it('renders a chromed dialog by default', () => {
-        var $dialog = renderDialogWithChrome();
-        expect($dialog.hasClass('aui-dialog2-chromeless')).toEqual(false);
+      it('renders a chromeless dialog by default', () => {
+        var $dialog = DialogComponent.render();
+        expect($dialog.hasClass('aui-dialog2-chromeless')).toEqual(true);
       });
 
       it('iframe dimensions should be the opened dimensions', () => {
