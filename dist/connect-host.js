@@ -3108,7 +3108,7 @@
 	  }, {
 	    key: '_chrome',
 	    value: function _chrome(options) {
-	      var returnval = true;
+	      var returnval = false;
 	      if (typeof options.chrome === 'boolean') {
 	        returnval = options.chrome;
 	      }
