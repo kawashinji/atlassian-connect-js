@@ -9,7 +9,7 @@
 *   var message = messages.info('plain text title', 'plain text body');
 * });
 * ```
-* This module has been deprecated and may be removed in future releases. Please use the [Flag module](module-Flag.html) instead.
+* @deprecated Please use the [Flag module](module-Flag.html) instead.
 * @name messages
 * @module
 */
@@ -101,6 +101,7 @@ function messageModule(messageType) {
 export default {
   /**
   * Close a message
+  * @deprecated Please use the [Flag module](module-Flag.html) instead.
   * @name clear
   * @method
   * @memberof module:messages#
@@ -123,6 +124,7 @@ export default {
 
   /**
   * Trigger an event when a message is closed
+  * @deprecated Please use the [Flag module](module-Flag.html) instead.
   * @name onClose
   * @method
   * @memberof module:messages#
@@ -147,6 +149,7 @@ export default {
 
   /**
   * Show a generic message
+  * @deprecated Please use the [Flag module](module-Flag.html) instead.
   * @name generic
   * @method
   * @memberof module:messages#
@@ -168,6 +171,7 @@ export default {
 
   /**
   * Show an error message
+  * @deprecated Please use the [Flag module](module-Flag.html) instead.
   * @name error
   * @method
   * @memberof module:messages#
@@ -189,6 +193,7 @@ export default {
 
   /**
   * Show a warning message
+  * @deprecated Please use the [Flag module](module-Flag.html) instead.
   * @name warning
   * @method
   * @memberof module:messages#
@@ -210,6 +215,7 @@ export default {
 
   /**
   * Show a success message
+  * @deprecated Please use the [Flag module](module-Flag.html) instead.
   * @name success
   * @method
   * @memberof module:messages#
@@ -231,6 +237,7 @@ export default {
 
   /**
   * Show an info message
+  * @deprecated Please use the [Flag module](module-Flag.html) instead.
   * @name info
   * @method
   * @memberof module:messages#
@@ -252,6 +259,7 @@ export default {
 
   /**
   * Show a hint message
+  * @deprecated Please use the [Flag module](module-Flag.html) instead.
   * @name hint
   * @method
   * @memberof module:messages#

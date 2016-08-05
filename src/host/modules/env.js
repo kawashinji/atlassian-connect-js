@@ -5,12 +5,40 @@ import util from '../util';
 import _ from '../underscore';
 
 var debounce = AJS.debounce || $.debounce;
-
+/**
+ * Utility methods that are available without requiring additional modules.
+ * @exports AP
+ */
 export default {
+  /**
+   * Get the location of the current page of the host product.
+   *
+   * @param {Function} callback function (location) {...}
+   * @example
+   * AP.getLocation(function(location){
+   *   alert(location);
+   * });
+   */
   getLocation: function (callback) {
     callback = _.last(arguments);
     callback(window.location.href);
   },
+  /**
+   * Resize the iframe to a specified width and height.
+   *
+   * Only content within an element with the class `ac-content` will be resized automatically.
+   * Content without this identifier is sized according to the `body` element, and will dynamically grow, but not shrink.
+   * ```
+   * <div class="ac-content">
+     * <p>Hello World</p>
+   * </div>
+   * ```
+   * Note that this method cannot be used in dialogs.
+   *
+   * @method
+   * @param {String} width   the desired width
+   * @param {String} height  the desired height
+   */
   resize: debounce(function(width, height, callback) {
     callback = _.last(arguments);
     var options = callback._context.extension.options;
@@ -18,7 +46,14 @@ export default {
       EnvActions.iframeResize(width, height, callback._context);
     }
   }),
-
+  /**
+   * Resize the iframe, so that it takes the entire page. Add-on may define to hide the footer using data-options.
+   *
+   * Note that this method is only available for general page modules.
+   *
+   * @method
+   * @param {boolean} hideFooter true if the footer is supposed to be hidden
+   */
   sizeToParent: debounce(function (callback) {
     callback = _.last(arguments);
     // sizeToParent is only available for general-pages
