@@ -775,7 +775,7 @@ var   document$1 = window.document;
             data.mid = util.randomString();
             that._pendingCallback(data.mid, args.pop());
           }
-          if (this._cls) {
+          if (this && this._cls) {
             data._cls = this._cls;
             data._id = this._id;
           }
