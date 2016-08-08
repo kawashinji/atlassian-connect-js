@@ -616,7 +616,7 @@ var   document$1 = window.document;
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.2";
+      _this._version = "5.0.0-beta.3";
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
         _this._setupAPIWithoutRequire(_this._data.api);
@@ -775,7 +775,7 @@ var   document$1 = window.document;
             data.mid = util.randomString();
             that._pendingCallback(data.mid, args.pop());
           }
-          if (this._cls) {
+          if (this && this._cls) {
             data._cls = this._cls;
             data._id = this._id;
           }
