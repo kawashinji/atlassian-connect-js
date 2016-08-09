@@ -7,17 +7,17 @@
      * @returns {Boolean} false if at least one of the event handlers which handled this event called Event.preventDefault(). Otherwise it returns true.
      */
      return function dispatchCustomEvent(target, eventName, data) {
-        var event;
+        var customEvent;
 
         if (window.CustomEvent && typeof window.CustomEvent === 'function') {
-            event = new CustomEvent(eventName, {
+            customEvent = new CustomEvent(eventName, {
                 detail: data
             });
         } else {
-            event = document.createEvent('CustomEvent');
-            event.initCustomEvent(eventName, true, true, data);
+            customEvent = document.createEvent('CustomEvent');
+            customEvent.initCustomEvent(eventName, true, true, data);
         }
 
-        return target.dispatchEvent(event);
+        return target.dispatchEvent(customEvent);
     }
 });
