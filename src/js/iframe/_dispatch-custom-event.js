@@ -14,8 +14,8 @@
                 detail: data
             });
         } else {
-            event = document.createEvent(eventName);
-            target.initCustomEvent(event, true, true, null, data);
+            event = document.createEvent('CustomEvent');
+            event.initCustomEvent(eventName, true, true, data);
         }
 
         return target.dispatchEvent(event);
