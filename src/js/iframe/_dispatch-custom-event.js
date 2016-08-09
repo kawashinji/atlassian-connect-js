@@ -9,7 +9,7 @@
      return function dispatchCustomEvent(target, eventName, data) {
         var event;
 
-        if (window.CustomEvent) {
+        if (window.CustomEvent && typeof window.CustomEvent === 'function') {
             event = new CustomEvent(eventName, {
                 detail: data
             });
