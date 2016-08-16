@@ -52,6 +52,7 @@ function build(entryModule, distModule, options) {
       format: options.format || 'umd',
       moduleId: options.standalone || distModule,
       moduleName: options.standalone || distModule,
+      indent: true,
       dest: './dist/' + distModule + '.js'
     });
   });
