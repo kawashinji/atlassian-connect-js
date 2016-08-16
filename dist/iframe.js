@@ -616,7 +616,7 @@ var   document$1 = window.document;
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.3";
+      _this._version = "5.0.0-beta.4";
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
         _this._setupAPIWithoutRequire(_this._data.api);
@@ -775,7 +775,7 @@ var   document$1 = window.document;
             data.mid = util.randomString();
             that._pendingCallback(data.mid, args.pop());
           }
-          if (this && this._cls) {
+          if (this._cls) {
             data._cls = this._cls;
             data._id = this._id;
           }
@@ -965,7 +965,7 @@ var   document$1 = window.document;
         console.warn('DEPRECATED API - ' + name + ' has been deprecated since ACJS ' + sinceVersion + (' and will be removed in a future release. ' + (alternate ? 'Use ' + alternate + ' instead.' : 'No alternative will be provided.')));
         plugin._analytics.trackDeprecatedMethodUsed(name);
       }
-      fn.apply(undefined, arguments);
+      return fn.apply(undefined, arguments);
     };
   };
 
@@ -1354,6 +1354,19 @@ var   document$1 = window.document;
     return plugin._data.options.customData;
   }, 'AP.dialog.customData', 'AP.dialog.getCustomData()', '5.0');
 
+  /**
+   * Returns the custom data Object passed to the dialog at creation.
+   * @noDemo
+   * @deprecated Please use the `dialog.getCustomData(callback)` instead.
+   * @name customData
+   * @memberOf module:Dialog
+   * @example
+   * AP.require('dialog', function(dialog){
+   *   var myDataVariable = dialog.customData.myDataVariable;
+   * });
+   *
+   * @return {Object} Data Object passed to the dialog on creation.
+   */
   Object.defineProperty(plugin._hostModules.dialog, 'customData', {
     get: getCustomData
   });

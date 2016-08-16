@@ -3770,6 +3770,7 @@
 	      extension.options = extension.options || {};
 	      dialogOptions = dialogOptions || {};
 	      extension.options.isDialog = true;
+	      extension.options.dialogId = dialogOptions.id;
 	      extension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
 	      var $iframeContainer = IframeContainerComponent.createExtension(extension);
 	      var $dialog = DialogComponent.render({
@@ -4187,18 +4188,18 @@
 	    });
 	  },
 	  /**
-	   * Returns the data Object passed to the dialog at creation.
+	   * Passes the custom data Object to the specified callback function.
 	   * @noDemo
-	   * @deprecated Please use the [Events module](module-Events.html) instead.
-	   * @name customData
+	   * @name getCustomData
 	   * @method
 	   * @param {Function} callback - Callback method to be executed with the custom data.
 	   * @example
 	   * AP.require('dialog', function(dialog){
-	   *   var myDataVariable = dialog.customData.myDataVariable;
+	   *   dialog.getCustomData(function (customData) {
+	   *     console.log(customData);
+	   *   });
 	   * });
 	   *
-	   * @return {Object} Data Object passed to the dialog on creation.
 	   */
 	  getCustomData: function getCustomData(callback) {
 	    callback = _.last(arguments);
@@ -5328,7 +5329,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.3';
+	  window._AP.version = '5.0.0-beta.4';
 	}
 
 	host.defineModule('messages', messages);
