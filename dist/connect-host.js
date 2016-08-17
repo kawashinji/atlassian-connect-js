@@ -2,7 +2,7 @@
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 	typeof define === 'function' && define.amd ? define('connectHost', factory) :
 	(global.connectHost = factory());
-}(this, function () { 'use strict';
+}(this, (function () { 'use strict';
 
 	// AUI includes underscore and exposes it globally.
 	var _ = window._;
@@ -335,6 +335,10 @@
 	  return arg === void 0;
 	}
 
+	/**
+	* pub/sub for extension state (created, destroyed, initialized)
+	* taken from hipchat webcore
+	**/
 	var EventDispatcher = function (_EventEmitter) {
 	  inherits(EventDispatcher, _EventEmitter);
 
@@ -701,6 +705,46 @@
 	  }]);
 	  return PostMessage;
 	}();
+
+	/**
+	* Postmessage format:
+	*
+	* Initialization
+	* --------------
+	* {
+	*   type: 'init',
+	*   eid: 'my-addon__my-module-xyz'  // the extension identifier, unique across iframes
+	* }
+	*
+	* Request
+	* -------
+	* {
+	*   type: 'req',
+	*   eid: 'my-addon__my-module-xyz',  // the extension identifier, unique for iframe
+	*   mid: 'xyz',  // a unique message identifier, required for callbacks
+	*   mod: 'cookie',  // the module name
+	*   fn: 'read',  // the method name
+	*   args: [arguments]  // the method arguments
+	* }
+	*
+	* Response
+	* --------
+	* {
+	*   type: 'resp'
+	*   eid: 'my-addon__my-module-xyz',  // the extension identifier, unique for iframe
+	*   mid: 'xyz',  // a unique message identifier, obtained from the request
+	*   args: [arguments]  // the callback arguments
+	* }
+	*
+	* Event
+	* -----
+	* {
+	*   type: 'evt',
+	*   etyp: 'some-event',
+	*   evnt: { ... }  // the event data
+	*   mid: 'xyz', // a unique message identifier for the event
+	* }
+	**/
 
 	var VALID_EVENT_TIME_MS = 30000; //30 seconds
 
@@ -4369,6 +4413,16 @@
 	  }
 	};
 
+	/**
+	 * The inline dialog is a wrapper for secondary content/controls to be displayed on user request. Consider this component as displayed in context to the triggering control with the dialog overlaying the page content.
+	 * A inline dialog should be preferred over a modal dialog when a connection between the action has a clear benefit versus having a lower user focus.
+	 *
+	 * Inline dialogs can be shown via a [web item target](../modules/common/web-item.html#target).
+	 *
+	 * For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inline-dialog.html).
+	 * @module inline-dialog
+	 */
+
 	var inlineDialog = {
 	  /**
 	   * Hide the inline dialog that contains the iframe where this method is called from.
@@ -4390,6 +4444,22 @@
 	    EventDispatcher$1.dispatch('analytics-deprecated-method-used', { methodUsed: methodUsed, extension: extension });
 	  }
 	};
+
+	/**
+	* Messages are the primary method for providing system feedback in the product user interface.
+	* Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
+	* For visual examples of each kind please see the [Design guide](https://developer.atlassian.com/design/latest/communicators/messages/).
+	* ### Example ###
+	* ```
+	* AP.require("messages", function(messages){
+	*   //create a message
+	*   var message = messages.info('plain text title', 'plain text body');
+	* });
+	* ```
+	* @deprecated Please use the [Flag module](module-Flag.html) instead.
+	* @name messages
+	* @module
+	*/
 
 	var MESSAGE_BAR_ID = 'ac-message-container';
 	var MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
@@ -4724,6 +4794,11 @@
 	EventDispatcher$1.register('flag-close', function (data) {
 	  FlagComponent.close(data.id);
 	});
+
+	/**
+	* Flags are the primary method for providing system feedback in the product user interface. Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
+	* @module Flag
+	*/
 
 	var _flags = {};
 
@@ -5406,4 +5481,4 @@
 
 	return index;
 
-}));
+})));
