@@ -336,18 +336,18 @@ export default {
     });
   },
   /**
-   * Returns the data Object passed to the dialog at creation.
+   * Passes the custom data Object to the specified callback function.
    * @noDemo
-   * @deprecated Please use the [Events module](module-Events.html) instead.
-   * @name customData
+   * @name getCustomData
    * @method
    * @param {Function} callback - Callback method to be executed with the custom data.
    * @example
    * AP.require('dialog', function(dialog){
-   *   var myDataVariable = dialog.customData.myDataVariable;
+   *   dialog.getCustomData(function (customData) {
+   *     console.log(customData);
+   *   });
    * });
    *
-   * @return {Object} Data Object passed to the dialog on creation.
    */
   getCustomData: function (callback) {
     callback = _.last(arguments);

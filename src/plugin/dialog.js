@@ -7,7 +7,19 @@ const getCustomData = deprecate(() => {
   return AP._data.options.customData;
 }, 'AP.dialog.customData', 'AP.dialog.getCustomData()', '5.0');
 
-
+/**
+ * Returns the custom data Object passed to the dialog at creation.
+ * @noDemo
+ * @deprecated Please use the `dialog.getCustomData(callback)` instead.
+ * @name customData
+ * @memberOf module:Dialog
+ * @example
+ * AP.require('dialog', function(dialog){
+ *   var myDataVariable = dialog.customData.myDataVariable;
+ * });
+ *
+ * @return {Object} Data Object passed to the dialog on creation.
+ */
 Object.defineProperty(AP._hostModules.dialog, 'customData', {
   get: getCustomData
 });
