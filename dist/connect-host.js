@@ -4984,7 +4984,7 @@
 	  var targetKey = getTargetKey($target);
 	  var moduleType = type + 'Modules';
 	  if (window._AP && window._AP[moduleType] && window._AP[moduleType][addon_key] && window._AP[moduleType][addon_key][targetKey]) {
-	    return window._AP[moduleType][addon_key][targetKey].options;
+	    return _.clone(window._AP[moduleType][addon_key][targetKey].options);
 	  }
 	}
 
@@ -4995,7 +4995,7 @@
 	  var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
 	  var options = getModuleOptionsForWebitem(type, $target);
 	  if (!options && window._AP && window._AP[type + 'Options']) {
-	    options = window._AP[type + 'Options'][fullKey] || {};
+	    options = _.clone(window._AP[type + 'Options'][fullKey]) || {};
 	  }
 	  if (!options) {
 	    options = {};
@@ -5404,7 +5404,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.4';
+	  window._AP.version = '5.0.0-beta.5';
 	}
 
 	host.defineModule('messages', messages);

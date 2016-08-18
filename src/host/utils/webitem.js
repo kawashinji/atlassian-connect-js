@@ -47,7 +47,7 @@ function getModuleOptionsForWebitem(type, $target){
     && window._AP[moduleType]
     && window._AP[moduleType][addon_key]
     && window._AP[moduleType][addon_key][targetKey]) {
-    return window._AP[moduleType][addon_key][targetKey].options;
+    return _.clone(window._AP[moduleType][addon_key][targetKey].options);
   }
 }
 
@@ -58,7 +58,7 @@ function getOptionsForWebItem($target) {
   var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
   var options = getModuleOptionsForWebitem(type, $target);
   if(!options && window._AP && window._AP[type + 'Options']) {
-    options = window._AP[type + 'Options'][fullKey] || {};
+    options = _.clone(window._AP[type + 'Options'][fullKey]) || {};
   }
   if(!options){
     options = {};
