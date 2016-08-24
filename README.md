@@ -1,7 +1,7 @@
 Atlassian Connect JS
 ====================
 
-The javascript library which backs [Atlassian Connect](http://connect.atlassian.com).
+The javascript library which backs [Atlassian Connect](http://connect.atlassian.com/).
 
 Based on [Simple XDM](https://bitbucket.org/atlassian/simple-xdm/)
 
@@ -142,15 +142,15 @@ To run tests in watch mode:
 Running tests with saucelabs
 ----------------------------
 
-Tests are automatically run in saucelabs from Bamboo. They run using all supported browsers. You can run these yourself as follows:
+Tests are automatically run in Sauce Labs from Bitbucket Pipelines. They run using all supported browsers. You can run these yourself as follows:
 
-Set your saucelabs credentials using the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables.
+Set your Sauce Labs credentials using the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables.
 
 Then run the tests using:
 
     SAUCE_LABS=true npm test
 
-Alternatively you can enter suacelabs credentials at run time with:
+Alternatively you can enter Sauce Labs credentials at run time with:
 
     SAUCE_LABS=true SAUCE_USERNAME=XXXXX SAUCE_ACCESS_KEY=XXXXX npm test
 
@@ -189,9 +189,8 @@ please contact the Atlassian Connect team to ensure you understand the process y
 
 1. Create an issue in the [Atlassian Connect JavaScript API project](https://ecosystem.atlassian.net/browse/ACJS).
 2. Create your feature branch off `master`.
-    * Prefix your branch with `v5/` to have the build picked up by [the bamboo plan](https://ecosystem-bamboo.internal.atlassian.com/browse/CONNECT-JAM).
     * Include your issue key and a short description.
-3. Push your changes, prefixing each commit message with the issue key.
+3. Push your changes.
 4. Create a pull request against this repository.
 5. If your changes will affect the functionality of the Connect plugin,
 [create a feature branch on bamboo](https://ecosystem-bamboo.internal.atlassian.com/chain/admin/config/configureBranches.action?buildKey=CONNECT-CF)
