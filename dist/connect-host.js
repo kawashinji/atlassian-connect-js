@@ -5360,7 +5360,7 @@
 	  }, {
 	    key: 'triggered',
 	    value: function triggered(data) {
-	      var $target = $(data.event.currentTarget);
+	      var $target = $$1(data.event.currentTarget);
 	      var webitemId = $target.data(WEBITEM_UID_KEY$1);
 	      var dialogOptions = this._dialogOptions(data.extension.options);
 	      dialogOptions.id = webitemId;
@@ -5369,7 +5369,7 @@
 	  }, {
 	    key: 'createIfNotExists',
 	    value: function createIfNotExists(data) {
-	      var $target = $(data.event.currentTarget);
+	      var $target = $$1(data.event.currentTarget);
 	      var uid = $target.data(WEBITEM_UID_KEY$1);
 
 	      if (!uid) {
