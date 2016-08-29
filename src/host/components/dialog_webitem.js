@@ -3,6 +3,7 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
 import WebItemUtils from '../utils/webitem';
 import DialogExtensionActions from '../actions/dialog_extension_actions';
 import _ from '../underscore';
+import $ from '../dollar';
 
 const ITEM_NAME = 'dialog';
 const SELECTOR = '.ap-dialog';

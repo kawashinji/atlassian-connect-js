@@ -76,6 +76,38 @@ connectHost.onIframeEstablished(function(extension){
 });
 ```
 
+Advanced Modules
+-----------------------
+Some times you need a more complex API than simple RPC -> callback.
+You can define a Class module which will create a proxy class in the add-on.
+
+```javascript
+class Foo {
+    constructor(foo) {
+        this.foo = foo;
+    }
+    getFoo(cb) {
+        if (typeof cb === 'function') {
+            cb(this.foo);
+        }
+    }
+};
+host.defineModule('moduleWithClass', {
+    foo: {
+        constructor: Foo, // Class must be destructured in API spec
+        getFoo: Foo.prototype.getFoo
+    }
+});
+```
+
+The addon can then use the proxy to call methods on an instance of your host class:
+```javascript
+var bar = AP.moduleWithClass.foo('bar');
+bar.getFoo(function (foo) {
+    console.log(foo);
+});
+```
+
 Lifecycle
 ---------
 

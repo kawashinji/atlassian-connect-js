@@ -1,4 +1,5 @@
 import _ from './underscore';
+import $ from './dollar';
 
 function escapeSelector(s) {
   if (!s) {
@@ -25,7 +26,7 @@ function stringToDimension(value) {
 }
 
 function getIframeByExtensionId(id) {
-  return AJS.$('iframe#' + escapeSelector(id));
+  return $('iframe#' + escapeSelector(id));
 }
 
 export default {

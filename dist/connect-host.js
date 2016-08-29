@@ -345,7 +345,7 @@
 	  function EventDispatcher() {
 	    classCallCheck(this, EventDispatcher);
 
-	    var _this = possibleConstructorReturn(this, Object.getPrototypeOf(EventDispatcher).call(this));
+	    var _this = possibleConstructorReturn(this, (EventDispatcher.__proto__ || Object.getPrototypeOf(EventDispatcher)).call(this));
 
 	    _this.setMaxListeners(20);
 	    return _this;
@@ -762,7 +762,7 @@
 
 	    config = config || {};
 
-	    var _this = possibleConstructorReturn(this, Object.getPrototypeOf(XDMRPC).call(this, config));
+	    var _this = possibleConstructorReturn(this, (XDMRPC.__proto__ || Object.getPrototypeOf(XDMRPC)).call(this, config));
 
 	    _this._registeredExtensions = config.extensions || {};
 	    _this._registeredAPIModules = {};
@@ -1398,7 +1398,7 @@
 	 * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
 	 * to code that runs on host and iframe.
 	 */
-	var $$1 = AJS.$;
+	var $ = AJS.$;
 
 	var IframeActions = {
 	  notifyIframeCreated: function notifyIframeCreated($el, extension) {
@@ -1450,7 +1450,7 @@
 	}
 
 	function getIframeByExtensionId(id) {
-	  return AJS.$('iframe#' + escapeSelector(id));
+	  return $('iframe#' + escapeSelector(id));
 	}
 
 	var util$1 = {
@@ -2825,7 +2825,7 @@
 	        IframeActions.notifyUnloaded(extension.$el, extension);
 	      });
 	      extension.id = iframeAttributes.id;
-	      $$1.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
+	      $.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
 	      extension.$el = this.render(iframeAttributes);
 	      return extension;
 	    }
@@ -2848,7 +2848,7 @@
 	  }, {
 	    key: 'render',
 	    value: function render(attributes) {
-	      return $$1('<iframe />').attr(attributes).addClass('ap-iframe');
+	      return $('<iframe />').attr(attributes).addClass('ap-iframe');
 	    }
 	  }]);
 	  return Iframe;
@@ -2906,7 +2906,7 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var $container = $$1('<div />').addClass(LOADING_INDICATOR_CLASS);
+	      var $container = $('<div />').addClass(LOADING_INDICATOR_CLASS);
 	      $container.append(LOADING_STATUSES.loading);
 	      var spinner = $container.find('.small-spinner');
 	      if (spinner.length && spinner.spin) {
@@ -2937,10 +2937,10 @@
 	  }, {
 	    key: 'timeout',
 	    value: function timeout($iframeContainer, extensionId) {
-	      var status = $$1(LOADING_STATUSES['load-timeout']);
+	      var status = $(LOADING_STATUSES['load-timeout']);
 	      var container = this._loadingContainer($iframeContainer);
 	      container.empty().append(status);
-	      $$1('a.ap-btn-cancel', container).click(function () {
+	      $('a.ap-btn-cancel', container).click(function () {
 	        LoadingIndicatorActions.cancelled($iframeContainer, extensionId);
 	      });
 	      delete this._stateRegistry[extensionId];
@@ -2988,7 +2988,7 @@
 	  }, {
 	    key: '_renderContainer',
 	    value: function _renderContainer(attributes) {
-	      var container = $$1('<div />').attr(attributes || {});
+	      var container = $('<div />').attr(attributes || {});
 	      container.addClass(CONTAINER_CLASSES.join(' '));
 	      return container;
 	    }
@@ -3360,32 +3360,32 @@
 	  }, {
 	    key: 'getName',
 	    value: function getName($button) {
-	      return $$1($button).data('name');
+	      return $($button).data('name');
 	    }
 	  }, {
 	    key: 'getText',
 	    value: function getText($button) {
-	      return $$1($button).text();
+	      return $($button).text();
 	    }
 	  }, {
 	    key: 'getIdentifier',
 	    value: function getIdentifier($button) {
-	      return $$1($button).data('identifier');
+	      return $($button).data('identifier');
 	    }
 	  }, {
 	    key: 'isVisible',
 	    value: function isVisible($button) {
-	      return $$1($button).is(':visible');
+	      return $($button).is(':visible');
 	    }
 	  }, {
 	    key: 'isEnabled',
 	    value: function isEnabled($button) {
-	      return !($$1($button).attr('aria-disabled') === 'true');
+	      return !($($button).attr('aria-disabled') === 'true');
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render(options) {
-	      var $button = $$1('<button />');
+	      var $button = $('<button />');
 	      options = options || {};
 	      $button.addClass('aui-button ' + this.AP_BUTTON_CLASS);
 	      $button.text(options.text);
@@ -3407,9 +3407,9 @@
 
 	var ButtonComponent = new Button$1();
 	// register 1 button listener globally on dom load
-	$$1(function () {
-	  $$1('body').on('click', '.' + ButtonComponent.AP_BUTTON_CLASS, function (e) {
-	    var $button = $$1(e.target).closest('.' + ButtonComponent.AP_BUTTON_CLASS);
+	$(function () {
+	  $('body').on('click', '.' + ButtonComponent.AP_BUTTON_CLASS, function (e) {
+	    var $button = $(e.target).closest('.' + ButtonComponent.AP_BUTTON_CLASS);
 	    if ($button.attr('aria-disabled') !== 'true') {
 	      ButtonActions.clicked($button);
 	    }
@@ -3466,8 +3466,8 @@
 	  createClass(Dialog, [{
 	    key: '_renderHeaderCloseBtn',
 	    value: function _renderHeaderCloseBtn() {
-	      var $close = $$1('<a />').addClass('aui-dialog2-header-close');
-	      var $closeBtn = $$1('<span />').addClass('aui-icon aui-icon-small aui-iconfont-close-dialog').text('Close');
+	      var $close = $('<a />').addClass('aui-dialog2-header-close');
+	      var $closeBtn = $('<span />').addClass('aui-icon aui-icon-small aui-iconfont-close-dialog').text('Close');
 	      $close.append($closeBtn);
 	      return $close;
 	    }
@@ -3476,8 +3476,8 @@
 	  }, {
 	    key: '_renderFullScreenHeader',
 	    value: function _renderFullScreenHeader($header, options) {
-	      var $titleContainer = $$1('<div />').addClass('header-title-container aui-item expanded');
-	      var $title = $$1('<div />').append($$1('<span />').addClass('header-title').text(options.header || ''));
+	      var $titleContainer = $('<div />').addClass('header-title-container aui-item expanded');
+	      var $title = $('<div />').append($('<span />').addClass('header-title').text(options.header || ''));
 	      $titleContainer.append($title);
 	      $header.append($titleContainer).append(this._renderHeaderActions(options.actions, options.extension));
 	      return $header;
@@ -3485,12 +3485,12 @@
 	  }, {
 	    key: '_renderHeader',
 	    value: function _renderHeader(options) {
-	      var $header = $$1('<header />').addClass('aui-dialog2-header');
+	      var $header = $('<header />').addClass('aui-dialog2-header');
 	      if (options.size === 'fullscreen') {
 	        return this._renderFullScreenHeader($header, options);
 	      }
 	      if (options.header) {
-	        var $title = $$1('<h2 />').addClass('aui-dialog2-header-main').text(options.header);
+	        var $title = $('<h2 />').addClass('aui-dialog2-header-main').text(options.header);
 	        $header.append($title);
 	      }
 	      $header.append(this._renderHeaderCloseBtn());
@@ -3499,7 +3499,7 @@
 	  }, {
 	    key: '_renderHeaderActions',
 	    value: function _renderHeaderActions(actions, extension) {
-	      var $headerControls = $$1('<div />').addClass('aui-item ' + DIALOG_HEADER_ACTIONS_CLASS);
+	      var $headerControls = $('<div />').addClass('aui-item ' + DIALOG_HEADER_ACTIONS_CLASS);
 	      actions[0].additionalClasses = ['aui-icon', 'aui-icon-small', 'aui-iconfont-success'];
 	      actions[1].additionalClasses = ['aui-icon', 'aui-icon-small', 'aui-iconfont-close-dialog'];
 	      var $actions = this._renderActionButtons(actions, extension);
@@ -3511,7 +3511,7 @@
 	  }, {
 	    key: '_renderContent',
 	    value: function _renderContent($content) {
-	      var $el = $$1('<div />').addClass('aui-dialog2-content');
+	      var $el = $('<div />').addClass('aui-dialog2-content');
 	      if ($content) {
 	        $el.append($content);
 	      }
@@ -3520,13 +3520,13 @@
 	  }, {
 	    key: '_renderFooter',
 	    value: function _renderFooter(options) {
-	      var $footer = $$1('<footer />').addClass(DIALOG_FOOTER_CLASS);
+	      var $footer = $('<footer />').addClass(DIALOG_FOOTER_CLASS);
 	      if (options.size !== 'fullscreen') {
 	        var $actions = this._renderFooterActions(options.actions, options.extension);
 	        $footer.append($actions);
 	      }
 	      if (options.hint) {
-	        var $hint = $$1('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
+	        var $hint = $('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
 	        $footer.append($hint);
 	      }
 	      return $footer;
@@ -3553,7 +3553,7 @@
 	  }, {
 	    key: '_renderFooterActions',
 	    value: function _renderFooterActions(actions, extension) {
-	      var $actions = $$1('<div />').addClass(DIALOG_FOOTER_ACTIONS_CLASS);
+	      var $actions = $('<div />').addClass(DIALOG_FOOTER_ACTIONS_CLASS);
 	      var $buttons = this._renderActionButtons(actions, extension);
 	      $buttons.forEach(function ($button) {
 	        $actions.append($button);
@@ -3587,7 +3587,7 @@
 	    key: 'render',
 	    value: function render(options) {
 	      var sanitizedOptions = dialogUtilsInstance.sanitizeOptions(options);
-	      var $dialog = $$1('<section />').attr({
+	      var $dialog = $('<section />').attr({
 	        role: 'dialog',
 	        id: DLGID_PREFIX + sanitizedOptions.id
 	      });
@@ -3681,14 +3681,14 @@
 	      } else {
 	        var keys = Object.getOwnPropertyNames(extension);
 	        filterFunction = function filterFunction(dialog) {
-	          var dialogData = $$1(dialog).data('extension');
+	          var dialogData = $(dialog).data('extension');
 	          return keys.every(function (key) {
 	            return dialogData[key] === extension[key];
 	          });
 	        };
 	      }
 
-	      return $$1('.' + DIALOG_CLASS).toArray().filter(filterFunction).map(function ($el) {
+	      return $('.' + DIALOG_CLASS).toArray().filter(filterFunction).map(function ($el) {
 	        return AJS.dialog2($el);
 	      });
 	    }
@@ -4321,7 +4321,7 @@
 	  }
 	};
 
-	var debounce = AJS.debounce || $$1.debounce;
+	var debounce = AJS.debounce || $.debounce;
 	/**
 	 * Utility methods that are available without requiring additional modules.
 	 * @exports AP
@@ -4472,10 +4472,10 @@
 	}
 
 	function getMessageBar() {
-	  var $msgBar = $$1('#' + MESSAGE_BAR_ID);
+	  var $msgBar = $('#' + MESSAGE_BAR_ID);
 
 	  if ($msgBar.length < 1) {
-	    $msgBar = $$1('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
+	    $msgBar = $('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
 	  }
 	  return $msgBar;
 	}
@@ -4496,7 +4496,7 @@
 	function showMessage(name, title, body, options) {
 	  var $msgBar = getMessageBar();
 	  options = filterMessageOptions(options);
-	  $$1.extend(options, {
+	  $.extend(options, {
 	    title: title,
 	    body: AJS.escapeHtml(body)
 	  });
@@ -4519,10 +4519,10 @@
 	  showMessage(name, title, body, options);
 	}
 
-	$$1(document).on('aui-message-close', function (e, $msg) {
+	$(document).on('aui-message-close', function (e, $msg) {
 	  var _id = $msg.attr('id').replace(MSGID_PREFIX, '');
 	  if (_messages[_id]) {
-	    if ($$1.isFunction(_messages[_id].onCloseTrigger)) {
+	    if ($.isFunction(_messages[_id].onCloseTrigger)) {
 	      _messages[_id].onCloseTrigger();
 	    }
 	    _messages[_id]._destroy();
@@ -4561,7 +4561,7 @@
 	  clear: function clear(msg) {
 	    var id = MSGID_PREFIX + msg._id;
 	    if (validateMessageId(id)) {
-	      $$1('#' + id).closeMessage();
+	      $('#' + id).closeMessage();
 	    }
 	  },
 
@@ -4752,9 +4752,9 @@
 	  createClass(Flag, [{
 	    key: '_toHtmlString',
 	    value: function _toHtmlString(str) {
-	      if ($$1.type(str) === 'string') {
+	      if ($.type(str) === 'string') {
 	        return str;
-	      } else if ($$1.type(str) === 'object' && str instanceof $$1) {
+	      } else if ($.type(str) === 'object' && str instanceof $) {
 	        return str.html();
 	      }
 	    }
@@ -4769,7 +4769,7 @@
 	        close: options.close
 	      });
 	      auiFlag.setAttribute('id', _id);
-	      var $auiFlag = $$1(auiFlag);
+	      var $auiFlag = $(auiFlag);
 	      $auiFlag.close = auiFlag.close;
 
 	      return $auiFlag;
@@ -4786,7 +4786,7 @@
 
 	var FlagComponent = new Flag$1();
 
-	$$1(document).on('aui-flag-close', function (e) {
+	$(document).on('aui-flag-close', function (e) {
 	  var _id = e.target.id;
 	  FlagActions.closed(_id);
 	});
@@ -4854,7 +4854,7 @@
 	    key: 'on',
 	    value: function on(event, callback) {
 	      var id = this.flag.id;
-	      if ($$1.isFunction(callback)) {
+	      if ($.isFunction(callback)) {
 	        this.onTriggers[event] = callback;
 	      }
 	    }
@@ -4887,7 +4887,7 @@
 	}();
 
 	EventDispatcher$1.register('flag-closed', function (data) {
-	  if (_flags[data.id] && $$1.isFunction(_flags[data.id].onTriggers['close'])) {
+	  if (_flags[data.id] && $.isFunction(_flags[data.id].onTriggers['close'])) {
 	    _flags[data.id].onTriggers['close']();
 	  }
 	  if (_flags[data.id]) {
@@ -5063,8 +5063,8 @@
 	      var _this = this;
 
 	      var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
-	      $$1(function () {
-	        $$1('body').off(onTriggers, webitem.selector, _this._webitems[webitem.name]._on);
+	      $(function () {
+	        $('body').off(onTriggers, webitem.selector, _this._webitems[webitem.name]._on);
 	      });
 	      delete this._webitems[webitem.name]._on;
 	    }
@@ -5074,7 +5074,7 @@
 	      var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
 	      webitem._on = function (event) {
 	        event.preventDefault();
-	        var $target = $$1(event.target).closest(webitem.selector);
+	        var $target = $(event.target).closest(webitem.selector);
 	        var extension = {
 	          addon_key: WebItemUtils.getExtensionKey($target),
 	          key: WebItemUtils.getKey($target),
@@ -5083,8 +5083,8 @@
 
 	        WebItemActions.webitemInvoked(webitem, event, extension);
 	      };
-	      $$1(function () {
-	        $$1('body').on(onTriggers, webitem.selector, webitem._on);
+	      $(function () {
+	        $('body').on(onTriggers, webitem.selector, webitem._on);
 	      });
 	    }
 	  }]);
@@ -5152,7 +5152,7 @@
 	  }, {
 	    key: '_renderContainer',
 	    value: function _renderContainer() {
-	      return $$1('<div />').addClass('aui-inline-dialog-contents');
+	      return $('<div />').addClass('aui-inline-dialog-contents');
 	    }
 	  }, {
 	    key: '_displayInlineDialog',
@@ -5171,8 +5171,8 @@
 	  }, {
 	    key: 'closeInlineDialog',
 	    value: function closeInlineDialog() {
-	      $$1('.aui-inline-dialog').filter(function () {
-	        return $$1(this).find('.ap-iframe-container').length > 0;
+	      $('.aui-inline-dialog').filter(function () {
+	        return $(this).find('.ap-iframe-container').length > 0;
 	      }).hide();
 	    }
 	  }, {
@@ -5180,7 +5180,7 @@
 	    value: function render(data) {
 	      var _this = this;
 
-	      var $inlineDialog = $$1(document.getElementById('inline-dialog-' + data.id));
+	      var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
 
 	      if ($inlineDialog.length !== 0) {
 	        $inlineDialog.remove();
@@ -5271,7 +5271,7 @@
 	      if (data.event.type !== 'click' && !data.extension.options.onHover) {
 	        return;
 	      }
-	      var $target = $$1(data.event.currentTarget);
+	      var $target = $(data.event.currentTarget);
 	      var webitemId = $target.data(WEBITEM_UID_KEY);
 
 	      var $inlineDialog = this._createInlineDialog({
@@ -5303,7 +5303,7 @@
 	  }, {
 	    key: 'createIfNotExists',
 	    value: function createIfNotExists(data) {
-	      var $target = $$1(data.event.currentTarget);
+	      var $target = $(data.event.currentTarget);
 	      var uid = $target.data(WEBITEM_UID_KEY);
 
 	      if (!uid) {
@@ -5404,7 +5404,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.5';
+	  window._AP.version = '5.0.0-beta.6';
 	}
 
 	host.defineModule('messages', messages);
