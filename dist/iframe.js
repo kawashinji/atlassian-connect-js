@@ -605,7 +605,7 @@ var   document$1 = window.document;
     function AP(options) {
       classCallCheck(this, AP);
 
-      var _this = possibleConstructorReturn(this, Object.getPrototypeOf(AP).call(this));
+      var _this = possibleConstructorReturn(this, (AP.__proto__ || Object.getPrototypeOf(AP)).call(this));
 
       ConfigurationOptions$1.set(options);
       _this._data = _this._parseInitData();
@@ -616,7 +616,7 @@ var   document$1 = window.document;
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.5";
+      _this._version = "5.0.0-beta.6";
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
         _this._setupAPIWithoutRequire(_this._data.api);
