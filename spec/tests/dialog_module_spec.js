@@ -237,4 +237,25 @@ describe('Dialog module', () => {
       button.disable();
     });
   });
+
+  describe('dialog custom data', () => {
+    it('is set in dialog module', () => {
+      var options = baseDialogComponentTests.getChromelessOptions();
+      options.key = 'some.module_key';
+      options.customData = {
+        someKey: 'some.value'
+      };
+      var callback = function(){};
+      callback._id = 'abc123';
+      callback._context = {
+        extension: {
+          addon_key: 'some.addon_key',
+          key: 'some.different_module',
+          options: {}
+        }
+      };
+      var dialog = new DialogModule.create.constructor(options, callback);
+      expect(dialog.customData).toEqual(options.customData);
+    });
+  });
 });
