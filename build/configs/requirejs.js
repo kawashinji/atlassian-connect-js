@@ -31,7 +31,7 @@
         'almond': bowerSource('almond/almond'),
         '_ap': 'iframe/host/_ap',
         '_dollar': 'iframe/host/_dollar',
-        '_uri': 'iframe/_uri',
+        '_uri': npmSource('jsuri'),
         '_uritemplate': 'iframe/_uritemplate',
         'host/_status_helper': 'iframe/host/_status_helper',
         '_util': 'iframe/host/_util',
