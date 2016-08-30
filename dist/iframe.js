@@ -1651,6 +1651,10 @@ var   document$1 = window.document;
     return AMD.require.apply(AMD, arguments);
   }, 'AP.require()', null, '5.0');
 
+  if (consumerOptions.get('margin') !== false) {
+    $$2("head").append({ tag: "style", type: "text/css", $text: "body {margin: " + margin + " !important;}" });
+  }
+
   return plugin;
 
 }());

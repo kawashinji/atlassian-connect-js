@@ -23,4 +23,8 @@ AP.define = deprecate((...args) => AMD.define(...args),
 AP.require = deprecate((...args) => AMD.require(...args),
   'AP.require()', null, '5.0');
 
+if (consumerOptions.get('margin') !== false) {
+  $("head").append({tag: "style", type: "text/css", $text: "body {margin: " + margin + " !important;}"});
+}
+
 export default AP;
