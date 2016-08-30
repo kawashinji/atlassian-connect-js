@@ -74,7 +74,7 @@ describe('Inline Dialog Webitem', () => {
           options: allPossibleOptions
         }
       };
-      // spyOn(InlineDialogComponent, 'render');
+
       EventDispatcher.registerOnce('inline-dialog-opened', function(data){
         Object.getOwnPropertyNames(allPossibleOptions).forEach(function(name){
           expect(data.extension.options[name]).toEqual(allPossibleOptions[name]);
@@ -84,7 +84,7 @@ describe('Inline Dialog Webitem', () => {
       $(function(){
         $('.ap-inline-dialog').click();
       });
-  });
+    });
 
   });
 
