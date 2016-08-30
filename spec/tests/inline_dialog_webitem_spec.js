@@ -1,5 +1,6 @@
 import InlineDialogWebitem from 'src/host/components/inline_dialog_webitem';
 import InlineDialogActions from 'src/host/actions/inline_dialog_actions';
+import InlineDialogComponent from 'src/host/components/inline_dialog';
 import WebItemActions from 'src/host/actions/webitem_actions';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 
@@ -10,12 +11,13 @@ describe('Inline Dialog Webitem', () => {
     $('.aui-inline-dialog').remove();
     webitemButton = $('<a />').attr('href', 'https://www.example.com');
     webitemButton.text('i am a webitem');
-    webitemButton.addClass('ap-inline-dialog ap-plugin-key-my-plugin ap-module-key-key');
+    webitemButton.addClass('ap-inline-dialog ap-plugin-key-my-plugin ap-module-key-key ap-target-key-key');
     webitemButton.appendTo('body');
   });
 
   afterEach(() => {
     webitemButton.remove();
+    delete window._AP.inlineDialogModules;
   });
 
   it('getWebItem returns a webitem compatible object', function(){
@@ -51,6 +53,38 @@ describe('Inline Dialog Webitem', () => {
         done();
       });
     });
+
+
+    it('passes inline dialog options to component', (done) => {
+      var allPossibleOptions = {
+        closeOthers: true,
+        isRelativeToMouse: true,
+        offsetX: '1px',
+        offsetY: '1px',
+        onHover: true,
+        onTop: true,
+        persistent: true,
+        showDelay: true,
+        width: '100px'
+      };
+
+      window._AP.inlineDialogModules = {};
+      window._AP.inlineDialogModules['my-plugin'] = {
+        key: {
+          options: allPossibleOptions
+        }
+      };
+      // spyOn(InlineDialogComponent, 'render');
+      EventDispatcher.registerOnce('inline-dialog-opened', function(data){
+        Object.getOwnPropertyNames(allPossibleOptions).forEach(function(name){
+          expect(data.extension.options[name]).toEqual(allPossibleOptions[name]);
+        });
+        done();
+      });
+      $(function(){
+        $('.ap-inline-dialog').click();
+      });
+  });
 
   });
 

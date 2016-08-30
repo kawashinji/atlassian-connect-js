@@ -345,7 +345,7 @@
 	  function EventDispatcher() {
 	    classCallCheck(this, EventDispatcher);
 
-	    var _this = possibleConstructorReturn(this, Object.getPrototypeOf(EventDispatcher).call(this));
+	    var _this = possibleConstructorReturn(this, (EventDispatcher.__proto__ || Object.getPrototypeOf(EventDispatcher)).call(this));
 
 	    _this.setMaxListeners(20);
 	    return _this;
@@ -762,7 +762,7 @@
 
 	    config = config || {};
 
-	    var _this = possibleConstructorReturn(this, Object.getPrototypeOf(XDMRPC).call(this, config));
+	    var _this = possibleConstructorReturn(this, (XDMRPC.__proto__ || Object.getPrototypeOf(XDMRPC)).call(this, config));
 
 	    _this._registeredExtensions = config.extensions || {};
 	    _this._registeredAPIModules = {};
