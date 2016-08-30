@@ -1651,9 +1651,9 @@ var   document$1 = window.document;
     return AMD.require.apply(AMD, arguments);
   }, 'AP.require()', null, '5.0');
 
-  var margin = plugin._data.options.isDialog ? "10px 10px 0 10px" : "0";
+  var margin = plugin._data.options.isDialog ? '10px 10px 0 10px' : '0';
   if (consumerOptions.get('margin') !== false) {
-    $$2("head").append({ tag: "style", type: "text/css", $text: "body {margin: " + margin + " !important;}" });
+    $$2('head').append({ tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}' });
   }
 
   return plugin;
