@@ -51,7 +51,7 @@ class InlineDialog {
     if ($inlineDialog.length !== 0) {
       $inlineDialog.remove();
     }
-    console.log("RENDERING WITH OPTIONS", data, data.inlineDialogOptions);
+
     var $el = AJS.InlineDialog(
       data.bindTo,
       //assign unique id to inline Dialog

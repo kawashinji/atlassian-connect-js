@@ -5185,7 +5185,7 @@
 	      if ($inlineDialog.length !== 0) {
 	        $inlineDialog.remove();
 	      }
-	      console.log("RENDERING WITH OPTIONS", data, data.inlineDialogOptions);
+
 	      var $el = AJS.InlineDialog(data.bindTo,
 	      //assign unique id to inline Dialog
 	      data.id, function ($placeholder, trigger, showInlineDialog) {
@@ -5196,7 +5196,7 @@
 	          trigger: trigger
 	        });
 	        showInlineDialog();
-	      }, data.inlineDialogOptions);
+	      }, data.dialogOptions);
 	      return $el;
 	    }
 	  }]);
@@ -5259,7 +5259,7 @@
 	        id: data.id,
 	        bindTo: data.$target,
 	        $content: $iframeContainer,
-	        inlineDialogOptions: data.extension.options
+	        dialogOptions: {} // fill this with dialog options.
 	      });
 
 	      return $inlineDialog;
@@ -5278,7 +5278,7 @@
 	        id: webitemId,
 	        extension: data.extension,
 	        $target: $target,
-	        options: data.extension.options || {}
+	        options: data.options || {}
 	      });
 
 	      $inlineDialog.show();
