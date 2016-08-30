@@ -172,7 +172,9 @@ class Dialog {
     }
 
     if(sanitizedOptions.size === 'fullscreen') {
-      $dialog.addClass('ap-header-controls');
+      if(sanitizedOptions.chrome) {
+        $dialog.addClass('ap-header-controls');
+      }
       $dialog.addClass('aui-dialog2-maximum');
     }
 
