@@ -1278,7 +1278,7 @@ var   document$1 = window.document;
     once: function once(name, listener) {
       var eventsRef = this;
       this.on(name, function () {
-        listener.call(null, arguments);
+        listener.apply(null, arguments);
         eventsRef.off(name, listener);
       });
     }
