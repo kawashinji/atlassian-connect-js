@@ -121,6 +121,26 @@ describe('Dialog Webitem', () => {
         $('.ap-dialog').click();
       });
     });
+
+    it('renders a dialog without changing original dialog options', (done) => {
+      var extension = {
+        addon_key: 'my-plugin',
+        key: 'key'
+      };
+      var options = baseDialogComponentTests.getChromeOptions();
+      delete options.size;
+      options.width = '123px';
+      options.height = '100px';
+      window._AP.dialogOptions[extension.addon_key + '__' + extension.key] = options;
+      EventDispatcher.registerOnce('after:webitem-invoked:dialog', function(){
+        expect(window._AP.dialogOptions['my-plugin__key']).toEqual(options);
+        done();
+      });
+      $(function(){
+        $('.ap-dialog').click();
+      });
+    });
+
   });
 
   describe('triggers', () => {
