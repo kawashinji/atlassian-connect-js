@@ -13,9 +13,6 @@
 .ap-aui-dialog2 .ap-iframe-container iframe {
     flex: 1;
 }
-.ap-aui-dialog2 .aui-dialog2-footer {
-    position: absolute;
-}
 
 .ap-aui-dialog2 div.ap-stats {
     height: auto;
