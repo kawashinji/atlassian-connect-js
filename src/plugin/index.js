@@ -13,6 +13,12 @@ if(consumerOptions.get('sizeToParent') === true) {
   AP.env.sizeToParent();
 }
 
+if(consumerOptions.get('base') === true) {
+  AP.env.getLocation(loc => {
+    $('head').append({tag: 'base', href: loc, target: '_parent'});
+  });
+}
+
 $.each(EventsModule, (i, method) => {
   AP._hostModules.events[i] = AP.events[i] = method;
 });

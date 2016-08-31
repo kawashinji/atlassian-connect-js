@@ -1639,6 +1639,12 @@ var   document$1 = window.document;
     plugin.env.sizeToParent();
   }
 
+  if (consumerOptions.get('base') === true) {
+    plugin.env.getLocation(function (loc) {
+      $$2('head').append({ tag: 'base', href: loc, target: '_parent' });
+    });
+  }
+
   $$2.each(events$1, function (i, method) {
     plugin._hostModules.events[i] = plugin.events[i] = method;
   });
