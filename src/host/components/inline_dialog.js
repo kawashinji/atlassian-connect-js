@@ -65,7 +65,7 @@ class InlineDialog {
         });
         showInlineDialog();
       },
-      data.dialogOptions
+      data.inlineDialogOptions
     );
     return $el;
   }

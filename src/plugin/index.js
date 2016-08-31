@@ -24,6 +24,11 @@ AP.define = deprecate((...args) => AMD.define(...args),
 AP.require = deprecate((...args) => AMD.require(...args),
   'AP.require()', null, '5.0');
 
+var margin = AP._data.options.isDialog ? '10px 10px 0 10px'  : '0';
+if (consumerOptions.get('margin') !== false) {
+  $('head').append({tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}'});
+}
+
 AP.Meta = {
   get: Meta.getMeta
 };

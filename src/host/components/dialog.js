@@ -12,7 +12,7 @@ import _ from '../underscore';
 const DLGID_PREFIX = 'ap-dialog-';
 const DIALOG_CLASS = 'ap-aui-dialog2';
 const DLGID_REGEXP = new RegExp(`^${DLGID_PREFIX}[0-9A-Za-z]+$`);
-const DIALOG_SIZES = ['small', 'medium', 'large', 'xlarge', 'fullscreen'];
+const DIALOG_SIZES = ['small', 'medium', 'large', 'xlarge', 'fullscreen', 'maximum'];
 const DIALOG_BUTTON_CLASS = 'ap-aui-dialog-button';
 const DIALOG_BUTTON_CUSTOM_CLASS = 'ap-dialog-custom-button';
 const DIALOG_FOOTER_CLASS = 'aui-dialog2-footer';
@@ -171,7 +171,7 @@ class Dialog {
       $dialog.addClass('aui-dialog2-' + sanitizedOptions.size);
     }
 
-    if(sanitizedOptions.size === 'fullscreen') {
+    if(sanitizedOptions.size === 'fullscreen' || sanitizedOptions.size === 'maximum') {
       if(sanitizedOptions.chrome) {
         $dialog.addClass('ap-header-controls');
       }
