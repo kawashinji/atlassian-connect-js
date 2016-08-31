@@ -200,14 +200,35 @@ describe('dialog component', () => {
 
     });
 
-    describe('fullscreen', () => {
+    describe('fullscreen/maximum', () => {
       // Back compatibility support for addons like Gliffy and Balsamiq which have a special 100% height and width chromeless Dialogs.
       // This is not API or documented and should be deprecated.
-      it('chromeless takes up the entire screen', () => {
+      it('100% width and height takes up the entire screen', () => {
         var $dialog = DialogComponent.render({
-          chrome: false,
           height: '100%',
           width: '100%'
+        });
+        expect($dialog.hasClass('aui-dialog2-chromeless')).toEqual(true);
+        expect($dialog.hasClass('ap-header-controls')).toEqual(false);
+        expect($dialog.height()).toEqual($(window).height());
+        expect($dialog.width()).toEqual($(window).width());
+      });
+
+      it('maximum dialog takes up the entire screen', () => {
+        var $dialog = DialogComponent.render({
+          size: 'maximum'
+        });
+        expect($dialog.hasClass('aui-dialog2-chromeless')).toEqual(true);
+        expect($dialog.hasClass('ap-header-controls')).toEqual(false);
+        expect($dialog.height()).toEqual($(window).height());
+        expect($dialog.width()).toEqual($(window).width());
+      });
+
+      it('combination of size and dimensions', () => {
+        var $dialog = DialogComponent.render({
+          height: '100%',
+          width: '100%',
+          size: 'maximum'
         });
         expect($dialog.hasClass('aui-dialog2-chromeless')).toEqual(true);
         expect($dialog.hasClass('ap-header-controls')).toEqual(false);

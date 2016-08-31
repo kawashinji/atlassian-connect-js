@@ -7,7 +7,7 @@ class DialogUtils {
     if (options.size === 'x-large') {
       size = 'xlarge';
     }
-    if (options.width === '100%' && options.height === '100%') {
+    if (options.size !== 'maximum' && options.width === '100%' && options.height === '100%') {
       size = 'fullscreen';
     }
     if (!size && !options.width && !options.height) {
@@ -45,6 +45,9 @@ class DialogUtils {
     }
     if(options.size === 'fullscreen') {
       returnval = true;
+    }
+    if(options.size === 'maximum') {
+      returnval = false;
     }
     return returnval;
   }
