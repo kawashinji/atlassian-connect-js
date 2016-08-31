@@ -10,7 +10,7 @@ class DialogUtils {
     if (options.width === '100%' && options.height === '100%') {
       size = 'fullscreen';
     }
-    if (!options.size && !options.width && !options.height) {
+    if (!size && !options.width && !options.height) {
       size = 'medium';
     }
     return size;

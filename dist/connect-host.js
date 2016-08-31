@@ -3120,7 +3120,7 @@
 	      if (options.width === '100%' && options.height === '100%') {
 	        size = 'fullscreen';
 	      }
-	      if (!options.size && !options.width && !options.height) {
+	      if (!size && !options.width && !options.height) {
 	        size = 'medium';
 	      }
 	      return size;
@@ -3603,7 +3603,9 @@
 	      }
 
 	      if (sanitizedOptions.size === 'fullscreen') {
-	        $dialog.addClass('ap-header-controls');
+	        if (sanitizedOptions.chrome) {
+	          $dialog.addClass('ap-header-controls');
+	        }
 	        $dialog.addClass('aui-dialog2-maximum');
 	      }
 
