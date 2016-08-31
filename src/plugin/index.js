@@ -5,6 +5,7 @@ import consumerOptions from './consumer-options';
 import EventsModule from './events';
 import DialogCompat from './dialog';
 import AMD from './amd';
+import _util from './util';
 
 AP._hostModules._dollar = $;
 AP._hostModules['inline-dialog'] = AP._hostModules.inlineDialog;
@@ -33,5 +34,8 @@ var margin = AP._data.options.isDialog ? '10px 10px 0 10px'  : '0';
 if (consumerOptions.get('margin') !== false) {
   $('head').append({tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}'});
 }
+
+AP._hostModules._util = _util;
+AP._util = _util;
 
 export default AP;

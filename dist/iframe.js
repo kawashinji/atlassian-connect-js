@@ -1662,6 +1662,9 @@ var   document$1 = window.document;
     $$2('head').append({ tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}' });
   }
 
+  plugin._hostModules._util = util$1;
+  plugin._util = util$1;
+
   return plugin;
 
 }());
