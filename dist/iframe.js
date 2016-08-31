@@ -1632,6 +1632,31 @@ var   document$1 = window.document;
     }
   };
 
+  function getMeta(name) {
+    return $$2('meta[name=\'ap-' + name + '\']').attr('content');
+  }
+
+  var Meta = {
+    getMeta: getMeta,
+
+    container: function container() {
+      var container = $$2('.ac-content, #content');
+      return container.length > 0 ? container[0] : document.body;
+    },
+
+    localUrl: function localUrl(path) {
+      var url = getMeta('local-base-url');
+      return typeof url === 'undefined' || typeof path === 'undefined' ? url : '' + url + path;
+    },
+
+    size: function size() {
+      return {
+        h: window.innerHeight,
+        w: window.innerWidth
+      };
+    }
+  };
+
   plugin._hostModules._dollar = $$2;
   plugin._hostModules['inline-dialog'] = plugin._hostModules.inlineDialog;
 
@@ -1650,6 +1675,11 @@ var   document$1 = window.document;
   plugin.require = deprecate(function () {
     return AMD.require.apply(AMD, arguments);
   }, 'AP.require()', null, '5.0');
+
+  plugin.Meta = plugin.meta = Meta.getMeta;
+  plugin.size = Meta.size;
+  plugin.container = Meta.container;
+  plugin.localUrl = Meta.localUrl;
 
   return plugin;
 
