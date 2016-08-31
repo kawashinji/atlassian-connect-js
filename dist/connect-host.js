@@ -5198,7 +5198,7 @@
 	          trigger: trigger
 	        });
 	        showInlineDialog();
-	      }, data.dialogOptions);
+	      }, data.inlineDialogOptions);
 	      return $el;
 	    }
 	  }]);
@@ -5261,7 +5261,7 @@
 	        id: data.id,
 	        bindTo: data.$target,
 	        $content: $iframeContainer,
-	        dialogOptions: {} // fill this with dialog options.
+	        inlineDialogOptions: data.extension.options
 	      });
 
 	      return $inlineDialog;
@@ -5280,7 +5280,7 @@
 	        id: webitemId,
 	        extension: data.extension,
 	        $target: $target,
-	        options: data.options || {}
+	        options: data.extension.options || {}
 	      });
 
 	      $inlineDialog.show();

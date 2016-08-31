@@ -945,11 +945,9 @@ var   document$1 = window.document;
           width = dimensions.w;
           height = dimensions.h;
         }
-        this.require('env', function (env) {
-          if (env && env.resize) {
-            env.resize(width, height);
-          }
-        });
+        if (AP && AP.env && AP.env.resize) {
+          AP.env.resize(width, height);
+        }
       }
     }]);
     return AP;
