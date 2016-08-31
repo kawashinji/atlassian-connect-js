@@ -24,7 +24,10 @@ AP.define = deprecate((...args) => AMD.define(...args),
 AP.require = deprecate((...args) => AMD.require(...args),
   'AP.require()', null, '5.0');
 
-AP.Meta = AP.meta = Meta.getMeta;
+AP.Meta = {
+  get: Meta.getMeta
+};
+AP.meta = Meta.getMeta;
 AP.size = Meta.size;
 AP.container = Meta.container;
 AP.localUrl = Meta.localUrl;

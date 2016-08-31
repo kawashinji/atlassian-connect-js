@@ -1676,7 +1676,10 @@ var   document$1 = window.document;
     return AMD.require.apply(AMD, arguments);
   }, 'AP.require()', null, '5.0');
 
-  plugin.Meta = plugin.meta = Meta.getMeta;
+  plugin.Meta = {
+    get: Meta.getMeta
+  };
+  plugin.meta = Meta.getMeta;
   plugin.size = Meta.size;
   plugin.container = Meta.container;
   plugin.localUrl = Meta.localUrl;
