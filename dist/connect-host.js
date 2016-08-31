@@ -3117,7 +3117,7 @@
 	      if (options.size === 'x-large') {
 	        size = 'xlarge';
 	      }
-	      if (options.width === '100%' && options.height === '100%') {
+	      if (options.size !== 'maximum' && options.width === '100%' && options.height === '100%') {
 	        size = 'fullscreen';
 	      }
 	      if (!size && !options.width && !options.height) {
@@ -3158,6 +3158,9 @@
 	      }
 	      if (options.size === 'fullscreen') {
 	        returnval = true;
+	      }
+	      if (options.size === 'maximum') {
+	        returnval = false;
 	      }
 	      return returnval;
 	    }
@@ -3427,7 +3430,7 @@
 	var DLGID_PREFIX = 'ap-dialog-';
 	var DIALOG_CLASS = 'ap-aui-dialog2';
 	var DLGID_REGEXP = new RegExp('^' + DLGID_PREFIX + '[0-9A-Za-z]+$');
-	var DIALOG_SIZES = ['small', 'medium', 'large', 'xlarge', 'fullscreen'];
+	var DIALOG_SIZES = ['small', 'medium', 'large', 'xlarge', 'fullscreen', 'maximum'];
 	var DIALOG_BUTTON_CLASS = 'ap-aui-dialog-button';
 	var DIALOG_BUTTON_CUSTOM_CLASS = 'ap-dialog-custom-button';
 	var DIALOG_FOOTER_CLASS = 'aui-dialog2-footer';
@@ -3602,7 +3605,7 @@
 	        $dialog.addClass('aui-dialog2-' + sanitizedOptions.size);
 	      }
 
-	      if (sanitizedOptions.size === 'fullscreen') {
+	      if (sanitizedOptions.size === 'fullscreen' || sanitizedOptions.size === 'maximum') {
 	        if (sanitizedOptions.chrome) {
 	          $dialog.addClass('ap-header-controls');
 	        }
