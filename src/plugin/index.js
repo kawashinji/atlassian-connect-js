@@ -5,6 +5,7 @@ import consumerOptions from './consumer-options';
 import EventsModule from './events';
 import DialogCompat from './dialog';
 import AMD from './amd';
+import Meta from './meta';
 
 AP._hostModules._dollar = $;
 AP._hostModules['inline-dialog'] = AP._hostModules.inlineDialog;
@@ -22,5 +23,10 @@ AP.define = deprecate((...args) => AMD.define(...args),
 
 AP.require = deprecate((...args) => AMD.require(...args),
   'AP.require()', null, '5.0');
+
+AP.Meta = AP.meta = Meta.getMeta;
+AP.size = Meta.size;
+AP.container = Meta.container;
+AP.localUrl = Meta.localUrl;
 
 export default AP;
