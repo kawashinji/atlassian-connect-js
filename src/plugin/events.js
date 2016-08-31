@@ -68,7 +68,7 @@ export default {
   once: function(name, listener){
     var eventsRef = this;
     this.on(name, function(){
-      listener.call(null, arguments);
+      listener.apply(null, arguments);
       eventsRef.off(name, listener);
     });
   }
