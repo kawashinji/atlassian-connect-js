@@ -631,6 +631,16 @@ var   document$1 = window.document;
       }
       _this._registerOnUnload();
       $(util._bind(_this, _this._autoResizer));
+      _this.resize = util._bind(_this, function (width, height) {
+        if (!width || !height) {
+          var dimensions = size();
+          width = dimensions.w;
+          height = dimensions.h;
+        }
+        if (_this._hostModules.env && _this._hostModules.env.resize) {
+          _this._hostModules.env.resize(width, height);
+        }
+      });
       return _this;
     }
 
@@ -936,18 +946,6 @@ var   document$1 = window.document;
       value: function _initResize() {
         this.resize();
         resizeListener.add(util._bind(this, this.resize));
-      }
-    }, {
-      key: 'resize',
-      value: function resize(width, height) {
-        if (!width || !height) {
-          var dimensions = size();
-          width = dimensions.w;
-          height = dimensions.h;
-        }
-        if (AP && AP.env && AP.env.resize) {
-          AP.env.resize(width, height);
-        }
       }
     }]);
     return AP;
