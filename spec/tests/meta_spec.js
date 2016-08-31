@@ -107,12 +107,4 @@ describe('meta', () => {
       expect(Meta.localUrl('some-path')).not.toBeDefined();
     });
   });
-
-  describe('size', () => {
-    it('should return the correct dimensions of the window', () => {
-      var dimensions = Meta.size();
-      expect(dimensions.h).toEqual(window.innerHeight);
-      expect(dimensions.w).toEqual(window.innerWidth);
-    });
-  });
 });

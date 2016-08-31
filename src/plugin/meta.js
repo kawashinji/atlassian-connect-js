@@ -15,12 +15,5 @@ export default {
   localUrl: function(path) {
     const url = getMeta('local-base-url');
     return typeof url === 'undefined' || typeof path === 'undefined' ? url : `${url}${path}`;
-  },
-
-  size: function() {
-    return {
-      h: window.innerHeight,
-      w: window.innerWidth
-    };
   }
 }

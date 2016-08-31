@@ -1647,13 +1647,6 @@ var   document$1 = window.document;
     localUrl: function localUrl(path) {
       var url = getMeta('local-base-url');
       return typeof url === 'undefined' || typeof path === 'undefined' ? url : '' + url + path;
-    },
-
-    size: function size() {
-      return {
-        h: window.innerHeight,
-        w: window.innerWidth
-      };
     }
   };
 
@@ -1685,7 +1678,6 @@ var   document$1 = window.document;
     get: Meta.getMeta
   };
   plugin.meta = Meta.getMeta;
-  plugin.size = Meta.size;
   plugin.container = Meta.container;
   plugin.localUrl = Meta.localUrl;
 
