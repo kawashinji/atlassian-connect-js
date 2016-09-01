@@ -35,7 +35,17 @@ if (consumerOptions.get('margin') !== false) {
   $('head').append({tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}'});
 }
 
-AP._hostModules._util = _util;
-AP._util = _util;
+AP._hostModules._util = AP._util = {
+  each: _util.each,
+  log: _util.log,
+  decodeQueryComponent: _util.decodeQueryComponent,
+  bind: _util.bind,
+  unbind: _util.unbind,
+  extend: _util.extend,
+  trim: _util.trim,
+  debounce: _util.debounce,
+  isFunction: _util.isFunction,
+  handleError: _util.handleError
+};
 
 export default AP;
