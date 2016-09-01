@@ -32,45 +32,6 @@ describe('meta', () => {
     });
   });
 
-  describe('container', () => {
-
-    afterEach(() => {
-      var contentIdContainer = document.getElementById('content');
-      if (contentIdContainer) {
-        contentIdContainer.parentNode.removeChild(contentIdContainer);
-      }
-      var contentClassContainers = document.getElementsByClassName('ac-content');
-      if (contentClassContainers.length) {
-        contentClassContainers[0].parentNode.removeChild(contentClassContainers[0]);
-      }
-    });
-
-    it('gets the container with id content', () => {
-      var contentContainer = document.createElement('section');
-      contentContainer.setAttribute('id', 'content');
-      document.body.appendChild(contentContainer);
-      var container = Meta.container();
-      expect(container).toBeDefined();
-      expect(container.id).toEqual('content');
-      expect(container.isEqualNode(contentContainer)).toBe(true);
-    });
-
-    it('gets the container with class ac-content', () => {
-      var contentContainer = document.createElement('section');
-      contentContainer.className = 'ac-content';
-      document.body.appendChild(contentContainer);
-      var container = Meta.container();
-      expect(container).toBeDefined();
-      expect(container.className).toEqual('ac-content');
-      expect(container.isEqualNode(contentContainer)).toBe(true);
-    });
-
-    it('returns the document body if container not found by selector', () => {
-      expect(Meta.container().isEqualNode(document.body)).toBe(true);
-    });
-
-  });
-
   describe('localUrl', () => {
     beforeEach(() => {
       var localUrlMetaTag = document.createElement('meta');

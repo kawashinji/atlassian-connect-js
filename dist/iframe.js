@@ -1639,11 +1639,6 @@ var   document$1 = window.document;
   var Meta = {
     getMeta: getMeta,
 
-    container: function container() {
-      var container = $$2('.ac-content, #content');
-      return container.length > 0 ? container[0] : document.body;
-    },
-
     localUrl: function localUrl(path) {
       var url = getMeta('local-base-url');
       return typeof url === 'undefined' || typeof path === 'undefined' ? url : '' + url + path;
@@ -1678,7 +1673,6 @@ var   document$1 = window.document;
     get: Meta.getMeta
   };
   plugin.meta = Meta.getMeta;
-  plugin.container = Meta.container;
   plugin.localUrl = Meta.localUrl;
 
   return plugin;

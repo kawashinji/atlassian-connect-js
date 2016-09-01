@@ -33,7 +33,6 @@ AP.Meta = {
   get: Meta.getMeta
 };
 AP.meta = Meta.getMeta;
-AP.container = Meta.container;
 AP.localUrl = Meta.localUrl;
 
 export default AP;
