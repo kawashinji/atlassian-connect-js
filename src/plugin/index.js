@@ -5,6 +5,7 @@ import consumerOptions from './consumer-options';
 import EventsModule from './events';
 import DialogCompat from './dialog';
 import AMD from './amd';
+import Meta from './meta';
 import _util from './util';
 
 AP._hostModules._dollar = $;
@@ -34,6 +35,12 @@ var margin = AP._data.options.isDialog ? '10px 10px 0 10px'  : '0';
 if (consumerOptions.get('margin') !== false) {
   $('head').append({tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}'});
 }
+
+AP.Meta = {
+  get: Meta.getMeta
+};
+AP.meta = Meta.getMeta;
+AP.localUrl = Meta.localUrl;
 
 AP._hostModules._util = AP._util = {
   each: _util.each,

@@ -1632,6 +1632,19 @@ var   document$1 = window.document;
     }
   };
 
+  function getMeta(name) {
+    return $$2('meta[name=\'ap-' + name + '\']').attr('content');
+  }
+
+  var Meta = {
+    getMeta: getMeta,
+
+    localUrl: function localUrl(path) {
+      var url = getMeta('local-base-url');
+      return typeof url === 'undefined' || typeof path === 'undefined' ? url : '' + url + path;
+    }
+  };
+
   plugin._hostModules._dollar = $$2;
   plugin._hostModules['inline-dialog'] = plugin._hostModules.inlineDialog;
 
@@ -1661,6 +1674,12 @@ var   document$1 = window.document;
   if (consumerOptions.get('margin') !== false) {
     $$2('head').append({ tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}' });
   }
+
+  plugin.Meta = {
+    get: Meta.getMeta
+  };
+  plugin.meta = Meta.getMeta;
+  plugin.localUrl = Meta.localUrl;
 
   plugin._hostModules._util = plugin._util = {
     each: util$1.each,
