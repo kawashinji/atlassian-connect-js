@@ -6,12 +6,19 @@ import EventsModule from './events';
 import DialogCompat from './dialog';
 import AMD from './amd';
 import Meta from './meta';
+import _util from './util';
 
 AP._hostModules._dollar = $;
 AP._hostModules['inline-dialog'] = AP._hostModules.inlineDialog;
 
 if(consumerOptions.get('sizeToParent') === true) {
   AP.env.sizeToParent();
+}
+
+if(consumerOptions.get('base') === true) {
+  AP.env.getLocation(loc => {
+    $('head').append({tag: 'base', href: loc, target: '_parent'});
+  });
 }
 
 $.each(EventsModule, (i, method) => {
@@ -34,5 +41,18 @@ AP.Meta = {
 };
 AP.meta = Meta.getMeta;
 AP.localUrl = Meta.localUrl;
+
+AP._hostModules._util = AP._util = {
+  each: _util.each,
+  log: _util.log,
+  decodeQueryComponent: _util.decodeQueryComponent,
+  bind: _util.bind,
+  unbind: _util.unbind,
+  extend: _util.extend,
+  trim: _util.trim,
+  debounce: _util.debounce,
+  isFunction: _util.isFunction,
+  handleError: _util.handleError
+};
 
 export default AP;
