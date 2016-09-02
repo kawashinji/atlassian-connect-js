@@ -1662,6 +1662,19 @@ var   document$1 = window.document;
     $$2('head').append({ tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}' });
   }
 
+  plugin._hostModules._util = plugin._util = {
+    each: util$1.each,
+    log: util$1.log,
+    decodeQueryComponent: util$1.decodeQueryComponent,
+    bind: util$1.bind,
+    unbind: util$1.unbind,
+    extend: util$1.extend,
+    trim: util$1.trim,
+    debounce: util$1.debounce,
+    isFunction: util$1.isFunction,
+    handleError: util$1.handleError
+  };
+
   return plugin;
 
 }());
