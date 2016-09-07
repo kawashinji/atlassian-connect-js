@@ -85,7 +85,7 @@ var AP = (function () {
   };
 
   var LOG_PREFIX = "[Simple-XDM] ";
-
+  var nativeBind = Function.prototype.bind;
   var util = {
     locationOrigin: function locationOrigin() {
       if (!window.location.origin) {
@@ -123,7 +123,7 @@ var AP = (function () {
       }
     },
     _bind: function _bind(thisp, fn) {
-      if (Function.prototype.bind) {
+      if (nativeBind && fn.bind === nativeBind) {
         return fn.bind(thisp);
       }
       return function () {
@@ -616,7 +616,7 @@ var   document$1 = window.document;
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.6";
+      _this._version = "5.0.0-beta.8";
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
         _this._setupAPIWithoutRequire(_this._data.api);
@@ -631,6 +631,16 @@ var   document$1 = window.document;
       }
       _this._registerOnUnload();
       $(util._bind(_this, _this._autoResizer));
+      _this.resize = util._bind(_this, function (width, height) {
+        if (!width || !height) {
+          var dimensions = size();
+          width = dimensions.w;
+          height = dimensions.h;
+        }
+        if (_this._hostModules.env && _this._hostModules.env.resize) {
+          _this._hostModules.env.resize(width, height);
+        }
+      });
       return _this;
     }
 
@@ -936,20 +946,6 @@ var   document$1 = window.document;
       value: function _initResize() {
         this.resize();
         resizeListener.add(util._bind(this, this.resize));
-      }
-    }, {
-      key: 'resize',
-      value: function resize(width, height) {
-        if (!width || !height) {
-          var dimensions = size();
-          width = dimensions.w;
-          height = dimensions.h;
-        }
-        this.require('env', function (env) {
-          if (env && env.resize) {
-            env.resize(width, height);
-          }
-        });
       }
     }]);
     return AP;
@@ -1632,11 +1628,30 @@ var   document$1 = window.document;
     }
   };
 
+  function getMeta(name) {
+    return $$2('meta[name=\'ap-' + name + '\']').attr('content');
+  }
+
+  var Meta = {
+    getMeta: getMeta,
+
+    localUrl: function localUrl(path) {
+      var url = getMeta('local-base-url');
+      return typeof url === 'undefined' || typeof path === 'undefined' ? url : '' + url + path;
+    }
+  };
+
   plugin._hostModules._dollar = $$2;
   plugin._hostModules['inline-dialog'] = plugin._hostModules.inlineDialog;
 
   if (consumerOptions.get('sizeToParent') === true) {
     plugin.env.sizeToParent();
+  }
+
+  if (consumerOptions.get('base') === true) {
+    plugin.env.getLocation(function (loc) {
+      $$2('head').append({ tag: 'base', href: loc, target: '_parent' });
+    });
   }
 
   $$2.each(events$1, function (i, method) {
@@ -1655,6 +1670,25 @@ var   document$1 = window.document;
   if (consumerOptions.get('margin') !== false) {
     $$2('head').append({ tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}' });
   }
+
+  plugin.Meta = {
+    get: Meta.getMeta
+  };
+  plugin.meta = Meta.getMeta;
+  plugin.localUrl = Meta.localUrl;
+
+  plugin._hostModules._util = plugin._util = {
+    each: util$1.each,
+    log: util$1.log,
+    decodeQueryComponent: util$1.decodeQueryComponent,
+    bind: util$1.bind,
+    unbind: util$1.unbind,
+    extend: util$1.extend,
+    trim: util$1.trim,
+    debounce: util$1.debounce,
+    isFunction: util$1.isFunction,
+    handleError: util$1.handleError
+  };
 
   return plugin;
 

@@ -2,16 +2,10 @@
     padding: 0px 10px;
     background-color: #f5f5f5;
 }
-.ap-aui-dialog2,
-.ap-aui-dialog2 .aui-dialog2-content,
-.ap-aui-dialog2 .ap-iframe-container {
-    display: flex;
-    flex-direction: column;
-}
-.ap-aui-dialog2 .aui-dialog2-content,
-.ap-aui-dialog2 .ap-iframe-container,
-.ap-aui-dialog2 .ap-iframe-container iframe {
-    flex: 1;
+
+.ap-dialog-container .ap-container,
+.ap-aui-dialog2 div {
+    height: 100%;
 }
 
 .ap-aui-dialog2 div.ap-stats {

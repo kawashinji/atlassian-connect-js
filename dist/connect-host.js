@@ -525,7 +525,7 @@
 	});
 
 	var LOG_PREFIX = "[Simple-XDM] ";
-
+	var nativeBind = Function.prototype.bind;
 	var util = {
 	  locationOrigin: function locationOrigin() {
 	    if (!window.location.origin) {
@@ -563,7 +563,7 @@
 	    }
 	  },
 	  _bind: function _bind(thisp, fn) {
-	    if (Function.prototype.bind) {
+	    if (nativeBind && fn.bind === nativeBind) {
 	      return fn.bind(thisp);
 	    }
 	    return function () {
@@ -3117,7 +3117,7 @@
 	      if (options.size === 'x-large') {
 	        size = 'xlarge';
 	      }
-	      if (options.width === '100%' && options.height === '100%') {
+	      if (options.size !== 'maximum' && options.width === '100%' && options.height === '100%') {
 	        size = 'fullscreen';
 	      }
 	      if (!size && !options.width && !options.height) {
@@ -3158,6 +3158,9 @@
 	      }
 	      if (options.size === 'fullscreen') {
 	        returnval = true;
+	      }
+	      if (options.size === 'maximum') {
+	        returnval = false;
 	      }
 	      return returnval;
 	    }
@@ -3427,7 +3430,7 @@
 	var DLGID_PREFIX = 'ap-dialog-';
 	var DIALOG_CLASS = 'ap-aui-dialog2';
 	var DLGID_REGEXP = new RegExp('^' + DLGID_PREFIX + '[0-9A-Za-z]+$');
-	var DIALOG_SIZES = ['small', 'medium', 'large', 'xlarge', 'fullscreen'];
+	var DIALOG_SIZES = ['small', 'medium', 'large', 'xlarge', 'fullscreen', 'maximum'];
 	var DIALOG_BUTTON_CLASS = 'ap-aui-dialog-button';
 	var DIALOG_BUTTON_CUSTOM_CLASS = 'ap-dialog-custom-button';
 	var DIALOG_FOOTER_CLASS = 'aui-dialog2-footer';
@@ -3602,7 +3605,7 @@
 	        $dialog.addClass('aui-dialog2-' + sanitizedOptions.size);
 	      }
 
-	      if (sanitizedOptions.size === 'fullscreen') {
+	      if (sanitizedOptions.size === 'fullscreen' || sanitizedOptions.size === 'maximum') {
 	        if (sanitizedOptions.chrome) {
 	          $dialog.addClass('ap-header-controls');
 	        }
@@ -5198,7 +5201,7 @@
 	          trigger: trigger
 	        });
 	        showInlineDialog();
-	      }, data.dialogOptions);
+	      }, data.inlineDialogOptions);
 	      return $el;
 	    }
 	  }]);
@@ -5261,7 +5264,7 @@
 	        id: data.id,
 	        bindTo: data.$target,
 	        $content: $iframeContainer,
-	        dialogOptions: {} // fill this with dialog options.
+	        inlineDialogOptions: data.extension.options
 	      });
 
 	      return $inlineDialog;
@@ -5280,7 +5283,7 @@
 	        id: webitemId,
 	        extension: data.extension,
 	        $target: $target,
-	        options: data.options || {}
+	        options: data.extension.options || {}
 	      });
 
 	      $inlineDialog.show();
@@ -5406,7 +5409,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.6';
+	  window._AP.version = '5.0.0-beta.8';
 	}
 
 	host.defineModule('messages', messages);
