@@ -127,14 +127,14 @@ describe('Inline Dialog Webitem', () => {
       jwtActions.registerContentResolver({callback: function(data){
         return jQuery.Deferred(function(defer){
           defer.resolve({
-              url: 'http://www.example.com',
-              addon_key: data.addon_key,
-              key: data.key,
-              options: {
-                productContext: {
-                  a: 'b'
-                }
+            url: 'http://www.example.com',
+            addon_key: data.addon_key,
+            key: data.key,
+            options: {
+              productContext: {
+                a: 'b'
               }
+            }
           });
         }).promise();
       }});
