@@ -525,7 +525,7 @@
 	});
 
 	var LOG_PREFIX = "[Simple-XDM] ";
-
+	var nativeBind = Function.prototype.bind;
 	var util = {
 	  locationOrigin: function locationOrigin() {
 	    if (!window.location.origin) {
@@ -563,7 +563,7 @@
 	    }
 	  },
 	  _bind: function _bind(thisp, fn) {
-	    if (Function.prototype.bind) {
+	    if (nativeBind && fn.bind === nativeBind) {
 	      return fn.bind(thisp);
 	    }
 	    return function () {
@@ -5409,7 +5409,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.6';
+	  window._AP.version = '5.0.0-beta.8';
 	}
 
 	host.defineModule('messages', messages);
