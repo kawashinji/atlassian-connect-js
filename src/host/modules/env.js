@@ -5,6 +5,7 @@ import util from '../util';
 import _ from '../underscore';
 
 var debounce = AJS.debounce || $.debounce;
+var resizeFuncHolder = {};
 /**
  * Utility methods that are available without requiring additional modules.
  * @exports AP
@@ -39,13 +40,22 @@ export default {
    * @param {String} width   the desired width
    * @param {String} height  the desired height
    */
-  resize: debounce(function(width, height, callback) {
+  resize: function(width, height, callback) {
     callback = _.last(arguments);
+    var iframeId = callback._context.extension.id;
     var options = callback._context.extension.options;
-    if (options && !options.isDialog){
-      EnvActions.iframeResize(width, height, callback._context);
+    if(options && options.isDialog) {
+      return;
     }
-  }),
+
+    if(!resizeFuncHolder[iframeId]){
+      resizeFuncHolder[iframeId] = debounce(function(dwidth, dheight, dcallback){
+        EnvActions.iframeResize(dwidth, dheight, dcallback._context);
+      });
+    }
+
+    resizeFuncHolder[iframeId](width, height, callback);
+  },
   /**
    * Resize the iframe, so that it takes the entire page. Add-on may define to hide the footer using data-options.
    *
@@ -71,3 +81,7 @@ export default {
     }
   })
 };
+
+EventDispatcher.register('after:iframe-unload', function(data){
+  delete resizeFuncHolder[data.extension.id];
+});

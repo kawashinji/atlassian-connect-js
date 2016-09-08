@@ -4327,6 +4327,7 @@
 	};
 
 	var debounce = AJS.debounce || $.debounce;
+	var resizeFuncHolder = {};
 	/**
 	 * Utility methods that are available without requiring additional modules.
 	 * @exports AP
@@ -4361,13 +4362,22 @@
 	   * @param {String} width   the desired width
 	   * @param {String} height  the desired height
 	   */
-	  resize: debounce(function (width, height, callback) {
+	  resize: function resize(width, height, callback) {
 	    callback = _.last(arguments);
+	    var iframeId = callback._context.extension.id;
 	    var options = callback._context.extension.options;
-	    if (options && !options.isDialog) {
-	      EnvActions.iframeResize(width, height, callback._context);
+	    if (options && options.isDialog) {
+	      return;
 	    }
-	  }),
+
+	    if (!resizeFuncHolder[iframeId]) {
+	      resizeFuncHolder[iframeId] = debounce(function (dwidth, dheight, dcallback) {
+	        EnvActions.iframeResize(dwidth, dheight, dcallback._context);
+	      });
+	    }
+
+	    resizeFuncHolder[iframeId](width, height, callback);
+	  },
 	  /**
 	   * Resize the iframe, so that it takes the entire page. Add-on may define to hide the footer using data-options.
 	   *
@@ -4393,6 +4403,10 @@
 	    }
 	  })
 	};
+
+	EventDispatcher$1.register('after:iframe-unload', function (data) {
+	  delete resizeFuncHolder[data.extension.id];
+	});
 
 	var InlineDialogActions = {
 	  hide: function hide($el) {
@@ -5409,7 +5423,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.8';
+	  window._AP.version = '5.0.0-beta.6';
 	}
 
 	host.defineModule('messages', messages);
