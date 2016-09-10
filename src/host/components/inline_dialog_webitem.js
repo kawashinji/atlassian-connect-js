@@ -1,4 +1,5 @@
 import WebItemActions from '../actions/webitem_actions';
+import InlineDialogWebItemActions from '../actions/inline_dialog_webitem_actions';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import InlineDialogComponent from './inline_dialog';
 import WebitemComponent from './webitem';
@@ -6,6 +7,7 @@ import WebItemUtils from '../utils/webitem';
 import IframeContainer from './iframe_container';
 import $ from '../dollar';
 import create from '../create';
+import _ from '../underscore';
 
 const ITEM_NAME = 'inline-dialog';
 const SELECTOR = '.ap-inline-dialog';
@@ -64,13 +66,22 @@ class InlineDialogWebItem {
       return false;
     }
     contentRequest.then(function(content){
-      content.options = {
+      content.options = content.options || {};
+      _.extend(content.options, {
         autoresize: true,
         widthinpx: true
-      };
-      var addon = create(content);
-      data.$el.empty().append(addon);
+      });
+
+      InlineDialogWebItemActions.addExtension({
+        $el: data.$el,
+        extension: content
+      });
     });
+  }
+
+  addExtension(data){
+    var addon = create(data.extension);
+    data.$el.empty().append(addon);
   }
 
   createIfNotExists(data) {
@@ -95,6 +106,9 @@ EventDispatcher.register('webitem-invoked:' + webitem.name, function(data){
 });
 EventDispatcher.register('inline-dialog-opened', function(data){
   inlineDialogInstance.opened(data);
+});
+EventDispatcher.register('inline-dialog-extension', function(data){
+  inlineDialogInstance.addExtension(data);
 });
 WebItemActions.addWebItem(webitem);
 

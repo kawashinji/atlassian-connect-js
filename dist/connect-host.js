@@ -4757,11 +4757,6 @@
 	};
 
 	var FLAGID_PREFIX = 'ap-flag-';
-	var AUI_FLAG = undefined;
-
-	window.require(['aui/flag'], function (f) {
-	  AUI_FLAG = f;
-	});
 
 	var Flag$1 = function () {
 	  function Flag() {
@@ -4781,7 +4776,7 @@
 	    key: 'render',
 	    value: function render(options) {
 	      var _id = FLAGID_PREFIX + options.id;
-	      var auiFlag = AUI_FLAG({
+	      var auiFlag = AJS.flag({
 	        type: options.type,
 	        title: options.title,
 	        body: this._toHtmlString(options.body),
@@ -5139,6 +5134,15 @@
 
 	};
 
+	var InlineDialogWebItemActions = {
+	  addExtension: function addExtension(data) {
+	    EventDispatcher$1.dispatch('inline-dialog-extension', {
+	      $el: data.$el,
+	      extension: data.extension
+	    });
+	  }
+	};
+
 	var InlineDialog = function () {
 	  function InlineDialog() {
 	    classCallCheck(this, InlineDialog);
@@ -5311,13 +5315,23 @@
 	        return false;
 	      }
 	      contentRequest.then(function (content) {
-	        content.options = {
+	        content.options = content.options || {};
+	        _.extend(content.options, {
 	          autoresize: true,
 	          widthinpx: true
-	        };
-	        var addon = create(content);
-	        data.$el.empty().append(addon);
+	        });
+
+	        InlineDialogWebItemActions.addExtension({
+	          $el: data.$el,
+	          extension: content
+	        });
 	      });
+	    }
+	  }, {
+	    key: 'addExtension',
+	    value: function addExtension(data) {
+	      var addon = create(data.extension);
+	      data.$el.empty().append(addon);
 	    }
 	  }, {
 	    key: 'createIfNotExists',
@@ -5344,6 +5358,9 @@
 	});
 	EventDispatcher$1.register('inline-dialog-opened', function (data) {
 	  inlineDialogInstance.opened(data);
+	});
+	EventDispatcher$1.register('inline-dialog-extension', function (data) {
+	  inlineDialogInstance.addExtension(data);
 	});
 	WebItemActions.addWebItem(webitem);
 
@@ -5423,7 +5440,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.8';
+	  window._AP.version = '5.0.0-beta.10';
 	}
 
 	host.defineModule('messages', messages);

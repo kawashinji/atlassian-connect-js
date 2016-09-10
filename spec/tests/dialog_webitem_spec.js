@@ -19,7 +19,7 @@ describe('Dialog Webitem', () => {
     };
 
     $('.aui-dialog2').remove();
-    webitemButton = $('<a />').attr('href', 'https://www.example.com');
+    webitemButton = $('<a />').attr('href', 'https://www.example.com?a.x=b');
     webitemButton.text('i am a webitem');
     webitemButton.addClass('ap-dialog ap-plugin-key-my-plugin ap-module-key-key');
     webitemButton.appendTo('body');
@@ -154,6 +154,17 @@ describe('Dialog Webitem', () => {
       $(function(){
         $('.ap-dialog').click();
         expect(WebItemActions.webitemInvoked.calls.count()).toEqual(1);
+        done();
+      });
+    });
+
+    it('includes product context', (done) => {
+      var spy = jasmine.createSpy('spy');
+      spyOn(WebItemActions, 'webitemInvoked');
+      $(function(){
+        $('.ap-dialog').click();
+        var extensionObj = WebItemActions.webitemInvoked.calls.first().args[2];
+        expect(extensionObj.options.productContext).toEqual({'a.x': 'b'});
         done();
       });
     });

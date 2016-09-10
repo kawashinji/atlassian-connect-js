@@ -3,13 +3,15 @@ import InlineDialogActions from 'src/host/actions/inline_dialog_actions';
 import InlineDialogComponent from 'src/host/components/inline_dialog';
 import WebItemActions from 'src/host/actions/webitem_actions';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
+import IframeContainer from 'src/host/components/iframe_container';
+import jwtActions from 'src/host/actions/jwt_actions';
 
 describe('Inline Dialog Webitem', () => {
   var webitemButton;
 
   beforeEach(() => {
     $('.aui-inline-dialog').remove();
-    webitemButton = $('<a />').attr('href', 'https://www.example.com');
+    webitemButton = $('<a />').attr('href', 'https://www.example.com?b.c=d');
     webitemButton.text('i am a webitem');
     webitemButton.addClass('ap-inline-dialog ap-plugin-key-my-plugin ap-module-key-key ap-target-key-key');
     webitemButton.appendTo('body');
@@ -109,6 +111,50 @@ describe('Inline Dialog Webitem', () => {
       $(function(){
         $('.ap-inline-dialog').trigger('mouseover');
         expect(WebItemActions.webitemInvoked.calls.count()).toEqual(1);
+        done();
+      });
+    });
+
+
+    it('opens with product context', (done) => {
+      EventDispatcher.register('inline-dialog-extension', function(data){
+        expect(data.extension.options.productContext).toEqual({
+          a: 'b'
+        });
+        done();
+      });
+
+      jwtActions.registerContentResolver({callback: function(data){
+        return jQuery.Deferred(function(defer){
+          defer.resolve({
+            url: 'http://www.example.com',
+            addon_key: data.addon_key,
+            key: data.key,
+            options: {
+              productContext: {
+                a: 'b'
+              }
+            }
+          });
+        }).promise();
+      }});
+
+      InlineDialogWebitem.opened({
+        $el: $('<div />'),
+        extension: {
+          addon_key: 'a-key',
+          key: 'key'
+        }
+      });
+    });
+
+    it('invokes with product context', (done) => {
+      var spy = jasmine.createSpy('spy');
+      spyOn(WebItemActions, 'webitemInvoked');
+      $(function(){
+        $('.ap-inline-dialog').trigger('click');
+        var extensionObj = WebItemActions.webitemInvoked.calls.first().args[2];
+        expect(extensionObj.options.productContext).toEqual({'b.c': 'd'});
         done();
       });
     });
