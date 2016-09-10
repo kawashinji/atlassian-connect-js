@@ -29,6 +29,31 @@ describe('Dialog module', () => {
     baseDialogComponentTests.testChrome(options);
   });
 
+  it('renders a chromed dialog with productContext', (done) => {
+    var options = baseDialogComponentTests.getChromeOptions();
+    options.key = 'some.module_key';
+    var callback = function(){};
+    callback._id = 'abc123';
+    callback._context = {
+      extension: {
+        addon_key: 'some.addon_key',
+        key: 'some.different_module',
+        options: {
+          productContext: {
+            'some': 'context'
+          }
+        }
+      }
+    };
+
+    EventDispatcher.registerOnce('dialog-extension-open', function(data){
+      expect(data.extension.options.productContext).toEqual(callback._context.extension.options.productContext);
+      done();
+    });
+    new DialogModule.create.constructor(options, callback);
+  });
+
+
   it('renders a chromed dialog with dimensions', () => {
     var options = baseDialogComponentTests.getChromeOptions();
     delete options.size;
