@@ -4743,11 +4743,6 @@
 	};
 
 	var FLAGID_PREFIX = 'ap-flag-';
-	var AUI_FLAG = undefined;
-
-	window.require(['aui/flag'], function (f) {
-	  AUI_FLAG = f;
-	});
 
 	var Flag$1 = function () {
 	  function Flag() {
@@ -4767,7 +4762,7 @@
 	    key: 'render',
 	    value: function render(options) {
 	      var _id = FLAGID_PREFIX + options.id;
-	      var auiFlag = AUI_FLAG({
+	      var auiFlag = AJS.flag({
 	        type: options.type,
 	        title: options.title,
 	        body: this._toHtmlString(options.body),
