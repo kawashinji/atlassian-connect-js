@@ -6,7 +6,7 @@ describe('env module', () => {
   describe('resize', () => {
 
     afterEach(function(){
-      $(".tempiframe").remove();
+      $('.tempiframe').remove();
     });
 
     it('triggers the resize function', (done) => {
@@ -36,7 +36,6 @@ describe('env module', () => {
     it('triggers the resize function once per add-on', (done) => {
       var width = '110px';
       var height = '130px';
-    
       var $el1= $('<iframe class="tempiframe" id="abc1234" />');
       var callback1 = function(){};
       callback1._context = {
@@ -65,7 +64,7 @@ describe('env module', () => {
       envModule.resize(width, height, callback1);
       envModule.resize(width, height, callback2);
       envModule.resize(width, height, callback2);
-      
+
       setTimeout(function(){
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(0)[0].extension.id).toEqual('abc1234');
