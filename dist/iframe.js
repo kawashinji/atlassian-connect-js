@@ -976,7 +976,8 @@ var   document$1 = window.document;
       key: '_initResize',
       value: function _initResize() {
         this.resize();
-        resizeListener.add(new AutoResizeAction(this.resize).triggered);
+        var autoresize = new AutoResizeAction(this.resize);
+        resizeListener.add(util._bind(autoresize, autoresize.triggered));
       }
     }]);
     return AP;
