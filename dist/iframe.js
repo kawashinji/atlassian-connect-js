@@ -539,6 +539,37 @@ var   document$1 = window.document;
     }
   };
 
+  var AutoResizeAction = function () {
+    function AutoResizeAction(callback) {
+      classCallCheck(this, AutoResizeAction);
+
+      this.resizeStore = [];
+      this.callback = callback;
+    }
+
+    createClass(AutoResizeAction, [{
+      key: 'triggered',
+      value: function triggered(dimensions) {
+        dimensions = dimensions || size();
+        var now = Date.now();
+        dimensions.setAt = now;
+        // this.resizeStore = this.resizeStore.filter(function(entry){
+        //   return ((now - entry.setAt) < ());
+        // });
+        this.resizeStore.push(dimensions);
+        if (this.resizeStore.length === 3) {
+          var oldDimensions = this.resizeStore[0];
+          this.resizeStore = this.resizeStore.slice(1);
+          if (dimensions.w === oldDimensions.w && dimensions.h === oldDimensions.h) {
+            return;
+          }
+        }
+        this.callback(dimensions.w, dimensions.h);
+      }
+    }]);
+    return AutoResizeAction;
+  }();
+
   var ConsumerOptions = function () {
     function ConsumerOptions() {
       classCallCheck(this, ConsumerOptions);
@@ -945,7 +976,7 @@ var   document$1 = window.document;
       key: '_initResize',
       value: function _initResize() {
         this.resize();
-        resizeListener.add(util._bind(this, this.resize));
+        resizeListener.add(new AutoResizeAction(this.resize).triggered);
       }
     }]);
     return AP;
