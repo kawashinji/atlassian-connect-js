@@ -553,20 +553,20 @@ var   document$1 = window.document;
       key: 'triggered',
       value: function triggered(dimensions) {
         dimensions = dimensions || size();
-        // let now = Date.now();
-        // dimensions.setAt = now;
-        // this.resizeStore = this.resizeStore.filter(function(entry){
-        //   // return ((now - entry.setAt) < 1000);
-        //   return ((now - entry.setAt) < 100);
-        // });
-        // this.resizeStore.push(dimensions);
-        // if(this.resizeStore.length === 3) {
-        //   var oldDimensions = this.resizeStore[0];
-        //   this.resizeStore = this.resizeStore.slice(1);
-        //   if(dimensions.w === oldDimensions.w && dimensions.h === oldDimensions.h) {
-        //     return;
-        //   }
-        // }
+        var now = Date.now();
+        dimensions.setAt = now;
+        this.resizeStore = this.resizeStore.filter(function (entry) {
+          // return ((now - entry.setAt) < 1000);
+          return now - entry.setAt < 100;
+        });
+        this.resizeStore.push(dimensions);
+        if (this.resizeStore.length === 3) {
+          var oldDimensions = this.resizeStore[0];
+          this.resizeStore = this.resizeStore.slice(1);
+          if (dimensions.w === oldDimensions.w && dimensions.h === oldDimensions.h) {
+            return;
+          }
+        }
         this.callback(dimensions.w, dimensions.h);
       }
     }]);
