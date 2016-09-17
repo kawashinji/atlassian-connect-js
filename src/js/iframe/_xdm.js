@@ -252,6 +252,11 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
           name =  pmessage.n;
         }
 
+        // if the iframe has potentially been reloaded. re-attach the source contentWindow object
+        if (event.source !== target && event.origin.toLowerCase() === remoteOrigin && pchannel === channel) {
+          target = event.source;
+        }
+
         // If the payload doesn't match our expected event signature, assume its not part of the xdm-rpc protocol
         if (name !== 'registerInnerIframe' && ((event.source !== target && event.source !== window.parent && event.source !== window.top ) || event.origin.toLowerCase() !== remoteOrigin || pchannel !== channel)){
           return;
