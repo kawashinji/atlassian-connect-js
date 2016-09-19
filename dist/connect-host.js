@@ -5440,7 +5440,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.11';
+	  window._AP.version = '5.0.0-beta.12';
 	}
 
 	host.defineModule('messages', messages);
