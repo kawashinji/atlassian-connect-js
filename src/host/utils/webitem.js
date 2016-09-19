@@ -1,5 +1,5 @@
 import _ from '../underscore';
-import jsuri from 'jsuri';
+import qs from 'query-string';
 
 function sanitizeTriggers(triggers) {
   var onTriggers;
@@ -66,8 +66,9 @@ function getOptionsForWebItem($target) {
   }
   options.productContext = options.productContext || {};
   // create product context from url params
-  new jsuri($target.attr('href')).queryPairs.forEach((param) => {
-    options.productContext[param[0]] = param[1];
+  var query = qs.parse(qs.extract($target.attr('href')));
+  _.each(query, (value, key) => {
+    options.productContext[key] = value;
   });
 
   return options;

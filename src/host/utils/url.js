@@ -1,4 +1,4 @@
-import jsuri from 'jsuri';
+import qs from 'query-string';
 import jwtUtil from './jwt';
 
 function isJwtExpired(urlStr) {
@@ -7,8 +7,8 @@ function isJwtExpired(urlStr) {
 }
 
 function _getJwt(urlStr) {
-  var url = new jsuri(urlStr);
-  return url.getQueryParamValue('jwt');
+  var query = qs.parse(qs.extract(urlStr));
+  return query['jwt'];
 }
 
 function hasJwt(url) {
