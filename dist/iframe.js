@@ -641,6 +641,8 @@ var   document$1 = window.document;
           _this._hostModules.env.resize(width, height);
         }
       });
+      _this.container = getContainer;
+      _this.size = size;
       return _this;
     }
 
