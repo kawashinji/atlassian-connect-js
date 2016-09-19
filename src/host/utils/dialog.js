@@ -119,7 +119,7 @@ class DialogUtils {
           identifier = buttonUtils.randomIdentifier();
         }
         if(button.disabled && button.disabled === true) {
-          disabled === true;
+          disabled = true;
         }
 
         buttons.push({
