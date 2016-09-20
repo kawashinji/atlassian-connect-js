@@ -30,7 +30,7 @@ module.exports = function(config) {
 
     //do not process my html files.
     preprocessors: {
-      'spec/tests/*.js': ['webpack'],
+      'spec/tests/**/*.js': ['webpack'],
       'src/**/*.js': ['webpack']
     },
 
