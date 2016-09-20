@@ -177,13 +177,17 @@
   font-size: 0;
 }
 
+@-webkit-keyframes fadeInConnectSpinner { from { opacity: 0; } to { opacity: 1; } }
+@-moz-keyframes fadeInConnectSpinner { from { opacity: 0; } to { opacity: 1; } }
+@-o-keyframes fadeInConnectSpinner { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fadeInConnectSpinner { from { opacity: 0; } to { opacity: 1; } }
 
 .ap-iframe-container iframe {
-	opacity: 0;
+	display: none;
 }
 
 .ap-iframe-container.iframe-init iframe {
+  display: block;
   opacity: 0;
   animation: fadeInConnectSpinner 0.25s ease-in;
   animation-delay: 0.25s;
