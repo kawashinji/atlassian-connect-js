@@ -433,19 +433,21 @@ var   document$1 = window.document;
     if (height) {
       h = height;
     } else {
-      // Determine height
+      // Determine height of document element
       docHeight = Math.max(container.scrollHeight, document.documentElement.scrollHeight, container.offsetHeight, document.documentElement.offsetHeight, container.clientHeight, document.documentElement.clientHeight);
 
       if (container === document.body) {
         h = docHeight;
       } else {
-        // Started with http://james.padolsey.com/javascript/get-document-height-cross-browser/
-        // to determine page height across browsers. Turns out that in our case, we can get by with
-        // document.body.offsetHeight and document.body.clientHeight. Those two return the proper
-        // height even when the dom shrinks. Tested on Chrome, Safari, IE8/9/10, and Firefox
-        h = Math.max(container.offsetHeight, container.clientHeight);
+        var computed = window.getComputedStyle(container);
+        h = container.getBoundingClientRect().height;
         if (h === 0) {
           h = docHeight;
+        } else {
+          var additionalProperties = ['margin-top', 'margin-bottom'];
+          additionalProperties.forEach(function (property) {
+            h += parseFloat(computed[property]);
+          });
         }
       }
     }
@@ -539,6 +541,37 @@ var   document$1 = window.document;
     }
   };
 
+  var AutoResizeAction = function () {
+    function AutoResizeAction(callback) {
+      classCallCheck(this, AutoResizeAction);
+
+      this.resizeStore = [];
+      this.callback = callback;
+    }
+
+    createClass(AutoResizeAction, [{
+      key: 'triggered',
+      value: function triggered(dimensions) {
+        dimensions = dimensions || size();
+        var now = Date.now();
+        dimensions.setAt = now;
+        this.resizeStore = this.resizeStore.filter(function (entry) {
+          return now - entry.setAt < 1000;
+        });
+        this.resizeStore.push(dimensions);
+        if (this.resizeStore.length === 3) {
+          var oldDimensions = this.resizeStore[0];
+          this.resizeStore = this.resizeStore.slice(1);
+          if (dimensions.w <= oldDimensions.w && dimensions.h <= oldDimensions.h) {
+            return;
+          }
+        }
+        this.callback(dimensions.w, dimensions.h);
+      }
+    }]);
+    return AutoResizeAction;
+  }();
+
   var ConsumerOptions = function () {
     function ConsumerOptions() {
       classCallCheck(this, ConsumerOptions);
@@ -616,7 +649,7 @@ var   document$1 = window.document;
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.12";
+      _this._version = "5.0.0-beta.13";
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
         _this._setupAPIWithoutRequire(_this._data.api);
@@ -947,7 +980,8 @@ var   document$1 = window.document;
       key: '_initResize',
       value: function _initResize() {
         this.resize();
-        resizeListener.add(util._bind(this, this.resize));
+        var autoresize = new AutoResizeAction(this.resize);
+        resizeListener.add(util._bind(autoresize, autoresize.triggered));
       }
     }]);
     return AP;
