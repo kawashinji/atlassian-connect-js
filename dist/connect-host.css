@@ -60,7 +60,8 @@
   width: 100%;
 }
 
-.ap-aui-dialog2.aui-dialog2-maximum .ap-status-indicator {
+.ap-aui-dialog2.aui-dialog2-maximum .ap-status-indicator,
+.ap-aui-dialog2.aui-dialog2-chromeless .ap-status-indicator {
   display: none;
 }
 
