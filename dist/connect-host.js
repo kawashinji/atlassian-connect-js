@@ -2970,7 +2970,7 @@
 	            identifier = buttonUtilsInstance.randomIdentifier();
 	          }
 	          if (button.disabled && button.disabled === true) {
-	            disabled === true;
+	            disabled = true;
 	          }
 
 	          buttons.push({
@@ -4849,6 +4849,18 @@
 
 	EventDispatcher$1.register('content-resolver-register-by-extension', function (data) {
 	  webItemInstance.setContentResolver(data.callback);
+	});
+
+	document.addEventListener('aui-responsive-menu-item-created', function (e) {
+	  var oldWebItem = e.detail.originalItem.querySelector('a[class*="ap-"]');
+	  if (oldWebItem) {
+	    var newWebItem = e.detail.newItem.querySelector('a');
+	    oldWebItem.classList.forEach(function (cls) {
+	      if (/^ap-/.test(cls)) {
+	        newWebItem.classList.add(cls);
+	      }
+	    });
+	  }
 	});
 
 	var WebItemActions = {
