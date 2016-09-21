@@ -1,4 +1,5 @@
 import AP from 'simple-xdm/plugin';
+
 /**
  * The Events module provides a mechanism for emitting and receiving events.
  * <h3>Basic example</h3>
@@ -14,63 +15,80 @@ import AP from 'simple-xdm/plugin';
  * @name Events
  * @module
  */
-var events = {};
-const ANY_PREFIX = '_any';
-AP.registerAny(function(data, callback){
-  var eventName = callback._context.eventName;
-  var any = events[ANY_PREFIX] || [];
-  var byName = events[eventName] || [];
 
-  if(!Array.isArray(data)){
-    data = [data];
+class Events {
+  constructor(){
+    this._events = {};
+    this.ANY_PREFIX = '_any';
+    this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
+    if(AP && AP._data.origin) {
+      AP.registerAny(this._anyListener.bind(this));
+    }
   }
 
-  any.forEach((handler) => {
-    //clone data before modifying
-    var args = data.slice(0);
-    args.unshift(eventName);
-    args.push({
-      args: data,
-      name: eventName
+  _anyListener(data, callback){
+    var eventName = callback._context.eventName;
+    var any = this._events[this.ANY_PREFIX] || [];
+    var byName = this._events[eventName] || [];
+
+    if(!Array.isArray(data)){
+      data = [data];
+    }
+
+    any.forEach((handler) => {
+      //clone data before modifying
+      var args = data.slice(0);
+      args.unshift(eventName);
+      args.push({
+        args: data,
+        name: eventName
+      });
+      handler.apply(null, args);
     });
-    handler.apply(null, args);
-  });
 
-  byName.forEach((handler) => {
-    handler.apply(null, data);
-  });
-});
+    byName.forEach((handler) => {
+      handler.apply(null, data);
+    });
+  }
 
-export default {
-  off: function(name, listener){
-    if (events[name]) {
-      var index = events[name].indexOf(listener);
+  off(name, listener){
+    console.log('called off', name, listener, this._events, this._events[name]);
+    if (this._events[name]) {
+      var index = this._events[name].indexOf(listener);
       if (index > -1) {
-        events[name].splice(index, 1);
+        this._events[name].splice(index, 1);
+      }
+      if(this._events[name].length === 0) {
+        delete this._events[name];
       }
     }
-  },
-  offAll: function(name){
-    delete events[name];
-  },
-  offAny: function(listener){
-    this.off(ANY_PREFIX, listener);
-  },
-  on: function(name, listener){
-    if(!events[name]){
-      events[name] = [];
+    console.log('after off', name, listener, this._events, this._events[name]);
+  }
+
+  offAll(name){
+    delete this._events[name];
+  }
+
+  offAny(listener){
+    this.off(this.ANY_PREFIX, listener);
+  }
+
+  on(name, listener){
+    if(!this._events[name]){
+      this._events[name] = [];
     }
-    events[name].push(listener);
-  },
-  onAny: function(listener){
-    this.on(ANY_PREFIX, listener);
-  },
-  once: function(name, listener){
-    var eventsRef = this;
-    this.on(name, function(){
+    this._events[name].push(listener);
+  }
+  onAny(listener){
+    this.on(this.ANY_PREFIX, listener);
+  }
+  once(name, listener){
+    var _that = this;
+    function runOnce() {
       listener.apply(null, arguments);
-      eventsRef.off(name, listener);
-    });
+      _that.off(name, runOnce);
+    }
+    this.on(name, runOnce);
   }
   /**
    * Adds a listener for all occurrences of an event of a particular name.
@@ -136,5 +154,6 @@ export default {
    * @param {String} name The name of event to emit
    * @param {String[]} args 0 or more additional data arguments to deliver with the event
    */
-};
+}
 
+export default new Events();

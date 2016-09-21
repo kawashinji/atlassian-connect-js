@@ -21,7 +21,7 @@ if(consumerOptions.get('base') === true) {
   });
 }
 
-$.each(EventsModule, (i, method) => {
+$.each(EventsModule.methods, (i, method) => {
   AP._hostModules.events[i] = AP.events[i] = method;
 });
 
