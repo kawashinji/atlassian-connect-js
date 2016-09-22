@@ -1690,8 +1690,8 @@ var   document$1 = window.document;
     });
   }
 
-  $$2.each(events.methods, function (i, method) {
-    plugin._hostModules.events[i] = plugin.events[i] = method;
+  $$2.each(events.methods, function (method) {
+    plugin._hostModules.events[method] = plugin.events[method] = events[method];
   });
 
   plugin.define = deprecate(function () {
