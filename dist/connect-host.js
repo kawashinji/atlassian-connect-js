@@ -2979,7 +2979,7 @@
 	            identifier = buttonUtilsInstance.randomIdentifier();
 	          }
 	          if (button.disabled && button.disabled === true) {
-	            disabled === true;
+	            disabled = true;
 	          }
 
 	          buttons.push({
@@ -4761,10 +4761,13 @@
 	  }
 	  options.productContext = options.productContext || {};
 	  // create product context from url params
-	  var query = qs.parse(qs.extract($target.attr('href')));
-	  _.each(query, function (value, key) {
-	    options.productContext[key] = value;
-	  });
+	  var url = $target.attr('href');
+	  if (url) {
+	    var query = qs.parse(qs.extract(url));
+	    _.each(query, function (value, key) {
+	      options.productContext[key] = value;
+	    });
+	  }
 
 	  return options;
 	}
