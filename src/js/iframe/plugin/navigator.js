@@ -15,8 +15,8 @@ AP.define("navigator", ["_dollar", "_rpc"],
 
             /**
              * @class Navigator~target
-             * @property {String}        contentview        The view page for pages and blogs. Takes a `contentId` to identify the content.
-             * @property {String}        contentedit        The edit page for pages and blogs. Takes a `contentType` and a `contentId` to identify the content.
+             * @property {String}        contentview        The view page for pages, blogs and custom content. Takes a `contentId` to identify the content.
+             * @property {String}        contentedit        The edit page for pages, blogs and custom content. Takes a `contentId` to identify the content.
              * @property {String}        spaceview          The space view page. Takes a `spaceKey` to identify the space.
              * @property {String}        spacetools         The space tools page. Takes a `spaceKey` to identify the space.
              * @property {String}        dashboard          The dashboard of Confluence.
@@ -50,10 +50,7 @@ AP.define("navigator", ["_dollar", "_rpc"],
              *
              * // To navigate to the edit page for a piece of content:
              * AP.require('navigator', function(navigator){
-             *   navigator.go('contentedit', {
-             *     contentType: 'page',
-             *     contentId: '12345'
-             *   });
+             *   navigator.go('contentedit', {contentId: '12345'});
              * });
              */
             go: function (target, context) {
