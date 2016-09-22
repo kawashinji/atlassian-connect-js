@@ -16,17 +16,11 @@ import AP from 'simple-xdm/plugin';
  * @module
  */
 
-class Events {
-  constructor(){
-    this._events = {};
-    this.ANY_PREFIX = '_any';
-    this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
-    if(AP && AP._data.origin) {
-      AP.registerAny(this._anyListener.bind(this));
-    }
-  }
-
-  _anyListener(data, callback){
+var events = {
+  _events: {},
+  ANY_PREFIX: '_any',
+  methods: ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'],
+  _anyListener: function(data, callback){
     var eventName = callback._context.eventName;
     var any = this._events[this.ANY_PREFIX] || [];
     var byName = this._events[eventName] || [];
@@ -49,10 +43,8 @@ class Events {
     byName.forEach((handler) => {
       handler.apply(null, data);
     });
-  }
-
-  off(name, listener){
-    console.log('called off', name, listener, this._events, this._events[name]);
+  },
+  off: function(name, listener){
     if (this._events[name]) {
       var index = this._events[name].indexOf(listener);
       if (index > -1) {
@@ -63,26 +55,25 @@ class Events {
       }
     }
     console.log('after off', name, listener, this._events, this._events[name]);
-  }
+  },
 
-  offAll(name){
+  offAll: function(name){
     delete this._events[name];
-  }
+  },
 
-  offAny(listener){
+  offAny: function(listener){
     this.off(this.ANY_PREFIX, listener);
-  }
-
-  on(name, listener){
+  },
+  on: function(name, listener){
     if(!this._events[name]){
       this._events[name] = [];
     }
     this._events[name].push(listener);
-  }
-  onAny(listener){
+  },
+  onAny: function(listener){
     this.on(this.ANY_PREFIX, listener);
-  }
-  once(name, listener){
+  },
+  once: function(name, listener){
     var _that = this;
     function runOnce() {
       listener.apply(null, arguments);
@@ -154,6 +145,10 @@ class Events {
    * @param {String} name The name of event to emit
    * @param {String[]} args 0 or more additional data arguments to deliver with the event
    */
+};
+
+if(AP && AP._data.origin) {
+  AP.registerAny(events._anyListener.bind(events));
 }
 
-export default new Events();
+export default events;
