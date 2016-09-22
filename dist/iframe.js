@@ -1690,7 +1690,7 @@ var   document$1 = window.document;
     });
   }
 
-  $$2.each(events.methods, function (method) {
+  $$2.each(events.methods, function (i, method) {
     plugin._hostModules.events[method] = plugin.events[method] = events[method];
   });
 
