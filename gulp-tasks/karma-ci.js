@@ -14,8 +14,8 @@ module.exports = function () {
     runKarma({
       action: 'run',
       singleRun: true
-    }, function () {
-      done();
+    }, function (result) {
+      done(result);
     });
   };
 };
