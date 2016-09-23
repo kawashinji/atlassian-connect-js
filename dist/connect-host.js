@@ -4867,7 +4867,7 @@
 	  var oldWebItem = e.detail.originalItem.querySelector('a[class*="ap-"]');
 	  if (oldWebItem) {
 	    var newWebItem = e.detail.newItem.querySelector('a');
-	    oldWebItem.classList.forEach(function (cls) {
+	    _.each(oldWebItem.classList, function (cls) {
 	      if (/^ap-/.test(cls)) {
 	        newWebItem.classList.add(cls);
 	      }
