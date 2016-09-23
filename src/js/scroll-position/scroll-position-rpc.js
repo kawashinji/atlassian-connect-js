@@ -15,12 +15,10 @@
                             var iframeLeft = rect.left + document.body.scrollLeft;
 
                             return {
-                                host: {
-                                    scrollY: window.scrollY - iframeTop,
-                                    scrollX: window.scrollX - iframeLeft,
-                                    width: window.innerWidth,
-                                    height: window.innerHeight
-                                }
+                                scrollY: window.scrollY - iframeTop,
+                                scrollX: window.scrollX - iframeLeft,
+                                width: window.innerWidth,
+                                height: window.innerHeight
                             };
                         } else {
                             AJS.log("ScrollPosition is only available to page modules");
