@@ -1,4 +1,5 @@
 import MessagesModule from 'src/host/modules/messages';
+import _ from 'lodash';
 
 describe('messages module', () => {
   var msgCallback = function () { };
@@ -17,8 +18,8 @@ describe('messages module', () => {
       var testBody = 'some test body';
       MessagesModule.generic.constructor(testTitle, testBody, {}, msgCallback);
       expect($('.aui-message-generic').length).toEqual(1);
-      expect($('.aui-message-generic').first().text().includes(testTitle)).toBe(true);
-      expect($('.aui-message-generic').first().text().includes(testBody)).toBe(true);
+      expect(_.includes($('.aui-message-generic').first().text(), testTitle)).toBe(true);
+      expect(_.includes($('.aui-message-generic').first().text(), testBody)).toBe(true);
     });
 
     it('creates a error flag', () => {
@@ -26,8 +27,8 @@ describe('messages module', () => {
       var testBody = 'some test body';
       MessagesModule.error.constructor(testTitle, testBody, {}, msgCallback);
       expect($('.aui-message-error').length).toEqual(1);
-      expect($('.aui-message-error').first().text().includes(testTitle)).toBe(true);
-      expect($('.aui-message-error').first().text().includes(testBody)).toBe(true);
+      expect(_.includes($('.aui-message-error').first().text(), testTitle)).toBe(true);
+      expect(_.includes($('.aui-message-error').first().text(), testBody)).toBe(true);
     });
 
     it('creates a warning flag', () => {
@@ -35,8 +36,8 @@ describe('messages module', () => {
       var testBody = 'some test body';
       MessagesModule.warning.constructor(testTitle, testBody, {}, msgCallback);
       expect($('.aui-message-warning').length).toEqual(1);
-      expect($('.aui-message-warning').first().text().includes(testTitle)).toBe(true);
-      expect($('.aui-message-warning').first().text().includes(testBody)).toBe(true);
+      expect(_.includes($('.aui-message-warning').first().text(), testTitle)).toBe(true);
+      expect(_.includes($('.aui-message-warning').first().text(), testBody)).toBe(true);
     });
 
     it('creates a success flag', () => {
@@ -44,8 +45,8 @@ describe('messages module', () => {
       var testBody = 'some test body';
       MessagesModule.success.constructor(testTitle, testBody, {}, msgCallback);
       expect($('.aui-message-success').length).toEqual(1);
-      expect($('.aui-message-success').first().text().includes(testTitle)).toBe(true);
-      expect($('.aui-message-success').first().text().includes(testBody)).toBe(true);
+      expect(_.includes($('.aui-message-success').first().text(), testTitle)).toBe(true);
+      expect(_.includes($('.aui-message-success').first().text(), testBody)).toBe(true);
     });
 
     it('creates a info flag', () => {
@@ -53,8 +54,8 @@ describe('messages module', () => {
       var testBody = 'some test body';
       MessagesModule.info.constructor(testTitle, testBody, {}, msgCallback);
       expect($('.aui-message-info').length).toEqual(1);
-      expect($('.aui-message-info').first().text().includes(testTitle)).toBe(true);
-      expect($('.aui-message-info').first().text().includes(testBody)).toBe(true);
+      expect(_.includes($('.aui-message-info').first().text(), testTitle)).toBe(true);
+      expect(_.includes($('.aui-message-info').first().text(), testBody)).toBe(true);
     });
 
     it('creates a hint flag', () => {
@@ -62,8 +63,8 @@ describe('messages module', () => {
       var testBody = 'some test body';
       MessagesModule.hint.constructor(testTitle, testBody, {}, msgCallback);
       expect($('.aui-message-hint').length).toEqual(1);
-      expect($('.aui-message-hint').first().text().includes(testTitle)).toBe(true);
-      expect($('.aui-message-hint').first().text().includes(testBody)).toBe(true);
+      expect(_.includes($('.aui-message-hint').first().text(), testTitle)).toBe(true);
+      expect(_.includes($('.aui-message-hint').first().text(), testBody)).toBe(true);
       expect($('.aui-message-hint').first().attr('id')).toEqual(`ap-message-${msgCallback._id}`);
     });
   });
@@ -94,7 +95,7 @@ describe('messages module', () => {
     it('calls the callback when message closes', () => {
       MessagesModule.info.constructor('testTitle', 'testBody', {}, msgCallback);
       var callbackSpy = jasmine.createSpy('callback');
-      MessagesModule.onClose({_id: msgCallback._id}, callbackSpy);
+      MessagesModule.onClose({ _id: msgCallback._id }, callbackSpy);
       try {
         MessagesModule.clear({ _id: msgCallback._id });
       } catch (e) {
