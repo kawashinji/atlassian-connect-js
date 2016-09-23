@@ -1,8 +1,8 @@
 AP.define("scroll-position", ["_dollar", "_rpc"],
 
 /**
-* Allows add-ons to store, retrieve and erased cookies against the host JIRA / Confluence. These cannot be seen by other add-ons.
-* @exports cookie
+* Allows absolute position of elements inside a connect add-on iframe relative to the browser viewport
+* @exports scroll-position
 */
 
 function ($, rpc) {
@@ -13,8 +13,9 @@ function ($, rpc) {
     rpc.extend(function (remote) {
         exports = {
             /**
-            * Get's the scroll position
-             * @param callback {Function} callback to pass the scroll position
+            * Get's the scroll position relative to the browser viewport
+            *
+            * @param callback {Function} callback to pass the scroll position
             * @noDemo
             * @example
             * AP.require("scroll-position", function(scrollPosition){
