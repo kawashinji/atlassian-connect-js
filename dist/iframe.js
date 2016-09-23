@@ -1227,7 +1227,6 @@ var   document$1 = window.document;
     function Events() {
       classCallCheck(this, Events);
 
-      console.log('constructor running!');
       this._events = {};
       this.ANY_PREFIX = '_any';
       this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
@@ -1237,7 +1236,6 @@ var   document$1 = window.document;
     createClass(Events, [{
       key: '_anyListener',
       value: function _anyListener(data, callback) {
-        console.log('any listener is running', this, arguments);
         var eventName = callback._context.eventName;
         var any = this._events[this.ANY_PREFIX] || [];
         var byName = this._events[eventName] || [];
@@ -1264,7 +1262,6 @@ var   document$1 = window.document;
     }, {
       key: 'off',
       value: function off(name, listener) {
-        console.log('called off', name, listener, this._events, this._events[name]);
         if (this._events[name]) {
           var index = this._events[name].indexOf(listener);
           if (index > -1) {
@@ -1274,7 +1271,6 @@ var   document$1 = window.document;
             delete this._events[name];
           }
         }
-        console.log('after off', name, listener, this._events, this._events[name]);
       }
     }, {
       key: 'offAll',

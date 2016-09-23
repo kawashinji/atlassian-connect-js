@@ -18,7 +18,6 @@ import AP from 'simple-xdm/plugin';
 
 class Events {
   constructor(){
-    console.log('constructor running!');
     this._events = {};
     this.ANY_PREFIX = '_any';
     this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
@@ -26,7 +25,6 @@ class Events {
   }
 
   _anyListener(data, callback){
-    console.log('any listener is running', this, arguments);
     var eventName = callback._context.eventName;
     var any = this._events[this.ANY_PREFIX] || [];
     var byName = this._events[eventName] || [];
@@ -52,7 +50,6 @@ class Events {
   }
 
   off(name, listener){
-    console.log('called off', name, listener, this._events, this._events[name]);
     if (this._events[name]) {
       var index = this._events[name].indexOf(listener);
       if (index > -1) {
@@ -62,7 +59,6 @@ class Events {
         delete this._events[name];
       }
     }
-    console.log('after off', name, listener, this._events, this._events[name]);
   }
 
   offAll(name){
