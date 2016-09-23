@@ -1238,6 +1238,7 @@ var   document$1 = window.document;
     createClass(Events, [{
       key: '_anyListener',
       value: function _anyListener(data, callback) {
+        console.log('any listener is running', this, arguments);
         var eventName = callback._context.eventName;
         var any = this._events[this.ANY_PREFIX] || [];
         var byName = this._events[eventName] || [];
@@ -1691,7 +1692,8 @@ var   document$1 = window.document;
   }
 
   $$2.each(events.methods, function (i, method) {
-    plugin._hostModules.events[method] = plugin.events[method] = events[method];
+    console.log('events module?', events);
+    plugin._hostModules.events[method] = plugin.events[method] = events[method].bind(events);
   });
 
   plugin.define = deprecate(function () {
