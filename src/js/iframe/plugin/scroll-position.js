@@ -1,4 +1,4 @@
-AP.define("scroll-position", ["_dollar", "_rpc"],
+AP.define("scrollPosition", ["_dollar", "_rpc"],
 
 /**
 * Allows absolute position of elements inside a connect add-on iframe relative to the browser viewport
@@ -18,7 +18,7 @@ function ($, rpc) {
             * @param callback {Function} callback to pass the scroll position
             * @noDemo
             * @example
-            * AP.require("scroll-position", function(scrollPosition){
+            * AP.require("scrollPosition", function(scrollPosition){
             *   scrollPosition.getPosition(function(obj) { console.log(obj); });
             * });
             */

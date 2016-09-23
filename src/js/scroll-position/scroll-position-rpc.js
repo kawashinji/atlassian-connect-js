@@ -1,6 +1,6 @@
 (function(define, AJS){
     "use strict";
-    define('ac/scroll-position', ['connect-host'], function(_AP){
+    define('ac/scrollPosition', ['connect-host'], function(_AP){
         _AP.extend(function(){
             return {
                 internals: {
