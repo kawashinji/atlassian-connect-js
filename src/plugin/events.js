@@ -18,12 +18,11 @@ import AP from 'simple-xdm/plugin';
 
 class Events {
   constructor(){
+    console.log('constructor running!');
     this._events = {};
     this.ANY_PREFIX = '_any';
     this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
-    if(AP && AP._data.origin) {
-      AP.registerAny(this._anyListener.bind(this));
-    }
+    AP.registerAny(this._anyListener.bind(this));
   }
 
   _anyListener(data, callback){

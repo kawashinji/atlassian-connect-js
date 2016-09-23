@@ -1227,12 +1227,11 @@ var   document$1 = window.document;
     function Events() {
       classCallCheck(this, Events);
 
+      console.log('constructor running!');
       this._events = {};
       this.ANY_PREFIX = '_any';
       this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
-      if (plugin && plugin._data.origin) {
-        plugin.registerAny(this._anyListener.bind(this));
-      }
+      plugin.registerAny(this._anyListener.bind(this));
     }
 
     createClass(Events, [{
