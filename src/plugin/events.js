@@ -4,12 +4,10 @@ import AP from 'simple-xdm/plugin';
  * <h3>Basic example</h3>
  * ```
  * //The following will create an alert message every time the event `customEvent` is triggered.
- * AP.require('events', function(events){
-*   events.on('customEvent', function(){
-*       alert('event fired');
-*   });
-*   events.emit('customEvent');
-* });
+ * AP.events.on('customEvent', function(){
+ *   alert('event fired');
+ * });
+ * AP.events.emit('customEvent');
  * ```
  * @name Events
  * @module

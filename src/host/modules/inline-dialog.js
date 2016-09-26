@@ -17,9 +17,7 @@ export default {
    * @method hide
    * @noDemo
    * @example
-   * AP.require('inline-dialog', function(inlineDialog){
-   *   inlineDialog.hide();
-   * });
+   * AP.inlineDialog.hide();
    */
   hide: function(callback){
     InlineDialogActions.close();
