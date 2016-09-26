@@ -4,10 +4,8 @@
 * For visual examples of each kind please see the [Design guide](https://developer.atlassian.com/design/latest/communicators/messages/).
 * ### Example ###
 * ```
-* AP.require("messages", function(messages){
-*   //create a message
-*   var message = messages.info('plain text title', 'plain text body');
-* });
+* //create a message
+* var message = AP.messages.info('plain text title', 'plain text body');
 * ```
 * @deprecated Please use the [Flag module](module-Flag.html) instead.
 * @name messages
@@ -107,13 +105,11 @@ export default {
   * @memberof module:messages#
   * @param    {String}    id  The id that was returned when the message was created.
   * @example
-  * AP.require("messages", function(messages){
-  *   //create a message
-  *   var message = messages.info('title', 'body');
-  *   setTimeout(function(){
-  *     messages.clear(message);
-  *   }, 2000);
-  * });
+  * //create a message
+  * var message = AP.messages.info('title', 'body');
+  * setTimeout(function(){
+  *   AP.messages.clear(message);
+  * }, 2000);
   */
   clear: function (msg) {
     const id = MSGID_PREFIX + msg._id;
@@ -131,12 +127,10 @@ export default {
   * @param    {String}    id  The id that was returned when the message was created.
   * @param    {Function}  callback  The function that is run when the event is triggered
   * @example
-  * AP.require("messages", function(messages){
-  *   //create a message
-  *   var message = messages.info('title', 'body');
-  *   messages.onClose(message, function() {
-  *       console.log(message, ' has been closed!');
-  *   });
+  * //create a message
+  * var message = AP.messages.info('title', 'body');
+  * AP.messages.onClose(message, function() {
+  *   console.log(message, ' has been closed!');
   * });
   */
   onClose: function (msg, callback) {
@@ -162,10 +156,8 @@ export default {
   * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
   * @returns  {String}    The id to be used when clearing the message
   * @example
-  * AP.require("messages", function(messages){
-  *   //create a message
-  *   var message = messages.generic('title', 'generic message example');
-  * });
+  * //create a message
+  * var message = AP.messages.generic('title', 'generic message example');
   */
   generic: messageModule('generic'),
 
@@ -184,10 +176,8 @@ export default {
   * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
   * @returns  {String}    The id to be used when clearing the message
   * @example
-  * AP.require("messages", function(messages){
-  *   //create a message
-  *   var message = messages.error('title', 'error message example');
-  * });
+  * //create a message
+  * var message = AP.messages.error('title', 'error message example');
   */
   error: messageModule('error'),
 
@@ -206,10 +196,8 @@ export default {
   * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
   * @returns  {String}    The id to be used when clearing the message
   * @example
-  * AP.require("messages", function(messages){
-  *   //create a message
-  *   var message = messages.warning('title', 'warning message example');
-  * });
+  * //create a message
+  * var message = AP.messages.warning('title', 'warning message example');
   */
   warning: messageModule('warning'),
 
@@ -228,10 +216,8 @@ export default {
   * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
   * @returns  {String}    The id to be used when clearing the message
   * @example
-  * AP.require("messages", function(messages){
-  *   //create a message
-  *   var message = messages.success('title', 'success message example');
-  * });
+  * //create a message
+  * var message = AP.messages.success('title', 'success message example');
   */
   success: messageModule('success'),
 
@@ -250,10 +236,8 @@ export default {
   * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
   * @returns  {String}    The id to be used when clearing the message
   * @example
-  * AP.require("messages", function(messages){
-  *   //create a message
-  *   var message = messages.info('title', 'info message example');
-  * });
+  * //create a message
+  * var message = AP.messages.info('title', 'info message example');
   */
   info: messageModule('info'),
 
@@ -272,10 +256,8 @@ export default {
   * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
   * @returns  {String}    The id to be used when clearing the message
   * @example
-  * AP.require("messages", function(messages){
-  *   //create a message
-  *   var message = messages.hint('title', 'hint message example');
-  * });
+  * //create a message
+  * var message = AP.messages.hint('title', 'hint message example');
   */
   hint: messageModule('hint')
 };

@@ -3702,9 +3702,7 @@
 	   * @memberOf Dialog~DialogButton
 	   * @noDemo
 	   * @example
-	   * AP.require('dialog', function(dialog){
-	   *   dialog.getButton('submit').enable();
-	   * });
+	   * AP.dialog.getButton('submit').enable();
 	   */
 
 
@@ -3721,9 +3719,7 @@
 	     * @memberOf Dialog~DialogButton
 	     * @noDemo
 	     * @example
-	     * AP.require('dialog', function(dialog){
-	     *   dialog.getButton('submit').disable();
-	     * });
+	     * AP.dialog.getButton('submit').disable();
 	     */
 
 	  }, {
@@ -3740,12 +3736,10 @@
 	     * @param {Function} callback function to receive the button state.
 	     * @noDemo
 	     * @example
-	     * AP.require('dialog', function(dialog){
-	     *   dialog.getButton('submit').isEnabled(function(enabled){
-	     *     if(enabled){
-	     *       //button is enabled
-	     *     }
-	     *   });
+	     * AP.dialog.getButton('submit').isEnabled(function(enabled){
+	     *   if(enabled){
+	     *     //button is enabled
+	     *   }
 	     * });
 	     */
 
@@ -3761,9 +3755,7 @@
 	     * @memberOf Dialog~DialogButton
 	     * @noDemo
 	     * @example
-	     * AP.require('dialog', function(dialog){
-	     *   dialog.getButton('submit').toggle();
-	     * });
+	     * AP.dialog.getButton('submit').toggle();
 	     */
 
 	  }, {
@@ -3788,12 +3780,10 @@
 	     * @memberOf Dialog~DialogButton
 	     * @noDemo
 	     * @example
-	     * AP.require('dialog', function(dialog){
-	     *   dialog.getButton('submit').bind(function(){
-	     *     alert('clicked!');
-	     *   });
-	     *   dialog.getButton('submit').trigger();
+	     * AP.dialog.getButton('submit').bind(function(){
+	     *   alert('clicked!');
 	     * });
+	     * AP.dialog.getButton('submit').trigger();
 	     */
 
 	  }, {
@@ -3815,12 +3805,10 @@
 	     * @param {Function} callback function to receive the button state.
 	     * @noDemo
 	     * @example
-	     * AP.require('dialog', function(dialog){
-	     *   dialog.getButton('submit').isHidden(function(hidden){
-	     *     if(hidden){
-	     *       //button is hidden
-	     *     }
-	     *   });
+	     * AP.dialog.getButton('submit').isHidden(function(hidden){
+	     *   if(hidden){
+	     *     //button is hidden
+	     *   }
 	     * });
 	     */
 
@@ -3836,9 +3824,7 @@
 	     * @memberOf Dialog~DialogButton
 	     * @noDemo
 	     * @example
-	     * AP.require('dialog', function(dialog){
-	     *   dialog.getButton('submit').hide();
-	     * });
+	     * AP.dialog.getButton('submit').hide();
 	     */
 
 	  }, {
@@ -3852,9 +3838,7 @@
 	     * @memberOf Dialog~DialogButton
 	     * @noDemo
 	     * @example
-	     * AP.require('dialog', function(dialog){
-	     *   dialog.getButton('submit').show();
-	     * });
+	     * AP.dialog.getButton('submit').show();
 	     */
 
 	  }, {
@@ -3934,20 +3918,18 @@
 	   * @method create
 	   * @noDemo
 	   * @example
-	   * AP.require('dialog', function(dialog){
-	   *   dialog.create({
-	   *     key: 'my-module-key',
-	   *     width: '500px',
-	   *     height: '200px',
-	   *     chrome: true,
-	   *     buttons: [
-	   *      {
-	   *        text: 'my button',
-	   *        identifier: 'my_unique_identifier'
-	   *      }
-	   *     ]
-	   *   }).on("close", callbackFunc);
-	   * });
+	   * AP.dialog.create({
+	   *   key: 'my-module-key',
+	   *   width: '500px',
+	   *   height: '200px',
+	   *   chrome: true,
+	   *   buttons: [
+	   *     {
+	   *       text: 'my button',
+	   *       identifier: 'my_unique_identifier'
+	   *     }
+	   *   ]
+	   * }).on("close", callbackFunc);
 	   *
 	   * @return {Dialog~Dialog} Dialog object allowing for callback registrations
 	   */
@@ -3961,9 +3943,7 @@
 	   * @param {Object} data An object to be emitted on dialog close.
 	   * @noDemo
 	   * @example
-	   * AP.require('dialog', function(dialog){
-	         *   dialog.close({foo: 'bar'});
-	         * });
+	   * AP.dialog.close({foo: 'bar'});
 	   */
 	  close: function close(data, callback) {
 	    callback = _.last(arguments);
@@ -3987,10 +3967,8 @@
 	   * @method
 	   * @param {Function} callback - Callback method to be executed with the custom data.
 	   * @example
-	   * AP.require('dialog', function(dialog){
-	   *   dialog.getCustomData(function (customData) {
-	   *     console.log(customData);
-	   *   });
+	   * AP.dialog.getCustomData(function (customData) {
+	   *   console.log(customData);
 	   * });
 	   *
 	   */
@@ -4007,9 +3985,7 @@
 	   * @returns {Dialog~DialogButton}
 	   * @noDemo
 	   * @example
-	   * AP.require('dialog', function(dialog){
-	   *   dialog.getButton('submit');
-	   * });
+	   * AP.dialog.getButton('submit');
 	   */
 	  getButton: {
 	    constructor: Button,
@@ -4028,12 +4004,10 @@
 	   * @returns {Dialog~DialogButton}
 	   * @noDemo
 	   * @example
-	   * AP.require('dialog', function(dialog){
-	   *   dialog.createButton({
-	   *     text: 'button text',
-	   *     identifier: 'button.1'
-	   *   }).bind(function mycallback(){});
-	   * });
+	   * AP.dialog.createButton({
+	   *   text: 'button text',
+	   *   identifier: 'button.1'
+	   * }).bind(function mycallback(){});
 	   */
 	  createButton: {
 	    constructor: CreateButton
@@ -4193,9 +4167,7 @@
 	   * @method hide
 	   * @noDemo
 	   * @example
-	   * AP.require('inline-dialog', function(inlineDialog){
-	   *   inlineDialog.hide();
-	   * });
+	   * AP.inlineDialog.hide();
 	   */
 	  hide: function hide(callback) {
 	    InlineDialogActions.close();
@@ -4214,10 +4186,8 @@
 	* For visual examples of each kind please see the [Design guide](https://developer.atlassian.com/design/latest/communicators/messages/).
 	* ### Example ###
 	* ```
-	* AP.require("messages", function(messages){
-	*   //create a message
-	*   var message = messages.info('plain text title', 'plain text body');
-	* });
+	* //create a message
+	* var message = AP.messages.info('plain text title', 'plain text body');
 	* ```
 	* @deprecated Please use the [Flag module](module-Flag.html) instead.
 	* @name messages
@@ -4313,13 +4283,11 @@
 	  * @memberof module:messages#
 	  * @param    {String}    id  The id that was returned when the message was created.
 	  * @example
-	  * AP.require("messages", function(messages){
-	  *   //create a message
-	  *   var message = messages.info('title', 'body');
-	  *   setTimeout(function(){
-	  *     messages.clear(message);
-	  *   }, 2000);
-	  * });
+	  * //create a message
+	  * var message = AP.messages.info('title', 'body');
+	  * setTimeout(function(){
+	  *   AP.messages.clear(message);
+	  * }, 2000);
 	  */
 	  clear: function clear(msg) {
 	    var id = MSGID_PREFIX + msg._id;
@@ -4337,12 +4305,10 @@
 	  * @param    {String}    id  The id that was returned when the message was created.
 	  * @param    {Function}  callback  The function that is run when the event is triggered
 	  * @example
-	  * AP.require("messages", function(messages){
-	  *   //create a message
-	  *   var message = messages.info('title', 'body');
-	  *   messages.onClose(message, function() {
-	  *       console.log(message, ' has been closed!');
-	  *   });
+	  * //create a message
+	  * var message = AP.messages.info('title', 'body');
+	  * AP.messages.onClose(message, function() {
+	  *   console.log(message, ' has been closed!');
 	  * });
 	  */
 	  onClose: function onClose(msg, callback) {
@@ -4368,10 +4334,8 @@
 	  * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
 	  * @returns  {String}    The id to be used when clearing the message
 	  * @example
-	  * AP.require("messages", function(messages){
-	  *   //create a message
-	  *   var message = messages.generic('title', 'generic message example');
-	  * });
+	  * //create a message
+	  * var message = AP.messages.generic('title', 'generic message example');
 	  */
 	  generic: messageModule('generic'),
 
@@ -4390,10 +4354,8 @@
 	  * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
 	  * @returns  {String}    The id to be used when clearing the message
 	  * @example
-	  * AP.require("messages", function(messages){
-	  *   //create a message
-	  *   var message = messages.error('title', 'error message example');
-	  * });
+	  * //create a message
+	  * var message = AP.messages.error('title', 'error message example');
 	  */
 	  error: messageModule('error'),
 
@@ -4412,10 +4374,8 @@
 	  * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
 	  * @returns  {String}    The id to be used when clearing the message
 	  * @example
-	  * AP.require("messages", function(messages){
-	  *   //create a message
-	  *   var message = messages.warning('title', 'warning message example');
-	  * });
+	  * //create a message
+	  * var message = AP.messages.warning('title', 'warning message example');
 	  */
 	  warning: messageModule('warning'),
 
@@ -4434,10 +4394,8 @@
 	  * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
 	  * @returns  {String}    The id to be used when clearing the message
 	  * @example
-	  * AP.require("messages", function(messages){
-	  *   //create a message
-	  *   var message = messages.success('title', 'success message example');
-	  * });
+	  * //create a message
+	  * var message = AP.messages.success('title', 'success message example');
 	  */
 	  success: messageModule('success'),
 
@@ -4456,10 +4414,8 @@
 	  * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
 	  * @returns  {String}    The id to be used when clearing the message
 	  * @example
-	  * AP.require("messages", function(messages){
-	  *   //create a message
-	  *   var message = messages.info('title', 'info message example');
-	  * });
+	  * //create a message
+	  * var message = AP.messages.info('title', 'info message example');
 	  */
 	  info: messageModule('info'),
 
@@ -4478,10 +4434,8 @@
 	  * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
 	  * @returns  {String}    The id to be used when clearing the message
 	  * @example
-	  * AP.require("messages", function(messages){
-	  *   //create a message
-	  *   var message = messages.hint('title', 'hint message example');
-	  * });
+	  * //create a message
+	  * var message = AP.messages.hint('title', 'hint message example');
 	  */
 	  hint: messageModule('hint')
 	};
