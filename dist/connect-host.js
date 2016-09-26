@@ -4863,6 +4863,18 @@
 	  webItemInstance.setContentResolver(data.callback);
 	});
 
+	document.addEventListener('aui-responsive-menu-item-created', function (e) {
+	  var oldWebItem = e.detail.originalItem.querySelector('a[class*="ap-"]');
+	  if (oldWebItem) {
+	    var newWebItem = e.detail.newItem.querySelector('a');
+	    _.each(oldWebItem.classList, function (cls) {
+	      if (/^ap-/.test(cls)) {
+	        newWebItem.classList.add(cls);
+	      }
+	    });
+	  }
+	});
+
 	var WebItemActions = {
 	  addWebItem: function addWebItem(potentialWebItem) {
 	    var webitem = void 0;
@@ -5188,7 +5200,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.13';
+	  window._AP.version = '5.0.0-beta.14';
 	}
 
 	host.defineModule('messages', messages);
