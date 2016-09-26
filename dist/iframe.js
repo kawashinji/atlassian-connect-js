@@ -649,7 +649,7 @@ var   document$1 = window.document;
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.13";
+      _this._version = "5.0.0-beta.14";
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
         _this._setupAPIWithoutRequire(_this._data.api);
@@ -663,7 +663,6 @@ var   document$1 = window.document;
         _this._sendInit();
       }
       _this._registerOnUnload();
-      $(util._bind(_this, _this._autoResizer));
       _this.resize = util._bind(_this, function (width, height) {
         if (!width || !height) {
           var dimensions = size();
@@ -674,6 +673,7 @@ var   document$1 = window.document;
           _this._hostModules.env.resize(width, height);
         }
       });
+      $(util._bind(_this, _this._autoResizer));
       _this.container = getContainer;
       _this.size = size;
       return _this;
