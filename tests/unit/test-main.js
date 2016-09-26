@@ -29,6 +29,7 @@ var tests = [],
     'ac/dialog/dialog-factory': 'dialog/dialog-factory',
     'ac/navigator': 'navigator/main',
     'ac/navigator-browser': 'navigator/navigator-browser',
+    'ac/scrollPosition': 'scroll-position/scroll-position-rpc',
     'connect-host': '../../dist/connect-host',
     'ac/request': 'iframe/host/request'
   };
