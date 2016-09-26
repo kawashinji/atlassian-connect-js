@@ -18,7 +18,8 @@ module.exports = function () {
                 'touch .tmp/amd-stubs/connect-host-request.js',
                 'touch .tmp/amd-stubs/connect-host-inline-dialog.js',
                 'touch .tmp/amd-stubs/connect-host-dialog.js',
-                'touch .tmp/amd-stubs/connect-host-navigator.js'
+                'touch .tmp/amd-stubs/connect-host-navigator.js',
+                'touch .tmp/amd-stubs/connect-host-scroll-position.js'
             ].join('&&')
         }
     };

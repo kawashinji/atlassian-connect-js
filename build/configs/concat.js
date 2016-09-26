@@ -44,7 +44,8 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/plugin/history.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_resize-listener.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/navigator.js',
-            '<%= paths.jsSource %>' + 'iframe/plugin/_file.js'
+            '<%= paths.jsSource %>' + 'iframe/plugin/_file.js',
+            '<%= paths.jsSource %>' + 'iframe/plugin/scroll-position.js'
         ],
         dest: '.tmp/all-debug.js',
         nonull: true

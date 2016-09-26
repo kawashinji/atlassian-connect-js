@@ -135,6 +135,15 @@
                     ]
                 },
                 {
+                    name: rootSource('.tmp/amd-stubs/connect-host-scroll-position'),
+                    include: [
+                        'scroll-position/scroll-position-rpc'
+                    ],
+                    exclude: [
+                        rootSource('.tmp/amd-stubs/connect-host')
+                    ]
+                },
+                {
                     name: rootSource('.tmp/amd-stubs/connect-host-inline-dialog'),
                     include: [
                         'inline-dialog/main',
