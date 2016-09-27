@@ -43,9 +43,10 @@ describe('dialog component', () => {
       expect($dialogContent.text()).toEqual('some content');
     });
 
-    it('is size medium by default', () => {
+    it('is 50% height and width by default', () => {
       var $dialog = DialogComponent.render();
-      expect($dialog.hasClass('aui-dialog2-medium')).toEqual(true);
+      expect($dialog[0].style.height).toEqual('50%');
+      expect($dialog[0].style.width).toEqual('50%');
     });
 
     describe('chrome', () => {

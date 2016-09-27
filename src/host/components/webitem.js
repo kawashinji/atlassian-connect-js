@@ -77,5 +77,16 @@ EventDispatcher.register('content-resolver-register-by-extension', function(data
   webItemInstance.setContentResolver(data.callback);
 });
 
+document.addEventListener('aui-responsive-menu-item-created', (e) => {
+  var oldWebItem = e.detail.originalItem.querySelector('a[class*="ap-"]');
+  if (oldWebItem) {
+    var newWebItem = e.detail.newItem.querySelector('a');
+    _.each(oldWebItem.classList, cls => {
+      if (/^ap-/.test(cls)) {
+        newWebItem.classList.add(cls);
+      }
+    });
+  }
+});
 
 export default webItemInstance;

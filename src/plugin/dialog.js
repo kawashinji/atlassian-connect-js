@@ -14,9 +14,7 @@ const getCustomData = deprecate(() => {
  * @name customData
  * @memberOf module:Dialog
  * @example
- * AP.require('dialog', function(dialog){
- *   var myDataVariable = dialog.customData.myDataVariable;
- * });
+ * var myDataVariable = AP.dialog.customData.myDataVariable;
  *
  * @return {Object} Data Object passed to the dialog on creation.
  */
@@ -101,9 +99,7 @@ AP.dialog.create = AP._hostModules.dialog.create = (...args) => {
    * @param {Function} callback function to receive the event callback.
    * @noDemo
    * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.create(opts).on("close", callbackFunc);
-   * });
+   * AP.dialog.create(opts).on("close", callbackFunc);
    */
   dialog.on = deprecate(registerHandler,
     'AP.dialog.on("close", callback)', 'AP.events.on("dialog.close", callback)', '5.0');
@@ -123,10 +119,8 @@ AP.dialog.getButton = AP._hostModules.dialog.getButton = function(name) {
      * @param {Function} callback function to be triggered on click or programatically.
      * @noDemo
      * @example
-     * AP.require('dialog', function(dialog){
-     *   dialog.getButton('submit').bind(function(){
-     *     alert('clicked!');
-     *   });
+     * AP.dialog.getButton('submit').bind(function(){
+     *   alert('clicked!');
      * });
      */
     button.bind = deprecate((callback) => registerHandler(name, callback),

@@ -649,7 +649,7 @@ var   document$1 = window.document;
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.11";
+      _this._version = "5.0.0-beta.16";
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
         _this._setupAPIWithoutRequire(_this._data.api);
@@ -1248,12 +1248,10 @@ var   document$1 = window.document;
    * <h3>Basic example</h3>
    * ```
    * //The following will create an alert message every time the event `customEvent` is triggered.
-   * AP.require('events', function(events){
-  *   events.on('customEvent', function(){
-  *       alert('event fired');
-  *   });
-  *   events.emit('customEvent');
-  * });
+   * AP.events.on('customEvent', function(){
+   *   alert('event fired');
+   * });
+   * AP.events.emit('customEvent');
    * ```
    * @name Events
    * @module
@@ -1427,9 +1425,7 @@ var   document$1 = window.document;
    * @name customData
    * @memberOf module:Dialog
    * @example
-   * AP.require('dialog', function(dialog){
-   *   var myDataVariable = dialog.customData.myDataVariable;
-   * });
+   * var myDataVariable = AP.dialog.customData.myDataVariable;
    *
    * @return {Object} Data Object passed to the dialog on creation.
    */
@@ -1516,9 +1512,7 @@ var   document$1 = window.document;
      * @param {Function} callback function to receive the event callback.
      * @noDemo
      * @example
-     * AP.require('dialog', function(dialog){
-     *   dialog.create(opts).on("close", callbackFunc);
-     * });
+     * AP.dialog.create(opts).on("close", callbackFunc);
      */
     dialog.on = deprecate(registerHandler, 'AP.dialog.on("close", callback)', 'AP.events.on("dialog.close", callback)', '5.0');
     return dialog;
@@ -1537,10 +1531,8 @@ var   document$1 = window.document;
        * @param {Function} callback function to be triggered on click or programatically.
        * @noDemo
        * @example
-       * AP.require('dialog', function(dialog){
-       *   dialog.getButton('submit').bind(function(){
-       *     alert('clicked!');
-       *   });
+       * AP.dialog.getButton('submit').bind(function(){
+       *   alert('clicked!');
        * });
        */
       button.bind = deprecate(function (callback) {

@@ -89,9 +89,7 @@ class Button {
    * @memberOf Dialog~DialogButton
    * @noDemo
    * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getButton('submit').enable();
-   * });
+   * AP.dialog.getButton('submit').enable();
    */
   enable() {
     this.setState({
@@ -104,9 +102,7 @@ class Button {
    * @memberOf Dialog~DialogButton
    * @noDemo
    * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getButton('submit').disable();
-   * });
+   * AP.dialog.getButton('submit').disable();
    */
   disable() {
     this.setState({
@@ -120,12 +116,10 @@ class Button {
    * @param {Function} callback function to receive the button state.
    * @noDemo
    * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getButton('submit').isEnabled(function(enabled){
-   *     if(enabled){
-   *       //button is enabled
-   *     }
-   *   });
+   * AP.dialog.getButton('submit').isEnabled(function(enabled){
+   *   if(enabled){
+   *     //button is enabled
+   *   }
    * });
    */
   isEnabled(callback) {
@@ -138,9 +132,7 @@ class Button {
    * @memberOf Dialog~DialogButton
    * @noDemo
    * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getButton('submit').toggle();
-   * });
+   * AP.dialog.getButton('submit').toggle();
    */
   toggle() {
     this.setState({
@@ -160,12 +152,10 @@ class Button {
    * @memberOf Dialog~DialogButton
    * @noDemo
    * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getButton('submit').bind(function(){
-   *     alert('clicked!');
-   *   });
-   *   dialog.getButton('submit').trigger();
+   * AP.dialog.getButton('submit').bind(function(){
+   *   alert('clicked!');
    * });
+   * AP.dialog.getButton('submit').trigger();
    */
   trigger(callback) {
     callback = _.last(arguments);
@@ -184,12 +174,10 @@ class Button {
    * @param {Function} callback function to receive the button state.
    * @noDemo
    * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getButton('submit').isHidden(function(hidden){
-   *     if(hidden){
-   *       //button is hidden
-   *     }
-   *   });
+   * AP.dialog.getButton('submit').isHidden(function(hidden){
+   *   if(hidden){
+   *     //button is hidden
+   *   }
    * });
    */
   isHidden(callback) {
@@ -202,9 +190,7 @@ class Button {
    * @memberOf Dialog~DialogButton
    * @noDemo
    * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getButton('submit').hide();
-   * });
+   * AP.dialog.getButton('submit').hide();
    */
   hide() {
     this.setHidden(true);
@@ -215,9 +201,7 @@ class Button {
    * @memberOf Dialog~DialogButton
    * @noDemo
    * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getButton('submit').show();
-   * });
+   * AP.dialog.getButton('submit').show();
    */
   show() {
     this.setHidden(false);
@@ -289,20 +273,18 @@ export default {
    * @method create
    * @noDemo
    * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.create({
-   *     key: 'my-module-key',
-   *     width: '500px',
-   *     height: '200px',
-   *     chrome: true,
-   *     buttons: [
-   *      {
-   *        text: 'my button',
-   *        identifier: 'my_unique_identifier'
-   *      }
-   *     ]
-   *   }).on("close", callbackFunc);
-   * });
+   * AP.dialog.create({
+   *   key: 'my-module-key',
+   *   width: '500px',
+   *   height: '200px',
+   *   chrome: true,
+   *   buttons: [
+   *     {
+   *       text: 'my button',
+   *       identifier: 'my_unique_identifier'
+   *     }
+   *   ]
+   * }).on("close", callbackFunc);
    *
    * @return {Dialog~Dialog} Dialog object allowing for callback registrations
    */
@@ -316,9 +298,7 @@ export default {
    * @param {Object} data An object to be emitted on dialog close.
    * @noDemo
    * @example
-   * AP.require('dialog', function(dialog){
-         *   dialog.close({foo: 'bar'});
-         * });
+   * AP.dialog.close({foo: 'bar'});
    */
   close: function (data, callback) {
     callback = _.last(arguments);
@@ -342,10 +322,8 @@ export default {
    * @method
    * @param {Function} callback - Callback method to be executed with the custom data.
    * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getCustomData(function (customData) {
-   *     console.log(customData);
-   *   });
+   * AP.dialog.getCustomData(function (customData) {
+   *   console.log(customData);
    * });
    *
    */
@@ -362,9 +340,7 @@ export default {
    * @returns {Dialog~DialogButton}
    * @noDemo
    * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.getButton('submit');
-   * });
+   * AP.dialog.getButton('submit');
    */
   getButton: {
     constructor: Button,
@@ -383,12 +359,10 @@ export default {
    * @returns {Dialog~DialogButton}
    * @noDemo
    * @example
-   * AP.require('dialog', function(dialog){
-   *   dialog.createButton({
-   *     text: 'button text',
-   *     identifier: 'button.1'
-   *   }).bind(function mycallback(){});
-   * });
+   * AP.dialog.createButton({
+   *   text: 'button text',
+   *   identifier: 'button.1'
+   * }).bind(function mycallback(){});
    */
   createButton: {
     constructor: CreateButton

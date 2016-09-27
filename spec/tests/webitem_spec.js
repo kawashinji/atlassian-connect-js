@@ -1,4 +1,5 @@
 import WebItem from 'src/host/components/webitem';
+import _ from 'lodash';
 
 describe('webitem component', () => {
 
@@ -41,7 +42,7 @@ describe('webitem component', () => {
     });
   });
 
-  it('setWebItem adds a webitem to the list',() => {
+  it('setWebItem adds a webitem to the list', () => {
     var webitemone = {
       name: 'awebitem',
       selector: 'div',
@@ -79,5 +80,52 @@ describe('webitem component', () => {
     });
   });
 
+  describe('AUI responsive webitems event', () => {
+    var oldWebItemId = 'old-web-item';
+    var newWebItemId = 'new-web-item';
+    var apClassList = ['ap-dialog', 'ap-module-test', 'ap-extension'];
+    var nonApClassList = ['aui-nav', 'aui-something', 'not-ap'];
 
+    afterEach(() => {
+      $(`#${oldWebItemId}`).remove();
+      $(`#${newWebItemId}`).remove();
+    });
+
+    it('adds ap classes to the sub menu web items', () => {
+
+      $('body').append($(`<li id="${oldWebItemId}"><a href="https://some.url.com" class="${nonApClassList.join(' ')} ${apClassList.join(' ')}">test</a></li>`));
+      $('body').append($(`<li id="${newWebItemId}"><a href="https://some.url.com">test</a></li>`));
+
+      var oldWebItem = document.getElementById(oldWebItemId);
+      var newWebItem = document.getElementById(newWebItemId);
+
+      var testEvent;
+      if (typeof Event === 'function') {
+        testEvent = new Event('aui-responsive-menu-item-created');
+        testEvent.detail = {
+          originalItem: oldWebItem,
+          newItem: newWebItem
+        };
+        document.dispatchEvent(testEvent);
+      } else {
+        var testEvent = document.createEvent('Event');
+        testEvent.initEvent('aui-responsive-menu-item-created', false, false);
+        testEvent.detail = {
+          originalItem: oldWebItem,
+          newItem: newWebItem
+        };
+        document.dispatchEvent(testEvent);
+      }
+
+      var newWebItemLink = newWebItem.querySelector('a');
+
+      apClassList.forEach((cls) => {
+        expect(_.includes(newWebItemLink.classList, cls)).toBe(true);
+      });
+
+      nonApClassList.forEach((cls) => {
+        expect(_.includes(newWebItemLink.classList, cls)).toBe(false);
+      });
+    });
+  });
 });
