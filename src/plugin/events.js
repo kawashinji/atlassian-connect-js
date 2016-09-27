@@ -21,7 +21,9 @@ class Events {
     this._events = {};
     this.ANY_PREFIX = '_any';
     this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
-    AP.registerAny(this._anyListener.bind(this));
+    if(AP._data.origin) {
+      AP.registerAny(this._anyListener.bind(this));
+    }
   }
 
   _anyListener(data, callback){
@@ -94,7 +96,7 @@ class Events {
    * @memberof module:Events#
    * @param {String} name The event name to subscribe the listener to
    * @param {Function} listener A listener callback to subscribe to the event name
-   */
+   
 
   /**
    * Adds a listener for one occurrence of an event of a particular name.

@@ -433,19 +433,21 @@ var   document$1 = window.document;
     if (height) {
       h = height;
     } else {
-      // Determine height
+      // Determine height of document element
       docHeight = Math.max(container.scrollHeight, document.documentElement.scrollHeight, container.offsetHeight, document.documentElement.offsetHeight, container.clientHeight, document.documentElement.clientHeight);
 
       if (container === document.body) {
         h = docHeight;
       } else {
-        // Started with http://james.padolsey.com/javascript/get-document-height-cross-browser/
-        // to determine page height across browsers. Turns out that in our case, we can get by with
-        // document.body.offsetHeight and document.body.clientHeight. Those two return the proper
-        // height even when the dom shrinks. Tested on Chrome, Safari, IE8/9/10, and Firefox
-        h = Math.max(container.offsetHeight, container.clientHeight);
+        var computed = window.getComputedStyle(container);
+        h = container.getBoundingClientRect().height;
         if (h === 0) {
           h = docHeight;
+        } else {
+          var additionalProperties = ['margin-top', 'margin-bottom'];
+          additionalProperties.forEach(function (property) {
+            h += parseFloat(computed[property]);
+          });
         }
       }
     }
@@ -539,6 +541,37 @@ var   document$1 = window.document;
     }
   };
 
+  var AutoResizeAction = function () {
+    function AutoResizeAction(callback) {
+      classCallCheck(this, AutoResizeAction);
+
+      this.resizeStore = [];
+      this.callback = callback;
+    }
+
+    createClass(AutoResizeAction, [{
+      key: 'triggered',
+      value: function triggered(dimensions) {
+        dimensions = dimensions || size();
+        var now = Date.now();
+        dimensions.setAt = now;
+        this.resizeStore = this.resizeStore.filter(function (entry) {
+          return now - entry.setAt < 1000;
+        });
+        this.resizeStore.push(dimensions);
+        if (this.resizeStore.length === 3) {
+          var oldDimensions = this.resizeStore[0];
+          this.resizeStore = this.resizeStore.slice(1);
+          if (dimensions.w <= oldDimensions.w && dimensions.h <= oldDimensions.h) {
+            return;
+          }
+        }
+        this.callback(dimensions.w, dimensions.h);
+      }
+    }]);
+    return AutoResizeAction;
+  }();
+
   var ConsumerOptions = function () {
     function ConsumerOptions() {
       classCallCheck(this, ConsumerOptions);
@@ -630,17 +663,19 @@ var   document$1 = window.document;
         _this._sendInit();
       }
       _this._registerOnUnload();
-      $(util._bind(_this, _this._autoResizer));
       _this.resize = util._bind(_this, function (width, height) {
-        if (!width || !height) {
-          var dimensions = size();
+        var dimensions = size();
+        if (!width) {
           width = dimensions.w;
+        }
+        if (!height) {
           height = dimensions.h;
         }
         if (_this._hostModules.env && _this._hostModules.env.resize) {
           _this._hostModules.env.resize(width, height);
         }
       });
+      $(util._bind(_this, _this._autoResizer));
       _this.container = getContainer;
       _this.size = size;
       return _this;
@@ -947,7 +982,8 @@ var   document$1 = window.document;
       key: '_initResize',
       value: function _initResize() {
         this.resize();
-        resizeListener.add(util._bind(this, this.resize));
+        var autoresize = new AutoResizeAction(this.resize);
+        resizeListener.add(util._bind(autoresize, autoresize.triggered));
       }
     }]);
     return AP;
@@ -1230,7 +1266,9 @@ var   document$1 = window.document;
       this._events = {};
       this.ANY_PREFIX = '_any';
       this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
-      plugin.registerAny(this._anyListener.bind(this));
+      if (plugin._data.origin) {
+        plugin.registerAny(this._anyListener.bind(this));
+      }
     }
 
     createClass(Events, [{
@@ -1313,9 +1351,8 @@ var   document$1 = window.document;
        * @memberof module:Events#
        * @param {String} name The event name to subscribe the listener to
        * @param {Function} listener A listener callback to subscribe to the event name
-       */
-
-      /**
+       
+       /**
        * Adds a listener for one occurrence of an event of a particular name.
        * Listener arguments include any argument passed to `events.emit`, followed by an object describing the complete event information.
        * @name once
