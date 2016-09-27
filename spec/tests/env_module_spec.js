@@ -3,6 +3,42 @@ import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 
 describe('env module', () => {
 
+  describe('sizeToParent', () => {
+    afterEach(function(){
+      $('.tempiframe').remove();
+      $('.ac-content-page').remove();
+      $('#footer').remove();
+    });
+
+    it('hideFooter hides the footer on pages', (done) =>{
+      var $contentPage = $('<div class="ac-content-page" />');
+      var $footer = $('<div id="footer" />');
+      var callback = function(){};
+      var $el = $('<iframe class="tempiframe" id="abc123" />');
+      callback._context = {
+        extension_id: 'abc123',
+        extension: {
+          id: 'abc123',
+          $el: $el,
+          options: {
+            isFullPage: true
+          }
+        }
+      };
+
+      $('body').append($el);
+      $contentPage.append($footer);
+      $('body').append($contentPage);
+
+      EventDispatcher.registerOnce('iframe-resize', function(data){
+        expect($('#footer').css('display')).toEqual('none');
+        done();
+      });
+
+      envModule.sizeToParent(true, callback);
+    });
+  });
+
   describe('resize', () => {
 
     afterEach(function(){
