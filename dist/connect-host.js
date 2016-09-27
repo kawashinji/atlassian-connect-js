@@ -2864,9 +2864,6 @@
 	      if (options.size !== 'maximum' && options.width === '100%' && options.height === '100%') {
 	        size = 'fullscreen';
 	      }
-	      if (!size && !options.width && !options.height) {
-	        size = 'medium';
-	      }
 	      return size;
 	    }
 	  }, {
@@ -2914,7 +2911,10 @@
 	      if (options.size) {
 	        return undefined;
 	      }
-	      return util$1.stringToDimension(options.width);
+	      if (options.width) {
+	        return util$1.stringToDimension(options.width);
+	      }
+	      return '50%';
 	    }
 	  }, {
 	    key: '_height',
@@ -2922,7 +2922,10 @@
 	      if (options.size) {
 	        return undefined;
 	      }
-	      return util$1.stringToDimension(options.height);
+	      if (options.height) {
+	        return util$1.stringToDimension(options.height);
+	      }
+	      return '50%';
 	    }
 	  }, {
 	    key: '_actions',
@@ -5154,7 +5157,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.15';
+	  window._AP.version = '5.0.0-beta.16';
 	}
 
 	host.defineModule('messages', messages);
