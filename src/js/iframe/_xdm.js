@@ -15,11 +15,7 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
       return window.top;
     }
 
-    target = window.parent;
-
-    if(addonNestingLevel === 1) {
-      return target;
-    }
+    target = window;
 
     for(var i = 0; i < addonNestingLevel; i++) {
       target = target.parent;
