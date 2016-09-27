@@ -10,9 +10,6 @@ class DialogUtils {
     if (options.size !== 'maximum' && options.width === '100%' && options.height === '100%') {
       size = 'fullscreen';
     }
-    if (!size && !options.width && !options.height) {
-      size = 'medium';
-    }
     return size;
   }
 
@@ -56,14 +53,20 @@ class DialogUtils {
     if(options.size) {
       return undefined;
     }
-    return util.stringToDimension(options.width);
+    if(options.width) {
+      return util.stringToDimension(options.width);
+    }
+    return '50%';
   }
 
   _height(options){
     if(options.size) {
       return undefined;
     }
-    return util.stringToDimension(options.height);
+    if(options.height) {
+      return util.stringToDimension(options.height);
+    }
+    return '50%';
   }
 
   _actions(options){

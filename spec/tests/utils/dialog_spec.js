@@ -26,9 +26,9 @@ describe('dialog utils', () => {
       expect(DialogUtils._size(options)).toEqual('maximum');
     });
 
-    it('defaults to medium', () => {
+    it('does nothing if size is undefined', () => {
       const options = {};
-      expect(DialogUtils._size(options)).toEqual('medium');
+      expect(DialogUtils._size(options)).not.toBeDefined();
     });
 
     it('returns original size', () => {
