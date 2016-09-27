@@ -33,6 +33,9 @@ AP.define("_create-inner-frame", ['_ui-params', '_rpc', "_util"], function(uiPar
             options.uiParams = uiParams.fromUrl(options.src) || {};
         }
 
+        options.uiParams.addonNestingLevel = typeof options.uiParams.addonNestingLevel === 'number' ? options.uiParams.addonNestingLevel : 1;
+        options.uiParams.addonNestingLevel++;
+
         var ns = options.ns,
                 contentId = "embedded-" + ns,
                 channelId = "channel-" + ns,
