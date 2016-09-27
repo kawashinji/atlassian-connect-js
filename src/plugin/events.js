@@ -96,7 +96,7 @@ class Events {
    * @memberof module:Events#
    * @param {String} name The event name to subscribe the listener to
    * @param {Function} listener A listener callback to subscribe to the event name
-   
+   */
 
   /**
    * Adds a listener for one occurrence of an event of a particular name.

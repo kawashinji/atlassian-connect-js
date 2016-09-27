@@ -1351,8 +1351,9 @@ var   document$1 = window.document;
        * @memberof module:Events#
        * @param {String} name The event name to subscribe the listener to
        * @param {Function} listener A listener callback to subscribe to the event name
-       
-       /**
+       */
+
+      /**
        * Adds a listener for one occurrence of an event of a particular name.
        * Listener arguments include any argument passed to `events.emit`, followed by an object describing the complete event information.
        * @name once
