@@ -1725,7 +1725,6 @@ var   document$1 = window.document;
   }
 
   $$2.each(events.methods, function (i, method) {
-    console.log('events module?', events);
     plugin._hostModules.events[method] = plugin.events[method] = events[method].bind(events);
   });
 
