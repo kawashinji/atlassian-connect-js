@@ -649,7 +649,7 @@ var   document$1 = window.document;
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.16";
+      _this._version = "5.0.0-beta.17";
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
         _this._setupAPIWithoutRequire(_this._data.api);
@@ -837,7 +837,11 @@ var   document$1 = window.document;
         var pendingCallback = this._pendingCallbacks[data.mid];
         if (pendingCallback) {
           delete this._pendingCallbacks[data.mid];
-          pendingCallback.apply(window, data.args);
+          try {
+            pendingCallback.apply(window, data.args);
+          } catch (e) {
+            util.error('exception thrown in callback', e);
+          }
         }
       }
     }, {
@@ -869,7 +873,11 @@ var   document$1 = window.document;
         var handlers = toArray(this._eventHandlers[data.etyp]);
         handlers = handlers.concat(toArray(this._eventHandlers._any));
         handlers.forEach(function (handler) {
-          handler(data.evnt, sendResponse);
+          try {
+            handler(data.evnt, sendResponse);
+          } catch (e) {
+            util.error('exception thrown in event callback for:' + data.etyp);
+          }
         }, this);
         if (data.mid) {
           sendResponse();
