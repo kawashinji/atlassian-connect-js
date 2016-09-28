@@ -1707,7 +1707,7 @@ var   document$1 = window.document;
   plugin._hostModules['inline-dialog'] = plugin._hostModules.inlineDialog;
 
   if (consumerOptions.get('sizeToParent') === true) {
-    plugin.env.sizeToParent();
+    plugin.env.sizeToParent(consumerOptions.get('hideFooter') === true);
   }
 
   if (consumerOptions.get('base') === true) {

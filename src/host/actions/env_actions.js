@@ -1,14 +1,23 @@
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
 import IframeComponent from '../components/iframe';
+import $ from '../dollar';
 
 EventDispatcher.register('iframe-resize', function(data){
   IframeComponent.resize(data.width, data.height, data.$el);
 });
 
 EventDispatcher.register('iframe-size-to-parent', function(data){
-  var height = AJS.$(document).height() - AJS.$('#header > nav').outerHeight() - AJS.$('#footer').outerHeight() - 20;
+  var height;
   var $el = util.getIframeByExtensionId(data.context.extension_id);
+  if(data.hideFooter) {
+    $('.ac-content-page #footer').css({display: 'none'});
+    $('.ac-content-page').css({overflow: 'hidden !important'});
+    height = $(document).height() - $('#header > nav').outerHeight();
+  } else {
+    height = $(document).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 20;
+  }
+
   EventDispatcher.dispatch('iframe-resize', {width: '100%', height: height + 'px', $el});
 });
 
@@ -27,7 +36,10 @@ export default {
 
     EventDispatcher.dispatch('iframe-resize', {width, height, $el, extension: context.extension});
   },
-  sizeToParent: function(context){
-    EventDispatcher.dispatch('iframe-size-to-parent', {context});
+  sizeToParent: function(context, hideFooter){
+    EventDispatcher.dispatch('iframe-size-to-parent', {
+      hideFooter: hideFooter,
+      context: context
+    });
   }
 }
