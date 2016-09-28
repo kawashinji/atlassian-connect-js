@@ -21,8 +21,8 @@ if(consumerOptions.get('base') === true) {
   });
 }
 
-$.each(EventsModule, (i, method) => {
-  AP._hostModules.events[i] = AP.events[i] = method;
+$.each(EventsModule.methods, (i, method) => {
+  AP._hostModules.events[method] = AP.events[method] = EventsModule[method].bind(EventsModule);
 });
 
 AP.define = deprecate((...args) => AMD.define(...args),
