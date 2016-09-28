@@ -64,16 +64,16 @@ export default {
    * @method
    * @param {boolean} hideFooter true if the footer is supposed to be hidden
    */
-  sizeToParent: debounce(function (callback) {
+  sizeToParent: debounce(function (hideFooter, callback) {
     callback = _.last(arguments);
     // sizeToParent is only available for general-pages
     if (callback._context.extension.options.isFullPage) {
       // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
       util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
       EventDispatcher.register('host-window-resize', (data) => {
-        EnvActions.sizeToParent(callback._context);
+        EnvActions.sizeToParent(callback._context, hideFooter);
       });
-      EnvActions.sizeToParent(callback._context);
+      EnvActions.sizeToParent(callback._context, hideFooter);
     } else {
       // This is only here to support integration testing
       // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()

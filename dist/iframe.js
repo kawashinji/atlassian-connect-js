@@ -664,9 +664,11 @@ var   document$1 = window.document;
       }
       _this._registerOnUnload();
       _this.resize = util._bind(_this, function (width, height) {
-        if (!width || !height) {
-          var dimensions = size();
+        var dimensions = size();
+        if (!width) {
           width = dimensions.w;
+        }
+        if (!height) {
           height = dimensions.h;
         }
         if (_this._hostModules.env && _this._hostModules.env.resize) {
@@ -1673,7 +1675,7 @@ var   document$1 = window.document;
   plugin._hostModules['inline-dialog'] = plugin._hostModules.inlineDialog;
 
   if (consumerOptions.get('sizeToParent') === true) {
-    plugin.env.sizeToParent();
+    plugin.env.sizeToParent(consumerOptions.get('hideFooter') === true);
   }
 
   if (consumerOptions.get('base') === true) {

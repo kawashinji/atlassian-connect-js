@@ -4022,8 +4022,16 @@
 	});
 
 	EventDispatcher$1.register('iframe-size-to-parent', function (data) {
-	  var height = AJS.$(document).height() - AJS.$('#header > nav').outerHeight() - AJS.$('#footer').outerHeight() - 20;
+	  var height;
 	  var $el = util$1.getIframeByExtensionId(data.context.extension_id);
+	  if (data.hideFooter) {
+	    $('.ac-content-page #footer').css({ display: 'none' });
+	    $('.ac-content-page').css({ overflow: 'hidden !important' });
+	    height = $(document).height() - $('#header > nav').outerHeight();
+	  } else {
+	    height = $(document).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 20;
+	  }
+
 	  EventDispatcher$1.dispatch('iframe-resize', { width: '100%', height: height + 'px', $el: $el });
 	});
 
@@ -4042,8 +4050,11 @@
 
 	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
 	  },
-	  sizeToParent: function sizeToParent(context) {
-	    EventDispatcher$1.dispatch('iframe-size-to-parent', { context: context });
+	  sizeToParent: function sizeToParent(context, hideFooter) {
+	    EventDispatcher$1.dispatch('iframe-size-to-parent', {
+	      hideFooter: hideFooter,
+	      context: context
+	    });
 	  }
 	};
 
@@ -4107,16 +4118,16 @@
 	   * @method
 	   * @param {boolean} hideFooter true if the footer is supposed to be hidden
 	   */
-	  sizeToParent: debounce(function (callback) {
+	  sizeToParent: debounce(function (hideFooter, callback) {
 	    callback = _.last(arguments);
 	    // sizeToParent is only available for general-pages
 	    if (callback._context.extension.options.isFullPage) {
 	      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
 	      util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
 	      EventDispatcher$1.register('host-window-resize', function (data) {
-	        EnvActions.sizeToParent(callback._context);
+	        EnvActions.sizeToParent(callback._context, hideFooter);
 	      });
-	      EnvActions.sizeToParent(callback._context);
+	      EnvActions.sizeToParent(callback._context, hideFooter);
 	    } else {
 	      // This is only here to support integration testing
 	      // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
