@@ -59,6 +59,9 @@ AP.define("_rpc", ["_dollar", "_xdm", "_util", "_create-iframe", "_dispatch-cust
         }
       }
 
+      xdmConfig.uiParams = xdmConfig.uiParams || { addonNestingLevel: 1 };
+      xdmConfig.uiParams.addonNestingLevel++;
+
       // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
       var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internalsForFrame)});
 

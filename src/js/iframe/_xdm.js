@@ -9,7 +9,7 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
   function getXdmHost(config) {
     var target,
         uiParams = config.uiParams || {},
-        addonNestingLevel = uiParams.addonNestingLevel;
+        addonNestingLevel = uiParams.addonNestingLevel || 1;
 
     if(!addonNestingLevel) {
       return window.top;
@@ -223,7 +223,7 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
         }
 
         var middleFrameMethods = ["resize", "sizeToParent", "init"];
-        if (middleFrameMethods.indexOf(messageName) > -1) {
+        if (config.addonNestingLevel > 1 && middleFrameMethods.indexOf(messageName) > -1) {
           sendTarget = window.parent;
           targetOrigin = '*';
         }
