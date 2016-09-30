@@ -24,6 +24,9 @@
 .ap-iframe-container iframe.full-size-general-page {
   border-bottom: 1px solid #ccc;
 }
+.ap-iframe-container iframe.full-size-general-page-no-footer {
+  border:none;
+}
 
 .ap-status-indicator .small-spinner {
   width: 20px;
