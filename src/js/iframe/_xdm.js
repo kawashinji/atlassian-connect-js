@@ -6,6 +6,20 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
   // Capture some common values and symbol aliases
   var count = 0;
 
+  function getXdmHost(config) {
+    var target,
+        uiParams = config.uiParams || {},
+        addonNestingLevel = uiParams.addonNestingLevel || 1;
+
+    target = window;
+
+    for(var i = 0; i < addonNestingLevel; i++) {
+      target = target.parent;
+    }
+
+    return target;
+  }
+
   /**
    * Sets up cross-iframe remote procedure calls.
    * If this is called from a parent window, iframe is created and an RPC interface for communicating with it is set up.
@@ -25,8 +39,7 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
    * @param {String} config.container The id of element to which the generated iframe is appended (host only)
    * @param {Object} config.props Additional attributes to add to iframe element (host only)
    * @param {String} config.channel Channel (host only); deprecated
-   * @param {Boolean} [config.noIframe=false] When true xdmRpc is setup for the given target
-   * @param {Object} [config.target] When noIframe is true this is the target to be used for the bridge.
+   * @param {Boolean} [config.addonHostBridge=false] When true xdmRpc is setup for the given target
    * @param {Object} bindings RPC method stubs and implementations
    * @param {Object} bindings.local Local function implementations - functions that exist in the current context.
    *    XdmRpc exposes these functions so that they can be invoked by code running in the other side of the iframe.
@@ -95,8 +108,8 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
 
     var target, iframe;
 
-    if(config.noIframe) {
-      target = config.target;
+    if(config.addonHostBridge) {
+      target = getXdmHost(config);
     } else {
       iframe = createIframe(config);
       target = iframe.contentWindow;
@@ -198,7 +211,7 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
         }
 
         if(messageName === 'registerInnerIframe') {
-          sendTarget = window.top;
+          sendTarget = getXdmHost(config);
           //Origin not yet in the origin-map so set it to *
           targetOrigin = '*';
         }

@@ -111,7 +111,9 @@ AP.require(
   });
 
  rpc.init({
-   target: window.parent
+   uiParams: {
+     addonNestingLevel: 1
+   }
  });
 
 });

@@ -69,13 +69,12 @@ define("_rpc", ["_dollar", "_xdm", "host/jwt-keepalive", "_uri", "host/_util", "
             });
         },
 
-        initInner: function (options, xdmConfig, target) {
+        initInner: function (options, xdmConfig) {
 
             // add stubs for each public api
             each(apis, function (method) { stubs.push(method); });
 
-            xdmConfig.noIframe = true;
-            xdmConfig.target = target;
+            xdmConfig.addonHostBridge = true;
 
             // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
             var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internals)});
