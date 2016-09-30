@@ -1,4 +1,4 @@
-AP.define("_rpc", ["_dollar", "_xdm", "_util", "_create-iframe", "_dispatch-custom-event"], function ($, XdmRpc, util, createIframe, dispatchCustomEvent) {
+AP.define("_rpc", ["_dollar", "_xdm", "_util", "_create-iframe", "_dispatch-custom-event", "_ui-params"], function ($, XdmRpc, util, createIframe, dispatchCustomEvent, UIParams) {
 
   "use strict";
 
@@ -38,7 +38,7 @@ AP.define("_rpc", ["_dollar", "_xdm", "_util", "_create-iframe", "_dispatch-cust
         // add stubs for each public api
         each(apis, function (method) { stubs.push(method); });
         // empty config for add-on-side ctor
-        rpc = this.rpc = new XdmRpc($, { addonHostBridge: true }, {remote: stubs, local: internals});
+        rpc = this.rpc = new XdmRpc($, { addonHostBridge: true, uiParams: UIParams.fromWindowName() }, {remote: stubs, local: internals});
         rpc.init();
         extend(proxy, rpc);
         each(inits, function (_, init) {
@@ -58,9 +58,6 @@ AP.define("_rpc", ["_dollar", "_xdm", "_util", "_create-iframe", "_dispatch-cust
           existingFrameList[0].remove();
         }
       }
-
-      xdmConfig.uiParams = xdmConfig.uiParams || { addonNestingLevel: 1 };
-      xdmConfig.uiParams.addonNestingLevel++;
 
       // TODO: stop copying internals and fix references instead (fix for events going across add-ons when they shouldn't)
       var rpc = new XdmRpc($, xdmConfig, {remote: stubs, local: $.extend({}, internalsForFrame)});

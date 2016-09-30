@@ -11,10 +11,6 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
         uiParams = config.uiParams || {},
         addonNestingLevel = uiParams.addonNestingLevel || 1;
 
-    if(!addonNestingLevel) {
-      return window.top;
-    }
-
     target = window;
 
     for(var i = 0; i < addonNestingLevel; i++) {
@@ -111,8 +107,6 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
     var isHost = !/xdm_e/.test(loc);
 
     var target, iframe;
-
-    config.uiParams = config.uiParams || {};
 
     if(config.addonHostBridge) {
       target = getXdmHost(config);
@@ -223,7 +217,7 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
         }
 
         var middleFrameMethods = ["resize", "sizeToParent", "init"];
-        if (config.addonNestingLevel > 1 && middleFrameMethods.indexOf(messageName) > -1) {
+        if (middleFrameMethods.indexOf(messageName) > -1) {
           sendTarget = window.parent;
           targetOrigin = '*';
         }
