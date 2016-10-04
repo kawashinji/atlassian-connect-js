@@ -11,6 +11,7 @@ EventDispatcher.register('iframe-size-to-parent', function(data){
   var height;
   var $el = util.getIframeByExtensionId(data.context.extension_id);
   if(data.hideFooter) {
+    $el.addClass('full-size-general-page-no-footer');
     $('.ac-content-page #footer').css({display: 'none'});
     $('.ac-content-page').css({overflow: 'hidden !important'});
     height = $(document).height() - $('#header > nav').outerHeight();

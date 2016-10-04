@@ -2757,7 +2757,6 @@
 	    addon_key: extension.addon_key,
 	    key: extension.key,
 	    url: extension.url,
-	    origin: extension.origin,
 	    options: extension.options
 	  };
 	  return IframeContainerComponent.createExtension(simpleXdmExtension);
@@ -4025,6 +4024,7 @@
 	  var height;
 	  var $el = util$1.getIframeByExtensionId(data.context.extension_id);
 	  if (data.hideFooter) {
+	    $el.addClass('full-size-general-page-no-footer');
 	    $('.ac-content-page #footer').css({ display: 'none' });
 	    $('.ac-content-page').css({ overflow: 'hidden !important' });
 	    height = $(document).height() - $('#header > nav').outerHeight();
@@ -5168,7 +5168,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.17';
+	  window._AP.version = '5.0.0-beta.18';
 	}
 
 	host.defineModule('messages', messages);
