@@ -232,9 +232,6 @@ var AP = (function () {
       this._registerListener(d.listenOn);
     }
 
-    // listen for postMessage events (defaults to window).
-
-
     createClass(PostMessage, [{
       key: "_registerListener",
       value: function _registerListener(listenOn) {
@@ -246,21 +243,19 @@ var AP = (function () {
     }, {
       key: "_receiveMessage",
       value: function _receiveMessage(event) {
-        var extensionId = event.data.eid,
+        var handler = this._messageHandlers[event.data.type],
+            extensionId = event.data.eid,
             reg = void 0;
 
         if (extensionId && this._registeredExtensions) {
           reg = this._registeredExtensions[extensionId];
         }
 
-        if (!this._checkOrigin(event, reg)) {
+        if (!handler || !this._checkOrigin(event, reg)) {
           return false;
         }
 
-        var handler = this._messageHandlers[event.data.type];
-        if (handler) {
-          handler.call(this, event, reg);
-        }
+        handler.call(this, event, reg);
       }
     }]);
     return PostMessage;
@@ -650,17 +645,26 @@ var   document$1 = window.document;
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
       _this._version = "5.0.0-beta.18";
+      _this._apiTampered = undefined;
+      _this._isSubIframe = window.top !== window.parent;
+      _this._onConfirmedFns = [];
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
         _this._setupAPIWithoutRequire(_this._data.api);
       }
+
       _this._messageHandlers = {
-        resp: _this._handleResponse,
+        presp: _this._handleResponse,
         evt: _this._handleEvent,
-        key_listen: _this._handleKeyListen
+        key_listen: _this._handleKeyListen,
+        api_tamper: _this._handleApiTamper
       };
+
       if (_this._data.origin) {
-        _this._sendInit();
+        _this._sendInit(_this._host);
+        if (_this._isSubIframe) {
+          _this._sendInit(window.top);
+        }
       }
       _this._registerOnUnload();
       _this.resize = util._bind(_this, function (width, height) {
@@ -682,6 +686,21 @@ var   document$1 = window.document;
     }
 
     createClass(AP, [{
+      key: '_handleApiTamper',
+      value: function _handleApiTamper(event) {
+        if (event.data.tampered !== false) {
+          this._host = undefined;
+          this._apiTampered = true;
+          console.error('XDM API tampering detected, api disabled');
+        } else {
+          this._apiTampered = false;
+          this._onConfirmedFns.forEach(function (cb) {
+            cb.apply(null);
+          });
+        }
+        this._onConfirmedFns = [];
+      }
+    }, {
       key: '_registerOnUnload',
       value: function _registerOnUnload() {
         $.bind(window, 'unload', util._bind(this, function () {
@@ -738,6 +757,11 @@ var   document$1 = window.document;
         }
       }
     }, {
+      key: '_findTarget',
+      value: function _findTarget(moduleName, methodName) {
+        return this._data.options && this._data.options.targets && this._data.options.targets[moduleName] && this._data.options.targets[moduleName][methodName] ? this._data.options.targets[moduleName][methodName] : 'top';
+      }
+    }, {
       key: '_createModule',
       value: function _createModule(moduleName, api) {
         var _this2 = this;
@@ -749,7 +773,8 @@ var   document$1 = window.document;
           } else {
             accumulator[memberName] = _this2._createMethodHandler({
               mod: moduleName,
-              fn: memberName
+              fn: memberName,
+              target: _this2._findTarget(moduleName, memberName)
             });
           }
           return accumulator;
@@ -761,7 +786,7 @@ var   document$1 = window.document;
         var _this3 = this;
 
         this._hostModules = Object.getOwnPropertyNames(api).reduce(function (accumulator, moduleName) {
-          accumulator[moduleName] = _this3._createModule(moduleName, api[moduleName]);
+          accumulator[moduleName] = _this3._createModule(moduleName, api[moduleName], api[moduleName]._options);
           return accumulator;
         }, {});
 
@@ -818,6 +843,7 @@ var   document$1 = window.document;
             mod: methodData.mod,
             fn: methodData.fn
           };
+          var target = that._findTarget(methodData.mod, methodData.fn) === 'top' ? window.top : that._host;
           if (util.hasCallback(args)) {
             data.mid = util.randomString();
             that._pendingCallback(data.mid, args.pop());
@@ -827,7 +853,14 @@ var   document$1 = window.document;
             data._id = this._id;
           }
           data.args = util.sanitizeStructuredClone(args);
-          that._host.postMessage(data, that._data.origin);
+
+          if (that._isSubIframe && typeof that._apiTampered === 'undefined') {
+            that._onConfirmedFns.push(function () {
+              target.postMessage(data, '*');
+            });
+          } else {
+            target.postMessage(data, '*');
+          }
         };
       }
     }, {
@@ -837,11 +870,7 @@ var   document$1 = window.document;
         var pendingCallback = this._pendingCallbacks[data.mid];
         if (pendingCallback) {
           delete this._pendingCallbacks[data.mid];
-          try {
-            pendingCallback.apply(window, data.args);
-          } catch (e) {
-            util.error('exception thrown in callback', e);
-          }
+          pendingCallback.apply(window, data.args);
         }
       }
     }, {
@@ -873,11 +902,7 @@ var   document$1 = window.document;
         var handlers = toArray(this._eventHandlers[data.etyp]);
         handlers = handlers.concat(toArray(this._eventHandlers._any));
         handlers.forEach(function (handler) {
-          try {
-            handler(data.evnt, sendResponse);
-          } catch (e) {
-            util.error('exception thrown in event callback for:' + data.etyp);
-          }
+          handler(data.evnt, sendResponse);
         }, this);
         if (data.mid) {
           sendResponse();
@@ -899,7 +924,7 @@ var   document$1 = window.document;
             eid: this._data.extension_id,
             keycode: event.keyCode,
             modifiers: modifiers,
-            type: 'key_listen'
+            type: 'key_triggered'
           }, this._data.origin);
         }
       }
@@ -934,14 +959,32 @@ var   document$1 = window.document;
     }, {
       key: '_checkOrigin',
       value: function _checkOrigin(event) {
-        return event.origin === this._data.origin && event.source === this._host;
+        var isParent = event.origin === this._data.origin && event.source === this._host,
+            isTop = event.source === window.top;
+        return isParent || isTop;
       }
     }, {
       key: '_sendInit',
-      value: function _sendInit() {
+      value: function _sendInit(frame) {
+        var targets;
+        if (frame === window.top && window.top !== window.parent) {
+          targets = ConfigurationOptions$1.get('targets');
+        }
+
+        frame.postMessage({
+          eid: this._data.extension_id,
+          type: 'init',
+          targets: targets
+        }, '*');
+      }
+    }, {
+      key: 'sendSubCreate',
+      value: function sendSubCreate(extension_id, options) {
+        options.id = extension_id;
         this._host.postMessage({
           eid: this._data.extension_id,
-          type: 'init'
+          type: 'sub',
+          ext: options
         }, this._data.origin);
       }
     }, {

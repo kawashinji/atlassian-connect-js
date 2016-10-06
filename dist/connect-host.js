@@ -672,9 +672,6 @@
 	    this._registerListener(d.listenOn);
 	  }
 
-	  // listen for postMessage events (defaults to window).
-
-
 	  createClass(PostMessage, [{
 	    key: "_registerListener",
 	    value: function _registerListener(listenOn) {
@@ -686,21 +683,19 @@
 	  }, {
 	    key: "_receiveMessage",
 	    value: function _receiveMessage(event) {
-	      var extensionId = event.data.eid,
+	      var handler = this._messageHandlers[event.data.type],
+	          extensionId = event.data.eid,
 	          reg = void 0;
 
 	      if (extensionId && this._registeredExtensions) {
 	        reg = this._registeredExtensions[extensionId];
 	      }
 
-	      if (!this._checkOrigin(event, reg)) {
+	      if (!handler || !this._checkOrigin(event, reg)) {
 	        return false;
 	      }
 
-	      var handler = this._messageHandlers[event.data.type];
-	      if (handler) {
-	        handler.call(this, event, reg);
-	      }
+	      handler.call(this, event, reg);
 	    }
 	  }]);
 	  return PostMessage;
@@ -775,13 +770,42 @@
 	      resp: _this._handleResponse,
 	      event_query: _this._handleEventQuery,
 	      broadcast: _this._handleBroadcast,
-	      key_listen: _this._handleKeyListen,
-	      unload: _this._handleUnload
+	      key_triggered: _this._handleKeyTriggered,
+	      unload: _this._handleUnload,
+	      sub: _this._handleSubInit
 	    };
 	    return _this;
 	  }
 
 	  createClass(XDMRPC, [{
+	    key: '_verifyAPI',
+	    value: function _verifyAPI(event, reg) {
+	      var untrustedTargets = event.data.targets;
+	      if (!untrustedTargets) {
+	        return;
+	      }
+	      var trustedSpec = this.getApiSpec();
+	      var tampered = false;
+
+	      function check(trusted, untrusted) {
+	        Object.getOwnPropertyNames(untrusted).forEach(function (name) {
+	          if (_typeof(untrusted[name]) === 'object' && trusted[name]) {
+	            check(trusted[name], untrusted[name]);
+	          } else {
+	            if (untrusted[name] === 'parent' && trusted[name]) {
+	              console.log('tampered true', untrusted, trusted, name);
+	              tampered = true;
+	            }
+	          }
+	        });
+	      }
+	      check(trustedSpec, untrustedTargets);
+	      event.source.postMessage({
+	        type: 'api_tamper',
+	        tampered: tampered
+	      }, reg.extension.url);
+	    }
+	  }, {
 	    key: '_handleInit',
 	    value: function _handleInit(event, reg) {
 	      this._registeredExtensions[reg.extension_id].source = event.source;
@@ -789,6 +813,18 @@
 	        reg.initCallback(event.data.eid);
 	        delete reg.initCallback;
 	      }
+	      if (event.data.targets) {
+	        this._verifyAPI(event, reg);
+	      }
+	    }
+	    // postMessage method to do registerExtension
+
+	  }, {
+	    key: '_handleSubInit',
+	    value: function _handleSubInit(event, reg) {
+	      this.registerExtension(event.data.ext.id, {
+	        extension: event.data.ext
+	      });
 	    }
 	  }, {
 	    key: '_handleResponse',
@@ -812,7 +848,7 @@
 	        var args = util.sanitizeStructuredClone(util.argumentsToArray(arguments));
 	        event.source.postMessage({
 	          mid: event.data.mid,
-	          type: 'resp',
+	          type: 'presp',
 	          args: args
 	        }, reg.extension.url);
 	      }
@@ -882,8 +918,8 @@
 	      this.dispatch(event_data.etyp, targetSpec, event_data.evnt, null, null);
 	    }
 	  }, {
-	    key: '_handleKeyListen',
-	    value: function _handleKeyListen(event, reg) {
+	    key: '_handleKeyTriggered',
+	    value: function _handleKeyTriggered(event, reg) {
 	      var eventData = event.data;
 	      var keycodeEntry = this._keycodeKey(eventData.keycode, eventData.modifiers, reg.extension_id);
 	      var listeners = this._keycodeCallbacks[keycodeEntry];
@@ -901,7 +937,8 @@
 	    }
 	  }, {
 	    key: 'defineAPIModule',
-	    value: function defineAPIModule(module, moduleName) {
+	    value: function defineAPIModule(module, moduleName, options) {
+	      // module._options = options;
 	      if (moduleName) {
 	        this._registeredAPIModules[moduleName] = module;
 	      } else {
@@ -1000,7 +1037,7 @@
 
 	      var registrations = this._findRegistrations(targetSpec || {});
 	      registrations.forEach(function (reg) {
-	        if (source) {
+	        if (source && !reg.source) {
 	          reg.source = source;
 	        }
 
@@ -1133,6 +1170,7 @@
 	                }
 	                break;
 	            }
+	            // accumulator._options = mod._options;
 	            return accumulator;
 	          }, {});
 	        }
@@ -1159,7 +1197,7 @@
 	      if (event.data.type === 'unload' && (sourceTypeMatches || event.source === undefined)) {
 	        isValidOrigin = true;
 	      }
-
+	      // ignore resp because its supposed to be running AP and not xdmrpc
 	      if (!isValidOrigin) {
 	        util.warn("Failed to validate origin: " + event.origin);
 	      }
@@ -1194,6 +1232,16 @@
 	          delete this._registeredExtensions[registration.extension_id];
 	        }, this);
 	      }
+	    }
+	  }, {
+	    key: 'whitelistDomain',
+	    value: function whitelistDomain(urlOrDomain) {
+	      var match = urlOrDomain.match(/^(?:https?:)?(?:\/\/)?([^\/\?]+)/);
+	      if (match && match[1]) {
+	        this._domainWhitelist.push(match[1]);
+	        return match[1];
+	      }
+	      return false;
 	    }
 	  }]);
 	  return XDMRPC;
@@ -1311,8 +1359,8 @@
 	    }
 	  }, {
 	    key: 'defineModule',
-	    value: function defineModule(moduleName, module) {
-	      this._xdm.defineAPIModule(module, moduleName);
+	    value: function defineModule(moduleName, module, options) {
+	      this._xdm.defineAPIModule(module, moduleName, options);
 	    }
 	  }, {
 	    key: 'defineGlobals',
