@@ -1,3 +1,5 @@
+import qs from 'query-string';
+import _ from '../underscore';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import IframeActions from '../actions/iframe_actions';
 import $ from '../dollar';
@@ -8,6 +10,7 @@ import JwtActions from '../actions/jwt_actions';
 import iframeUtils from '../utils/iframe';
 
 const CONTAINER_CLASSES = ['ap-container'];
+const RENDER_BY_SUBMIT_FLAG = 'ap-render-by-submit';
 
 class Iframe {
 
@@ -56,7 +59,9 @@ class Iframe {
     });
     extension.id = iframeAttributes.id;
     $.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
-    extension.$el = this.render(iframeAttributes);
+
+    extension.$el = this.render(iframeAttributes, extension.options);
+    extension.$payload = this._generatePayloadForm(iframeAttributes, extension.options);
     return extension;
   }
 
@@ -66,6 +71,7 @@ class Iframe {
       existingFrame.destroy();
     }
     $container.prepend(extension.$el);
+    $container.prepend(extension.$payload);
     IframeActions.notifyIframeCreated(extension.$el, extension);
   }
 
@@ -74,8 +80,58 @@ class Iframe {
     this._appendExtension(data.$container, simpleExtension);
   }
 
-  render(attributes){
-    return $('<iframe />').attr(attributes).addClass('ap-iframe');
+  render(attributes, options){
+    var iframe = $(document.createElement('iframe')).addClass('ap-iframe');
+
+    if (options.renderingMethod !== 'GET') {
+      // The iframe name is a big JSON blob.
+      // If we are rendering the iframe with other HTTP method,
+      // then it means we will have a form submission to trigger the rendering.
+      // In that case we assign a temporary name here to avoid the form targeting to the JSON blob.
+      attributes['data-iframe-name'] = attributes.name;
+      attributes['data-iframe-payload-id'] = attributes.id + '-payload';
+      attributes['name'] = attributes.id + '-iframe';
+
+      // Clear the src attribute because the rendering will be triggered by the form.
+      attributes['data-iframe-src'] = attributes.src;
+      attributes['src'] = '';
+
+      // Add a flag so host knows to submit the form
+      iframe.addClass(RENDER_BY_SUBMIT_FLAG);
+    }
+
+    return iframe.attr(attributes);
+  }
+
+  _generatePayloadForm(attributes, options) {
+    if (options.renderingMethod === 'GET') {
+      return $();
+    }
+
+    var src = attributes['data-iframe-src'];
+    var payloadId = attributes['data-iframe-payload-id'];
+
+    var url = src.split('?')[0] || '';
+    var queryParams = qs.parse(qs.extract(src));
+
+    var form = $(document.createElement('form'))
+        .attr({
+          'id': payloadId,
+          'action': url,
+          'target': attributes.name,
+          'method': options.renderingMethod
+        });
+
+    _.each(queryParams, (value, key) => {
+      form.append($(document.createElement('input'))
+          .attr({
+            name: key,
+            type: 'hidden',
+            value: value
+          }));
+    });
+
+    return form;
   }
 }
 
