@@ -10,12 +10,12 @@ import JwtActions from '../actions/jwt_actions';
 import iframeUtils from '../utils/iframe';
 
 const CONTAINER_CLASSES = ['ap-container'];
-const RENDER_BY_SUBMIT_FLAG = 'ap-render-by-submit';
 
 class Iframe {
 
   constructor () {
     this._contentResolver = false;
+    this.RENDER_BY_SUBMIT_FLAG = 'ap-render-by-submit';
   }
 
   setContentResolver(callback) {
@@ -80,31 +80,36 @@ class Iframe {
     this._appendExtension(data.$container, simpleExtension);
   }
 
-  render(attributes, options){
+  render(attributes, options = {}){
+    var renderingMethod = (options.renderingMethod || 'GET').toUpperCase();
+
     var iframe = $(document.createElement('iframe')).addClass('ap-iframe');
 
-    if (options.renderingMethod !== 'GET') {
+    if (renderingMethod !== 'GET') {
       // The iframe name is a big JSON blob.
       // If we are rendering the iframe with other HTTP method,
       // then it means we will have a form submission to trigger the rendering.
       // In that case we assign a temporary name here to avoid the form targeting to the JSON blob.
+      // We will change it back to the real name afterwards.
       attributes['data-iframe-name'] = attributes.name;
       attributes['data-iframe-payload-id'] = attributes.id + '-payload';
       attributes['name'] = attributes.id + '-iframe';
 
-      // Clear the src attribute because the rendering will be triggered by the form.
+      // Clear the src attribute because the rendering will be triggered by the form submission.
       attributes['data-iframe-src'] = attributes.src;
       attributes['src'] = '';
 
-      // Add a flag so host knows to submit the form
-      iframe.addClass(RENDER_BY_SUBMIT_FLAG);
+      // Add a flag so ac/create knows to submit the form
+      iframe.addClass(this.RENDER_BY_SUBMIT_FLAG);
     }
 
     return iframe.attr(attributes);
   }
 
-  _generatePayloadForm(attributes, options) {
-    if (options.renderingMethod === 'GET') {
+  _generatePayloadForm(attributes, options = {}) {
+    var renderingMethod = (options.renderingMethod || 'GET').toUpperCase();
+
+    if (renderingMethod === 'GET') {
       return $();
     }
 
@@ -119,7 +124,7 @@ class Iframe {
           'id': payloadId,
           'action': url,
           'target': attributes.name,
-          'method': options.renderingMethod
+          'method': renderingMethod
         });
 
     _.each(queryParams, (value, key) => {

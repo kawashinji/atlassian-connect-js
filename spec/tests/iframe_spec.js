@@ -188,5 +188,57 @@ describe('Iframe component', () => {
     expect($iframe[0].nodeName).toEqual('IFRAME');
   });
 
+  it('iframe should not have src attribute when rendering method set to post', () => {
+    var attributes = {
+      width: '123',
+      custom: 'somethingelse'
+    };
+    var $iframe = IframeComponent.render(attributes, {renderingMethod: 'POST'});
+    expect($iframe.attr('src')).toBeFalsy();
+    expect($iframe.hasClass(IframeComponent.RENDER_BY_SUBMIT_FLAG)).toEqual(true);
+  });
+
+  it('generates a form targeting to iframe', () => {
+    var extension = {
+      addon_key: 'some-addon-key',
+      key: 'some-module-key',
+      url: 'https://www.example.com',
+      options: {
+        renderingMethod: 'POST'
+      }
+    };
+    var $container = $('<div />');
+    IframeComponent.simpleXdmExtension(extension, $container);
+    var $iframe = $container.find('iframe');
+    var $form = $container.find('form');
+
+    expect($iframe.length).toEqual(1);
+    expect($form.length).toEqual(1);
+    expect($form.attr('target')).toEqual($iframe.attr('name'));
+    expect($form.attr('id')).toEqual($iframe.attr('data-iframe-payload-id'));
+    expect($iframe.attr('data-iframe-name')).toBeTruthy();
+    expect($iframe.attr('data-iframe-src')).toBeTruthy();
+  });
+
+  it('should convert all query parameters to form inputs', () => {
+    var extension = {
+      addon_key: 'some-addon-key',
+      key: 'some-module-key',
+      url: 'https://www.example.com?key1=val1&key2=val2&key3=%F0%9F%98%8A',
+      options: {
+        renderingMethod: 'POST'
+      }
+    };
+    var $container = $('<div />');
+    IframeComponent.simpleXdmExtension(extension, $container);
+    var $form = $container.find('form');
+    var $inputs = $form.find('input');
+
+    expect($form.attr('action')).toEqual('https://www.example.com');
+    expect($inputs.length).toEqual(3);
+    expect($inputs.eq(0).val()).toEqual('val1');
+    expect($inputs.eq(1).val()).toEqual('val2');
+    expect($inputs.eq(2).val()).toEqual('\ud83d\ude0a');
+  });
 
 });
