@@ -7,6 +7,7 @@
 	// AUI includes underscore and exposes it globally.
 	var _ = window._;
 
+<<<<<<< HEAD
 	var domain;
 
 	// This constructor is used to store event handlers. Instantiating this is
@@ -49,10 +50,116 @@
 	// that to be increased. Set to zero for unlimited.
 	EventEmitter.prototype.setMaxListeners = function setMaxListeners(n) {
 	  if (typeof n !== 'number' || n < 0 || isNaN(n)) throw new TypeError('"n" argument must be a positive number');
+=======
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+	  return typeof obj;
+	} : function (obj) {
+	  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+	};
+
+	var classCallCheck = function (instance, Constructor) {
+	  if (!(instance instanceof Constructor)) {
+	    throw new TypeError("Cannot call a class as a function");
+	  }
+	};
+
+	var createClass = function () {
+	  function defineProperties(target, props) {
+	    for (var i = 0; i < props.length; i++) {
+	      var descriptor = props[i];
+	      descriptor.enumerable = descriptor.enumerable || false;
+	      descriptor.configurable = true;
+	      if ("value" in descriptor) descriptor.writable = true;
+	      Object.defineProperty(target, descriptor.key, descriptor);
+	    }
+	  }
+
+	  return function (Constructor, protoProps, staticProps) {
+	    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+	    if (staticProps) defineProperties(Constructor, staticProps);
+	    return Constructor;
+	  };
+	}();
+
+	var inherits = function (subClass, superClass) {
+	  if (typeof superClass !== "function" && superClass !== null) {
+	    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+	  }
+
+	  subClass.prototype = Object.create(superClass && superClass.prototype, {
+	    constructor: {
+	      value: subClass,
+	      enumerable: false,
+	      writable: true,
+	      configurable: true
+	    }
+	  });
+	  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+	};
+
+	var possibleConstructorReturn = function (self, call) {
+	  if (!self) {
+	    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+	  }
+
+	  return call && (typeof call === "object" || typeof call === "function") ? call : self;
+	};
+
+	var toConsumableArray = function (arr) {
+	  if (Array.isArray(arr)) {
+	    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+	    return arr2;
+	  } else {
+	    return Array.from(arr);
+	  }
+	};
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	function EventEmitter() {
+	  this._events = this._events || {};
+	  this._maxListeners = this._maxListeners || undefined;
+	}
+	// Backwards-compat with node 0.10.x
+	EventEmitter.EventEmitter = EventEmitter;
+
+	EventEmitter.prototype._events = undefined;
+	EventEmitter.prototype._maxListeners = undefined;
+
+	// By default EventEmitters will print a warning if more than 10 listeners are
+	// added to it. This is a useful default which helps finding memory leaks.
+	EventEmitter.defaultMaxListeners = 10;
+
+	// Obviously not all Emitters should be limited to 10. This function allows
+	// that to be increased. Set to zero for unlimited.
+	EventEmitter.prototype.setMaxListeners = function (n) {
+	  if (!isNumber(n) || n < 0 || isNaN(n)) throw TypeError('n must be a positive number');
+>>>>>>> CE-720 Update dist
 	  this._maxListeners = n;
 	  return this;
 	};
 
+<<<<<<< HEAD
 	function $getMaxListeners(that) {
 	  if (that._maxListeners === undefined) return EventEmitter.defaultMaxListeners;
 	  return that._maxListeners;
@@ -229,10 +336,95 @@
 	        w.type = type;
 	        w.count = existing.length;
 	        emitWarning(w);
+=======
+	EventEmitter.prototype.emit = function (type) {
+	  var er, handler, len, args, i, listeners;
+
+	  if (!this._events) this._events = {};
+
+	  // If there is no 'error' event listener then throw.
+	  if (type === 'error') {
+	    if (!this._events.error || isObject(this._events.error) && !this._events.error.length) {
+	      er = arguments[1];
+	      if (er instanceof Error) {
+	        throw er; // Unhandled 'error' event
+	      }
+	      throw TypeError('Uncaught, unspecified "error" event.');
+	    }
+	  }
+
+	  handler = this._events[type];
+
+	  if (isUndefined(handler)) return false;
+
+	  if (isFunction(handler)) {
+	    switch (arguments.length) {
+	      // fast cases
+	      case 1:
+	        handler.call(this);
+	        break;
+	      case 2:
+	        handler.call(this, arguments[1]);
+	        break;
+	      case 3:
+	        handler.call(this, arguments[1], arguments[2]);
+	        break;
+	      // slower
+	      default:
+	        args = Array.prototype.slice.call(arguments, 1);
+	        handler.apply(this, args);
+	    }
+	  } else if (isObject(handler)) {
+	    args = Array.prototype.slice.call(arguments, 1);
+	    listeners = handler.slice();
+	    len = listeners.length;
+	    for (i = 0; i < len; i++) {
+	      listeners[i].apply(this, args);
+	    }
+	  }
+
+	  return true;
+	};
+
+	EventEmitter.prototype.addListener = function (type, listener) {
+	  var m;
+
+	  if (!isFunction(listener)) throw TypeError('listener must be a function');
+
+	  if (!this._events) this._events = {};
+
+	  // To avoid recursion in the case that type === "newListener"! Before
+	  // adding it to the listeners, first emit "newListener".
+	  if (this._events.newListener) this.emit('newListener', type, isFunction(listener.listener) ? listener.listener : listener);
+
+	  if (!this._events[type])
+	    // Optimize the case of one listener. Don't need the extra array object.
+	    this._events[type] = listener;else if (isObject(this._events[type]))
+	    // If we've already got an array, just append.
+	    this._events[type].push(listener);else
+	    // Adding the second element, need to change to array.
+	    this._events[type] = [this._events[type], listener];
+
+	  // Check for listener leak
+	  if (isObject(this._events[type]) && !this._events[type].warned) {
+	    if (!isUndefined(this._maxListeners)) {
+	      m = this._maxListeners;
+	    } else {
+	      m = EventEmitter.defaultMaxListeners;
+	    }
+
+	    if (m && m > 0 && this._events[type].length > m) {
+	      this._events[type].warned = true;
+	      console.error('(node) warning: possible EventEmitter memory ' + 'leak detected. %d listeners added. ' + 'Use emitter.setMaxListeners() to increase limit.', this._events[type].length);
+	      if (typeof console.trace === 'function') {
+	        // not supported in IE 10
+	        console.trace();
+>>>>>>> CE-720 Update dist
 	      }
 	    }
 	  }
 
+<<<<<<< HEAD
 	  return target;
 	}
 	function emitWarning(e) {
@@ -240,10 +432,14 @@
 	}
 	EventEmitter.prototype.addListener = function addListener(type, listener) {
 	  return _addListener(this, type, listener, false);
+=======
+	  return this;
+>>>>>>> CE-720 Update dist
 	};
 
 	EventEmitter.prototype.on = EventEmitter.prototype.addListener;
 
+<<<<<<< HEAD
 	EventEmitter.prototype.prependListener = function prependListener(type, listener) {
 	  return _addListener(this, type, listener, true);
 	};
@@ -270,10 +466,30 @@
 	EventEmitter.prototype.prependOnceListener = function prependOnceListener(type, listener) {
 	  if (typeof listener !== 'function') throw new TypeError('"listener" argument must be a function');
 	  this.prependListener(type, _onceWrap(this, type, listener));
+=======
+	EventEmitter.prototype.once = function (type, listener) {
+	  if (!isFunction(listener)) throw TypeError('listener must be a function');
+
+	  var fired = false;
+
+	  function g() {
+	    this.removeListener(type, g);
+
+	    if (!fired) {
+	      fired = true;
+	      listener.apply(this, arguments);
+	    }
+	  }
+
+	  g.listener = listener;
+	  this.on(type, g);
+
+>>>>>>> CE-720 Update dist
 	  return this;
 	};
 
 	// emits a 'removeListener' event iff the listener was removed
+<<<<<<< HEAD
 	EventEmitter.prototype.removeListener = function removeListener(type, listener) {
 	  var list, events, position, i, originalListener;
 
@@ -296,6 +512,25 @@
 	    for (i = list.length; i-- > 0;) {
 	      if (list[i] === listener || list[i].listener && list[i].listener === listener) {
 	        originalListener = list[i].listener;
+=======
+	EventEmitter.prototype.removeListener = function (type, listener) {
+	  var list, position, length, i;
+
+	  if (!isFunction(listener)) throw TypeError('listener must be a function');
+
+	  if (!this._events || !this._events[type]) return this;
+
+	  list = this._events[type];
+	  length = list.length;
+	  position = -1;
+
+	  if (list === listener || isFunction(list.listener) && list.listener === listener) {
+	    delete this._events[type];
+	    if (this._events.removeListener) this.emit('removeListener', type, listener);
+	  } else if (isObject(list)) {
+	    for (i = length; i-- > 0;) {
+	      if (list[i] === listener || list[i].listener && list[i].listener === listener) {
+>>>>>>> CE-720 Update dist
 	        position = i;
 	        break;
 	      }
@@ -304,6 +539,7 @@
 	    if (position < 0) return this;
 
 	    if (list.length === 1) {
+<<<<<<< HEAD
 	      list[0] = undefined;
 	      if (--this._eventsCount === 0) {
 	        this._events = new EventHandlers();
@@ -316,11 +552,21 @@
 	    }
 
 	    if (events.removeListener) this.emit('removeListener', type, originalListener || listener);
+=======
+	      list.length = 0;
+	      delete this._events[type];
+	    } else {
+	      list.splice(position, 1);
+	    }
+
+	    if (this._events.removeListener) this.emit('removeListener', type, listener);
+>>>>>>> CE-720 Update dist
 	  }
 
 	  return this;
 	};
 
+<<<<<<< HEAD
 	EventEmitter.prototype.removeAllListeners = function removeAllListeners(type) {
 	  var listeners, events;
 
@@ -335,18 +581,33 @@
 	    } else if (events[type]) {
 	      if (--this._eventsCount === 0) this._events = new EventHandlers();else delete events[type];
 	    }
+=======
+	EventEmitter.prototype.removeAllListeners = function (type) {
+	  var key, listeners;
+
+	  if (!this._events) return this;
+
+	  // not listening for removeListener, no need to emit
+	  if (!this._events.removeListener) {
+	    if (arguments.length === 0) this._events = {};else if (this._events[type]) delete this._events[type];
+>>>>>>> CE-720 Update dist
 	    return this;
 	  }
 
 	  // emit removeListener for all listeners on all events
 	  if (arguments.length === 0) {
+<<<<<<< HEAD
 	    var keys = Object.keys(events);
 	    for (var i = 0, key; i < keys.length; ++i) {
 	      key = keys[i];
+=======
+	    for (key in this._events) {
+>>>>>>> CE-720 Update dist
 	      if (key === 'removeListener') continue;
 	      this.removeAllListeners(key);
 	    }
 	    this.removeAllListeners('removeListener');
+<<<<<<< HEAD
 	    this._events = new EventHandlers();
 	    this._eventsCount = 0;
 	    return this;
@@ -362,10 +623,28 @@
 	      this.removeListener(type, listeners[listeners.length - 1]);
 	    } while (listeners[0]);
 	  }
+=======
+	    this._events = {};
+	    return this;
+	  }
+
+	  listeners = this._events[type];
+
+	  if (isFunction(listeners)) {
+	    this.removeListener(type, listeners);
+	  } else if (listeners) {
+	    // LIFO order
+	    while (listeners.length) {
+	      this.removeListener(type, listeners[listeners.length - 1]);
+	    }
+	  }
+	  delete this._events[type];
+>>>>>>> CE-720 Update dist
 
 	  return this;
 	};
 
+<<<<<<< HEAD
 	EventEmitter.prototype.listeners = function listeners(type) {
 	  var evlistener;
 	  var ret;
@@ -693,6 +972,42 @@
 	    return Array.from(arr);
 	  }
 	};
+=======
+	EventEmitter.prototype.listeners = function (type) {
+	  var ret;
+	  if (!this._events || !this._events[type]) ret = [];else if (isFunction(this._events[type])) ret = [this._events[type]];else ret = this._events[type].slice();
+	  return ret;
+	};
+
+	EventEmitter.prototype.listenerCount = function (type) {
+	  if (this._events) {
+	    var evlistener = this._events[type];
+
+	    if (isFunction(evlistener)) return 1;else if (evlistener) return evlistener.length;
+	  }
+	  return 0;
+	};
+
+	EventEmitter.listenerCount = function (emitter, type) {
+	  return emitter.listenerCount(type);
+	};
+
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+
+	function isObject(arg) {
+	  return (typeof arg === 'undefined' ? 'undefined' : _typeof(arg)) === 'object' && arg !== null;
+	}
+
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+>>>>>>> CE-720 Update dist
 
 	/**
 	* pub/sub for extension state (created, destroyed, initialized)
@@ -1031,6 +1346,12 @@
 	    this._registerListener(d.listenOn);
 	  }
 
+<<<<<<< HEAD
+=======
+	  // listen for postMessage events (defaults to window).
+
+
+>>>>>>> CE-720 Update dist
 	  createClass(PostMessage, [{
 	    key: "_registerListener",
 	    value: function _registerListener(listenOn) {
@@ -1042,20 +1363,35 @@
 	  }, {
 	    key: "_receiveMessage",
 	    value: function _receiveMessage(event) {
+<<<<<<< HEAD
 
 	      var handler = this._messageHandlers[event.data.type],
 	          extensionId = event.data.eid,
+=======
+	      var extensionId = event.data.eid,
+>>>>>>> CE-720 Update dist
 	          reg = void 0;
 
 	      if (extensionId && this._registeredExtensions) {
 	        reg = this._registeredExtensions[extensionId];
 	      }
 
+<<<<<<< HEAD
 	      if (!handler || !this._checkOrigin(event, reg)) {
 	        return false;
 	      }
 
 	      handler.call(this, event, reg);
+=======
+	      if (!this._checkOrigin(event, reg)) {
+	        return false;
+	      }
+
+	      var handler = this._messageHandlers[event.data.type];
+	      if (handler) {
+	        handler.call(this, event, reg);
+	      }
+>>>>>>> CE-720 Update dist
 	    }
 	  }]);
 	  return PostMessage;
@@ -1130,14 +1466,20 @@
 	      resp: _this._handleResponse,
 	      event_query: _this._handleEventQuery,
 	      broadcast: _this._handleBroadcast,
+<<<<<<< HEAD
 	      key_triggered: _this._handleKeyTriggered,
 	      unload: _this._handleUnload,
 	      sub: _this._handleSubInit
+=======
+	      key_listen: _this._handleKeyListen,
+	      unload: _this._handleUnload
+>>>>>>> CE-720 Update dist
 	    };
 	    return _this;
 	  }
 
 	  createClass(XDMRPC, [{
+<<<<<<< HEAD
 	    key: '_verifyAPI',
 	    value: function _verifyAPI(event, reg) {
 	      var untrustedTargets = event.data.targets;
@@ -1165,6 +1507,8 @@
 	      }, reg.extension.url);
 	    }
 	  }, {
+=======
+>>>>>>> CE-720 Update dist
 	    key: '_handleInit',
 	    value: function _handleInit(event, reg) {
 	      this._registeredExtensions[reg.extension_id].source = event.source;
@@ -1172,6 +1516,7 @@
 	        reg.initCallback(event.data.eid);
 	        delete reg.initCallback;
 	      }
+<<<<<<< HEAD
 	      if (event.data.targets) {
 	        this._verifyAPI(event, reg);
 	      }
@@ -1184,6 +1529,8 @@
 	      this.registerExtension(event.data.ext.id, {
 	        extension: event.data.ext
 	      });
+=======
+>>>>>>> CE-720 Update dist
 	    }
 	  }, {
 	    key: '_handleResponse',
@@ -1207,7 +1554,11 @@
 	        var args = util.sanitizeStructuredClone(util.argumentsToArray(arguments));
 	        event.source.postMessage({
 	          mid: event.data.mid,
+<<<<<<< HEAD
 	          type: 'presp',
+=======
+	          type: 'resp',
+>>>>>>> CE-720 Update dist
 	          args: args
 	        }, reg.extension.url);
 	      }
@@ -1250,9 +1601,14 @@
 	        var method = module[fnName];
 	        if (method) {
 	          var methodArgs = data.args;
+<<<<<<< HEAD
 	          var padLength = method.length - 1;
 	          sendResponse._context = extension;
 	          methodArgs = this._padUndefinedArguments(methodArgs, padLength);
+=======
+	          sendResponse._context = extension;
+	          methodArgs = this._padUndefinedArguments(methodArgs, method.length - 1);
+>>>>>>> CE-720 Update dist
 	          methodArgs.push(sendResponse);
 	          method.apply(module, methodArgs);
 	          if (this._registeredRequestNotifier) {
@@ -1278,8 +1634,13 @@
 	      this.dispatch(event_data.etyp, targetSpec, event_data.evnt, null, null);
 	    }
 	  }, {
+<<<<<<< HEAD
 	    key: '_handleKeyTriggered',
 	    value: function _handleKeyTriggered(event, reg) {
+=======
+	    key: '_handleKeyListen',
+	    value: function _handleKeyListen(event, reg) {
+>>>>>>> CE-720 Update dist
 	      var eventData = event.data;
 	      var keycodeEntry = this._keycodeKey(eventData.keycode, eventData.modifiers, reg.extension_id);
 	      var listeners = this._keycodeCallbacks[keycodeEntry];
@@ -1298,8 +1659,16 @@
 	  }, {
 	    key: 'defineAPIModule',
 	    value: function defineAPIModule(module, moduleName) {
+<<<<<<< HEAD
 	      moduleName = moduleName || '_globals';
 	      this._registeredAPIModules[moduleName] = util.extend({}, this._registeredAPIModules[moduleName] || {}, module);
+=======
+	      if (moduleName) {
+	        this._registeredAPIModules[moduleName] = module;
+	      } else {
+	        this._registeredAPIModules._globals = util.extend({}, this._registeredAPIModules._globals, module);
+	      }
+>>>>>>> CE-720 Update dist
 	      return this._registeredAPIModules;
 	    }
 	  }, {
@@ -1393,7 +1762,11 @@
 
 	      var registrations = this._findRegistrations(targetSpec || {});
 	      registrations.forEach(function (reg) {
+<<<<<<< HEAD
 	        if (source && !reg.source) {
+=======
+	        if (source) {
+>>>>>>> CE-720 Update dist
 	          reg.source = source;
 	        }
 
@@ -1526,7 +1899,10 @@
 	                }
 	                break;
 	            }
+<<<<<<< HEAD
 
+=======
+>>>>>>> CE-720 Update dist
 	            return accumulator;
 	          }, {});
 	        }
@@ -1705,8 +2081,13 @@
 	    }
 	  }, {
 	    key: 'defineModule',
+<<<<<<< HEAD
 	    value: function defineModule(moduleName, module, options) {
 	      this._xdm.defineAPIModule(module, moduleName, options);
+=======
+	    value: function defineModule(moduleName, module) {
+	      this._xdm.defineAPIModule(module, moduleName);
+>>>>>>> CE-720 Update dist
 	    }
 	  }, {
 	    key: 'defineGlobals',
@@ -1727,7 +2108,11 @@
 	  return Connect;
 	}();
 
+<<<<<<< HEAD
 	var SimpleXDM$1 = new Connect();
+=======
+	var host = new Connect();
+>>>>>>> CE-720 Update dist
 
 	var JwtActions = {
 	  registerContentResolver: function registerContentResolver(data) {
@@ -1764,7 +2149,11 @@
 
 	var EventActions = {
 	  broadcast: function broadcast(type, targetSpec, event) {
+<<<<<<< HEAD
 	    SimpleXDM$1.dispatch(type, targetSpec, event);
+=======
+	    host.dispatch(type, targetSpec, event);
+>>>>>>> CE-720 Update dist
 	    EventDispatcher$1.dispatch('event-dispatch', {
 	      type: type,
 	      targetSpec: targetSpec,
@@ -1794,6 +2183,7 @@
 	 */
 	var $ = AJS.$;
 
+<<<<<<< HEAD
 	var IframeActions = {
 	  notifyIframeCreated: function notifyIframeCreated($el, extension) {
 	    EventDispatcher$1.dispatch('iframe-create', { $el: $el, extension: extension });
@@ -1854,11 +2244,39 @@
 	};
 
 	var index$2 = function (str) {
+=======
+	function interopDefault(ex) {
+		return ex && typeof ex === 'object' && 'default' in ex ? ex['default'] : ex;
+	}
+
+	function createCommonjsModule(fn, module) {
+		return module = { exports: {} }, fn(module, module.exports), module.exports;
+	}
+
+	var index$2 = createCommonjsModule(function (module) {
+	'use strict';
+
+	module.exports = function (str) {
+>>>>>>> CE-720 Update dist
 		return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
 			return '%' + c.charCodeAt(0).toString(16).toUpperCase();
 		});
 	};
+<<<<<<< HEAD
 
+=======
+	});
+
+	var index$3 = interopDefault(index$2);
+
+
+	var require$$1 = Object.freeze({
+		default: index$3
+	});
+
+	var index$4 = createCommonjsModule(function (module) {
+	'use strict';
+>>>>>>> CE-720 Update dist
 	/* eslint-disable no-unused-vars */
 
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -1915,7 +2333,11 @@
 		}
 	}
 
+<<<<<<< HEAD
 	var index$4 = shouldUseNative() ? Object.assign : function (target, source) {
+=======
+	module.exports = shouldUseNative() ? Object.assign : function (target, source) {
+>>>>>>> CE-720 Update dist
 		var from;
 		var to = toObject(target);
 		var symbols;
@@ -1941,11 +2363,30 @@
 
 		return to;
 	};
+<<<<<<< HEAD
 
 	var strictUriEncode = index$2;
 	var objectAssign = index$4;
 
 	function encode$1(value, opts) {
+=======
+	});
+
+	var index$5 = interopDefault(index$4);
+
+
+	var require$$0 = Object.freeze({
+		default: index$5
+	});
+
+	var index$1 = createCommonjsModule(function (module, exports) {
+	'use strict';
+
+	var strictUriEncode = interopDefault(require$$1);
+	var objectAssign = interopDefault(require$$0);
+
+	function encode(value, opts) {
+>>>>>>> CE-720 Update dist
 		if (opts.encode) {
 			return opts.strict ? strictUriEncode(value) : encodeURIComponent(value);
 		}
@@ -1953,11 +2394,19 @@
 		return value;
 	}
 
+<<<<<<< HEAD
 	var extract = function (str) {
 		return str.split('?')[1] || '';
 	};
 
 	var parse = function (str) {
+=======
+	exports.extract = function (str) {
+		return str.split('?')[1] || '';
+	};
+
+	exports.parse = function (str) {
+>>>>>>> CE-720 Update dist
 		// Create an object with no prototype
 		// https://github.com/sindresorhus/query-string/issues/47
 		var ret = Object.create(null);
@@ -1997,7 +2446,11 @@
 		return ret;
 	};
 
+<<<<<<< HEAD
 	var stringify = function (obj, opts) {
+=======
+	exports.stringify = function (obj, opts) {
+>>>>>>> CE-720 Update dist
 		var defaults = {
 			encode: true,
 			strict: true
@@ -2013,7 +2466,11 @@
 			}
 
 			if (val === null) {
+<<<<<<< HEAD
 				return encode$1(key, opts);
+=======
+				return encode(key, opts);
+>>>>>>> CE-720 Update dist
 			}
 
 			if (Array.isArray(val)) {
@@ -2025,20 +2482,31 @@
 					}
 
 					if (val2 === null) {
+<<<<<<< HEAD
 						result.push(encode$1(key, opts));
 					} else {
 						result.push(encode$1(key, opts) + '=' + encode$1(val2, opts));
+=======
+						result.push(encode(key, opts));
+					} else {
+						result.push(encode(key, opts) + '=' + encode(val2, opts));
+>>>>>>> CE-720 Update dist
 					}
 				});
 
 				return result.join('&');
 			}
 
+<<<<<<< HEAD
 			return encode$1(key, opts) + '=' + encode$1(val, opts);
+=======
+			return encode(key, opts) + '=' + encode(val, opts);
+>>>>>>> CE-720 Update dist
 		}).filter(function (x) {
 			return x.length > 0;
 		}).join('&') : '';
 	};
+<<<<<<< HEAD
 
 	var index$1 = {
 		extract: extract,
@@ -2048,11 +2516,82 @@
 
 	var toByteArray_1 = toByteArray;
 	var fromByteArray_1 = fromByteArray;
+=======
+	});
+
+	var qs = interopDefault(index$1);
+
+	var IframeActions = {
+	  notifyIframeCreated: function notifyIframeCreated($el, extension) {
+	    EventDispatcher$1.dispatch('iframe-create', { $el: $el, extension: extension });
+	  },
+
+	  notifyBridgeEstablished: function notifyBridgeEstablished($el, extension) {
+	    EventDispatcher$1.dispatch('iframe-bridge-established', { $el: $el, extension: extension });
+	  },
+
+	  notifyIframeDestroyed: function notifyIframeDestroyed(extension_id) {
+	    var extension = host.getExtensions({
+	      extension_id: extension_id
+	    });
+	    if (extension.length === 1) {
+	      extension = extension[0];
+	    }
+	    EventDispatcher$1.dispatch('iframe-destroyed', { extension: extension });
+	    host.unregisterExtension({ extension_id: extension_id });
+	  },
+
+	  notifyUnloaded: function notifyUnloaded($el, extension) {
+	    EventDispatcher$1.dispatch('iframe-unload', { $el: $el, extension: extension });
+	  }
+	};
+
+	function escapeSelector(s) {
+	  if (!s) {
+	    throw new Error('No selector to escape');
+	  }
+	  return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
+	}
+
+	function stringToDimension(value) {
+	  var percent = false;
+	  var unit = 'px';
+
+	  if (_.isString(value)) {
+	    percent = value.indexOf('%') === value.length - 1;
+	    value = parseInt(value, 10);
+	    if (percent) {
+	      unit = '%';
+	    }
+	  }
+
+	  if (!isNaN(value)) {
+	    return value + unit;
+	  }
+	}
+
+	function getIframeByExtensionId(id) {
+	  return $('iframe#' + escapeSelector(id));
+	}
+
+	var util$1 = {
+	  escapeSelector: escapeSelector,
+	  stringToDimension: stringToDimension,
+	  getIframeByExtensionId: getIframeByExtensionId
+	};
+
+	var b64 = createCommonjsModule(function (module, exports) {
+	'use strict';
+
+	exports.toByteArray = toByteArray;
+	exports.fromByteArray = fromByteArray;
+>>>>>>> CE-720 Update dist
 
 	var lookup = [];
 	var revLookup = [];
 	var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array;
 
+<<<<<<< HEAD
 	var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	for (var i = 0, len = code.length; i < len; ++i) {
 	  lookup[i] = code[i];
@@ -2064,6 +2603,25 @@
 
 	function placeHoldersCount(b64) {
 	  var len = b64.length;
+=======
+	function init() {
+	  var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+	  for (var i = 0, len = code.length; i < len; ++i) {
+	    lookup[i] = code[i];
+	    revLookup[code.charCodeAt(i)] = i;
+	  }
+
+	  revLookup['-'.charCodeAt(0)] = 62;
+	  revLookup['_'.charCodeAt(0)] = 63;
+	}
+
+	init();
+
+	function toByteArray(b64) {
+	  var i, j, l, tmp, placeHolders, arr;
+	  var len = b64.length;
+
+>>>>>>> CE-720 Update dist
 	  if (len % 4 > 0) {
 	    throw new Error('Invalid string. Length must be a multiple of 4');
 	  }
@@ -2073,6 +2631,7 @@
 	  // represent one byte
 	  // if there is only one, then the three characters before it represent 2 bytes
 	  // this is just a cheap hack to not do indexOf twice
+<<<<<<< HEAD
 	  return b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0;
 	}
 
@@ -2081,6 +2640,11 @@
 	  var len = b64.length;
 	  placeHolders = placeHoldersCount(b64);
 
+=======
+	  placeHolders = b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0;
+
+	  // base64 is 4/3 + up to two characters of the original data
+>>>>>>> CE-720 Update dist
 	  arr = new Arr(len * 3 / 4 - placeHolders);
 
 	  // if there are placeholders, only get up to the last complete 4 chars
@@ -2152,6 +2716,14 @@
 
 	  return parts.join('');
 	}
+<<<<<<< HEAD
+=======
+	});
+
+	interopDefault(b64);
+	var fromByteArray = b64.fromByteArray;
+	var toByteArray = b64.toByteArray;
+>>>>>>> CE-720 Update dist
 
 	// This is free and unencumbered software released into the public domain.
 	// See LICENSE.md for more information.
@@ -2764,7 +3336,11 @@
 
 	var base64 = {
 	  encode: function encode(string) {
+<<<<<<< HEAD
 	    return fromByteArray_1(TextEncoder('utf-8').encode(string));
+=======
+	    return fromByteArray(TextEncoder('utf-8').encode(string));
+>>>>>>> CE-720 Update dist
 	  },
 	  decode: function decode(string) {
 	    var padding = 4 - string.length % 4;
@@ -2773,7 +3349,11 @@
 	    } else if (padding === 2) {
 	      string += '==';
 	    }
+<<<<<<< HEAD
 	    return TextDecoder('utf-8').decode(toByteArray_1(string));
+=======
+	    return TextDecoder('utf-8').decode(toByteArray(string));
+>>>>>>> CE-720 Update dist
 	  }
 	};
 
@@ -2835,7 +3415,11 @@
 	}
 
 	function _getJwt(urlStr) {
+<<<<<<< HEAD
 	  var query = index$1.parse(index$1.extract(urlStr));
+=======
+	  var query = qs.parse(qs.extract(urlStr));
+>>>>>>> CE-720 Update dist
 	  return query['jwt'];
 	}
 
@@ -2869,6 +3453,10 @@
 	    classCallCheck(this, Iframe);
 
 	    this._contentResolver = false;
+<<<<<<< HEAD
+=======
+	    this.RENDER_BY_SUBMIT_FLAG = 'ap-render-by-submit';
+>>>>>>> CE-720 Update dist
 	  }
 
 	  createClass(Iframe, [{
@@ -2907,7 +3495,11 @@
 	  }, {
 	    key: '_simpleXdmCreate',
 	    value: function _simpleXdmCreate(extension) {
+<<<<<<< HEAD
 	      var iframeAttributes = SimpleXDM$1.create(extension, function () {
+=======
+	      var iframeAttributes = host.create(extension, function () {
+>>>>>>> CE-720 Update dist
 	        if (!extension.options) {
 	          extension.options = {};
 	        }
@@ -2917,7 +3509,13 @@
 	      });
 	      extension.id = iframeAttributes.id;
 	      $.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
+<<<<<<< HEAD
 	      extension.$el = this.render(iframeAttributes);
+=======
+
+	      extension.$el = this.render(iframeAttributes, extension.options);
+	      extension.$payload = this._generatePayloadForm(iframeAttributes, extension.options);
+>>>>>>> CE-720 Update dist
 	      return extension;
 	    }
 	  }, {
@@ -2928,6 +3526,10 @@
 	        existingFrame.destroy();
 	      }
 	      $container.prepend(extension.$el);
+<<<<<<< HEAD
+=======
+	      $container.prepend(extension.$payload);
+>>>>>>> CE-720 Update dist
 	      IframeActions.notifyIframeCreated(extension.$el, extension);
 	    }
 	  }, {
@@ -2939,7 +3541,69 @@
 	  }, {
 	    key: 'render',
 	    value: function render(attributes) {
+<<<<<<< HEAD
 	      return $('<iframe />').attr(attributes).addClass('ap-iframe');
+=======
+	      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+	      var renderingMethod = (options.renderingMethod || 'GET').toUpperCase();
+
+	      var iframe = $(document.createElement('iframe')).addClass('ap-iframe');
+
+	      if (renderingMethod !== 'GET') {
+	        // The iframe name is a big JSON blob.
+	        // If we are rendering the iframe with other HTTP method,
+	        // then it means we will have a form submission to trigger the rendering.
+	        // In that case we assign a temporary name here to avoid the form targeting to the JSON blob.
+	        // We will change it back to the real name afterwards.
+	        attributes['data-iframe-name'] = attributes.name;
+	        attributes['data-iframe-payload-id'] = attributes.id + '-payload';
+	        attributes['name'] = attributes.id + '-iframe';
+
+	        // Clear the src attribute because the rendering will be triggered by the form submission.
+	        attributes['data-iframe-src'] = attributes.src;
+	        attributes['src'] = '';
+
+	        // Add a flag so ac/create knows to submit the form
+	        iframe.addClass(this.RENDER_BY_SUBMIT_FLAG);
+	      }
+
+	      return iframe.attr(attributes);
+	    }
+	  }, {
+	    key: '_generatePayloadForm',
+	    value: function _generatePayloadForm(attributes) {
+	      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+	      var renderingMethod = (options.renderingMethod || 'GET').toUpperCase();
+
+	      if (renderingMethod === 'GET') {
+	        return $();
+	      }
+
+	      var src = attributes['data-iframe-src'];
+	      var payloadId = attributes['data-iframe-payload-id'];
+
+	      var url = src.split('?')[0] || '';
+	      var queryParams = qs.parse(qs.extract(src));
+
+	      var form = $(document.createElement('form')).attr({
+	        'id': payloadId,
+	        'action': url,
+	        'target': attributes.name,
+	        'method': renderingMethod
+	      });
+
+	      _.each(queryParams, function (value, key) {
+	        form.append($(document.createElement('input')).attr({
+	          name: key,
+	          type: 'hidden',
+	          value: value
+	        }));
+	      });
+
+	      return form;
+>>>>>>> CE-720 Update dist
 	    }
 	  }]);
 	  return Iframe;
@@ -3108,7 +3772,11 @@
 	  data.extension.$el.parents('.ap-iframe-container').attr('id', id);
 	});
 
+<<<<<<< HEAD
 	function create$1(extension) {
+=======
+	function create(extension) {
+>>>>>>> CE-720 Update dist
 	  var simpleXdmExtension = {
 	    addon_key: extension.addon_key,
 	    key: extension.key,
@@ -3170,11 +3838,19 @@
 
 	var DomEventActions = {
 	  registerKeyEvent: function registerKeyEvent(data) {
+<<<<<<< HEAD
 	    SimpleXDM$1.registerKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
 	    EventDispatcher$1.dispatch('dom-event-register', data);
 	  },
 	  unregisterKeyEvent: function unregisterKeyEvent(data) {
 	    SimpleXDM$1.unregisterKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
+=======
+	    host.registerKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
+	    EventDispatcher$1.dispatch('dom-event-register', data);
+	  },
+	  unregisterKeyEvent: function unregisterKeyEvent(data) {
+	    host.unregisterKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
+>>>>>>> CE-720 Update dist
 	    EventDispatcher$1.dispatch('dom-event-unregister', data);
 	  },
 	  registerWindowKeyEvent: function registerWindowKeyEvent(data) {
@@ -3539,7 +4215,11 @@
 	var DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
 	var DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
 
+<<<<<<< HEAD
 	function getActiveDialog$1() {
+=======
+	function getActiveDialog() {
+>>>>>>> CE-720 Update dist
 	  var $el = AJS.LayerManager.global.getTopLayer();
 	  if ($el && DLGID_REGEXP.test($el.attr('id'))) {
 	    var dialog = AJS.dialog2($el);
@@ -3753,12 +4433,20 @@
 	  }, {
 	    key: 'getActive',
 	    value: function getActive() {
+<<<<<<< HEAD
 	      return getActiveDialog$1();
+=======
+	      return getActiveDialog();
+>>>>>>> CE-720 Update dist
 	    }
 	  }, {
 	    key: 'buttonIsEnabled',
 	    value: function buttonIsEnabled(identifier) {
+<<<<<<< HEAD
 	      var dialog = getActiveDialog$1();
+=======
+	      var dialog = getActiveDialog();
+>>>>>>> CE-720 Update dist
 	      if (dialog) {
 	        var $button = getButtonByIdentifier(identifier, dialog.$el);
 	        return ButtonComponent.isEnabled($button);
@@ -3767,7 +4455,11 @@
 	  }, {
 	    key: 'buttonIsVisible',
 	    value: function buttonIsVisible(identifier) {
+<<<<<<< HEAD
 	      var dialog = getActiveDialog$1();
+=======
+	      var dialog = getActiveDialog();
+>>>>>>> CE-720 Update dist
 	      if (dialog) {
 	        var $button = getButtonByIdentifier(identifier, dialog.$el);
 	        return ButtonComponent.isVisible($button);
@@ -3828,7 +4520,11 @@
 	      key: 27,
 	      callback: function callback() {
 	        DialogActions.close({
+<<<<<<< HEAD
 	          dialog: getActiveDialog$1(),
+=======
+	          dialog: getActiveDialog(),
+>>>>>>> CE-720 Update dist
 	          extension: data.extension
 	        });
 	      }
@@ -3844,7 +4540,11 @@
 	});
 
 	EventDispatcher$1.register('dialog-close-active', function (data) {
+<<<<<<< HEAD
 	  var activeDialog = getActiveDialog$1();
+=======
+	  var activeDialog = getActiveDialog();
+>>>>>>> CE-720 Update dist
 	  if (activeDialog) {
 	    DialogActions.close({
 	      customData: data.customData,
@@ -3859,7 +4559,11 @@
 	});
 
 	EventDispatcher$1.register('dialog-button-toggle', function (data) {
+<<<<<<< HEAD
 	  var dialog = getActiveDialog$1();
+=======
+	  var dialog = getActiveDialog();
+>>>>>>> CE-720 Update dist
 	  if (dialog) {
 	    var $button = getButtonByIdentifier(data.identifier, dialog.$el);
 	    ButtonActions.toggle($button, !data.enabled);
@@ -3867,7 +4571,11 @@
 	});
 
 	EventDispatcher$1.register('dialog-button-toggle-visibility', function (data) {
+<<<<<<< HEAD
 	  var dialog = getActiveDialog$1();
+=======
+	  var dialog = getActiveDialog();
+>>>>>>> CE-720 Update dist
 	  if (dialog) {
 	    var $button = getButtonByIdentifier(data.identifier, dialog.$el);
 	    ButtonActions.toggleVisibility($button, data.hidden);
@@ -3883,7 +4591,11 @@
 	      DialogActions.clickButton(ButtonComponent.getIdentifier($button), $button, $dialog.data('extension'));
 	    } else {
 	      DialogActions.close({
+<<<<<<< HEAD
 	        dialog: getActiveDialog$1(),
+=======
+	        dialog: getActiveDialog(),
+>>>>>>> CE-720 Update dist
 	        extension: $button.extension
 	      });
 	    }
@@ -5023,6 +5735,7 @@
 	  }
 	};
 
+<<<<<<< HEAD
 	var scrollPosition = {
 	  /**
 	   * Get's the scroll position relative to the browser viewport
@@ -5050,6 +5763,8 @@
 	  }
 	};
 
+=======
+>>>>>>> CE-720 Update dist
 	function sanitizeTriggers(triggers) {
 	  var onTriggers;
 	  if (_.isArray(triggers)) {
@@ -5114,7 +5829,11 @@
 	  // create product context from url params
 	  var url = $target.attr('href');
 	  if (url) {
+<<<<<<< HEAD
 	    var query = index$1.parse(index$1.extract(url));
+=======
+	    var query = qs.parse(qs.extract(url));
+>>>>>>> CE-720 Update dist
 	    _.each(query, function (value, key) {
 	      options.productContext[key] = value;
 	    });
@@ -5441,7 +6160,11 @@
 	  }, {
 	    key: 'addExtension',
 	    value: function addExtension(data) {
+<<<<<<< HEAD
 	      var addon = create$1(data.extension);
+=======
+	      var addon = create(data.extension);
+>>>>>>> CE-720 Update dist
 	      data.$el.empty().append(addon);
 	    }
 	  }, {
@@ -5551,6 +6274,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
+<<<<<<< HEAD
 	  window._AP.version = '5.0.0-beta.21';
 	}
 
@@ -5568,6 +6292,24 @@
 	});
 
 	SimpleXDM$1.registerRequestNotifier(function (data) {
+=======
+	  window._AP.version = '5.0.0-beta.18';
+	}
+
+	host.defineModule('messages', messages);
+	host.defineModule('flag', flag);
+	host.defineModule('dialog', dialog);
+	host.defineModule('inlineDialog', inlineDialog);
+	host.defineModule('env', env);
+	host.defineModule('events', events);
+	host.defineModule('_analytics', analytics$1);
+
+	EventDispatcher$1.register('module-define-custom', function (data) {
+	  host.defineModule(data.name, data.methods);
+	});
+
+	host.registerRequestNotifier(function (data) {
+>>>>>>> CE-720 Update dist
 	  analytics.dispatch('bridge.invokemethod', {
 	    module: data.module,
 	    fn: data.fn,
@@ -5578,7 +6320,11 @@
 
 	var index = {
 	  dialog: {
+<<<<<<< HEAD
 	    create: function create$1(extension, dialogOptions) {
+=======
+	    create: function create(extension, dialogOptions) {
+>>>>>>> CE-720 Update dist
 	      DialogExtensionActions.open(extension, dialogOptions);
 	    },
 	    close: function close() {
@@ -5621,12 +6367,22 @@
 	  broadcastEvent: function broadcastEvent(type, targetSpec, event) {
 	    EventActions.broadcast(type, targetSpec, event);
 	  },
+<<<<<<< HEAD
 	  create: create$1,
 	  getExtensions: function getExtensions(filter) {
 	    return SimpleXDM$1.getExtensions(filter);
+=======
+	  create: create,
+	  getExtensions: function getExtensions(filter) {
+	    return host.getExtensions(filter);
+>>>>>>> CE-720 Update dist
 	  }
 	};
 
 	return index;
 
+<<<<<<< HEAD
 })));
+=======
+})));
+>>>>>>> CE-720 Update dist
