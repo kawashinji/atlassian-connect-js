@@ -2184,6 +2184,9 @@
 	var $ = AJS.$;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> CE-720 Split iframe form into separate component
 	var IframeActions = {
 	  notifyIframeCreated: function notifyIframeCreated($el, extension) {
 	    EventDispatcher$1.dispatch('iframe-create', { $el: $el, extension: extension });
@@ -2194,14 +2197,22 @@
 	  },
 
 	  notifyIframeDestroyed: function notifyIframeDestroyed(extension_id) {
+<<<<<<< HEAD
 	    var extension = SimpleXDM$1.getExtensions({
+=======
+	    var extension = host.getExtensions({
+>>>>>>> CE-720 Split iframe form into separate component
 	      extension_id: extension_id
 	    });
 	    if (extension.length === 1) {
 	      extension = extension[0];
 	    }
 	    EventDispatcher$1.dispatch('iframe-destroyed', { extension: extension });
+<<<<<<< HEAD
 	    SimpleXDM$1.unregisterExtension({ extension_id: extension_id });
+=======
+	    host.unregisterExtension({ extension_id: extension_id });
+>>>>>>> CE-720 Split iframe form into separate component
 	  },
 
 	  notifyUnloaded: function notifyUnloaded($el, extension) {
@@ -2243,8 +2254,11 @@
 	  getIframeByExtensionId: getIframeByExtensionId
 	};
 
+<<<<<<< HEAD
 	var index$2 = function (str) {
 =======
+=======
+>>>>>>> CE-720 Split iframe form into separate component
 	function interopDefault(ex) {
 		return ex && typeof ex === 'object' && 'default' in ex ? ex['default'] : ex;
 	}
@@ -2520,65 +2534,6 @@
 	});
 
 	var qs = interopDefault(index$1);
-
-	var IframeActions = {
-	  notifyIframeCreated: function notifyIframeCreated($el, extension) {
-	    EventDispatcher$1.dispatch('iframe-create', { $el: $el, extension: extension });
-	  },
-
-	  notifyBridgeEstablished: function notifyBridgeEstablished($el, extension) {
-	    EventDispatcher$1.dispatch('iframe-bridge-established', { $el: $el, extension: extension });
-	  },
-
-	  notifyIframeDestroyed: function notifyIframeDestroyed(extension_id) {
-	    var extension = host.getExtensions({
-	      extension_id: extension_id
-	    });
-	    if (extension.length === 1) {
-	      extension = extension[0];
-	    }
-	    EventDispatcher$1.dispatch('iframe-destroyed', { extension: extension });
-	    host.unregisterExtension({ extension_id: extension_id });
-	  },
-
-	  notifyUnloaded: function notifyUnloaded($el, extension) {
-	    EventDispatcher$1.dispatch('iframe-unload', { $el: $el, extension: extension });
-	  }
-	};
-
-	function escapeSelector(s) {
-	  if (!s) {
-	    throw new Error('No selector to escape');
-	  }
-	  return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
-	}
-
-	function stringToDimension(value) {
-	  var percent = false;
-	  var unit = 'px';
-
-	  if (_.isString(value)) {
-	    percent = value.indexOf('%') === value.length - 1;
-	    value = parseInt(value, 10);
-	    if (percent) {
-	      unit = '%';
-	    }
-	  }
-
-	  if (!isNaN(value)) {
-	    return value + unit;
-	  }
-	}
-
-	function getIframeByExtensionId(id) {
-	  return $('iframe#' + escapeSelector(id));
-	}
-
-	var util$1 = {
-	  escapeSelector: escapeSelector,
-	  stringToDimension: stringToDimension,
-	  getIframeByExtensionId: getIframeByExtensionId
-	};
 
 	var b64 = createCommonjsModule(function (module, exports) {
 	'use strict';
@@ -3510,12 +3465,16 @@
 	      extension.id = iframeAttributes.id;
 	      $.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      extension.$el = this.render(iframeAttributes);
 =======
 
 	      extension.$el = this.render(iframeAttributes, extension.options);
 	      extension.$payload = this._generatePayloadForm(iframeAttributes, extension.options);
 >>>>>>> CE-720 Update dist
+=======
+	      extension.$el = this.render(iframeAttributes, extension.options);
+>>>>>>> CE-720 Split iframe form into separate component
 	      return extension;
 	    }
 	  }, {
@@ -3527,9 +3486,12 @@
 	      }
 	      $container.prepend(extension.$el);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	      $container.prepend(extension.$payload);
 >>>>>>> CE-720 Update dist
+=======
+>>>>>>> CE-720 Split iframe form into separate component
 	      IframeActions.notifyIframeCreated(extension.$el, extension);
 	    }
 	  }, {
@@ -3557,7 +3519,7 @@
 	        // In that case we assign a temporary name here to avoid the form targeting to the JSON blob.
 	        // We will change it back to the real name afterwards.
 	        attributes['data-iframe-name'] = attributes.name;
-	        attributes['data-iframe-payload-id'] = attributes.id + '-payload';
+	        attributes['data-iframe-form-id'] = attributes.id + '-form-id';
 	        attributes['name'] = attributes.id + '-iframe';
 
 	        // Clear the src attribute because the rendering will be triggered by the form submission.
@@ -3569,41 +3531,6 @@
 	      }
 
 	      return iframe.attr(attributes);
-	    }
-	  }, {
-	    key: '_generatePayloadForm',
-	    value: function _generatePayloadForm(attributes) {
-	      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-	      var renderingMethod = (options.renderingMethod || 'GET').toUpperCase();
-
-	      if (renderingMethod === 'GET') {
-	        return $();
-	      }
-
-	      var src = attributes['data-iframe-src'];
-	      var payloadId = attributes['data-iframe-payload-id'];
-
-	      var url = src.split('?')[0] || '';
-	      var queryParams = qs.parse(qs.extract(src));
-
-	      var form = $(document.createElement('form')).attr({
-	        'id': payloadId,
-	        'action': url,
-	        'target': attributes.name,
-	        'method': renderingMethod
-	      });
-
-	      _.each(queryParams, function (value, key) {
-	        form.append($(document.createElement('input')).attr({
-	          name: key,
-	          type: 'hidden',
-	          value: value
-	        }));
-	      });
-
-	      return form;
->>>>>>> CE-720 Update dist
 	    }
 	  }]);
 	  return Iframe;
@@ -3626,6 +3553,75 @@
 	EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
 	  data.$el[0].bridgeEstablished = true;
 	});
+
+	/**
+	 * Component for holding parameters of an iframe for rendering methods other than GET
+	 */
+
+	var IframeForm = function () {
+	  function IframeForm() {
+	    classCallCheck(this, IframeForm);
+	  }
+
+	  createClass(IframeForm, [{
+	    key: 'createExtension',
+	    value: function createExtension(extension, $container) {
+	      var formAttribute = {
+	        url: extension.url,
+	        iframeFormId: extension.id + '-form-id',
+	        iframeName: extension.id + '-iframe'
+	      };
+
+	      extension.$payload = this.render(formAttribute, extension.options);
+	      this._appendExtension($container, extension);
+	      return $container;
+	    }
+	  }, {
+	    key: '_appendExtension',
+	    value: function _appendExtension($container, extension) {
+	      var existingForm = $container.find('form');
+	      if (existingForm.length > 0) {
+	        existingForm.destroy();
+	      }
+	      $container.prepend(extension.$payload);
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render(attributes) {
+	      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+	      var renderingMethod = (options.renderingMethod || 'GET').toUpperCase();
+
+	      if (renderingMethod === 'GET') {
+	        return $();
+	      }
+
+	      var url = attributes.url.split('?')[0] || '';
+	      var queryParams = qs.parse(qs.extract(attributes.url));
+
+	      var form = $(document.createElement('form')).attr({
+	        'id': attributes.iframeFormId,
+	        'action': url,
+	        'target': attributes.iframeName,
+	        'method': renderingMethod
+	      });
+
+	      _.each(queryParams, function (value, key) {
+	        form.append($(document.createElement('input')).attr({
+	          name: key,
+	          type: 'hidden',
+	          value: value
+	        }));
+	      });
+
+	      return form;
+>>>>>>> CE-720 Update dist
+	    }
+	  }]);
+	  return IframeForm;
+	}();
+
+	var IframeFormComponent = new IframeForm();
 
 	var LoadingIndicatorActions = {
 	  timeout: function timeout($el, extension) {
@@ -3747,6 +3743,7 @@
 	        $container.append(this._renderLoadingIndicator());
 	      }
 	      IframeComponent.simpleXdmExtension(extension, $container);
+	      IframeFormComponent.createExtension(extension, $container);
 	      return $container;
 	    }
 	  }, {

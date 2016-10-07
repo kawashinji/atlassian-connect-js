@@ -1,5 +1,6 @@
 import $ from '../dollar';
 import IframeComponent from './iframe';
+import IframeFormComponent from './iframe_form';
 import LoadingIndicatorComponent from './loading_indicator';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 
@@ -13,6 +14,7 @@ class IframeContainer {
       $container.append(this._renderLoadingIndicator());
     }
     IframeComponent.simpleXdmExtension(extension, $container);
+    IframeFormComponent.createExtension(extension, $container);
     return $container;
   }
 

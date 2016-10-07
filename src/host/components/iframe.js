@@ -1,5 +1,3 @@
-import qs from 'query-string';
-import _ from '../underscore';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import IframeActions from '../actions/iframe_actions';
 import $ from '../dollar';
@@ -59,9 +57,7 @@ class Iframe {
     });
     extension.id = iframeAttributes.id;
     $.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
-
     extension.$el = this.render(iframeAttributes, extension.options);
-    extension.$payload = this._generatePayloadForm(iframeAttributes, extension.options);
     return extension;
   }
 
@@ -71,7 +67,6 @@ class Iframe {
       existingFrame.destroy();
     }
     $container.prepend(extension.$el);
-    $container.prepend(extension.$payload);
     IframeActions.notifyIframeCreated(extension.$el, extension);
   }
 
@@ -92,7 +87,7 @@ class Iframe {
       // In that case we assign a temporary name here to avoid the form targeting to the JSON blob.
       // We will change it back to the real name afterwards.
       attributes['data-iframe-name'] = attributes.name;
-      attributes['data-iframe-payload-id'] = attributes.id + '-payload';
+      attributes['data-iframe-form-id'] = attributes.id + '-form-id';
       attributes['name'] = attributes.id + '-iframe';
 
       // Clear the src attribute because the rendering will be triggered by the form submission.
@@ -104,39 +99,6 @@ class Iframe {
     }
 
     return iframe.attr(attributes);
-  }
-
-  _generatePayloadForm(attributes, options = {}) {
-    var renderingMethod = (options.renderingMethod || 'GET').toUpperCase();
-
-    if (renderingMethod === 'GET') {
-      return $();
-    }
-
-    var src = attributes['data-iframe-src'];
-    var payloadId = attributes['data-iframe-payload-id'];
-
-    var url = src.split('?')[0] || '';
-    var queryParams = qs.parse(qs.extract(src));
-
-    var form = $(document.createElement('form'))
-        .attr({
-          'id': payloadId,
-          'action': url,
-          'target': attributes.name,
-          'method': renderingMethod
-        });
-
-    _.each(queryParams, (value, key) => {
-      form.append($(document.createElement('input'))
-          .attr({
-            name: key,
-            type: 'hidden',
-            value: value
-          }));
-    });
-
-    return form;
   }
 }
 
