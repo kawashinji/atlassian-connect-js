@@ -1,4 +1,4 @@
-( (typeof _AP !== "undefined") ? define : AP.define)("_create-iframe", ["_ui-params", "_dispatch-custom-event"], function (uiParams, dispatchCustomEvent) {
+( (typeof _AP !== "undefined") ? define : AP.define)("_create-iframe", ["_create-iframe-form", "_ui-params", "_dispatch-custom-event", "_uri"], function (createIframeForm, uiParams, dispatchCustomEvent, uri) {
     /**
      * Creates an iframe element from based on the given config
      * @param config {Object}
@@ -6,8 +6,12 @@
      * @param config.uiParams {String}
      * @param config.props {Object} a map of additional HTML attributes for the new iframe
      * @param config.remote {String} the src url of the new iframe
+     * @param config.renderingMethod {String} http method for rendering the iframe
+     * @param config._keepFormAfterSubmitting {Boolean} keep the form after submitting. This option should only be used in testing.
      */
     return function createIframe(config) {
+        var renderingMethod = (config.renderingMethod || 'GET').toUpperCase();
+
         if(!config.container){
             throw new Error("config.container must be defined");
         }
@@ -16,7 +20,10 @@
             windowName = "";
 
         if(config.uiParams){
+            config.uiParams.isIframe = true;
             windowName = uiParams.encode(config.uiParams);
+            config.iframeName = windowName;
+            config.iframeFormId = windowName + '-form-id';
         }
 
         iframe.id = id;
@@ -37,7 +44,19 @@
         }
 
         dispatchCustomEvent(iframe, 'ra.iframe.create');
-        iframe.src = config.remote;
+
+        if (renderingMethod === 'GET') {
+            iframe.src = config.remote;
+        } else if (containerElement) {
+            var form = createIframeForm(config);
+            if (form) {
+                containerElement.appendChild(form);
+                form.submit();
+                if (!config._keepFormAfterSubmitting) {
+                    form.remove();
+                }
+            }
+        }
 
         return iframe;
     };

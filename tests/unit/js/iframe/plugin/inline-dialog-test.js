@@ -14,6 +14,7 @@ var xdmMockInlineDialog;
             '_ui-params': '../_ui-params',
             '_base64': '../_base64',
             '_uri': '../_uri',
+            '_create-iframe-form': '../_create-iframe-form',
             '_create-iframe': '../_create-iframe'
         }
     });

@@ -44,6 +44,7 @@
         'content': 'iframe/host/content',
         'host/_addons': 'iframe/host/_addons',
         '_base64': 'iframe/_base64',
+        '_create-iframe-form': 'iframe/_create-iframe-form',
         '_create-iframe': 'iframe/_create-iframe',
         '_dispatch-custom-event': 'iframe/_dispatch-custom-event',
         '_jwt': 'iframe/_jwt',
@@ -67,6 +68,7 @@
         '_uritemplate',
         'host/_addons',
         '_base64',
+        '_create-iframe-form',
         '_create-iframe',
         'register-inner-iframe',
         '_dispatch-custom-event',
@@ -196,7 +198,7 @@
                 },
                 shim: {
                     '_jwt': ['_base64'],
-                    '_xdm': ["_events", "_jwt", "_uri",  "_ui-params", "_util", "_create-iframe", "_dispatch-custom-event"]
+                    '_xdm': ["_events", "_jwt", "_uri",  "_ui-params", "_util", "_create-iframe-form", "_create-iframe", "_dispatch-custom-event"]
                 },
                 modules: [
                 {

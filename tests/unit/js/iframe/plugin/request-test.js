@@ -17,6 +17,7 @@ var xdmMockRequest;
             '_uri': '../_uri',
             '_ui-params': '../_ui-params',
             '_dispatch-custom-event': '../_dispatch-custom-event',
+            '_create-iframe-form': '../_create-iframe-form',
             '_create-iframe': '../_create-iframe'
         },
         shim: {

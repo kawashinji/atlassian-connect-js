@@ -16,11 +16,13 @@ requirejs.config({
         'iframe/_events': '../_events',
         'iframe/_uri': '../_uri',
         'iframe/_dispatch-custom-event': '../_dispatch-custom-event',
+        'iframe/_create-iframe-form': '../_create-iframe-form',
         'iframe/_create-iframe': '../_create-iframe',
         '_events': '../_events',
         '_ui-params': '../_ui-params',
         '_uritemplate': '../_uritemplate',
         '_dispatch-custom-event': '../_dispatch-custom-event',
+        '_create-iframe-form': '../_create-iframe-form',
         '_create-iframe': '../_create-iframe'
     },
     // ask Require.js to load these files (all our tests)

@@ -1,4 +1,4 @@
-AP.define("_create-inner-frame", ['_ui-params', '_rpc', "_util"], function(uiParams, rpc, util) {
+AP.define("_create-inner-frame", ['_ui-params', '_rpc', '_uri'], function(uiParams, rpc, uri) {
 
     function contentDiv(namespace) {
         if(!namespace){
@@ -43,6 +43,9 @@ AP.define("_create-inner-frame", ['_ui-params', '_rpc', "_util"], function(uiPar
                 initHeight = options.h || "0";
 
         options.uiParams.isGeneral = !!options.general;
+        options.uiParams.xdm_p = param(options.src, 'xdm_deprecated_addon_key_do_not_use');
+        options.uiParams.xdm_e = param(options.src, 'xdm_e');
+        options.uiParams.xdm_c = param(options.src, 'xdm_c');
 
         var xdmOptions = {
             remote: options.src,
@@ -51,7 +54,8 @@ AP.define("_create-inner-frame", ['_ui-params', '_rpc', "_util"], function(uiPar
             container: contentId,
             channel: channelId,
             props: {width: initWidth, height: initHeight},
-            uiParams: options.uiParams
+            uiParams: options.uiParams,
+            renderingMethod: options.renderingMethod
         };
 
         if(options.productCtx && !options.productContext){
@@ -59,6 +63,10 @@ AP.define("_create-inner-frame", ['_ui-params', '_rpc', "_util"], function(uiPar
         }
 
         rpc.initWithFrame(options, xdmOptions);
+    }
+
+    function param(url, name) {
+        return new uri.init(url).getQueryParamValue(name);
     }
 
     return function(iframeData) {

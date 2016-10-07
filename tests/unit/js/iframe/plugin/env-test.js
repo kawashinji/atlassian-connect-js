@@ -15,6 +15,7 @@ var xdmMockEnv;
             '_base64': '../_base64',
             '_uri': '../_uri',
             '_dispatch-custom-event': '../_dispatch-custom-event',
+            '_create-iframe-form': '../_create-iframe-form',
             '_create-iframe': '../_create-iframe'
         },
         shim: {
@@ -23,6 +24,7 @@ var xdmMockEnv;
                     '_ui-params',
                     '_base64',
                     '_uri',
+                    '_create-iframe-form',
                     '_create-iframe',
                     '_dispatch-custom-event'
                 ]

@@ -54,6 +54,7 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
     var self, id, remoteOrigin, channel, mixin,
         localKey, remoteKey, addonKey, realAddonKey,
         loc = window.location.toString(),
+        uiParams = config.uiParams || {},
         locals = bindings.local || {},
         remotes = bindings.remote || [],
         localOrigin = getBaseUrl(loc);
@@ -104,8 +105,14 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
     //  - xdm_c contains a unique channel name; this is a holdover from easyXDM that was used to distinguish
     //    postMessage events between multiple iframes with identical xdm_e values, though this may now be
     //    redundant with the current internal implementation of the XdmRpc and should be considered for removal
-    var isHost = !/xdm_e/.test(loc);
-
+    //
+    // CE-720 we now allow iframe to render with http method other than GET.
+    // In this case the url of the window will not longer contains xdm_e|c|p variables in other rendering method except GET.
+    // All the query parameters have been moved to the request payload.
+    // These variables are now passed to here in config.uiParams.xdm_p|xdm_e|xdm_c.
+    // We can determine if we are in the host by checking if current addonNestingLevel === 0.
+    //
+    var isHost = !uiParams.isIframe;
     var target, iframe;
 
     if(config.addonHostBridge) {
@@ -163,10 +170,10 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
     } else {
       // Add-on-side constructor branch
       localKey = "local"; // Would be better to make this the add-on key, but it's not readily available at this time
-      realAddonKey = param(loc, "xdm_deprecated_addon_key_do_not_use");
+      realAddonKey = param(loc, "xdm_deprecated_addon_key_do_not_use") || uiParams.xdm_p;
       addonKey = localKey;
-      remoteOrigin = param(loc, "xdm_e").toLowerCase();
-      channel = param(loc, "xdm_c");
+      remoteOrigin = (param(loc, "xdm_e") || uiParams.xdm_e).toLowerCase();
+      channel = param(loc, "xdm_c") || uiParams.xdm_c;
       // Define the add-on-side mixin
       mixin = {
         isHost: false,

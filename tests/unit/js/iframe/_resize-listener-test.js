@@ -21,7 +21,10 @@
                     remote: this.getBaseUrl() + '/base/tests/unit/fixtures/' + fixture + '?oauth_consumer_key=jira:12345&xdm_e=' + encodeURIComponent(this.getBaseUrl()) + '&xdm_c=testchannel',
                     container: 'qunit-container',
                     channel: 'testchannel',
-                    props: props || {}
+                    props: props || {},
+                    uiParams: {
+                        isIframe: true
+                    }
                 }, {
                     local: local || [],
                     remote: remote || {}

@@ -1,7 +1,7 @@
 (function(context){
   "use strict";
 
-  define('host/create', ["_dollar","host/_util", "_rpc", "_ui-params", "analytics/analytics"], function($, utils, rpc, uiParams, analytics){
+  define('host/create', ["_dollar","host/_util", "_rpc", "_ui-params", "_uri", "analytics/analytics"], function($, utils, rpc, uiParams, uri, analytics){
 
       var defer = window.requestAnimationFrame || function (f) {setTimeout(f,10); };
 
@@ -46,6 +46,9 @@
           initHeight = options.h || "0";
 
       options.uiParams.isGeneral = !!options.general;
+      options.uiParams.xdm_p = param(options.src, 'xdm_deprecated_addon_key_do_not_use');
+      options.uiParams.xdm_e = param(options.src, 'xdm_e');
+      options.uiParams.xdm_c = param(options.src, 'xdm_c');
 
       var xdmOptions = {
         remote: options.src,
@@ -54,7 +57,8 @@
         container: contentId,
         channel: channelId,
         props: {width: initWidth, height: initHeight},
-        uiParams: options.uiParams
+        uiParams: options.uiParams,
+        renderingMethod: options.renderingMethod
       };
 
       if(options.productCtx && !options.productContext){
@@ -70,6 +74,10 @@
       });
 
       rpc.init(options, xdmOptions);
+    }
+
+    function param(url, name) {
+      return new uri.init(url).getQueryParamValue(name);
     }
 
     return function (options) {

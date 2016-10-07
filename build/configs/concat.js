@@ -28,6 +28,7 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/_ui-params.js',
             '<%= paths.jsSource %>' + 'iframe/_jwt.js',
             '<%= paths.jsSource %>' + 'iframe/_xdm.js',
+            '<%= paths.jsSource %>' + 'iframe/_create-iframe-form.js',
             '<%= paths.jsSource %>' + 'iframe/_create-iframe.js',
             '<%= paths.jsSource %>' + 'iframe/_dispatch-custom-event.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_rpc.js',
