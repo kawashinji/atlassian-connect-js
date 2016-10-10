@@ -1725,6 +1725,13 @@ var   document$1 = window.document;
     var parentTargets = { _globals: {} };
     var plugin = new AP();
 
+    // export options from plugin to host.
+    Object.getOwnPropertyNames(plugin).forEach(function (prop) {
+      if (['_hostModules', '_globals'].indexOf(prop) === -1 && host[prop] === undefined) {
+        host[prop] = plugin[prop];
+      }
+    });
+
     //write plugin modules to host.
     Object.getOwnPropertyNames(plugin._hostModules).forEach(function (moduleName) {
       host[moduleName] = plugin._hostModules[moduleName];
