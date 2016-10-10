@@ -138,12 +138,8 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
         uiParams: config.uiParams,
         isActive: function () {
           // Host-side instances are only active as long as the iframe they communicate with still exists in the DOM
-          if (!isHost && target !== window.top) {
+          if ((!isHost && target !== window.top) || (isHost && iframe)) {
             return document.contains(self.iframe);
-          }
-
-          if(isHost && iframe) {
-            return $.contains(document.documentElement, self.iframe);
           }
 
           //This is a bridge for a frame of a frame. We can't tell if the frame is still there.
@@ -164,7 +160,7 @@ var deps = ["_events", "_jwt", "_uri", "_create-iframe"];
         };
 
         if (iframe) {
-          $(iframe).on('ra.iframe.destroy', mixin.destroy);
+          $(iframe).bind('ra.iframe.destroy', mixin.destroy);
         }
       }
     } else {
