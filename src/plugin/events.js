@@ -1,4 +1,4 @@
-import AP from 'simple-xdm/plugin';
+import AP from 'simple-xdm/combined';
 
 /**
  * The Events module provides a mechanism for emitting and receiving events.

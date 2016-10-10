@@ -1,4 +1,4 @@
-import AP from 'simple-xdm/plugin';
+import AP from 'simple-xdm/combined';
 import deprecate from './deprecate';
 import $ from './dollar';
 import consumerOptions from './consumer-options';

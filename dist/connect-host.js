@@ -793,7 +793,6 @@
 	            check(trusted[name], untrusted[name]);
 	          } else {
 	            if (untrusted[name] === 'parent' && trusted[name]) {
-	              console.log('tampered true', untrusted, trusted, name);
 	              tampered = true;
 	            }
 	          }

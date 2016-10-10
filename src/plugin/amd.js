@@ -1,4 +1,4 @@
-import AP from 'simple-xdm/plugin';
+import AP from 'simple-xdm/combined';
 
 var modules = {};
 

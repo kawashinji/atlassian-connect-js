@@ -1,4 +1,4 @@
-import AP from 'simple-xdm/plugin';
+import AP from 'simple-xdm/combined';
 import events from './events';
 import deprecate from './deprecate';
 let customButtonIncrement = 1;
