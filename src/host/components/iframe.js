@@ -13,7 +13,6 @@ class Iframe {
 
   constructor () {
     this._contentResolver = false;
-    this.RENDER_BY_SUBMIT_FLAG = 'ap-render-by-submit';
   }
 
   setContentResolver(callback) {
@@ -57,7 +56,7 @@ class Iframe {
     });
     extension.id = iframeAttributes.id;
     $.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
-    extension.$el = this.render(iframeAttributes, extension.options);
+    extension.$el = this.render(iframeAttributes);
     return extension;
   }
 
@@ -75,30 +74,8 @@ class Iframe {
     this._appendExtension(data.$container, simpleExtension);
   }
 
-  render(attributes, options = {}){
-    var renderingMethod = (options.renderingMethod || 'GET').toUpperCase();
-
-    var iframe = $(document.createElement('iframe')).addClass('ap-iframe');
-
-    if (renderingMethod !== 'GET') {
-      // The iframe name is a big JSON blob.
-      // If we are rendering the iframe with other HTTP method,
-      // then it means we will have a form submission to trigger the rendering.
-      // In that case we assign a temporary name here to avoid the form targeting to the JSON blob.
-      // We will change it back to the real name afterwards.
-      attributes['data-iframe-name'] = attributes.name;
-      attributes['data-iframe-form-id'] = attributes.id + '-form-id';
-      attributes['name'] = attributes.id + '-iframe';
-
-      // Clear the src attribute because the rendering will be triggered by the form submission.
-      attributes['data-iframe-src'] = attributes.src;
-      attributes['src'] = '';
-
-      // Add a flag so ac/create knows to submit the form
-      iframe.addClass(this.RENDER_BY_SUBMIT_FLAG);
-    }
-
-    return iframe.attr(attributes);
+  render(attributes){
+    return $('<iframe />').attr(attributes).addClass('ap-iframe');
   }
 }
 

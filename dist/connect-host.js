@@ -54,8 +54,121 @@
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
 	  return typeof obj;
 	} : function (obj) {
-	  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+	  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 	};
+
+	var asyncGenerator = function () {
+	  function AwaitValue(value) {
+	    this.value = value;
+	  }
+
+	  function AsyncGenerator(gen) {
+	    var front, back;
+
+	    function send(key, arg) {
+	      return new Promise(function (resolve, reject) {
+	        var request = {
+	          key: key,
+	          arg: arg,
+	          resolve: resolve,
+	          reject: reject,
+	          next: null
+	        };
+
+	        if (back) {
+	          back = back.next = request;
+	        } else {
+	          front = back = request;
+	          resume(key, arg);
+	        }
+	      });
+	    }
+
+	    function resume(key, arg) {
+	      try {
+	        var result = gen[key](arg);
+	        var value = result.value;
+
+	        if (value instanceof AwaitValue) {
+	          Promise.resolve(value.value).then(function (arg) {
+	            resume("next", arg);
+	          }, function (arg) {
+	            resume("throw", arg);
+	          });
+	        } else {
+	          settle(result.done ? "return" : "normal", result.value);
+	        }
+	      } catch (err) {
+	        settle("throw", err);
+	      }
+	    }
+
+	    function settle(type, value) {
+	      switch (type) {
+	        case "return":
+	          front.resolve({
+	            value: value,
+	            done: true
+	          });
+	          break;
+
+	        case "throw":
+	          front.reject(value);
+	          break;
+
+	        default:
+	          front.resolve({
+	            value: value,
+	            done: false
+	          });
+	          break;
+	      }
+
+	      front = front.next;
+
+	      if (front) {
+	        resume(front.key, front.arg);
+	      } else {
+	        back = null;
+	      }
+	    }
+
+	    this._invoke = send;
+
+	    if (typeof gen.return !== "function") {
+	      this.return = undefined;
+	    }
+	  }
+
+	  if (typeof Symbol === "function" && Symbol.asyncIterator) {
+	    AsyncGenerator.prototype[Symbol.asyncIterator] = function () {
+	      return this;
+	    };
+	  }
+
+	  AsyncGenerator.prototype.next = function (arg) {
+	    return this._invoke("next", arg);
+	  };
+
+	  AsyncGenerator.prototype.throw = function (arg) {
+	    return this._invoke("throw", arg);
+	  };
+
+	  AsyncGenerator.prototype.return = function (arg) {
+	    return this._invoke("return", arg);
+	  };
+
+	  return {
+	    wrap: function (fn) {
+	      return function () {
+	        return new AsyncGenerator(fn.apply(this, arguments));
+	      };
+	    },
+	    await: function (value) {
+	      return new AwaitValue(value);
+	    }
+	  };
+	}();
 
 	var classCallCheck = function (instance, Constructor) {
 	  if (!(instance instanceof Constructor)) {
@@ -3409,9 +3522,12 @@
 
 	    this._contentResolver = false;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	    this.RENDER_BY_SUBMIT_FLAG = 'ap-render-by-submit';
 >>>>>>> CE-720 Update dist
+=======
+>>>>>>> ACJS-425 spike
 	  }
 
 	  createClass(Iframe, [{
@@ -3466,6 +3582,7 @@
 	      $.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      extension.$el = this.render(iframeAttributes);
 =======
 
@@ -3475,6 +3592,9 @@
 =======
 	      extension.$el = this.render(iframeAttributes, extension.options);
 >>>>>>> CE-720 Split iframe form into separate component
+=======
+	      extension.$el = this.render(iframeAttributes);
+>>>>>>> ACJS-425 spike
 	      return extension;
 	    }
 	  }, {
@@ -3504,6 +3624,7 @@
 	    key: 'render',
 	    value: function render(attributes) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      return $('<iframe />').attr(attributes).addClass('ap-iframe');
 =======
 	      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -3531,6 +3652,9 @@
 	      }
 
 	      return iframe.attr(attributes);
+=======
+	      return $('<iframe />').attr(attributes).addClass('ap-iframe');
+>>>>>>> ACJS-425 spike
 	    }
 	  }]);
 	  return Iframe;
@@ -3554,6 +3678,32 @@
 	  data.$el[0].bridgeEstablished = true;
 	});
 
+	var IframeFormUtils = function () {
+	  function IframeFormUtils() {
+	    classCallCheck(this, IframeFormUtils);
+	  }
+
+	  createClass(IframeFormUtils, [{
+	    key: 'randomIdentifier',
+	    value: function randomIdentifier() {
+	      return 'iframe_form_' + Math.random().toString(16).substring(7);
+	    }
+	  }, {
+	    key: 'dataFromUrl',
+	    value: function dataFromUrl(str) {
+	      return qs.parse(qs.extract(str));
+	    }
+	  }, {
+	    key: 'urlWithoutData',
+	    value: function urlWithoutData(str) {
+	      return str.split('?')[0];
+	    }
+	  }]);
+	  return IframeFormUtils;
+	}();
+
+	var IframeFormUtilsInstance = new IframeFormUtils();
+
 	/**
 	 * Component for holding parameters of an iframe for rendering methods other than GET
 	 */
@@ -3564,50 +3714,21 @@
 	  }
 
 	  createClass(IframeForm, [{
-	    key: 'createExtension',
-	    value: function createExtension(extension, $container) {
-	      var formAttribute = {
-	        url: extension.url,
-	        iframeFormId: extension.id + '-form-id',
-	        iframeName: extension.id + '-iframe'
-	      };
-
-	      extension.$payload = this.render(formAttribute, extension.options);
-	      this._appendExtension($container, extension);
-	      return $container;
-	    }
-	  }, {
-	    key: '_appendExtension',
-	    value: function _appendExtension($container, extension) {
-	      var existingForm = $container.find('form');
-	      if (existingForm.length > 0) {
-	        existingForm.destroy();
-	      }
-	      $container.prepend(extension.$payload);
-	    }
-	  }, {
 	    key: 'render',
-	    value: function render(attributes) {
-	      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-	      var renderingMethod = (options.renderingMethod || 'GET').toUpperCase();
-
-	      if (renderingMethod === 'GET') {
-	        return $();
+	    value: function render(attributes, data) {
+	      if (!data) {
+	        data = IframeFormUtilsInstance.dataFromUrl(attributes.url);
+	        attributes.url = IframeFormUtilsInstance.urlWithoutData(attributes.url);
 	      }
 
-	      var url = attributes.url.split('?')[0] || '';
-	      var queryParams = qs.parse(qs.extract(attributes.url));
-
-	      var form = $(document.createElement('form')).attr({
-	        'id': attributes.iframeFormId,
-	        'action': url,
-	        'target': attributes.iframeName,
-	        'method': renderingMethod
+	      var form = $('<form />').attr({
+	        'id': attributes.id || IframeFormUtilsInstance.randomIdentifier(),
+	        'action': attributes.url,
+	        'target': attributes.target,
+	        'method': attributes.method
 	      });
-
-	      _.each(queryParams, function (value, key) {
-	        form.append($(document.createElement('input')).attr({
+	      _.each(data, function (value, key) {
+	        form.append($('<input />').attr({
 	          name: key,
 	          type: 'hidden',
 	          value: value
@@ -3622,6 +3743,9 @@
 	}();
 
 	var IframeFormComponent = new IframeForm();
+	EventDispatcher$1.register('iframe-form-submit', function (data) {
+	  $(document.getElementById(data.id)).submit();
+	});
 
 	var LoadingIndicatorActions = {
 	  timeout: function timeout($el, extension) {
@@ -3728,6 +3852,15 @@
 	  LoadingComponent.cancelled(data.$el, data.extension.id);
 	});
 
+	var IframeFormActions = {
+	  submit: function submit(id, extension) {
+	    EventDispatcher$1.dispatch('iframe-form-submit', {
+	      id: id,
+	      extension: extension
+	    });
+	  }
+	};
+
 	var CONTAINER_CLASSES = ['ap-iframe-container'];
 
 	var IframeContainer = function () {
@@ -3743,7 +3876,6 @@
 	        $container.append(this._renderLoadingIndicator());
 	      }
 	      IframeComponent.simpleXdmExtension(extension, $container);
-	      IframeFormComponent.createExtension(extension, $container);
 	      return $container;
 	    }
 	  }, {
@@ -3765,8 +3897,19 @@
 	var IframeContainerComponent = new IframeContainer();
 
 	EventDispatcher$1.register('iframe-create', function (data) {
+	  var renderingMethod = data.extension.options.renderingMethod;
 	  var id = 'embedded-' + data.extension.id;
-	  data.extension.$el.parents('.ap-iframe-container').attr('id', id);
+	  var $container = data.extension.$el.parents('.ap-iframe-container');
+	  $container.attr('id', id);
+
+	  if (renderingMethod && renderingMethod.toUpperCase() === 'POST') {
+	    var $form = IframeFormComponent.render({
+	      url: data.extension.url,
+	      method: renderingMethod,
+	      target: data.$el.attr('name')
+	    });
+	    IframeFormActions.submit($form.attr('id'));
+	  }
 	});
 
 <<<<<<< HEAD

@@ -1,52 +1,28 @@
-import qs from 'query-string';
 import _ from '../underscore';
 import $ from '../dollar';
+import IframeFormUtils from '../utils/iframe_form';
+import EventDispatcher from '../dispatchers/event_dispatcher';
 
 /**
  * Component for holding parameters of an iframe for rendering methods other than GET
  */
 class IframeForm {
 
-  createExtension(extension, $container) {
-    var formAttribute = {
-      url: extension.url,
-      iframeFormId: extension.id + '-form-id',
-      iframeName: extension.id + '-iframe'
-    };
-
-    extension.$payload = this.render(formAttribute, extension.options);
-    this._appendExtension($container, extension);
-    return $container;
-  }
-
-  _appendExtension($container, extension){
-    var existingForm = $container.find('form');
-    if(existingForm.length > 0) {
-      existingForm.destroy();
-    }
-    $container.prepend(extension.$payload);
-  }
-
-  render(attributes, options = {}){
-    var renderingMethod = (options.renderingMethod || 'GET').toUpperCase();
-
-    if (renderingMethod === 'GET') {
-      return $();
+  render(attributes, data){
+    if(!data) {
+      data = IframeFormUtils.dataFromUrl(attributes.url);
+      attributes.url = IframeFormUtils.urlWithoutData(attributes.url);
     }
 
-    var url = attributes.url.split('?')[0] || '';
-    var queryParams = qs.parse(qs.extract(attributes.url));
-
-    var form = $(document.createElement('form'))
+    var form = $('<form />')
         .attr({
-          'id': attributes.iframeFormId,
-          'action': url,
-          'target': attributes.iframeName,
-          'method': renderingMethod
+          'id': attributes.id || IframeFormUtils.randomIdentifier(),
+          'action': attributes.url,
+          'target': attributes.target,
+          'method': attributes.method
         });
-
-    _.each(queryParams, (value, key) => {
-      form.append($(document.createElement('input'))
+    _.each(data, (value, key) => {
+      form.append($('<input />')
           .attr({
             name: key,
             type: 'hidden',
@@ -60,5 +36,8 @@ class IframeForm {
 }
 
 var IframeFormComponent = new IframeForm();
+EventDispatcher.register('iframe-form-submit', (data) => {
+  $(document.getElementById(data.id)).submit();
+});
 
 export default IframeFormComponent;
