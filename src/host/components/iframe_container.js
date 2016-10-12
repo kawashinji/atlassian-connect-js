@@ -32,12 +32,13 @@ class IframeContainer {
 var IframeContainerComponent = new IframeContainer();
 
 EventDispatcher.register('iframe-create', (data) => {
-  var renderingMethod = data.extension.options.renderingMethod;
+  data.extension.options = data.extension.options || {};
+  var renderingMethod = data.extension.options.renderingMethod || 'GET';
   var id = 'embedded-' + data.extension.id;
   var $container = data.extension.$el.parents('.ap-iframe-container');
   $container.attr('id', id);
 
-  if(renderingMethod && renderingMethod.toUpperCase() === 'POST') {
+  if(renderingMethod.toUpperCase() === 'POST') {
     let $iframe = data.$el;
     let $form = IframeFormComponent.render({
       url: data.extension.url,

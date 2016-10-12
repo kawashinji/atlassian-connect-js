@@ -195,7 +195,6 @@ describe('Iframe component', () => {
     };
     var $iframe = IframeComponent.render(attributes, {renderingMethod: 'POST'});
     expect($iframe.attr('src')).toBeFalsy();
-    expect($iframe.hasClass(IframeComponent.RENDER_BY_SUBMIT_FLAG)).toEqual(true);
   });
 
 });

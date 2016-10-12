@@ -5,17 +5,10 @@ describe('Iframe form component', () => {
   describe('createExtension', () => {
 
     it('should convert all query parameters to form inputs', () => {
-      var extension = {
-        addon_key: 'some-addon-key',
-        key: 'some-module-key',
+      let $form = IframeFormComponent.render({
         url: 'https://www.example.com?key1=val1&key2=val2&key3=%F0%9F%98%8A',
-        options: {
-          renderingMethod: 'POST'
-        }
-      };
-      var $container = $('<div />');
-      IframeFormComponent.createExtension(extension, $container);
-      var $form = $container.find('form');
+        method: 'post'
+      });
       var $inputs = $form.find('input');
 
       expect($form.attr('action')).toEqual('https://www.example.com');

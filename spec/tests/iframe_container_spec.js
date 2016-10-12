@@ -30,9 +30,8 @@ describe('Iframe container component', () => {
       expect($iframe.length).toEqual(1);
       expect($form.length).toEqual(1);
       expect($form.attr('target')).toEqual($iframe.attr('name'));
-      expect($form.attr('id')).toEqual($iframe.attr('data-iframe-form-id'));
-      expect($iframe.attr('data-iframe-name')).toBeTruthy();
-      expect($iframe.attr('data-iframe-src')).toBeTruthy();
+      expect($iframe.attr('data-real-name')).toBeTruthy();
+      expect($iframe.attr('src')).toBeFalsy();
     });
 
   });
