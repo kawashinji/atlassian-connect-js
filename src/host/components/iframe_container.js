@@ -3,7 +3,6 @@ import IframeComponent from './iframe';
 import IframeFormComponent from './iframe_form';
 import LoadingIndicatorComponent from './loading_indicator';
 import EventDispatcher from '../dispatchers/event_dispatcher';
-import IframeFormActions from '../actions/iframe_form_actions';
 
 const CONTAINER_CLASSES = ['ap-iframe-container'];
 
@@ -39,12 +38,19 @@ EventDispatcher.register('iframe-create', (data) => {
   $container.attr('id', id);
 
   if(renderingMethod && renderingMethod.toUpperCase() === 'POST') {
+    let $iframe = data.$el;
     let $form = IframeFormComponent.render({
       url: data.extension.url,
-      method: renderingMethod,
-      target: data.$el.attr('name')
+      method: renderingMethod
     });
-    IframeFormActions.submit($form.attr('id'));
+    $container.prepend($form);
+
+    // Set iframe source to empty to avoid loading the page
+    $iframe.attr('src', '');
+
+    // Save real name and give iframe a temporary name
+    $iframe.attr('data-real-name', $iframe.attr('name'));
+    $iframe.attr('name', $form.attr('target'));
   }
 });
 

@@ -3686,7 +3686,17 @@
 	  createClass(IframeFormUtils, [{
 	    key: 'randomIdentifier',
 	    value: function randomIdentifier() {
-	      return 'iframe_form_' + Math.random().toString(16).substring(7);
+	      return 'iframe_form_' + this._random();
+	    }
+	  }, {
+	    key: 'randomTargetName',
+	    value: function randomTargetName() {
+	      return 'iframe_' + this._random();
+	    }
+	  }, {
+	    key: '_random',
+	    value: function _random() {
+	      return Math.random().toString(16).substring(7);
 	    }
 	  }, {
 	    key: 'dataFromUrl',
@@ -3723,8 +3733,9 @@
 
 	      var form = $('<form />').attr({
 	        'id': attributes.id || IframeFormUtilsInstance.randomIdentifier(),
+	        'class': 'ap-iframe-form',
 	        'action': attributes.url,
-	        'target': attributes.target,
+	        'target': attributes.target || IframeFormUtilsInstance.randomTargetName(),
 	        'method': attributes.method
 	      });
 	      _.each(data, function (value, key) {
@@ -3743,9 +3754,6 @@
 	}();
 
 	var IframeFormComponent = new IframeForm();
-	EventDispatcher$1.register('iframe-form-submit', function (data) {
-	  $(document.getElementById(data.id)).submit();
-	});
 
 	var LoadingIndicatorActions = {
 	  timeout: function timeout($el, extension) {
@@ -3852,15 +3860,6 @@
 	  LoadingComponent.cancelled(data.$el, data.extension.id);
 	});
 
-	var IframeFormActions = {
-	  submit: function submit(id, extension) {
-	    EventDispatcher$1.dispatch('iframe-form-submit', {
-	      id: id,
-	      extension: extension
-	    });
-	  }
-	};
-
 	var CONTAINER_CLASSES = ['ap-iframe-container'];
 
 	var IframeContainer = function () {
@@ -3903,12 +3902,19 @@
 	  $container.attr('id', id);
 
 	  if (renderingMethod && renderingMethod.toUpperCase() === 'POST') {
+	    var $iframe = data.$el;
 	    var $form = IframeFormComponent.render({
 	      url: data.extension.url,
-	      method: renderingMethod,
-	      target: data.$el.attr('name')
+	      method: renderingMethod
 	    });
-	    IframeFormActions.submit($form.attr('id'));
+	    $container.prepend($form);
+
+	    // Set iframe source to empty to avoid loading the page
+	    $iframe.attr('src', '');
+
+	    // Save real name and give iframe a temporary name
+	    $iframe.attr('data-real-name', $iframe.attr('name'));
+	    $iframe.attr('name', $form.attr('target'));
 	  }
 	});
 

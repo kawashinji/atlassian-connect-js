@@ -17,8 +17,9 @@ class IframeForm {
     var form = $('<form />')
         .attr({
           'id': attributes.id || IframeFormUtils.randomIdentifier(),
+          'class': 'ap-iframe-form',
           'action': attributes.url,
-          'target': attributes.target,
+          'target': attributes.target || IframeFormUtils.randomTargetName(),
           'method': attributes.method
         });
     _.each(data, (value, key) => {
@@ -36,8 +37,5 @@ class IframeForm {
 }
 
 var IframeFormComponent = new IframeForm();
-EventDispatcher.register('iframe-form-submit', (data) => {
-  $(document.getElementById(data.id)).submit();
-});
 
 export default IframeFormComponent;
