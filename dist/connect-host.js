@@ -3754,6 +3754,19 @@
 	}();
 
 	var IframeFormComponent = new IframeForm();
+	EventDispatcher$1.register('iframe-form-submit', function ($container) {
+	  var form = $container.find('.ap-iframe-form');
+	  var iframe = $container.find('.ap-iframe');
+
+	  if (form.length) {
+	    form.submit();
+
+	    // Check iframe name to real name
+	    var realName = iframe.attr('data-real-name');
+	    iframe.attr('name', realName);
+	    iframe[0].contentWindow.name = realName;
+	  }
+	});
 
 	var LoadingIndicatorActions = {
 	  timeout: function timeout($el, extension) {
@@ -3860,6 +3873,12 @@
 	  LoadingComponent.cancelled(data.$el, data.extension.id);
 	});
 
+	var IframeFormActions = {
+	  submit: function submit($container) {
+	    EventDispatcher$1.dispatch('iframe-form-submit', $container);
+	  }
+	};
+
 	var CONTAINER_CLASSES = ['ap-iframe-container'];
 
 	var IframeContainer = function () {
@@ -3870,12 +3889,33 @@
 	  createClass(IframeContainer, [{
 	    key: 'createExtension',
 	    value: function createExtension(extension, options) {
+	      var $addonContainer = $(document.getElementById(extension.containerId));
 	      var $container = this._renderContainer();
 	      if (!options || options.loadingIndicator !== false) {
 	        $container.append(this._renderLoadingIndicator());
 	      }
 	      IframeComponent.simpleXdmExtension(extension, $container);
+	      this._onceContainerAppended($addonContainer, $container, IframeFormActions.submit);
 	      return $container;
+	    }
+	  }, {
+	    key: '_onceContainerAppended',
+	    value: function _onceContainerAppended($addonContainer, $container, callback) {
+	      if ($addonContainer.length === 0) {
+	        // If the parent of the container we are creating doesn't exist.
+	        // Then we are in unit test and the container will never be appended to the DOM.
+	        return;
+	      }
+
+	      var observer = new MutationObserver(function (mutations) {
+	        mutations.forEach(function (mutation) {
+	          if (mutation && mutation.addedNodes[0] === $container[0]) {
+	            callback($container);
+	            observer.disconnect();
+	          }
+	        });
+	      });
+	      observer.observe($addonContainer[0], { childList: true });
 	    }
 	  }, {
 	    key: '_renderContainer',
@@ -3894,14 +3934,14 @@
 	}();
 
 	var IframeContainerComponent = new IframeContainer();
-
 	EventDispatcher$1.register('iframe-create', function (data) {
-	  var renderingMethod = data.extension.options.renderingMethod;
+	  data.extension.options = data.extension.options || {};
+	  var renderingMethod = data.extension.options.renderingMethod || 'GET';
 	  var id = 'embedded-' + data.extension.id;
 	  var $container = data.extension.$el.parents('.ap-iframe-container');
 	  $container.attr('id', id);
 
-	  if (renderingMethod && renderingMethod.toUpperCase() === 'POST') {
+	  if (renderingMethod.toUpperCase() === 'POST') {
 	    var $iframe = data.$el;
 	    var $form = IframeFormComponent.render({
 	      url: data.extension.url,
@@ -3924,6 +3964,7 @@
 	function create(extension) {
 >>>>>>> CE-720 Update dist
 	  var simpleXdmExtension = {
+	    containerId: extension.containerId,
 	    addon_key: extension.addon_key,
 	    key: extension.key,
 	    url: extension.url,

@@ -37,5 +37,18 @@ class IframeForm {
 }
 
 var IframeFormComponent = new IframeForm();
+EventDispatcher.register('iframe-form-submit', function ($container) {
+  var form = $container.find('.ap-iframe-form');
+  var iframe = $container.find('.ap-iframe');
+
+  if (form.length) {
+    form.submit();
+
+    // Check iframe name to real name
+    var realName = iframe.attr('data-real-name');
+    iframe.attr('name', realName);
+    iframe[0].contentWindow.name = realName;
+  }
+});
 
 export default IframeFormComponent;
