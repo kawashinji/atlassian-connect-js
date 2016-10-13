@@ -786,7 +786,7 @@
 	  }
 
 	  createClass(PostMessage, [{
-	    key: "_registerListener",
+	    key: '_registerListener',
 	    value: function _registerListener(listenOn) {
 	      if (!listenOn || !listenOn.addEventListener) {
 	        listenOn = window;
@@ -794,17 +794,18 @@
 	      listenOn.addEventListener("message", util._bind(this, this._receiveMessage), false);
 	    }
 	  }, {
-	    key: "_receiveMessage",
+	    key: '_receiveMessage',
 	    value: function _receiveMessage(event) {
 	      var handler = this._messageHandlers[event.data.type],
 	          extensionId = event.data.eid,
 	          reg = void 0;
-
+	      console.log('got message', this, this._messageHandlers, arguments);
 	      if (extensionId && this._registeredExtensions) {
 	        reg = this._registeredExtensions[extensionId];
 	      }
 
 	      if (!handler || !this._checkOrigin(event, reg)) {
+	        console.log('failed origin check!', reg, event);
 	        return false;
 	      }
 

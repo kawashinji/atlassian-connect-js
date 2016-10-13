@@ -346,7 +346,7 @@ var AP = (function () {
     }
 
     createClass(PostMessage, [{
-      key: "_registerListener",
+      key: '_registerListener',
       value: function _registerListener(listenOn) {
         if (!listenOn || !listenOn.addEventListener) {
           listenOn = window;
@@ -354,17 +354,18 @@ var AP = (function () {
         listenOn.addEventListener("message", util._bind(this, this._receiveMessage), false);
       }
     }, {
-      key: "_receiveMessage",
+      key: '_receiveMessage',
       value: function _receiveMessage(event) {
         var handler = this._messageHandlers[event.data.type],
             extensionId = event.data.eid,
             reg = void 0;
-
+        console.log('got message', this, this._messageHandlers, arguments);
         if (extensionId && this._registeredExtensions) {
           reg = this._registeredExtensions[extensionId];
         }
 
         if (!handler || !this._checkOrigin(event, reg)) {
+          console.log('failed origin check!', reg, event);
           return false;
         }
 
@@ -1674,6 +1675,7 @@ var   document$1 = window.document;
     }, {
       key: '_handleEvent',
       value: function _handleEvent(event) {
+        console.log('handle event called');
         var sendResponse = function sendResponse() {
           var args = util.argumentsToArray(arguments);
           event.source.postMessage({
@@ -1697,6 +1699,7 @@ var   document$1 = window.document;
           }
           return [];
         }
+        console.log('handlers?', this, this._eventHandlers, data);
         var handlers = toArray(this._eventHandlers[data.etyp]);
         handlers = handlers.concat(toArray(this._eventHandlers._any));
         handlers.forEach(function (handler) {
