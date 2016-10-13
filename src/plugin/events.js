@@ -19,12 +19,15 @@ class Events {
     this._events = {};
     this.ANY_PREFIX = '_any';
     this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
+    console.log('event constructor', AP._data);
     if(AP._data.origin) {
+      console.log('registering any', AP.registerAny, this);
       AP.registerAny(this._anyListener.bind(this));
     }
   }
 
   _anyListener(data, callback){
+    console.log('any listener called', arguments, this, this._events);
     var eventName = callback._context.eventName;
     var any = this._events[this.ANY_PREFIX] || [];
     var byName = this._events[eventName] || [];
@@ -70,12 +73,14 @@ class Events {
   }
 
   on(name, listener){
+    console.log('on?', this, this._events, arguments);
     if(!this._events[name]){
       this._events[name] = [];
     }
     this._events[name].push(listener);
   }
   onAny(listener){
+    console.log('on any?', this, this._events, arguments);
     this.on(this.ANY_PREFIX, listener);
   }
   once(name, listener){

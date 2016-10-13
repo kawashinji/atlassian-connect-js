@@ -1664,7 +1664,11 @@ var   document$1 = window.document;
         var pendingCallback = this._pendingCallbacks[data.mid];
         if (pendingCallback) {
           delete this._pendingCallbacks[data.mid];
-          pendingCallback.apply(window, data.args);
+          try {
+            pendingCallback.apply(window, data.args);
+          } catch (e) {
+            util.error('exception thrown in callback', e);
+          }
         }
       }
     }, {
@@ -1696,7 +1700,11 @@ var   document$1 = window.document;
         var handlers = toArray(this._eventHandlers[data.etyp]);
         handlers = handlers.concat(toArray(this._eventHandlers._any));
         handlers.forEach(function (handler) {
-          handler(data.evnt, sendResponse);
+          try {
+            handler(data.evnt, sendResponse);
+          } catch (e) {
+            util.error('exception thrown in event callback for:' + data.etyp);
+          }
         }, this);
         if (data.mid) {
           sendResponse();
@@ -1837,7 +1845,6 @@ var   document$1 = window.document;
   if (window !== window.parent) {
     var parentTargets = { _globals: {} };
     var plugin = new AP();
-    console.log('plugin?', plugin.__proto__, Object.getOwnPropertyNames(plugin.__proto__));
     // export options from plugin to host.
     Object.getOwnPropertyNames(plugin).forEach(function (prop) {
       if (['_hostModules', '_globals'].indexOf(prop) === -1 && host[prop] === undefined) {
@@ -2151,7 +2158,9 @@ var   document$1 = window.document;
       this._events = {};
       this.ANY_PREFIX = '_any';
       this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
+      console.log('event constructor', host._data);
       if (host._data.origin) {
+        console.log('registering any', host.registerAny, this);
         host.registerAny(this._anyListener.bind(this));
       }
     }
@@ -2159,6 +2168,7 @@ var   document$1 = window.document;
     createClass(Events, [{
       key: '_anyListener',
       value: function _anyListener(data, callback) {
+        console.log('any listener called', arguments, this, this._events);
         var eventName = callback._context.eventName;
         var any = this._events[this.ANY_PREFIX] || [];
         var byName = this._events[eventName] || [];
@@ -2208,6 +2218,7 @@ var   document$1 = window.document;
     }, {
       key: 'on',
       value: function on(name, listener) {
+        console.log('on?', this, this._events, arguments);
         if (!this._events[name]) {
           this._events[name] = [];
         }
@@ -2216,6 +2227,7 @@ var   document$1 = window.document;
     }, {
       key: 'onAny',
       value: function onAny(listener) {
+        console.log('on any?', this, this._events, arguments);
         this.on(this.ANY_PREFIX, listener);
       }
     }, {
