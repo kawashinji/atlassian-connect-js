@@ -1856,7 +1856,7 @@ var   document$1 = window.document;
     });
 
     ['registerAny', 'register'].forEach(function (prop) {
-      host[prop] = util._bind(host, plugin.__proto__[prop]);
+      host[prop] = util._bind(plugin, plugin.__proto__[prop]);
     });
 
     //write plugin modules to host.
