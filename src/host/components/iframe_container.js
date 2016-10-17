@@ -3,7 +3,7 @@ import IframeComponent from './iframe';
 import IframeFormComponent from './iframe_form';
 import LoadingIndicatorComponent from './loading_indicator';
 import EventDispatcher from '../dispatchers/event_dispatcher';
-import IframeFormActions from '../actions/iframe_form_actions';
+import IframeContainerActions from '../actions/iframe_container_actions';
 
 const CONTAINER_CLASSES = ['ap-iframe-container'];
 
@@ -16,11 +16,11 @@ class IframeContainer {
       $container.append(this._renderLoadingIndicator());
     }
     IframeComponent.simpleXdmExtension(extension, $container);
-    this._onceContainerAppended($addonContainer, $container, IframeFormActions.submit);
+    this._onceContainerAppended(extension, $addonContainer, $container);
     return $container;
   }
 
-  _onceContainerAppended($addonContainer, $container, callback) {
+  _onceContainerAppended(extension, $addonContainer, $container) {
     if ($addonContainer.length === 0) {
       // If the parent of the container we are creating doesn't exist.
       // Then we are in unit test and the container will never be appended to the DOM.
@@ -30,7 +30,7 @@ class IframeContainer {
     var observer = new MutationObserver(function(mutations) {
       mutations.forEach(mutation => {
         if (mutation && mutation.addedNodes[0] === $container[0]) {
-          callback($container);
+          IframeContainerActions.notifyAppended($container, extension);
           observer.disconnect();
         }
       });

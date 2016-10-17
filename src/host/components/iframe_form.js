@@ -8,47 +8,54 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
  */
 class IframeForm {
 
-  render(attributes, data){
-    if(!data) {
+  render(attributes, data) {
+    if (!data) {
       data = IframeFormUtils.dataFromUrl(attributes.url);
       attributes.url = IframeFormUtils.urlWithoutData(attributes.url);
     }
 
     var form = $('<form />')
-        .attr({
-          'id': attributes.id || IframeFormUtils.randomIdentifier(),
-          'class': 'ap-iframe-form',
-          'action': attributes.url,
-          'target': attributes.target || IframeFormUtils.randomTargetName(),
-          'method': attributes.method
-        });
+      .attr({
+        'id': attributes.id || IframeFormUtils.randomIdentifier(),
+        'class': 'ap-iframe-form',
+        'action': attributes.url,
+        'target': attributes.target || IframeFormUtils.randomTargetName(),
+        'method': attributes.method
+      });
     _.each(data, (value, key) => {
       form.append($('<input />')
-          .attr({
-            name: key,
-            type: 'hidden',
-            value: value
-          }));
+        .attr({
+          name: key,
+          type: 'hidden',
+          value: value
+        }));
     });
 
     return form;
   }
 
+  submit($container) {
+    var form = $container.find('.ap-iframe-form');
+    var iframe = $container.find('.ap-iframe');
+
+    if (form.length) {
+      form.submit();
+
+      // Check iframe name to real name
+      var realName = iframe.attr('data-real-name');
+      iframe.attr('name', realName);
+      iframe[0].contentWindow.name = realName;
+    }
+  }
+
 }
 
 var IframeFormComponent = new IframeForm();
-EventDispatcher.register('iframe-form-submit', function ($container) {
-  var form = $container.find('.ap-iframe-form');
-  var iframe = $container.find('.ap-iframe');
 
-  if (form.length) {
-    form.submit();
+EventDispatcher.register('iframe-form-submit', IframeFormComponent.submit);
 
-    // Check iframe name to real name
-    var realName = iframe.attr('data-real-name');
-    iframe.attr('name', realName);
-    iframe[0].contentWindow.name = realName;
-  }
+EventDispatcher.register('iframe-container-appended', function(data) {
+  IframeFormComponent.submit(data.$el);
 });
 
 export default IframeFormComponent;

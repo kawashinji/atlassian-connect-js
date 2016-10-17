@@ -3749,23 +3749,31 @@
 	      return form;
 >>>>>>> CE-720 Update dist
 	    }
+	  }, {
+	    key: 'submit',
+	    value: function submit($container) {
+	      var form = $container.find('.ap-iframe-form');
+	      var iframe = $container.find('.ap-iframe');
+
+	      if (form.length) {
+	        form.submit();
+
+	        // Check iframe name to real name
+	        var realName = iframe.attr('data-real-name');
+	        iframe.attr('name', realName);
+	        iframe[0].contentWindow.name = realName;
+	      }
+	    }
 	  }]);
 	  return IframeForm;
 	}();
 
 	var IframeFormComponent = new IframeForm();
-	EventDispatcher$1.register('iframe-form-submit', function ($container) {
-	  var form = $container.find('.ap-iframe-form');
-	  var iframe = $container.find('.ap-iframe');
 
-	  if (form.length) {
-	    form.submit();
+	EventDispatcher$1.register('iframe-form-submit', IframeFormComponent.submit);
 
-	    // Check iframe name to real name
-	    var realName = iframe.attr('data-real-name');
-	    iframe.attr('name', realName);
-	    iframe[0].contentWindow.name = realName;
-	  }
+	EventDispatcher$1.register('iframe-container-appended', function (data) {
+	  IframeFormComponent.submit(data.$el);
 	});
 
 	var LoadingIndicatorActions = {
@@ -3873,9 +3881,9 @@
 	  LoadingComponent.cancelled(data.$el, data.extension.id);
 	});
 
-	var IframeFormActions = {
-	  submit: function submit($container) {
-	    EventDispatcher$1.dispatch('iframe-form-submit', $container);
+	var IframeContainerActions = {
+	  notifyAppended: function notifyAppended($el, extension) {
+	    EventDispatcher$1.dispatch('iframe-container-appended', { $el: $el, extension: extension });
 	  }
 	};
 
@@ -3895,12 +3903,12 @@
 	        $container.append(this._renderLoadingIndicator());
 	      }
 	      IframeComponent.simpleXdmExtension(extension, $container);
-	      this._onceContainerAppended($addonContainer, $container, IframeFormActions.submit);
+	      this._onceContainerAppended(extension, $addonContainer, $container);
 	      return $container;
 	    }
 	  }, {
 	    key: '_onceContainerAppended',
-	    value: function _onceContainerAppended($addonContainer, $container, callback) {
+	    value: function _onceContainerAppended(extension, $addonContainer, $container) {
 	      if ($addonContainer.length === 0) {
 	        // If the parent of the container we are creating doesn't exist.
 	        // Then we are in unit test and the container will never be appended to the DOM.
@@ -3910,7 +3918,7 @@
 	      var observer = new MutationObserver(function (mutations) {
 	        mutations.forEach(function (mutation) {
 	          if (mutation && mutation.addedNodes[0] === $container[0]) {
-	            callback($container);
+	            IframeContainerActions.notifyAppended($container, extension);
 	            observer.disconnect();
 	          }
 	        });
