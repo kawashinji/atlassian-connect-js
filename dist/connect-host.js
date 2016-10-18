@@ -786,7 +786,7 @@
 	  }
 
 	  createClass(PostMessage, [{
-	    key: "_registerListener",
+	    key: '_registerListener',
 	    value: function _registerListener(listenOn) {
 	      if (!listenOn || !listenOn.addEventListener) {
 	        listenOn = window;
@@ -794,8 +794,9 @@
 	      listenOn.addEventListener("message", util._bind(this, this._receiveMessage), false);
 	    }
 	  }, {
-	    key: "_receiveMessage",
+	    key: '_receiveMessage',
 	    value: function _receiveMessage(event) {
+
 	      var handler = this._messageHandlers[event.data.type],
 	          extensionId = event.data.eid,
 	          reg = void 0;
@@ -803,10 +804,12 @@
 	      if (extensionId && this._registeredExtensions) {
 	        reg = this._registeredExtensions[extensionId];
 	      }
-
+	      console.log('got message', event, reg);
 	      if (!handler || !this._checkOrigin(event, reg)) {
+	        console.log('failed to validate', event, reg);
 	        return false;
 	      }
+	      console.log('VALID!', handler, event, reg, this);
 
 	      handler.call(this, event, reg);
 	    }
