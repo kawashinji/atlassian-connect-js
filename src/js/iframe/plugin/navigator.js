@@ -102,8 +102,9 @@ AP.define("navigator", ["_dollar", "_rpc"],
              *     // {
              *     //   "target": "contentview",
              *     //   "context": {
-             *     //     "contentId": 1234
-             *     //     "contentType": "page"
+             *     //     "contentId": 1234,
+             *     //     "contentType": "page",
+             *     //     "spaceKey": "DS"
              *     // }
              *   });
              * });
