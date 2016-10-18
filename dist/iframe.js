@@ -1874,10 +1874,11 @@ var   document$1 = window.document;
 
     //write plugin modules to host.
     Object.getOwnPropertyNames(plugin._hostModules).forEach(function (moduleName) {
-      host[moduleName] = plugin._hostModules[moduleName];
-      host._xdm.defineAPIModule(plugin._hostModules[moduleName], moduleName);
+      console.log('plugin host modules?', moduleName, plugin._hostModules, host);
+      // host[moduleName] = plugin._hostModules[moduleName];
+      // host._xdm.defineAPIModule(plugin._hostModules[moduleName], moduleName);
     });
-    host._hostModules = plugin._hostModules;
+    // host._hostModules = plugin._hostModules;
 
     host.defineGlobal = function (module) {
       parentTargets['_globals'] = util.extend({}, parentTargets['_globals'], module);
