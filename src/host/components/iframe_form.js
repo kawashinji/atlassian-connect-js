@@ -34,9 +34,10 @@ class IframeForm {
     return form;
   }
 
-  submit($container) {
-    var form = $container.find('.ap-iframe-form');
-    var iframe = $container.find('.ap-iframe');
+  submit(data) {
+    var $el = data.$el;
+    var form = $el.find('.ap-iframe-form');
+    var iframe = $el.find('.ap-iframe');
 
     if (form.length) {
       form.submit();
@@ -52,10 +53,6 @@ class IframeForm {
 
 var IframeFormComponent = new IframeForm();
 
-EventDispatcher.register('iframe-form-submit', IframeFormComponent.submit);
-
-EventDispatcher.register('iframe-container-appended', function(data) {
-  IframeFormComponent.submit(data.$el);
-});
+EventDispatcher.register('iframe-container-appended', IframeFormComponent.submit);
 
 export default IframeFormComponent;

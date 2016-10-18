@@ -1460,11 +1460,14 @@
 	  }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	  // listen for postMessage events (defaults to window).
 
 
 >>>>>>> CE-720 Update dist
+=======
+>>>>>>> CE-720 Remove unused iframe form action
 	  createClass(PostMessage, [{
 	    key: "_registerListener",
 	    value: function _registerListener(listenOn) {
@@ -1477,18 +1480,25 @@
 	    key: "_receiveMessage",
 	    value: function _receiveMessage(event) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	      var handler = this._messageHandlers[event.data.type],
 	          extensionId = event.data.eid,
 =======
 	      var extensionId = event.data.eid,
 >>>>>>> CE-720 Update dist
+=======
+
+	      var handler = this._messageHandlers[event.data.type],
+	          extensionId = event.data.eid,
+>>>>>>> CE-720 Remove unused iframe form action
 	          reg = void 0;
 
 	      if (extensionId && this._registeredExtensions) {
 	        reg = this._registeredExtensions[extensionId];
 	      }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	      if (!handler || !this._checkOrigin(event, reg)) {
 	        return false;
@@ -1505,6 +1515,13 @@
 	        handler.call(this, event, reg);
 	      }
 >>>>>>> CE-720 Update dist
+=======
+	      if (!handler || !this._checkOrigin(event, reg)) {
+	        return false;
+	      }
+
+	      handler.call(this, event, reg);
+>>>>>>> CE-720 Remove unused iframe form action
 	    }
 	  }]);
 	  return PostMessage;
@@ -1580,6 +1597,7 @@
 	      event_query: _this._handleEventQuery,
 	      broadcast: _this._handleBroadcast,
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      key_triggered: _this._handleKeyTriggered,
 	      unload: _this._handleUnload,
 	      sub: _this._handleSubInit
@@ -1587,12 +1605,20 @@
 	      key_listen: _this._handleKeyListen,
 	      unload: _this._handleUnload
 >>>>>>> CE-720 Update dist
+=======
+	      key_triggered: _this._handleKeyTriggered,
+	      unload: _this._handleUnload,
+	      sub: _this._handleSubInit
+>>>>>>> CE-720 Remove unused iframe form action
 	    };
 	    return _this;
 	  }
 
 	  createClass(XDMRPC, [{
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> CE-720 Remove unused iframe form action
 	    key: '_verifyAPI',
 	    value: function _verifyAPI(event, reg) {
 	      var untrustedTargets = event.data.targets;
@@ -1620,8 +1646,11 @@
 	      }, reg.extension.url);
 	    }
 	  }, {
+<<<<<<< HEAD
 =======
 >>>>>>> CE-720 Update dist
+=======
+>>>>>>> CE-720 Remove unused iframe form action
 	    key: '_handleInit',
 	    value: function _handleInit(event, reg) {
 	      this._registeredExtensions[reg.extension_id].source = event.source;
@@ -1630,6 +1659,9 @@
 	        delete reg.initCallback;
 	      }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> CE-720 Remove unused iframe form action
 	      if (event.data.targets) {
 	        this._verifyAPI(event, reg);
 	      }
@@ -1642,8 +1674,11 @@
 	      this.registerExtension(event.data.ext.id, {
 	        extension: event.data.ext
 	      });
+<<<<<<< HEAD
 =======
 >>>>>>> CE-720 Update dist
+=======
+>>>>>>> CE-720 Remove unused iframe form action
 	    }
 	  }, {
 	    key: '_handleResponse',
@@ -1668,10 +1703,14 @@
 	        event.source.postMessage({
 	          mid: event.data.mid,
 <<<<<<< HEAD
+<<<<<<< HEAD
 	          type: 'presp',
 =======
 	          type: 'resp',
 >>>>>>> CE-720 Update dist
+=======
+	          type: 'presp',
+>>>>>>> CE-720 Remove unused iframe form action
 	          args: args
 	        }, reg.extension.url);
 	      }
@@ -1715,6 +1754,7 @@
 	        if (method) {
 	          var methodArgs = data.args;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	          var padLength = method.length - 1;
 	          sendResponse._context = extension;
 	          methodArgs = this._padUndefinedArguments(methodArgs, padLength);
@@ -1722,6 +1762,11 @@
 	          sendResponse._context = extension;
 	          methodArgs = this._padUndefinedArguments(methodArgs, method.length - 1);
 >>>>>>> CE-720 Update dist
+=======
+	          var padLength = method.length - 1;
+	          sendResponse._context = extension;
+	          methodArgs = this._padUndefinedArguments(methodArgs, padLength);
+>>>>>>> CE-720 Remove unused iframe form action
 	          methodArgs.push(sendResponse);
 	          method.apply(module, methodArgs);
 	          if (this._registeredRequestNotifier) {
@@ -1748,12 +1793,17 @@
 	    }
 	  }, {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    key: '_handleKeyTriggered',
 	    value: function _handleKeyTriggered(event, reg) {
 =======
 	    key: '_handleKeyListen',
 	    value: function _handleKeyListen(event, reg) {
 >>>>>>> CE-720 Update dist
+=======
+	    key: '_handleKeyTriggered',
+	    value: function _handleKeyTriggered(event, reg) {
+>>>>>>> CE-720 Remove unused iframe form action
 	      var eventData = event.data;
 	      var keycodeEntry = this._keycodeKey(eventData.keycode, eventData.modifiers, reg.extension_id);
 	      var listeners = this._keycodeCallbacks[keycodeEntry];
@@ -1773,6 +1823,7 @@
 	    key: 'defineAPIModule',
 	    value: function defineAPIModule(module, moduleName) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      moduleName = moduleName || '_globals';
 	      this._registeredAPIModules[moduleName] = util.extend({}, this._registeredAPIModules[moduleName] || {}, module);
 =======
@@ -1782,6 +1833,10 @@
 	        this._registeredAPIModules._globals = util.extend({}, this._registeredAPIModules._globals, module);
 	      }
 >>>>>>> CE-720 Update dist
+=======
+	      moduleName = moduleName || '_globals';
+	      this._registeredAPIModules[moduleName] = util.extend({}, this._registeredAPIModules[moduleName] || {}, module);
+>>>>>>> CE-720 Remove unused iframe form action
 	      return this._registeredAPIModules;
 	    }
 	  }, {
@@ -1876,10 +1931,14 @@
 	      var registrations = this._findRegistrations(targetSpec || {});
 	      registrations.forEach(function (reg) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	        if (source && !reg.source) {
 =======
 	        if (source) {
 >>>>>>> CE-720 Update dist
+=======
+	        if (source && !reg.source) {
+>>>>>>> CE-720 Remove unused iframe form action
 	          reg.source = source;
 	        }
 
@@ -2013,9 +2072,13 @@
 	                break;
 	            }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> CE-720 Update dist
+=======
+
+>>>>>>> CE-720 Remove unused iframe form action
 	            return accumulator;
 	          }, {});
 	        }
@@ -2195,12 +2258,17 @@
 	  }, {
 	    key: 'defineModule',
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    value: function defineModule(moduleName, module, options) {
 	      this._xdm.defineAPIModule(module, moduleName, options);
 =======
 	    value: function defineModule(moduleName, module) {
 	      this._xdm.defineAPIModule(module, moduleName);
 >>>>>>> CE-720 Update dist
+=======
+	    value: function defineModule(moduleName, module, options) {
+	      this._xdm.defineAPIModule(module, moduleName, options);
+>>>>>>> CE-720 Remove unused iframe form action
 	    }
 	  }, {
 	    key: 'defineGlobals',
@@ -2648,9 +2716,10 @@
 
 	var qs = interopDefault(index$1);
 
-	var b64 = createCommonjsModule(function (module, exports) {
+	var index$6 = createCommonjsModule(function (module, exports) {
 	'use strict';
 
+	exports.byteLength = byteLength;
 	exports.toByteArray = toByteArray;
 	exports.fromByteArray = fromByteArray;
 >>>>>>> CE-720 Update dist
@@ -2660,10 +2729,14 @@
 	var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> CE-720 Remove unused iframe form action
 	var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	for (var i = 0, len = code.length; i < len; ++i) {
 	  lookup[i] = code[i];
 	  revLookup[code.charCodeAt(i)] = i;
+<<<<<<< HEAD
 	}
 
 	revLookup['-'.charCodeAt(0)] = 62;
@@ -2681,15 +2754,20 @@
 
 	  revLookup['-'.charCodeAt(0)] = 62;
 	  revLookup['_'.charCodeAt(0)] = 63;
+=======
+>>>>>>> CE-720 Remove unused iframe form action
 	}
 
-	init();
+	revLookup['-'.charCodeAt(0)] = 62;
+	revLookup['_'.charCodeAt(0)] = 63;
 
-	function toByteArray(b64) {
-	  var i, j, l, tmp, placeHolders, arr;
+	function placeHoldersCount(b64) {
 	  var len = b64.length;
+<<<<<<< HEAD
 
 >>>>>>> CE-720 Update dist
+=======
+>>>>>>> CE-720 Remove unused iframe form action
 	  if (len % 4 > 0) {
 	    throw new Error('Invalid string. Length must be a multiple of 4');
 	  }
@@ -2699,6 +2777,7 @@
 	  // represent one byte
 	  // if there is only one, then the three characters before it represent 2 bytes
 	  // this is just a cheap hack to not do indexOf twice
+<<<<<<< HEAD
 <<<<<<< HEAD
 	  return b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0;
 	}
@@ -2710,9 +2789,25 @@
 
 =======
 	  placeHolders = b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0;
+=======
+	  return b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0;
+	}
+>>>>>>> CE-720 Remove unused iframe form action
 
+	function byteLength(b64) {
 	  // base64 is 4/3 + up to two characters of the original data
+<<<<<<< HEAD
 >>>>>>> CE-720 Update dist
+=======
+	  return b64.length * 3 / 4 - placeHoldersCount(b64);
+	}
+
+	function toByteArray(b64) {
+	  var i, j, l, tmp, placeHolders, arr;
+	  var len = b64.length;
+	  placeHolders = placeHoldersCount(b64);
+
+>>>>>>> CE-720 Remove unused iframe form action
 	  arr = new Arr(len * 3 / 4 - placeHolders);
 
 	  // if there are placeholders, only get up to the last complete 4 chars
@@ -2788,10 +2883,16 @@
 =======
 	});
 
+<<<<<<< HEAD
 	interopDefault(b64);
 	var fromByteArray = b64.fromByteArray;
 	var toByteArray = b64.toByteArray;
 >>>>>>> CE-720 Update dist
+=======
+	interopDefault(index$6);
+	var fromByteArray = index$6.fromByteArray;
+	var toByteArray = index$6.toByteArray;
+>>>>>>> CE-720 Remove unused iframe form action
 
 	// This is free and unencumbered software released into the public domain.
 	// See LICENSE.md for more information.
@@ -3751,9 +3852,10 @@
 	    }
 	  }, {
 	    key: 'submit',
-	    value: function submit($container) {
-	      var form = $container.find('.ap-iframe-form');
-	      var iframe = $container.find('.ap-iframe');
+	    value: function submit(data) {
+	      var $el = data.$el;
+	      var form = $el.find('.ap-iframe-form');
+	      var iframe = $el.find('.ap-iframe');
 
 	      if (form.length) {
 	        form.submit();
@@ -3770,11 +3872,7 @@
 
 	var IframeFormComponent = new IframeForm();
 
-	EventDispatcher$1.register('iframe-form-submit', IframeFormComponent.submit);
-
-	EventDispatcher$1.register('iframe-container-appended', function (data) {
-	  IframeFormComponent.submit(data.$el);
-	});
+	EventDispatcher$1.register('iframe-container-appended', IframeFormComponent.submit);
 
 	var LoadingIndicatorActions = {
 	  timeout: function timeout($el, extension) {
@@ -6470,6 +6568,7 @@
 	 */
 	if (!window._AP.version) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  window._AP.version = '5.0.0-beta.21';
 	}
 
@@ -6489,6 +6588,9 @@
 	SimpleXDM$1.registerRequestNotifier(function (data) {
 =======
 	  window._AP.version = '5.0.0-beta.18';
+=======
+	  window._AP.version = '5.0.0-beta.20';
+>>>>>>> CE-720 Remove unused iframe form action
 	}
 
 	host.defineModule('messages', messages);
