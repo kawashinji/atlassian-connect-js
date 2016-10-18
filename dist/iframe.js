@@ -615,6 +615,9 @@ var AP = (function () {
       value: function defineAPIModule(module, moduleName, options) {
         // module._options = options;
         if (moduleName) {
+          if (this._registeredAPIModules[moduleName]) {
+            console.log("OVERWRITING", moduleName, module, options);
+          }
           this._registeredAPIModules[moduleName] = module;
         } else {
           this._registeredAPIModules._globals = util.extend({}, this._registeredAPIModules._globals, module);
