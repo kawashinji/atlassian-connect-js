@@ -41,6 +41,7 @@ export default {
    * @param {String} height  the desired height
    */
   resize: function(width, height, callback) {
+    console.log('calling resize on', callback._context.extension, arguments);
     callback = _.last(arguments);
     var iframeId = callback._context.extension.id;
     var options = callback._context.extension.options;
@@ -50,6 +51,7 @@ export default {
 
     if(!resizeFuncHolder[iframeId]){
       resizeFuncHolder[iframeId] = debounce(function(dwidth, dheight, dcallback){
+        console.log('inside debounce', arguments);
         EnvActions.iframeResize(dwidth, dheight, dcallback._context);
       });
     }
