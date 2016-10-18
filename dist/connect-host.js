@@ -804,9 +804,9 @@
 	      if (extensionId && this._registeredExtensions) {
 	        reg = this._registeredExtensions[extensionId];
 	      }
-	      console.log('got message', event, reg);
+	      console.log('got message', extensionId, event, reg, this._registeredExtensions);
 	      if (!handler || !this._checkOrigin(event, reg)) {
-	        console.log('failed to validate', event, reg);
+	        console.log('failed to validate', event, reg, this._registeredExtensions);
 	        return false;
 	      }
 	      console.log('VALID!', handler, event, reg, this);

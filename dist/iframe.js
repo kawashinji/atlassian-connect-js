@@ -364,9 +364,9 @@ var AP = (function () {
         if (extensionId && this._registeredExtensions) {
           reg = this._registeredExtensions[extensionId];
         }
-        console.log('got message', event, reg);
+        console.log('got message', extensionId, event, reg, this._registeredExtensions);
         if (!handler || !this._checkOrigin(event, reg)) {
-          console.log('failed to validate', event, reg);
+          console.log('failed to validate', event, reg, this._registeredExtensions);
           return false;
         }
         console.log('VALID!', handler, event, reg, this);
@@ -1641,7 +1641,14 @@ var   document$1 = window.document;
             fn: methodData.fn
           };
           console.log('finding target for ', methodData.fn, that._findTarget(methodData.mod, methodData.fn), that._data, window.top === that._host);
-          var target = that._findTarget(methodData.mod, methodData.fn) === 'top' ? window.top : that._host;
+          var targetOrigin = '*';
+          var target;
+          if (that._findTarget(methodData.mod, methodData.fn) === 'top') {
+            target = window.top;
+          } else {
+            target = that._host;
+            targetOrigin = that._data.origin;
+          }
           if (util.hasCallback(args)) {
             data.mid = util.randomString();
             that._pendingCallback(data.mid, args.pop());
@@ -1655,11 +1662,11 @@ var   document$1 = window.document;
           if (that._isSubIframe && typeof that._apiTampered === 'undefined') {
             console.log('queuing in sub');
             that._onConfirmedFns.push(function () {
-              target.postMessage(data, '*');
+              target.postMessage(data, targetOrigin);
             });
           } else {
             console.log('sending to target', target, data);
-            target.postMessage(data, '*');
+            target.postMessage(data, targetOrigin);
           }
         };
       }
