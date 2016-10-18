@@ -4265,7 +4265,7 @@
 
 	    if (!resizeFuncHolder[iframeId]) {
 	      resizeFuncHolder[iframeId] = debounce(function (dwidth, dheight, dcallback) {
-	        console.log('inside debounce', arguments);
+	        console.log('inside debounce', arguments, iframeId, dcallback._context.extension.id);
 	        EnvActions.iframeResize(dwidth, dheight, dcallback._context);
 	      });
 	    }
