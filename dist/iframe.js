@@ -2660,7 +2660,7 @@ var   document$1 = window.document;
   host.defineModule('env', { resize: function resize(w, h, callback) {
       var iframe = document.getElementById(callback._context.extension_id);
       iframe.style.width = w;
-      iframe.style.h = h;
+      iframe.style.height = h;
     } });
 
   return host;
