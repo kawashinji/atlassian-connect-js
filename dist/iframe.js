@@ -2164,9 +2164,7 @@ var   document$1 = window.document;
       this._events = {};
       this.ANY_PREFIX = '_any';
       this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
-      console.log('event constructor', host._data);
       if (host._data.origin) {
-        console.log('registering any', host.registerAny, this);
         host.registerAny(this._anyListener.bind(this));
       }
     }
@@ -2174,7 +2172,6 @@ var   document$1 = window.document;
     createClass(Events, [{
       key: '_anyListener',
       value: function _anyListener(data, callback) {
-        console.log('any listener called', arguments, this, this._events);
         var eventName = callback._context.eventName;
         var any = this._events[this.ANY_PREFIX] || [];
         var byName = this._events[eventName] || [];
@@ -2224,7 +2221,6 @@ var   document$1 = window.document;
     }, {
       key: 'on',
       value: function on(name, listener) {
-        console.log('on?', this, this._events, arguments);
         if (!this._events[name]) {
           this._events[name] = [];
         }
@@ -2233,7 +2229,6 @@ var   document$1 = window.document;
     }, {
       key: 'onAny',
       value: function onAny(listener) {
-        console.log('on any?', this, this._events, arguments);
         this.on(this.ANY_PREFIX, listener);
       }
     }, {
@@ -2334,12 +2329,12 @@ var   document$1 = window.document;
    *
    * @return {Object} Data Object passed to the dialog on creation.
    */
-  // Object.defineProperty(AP._hostModules.dialog, 'customData', {
-  //   get: getCustomData
-  // });
-  // Object.defineProperty(AP.dialog, 'customData', {
-  //   get: getCustomData
-  // });
+  Object.defineProperty(host._hostModules.dialog, 'customData', {
+    get: getCustomData
+  });
+  Object.defineProperty(host.dialog, 'customData', {
+    get: getCustomData
+  });
 
   var dialogHandlers = {};
 
