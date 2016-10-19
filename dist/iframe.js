@@ -1272,7 +1272,8 @@ var   document$1 = window.document;
     element.resizeSensor.innerHTML = '<div class="ac-resize-sensor-expand" style="' + style + '">' + '<div style="' + styleChild + '"></div>' + '</div>' + '<div class="ac-resize-sensor-shrink" style="' + style + '">' + '<div style="' + styleChild + ' width: 200%; height: 200%"></div>' + '</div>';
     element.appendChild(element.resizeSensor);
 
-    if (window.getComputedStyle(element).position === 'static') {
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=548397
+    if (window.getComputedStyle && window.getComputedStyle(element).position === 'static') {
       element.style.position = 'relative';
     }
 
