@@ -1859,7 +1859,8 @@ var   document$1 = window.document;
     });
 
     ['registerAny', 'register'].forEach(function (prop) {
-      host[prop] = plugin.__proto__[prop];
+      console.log('what should i bind to?', plugin, host, AP);
+      host[prop] = plugin.__proto__[prop].bind(plugin);
     });
 
     //write plugin modules to host.
