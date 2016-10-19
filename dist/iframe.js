@@ -1272,7 +1272,7 @@ var   document$1 = window.document;
     element.resizeSensor.innerHTML = '<div class="ac-resize-sensor-expand" style="' + style + '">' + '<div style="' + styleChild + '"></div>' + '</div>' + '<div class="ac-resize-sensor-shrink" style="' + style + '">' + '<div style="' + styleChild + ' width: 200%; height: 200%"></div>' + '</div>';
     element.appendChild(element.resizeSensor);
 
-    if (getComputedStyle(element).position === 'static') {
+    if (window.getComputedStyle(element).position === 'static') {
       element.style.position = 'relative';
     }
 
@@ -2657,11 +2657,13 @@ var   document$1 = window.document;
     handleError: util$1.handleError
   };
 
-  host.defineModule('env', { resize: function resize(w, h, callback) {
-      var iframe = document.getElementById(callback._context.extension_id);
-      iframe.style.width = w;
-      iframe.style.height = h;
-    } });
+  if (host.defineModule) {
+    host.defineModule('env', { resize: function resize(w, h, callback) {
+        var iframe = document.getElementById(callback._context.extension_id);
+        iframe.style.width = w;
+        iframe.style.height = h;
+      } });
+  }
 
   return host;
 
