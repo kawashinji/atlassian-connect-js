@@ -18,12 +18,12 @@ const getCustomData = deprecate(() => {
  *
  * @return {Object} Data Object passed to the dialog on creation.
  */
-Object.defineProperty(AP._hostModules.dialog, 'customData', {
-  get: getCustomData
-});
-Object.defineProperty(AP.dialog, 'customData', {
-  get: getCustomData
-});
+// Object.defineProperty(AP._hostModules.dialog, 'customData', {
+//   get: getCustomData
+// });
+// Object.defineProperty(AP.dialog, 'customData', {
+//   get: getCustomData
+// });
 
 const dialogHandlers = {};
 

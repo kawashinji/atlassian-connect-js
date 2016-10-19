@@ -346,7 +346,7 @@ var AP = (function () {
     }
 
     createClass(PostMessage, [{
-      key: '_registerListener',
+      key: "_registerListener",
       value: function _registerListener(listenOn) {
         if (!listenOn || !listenOn.addEventListener) {
           listenOn = window;
@@ -354,7 +354,7 @@ var AP = (function () {
         listenOn.addEventListener("message", util._bind(this, this._receiveMessage), false);
       }
     }, {
-      key: '_receiveMessage',
+      key: "_receiveMessage",
       value: function _receiveMessage(event) {
 
         var handler = this._messageHandlers[event.data.type],
@@ -364,12 +364,10 @@ var AP = (function () {
         if (extensionId && this._registeredExtensions) {
           reg = this._registeredExtensions[extensionId];
         }
-        console.log('got message', extensionId, event, reg, this._registeredExtensions);
+
         if (!handler || !this._checkOrigin(event, reg)) {
-          console.log('failed to validate', event, reg, this._registeredExtensions);
           return false;
         }
-        console.log('VALID!', handler, event, reg, this);
 
         handler.call(this, event, reg);
       }
@@ -613,15 +611,8 @@ var AP = (function () {
     }, {
       key: 'defineAPIModule',
       value: function defineAPIModule(module, moduleName, options) {
-        // module._options = options;
-        if (moduleName) {
-          if (this._registeredAPIModules[moduleName]) {
-            console.log("OVERWRITING", moduleName, module, options);
-          }
-          this._registeredAPIModules[moduleName] = module;
-        } else {
-          this._registeredAPIModules._globals = util.extend({}, this._registeredAPIModules._globals, module);
-        }
+        moduleName = moduleName || '_globals';
+        this._registeredAPIModules[moduleName] = util.extend({}, this._registeredAPIModules[moduleName] || {}, module);
         return this._registeredAPIModules;
       }
     }, {
@@ -1643,7 +1634,7 @@ var   document$1 = window.document;
             mod: methodData.mod,
             fn: methodData.fn
           };
-          console.log('finding target for ', methodData.fn, that._findTarget(methodData.mod, methodData.fn), that._data, window.top === that._host);
+
           var targetOrigin = '*';
           var target;
           if (that._findTarget(methodData.mod, methodData.fn) === 'top') {
@@ -1663,12 +1654,10 @@ var   document$1 = window.document;
           data.args = util.sanitizeStructuredClone(args);
 
           if (that._isSubIframe && typeof that._apiTampered === 'undefined') {
-            console.log('queuing in sub');
             that._onConfirmedFns.push(function () {
               target.postMessage(data, targetOrigin);
             });
           } else {
-            console.log('sending to target', target, data);
             target.postMessage(data, targetOrigin);
           }
         };
@@ -1869,15 +1858,15 @@ var   document$1 = window.document;
     });
 
     ['registerAny', 'register'].forEach(function (prop) {
-      host[prop] = util._bind(plugin, plugin.__proto__[prop]);
+      host[prop] = plugin.__proto__[prop];
     });
 
     //write plugin modules to host.
     Object.getOwnPropertyNames(plugin._hostModules).forEach(function (moduleName) {
-      console.log('plugin host modules?', moduleName, plugin._hostModules, host);
       host[moduleName] = plugin._hostModules[moduleName];
-      // host._xdm.defineAPIModule(plugin._hostModules[moduleName], moduleName);
+      host._xdm.defineAPIModule(plugin._hostModules[moduleName], moduleName);
     });
+
     host._hostModules = plugin._hostModules;
 
     host.defineGlobal = function (module) {
@@ -2345,12 +2334,12 @@ var   document$1 = window.document;
    *
    * @return {Object} Data Object passed to the dialog on creation.
    */
-  Object.defineProperty(host._hostModules.dialog, 'customData', {
-    get: getCustomData
-  });
-  Object.defineProperty(host.dialog, 'customData', {
-    get: getCustomData
-  });
+  // Object.defineProperty(AP._hostModules.dialog, 'customData', {
+  //   get: getCustomData
+  // });
+  // Object.defineProperty(AP.dialog, 'customData', {
+  //   get: getCustomData
+  // });
 
   var dialogHandlers = {};
 
@@ -2667,6 +2656,12 @@ var   document$1 = window.document;
     isFunction: util$1.isFunction,
     handleError: util$1.handleError
   };
+
+  host.defineModule('env', { resize: function resize(w, h, callback) {
+      var iframe = document.getElementById(callback._context.extension_id);
+      iframe.style.width = w;
+      iframe.style.h = h;
+    } });
 
   return host;
 

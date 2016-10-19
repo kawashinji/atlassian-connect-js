@@ -786,7 +786,7 @@
 	  }
 
 	  createClass(PostMessage, [{
-	    key: '_registerListener',
+	    key: "_registerListener",
 	    value: function _registerListener(listenOn) {
 	      if (!listenOn || !listenOn.addEventListener) {
 	        listenOn = window;
@@ -794,7 +794,7 @@
 	      listenOn.addEventListener("message", util._bind(this, this._receiveMessage), false);
 	    }
 	  }, {
-	    key: '_receiveMessage',
+	    key: "_receiveMessage",
 	    value: function _receiveMessage(event) {
 
 	      var handler = this._messageHandlers[event.data.type],
@@ -804,12 +804,10 @@
 	      if (extensionId && this._registeredExtensions) {
 	        reg = this._registeredExtensions[extensionId];
 	      }
-	      console.log('got message', extensionId, event, reg, this._registeredExtensions);
+
 	      if (!handler || !this._checkOrigin(event, reg)) {
-	        console.log('failed to validate', event, reg, this._registeredExtensions);
 	        return false;
 	      }
-	      console.log('VALID!', handler, event, reg, this);
 
 	      handler.call(this, event, reg);
 	    }
@@ -1053,15 +1051,8 @@
 	  }, {
 	    key: 'defineAPIModule',
 	    value: function defineAPIModule(module, moduleName, options) {
-	      // module._options = options;
-	      if (moduleName) {
-	        if (this._registeredAPIModules[moduleName]) {
-	          console.log("OVERWRITING", moduleName, module, options);
-	        }
-	        this._registeredAPIModules[moduleName] = module;
-	      } else {
-	        this._registeredAPIModules._globals = util.extend({}, this._registeredAPIModules._globals, module);
-	      }
+	      moduleName = moduleName || '_globals';
+	      this._registeredAPIModules[moduleName] = util.extend({}, this._registeredAPIModules[moduleName] || {}, module);
 	      return this._registeredAPIModules;
 	    }
 	  }, {
