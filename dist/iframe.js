@@ -1502,7 +1502,7 @@ var   document$1 = window.document;
           this._host.postMessage({
             eid: this._data.extension_id,
             type: 'unload'
-          }, this._data.origin);
+          }, this._data.origin || '*');
         }));
       }
     }, {
@@ -2170,7 +2170,7 @@ var   document$1 = window.document;
       this._events = {};
       this.ANY_PREFIX = '_any';
       this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
-      if (host._data.origin) {
+      if (host._data && host._data.origin) {
         host.registerAny(this._anyListener.bind(this));
       }
     }
