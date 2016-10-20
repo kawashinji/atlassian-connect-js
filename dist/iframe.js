@@ -1774,6 +1774,11 @@ var   document$1 = window.document;
         if (event.data && no_source_types.indexOf(event.data.type) > -1) {
           return true;
         }
+
+        if (this._isSubIframe && event.source === window.top) {
+          return true;
+        }
+
         return event.origin === this._data.origin && event.source === this._host;
       }
     }, {
