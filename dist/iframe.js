@@ -529,6 +529,7 @@ var AP = (function () {
         var data = event.data;
         var module = this._registeredAPIModules[data.mod];
         var extension = this.getRegisteredExtensions(reg.extension)[0];
+        console.log('GOT MESSAGE AS:', data.fn, event, reg);
         if (module) {
           var fnName = data.fn;
           if (data._cls) {
@@ -1070,7 +1071,7 @@ var   document$1 = window.document;
       } else if (sel === window) {
         els.push(sel);
       } else if (typeof sel === 'function') {
-        onDomLoad(sel);
+        $.onDomLoad(sel);
       }
     }
 
@@ -1142,7 +1143,7 @@ var   document$1 = window.document;
   $.bind = binder('add', 'attach');
   $.unbind = binder('remove', 'detach');
 
-  function onDomLoad(func) {
+  $.onDomLoad = function (func) {
     var w = window,
         readyState = w.document.readyState;
 
@@ -1153,7 +1154,7 @@ var   document$1 = window.document;
         func.call(w);
       });
     }
-  }
+  };
 
   function getContainer() {
     // Look for these two selectors first... you need these to allow for the auto-shrink to work
