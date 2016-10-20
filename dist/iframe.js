@@ -454,6 +454,7 @@ var AP = (function () {
     createClass(XDMRPC, [{
       key: '_verifyAPI',
       value: function _verifyAPI(event, reg) {
+        console.log('event data?', event);
         var untrustedTargets = event.data.targets;
         if (!untrustedTargets) {
           return;
@@ -1767,6 +1768,7 @@ var   document$1 = window.document;
     }, {
       key: '_checkOrigin',
       value: function _checkOrigin(event) {
+        return event.origin === this._data.origin && event.source === this._host;
         var isParent = event.origin === this._data.origin && event.source === this._host,
             isTop = event.source === window.top;
         return isParent || isTop;
@@ -1859,7 +1861,6 @@ var   document$1 = window.document;
     });
 
     ['registerAny', 'register'].forEach(function (prop) {
-      console.log('what should i bind to?', plugin, host, AP);
       host[prop] = plugin.__proto__[prop].bind(plugin);
     });
 
