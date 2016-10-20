@@ -894,7 +894,6 @@
 	  createClass(XDMRPC, [{
 	    key: '_verifyAPI',
 	    value: function _verifyAPI(event, reg) {
-	      console.log('event data?', event);
 	      var untrustedTargets = event.data.targets;
 	      if (!untrustedTargets) {
 	        return;

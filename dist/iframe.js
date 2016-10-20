@@ -454,7 +454,6 @@ var AP = (function () {
     createClass(XDMRPC, [{
       key: '_verifyAPI',
       value: function _verifyAPI(event, reg) {
-        console.log('event data?', event);
         var untrustedTargets = event.data.targets;
         if (!untrustedTargets) {
           return;
@@ -1071,7 +1070,7 @@ var   document$1 = window.document;
       } else if (sel === window) {
         els.push(sel);
       } else if (typeof sel === 'function') {
-        $.onDomLoad(sel);
+        onDomLoad(sel);
       }
     }
 
@@ -1143,7 +1142,7 @@ var   document$1 = window.document;
   $.bind = binder('add', 'attach');
   $.unbind = binder('remove', 'detach');
 
-  $.onDomLoad = function (func) {
+  function onDomLoad(func) {
     var w = window,
         readyState = w.document.readyState;
 
@@ -1154,7 +1153,7 @@ var   document$1 = window.document;
         func.call(w);
       });
     }
-  };
+  }
 
   function getContainer() {
     // Look for these two selectors first... you need these to allow for the auto-shrink to work
