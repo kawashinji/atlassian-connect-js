@@ -1005,8 +1005,9 @@
 	        var method = module[fnName];
 	        if (method) {
 	          var methodArgs = data.args;
+	          var padLength = method.length - 1;
 	          sendResponse._context = extension;
-	          methodArgs = this._padUndefinedArguments(methodArgs, method.length - 1);
+	          methodArgs = this._padUndefinedArguments(methodArgs, padLength);
 	          methodArgs.push(sendResponse);
 	          method.apply(module, methodArgs);
 	          if (this._registeredRequestNotifier) {

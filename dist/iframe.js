@@ -565,8 +565,9 @@ var AP = (function () {
           var method = module[fnName];
           if (method) {
             var methodArgs = data.args;
+            var padLength = method.length - 1;
             sendResponse._context = extension;
-            methodArgs = this._padUndefinedArguments(methodArgs, method.length - 1);
+            methodArgs = this._padUndefinedArguments(methodArgs, padLength);
             methodArgs.push(sendResponse);
             method.apply(module, methodArgs);
             if (this._registeredRequestNotifier) {
@@ -1070,7 +1071,7 @@ var   document$1 = window.document;
       } else if (sel === window) {
         els.push(sel);
       } else if (typeof sel === 'function') {
-        onDomLoad(sel);
+        $.onDomLoad(sel);
       }
     }
 
@@ -1142,7 +1143,7 @@ var   document$1 = window.document;
   $.bind = binder('add', 'attach');
   $.unbind = binder('remove', 'detach');
 
-  function onDomLoad(func) {
+  $.onDomLoad = function (func) {
     var w = window,
         readyState = w.document.readyState;
 
@@ -1153,7 +1154,7 @@ var   document$1 = window.document;
         func.call(w);
       });
     }
-  }
+  };
 
   function getContainer() {
     // Look for these two selectors first... you need these to allow for the auto-shrink to work
@@ -1233,7 +1234,8 @@ var   document$1 = window.document;
         } else {
           var additionalProperties = ['margin-top', 'margin-bottom'];
           additionalProperties.forEach(function (property) {
-            h += parseFloat(computed[property]);
+            var floated = parseFloat(computed[property]);
+            h += floated;
           });
         }
       }
@@ -1768,10 +1770,11 @@ var   document$1 = window.document;
     }, {
       key: '_checkOrigin',
       value: function _checkOrigin(event) {
+        var no_source_types = ['api_tamper'];
+        if (event.data && no_source_types.indexOf(event.data.type) > -1) {
+          return true;
+        }
         return event.origin === this._data.origin && event.source === this._host;
-        var isParent = event.origin === this._data.origin && event.source === this._host,
-            isTop = event.source === window.top;
-        return isParent || isTop;
       }
     }, {
       key: '_sendInit',
