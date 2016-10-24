@@ -529,7 +529,6 @@ var AP = (function () {
         var data = event.data;
         var module = this._registeredAPIModules[data.mod];
         var extension = this.getRegisteredExtensions(reg.extension)[0];
-        console.log('GOT MESSAGE AS:', data.fn, event, reg);
         if (module) {
           var fnName = data.fn;
           if (data._cls) {
