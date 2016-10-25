@@ -1890,7 +1890,7 @@ var   document$1 = window.document;
       _this.subCreate = function (extensionOptions, initCallback) {
         extensionOptions.options = extensionOptions.options || {};
         extensionOptions.options.targets = util.extend({}, this.parentTargets, extensionOptions.options.targets);
-        var extension = host.create(extensionOptions, initCallback);
+        var extension = this.create(extensionOptions, initCallback);
         plugin.sendSubCreate(extension.id, extensionOptions);
         return extension;
       };
