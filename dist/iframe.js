@@ -611,7 +611,7 @@ var AP = (function () {
       }
     }, {
       key: 'defineAPIModule',
-      value: function defineAPIModule(module, moduleName, options) {
+      value: function defineAPIModule(module, moduleName) {
         moduleName = moduleName || '_globals';
         this._registeredAPIModules[moduleName] = util.extend({}, this._registeredAPIModules[moduleName] || {}, module);
         return this._registeredAPIModules;
@@ -840,7 +840,7 @@ var AP = (function () {
                   }
                   break;
               }
-              // accumulator._options = mod._options;
+
               return accumulator;
             }, {});
           }
@@ -867,7 +867,7 @@ var AP = (function () {
         if (event.data.type === 'unload' && (sourceTypeMatches || event.source === undefined)) {
           isValidOrigin = true;
         }
-        // ignore resp because its supposed to be running AP and not xdmrpc
+
         if (!isValidOrigin) {
           util.warn("Failed to validate origin: " + event.origin);
         }
@@ -902,16 +902,6 @@ var AP = (function () {
             delete this._registeredExtensions[registration.extension_id];
           }, this);
         }
-      }
-    }, {
-      key: 'whitelistDomain',
-      value: function whitelistDomain(urlOrDomain) {
-        var match = urlOrDomain.match(/^(?:https?:)?(?:\/\/)?([^\/\?]+)/);
-        if (match && match[1]) {
-          this._domainWhitelist.push(match[1]);
-          return match[1];
-        }
-        return false;
       }
     }]);
     return XDMRPC;
@@ -1050,8 +1040,6 @@ var AP = (function () {
     }]);
     return Connect;
   }();
-
-  var host = new Connect();
 
   var _each = util.each;
 var   document$1 = window.document;
@@ -1857,49 +1845,62 @@ var   document$1 = window.document;
     return AP;
   }(PostMessage);
 
-  if (window !== window.parent) {
-    var parentTargets = { _globals: {} };
-    var plugin = new AP();
-    // export options from plugin to host.
-    Object.getOwnPropertyNames(plugin).forEach(function (prop) {
-      if (['_hostModules', '_globals'].indexOf(prop) === -1 && host[prop] === undefined) {
-        host[prop] = plugin[prop];
-      }
-    });
+  var Combined = function (_Host) {
+    inherits(Combined, _Host);
 
-    ['registerAny', 'register'].forEach(function (prop) {
-      host[prop] = plugin.__proto__[prop].bind(plugin);
-    });
+    function Combined() {
+      classCallCheck(this, Combined);
 
-    //write plugin modules to host.
-    Object.getOwnPropertyNames(plugin._hostModules).forEach(function (moduleName) {
-      host[moduleName] = plugin._hostModules[moduleName];
-      host._xdm.defineAPIModule(plugin._hostModules[moduleName], moduleName);
-    });
+      var _this = possibleConstructorReturn(this, (Combined.__proto__ || Object.getPrototypeOf(Combined)).call(this));
 
-    host._hostModules = plugin._hostModules;
+      _this.parentTargets = { _globals: {} };
+      var plugin = new AP();
+      // export options from plugin to host.
+      Object.getOwnPropertyNames(plugin).forEach(function (prop) {
+        if (['_hostModules', '_globals'].indexOf(prop) === -1 && this[prop] === undefined) {
+          this[prop] = plugin[prop];
+        }
+      }, _this);
 
-    host.defineGlobal = function (module) {
-      parentTargets['_globals'] = util.extend({}, parentTargets['_globals'], module);
-      host._xdm.defineAPIModule(module);
-    };
+      ['registerAny', 'register'].forEach(function (prop) {
+        this[prop] = plugin.__proto__[prop].bind(plugin);
+      }, _this);
 
-    host.defineModule = function (moduleName, module) {
-      host._xdm.defineAPIModule(module, moduleName);
-      parentTargets[moduleName] = {};
-      Object.getOwnPropertyNames(module).forEach(function (name) {
-        parentTargets[moduleName][name] = 'parent';
-      });
-    };
+      //write plugin modules to host.
+      Object.getOwnPropertyNames(plugin._hostModules).forEach(function (moduleName) {
+        this[moduleName] = plugin._hostModules[moduleName];
+        this._xdm.defineAPIModule(plugin._hostModules[moduleName], moduleName);
+      }, _this);
 
-    host.subCreate = function (extensionOptions, initCallback) {
-      extensionOptions.options = extensionOptions.options || {};
-      extensionOptions.options.targets = util.extend({}, parentTargets, extensionOptions.options.targets);
-      var extension = host.create(extensionOptions, initCallback);
-      plugin.sendSubCreate(extension.id, extensionOptions);
-      return extension;
-    };
-  }
+      _this._hostModules = plugin._hostModules;
+
+      _this.defineGlobal = function (module) {
+        this.parentTargets['_globals'] = util.extend({}, this.parentTargets['_globals'], module);
+        this._xdm.defineAPIModule(module);
+      };
+
+      _this.defineModule = function (moduleName, module) {
+        this._xdm.defineAPIModule(module, moduleName);
+        this.parentTargets[moduleName] = {};
+        Object.getOwnPropertyNames(module).forEach(function (name) {
+          this.parentTargets[moduleName][name] = 'parent';
+        }, this);
+      };
+
+      _this.subCreate = function (extensionOptions, initCallback) {
+        extensionOptions.options = extensionOptions.options || {};
+        extensionOptions.options.targets = util.extend({}, this.parentTargets, extensionOptions.options.targets);
+        var extension = host.create(extensionOptions, initCallback);
+        plugin.sendSubCreate(extension.id, extensionOptions);
+        return extension;
+      };
+      return _this;
+    }
+
+    return Combined;
+  }(Connect);
+
+  var combined = new Combined();
 
   function deprecate (fn, name, alternate, sinceVersion) {
     var called = false;
@@ -1907,7 +1908,7 @@ var   document$1 = window.document;
       if (!called && typeof console !== 'undefined' && console.warn) {
         called = true;
         console.warn('DEPRECATED API - ' + name + ' has been deprecated since ACJS ' + sinceVersion + (' and will be removed in a future release. ' + (alternate ? 'Use ' + alternate + ' instead.' : 'No alternative will be provided.')));
-        host._analytics.trackDeprecatedMethodUsed(name);
+        combined._analytics.trackDeprecatedMethodUsed(name);
       }
       return fn.apply(undefined, arguments);
     };
@@ -2174,8 +2175,8 @@ var   document$1 = window.document;
       this._events = {};
       this.ANY_PREFIX = '_any';
       this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
-      if (host._data && host._data.origin) {
-        host.registerAny(this._anyListener.bind(this));
+      if (combined._data && combined._data.origin) {
+        combined.registerAny(this._anyListener.bind(this));
       }
     }
 
@@ -2325,7 +2326,7 @@ var   document$1 = window.document;
   var customButtonIncrement = 1;
 
   var getCustomData = deprecate(function () {
-    return host._data.options.customData;
+    return combined._data.options.customData;
   }, 'AP.dialog.customData', 'AP.dialog.getCustomData()', '5.0');
 
   /**
@@ -2339,10 +2340,10 @@ var   document$1 = window.document;
    *
    * @return {Object} Data Object passed to the dialog on creation.
    */
-  Object.defineProperty(host._hostModules.dialog, 'customData', {
+  Object.defineProperty(combined._hostModules.dialog, 'customData', {
     get: getCustomData
   });
-  Object.defineProperty(host.dialog, 'customData', {
+  Object.defineProperty(combined.dialog, 'customData', {
     get: getCustomData
   });
 
@@ -2396,7 +2397,7 @@ var   document$1 = window.document;
       delete dialogHandlers[name];
     }
     if (shouldClose) {
-      host.dialog.close();
+      combined.dialog.close();
     }
   }
 
@@ -2409,9 +2410,9 @@ var   document$1 = window.document;
     }
   }
 
-  var original_dialogCreate = host.dialog.create.prototype.constructor.bind({});
+  var original_dialogCreate = combined.dialog.create.prototype.constructor.bind({});
 
-  host.dialog.create = host._hostModules.dialog.create = function () {
+  combined.dialog.create = combined._hostModules.dialog.create = function () {
     var dialog = original_dialogCreate.apply(undefined, arguments);
     /**
      * Allows the add-on to register a callback function for the given event. The listener is only called once and must be re-registered if needed.
@@ -2428,9 +2429,9 @@ var   document$1 = window.document;
     return dialog;
   };
 
-  var original_dialogGetButton = host.dialog.getButton.prototype.constructor.bind({});
+  var original_dialogGetButton = combined.dialog.getButton.prototype.constructor.bind({});
 
-  host.dialog.getButton = host._hostModules.dialog.getButton = function (name) {
+  combined.dialog.getButton = combined._hostModules.dialog.getButton = function (name) {
     try {
       var button = original_dialogGetButton(name);
       /**
@@ -2455,9 +2456,9 @@ var   document$1 = window.document;
     }
   };
 
-  var original_dialogCreateButton = host.dialog.createButton.prototype.constructor.bind({});
+  var original_dialogCreateButton = combined.dialog.createButton.prototype.constructor.bind({});
 
-  host.dialog.createButton = host._hostModules.dialog.createButton = function (options) {
+  combined.dialog.createButton = combined._hostModules.dialog.createButton = function (options) {
     var buttonProperties = {};
     if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
       buttonProperties.text = options;
@@ -2469,7 +2470,7 @@ var   document$1 = window.document;
       buttonProperties.identifier = 'user.button.' + customButtonIncrement++;
     }
     var createButton = original_dialogCreateButton(buttonProperties);
-    return host.dialog.getButton(buttonProperties.identifier);
+    return combined.dialog.getButton(buttonProperties.identifier);
   };
 
   /**
@@ -2480,10 +2481,10 @@ var   document$1 = window.document;
    * @param {String} buttonName - button either "cancel" or "submit"
    * @param {Function} listener - callback function invoked when the requested button is pressed
    */
-  host.dialog.onDialogMessage = host._hostModules.dialog.onDialogMessage = deprecate(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');
+  combined.dialog.onDialogMessage = combined._hostModules.dialog.onDialogMessage = deprecate(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');
 
-  if (!host.Dialog) {
-    host.Dialog = host._hostModules.Dialog = host.dialog;
+  if (!combined.Dialog) {
+    combined.Dialog = combined._hostModules.Dialog = combined.dialog;
   }
 
   var modules = {};
@@ -2550,12 +2551,12 @@ var   document$1 = window.document;
 
   function getFromHostModules(name) {
     var module;
-    if (host._hostModules) {
-      if (host._hostModules[name]) {
-        module = host._hostModules[name];
+    if (combined._hostModules) {
+      if (combined._hostModules[name]) {
+        module = combined._hostModules[name];
       }
-      if (host._hostModules._globals && host._hostModules._globals[name]) {
-        module = host._hostModules._globals[name];
+      if (combined._hostModules._globals && combined._hostModules._globals[name]) {
+        module = combined._hostModules._globals[name];
       }
       if (module) {
         return {
@@ -2613,43 +2614,43 @@ var   document$1 = window.document;
     }
   };
 
-  host._hostModules._dollar = $$2;
-  host._hostModules['inline-dialog'] = host._hostModules.inlineDialog;
+  combined._hostModules._dollar = $$2;
+  combined._hostModules['inline-dialog'] = combined._hostModules.inlineDialog;
 
   if (consumerOptions.get('sizeToParent') === true) {
-    host.env.sizeToParent(consumerOptions.get('hideFooter') === true);
+    combined.env.sizeToParent(consumerOptions.get('hideFooter') === true);
   }
 
   if (consumerOptions.get('base') === true) {
-    host.env.getLocation(function (loc) {
+    combined.env.getLocation(function (loc) {
       $$2('head').append({ tag: 'base', href: loc, target: '_parent' });
     });
   }
 
   $$2.each(events.methods, function (i, method) {
-    host._hostModules.events[method] = host.events[method] = events[method].bind(events);
+    combined._hostModules.events[method] = combined.events[method] = events[method].bind(events);
   });
 
-  host.define = deprecate(function () {
+  combined.define = deprecate(function () {
     return AMD.define.apply(AMD, arguments);
   }, 'AP.define()', null, '5.0');
 
-  host.require = deprecate(function () {
+  combined.require = deprecate(function () {
     return AMD.require.apply(AMD, arguments);
   }, 'AP.require()', null, '5.0');
 
-  var margin = host._data.options.isDialog ? '10px 10px 0 10px' : '0';
+  var margin = combined._data.options.isDialog ? '10px 10px 0 10px' : '0';
   if (consumerOptions.get('margin') !== false) {
     $$2('head').append({ tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}' });
   }
 
-  host.Meta = {
+  combined.Meta = {
     get: Meta.getMeta
   };
-  host.meta = Meta.getMeta;
-  host.localUrl = Meta.localUrl;
+  combined.meta = Meta.getMeta;
+  combined.localUrl = Meta.localUrl;
 
-  host._hostModules._util = host._util = {
+  combined._hostModules._util = combined._util = {
     each: util$1.each,
     log: util$1.log,
     decodeQueryComponent: util$1.decodeQueryComponent,
@@ -2662,14 +2663,14 @@ var   document$1 = window.document;
     handleError: util$1.handleError
   };
 
-  if (host.defineModule) {
-    host.defineModule('env', { resize: function resize(w, h, callback) {
+  if (combined.defineModule) {
+    combined.defineModule('env', { resize: function resize(w, h, callback) {
         var iframe = document.getElementById(callback._context.extension_id);
         iframe.style.width = w;
         iframe.style.height = h;
       } });
   }
 
-  return host;
+  return combined;
 
 }());

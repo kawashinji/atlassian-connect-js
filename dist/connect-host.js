@@ -1051,7 +1051,7 @@
 	    }
 	  }, {
 	    key: 'defineAPIModule',
-	    value: function defineAPIModule(module, moduleName, options) {
+	    value: function defineAPIModule(module, moduleName) {
 	      moduleName = moduleName || '_globals';
 	      this._registeredAPIModules[moduleName] = util.extend({}, this._registeredAPIModules[moduleName] || {}, module);
 	      return this._registeredAPIModules;
@@ -1280,7 +1280,7 @@
 	                }
 	                break;
 	            }
-	            // accumulator._options = mod._options;
+
 	            return accumulator;
 	          }, {});
 	        }
@@ -1307,7 +1307,7 @@
 	      if (event.data.type === 'unload' && (sourceTypeMatches || event.source === undefined)) {
 	        isValidOrigin = true;
 	      }
-	      // ignore resp because its supposed to be running AP and not xdmrpc
+
 	      if (!isValidOrigin) {
 	        util.warn("Failed to validate origin: " + event.origin);
 	      }
@@ -1342,16 +1342,6 @@
 	          delete this._registeredExtensions[registration.extension_id];
 	        }, this);
 	      }
-	    }
-	  }, {
-	    key: 'whitelistDomain',
-	    value: function whitelistDomain(urlOrDomain) {
-	      var match = urlOrDomain.match(/^(?:https?:)?(?:\/\/)?([^\/\?]+)/);
-	      if (match && match[1]) {
-	        this._domainWhitelist.push(match[1]);
-	        return match[1];
-	      }
-	      return false;
 	    }
 	  }]);
 	  return XDMRPC;
