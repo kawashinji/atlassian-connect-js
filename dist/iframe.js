@@ -471,11 +471,11 @@ var   document$1 = window.document;
   function onDomLoad(func) {
     var w = window,
         readyState = w.document.readyState;
-
-    if (readyState === "complete") {
+    console.log('ready state?', readyState);
+    if (readyState === "loaded") {
       func.call(w);
     } else {
-      $.bind(w, "load", function () {
+      $.bind(w, "DOMContentLoaded", function () {
         func.call(w);
       });
     }
@@ -565,6 +565,7 @@ var   document$1 = window.document;
           });
         }
       }
+      h = Math.ceil(h);
     }
     return { w: w, h: h };
   };
