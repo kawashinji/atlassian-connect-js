@@ -472,10 +472,11 @@ var   document$1 = window.document;
     var w = window,
         readyState = w.document.readyState;
     console.log('ready state?', readyState);
-    if (readyState === "loaded") {
+    if (readyState === "interactive") {
       func.call(w);
     } else {
       $.bind(w, "DOMContentLoaded", function () {
+        console.log("DOCUMENT READY", w.document.readyState);
         func.call(w);
       });
     }
