@@ -554,6 +554,7 @@ var   document$1 = window.document;
       } else {
         var computed = window.getComputedStyle(container);
         h = container.getBoundingClientRect().height;
+        console.log('computed dimensions', w, h, container.id, docHeight);
         if (h === 0) {
           h = docHeight;
         } else {
@@ -642,7 +643,6 @@ var   document$1 = window.document;
   var resizeListener = {
     add: function add(fn) {
       var container = getContainer();
-      console.log('container?', container, fn);
       attachResizeEvent(container, fn);
     },
     remove: function remove() {
@@ -667,9 +667,8 @@ var   document$1 = window.document;
     createClass(AutoResizeAction, [{
       key: 'triggered',
       value: function triggered(dimensions) {
-        console.log('resize triggerd', dimensions);
         dimensions = dimensions || size();
-        console.log('size?', dimensions);
+        console.log('size?', dimensions.w, dimensions.h);
         var now = Date.now();
         dimensions.setAt = now;
         this.resizeStore = this.resizeStore.filter(function (entry) {
@@ -1108,6 +1107,7 @@ var   document$1 = window.document;
     }, {
       key: '_initResize',
       value: function _initResize() {
+        console.log('_initResize');
         this.resize();
         var autoresize = new AutoResizeAction(this.resize);
         console.log('_initResize', autoresize, this.resize);
