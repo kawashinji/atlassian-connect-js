@@ -1116,9 +1116,19 @@ var   document$1 = window.document;
         // setTimeout(function(){
         //   that.resize();
         // }, 10);
+        $(function () {
+          console.log("DOM LOAD");
+          var cont = getContainer();
+          console.log("CONT?", cont);
+          console.log("HEIGHTS?", cont.scrollHeight, cont.offsetHeight, cont.clientHeight, cont.height);
+          console.log("RECT?", cont.getBoundingClientRect());
+        });
 
         var autoresize = new AutoResizeAction(this.resize);
         console.log('_initResize', autoresize, this.resize);
+        resizeListener.add(function () {
+          console.log("RESIZE TRIGGERED!", arguments);
+        });
         resizeListener.add(util._bind(autoresize, autoresize.triggered));
       }
     }]);
