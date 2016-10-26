@@ -1,11 +1,9 @@
-image: node:argon
+image: node:boron
 
 pipelines:
     default:
         - step:
             script:
-                - npm set @atlassian:registry https://npm-private-proxy.atlassian.io/
-                - npm set //npm-private-proxy.atlassian.io/:_authToken $NPM_TOKEN
                 - npm set loglevel silent
                 - npm set spin false
                 - npm install
