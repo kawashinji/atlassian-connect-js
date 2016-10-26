@@ -787,6 +787,7 @@ var   document$1 = window.document;
       _this._registerOnUnload();
       _this.resize = util._bind(_this, function (width, height) {
         var dimensions = size();
+        console.log("calling this.resize", width, height, dimensions.w, dimensions.h);
         if (!width) {
           width = dimensions.w;
         }
@@ -1112,7 +1113,10 @@ var   document$1 = window.document;
       key: '_initResize',
       value: function _initResize() {
         console.log('_initResize');
-        this.resize();
+        // setTimeout(function(){
+        //   that.resize();
+        // }, 10);
+
         var autoresize = new AutoResizeAction(this.resize);
         console.log('_initResize', autoresize, this.resize);
         resizeListener.add(util._bind(autoresize, autoresize.triggered));
