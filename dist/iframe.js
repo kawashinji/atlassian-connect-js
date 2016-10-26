@@ -4,8 +4,121 @@ var AP = (function () {
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
     return typeof obj;
   } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
   };
+
+  var asyncGenerator = function () {
+    function AwaitValue(value) {
+      this.value = value;
+    }
+
+    function AsyncGenerator(gen) {
+      var front, back;
+
+      function send(key, arg) {
+        return new Promise(function (resolve, reject) {
+          var request = {
+            key: key,
+            arg: arg,
+            resolve: resolve,
+            reject: reject,
+            next: null
+          };
+
+          if (back) {
+            back = back.next = request;
+          } else {
+            front = back = request;
+            resume(key, arg);
+          }
+        });
+      }
+
+      function resume(key, arg) {
+        try {
+          var result = gen[key](arg);
+          var value = result.value;
+
+          if (value instanceof AwaitValue) {
+            Promise.resolve(value.value).then(function (arg) {
+              resume("next", arg);
+            }, function (arg) {
+              resume("throw", arg);
+            });
+          } else {
+            settle(result.done ? "return" : "normal", result.value);
+          }
+        } catch (err) {
+          settle("throw", err);
+        }
+      }
+
+      function settle(type, value) {
+        switch (type) {
+          case "return":
+            front.resolve({
+              value: value,
+              done: true
+            });
+            break;
+
+          case "throw":
+            front.reject(value);
+            break;
+
+          default:
+            front.resolve({
+              value: value,
+              done: false
+            });
+            break;
+        }
+
+        front = front.next;
+
+        if (front) {
+          resume(front.key, front.arg);
+        } else {
+          back = null;
+        }
+      }
+
+      this._invoke = send;
+
+      if (typeof gen.return !== "function") {
+        this.return = undefined;
+      }
+    }
+
+    if (typeof Symbol === "function" && Symbol.asyncIterator) {
+      AsyncGenerator.prototype[Symbol.asyncIterator] = function () {
+        return this;
+      };
+    }
+
+    AsyncGenerator.prototype.next = function (arg) {
+      return this._invoke("next", arg);
+    };
+
+    AsyncGenerator.prototype.throw = function (arg) {
+      return this._invoke("throw", arg);
+    };
+
+    AsyncGenerator.prototype.return = function (arg) {
+      return this._invoke("return", arg);
+    };
+
+    return {
+      wrap: function (fn) {
+        return function () {
+          return new AsyncGenerator(fn.apply(this, arguments));
+        };
+      },
+      await: function (value) {
+        return new AwaitValue(value);
+      }
+    };
+  }();
 
   var classCallCheck = function (instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -529,6 +642,7 @@ var   document$1 = window.document;
   var resizeListener = {
     add: function add(fn) {
       var container = getContainer();
+      console.log('container?', container, fn);
       attachResizeEvent(container, fn);
     },
     remove: function remove() {
@@ -547,12 +661,15 @@ var   document$1 = window.document;
 
       this.resizeStore = [];
       this.callback = callback;
+      console.log('resize action', this.resizeStore, this.callback, this);
     }
 
     createClass(AutoResizeAction, [{
       key: 'triggered',
       value: function triggered(dimensions) {
+        console.log('resize triggerd', dimensions);
         dimensions = dimensions || size();
+        console.log('size?', dimensions);
         var now = Date.now();
         dimensions.setAt = now;
         this.resizeStore = this.resizeStore.filter(function (entry) {
@@ -560,12 +677,14 @@ var   document$1 = window.document;
         });
         this.resizeStore.push(dimensions);
         if (this.resizeStore.length === 3) {
+          console.log('resize store is 3 breaking out', this.resizeStore);
           var oldDimensions = this.resizeStore[0];
           this.resizeStore = this.resizeStore.slice(1);
           if (dimensions.w <= oldDimensions.w && dimensions.h <= oldDimensions.h) {
             return;
           }
         }
+        console.log("triggered, calling resize callback", dimensions.w, dimensions.h);
         this.callback(dimensions.w, dimensions.h);
       }
     }]);
@@ -991,6 +1110,7 @@ var   document$1 = window.document;
       value: function _initResize() {
         this.resize();
         var autoresize = new AutoResizeAction(this.resize);
+        console.log('_initResize', autoresize, this.resize);
         resizeListener.add(util._bind(autoresize, autoresize.triggered));
       }
     }]);
