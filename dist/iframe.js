@@ -554,10 +554,11 @@ var   document$1 = window.document;
       } else {
         var computed = window.getComputedStyle(container);
         h = container.getBoundingClientRect().height;
-        console.log('computed dimensions', w, h, container.id, docHeight);
         if (h === 0) {
-          h = docHeight;
+          console.log('container is zero height so use', container.offsetHeight, container.clientHeight);
+          h = Math.max(container.offsetHeight, container.clientHeight);
         } else {
+          console.log('container height is not zero!', h);
           var additionalProperties = ['margin-top', 'margin-bottom'];
           additionalProperties.forEach(function (property) {
             h += parseFloat(computed[property]);
