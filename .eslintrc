@@ -1,6 +1,6 @@
 {
   "extends": [
-    "@atlassian/atlassian-style-guide"
+    "@atlassian/atlassian-fecq"
   ],
   "parserOptions": {
     "ecmaVersion": 6,

@@ -13,7 +13,7 @@
     "test": "gulp test-ci"
   },
   "devDependencies": {
-    "@atlassian/eslint-config-atlassian-style-guide": "0.1.3",
+    "@atlassian/eslint-config-atlassian-fecq": "2.0.3",
     "babel-core": "6.13.2",
     "babel-loader": "6.2.4",
     "babel-preset-es2015": "6.13.2",
