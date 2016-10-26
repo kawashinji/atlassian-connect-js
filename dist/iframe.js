@@ -550,12 +550,13 @@ var   document$1 = window.document;
       docHeight = Math.max(container.scrollHeight, document.documentElement.scrollHeight, container.offsetHeight, document.documentElement.offsetHeight, container.clientHeight, document.documentElement.clientHeight);
 
       if (container === document.body) {
+        console.log('container is body!');
         h = docHeight;
       } else {
         var computed = window.getComputedStyle(container);
         h = container.getBoundingClientRect().height;
         if (h === 0) {
-          console.log('container is zero height so use', container.offsetHeight, container.clientHeight);
+          console.log('container is zero height so use', typeof h === 'undefined' ? 'undefined' : _typeof(h), container.offsetHeight, container.clientHeight);
           h = Math.max(container.offsetHeight, container.clientHeight);
         } else {
           console.log('container height is not zero!', h);
