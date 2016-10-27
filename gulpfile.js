@@ -1,3 +1,4 @@
+/* eslint-env node */
 var _ = require('lodash');
 var buffer = require('vinyl-buffer');
 var gulp = require('gulp');
