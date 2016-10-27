@@ -145,7 +145,7 @@ connectHost.registerContentResolver.resolveByExtension(contentResolver);
 Requirements
 ------------
 
-- Node LTS (currently v4.x)
+- Node LTS (currently v6.x)
 - NPM
 
 Installation
