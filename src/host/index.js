@@ -17,7 +17,7 @@ import _ from './underscore';
 import EventActions from './actions/event_actions';
 import IframeActions from './actions/iframe_actions';
 import DialogExtensionActions from './actions/dialog_extension_actions';
-
+import scrollPosition from './modules/scroll-position';
 import InlineDialogWebItemComponent from './components/inline_dialog_webitem';
 import DialogWebItemComponent from './components/dialog_webitem';
 import DialogExtensionComponent from './components/dialog_extension';
@@ -46,6 +46,7 @@ simpleXDM.defineModule('inlineDialog', inlineDialog);
 simpleXDM.defineModule('env', env);
 simpleXDM.defineModule('events', events);
 simpleXDM.defineModule('_analytics', analytics);
+simpleXDM.defineModule('scrollPosition', scrollPosition);
 
 EventDispatcher.register('module-define-custom', function(data){
   simpleXDM.defineModule(data.name, data.methods);
