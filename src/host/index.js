@@ -14,6 +14,7 @@ import analytics from './modules/analytics';
 import ModuleActions from './actions/module_actions';
 import DomEventActions from './actions/dom_event_actions';
 import _ from './underscore';
+import util from './util';
 import EventActions from './actions/event_actions';
 import IframeActions from './actions/iframe_actions';
 import DialogExtensionActions from './actions/dialog_extension_actions';
@@ -90,6 +91,19 @@ export default {
         extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
       });
     });
+  },
+  onEventDispatched: (callback) => {
+    EventDispatcher.register('after:event-dispatch', function(data) {
+      callback.apply(null, [
+        data.type,
+        data.isPublicEvent,
+        data.event,
+        data.extension
+      ]);
+    });
+  },
+  offEventDispatched: (callback) => {
+    EventDispatcher.unregister('after:event-dispatch', callback);
   },
   destroy: function(extension_id){
     IframeActions.notifyIframeDestroyed({extension_id: extension_id});

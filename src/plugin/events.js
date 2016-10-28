@@ -18,13 +18,14 @@ class Events {
   constructor(){
     this._events = {};
     this.ANY_PREFIX = '_any';
-    this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
+    this.methods = ['off', 'offAll', 'offAny', 'on', 'onPublic', 'onAny', 'once'];
     if(AP._data && AP._data.origin) {
       AP.registerAny(this._anyListener.bind(this));
     }
   }
 
   _anyListener(data, callback){
+    var isPublicEvent = callback._context.isPublicEvent;
     var eventName = callback._context.eventName;
     var any = this._events[this.ANY_PREFIX] || [];
     var byName = this._events[eventName] || [];
@@ -41,19 +42,29 @@ class Events {
         args: data,
         name: eventName
       });
-      handler.apply(null, args);
+
+      if (isPublicEvent === handler.isPublicEvent) {
+        handler.listener.apply(null, args);
+      }
     });
 
     byName.forEach((handler) => {
-      handler.apply(null, data);
+      var passesFilter = (typeof handler.filterFunc === 'function') ?
+        handler.filterFunc.call(null, callback._context) : true;
+
+      if (isPublicEvent === handler.isPublicEvent && passesFilter) {
+        handler.listener.apply(null, data);
+      }
     });
   }
 
   off(name, listener){
     if (this._events[name]) {
-      var index = this._events[name].indexOf(listener);
-      if (index > -1) {
-        this._events[name].splice(index, 1);
+      for (var i = 0; i < this._events[name].length; i++) {
+        var registration = this._events[name][i];
+        if (registration.listener === listener) {
+          this._events[name].splice(i, 1);
+        }
       }
       if(this._events[name].length === 0) {
         delete this._events[name];
@@ -70,14 +81,24 @@ class Events {
   }
 
   on(name, listener){
+    this._registerListener(name, listener, null, false);
+  }
+
+  onPublic(name, listener, filterFunc){
+    this._registerListener(name, listener, filterFunc, true);
+  }
+
+  _registerListener(name, listener, filterFunc, isPublicEvent){
     if(!this._events[name]){
       this._events[name] = [];
     }
-    this._events[name].push(listener);
+    this._events[name].push({filterFunc, listener, isPublicEvent});
   }
+
   onAny(listener){
     this.on(this.ANY_PREFIX, listener);
   }
+
   once(name, listener){
     var _that = this;
     function runOnce() {
@@ -86,6 +107,7 @@ class Events {
     }
     this.on(name, runOnce);
   }
+
   /**
    * Adds a listener for all occurrences of an event of a particular name.
    * Listener arguments include any arguments passed to `events.emit`, followed by an object describing the complete event information.
@@ -94,6 +116,19 @@ class Events {
    * @memberof module:Events#
    * @param {String} name The event name to subscribe the listener to
    * @param {Function} listener A listener callback to subscribe to the event name
+   */
+
+  /**
+   * Adds a listener for all occurrences of a public event of a particular name.
+   * Listener arguments include any arguments passed to `events.emitPublic`, followed by an object describing the complete event information.
+   * Filter function will receive one argument that contains the event publisher's information.
+   * @name onPublic
+   * @method
+   * @memberof module:Events#
+   * @param {String} name The event name to subscribe the listener to
+   * @param {Function} listener A listener callback to subscribe to the event name
+   * @param {Function} filter (Optional) A function to filter the events. If it is specified, `listener`
+   * will only be invoked when the function returns `true`
    */
 
   /**
@@ -149,6 +184,26 @@ class Events {
    * @memberof module:Events#
    * @param {String} name The name of event to emit
    * @param {String[]} args 0 or more additional data arguments to deliver with the event
+   */
+
+  /**
+   * Emits a public event on this bus, firing listeners registered by `events.onPublic` by name.
+   * The events emitted by this method can be received by iframes that defined by other add-ons on the page.
+   * Arguments following the targets parameter are captured and passed to listeners.
+   * @name emitPublic
+   * @method
+   * @memberof module:Events#
+   * @param {String} name The name of event to emit
+   * @param {Events~EventTarget[]} targets Array of option object that the event will be broadcast to. Empty array means
+   * broadcast the event to all the add-ons on the page.
+   * @param {String[]} args 0 or more additional data arguments to deliver with the event
+   */
+
+  /**
+   * Event target
+   *
+   * @class Events~EventTarget
+   * @property addonKey Key of the add-on that a event will be broadcast to
    */
 }
 

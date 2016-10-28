@@ -1517,12 +1517,20 @@
 	};
 
 	var EventActions = {
-	  broadcast: function broadcast(type, targetSpec, event) {
-	    host.dispatch(type, targetSpec, event);
+	  broadcast: function broadcast(type, targetSpec, event, isPublicEvent, extension) {
+	    // Context that will be passed to subscriber's filter function
+	    var publisherContext = extension ? {
+	      isPublicEvent: isPublicEvent,
+	      addonKey: extension.addon_key,
+	      key: extension.key
+	    } : {};
+	    host.dispatch(type, targetSpec, event, null, publisherContext);
 	    EventDispatcher$1.dispatch('event-dispatch', {
 	      type: type,
+	      isPublicEvent: isPublicEvent,
 	      targetSpec: targetSpec,
-	      event: event
+	      event: event,
+	      extension: extension
 	    });
 	  }
 	};
@@ -1533,11 +1541,34 @@
 	      args[_key - 1] = arguments[_key];
 	    }
 
-	    var callback = _.last(args);
+	    var extension = _.last(args)._context.extension;
 	    args = _.first(args, -1);
 	    EventActions.broadcast(name, {
-	      addon_key: callback._context.extension.addon_key
-	    }, args);
+	      addon_key: extension.addon_key
+	    }, args, false, extension);
+	  },
+
+	  emitPublic: function emitPublic(name, targets) {
+	    for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+	      args[_key2 - 2] = arguments[_key2];
+	    }
+
+	    if (!Array.isArray(targets)) {
+	      targets = [targets];
+	    }
+	    targets = targets.filter(function (target) {
+	      return target.addonKey !== undefined;
+	    }).map(function (target) {
+	      return {
+	        addon_key: target.addonKey
+	      };
+	    });
+
+	    var extension = _.last(args)._context.extension;
+	    args = _.first(args, -1);
+	    targets.forEach(function (target) {
+	      EventActions.broadcast(name, target, args, true, extension);
+	    });
 	  }
 	};
 
@@ -5375,6 +5406,14 @@
 	        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
 	      });
 	    });
+	  },
+	  onEventDispatched: function onEventDispatched(callback) {
+	    EventDispatcher$1.register('after:event-dispatch', function (data) {
+	      callback.apply(null, [data.type, data.isPublicEvent, data.event, data.extension]);
+	    });
+	  },
+	  offEventDispatched: function offEventDispatched(callback) {
+	    EventDispatcher$1.unregister('after:event-dispatch', callback);
 	  },
 	  destroy: function destroy(extension_id) {
 	    IframeActions.notifyIframeDestroyed({ extension_id: extension_id });
