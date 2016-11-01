@@ -3,14 +3,17 @@ import EventActions from '../actions/event_actions';
 
 export default {
   emit: function(name, ...args) {
-    var extension = _.last(args)._context.extension;
+    var callback = _.last(args);
     args = _.first(args, -1);
     EventActions.broadcast(name, {
-      addon_key: extension.addon_key
-    }, args, false, extension);
+      addon_key: callback._context.extension.addon_key
+    }, args);
   },
 
   emitPublic: function(name, targets, ...args) {
+    var extension = _.last(args)._context.extension;
+    args = _.first(args, -1);
+
     if(!Array.isArray(targets)){
       targets = [targets];
     }
@@ -22,10 +25,8 @@ export default {
       };
     });
 
-    var extension = _.last(args)._context.extension;
-    args = _.first(args, -1);
     targets.forEach(target => {
-      EventActions.broadcast(name, target, args, true, extension);
+      EventActions.broadcastPublic(name, target, args, extension);
     });
   }
 };

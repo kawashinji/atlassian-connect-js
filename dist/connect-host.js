@@ -1517,17 +1517,25 @@
 	};
 
 	var EventActions = {
-	  broadcast: function broadcast(type, targetSpec, event, isPublicEvent, extension) {
-	    // Context that will be passed to subscriber's filter function
-	    var publisherContext = extension ? {
-	      isPublicEvent: isPublicEvent,
-	      addonKey: extension.addon_key,
-	      key: extension.key
-	    } : {};
-	    host.dispatch(type, targetSpec, event, null, publisherContext);
+	  broadcast: function broadcast(type, targetSpec, event) {
+	    host.dispatch(type, targetSpec, { event: event });
 	    EventDispatcher$1.dispatch('event-dispatch', {
 	      type: type,
-	      isPublicEvent: isPublicEvent,
+	      targetSpec: targetSpec,
+	      event: event
+	    });
+	  },
+
+	  broadcastPublic: function broadcastPublic(type, targetSpec, event, extension) {
+	    var context = {
+	      isPublicEvent: true,
+	      addonKey: extension.addon_key,
+	      key: extension.key
+	    };
+	    host.dispatch(type, targetSpec, { context: context, event: event });
+	    EventDispatcher$1.dispatch('event-dispatch', {
+	      isPublicEvent: true,
+	      type: type,
 	      targetSpec: targetSpec,
 	      event: event,
 	      extension: extension
@@ -1541,17 +1549,20 @@
 	      args[_key - 1] = arguments[_key];
 	    }
 
-	    var extension = _.last(args)._context.extension;
+	    var callback = _.last(args);
 	    args = _.first(args, -1);
 	    EventActions.broadcast(name, {
-	      addon_key: extension.addon_key
-	    }, args, false, extension);
+	      addon_key: callback._context.extension.addon_key
+	    }, args);
 	  },
 
 	  emitPublic: function emitPublic(name, targets) {
 	    for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
 	      args[_key2 - 2] = arguments[_key2];
 	    }
+
+	    var extension = _.last(args)._context.extension;
+	    args = _.first(args, -1);
 
 	    if (!Array.isArray(targets)) {
 	      targets = [targets];
@@ -1564,10 +1575,8 @@
 	      };
 	    });
 
-	    var extension = _.last(args)._context.extension;
-	    args = _.first(args, -1);
 	    targets.forEach(function (target) {
-	      EventActions.broadcast(name, target, args, true, extension);
+	      EventActions.broadcastPublic(name, target, args, extension);
 	    });
 	  }
 	};

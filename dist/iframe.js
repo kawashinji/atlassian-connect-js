@@ -2174,7 +2174,7 @@ var   document$1 = window.document;
 
       this._events = {};
       this.ANY_PREFIX = '_any';
-      this.methods = ['off', 'offAll', 'offAny', 'on', 'onPublic', 'onAny', 'once'];
+      this.methods = ['off', 'offPublic', 'offAll', 'offAny', 'offAnyPublic', 'on', 'onPublic', 'onAny', 'onAnyPublic', 'once'];
       if (combined._data && combined._data.origin) {
         combined.registerAny(this._anyListener.bind(this));
       }
@@ -2183,11 +2183,12 @@ var   document$1 = window.document;
     createClass(Events, [{
       key: '_anyListener',
       value: function _anyListener(data, callback) {
-        var isPublicEvent = callback._context.isPublicEvent;
         var eventName = callback._context.eventName;
         var any = this._events[this.ANY_PREFIX] || [];
         var byName = this._events[eventName] || [];
+        var context = data.context;
 
+        data = data.event;
         if (!Array.isArray(data)) {
           data = [data];
         }
@@ -2201,26 +2202,26 @@ var   document$1 = window.document;
             name: eventName
           });
 
-          if (isPublicEvent === handler.isPublicEvent) {
+          if (context.isPublicEvent === handler.isPublicEvent) {
             handler.listener.apply(null, args);
           }
         });
 
         byName.forEach(function (handler) {
-          var passesFilter = typeof handler.filterFunc === 'function' ? handler.filterFunc.call(null, callback._context) : true;
+          var passesFilter = typeof handler.filterFunc === 'function' ? handler.filterFunc.call(null, context) : true;
 
-          if (isPublicEvent === handler.isPublicEvent && passesFilter) {
+          if (context.isPublicEvent === handler.isPublicEvent && passesFilter) {
             handler.listener.apply(null, data);
           }
         });
       }
     }, {
-      key: 'off',
-      value: function off(name, listener) {
+      key: '_off',
+      value: function _off(name, listener, isPublicEvent) {
         if (this._events[name]) {
           for (var i = 0; i < this._events[name].length; i++) {
             var registration = this._events[name][i];
-            if (registration.listener === listener) {
+            if (registration.listener === listener && registration.isPublicEvent === isPublicEvent) {
               this._events[name].splice(i, 1);
             }
           }
@@ -2230,6 +2231,16 @@ var   document$1 = window.document;
         }
       }
     }, {
+      key: 'off',
+      value: function off(name, listener) {
+        this._off(name, listener, false);
+      }
+    }, {
+      key: 'offPublic',
+      value: function offPublic(name, listener) {
+        this._off(name, listener, true);
+      }
+    }, {
       key: 'offAll',
       value: function offAll(name) {
         delete this._events[name];
@@ -2237,7 +2248,12 @@ var   document$1 = window.document;
     }, {
       key: 'offAny',
       value: function offAny(listener) {
-        this.off(this.ANY_PREFIX, listener);
+        this.off(this.ANY_PREFIX, listener, false);
+      }
+    }, {
+      key: 'offAnyPublic',
+      value: function offAnyPublic(listener) {
+        this.off(this.ANY_PREFIX, listener, true);
       }
     }, {
       key: 'on',
@@ -2261,6 +2277,11 @@ var   document$1 = window.document;
       key: 'onAny',
       value: function onAny(listener) {
         this.on(this.ANY_PREFIX, listener);
+      }
+    }, {
+      key: 'onAnyPublic',
+      value: function onAnyPublic(listener, filterFunc) {
+        this.onPublic(this.ANY_PREFIX, listener, filterFunc);
       }
     }, {
       key: 'once',
@@ -2316,8 +2337,29 @@ var   document$1 = window.document;
        */
 
       /**
+       * Adds a listener for all occurrences of any public event, regardless of name.
+       * Listener arguments include any arguments passed to `events.emitPublic`, followed by an object describing the complete event information.
+       * Filter function will receive one argument that contains the event publisher's information.
+       * @name onAnyPublic
+       * @method
+       * @memberof module:Events#
+       * @param {Function} listener A listener callback to subscribe for any event name
+       * @param {Function} filter (Optional) A function to filter the events. If it is specified, `listener`
+       * will only be invoked when the function returns `true`
+       */
+
+      /**
        * Removes a particular listener for an event.
        * @name off
+       * @method
+       * @memberof module:Events#
+       * @param {String} name The event name to unsubscribe the listener from
+       * @param {Function} listener The listener callback to unsubscribe from the event name
+       */
+
+      /**
+       * Removes a particular listener for a public event.
+       * @name offPublic
        * @method
        * @memberof module:Events#
        * @param {String} name The event name to unsubscribe the listener from
@@ -2336,6 +2378,14 @@ var   document$1 = window.document;
       /**
        * Removes an `any` event listener.
        * @name offAny
+       * @method
+       * @memberof module:Events#
+       * @param {Function} listener A listener callback to unsubscribe from any event name
+       */
+
+      /**
+       * Removes a public `any` event listener.
+       * @name offAnyPublic
        * @method
        * @memberof module:Events#
        * @param {Function} listener A listener callback to unsubscribe from any event name
