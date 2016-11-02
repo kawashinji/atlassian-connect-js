@@ -19,6 +19,7 @@ module.exports = {
     */
     plugin: {
         src: [
+            '<%= paths.jsSource %>' + 'iframe/_bootstrap.js',
             '<%= paths.jsSource %>' + 'iframe/_amd.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_util.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_dollar.js',

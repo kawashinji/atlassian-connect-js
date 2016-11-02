@@ -73,7 +73,7 @@
         });
 
         test('creates an iframe with form when rendering with post', function () {
-            this.createXdm('blank.html', {}, {renderingMethod: 'POST', _keepFormAfterSubmitting: true});
+            this.createXdm('blank.html', {}, {renderingMethod: 'POST'});
             var iframe = $('iframe#' + this.iframeId());
             var form = $(document.getElementById(iframe.attr('name') + '-form-id'));
             equal(iframe.length, 1, 'Iframe was created');
@@ -91,7 +91,7 @@
         });
 
         test('convert query parameters to form when rendering with post', function () {
-            this.createXdm('blank.html', {}, {renderingMethod: 'POST', _keepFormAfterSubmitting: true});
+            this.createXdm('blank.html', {}, {renderingMethod: 'POST'});
             var iframe = $('iframe#' + this.iframeId());
             var form = $(document.getElementById(iframe.attr('name') + '-form-id'));
             var oauth_consumer_key = form.find('input[name="oauth_consumer_key"]');

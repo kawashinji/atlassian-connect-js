@@ -16,3 +16,23 @@
         AJS.$.extend(_AP, factory());
     }
 }(this, function () {
+
+// Bootstrap the uppermost level
+AJS.$(function() {
+  $('.ap-iframe-body-script').each(function() {
+    var bootstrapData = $(this).html().replace(/^\s*\/\/<!\[CDATA\[/, '').replace(/\/\/]]>\s*$/, '').trim();
+    var iFrameData = JSON.parse(bootstrapData);
+
+    if(typeof AP === 'object') {
+      //If we are a plugin frame
+      AP.require('_create-inner-frame', function(createInnerFrame) {
+        createInnerFrame(iFrameData);
+      });
+    } else {
+      _AP.addonOriginMap = iFrameData.addonOriginMap || {};
+      require(['connect-host', 'ac/cookie', 'ac/env', 'ac/inline-dialog', 'ac/dialog', 'ac/messages', 'ac/request', 'ac/history', 'ac/scrollPosition'], function(host){
+        host.create(iFrameData);
+      });
+    }
+  });
+});

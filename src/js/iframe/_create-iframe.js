@@ -7,7 +7,6 @@
      * @param config.props {Object} a map of additional HTML attributes for the new iframe
      * @param config.remote {String} the src url of the new iframe
      * @param config.renderingMethod {String} http method for rendering the iframe
-     * @param config._keepFormAfterSubmitting {Boolean} keep the form after submitting. This option should only be used in testing.
      */
     return function createIframe(config) {
         var renderingMethod = (config.renderingMethod || 'GET').toUpperCase();
@@ -52,9 +51,6 @@
             if (form) {
                 containerElement.appendChild(form);
                 form.submit();
-                if (!config._keepFormAfterSubmitting) {
-                    form.remove();
-                }
             }
         }
 
