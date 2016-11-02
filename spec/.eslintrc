@@ -1,0 +1,10 @@
+{
+  "env": {
+    "node": true,
+    "jasmine": true
+  },
+  "globals": {
+    "$": true,
+    "jQuery": true
+  }
+}

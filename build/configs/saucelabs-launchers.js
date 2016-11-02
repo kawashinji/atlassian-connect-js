@@ -59,7 +59,6 @@ module.exports = {
     ie_edge: {
         base: 'SauceLabs',
         browserName: 'microsoftedge',
-        version: '20.10240',
         platform: 'Windows 10'
     }
 };

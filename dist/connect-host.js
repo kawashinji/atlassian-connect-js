@@ -1829,9 +1829,10 @@
 
 	var qs = interopDefault(index$1);
 
-	var b64 = createCommonjsModule(function (module, exports) {
+	var index$6 = createCommonjsModule(function (module, exports) {
 	'use strict';
 
+	exports.byteLength = byteLength;
 	exports.toByteArray = toByteArray;
 	exports.fromByteArray = fromByteArray;
 
@@ -1839,23 +1840,17 @@
 	var revLookup = [];
 	var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array;
 
-	function init() {
-	  var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-	  for (var i = 0, len = code.length; i < len; ++i) {
-	    lookup[i] = code[i];
-	    revLookup[code.charCodeAt(i)] = i;
-	  }
-
-	  revLookup['-'.charCodeAt(0)] = 62;
-	  revLookup['_'.charCodeAt(0)] = 63;
+	var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+	for (var i = 0, len = code.length; i < len; ++i) {
+	  lookup[i] = code[i];
+	  revLookup[code.charCodeAt(i)] = i;
 	}
 
-	init();
+	revLookup['-'.charCodeAt(0)] = 62;
+	revLookup['_'.charCodeAt(0)] = 63;
 
-	function toByteArray(b64) {
-	  var i, j, l, tmp, placeHolders, arr;
+	function placeHoldersCount(b64) {
 	  var len = b64.length;
-
 	  if (len % 4 > 0) {
 	    throw new Error('Invalid string. Length must be a multiple of 4');
 	  }
@@ -1865,9 +1860,19 @@
 	  // represent one byte
 	  // if there is only one, then the three characters before it represent 2 bytes
 	  // this is just a cheap hack to not do indexOf twice
-	  placeHolders = b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0;
+	  return b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0;
+	}
 
+	function byteLength(b64) {
 	  // base64 is 4/3 + up to two characters of the original data
+	  return b64.length * 3 / 4 - placeHoldersCount(b64);
+	}
+
+	function toByteArray(b64) {
+	  var i, j, l, tmp, placeHolders, arr;
+	  var len = b64.length;
+	  placeHolders = placeHoldersCount(b64);
+
 	  arr = new Arr(len * 3 / 4 - placeHolders);
 
 	  // if there are placeholders, only get up to the last complete 4 chars
@@ -1941,9 +1946,9 @@
 	}
 	});
 
-	interopDefault(b64);
-	var fromByteArray = b64.fromByteArray;
-	var toByteArray = b64.toByteArray;
+	interopDefault(index$6);
+	var fromByteArray = index$6.fromByteArray;
+	var toByteArray = index$6.toByteArray;
 
 	// This is free and unencumbered software released into the public domain.
 	// See LICENSE.md for more information.
@@ -5316,7 +5321,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.18';
+	  window._AP.version = '5.0.0-beta.20';
 	}
 
 	host.defineModule('messages', messages);

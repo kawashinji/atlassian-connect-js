@@ -1426,7 +1426,7 @@ var   document$1 = window.document;
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.18";
+      _this._version = "5.0.0-beta.20";
       _this._apiTampered = undefined;
       _this._isSubIframe = window.top !== window.parent;
       _this._onConfirmedFns = [];
@@ -1863,7 +1863,7 @@ var   document$1 = window.document;
       }, _this);
 
       ['registerAny', 'register'].forEach(function (prop) {
-        this[prop] = plugin.__proto__[prop].bind(plugin);
+        this[prop] = Object.getPrototypeOf(plugin)[prop].bind(plugin);
       }, _this);
 
       //write plugin modules to host.

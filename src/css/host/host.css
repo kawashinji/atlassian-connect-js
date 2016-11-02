@@ -47,18 +47,6 @@
 @-o-keyframes fadeInConnectSpinner { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fadeInConnectSpinner { from { opacity: 0; } to { opacity: 1; } }
 
-.ap-iframe-container iframe {
-	display: none;
-}
-
-.ap-iframe-container.iframe-init iframe {
-  display: block;
-  opacity: 0;
-  animation: fadeInConnectSpinner 0.25s ease-in;
-  animation-delay: 0.25s;
-  animation-fill-mode: forwards;
-}
-
 .ap-status-indicator {
   opacity: 0;
   animation: fadeInConnectSpinner 0.5s ease-in;
