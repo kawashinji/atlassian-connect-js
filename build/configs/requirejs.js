@@ -52,6 +52,7 @@
         '_xdm': 'iframe/_xdm',
         '_ui-params': 'iframe/_ui-params',
         'create': 'iframe/host/create',
+        '_bootstrap': 'iframe/_bootstrap',
         'connect-host': rootSource('.tmp/amd-stubs/connect-host')
     };
 
@@ -78,7 +79,8 @@
         '_xdm',
         '_ui-params',
         'host/_status_helper',
-        'create'
+        'create',
+        '_bootstrap'
     ];
 
     var config = {

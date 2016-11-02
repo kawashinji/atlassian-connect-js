@@ -82,14 +82,6 @@
             equal(form.attr('action').indexOf('test_param'), -1, 'Form doesn\'t have query param in action');
         });
 
-        test('destroys form after rendered the iframe with post', function () {
-            this.createXdm('blank.html', {}, {renderingMethod: 'POST'});
-            var iframe = $('iframe#' + this.iframeId());
-            var form = $(document.getElementById(iframe.attr('name') + '-form-id'));
-            equal(iframe.length, 1, 'Iframe was created');
-            equal(form.length, 0, 'Iframe form was created');
-        });
-
         test('convert query parameters to form when rendering with post', function () {
             this.createXdm('blank.html', {}, {renderingMethod: 'POST'});
             var iframe = $('iframe#' + this.iframeId());
