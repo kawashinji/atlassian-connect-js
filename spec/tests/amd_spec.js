@@ -1,11 +1,9 @@
-import AP from 'simple-xdm/plugin';
+import AP from 'simple-xdm/combined';
 import AMD from 'src/plugin/amd';
 
 var testFunctionSpy = jasmine.createSpy('testFunction').and.callFake(() => 1337);
 var otherThingSpy = jasmine.createSpy('otherThing').and.callFake((thing) => thing);
 var newThingSpy = jasmine.createSpy('newThing').and.callFake((thing) => thing);
-
-AP._data.origin = '*'; // prevent AP._registerOnUnload() from failing
 
 describe('AMD', () => {
   beforeEach(() => {

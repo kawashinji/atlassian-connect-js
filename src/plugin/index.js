@@ -1,4 +1,4 @@
-import AP from 'simple-xdm/plugin';
+import AP from 'simple-xdm/combined';
 import deprecate from './deprecate';
 import $ from './dollar';
 import consumerOptions from './consumer-options';
@@ -54,5 +54,14 @@ AP._hostModules._util = AP._util = {
   isFunction: _util.isFunction,
   handleError: _util.handleError
 };
+
+if(AP.defineModule) {
+  AP.defineModule('env', {resize: function(w, h, callback){
+    var iframe = document.getElementById(callback._context.extension_id);
+    iframe.style.width = w;
+    iframe.style.height = h;
+  }});
+}
+
 
 export default AP;

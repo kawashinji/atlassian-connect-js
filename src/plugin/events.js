@@ -1,4 +1,4 @@
-import AP from 'simple-xdm/plugin';
+import AP from 'simple-xdm/combined';
 
 /**
  * The Events module provides a mechanism for emitting and receiving events.
@@ -19,7 +19,7 @@ class Events {
     this._events = {};
     this.ANY_PREFIX = '_any';
     this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
-    if(AP._data.origin) {
+    if(AP._data && AP._data.origin) {
       AP.registerAny(this._anyListener.bind(this));
     }
   }

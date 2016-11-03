@@ -1,4 +1,4 @@
-import AP from 'simple-xdm/plugin';
+import AP from 'simple-xdm/combined';
 
 export default function (fn, name, alternate, sinceVersion) {
   let called = false;
