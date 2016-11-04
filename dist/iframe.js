@@ -1260,68 +1260,27 @@ var   document$1 = window.document;
       return;
     }
 
-    element.resizeSensor = document.createElement('div');
-    element.resizeSensor.className = 'ac-resize-sensor';
-    var style = 'position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: scroll; z-index: -1; visibility: hidden;';
-    var styleChild = 'position: absolute; left: 0; top: 0;';
-
-    element.resizeSensor.style.cssText = style;
-    element.resizeSensor.innerHTML = '<div class="ac-resize-sensor-expand" style="' + style + '">' + '<div style="' + styleChild + '"></div>' + '</div>' + '<div class="ac-resize-sensor-shrink" style="' + style + '">' + '<div style="' + styleChild + ' width: 200%; height: 200%"></div>' + '</div>';
-    element.appendChild(element.resizeSensor);
-
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=548397
-    if (window.getComputedStyle && window.getComputedStyle(element).position === 'static') {
-      element.style.position = 'relative';
-    }
-
-    var expand = element.resizeSensor.childNodes[0];
-    var expandChild = expand.childNodes[0];
-    var shrink = element.resizeSensor.childNodes[1];
-
-    var lastWidth, lastHeight;
-
-    var reset = function reset() {
-      expandChild.style.width = expand.offsetWidth + 10 + 'px';
-      expandChild.style.height = expand.offsetHeight + 10 + 'px';
-      expand.scrollLeft = expand.scrollWidth;
-      expand.scrollTop = expand.scrollHeight;
-      shrink.scrollLeft = shrink.scrollWidth;
-      shrink.scrollTop = shrink.scrollHeight;
-      lastWidth = element.offsetWidth;
-      lastHeight = element.offsetHeight;
-    };
-
-    reset();
-
     var changed = function changed() {
-      console.log("CHANGED");
       if (element.resizedAttached) {
         element.resizedAttached.call();
       }
     };
 
-    var onScroll = function onScroll() {
-      console.log("ON SCROLL CALLED");
+    var onChange = function onChange() {
       if (element.offsetWidth !== lastWidth || element.offsetHeight !== lastHeight) {
         changed();
       }
-      reset();
     };
-
-    expand.addEventListener('scroll', onScroll);
-    shrink.addEventListener('scroll', onScroll);
 
     var observerConfig = {
       attributes: true,
       attributeFilter: ['style']
     };
-    var callCount = 0;
 
-    var observer = new MutationObserver(function (mutations) {
-      callCount = callCount + 1;
-      onScroll();
+    element.changeObserver = new MutationObserver(function (mutations) {
+      onChange();
     });
-    observer.observe(element, observerConfig);
+    element.changeObserver.observe(element, observerConfig);
   }
 
   var resizeListener = {
@@ -1332,9 +1291,7 @@ var   document$1 = window.document;
     remove: function remove() {
       var container = getContainer();
       if (container.resizeSensor) {
-        container.removeChild(container.resizeSensor);
-        delete container.resizeSensor;
-        delete container.resizedAttached;
+        container.changeObserver.disconnect();
       }
     }
   };
