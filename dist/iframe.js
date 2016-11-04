@@ -1307,6 +1307,30 @@ var   document$1 = window.document;
       }
       reset();
     };
+    element.addEventListener('resize', function () {
+      console.error('ELEMENT RESIZE');
+      onScroll();
+    });
+    element.addEventListener('overflow', function () {
+      console.error('ELEMENT OVERFLOW');
+      onScroll();
+    });
+    element.addEventListener('underflow', function () {
+      console.error('ELEMENT UNDERFLOW');
+      onScroll();
+    });
+    element.resizeSensor.addEventListener('overflow', function () {
+      console.error('resizeSensor OVERFLOW');
+      onScroll();
+    });
+    expand.addEventListener('overflow', function () {
+      console.error('expand OVERFLOW');
+      onScroll();
+    });
+    shrink.addEventListener('overflow', function () {
+      console.error('shrink OVERFLOW');
+      onScroll();
+    });
 
     expand.addEventListener('scroll', onScroll);
     shrink.addEventListener('scroll', onScroll);
