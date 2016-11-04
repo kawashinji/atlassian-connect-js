@@ -1379,7 +1379,7 @@ var   document$1 = window.document;
       key: 'triggered',
       value: function triggered(dimensions) {
         console.log('resize action trigger', dimensions);
-        // dimensions = dimensions || size();
+        dimensions = dimensions || size();
         // let now = Date.now();
         // dimensions.setAt = now;
         // this.resizeStore = this.resizeStore.filter(function(entry){
