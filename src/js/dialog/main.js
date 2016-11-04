@@ -306,6 +306,8 @@
                 }
 
                 //difference between a webitem and opening from js.
+                $nexus.append('<pre>' + JSON.stringify(options) + '</pre>');
+                $nexus.append('<pre>' + JSON.stringify(mergedOptions) + '</pre>');
                 if(options.src){
                     _AP.create(mergedOptions);
                 }
