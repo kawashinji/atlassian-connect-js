@@ -1259,41 +1259,97 @@ var   document$1 = window.document;
       element.resizedAttached.add(resized);
       return;
     }
+
+    element.resizeSensor = document.createElement('div');
+    element.resizeSensor.className = 'ac-resize-sensor';
+    var style = 'position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: scroll; z-index: -1; visibility: hidden;';
+    var styleChild = 'position: absolute; left: 0; top: 0;';
+
+    element.resizeSensor.style.cssText = style;
+    element.resizeSensor.innerHTML = '<div class="ac-resize-sensor-expand" style="' + style + '">' + '<div style="' + styleChild + '"></div>' + '</div>' + '<div class="ac-resize-sensor-shrink" style="' + style + '">' + '<div style="' + styleChild + ' width: 200%; height: 200%"></div>' + '</div>';
+    element.appendChild(element.resizeSensor);
+
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=548397
+    if (window.getComputedStyle && window.getComputedStyle(element).position === 'static') {
+      element.style.position = 'relative';
+    }
+
+    var expand = element.resizeSensor.childNodes[0];
+    var expandChild = expand.childNodes[0];
+    var shrink = element.resizeSensor.childNodes[1];
+
     var lastWidth, lastHeight;
 
+    var reset = function reset() {
+      expandChild.style.width = expand.offsetWidth + 10 + 'px';
+      expandChild.style.height = expand.offsetHeight + 10 + 'px';
+      expand.scrollLeft = expand.scrollWidth;
+      expand.scrollTop = expand.scrollHeight;
+      shrink.scrollLeft = shrink.scrollWidth;
+      shrink.scrollTop = shrink.scrollHeight;
+      lastWidth = element.offsetWidth;
+      lastHeight = element.offsetHeight;
+    };
+
+    reset();
+
     var changed = function changed() {
-      console.log("CHANGED!", element, element.resizedAttached);
+      console.log("CHANGED");
       if (element.resizedAttached) {
         element.resizedAttached.call();
       }
     };
 
-    var reset = function reset() {
-      lastWidth = false;
-      lastHeight = false;
+    var onScroll = function onScroll() {
+      console.log("ON SCROLL CALLED");
+      if (element.offsetWidth !== lastWidth || element.offsetHeight !== lastHeight) {
+        changed();
+      }
+      reset();
     };
+    element.addEventListener('resize', function () {
+      console.error('ELEMENT RESIZE');
+      onScroll();
+    });
+    element.addEventListener('overflow', function () {
+      console.error('ELEMENT OVERFLOW');
+      onScroll();
+    });
+    element.addEventListener('underflow', function () {
+      console.error('ELEMENT UNDERFLOW');
+      onScroll();
+    });
+    element.resizeSensor.addEventListener('overflow', function () {
+      console.error('resizeSensor OVERFLOW');
+      onScroll();
+    });
+    expand.addEventListener('overflow', function () {
+      console.error('expand OVERFLOW');
+      onScroll();
+    });
+    shrink.addEventListener('overflow', function () {
+      console.error('shrink OVERFLOW');
+      onScroll();
+    });
 
-    var onChange = function onChange() {
-      changed();
-      var dimensions = size();
-      console.log("ON CHANGE CALLED", dimensions.h);
-      // if (dimensions.w !== lastWidth || dimensions.h !== lastHeight) {
-      //   changed();
-      // }
-      // lastWidth = dimensions.w;
-      // lastHeight = dimensions.h;
-    };
+    expand.addEventListener('scroll', onScroll);
+    shrink.addEventListener('scroll', onScroll);
 
     var observerConfig = {
-      attributes: true
-      // attributeFilter: ['style']
+      attributes: true,
+      childList: false,
+      characterData: false,
+      attributeFilter: ['style']
+
     };
 
-    var changeObserver = new MutationObserver(function (mutations) {
-      console.log("MUTATION! 2", mutations);
-      onChange();
+    var observer = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        console.log("MUTATION", mutation);
+        onScroll();
+      });
     });
-    changeObserver.observe(element, observerConfig);
+    observer.observe(element, observerConfig);
   }
 
   var resizeListener = {
@@ -1304,7 +1360,9 @@ var   document$1 = window.document;
     remove: function remove() {
       var container = getContainer();
       if (container.resizeSensor) {
-        // container.changeObserver.disconnect();
+        container.removeChild(container.resizeSensor);
+        delete container.resizeSensor;
+        delete container.resizedAttached;
       }
     }
   };
@@ -1321,21 +1379,21 @@ var   document$1 = window.document;
       key: 'triggered',
       value: function triggered(dimensions) {
         console.log('resize action trigger', dimensions);
-        dimensions = dimensions || size();
-        var now = Date.now();
-        dimensions.setAt = now;
-        this.resizeStore = this.resizeStore.filter(function (entry) {
-          return now - entry.setAt < 1000;
-        });
-        this.resizeStore.push(dimensions);
-        if (this.resizeStore.length === 3) {
-          var oldDimensions = this.resizeStore[0];
-          this.resizeStore = this.resizeStore.slice(1);
-          if (dimensions.w <= oldDimensions.w && dimensions.h <= oldDimensions.h) {
-            console.log("resize action: flicker detected");
-            return;
-          }
-        }
+        // dimensions = dimensions || size();
+        // let now = Date.now();
+        // dimensions.setAt = now;
+        // this.resizeStore = this.resizeStore.filter(function(entry){
+        //   return ((now - entry.setAt) < 1000);
+        // });
+        // this.resizeStore.push(dimensions);
+        // if(this.resizeStore.length === 3) {
+        //   var oldDimensions = this.resizeStore[0];
+        //   this.resizeStore = this.resizeStore.slice(1);
+        //   if(dimensions.w <= oldDimensions.w && dimensions.h <= oldDimensions.h) {
+        //     console.log("resize action: flicker detected");
+        //     return;
+        //   }
+        // }
         console.log('calling callback', dimensions, this.callback);
         this.callback(dimensions.w, dimensions.h);
       }
@@ -1837,7 +1895,12 @@ var   document$1 = window.document;
       value: function _initResize() {
         this.resize();
         var autoresize = new AutoResizeAction(this.resize);
-        resizeListener.add(util._bind(autoresize, autoresize.triggered));
+        var autoResizeTriggered = util._bind(autoresize, autoresize.triggered);
+        resizeListener.add(autoResizeTriggered);
+        window.addEventListener('resize', function () {
+          console.error('WINDOW RESIZE', autoResizeTriggered);
+          autoResizeTriggered();
+        });
       }
     }]);
     return AP;
