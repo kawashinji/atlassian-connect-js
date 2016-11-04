@@ -1307,45 +1307,19 @@ var   document$1 = window.document;
       }
       reset();
     };
-    element.addEventListener('resize', function () {
-      console.error('ELEMENT RESIZE');
-      onScroll();
-    });
-    element.addEventListener('overflow', function () {
-      console.error('ELEMENT OVERFLOW');
-      onScroll();
-    });
-    element.addEventListener('underflow', function () {
-      console.error('ELEMENT UNDERFLOW');
-      onScroll();
-    });
-    element.resizeSensor.addEventListener('overflow', function () {
-      console.error('resizeSensor OVERFLOW');
-      onScroll();
-    });
-    expand.addEventListener('overflow', function () {
-      console.error('expand OVERFLOW');
-      onScroll();
-    });
-    shrink.addEventListener('overflow', function () {
-      console.error('shrink OVERFLOW');
-      onScroll();
-    });
 
     expand.addEventListener('scroll', onScroll);
     shrink.addEventListener('scroll', onScroll);
 
     var observerConfig = {
       attributes: true,
-      childList: false,
-      characterData: false
+      attributeFilter: ['style']
     };
+    var callCount = 0;
 
     var observer = new MutationObserver(function (mutations) {
-      mutations.forEach(function (mutation) {
-        console.log("MUTATION", mutation);
-        onScroll();
-      });
+      callCount = callCount + 1;
+      onScroll();
     });
     observer.observe(element, observerConfig);
   }
