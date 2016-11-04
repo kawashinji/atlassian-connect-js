@@ -1262,6 +1262,7 @@ var   document$1 = window.document;
     var lastWidth, lastHeight;
 
     var changed = function changed() {
+      console.log("CHANGED!", element, element.resizedAttached);
       if (element.resizedAttached) {
         element.resizedAttached.call();
       }
@@ -1273,6 +1274,7 @@ var   document$1 = window.document;
     };
 
     var onChange = function onChange() {
+      console.log("ON CHANGE CALLED", element.offsetWidth, element.offsetHeight, lastWidth, lastHeight, changed, reset);
       if (element.offsetWidth !== lastWidth || element.offsetHeight !== lastHeight) {
         changed();
       }
@@ -1285,6 +1287,7 @@ var   document$1 = window.document;
     };
 
     element.changeObserver = new MutationObserver(function (mutations) {
+      console.log("MUTATION!", mutations);
       onChange();
     });
     element.changeObserver.observe(element, observerConfig);
