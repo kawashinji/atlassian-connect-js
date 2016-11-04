@@ -301,6 +301,8 @@
 
                 displayDialogContent($nexus, mergedOptions);
 
+                $nexus.append('<pre>' + JSON.stringify(showLoadingIndicator) + '</pre>');
+                $nexus.append('<pre>' + JSON.stringify(connect) + '</pre>');
                 if(showLoadingIndicator !== false){
                     $nexus.append(connect._statusHelper.createStatusMessages());
                 }
