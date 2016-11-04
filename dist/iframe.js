@@ -1279,6 +1279,8 @@ var   document$1 = window.document;
       if (dimensions.w !== lastWidth || dimensions.h !== lastHeight) {
         changed();
       }
+      lastWidth = dimensions.w;
+      lastHeight = dimensions.h;
     };
 
     var observerConfig = {
@@ -1286,11 +1288,11 @@ var   document$1 = window.document;
       attributeFilter: ['style']
     };
 
-    element.changeObserver = new MutationObserver(function (mutations) {
+    var changeObserver = new MutationObserver(function (mutations) {
       console.log("MUTATION!", mutations);
       onChange();
     });
-    element.changeObserver.observe(element, observerConfig);
+    changeObserver.observe(element, observerConfig);
   }
 
   var resizeListener = {
@@ -1301,7 +1303,7 @@ var   document$1 = window.document;
     remove: function remove() {
       var container = getContainer();
       if (container.resizeSensor) {
-        container.changeObserver.disconnect();
+        // container.changeObserver.disconnect();
       }
     }
   };
