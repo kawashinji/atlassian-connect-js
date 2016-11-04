@@ -1274,11 +1274,11 @@ var   document$1 = window.document;
     };
 
     var onChange = function onChange() {
-      console.log("ON CHANGE CALLED", element.offsetWidth, element.offsetHeight, lastWidth, lastHeight, changed, reset);
-      if (element.offsetWidth !== lastWidth || element.offsetHeight !== lastHeight) {
+      var dimensions = size();
+      console.log("ON CHANGE CALLED", dimensions.w, dimensions.h, lastWidth, lastHeight, changed, reset);
+      if (dimensions.w !== lastWidth || dimensions.h !== lastHeight) {
         changed();
       }
-      reset();
     };
 
     var observerConfig = {
