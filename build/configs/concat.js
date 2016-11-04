@@ -19,7 +19,6 @@ module.exports = {
     */
     plugin: {
         src: [
-            '<%= paths.jsSource %>' + 'iframe/_bootstrap.js',
             '<%= paths.jsSource %>' + 'iframe/_amd.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_util.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_dollar.js',
@@ -47,7 +46,8 @@ module.exports = {
             '<%= paths.jsSource %>' + 'iframe/plugin/_resize-listener.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/navigator.js',
             '<%= paths.jsSource %>' + 'iframe/plugin/_file.js',
-            '<%= paths.jsSource %>' + 'iframe/plugin/scroll-position.js'
+            '<%= paths.jsSource %>' + 'iframe/plugin/scroll-position.js',
+            '<%= paths.jsSource %>' + 'iframe/_bootstrap.js'
         ],
         dest: '.tmp/all-debug.js',
         nonull: true
