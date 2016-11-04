@@ -1315,6 +1315,7 @@ var   document$1 = window.document;
         H = 1;return v;
   }(void 0);
 
+  // IE10+ for hipchat
   function EventQueue() {
     this.q = [];
     this.add = function (ev) {
@@ -1427,19 +1428,19 @@ var   document$1 = window.document;
       key: 'triggered',
       value: function triggered(dimensions) {
         dimensions = dimensions || size();
-        var now = Date.now();
-        dimensions.setAt = now;
-        this.resizeStore = this.resizeStore.filter(function (entry) {
-          return now - entry.setAt < 1000;
-        });
-        this.resizeStore.push(dimensions);
-        if (this.resizeStore.length === 3) {
-          var oldDimensions = this.resizeStore[0];
-          this.resizeStore = this.resizeStore.slice(1);
-          if (dimensions.w <= oldDimensions.w && dimensions.h <= oldDimensions.h) {
-            return;
-          }
-        }
+        // let now = Date.now();
+        // dimensions.setAt = now;
+        // this.resizeStore = this.resizeStore.filter(function(entry){
+        //   return ((now - entry.setAt) < 1000);
+        // });
+        // this.resizeStore.push(dimensions);
+        // if(this.resizeStore.length === 3) {
+        //   var oldDimensions = this.resizeStore[0];
+        //   this.resizeStore = this.resizeStore.slice(1);
+        //   if(dimensions.w <= oldDimensions.w && dimensions.h <= oldDimensions.h) {
+        //     return;
+        //   }
+        // }
         this.callback(dimensions.w, dimensions.h);
       }
     }]);
