@@ -44,13 +44,16 @@
 
         dispatchCustomEvent(iframe, 'ra.iframe.create');
 
-        if (renderingMethod === 'GET') {
-            iframe.src = config.remote;
-        } else if (containerElement) {
-            var form = createIframeForm(config);
-            if (form) {
-                containerElement.appendChild(form);
-                form.submit();
+        // containerElement should always available unless in unit test
+        if (containerElement) {
+            if (renderingMethod === 'GET') {
+                iframe.src = config.remote;
+            } else {
+                var form = createIframeForm(config);
+                if (form) {
+                    containerElement.appendChild(form);
+                    form.submit();
+                }
             }
         }
 
