@@ -1308,15 +1308,14 @@ var   document$1 = window.document;
       reset();
     };
 
-    // expand.addEventListener('scroll', function(){
-    //   console.log('expand scroll');
-    //   onScroll();
-    // });
-    // shrink.addEventListener('scroll', function(){
-    //   console.log('shrink scroll');
-    //   onScroll();
-    // });
-
+    expand.addEventListener('scroll', function () {
+      console.log('expand scroll');
+      onScroll();
+    });
+    shrink.addEventListener('scroll', function () {
+      console.log('shrink scroll');
+      onScroll();
+    });
 
     var observerConfig = {
       attributes: true,
@@ -1330,7 +1329,8 @@ var   document$1 = window.document;
       console.log("OBSERVER", mutations);
       onScroll();
     });
-    observer.observe(element, observerConfig);
+    // observer.observe(element, observerConfig);
+
   }
 
   var resizeListener = {
