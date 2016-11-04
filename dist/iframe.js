@@ -1294,14 +1294,12 @@ var   document$1 = window.document;
     reset();
 
     var changed = function changed() {
-      console.log("CHANGED");
       if (element.resizedAttached) {
         element.resizedAttached.call();
       }
     };
 
     var onScroll = function onScroll() {
-      console.log("ON SCROLL CALLED");
       if (element.offsetWidth !== lastWidth || element.offsetHeight !== lastHeight) {
         changed();
       }
@@ -1309,11 +1307,9 @@ var   document$1 = window.document;
     };
 
     expand.addEventListener('scroll', function () {
-      console.log('expand scroll');
       onScroll();
     });
     shrink.addEventListener('scroll', function () {
-      console.log('shrink scroll');
       onScroll();
     });
 
@@ -1322,10 +1318,7 @@ var   document$1 = window.document;
       attributeFilter: ['style']
     };
 
-    var observer = new MutationObserver(function (mutations) {
-      console.log("OBSERVER", mutations);
-      onScroll();
-    });
+    var observer = new MutationObserver(onScroll);
     observer.observe(element, observerConfig);
   }
 
@@ -1357,20 +1350,20 @@ var   document$1 = window.document;
       value: function triggered(dimensions) {
         console.log('resize action trigger', dimensions);
         dimensions = dimensions || size();
-        // let now = Date.now();
-        // dimensions.setAt = now;
-        // this.resizeStore = this.resizeStore.filter(function(entry){
-        //   return ((now - entry.setAt) < 1000);
-        // });
-        // this.resizeStore.push(dimensions);
-        // if(this.resizeStore.length === 3) {
-        //   var oldDimensions = this.resizeStore[0];
-        //   this.resizeStore = this.resizeStore.slice(1);
-        //   if(dimensions.w <= oldDimensions.w && dimensions.h <= oldDimensions.h) {
-        //     console.log("resize action: flicker detected");
-        //     return;
-        //   }
-        // }
+        var now = Date.now();
+        dimensions.setAt = now;
+        this.resizeStore = this.resizeStore.filter(function (entry) {
+          return now - entry.setAt < 1000;
+        });
+        this.resizeStore.push(dimensions);
+        if (this.resizeStore.length === 3) {
+          var oldDimensions = this.resizeStore[0];
+          this.resizeStore = this.resizeStore.slice(1);
+          if (dimensions.w <= oldDimensions.w && dimensions.h <= oldDimensions.h) {
+            console.log("resize action: flicker detected");
+            return;
+          }
+        }
         console.log('calling callback', dimensions, this.callback);
         this.callback(dimensions.w, dimensions.h);
       }
