@@ -1212,11 +1212,13 @@ var   document$1 = window.document;
       docHeight = Math.max(container.scrollHeight, document.documentElement.scrollHeight, container.offsetHeight, document.documentElement.offsetHeight, container.clientHeight, document.documentElement.clientHeight);
 
       if (container === document.body) {
+        console.log("SIZE: CONTAINER IS BODY");
         h = docHeight;
       } else {
         var computed = window.getComputedStyle(container);
         h = container.getBoundingClientRect().height;
         if (h === 0) {
+          console.log("SIZE: container height is zero");
           h = docHeight;
         } else {
           var additionalProperties = ['margin-top', 'margin-bottom'];
@@ -1227,6 +1229,7 @@ var   document$1 = window.document;
         }
       }
     }
+    console.log("SIZE IS: ", w, h);
     return { w: w, h: h };
   };
 
@@ -1287,12 +1290,14 @@ var   document$1 = window.document;
     reset();
 
     var changed = function changed() {
+      console.log("CHANGED");
       if (element.resizedAttached) {
         element.resizedAttached.call();
       }
     };
 
     var onScroll = function onScroll() {
+      console.log("ON SCROLL CALLED");
       if (element.offsetWidth !== lastWidth || element.offsetHeight !== lastHeight) {
         changed();
       }
@@ -1329,6 +1334,7 @@ var   document$1 = window.document;
     createClass(AutoResizeAction, [{
       key: 'triggered',
       value: function triggered(dimensions) {
+        console.log('resize action trigger', dimensions);
         dimensions = dimensions || size();
         var now = Date.now();
         dimensions.setAt = now;
@@ -1340,9 +1346,11 @@ var   document$1 = window.document;
           var oldDimensions = this.resizeStore[0];
           this.resizeStore = this.resizeStore.slice(1);
           if (dimensions.w <= oldDimensions.w && dimensions.h <= oldDimensions.h) {
+            console.log("resize action: flicker detected");
             return;
           }
         }
+        console.log('calling callback', dimensions, this.callback);
         this.callback(dimensions.w, dimensions.h);
       }
     }]);
