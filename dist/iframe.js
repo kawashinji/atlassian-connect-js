@@ -1274,13 +1274,14 @@ var   document$1 = window.document;
     };
 
     var onChange = function onChange() {
+      changed();
       var dimensions = size();
-      console.log("ON CHANGE CALLED", dimensions.w, dimensions.h, lastWidth, lastHeight, changed, reset);
-      if (dimensions.w !== lastWidth || dimensions.h !== lastHeight) {
-        changed();
-      }
-      lastWidth = dimensions.w;
-      lastHeight = dimensions.h;
+      console.log("ON CHANGE CALLED", dimensions.h);
+      // if (dimensions.w !== lastWidth || dimensions.h !== lastHeight) {
+      //   changed();
+      // }
+      // lastWidth = dimensions.w;
+      // lastHeight = dimensions.h;
     };
 
     var observerConfig = {
