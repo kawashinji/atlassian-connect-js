@@ -1308,8 +1308,14 @@ var   document$1 = window.document;
       reset();
     };
 
-    expand.addEventListener('scroll', onScroll);
-    shrink.addEventListener('scroll', onScroll);
+    expand.addEventListener('scroll', function () {
+      console.log('expand scroll');
+      onScroll();
+    });
+    shrink.addEventListener('scroll', function () {
+      console.log('shrink scroll');
+      onScroll();
+    });
 
     var observerConfig = {
       attributes: true,
@@ -1320,10 +1326,8 @@ var   document$1 = window.document;
     };
 
     var observer = new MutationObserver(function (mutations) {
-      mutations.forEach(function (mutation) {
-        console.log("MUTATION", mutation);
-        onScroll();
-      });
+      console.log("OBSERVER", mutations);
+      onScroll();
     });
     observer.observe(element, observerConfig);
   }
