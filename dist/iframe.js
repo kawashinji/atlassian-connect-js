@@ -1284,12 +1284,12 @@ var   document$1 = window.document;
     };
 
     var observerConfig = {
-      attributes: true,
-      attributeFilter: ['style']
+      attributes: true
+      // attributeFilter: ['style']
     };
 
     var changeObserver = new MutationObserver(function (mutations) {
-      console.log("MUTATION!", mutations);
+      console.log("MUTATION! 2", mutations);
       onChange();
     });
     changeObserver.observe(element, observerConfig);
@@ -1836,12 +1836,7 @@ var   document$1 = window.document;
       value: function _initResize() {
         this.resize();
         var autoresize = new AutoResizeAction(this.resize);
-        var autoResizeTriggered = util._bind(autoresize, autoresize.triggered);
-        resizeListener.add(autoResizeTriggered);
-        window.addEventListener('resize', function () {
-          console.error('WINDOW RESIZE', autoResizeTriggered);
-          autoResizeTriggered();
-        });
+        resizeListener.add(util._bind(autoresize, autoresize.triggered));
       }
     }]);
     return AP;
