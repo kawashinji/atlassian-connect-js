@@ -1198,7 +1198,7 @@ var   document$1 = window.document;
         h,
         docHeight;
     var widthInPx = Boolean(ConfigurationOptions$1.get('widthinpx'));
-
+    console.error('width in pixels?', widthInPx);
     if (!container) {
       container = getContainer();
     }
@@ -1216,10 +1216,14 @@ var   document$1 = window.document;
         h = docHeight;
       } else {
         var computed = window.getComputedStyle(container);
+        console.error('COMPUTED', computed);
+        console.error('RECT', container.getBoundingClientRect());
         h = container.getBoundingClientRect().height;
         if (h === 0) {
-          console.log("SIZE: container height is zero");
+          console.error("SIZE: container height is zero", container.innerHTML);
           h = docHeight;
+          console.error('SIZE DOC HEIGHT', document.documentElement.scrollHeight, document.documentElement.offsetHeight, document.documentElement.clientHeight);
+          console.error('READY STATE?', document.readyState);
         } else {
           var additionalProperties = ['margin-top', 'margin-bottom'];
           additionalProperties.forEach(function (property) {
@@ -1229,7 +1233,7 @@ var   document$1 = window.document;
         }
       }
     }
-    console.log("SIZE IS: ", w, h);
+    console.error("SIZE IS: ", w, h);
     return { w: w, h: h };
   };
 
@@ -1465,6 +1469,7 @@ var   document$1 = window.document;
         if (!height) {
           height = dimensions.h;
         }
+        console.error('this.resize called', dimensions, width, height);
         if (_this._hostModules.env && _this._hostModules.env.resize) {
           _this._hostModules.env.resize(width, height);
         }
@@ -1511,11 +1516,14 @@ var   document$1 = window.document;
     }, {
       key: '_autoResizer',
       value: function _autoResizer() {
+        console.error('AUTO resize dom load');
         this._enableAutoResize = Boolean(ConfigurationOptions$1.get('autoresize'));
         if (ConsumerOptions$1.get('resize') === false) {
+          console.error('AUTO disabled');
           this._enableAutoResize = false;
         }
         if (this._enableAutoResize) {
+          console.error('AUTO enabled, trigger');
           this._initResize();
         }
       }
