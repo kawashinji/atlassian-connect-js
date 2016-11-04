@@ -1319,18 +1319,14 @@ var   document$1 = window.document;
 
     var observerConfig = {
       attributes: true,
-      childList: false,
-      characterData: false,
       attributeFilter: ['style']
-
     };
 
     var observer = new MutationObserver(function (mutations) {
       console.log("OBSERVER", mutations);
       onScroll();
     });
-    // observer.observe(element, observerConfig);
-
+    observer.observe(element, observerConfig);
   }
 
   var resizeListener = {
