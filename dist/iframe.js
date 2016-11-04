@@ -1855,7 +1855,12 @@ var   document$1 = window.document;
       value: function _initResize() {
         this.resize();
         var autoresize = new AutoResizeAction(this.resize);
-        resizeListener.add(util._bind(autoresize, autoresize.triggered));
+        var autoResizeTriggered = util._bind(autoresize, autoresize.triggered);
+        resizeListener.add(autoResizeTriggered);
+        window.addEventListener('resize', function () {
+          console.error('WINDOW RESIZE', autoResizeTriggered);
+          autoResizeTriggered();
+        });
       }
     }]);
     return AP;
