@@ -1334,6 +1334,20 @@ var   document$1 = window.document;
 
     expand.addEventListener('scroll', onScroll);
     shrink.addEventListener('scroll', onScroll);
+
+    var observerConfig = {
+      attributes: true,
+      childList: false,
+      characterData: false
+    };
+
+    var observer = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        console.log("MUTATION", mutation);
+        onScroll();
+      });
+    });
+    observer.observe(element, observerConfig);
   }
 
   var resizeListener = {
