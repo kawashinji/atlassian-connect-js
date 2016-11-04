@@ -1259,6 +1259,7 @@ var   document$1 = window.document;
       element.resizedAttached.add(resized);
       return;
     }
+    var lastWidth, lastHeight;
 
     var changed = function changed() {
       if (element.resizedAttached) {
@@ -1266,10 +1267,16 @@ var   document$1 = window.document;
       }
     };
 
+    var reset = function reset() {
+      lastWidth = false;
+      lastHeight = false;
+    };
+
     var onChange = function onChange() {
       if (element.offsetWidth !== lastWidth || element.offsetHeight !== lastHeight) {
         changed();
       }
+      reset();
     };
 
     var observerConfig = {
