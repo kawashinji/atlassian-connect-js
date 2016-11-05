@@ -63,6 +63,7 @@
                 .done(function(data) {
                     var $data = $(data);
                     $data.find('.ap-content').addClass('ap-dialog-container');
+                    $data.find('.ap-content').addClass('here');
                     var $existingContainer = $(document.getElementById($data.attr('id')));
                     // unwarp the velocity fragment if the container is already inplace.
                     if($existingContainer.length !== 0){

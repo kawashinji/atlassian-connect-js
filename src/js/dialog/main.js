@@ -128,9 +128,8 @@
         }
 
         function displayDialogContent($container, options){
-            $container.append('<div id="embedded-' + options.ns + '" class="ap-dialog-container ap-content" />');
+            $container.append('<div id="embedded-' + options.ns + '" class="ap-dialog-container ap-content test" />');
         }
-
 
         function parseDimension(value, viewport) {
             if (typeof value === "string") {
@@ -297,8 +296,9 @@
                     button.click(function () {
                         button.dispatch(true);
                     });
-                });
-
+                });                
+                
+                $nexus.append('<pre>' + JSON.stringify(mergedOptions) + '</pre>');
                 displayDialogContent($nexus, mergedOptions);
 
                 $nexus.append('<pre>' + JSON.stringify(showLoadingIndicator) + '</pre>');
