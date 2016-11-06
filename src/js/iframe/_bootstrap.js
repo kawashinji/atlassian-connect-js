@@ -1,10 +1,11 @@
 (function () {
   function bootstrap(element) {
-    var bootstrapData = element.innerHTML.replace(/^\s*\/\/<!\[CDATA\[/, '').replace(/\/\/]]>\s*$/, '').trim();
-    var iFrameData = JSON.parse(bootstrapData);
-
-    // Remove the blob so we don't initialise it twice
-    element.remove();
+    try {
+      var iFrameData = JSON.parse(element.getAttribute('data-json').trim());
+    } finally {
+      // Remove the blob so we don't initialise it twice
+      element.remove();
+    }
 
     if (typeof AP === 'object') {
       //If we are a plugin frame
