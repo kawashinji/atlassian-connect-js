@@ -37,15 +37,16 @@ AP.define("_create-inner-frame", ['_ui-params', '_rpc', '_uri'], function(uiPara
         options.uiParams.addonNestingLevel++;
 
         var ns = options.ns,
-                contentId = "embedded-" + ns,
-                channelId = "channel-" + ns,
-                initWidth = options.w || "100%",
-                initHeight = options.h || "0";
+            contentId = "embedded-" + ns,
+            channelId = "channel-" + ns,
+            initWidth = options.w || "100%",
+            initHeight = options.h || "0",
+            uriComponents = new uri.init(options.src);
 
         options.uiParams.isGeneral = !!options.general;
-        options.uiParams.xdm_p = param(options.src, 'xdm_deprecated_addon_key_do_not_use');
-        options.uiParams.xdm_e = param(options.src, 'xdm_e');
-        options.uiParams.xdm_c = param(options.src, 'xdm_c');
+        options.uiParams.xdm_p = uriComponents.getQueryParamValue('xdm_deprecated_addon_key_do_not_use');
+        options.uiParams.xdm_e = uriComponents.getQueryParamValue('xdm_e');
+        options.uiParams.xdm_c = uriComponents.getQueryParamValue('xdm_c');
 
         var xdmOptions = {
             remote: options.src,
@@ -63,10 +64,6 @@ AP.define("_create-inner-frame", ['_ui-params', '_rpc', '_uri'], function(uiPara
         }
 
         rpc.initWithFrame(options, xdmOptions);
-    }
-
-    function param(url, name) {
-        return new uri.init(url).getQueryParamValue(name);
     }
 
     return function(iframeData) {

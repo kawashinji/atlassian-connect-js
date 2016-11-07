@@ -77,10 +77,6 @@
       rpc.init(options, xdmOptions);
     }
 
-    function param(url, name) {
-      return new uri.init(url).getQueryParamValue(name);
-    }
-
     return function (options) {
 
       var attemptCounter = 0;
