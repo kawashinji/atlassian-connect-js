@@ -22,7 +22,7 @@ AP.define("env", ["_dollar", "_rpc", "_ui-params"], function ($, rpc, UiParams) 
         * @param {Function} callback function (location) {...}
         * @example
         * AP.getLocation(function(location){
-        *   alert(location);
+        *   alert(location); 
         * });
         */
         getLocation: function (callback) {
@@ -39,17 +39,17 @@ AP.define("env", ["_dollar", "_rpc", "_ui-params"], function ($, rpc, UiParams) 
 
         /**
         * resize this iframe
-	      *
-	      * Only content within an element with the class `ac-content` will be resized automatically.
-	      * Content without this identifier is sized according to the `body` element, and
-	      * will dynamically grow, but not shrink.
-	      * ```
-	      * <div class="ac-content">
-        *   <p>Hello World</p>
-	      * </div>
-	      * ```
-	      * Note that this method cannot be used in dialogs.
-	      *
+		*
+		* Only content within an element with the class `ac-content` will be resized automatically. 
+		* Content without this identifier is sized according to the `body` element, and 
+		* will dynamically grow, but not shrink. 
+		* ```
+		* <div class="ac-content">
+    	* <p>Hello World</p>
+		* </div>
+		* ```
+		* Note that this method cannot be used in dialogs.
+		* 
         * @method
         * @param {String} width   the desired width
         * @param {String} height  the desired height
@@ -78,6 +78,7 @@ AP.define("env", ["_dollar", "_rpc", "_ui-params"], function ($, rpc, UiParams) 
       stubs: [
         'disableScrollingForAutoResizing'
       ]
+
     };
 
   });
