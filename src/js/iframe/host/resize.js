@@ -7,10 +7,13 @@ define("resize", ["_dollar", "_rpc"], function ($, rpc) {
                     $(this.iframe).css({width: width, height: height});
                     var nexus = $(this.iframe).closest('.ap-container');
                     nexus.trigger('resized', {width: width, height: height});
-
+                    
                 });
             },
             internals: {
+                disableScrollingForAutoResizing: function () {
+                    $(this.iframe).prop('scrolling', 'no');
+                },
                 resize: function(width, height) {
                     if(!this.uiParams.isDialog){
                         this.resize($, width, height);

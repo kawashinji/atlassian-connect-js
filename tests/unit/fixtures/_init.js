@@ -42,7 +42,7 @@ AP.require(
 
   rpc.extend({
 
-    init: function (options) {
+    init: function (options, xdm) {
       // integrate the iframe with the host document
       if (options.margin !== false) {
         // inject an appropriate margin value
@@ -63,6 +63,9 @@ AP.require(
         env.sizeToParent(options.hideFooter === true);
       }
       else if (options.resize !== false) {
+        // If the iframe needs auto resizing then disable scroll bars
+        xdm.disableScrollingForAutoResizing();
+        
         var rate = options.resize;
         if(options.resize === undefined){
           rate = "auto";
