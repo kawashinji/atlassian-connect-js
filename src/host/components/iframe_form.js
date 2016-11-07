@@ -19,7 +19,7 @@ class IframeForm {
         'id': attributes.id || IframeFormUtils.randomIdentifier(),
         'class': 'ap-iframe-form',
         'action': attributes.url,
-        'target': attributes.target || IframeFormUtils.randomTargetName(),
+        'target': attributes.target,
         'method': attributes.method
       });
     _.each(data, (value, key) => {
@@ -41,11 +41,6 @@ class IframeForm {
 
     if (form.length) {
       form.submit();
-
-      // Check iframe name to real name
-      var realName = iframe.attr('data-real-name');
-      iframe.attr('name', realName);
-      iframe[0].contentWindow.name = realName;
     }
   }
 

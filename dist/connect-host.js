@@ -3836,7 +3836,7 @@
 	        'id': attributes.id || IframeFormUtilsInstance.randomIdentifier(),
 	        'class': 'ap-iframe-form',
 	        'action': attributes.url,
-	        'target': attributes.target || IframeFormUtilsInstance.randomTargetName(),
+	        'target': attributes.target,
 	        'method': attributes.method
 	      });
 	      _.each(data, function (value, key) {
@@ -3859,11 +3859,6 @@
 
 	      if (form.length) {
 	        form.submit();
-
-	        // Check iframe name to real name
-	        var realName = iframe.attr('data-real-name');
-	        iframe.attr('name', realName);
-	        iframe[0].contentWindow.name = realName;
 	      }
 	    }
 	  }]);
@@ -4047,20 +4042,17 @@
 	  var $container = data.extension.$el.parents('.ap-iframe-container');
 	  $container.attr('id', id);
 
-	  if (renderingMethod.toUpperCase() === 'POST') {
+	  if (renderingMethod.toUpperCase() !== 'GET') {
 	    var $iframe = data.$el;
 	    var $form = IframeFormComponent.render({
 	      url: data.extension.url,
-	      method: renderingMethod
+	      method: renderingMethod,
+	      target: $iframe.attr('name')
 	    });
 	    $container.prepend($form);
 
 	    // Set iframe source to empty to avoid loading the page
 	    $iframe.attr('src', '');
-
-	    // Save real name and give iframe a temporary name
-	    $iframe.attr('data-real-name', $iframe.attr('name'));
-	    $iframe.attr('name', $form.attr('target'));
 	  }
 	});
 

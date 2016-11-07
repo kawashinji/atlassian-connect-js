@@ -58,20 +58,17 @@ EventDispatcher.register('iframe-create', (data) => {
   var $container = data.extension.$el.parents('.ap-iframe-container');
   $container.attr('id', id);
 
-  if(renderingMethod.toUpperCase() === 'POST') {
+  if(renderingMethod.toUpperCase() !== 'GET') {
     let $iframe = data.$el;
     let $form = IframeFormComponent.render({
       url: data.extension.url,
-      method: renderingMethod
+      method: renderingMethod,
+      target: $iframe.attr('name')
     });
     $container.prepend($form);
 
     // Set iframe source to empty to avoid loading the page
     $iframe.attr('src', '');
-
-    // Save real name and give iframe a temporary name
-    $iframe.attr('data-real-name', $iframe.attr('name'));
-    $iframe.attr('name', $form.attr('target'));
   }
 });
 
