@@ -10,32 +10,27 @@ const CONTAINER_CLASSES = ['ap-iframe-container'];
 class IframeContainer {
 
   createExtension(extension, options) {
-    var $addonContainer = $(document.getElementById(extension.containerId));
     var $container = this._renderContainer();
     if(!options || options.loadingIndicator !== false){
       $container.append(this._renderLoadingIndicator());
     }
     IframeComponent.simpleXdmExtension(extension, $container);
-    this._onceContainerAppended(extension, $addonContainer, $container);
+    this._onceContainerAppended(extension, $container);
     return $container;
   }
 
-  _onceContainerAppended(extension, $addonContainer, $container) {
-    if ($addonContainer.length === 0) {
-      // If the parent of the container we are creating doesn't exist.
-      // Then we are in unit test and the container will never be appended to the DOM.
-      return;
-    }
-
-    var observer = new MutationObserver(function(mutations) {
-      mutations.forEach(mutation => {
-        if (mutation && mutation.addedNodes[0] === $container[0]) {
+  _onceContainerAppended(extension, $container) {
+    var checkHasParent = function() {
+      setTimeout(function() {
+        if ($container.parent().length) {
           IframeContainerActions.notifyAppended($container, extension);
-          observer.disconnect();
+        } else {
+          checkHasParent();
         }
-      });
-    });
-    observer.observe($addonContainer[0], {childList: true});
+      }, 50);
+    };
+
+    checkHasParent();
   }
 
   _renderContainer(attributes){

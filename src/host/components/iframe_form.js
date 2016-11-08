@@ -37,8 +37,6 @@ class IframeForm {
   submit(data) {
     var $el = data.$el;
     var form = $el.find('.ap-iframe-form');
-    var iframe = $el.find('.ap-iframe');
-
     if (form.length) {
       form.submit();
     }
