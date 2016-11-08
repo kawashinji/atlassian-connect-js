@@ -12,6 +12,7 @@ describe('Plugin events shim', function(){
     events.on('something', spy);
     expect(events._events['something'][0].listener).toEqual(spy);
     expect(events._events['something'][0].isPublicEvent).toEqual(false);
+    expect(events._events['something'][0].filterFunc).toEqual(null);
   });
 
   it('onPublic binds an public event', function(){
@@ -73,12 +74,28 @@ describe('Plugin events shim', function(){
     expect(events._events[events.ANY_PREFIX][0].isPublicEvent).toEqual(false);
   });
 
+  it('offAny binds on to any non-public trigger', function(){
+    var spy = jasmine.createSpy('spy');
+    expect(events._events[events.ANY_PREFIX]).toEqual(undefined);
+    events.onAny(spy);
+    events.offAny(spy);
+    expect(Object.keys(events._events).length).toEqual(0);
+  });
+
   it('onAnyPublic binds on to any public trigger', function(){
     var spy = jasmine.createSpy('spy');
     expect(events._events[events.ANY_PREFIX]).toEqual(undefined);
     events.onAnyPublic(spy);
     expect(events._events[events.ANY_PREFIX][0].listener).toEqual(spy);
     expect(events._events[events.ANY_PREFIX][0].isPublicEvent).toEqual(true);
+  });
+
+  it('offAnyPublic binds on to any public trigger', function(){
+    var spy = jasmine.createSpy('spy');
+    expect(events._events[events.ANY_PREFIX]).toEqual(undefined);
+    events.onAnyPublic(spy);
+    events.offAnyPublic(spy);
+    expect(Object.keys(events._events).length).toEqual(0);
   });
 
   it('offAll unbinds all events with the specified name', function(){

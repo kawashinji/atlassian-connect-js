@@ -2174,7 +2174,7 @@ var   document$1 = window.document;
 
       this._events = {};
       this.ANY_PREFIX = '_any';
-      this.methods = ['off', 'offPublic', 'offAll', 'offAny', 'offAnyPublic', 'on', 'onPublic', 'onAny', 'onAnyPublic', 'once'];
+      this.methods = ['off', 'offPublic', 'offAll', 'offAny', 'offAnyPublic', 'on', 'onPublic', 'onAny', 'onAnyPublic', 'once', 'oncePublic'];
       if (combined._data && combined._data.origin) {
         combined.registerAny(this._anyListener.bind(this));
       }
@@ -2248,12 +2248,12 @@ var   document$1 = window.document;
     }, {
       key: 'offAny',
       value: function offAny(listener) {
-        this.off(this.ANY_PREFIX, listener, false);
+        this._off(this.ANY_PREFIX, listener, false);
       }
     }, {
       key: 'offAnyPublic',
       value: function offAnyPublic(listener) {
-        this.off(this.ANY_PREFIX, listener, true);
+        this._off(this.ANY_PREFIX, listener, true);
       }
     }, {
       key: 'on',
@@ -2286,12 +2286,26 @@ var   document$1 = window.document;
     }, {
       key: 'once',
       value: function once(name, listener) {
+        this._once(name, listener, null, false);
+      }
+    }, {
+      key: 'oncePublic',
+      value: function oncePublic(name, listener, filterFunc) {
+        this._once(name, listener, filterFunc, true);
+      }
+    }, {
+      key: '_once',
+      value: function _once(name, listener, filterFunc, isPublicEvent) {
         var _that = this;
         function runOnce() {
           listener.apply(null, arguments);
-          _that.off(name, runOnce);
+          _that._off(name, runOnce, isPublicEvent);
         }
-        this.on(name, runOnce);
+        if (isPublicEvent) {
+          this.onPublic(name, runOnce, filterFunc);
+        } else {
+          this.on(name, runOnce);
+        }
       }
 
       /**
@@ -2325,6 +2339,19 @@ var   document$1 = window.document;
        * @memberof module:Events#
        * @param {String} name The event name to subscribe the listener to
        * @param {Function}listener A listener callback to subscribe to the event name
+       */
+
+      /**
+       * Adds a listener for one occurrence of a public event of a particular name.
+       * Listener arguments include any argument passed to `events.emitPublic`, followed by an object describing the complete event information.
+       * Filter function will receive one argument that contains the event publisher's information.
+       * @name oncePublic
+       * @method
+       * @memberof module:Events#
+       * @param {String} name The event name to subscribe the listener to
+       * @param {Function} listener A listener callback to subscribe to the event name
+       * @param {Function} filter (Optional) A function to filter the events. If it is specified, `listener`
+       * will only be invoked when the function returns `true`
        */
 
       /**
@@ -2403,7 +2430,7 @@ var   document$1 = window.document;
 
       /**
        * Emits a public event on this bus, firing listeners registered by `events.onPublic` by name.
-       * The events emitted by this method can be received by iframes that defined by other add-ons on the page.
+       * The events emitted by this method can be received by iframes that created by other modules or add-ons on the page.
        * Arguments following the targets parameter are captured and passed to listeners.
        * @name emitPublic
        * @method

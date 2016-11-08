@@ -18,7 +18,7 @@ class Events {
   constructor(){
     this._events = {};
     this.ANY_PREFIX = '_any';
-    this.methods = ['off', 'offPublic', 'offAll', 'offAny', 'offAnyPublic', 'on', 'onPublic', 'onAny', 'onAnyPublic', 'once'];
+    this.methods = ['off', 'offPublic', 'offAll', 'offAny', 'offAnyPublic', 'on', 'onPublic', 'onAny', 'onAnyPublic', 'once', 'oncePublic'];
     if(AP._data && AP._data.origin) {
       AP.registerAny(this._anyListener.bind(this));
     }
@@ -86,11 +86,11 @@ class Events {
   }
 
   offAny(listener){
-    this.off(this.ANY_PREFIX, listener, false);
+    this._off(this.ANY_PREFIX, listener, false);
   }
 
   offAnyPublic(listener){
-    this.off(this.ANY_PREFIX, listener, true);
+    this._off(this.ANY_PREFIX, listener, true);
   }
 
   on(name, listener){
