@@ -33,8 +33,9 @@ describe('Plugin events shim', function(){
 
   it('offPublic unbinds a public event', function(){
     var spy = jasmine.createSpy('spy');
-    events.onPublic('something', spy);
-    events.offPublic('something', spy);
+    var filterSpy = jasmine.createSpy('filter');
+    events.onPublic('something', spy, filterSpy);
+    events.offPublic('something', spy, filterSpy);
     expect(events._events['something']).toEqual(undefined);
   });
 

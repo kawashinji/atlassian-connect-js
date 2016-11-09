@@ -2186,7 +2186,8 @@ var   document$1 = window.document;
         var eventName = callback._context.eventName;
         var any = this._events[this.ANY_PREFIX] || [];
         var byName = this._events[eventName] || [];
-        var context = data.context;
+        var emitterData = data.emitterData;
+        var isPublicEvent = !!emitterData;
 
         data = data.event;
         if (!Array.isArray(data)) {
@@ -2202,26 +2203,26 @@ var   document$1 = window.document;
             name: eventName
           });
 
-          if (context.isPublicEvent === handler.isPublicEvent) {
+          if (isPublicEvent === handler.isPublicEvent) {
             handler.listener.apply(null, args);
           }
         });
 
         byName.forEach(function (handler) {
-          var passesFilter = typeof handler.filterFunc === 'function' ? handler.filterFunc.call(null, context) : true;
+          var passesFilter = typeof handler.filterFunc === 'function' ? handler.filterFunc.call(null, emitterData) : true;
 
-          if (context.isPublicEvent === handler.isPublicEvent && passesFilter) {
+          if (handler.isPublicEvent === isPublicEvent && passesFilter) {
             handler.listener.apply(null, data);
           }
         });
       }
     }, {
       key: '_off',
-      value: function _off(name, listener, isPublicEvent) {
+      value: function _off(name, listener, filterFunc, isPublicEvent) {
         if (this._events[name]) {
           for (var i = 0; i < this._events[name].length; i++) {
             var registration = this._events[name][i];
-            if (registration.listener === listener && registration.isPublicEvent === isPublicEvent) {
+            if (registration.listener === listener && registration.filterFunc === filterFunc && registration.isPublicEvent === isPublicEvent) {
               this._events[name].splice(i, 1);
             }
           }
@@ -2233,12 +2234,12 @@ var   document$1 = window.document;
     }, {
       key: 'off',
       value: function off(name, listener) {
-        this._off(name, listener, false);
+        this._off(name, listener, null, false);
       }
     }, {
       key: 'offPublic',
-      value: function offPublic(name, listener) {
-        this._off(name, listener, true);
+      value: function offPublic(name, listener, filterFunc) {
+        this._off(name, listener, filterFunc, true);
       }
     }, {
       key: 'offAll',
@@ -2248,12 +2249,12 @@ var   document$1 = window.document;
     }, {
       key: 'offAny',
       value: function offAny(listener) {
-        this._off(this.ANY_PREFIX, listener, false);
+        this._off(this.ANY_PREFIX, listener, null, false);
       }
     }, {
       key: 'offAnyPublic',
-      value: function offAnyPublic(listener) {
-        this._off(this.ANY_PREFIX, listener, true);
+      value: function offAnyPublic(listener, filterFunc) {
+        this._off(this.ANY_PREFIX, listener, filterFunc, true);
       }
     }, {
       key: 'on',
@@ -2299,7 +2300,7 @@ var   document$1 = window.document;
         var _that = this;
         function runOnce() {
           listener.apply(null, arguments);
-          _that._off(name, runOnce, isPublicEvent);
+          _that._off(name, runOnce, filterFunc, isPublicEvent);
         }
         if (isPublicEvent) {
           this.onPublic(name, runOnce, filterFunc);
@@ -2391,6 +2392,7 @@ var   document$1 = window.document;
        * @memberof module:Events#
        * @param {String} name The event name to unsubscribe the listener from
        * @param {Function} listener The listener callback to unsubscribe from the event name
+       * @param {Function} filter The filter callback to unsubscribe from the event name
        */
 
       /**
@@ -2416,6 +2418,7 @@ var   document$1 = window.document;
        * @method
        * @memberof module:Events#
        * @param {Function} listener A listener callback to unsubscribe from any event name
+       * @param {Function} filter The filter callback to unsubscribe from the event name
        */
 
       /**

@@ -1527,12 +1527,11 @@
 	  },
 
 	  broadcastPublic: function broadcastPublic(type, targetSpec, event, extension) {
-	    var context = {
-	      isPublicEvent: true,
+	    var emitterData = {
 	      addonKey: extension.addon_key,
 	      key: extension.key
 	    };
-	    host.dispatch(type, targetSpec, { context: context, event: event });
+	    host.dispatch(type, targetSpec, { emitterData: emitterData, event: event });
 	    EventDispatcher$1.dispatch('event-dispatch', {
 	      isPublicEvent: true,
 	      type: type,
@@ -4860,6 +4859,56 @@
 	  }
 	};
 
+	var callbacks = [];
+
+	function wrapCallback(callback, wrapper) {
+	  var wrappedCallback = function wrappedCallback(data) {
+	    callback.apply(null, wrapper(data));
+	  };
+	  callbacks.push({ wrappedCallback: wrappedCallback, callback: callback });
+	  return wrappedCallback;
+	}
+
+	function findWrappedCallback(callback) {
+	  for (var i = 0; i < callbacks.length; i++) {
+	    var item = callbacks[i];
+	    if (item.callback === callback) {
+	      return callbacks.splice(i, 1)[0].wrappedCallback;
+	    }
+	  }
+	  return null;
+	}
+
+	var IndexActions = {
+	  onIframeEstablished: function onIframeEstablished(callback) {
+	    EventDispatcher$1.register('after:iframe-bridge-established', wrapCallback(callback, function (data) {
+	      return {
+	        $el: data.$el,
+	        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
+	      };
+	    }));
+	  },
+	  onIframeUnload: function onIframeUnload(callback) {
+	    EventDispatcher$1.register('after:iframe-unload', wrapCallback(callback, function (data) {
+	      return {
+	        $el: data.$el,
+	        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
+	      };
+	    }));
+	  },
+	  onEventDispatched: function onEventDispatched(callback) {
+	    EventDispatcher$1.register('after:event-dispatch', wrapCallback(callback, function (data) {
+	      return [data.type, data.isPublicEvent, data.event, data.extension];
+	    }));
+	  },
+	  offEventDispatched: function offEventDispatched(callback) {
+	    var callbackFunc = findWrappedCallback(callback);
+	    if (callbackFunc) {
+	      EventDispatcher$1.unregister('after:event-dispatch', callbackFunc);
+	    }
+	  }
+	};
+
 	function sanitizeTriggers(triggers) {
 	  var onTriggers;
 	  if (_.isArray(triggers)) {
@@ -5400,30 +5449,10 @@
 	  offKeyEvent: function offKeyEvent(extension_id, key, modifiers, callback) {
 	    DomEventActions.unregisterKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
 	  },
-	  onIframeEstablished: function onIframeEstablished(callback) {
-	    EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
-	      callback.call(null, {
-	        $el: data.$el,
-	        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
-	      });
-	    });
-	  },
-	  onIframeUnload: function onIframeUnload(callback) {
-	    EventDispatcher$1.register('after:iframe-unload', function (data) {
-	      callback.call(null, {
-	        $el: data.$el,
-	        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
-	      });
-	    });
-	  },
-	  onEventDispatched: function onEventDispatched(callback) {
-	    EventDispatcher$1.register('after:event-dispatch', function (data) {
-	      callback.apply(null, [data.type, data.isPublicEvent, data.event, data.extension]);
-	    });
-	  },
-	  offEventDispatched: function offEventDispatched(callback) {
-	    EventDispatcher$1.unregister('after:event-dispatch', callback);
-	  },
+	  onIframeEstablished: IndexActions.onIframeEstablished,
+	  onIframeUnload: IndexActions.onIframeUnload,
+	  onEventDispatched: IndexActions.onEventDispatched,
+	  offEventDispatched: IndexActions.offEventDispatched,
 	  destroy: function destroy(extension_id) {
 	    IframeActions.notifyIframeDestroyed({ extension_id: extension_id });
 	  },

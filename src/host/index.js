@@ -13,11 +13,11 @@ import flag from './modules/flag';
 import analytics from './modules/analytics';
 import ModuleActions from './actions/module_actions';
 import DomEventActions from './actions/dom_event_actions';
-import _ from './underscore';
 import util from './util';
 import EventActions from './actions/event_actions';
 import IframeActions from './actions/iframe_actions';
 import DialogExtensionActions from './actions/dialog_extension_actions';
+import IndexActions from './actions/index_actions';
 
 import InlineDialogWebItemComponent from './components/inline_dialog_webitem';
 import DialogWebItemComponent from './components/dialog_webitem';
@@ -76,35 +76,10 @@ export default {
   offKeyEvent: (extension_id, key, modifiers, callback) => {
     DomEventActions.unregisterKeyEvent({extension_id, key, modifiers, callback});
   },
-  onIframeEstablished: (callback) => {
-    EventDispatcher.register('after:iframe-bridge-established', function(data) {
-      callback.call(null, {
-        $el: data.$el,
-        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
-      });
-    });
-  },
-  onIframeUnload: (callback) => {
-    EventDispatcher.register('after:iframe-unload', function(data) {
-      callback.call(null, {
-        $el: data.$el,
-        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
-      });
-    });
-  },
-  onEventDispatched: (callback) => {
-    EventDispatcher.register('after:event-dispatch', function(data) {
-      callback.apply(null, [
-        data.type,
-        data.isPublicEvent,
-        data.event,
-        data.extension
-      ]);
-    });
-  },
-  offEventDispatched: (callback) => {
-    EventDispatcher.unregister('after:event-dispatch', callback);
-  },
+  onIframeEstablished: IndexActions.onIframeEstablished,
+  onIframeUnload: IndexActions.onIframeUnload,
+  onEventDispatched: IndexActions.onEventDispatched,
+  offEventDispatched: IndexActions.offEventDispatched,
   destroy: function(extension_id){
     IframeActions.notifyIframeDestroyed({extension_id: extension_id});
   },

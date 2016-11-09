@@ -12,12 +12,11 @@ export default {
   },
 
   broadcastPublic: function(type, targetSpec, event, extension){
-    var context = {
-      isPublicEvent: true,
+    var emitterData = {
       addonKey: extension.addon_key,
       key: extension.key
     };
-    SimpleXDM.dispatch(type, targetSpec, {context, event});
+    SimpleXDM.dispatch(type, targetSpec, {emitterData, event});
     EventDispatcher.dispatch('event-dispatch', {
       isPublicEvent: true,
       type,
