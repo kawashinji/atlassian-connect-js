@@ -10,6 +10,7 @@ describe('scroll position', () => {
         width: window.innerWidth,
         height: window.innerHeight
       });
+      done();
     };
     callback._context = {
       extension: {
