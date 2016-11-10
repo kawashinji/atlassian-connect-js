@@ -17,11 +17,11 @@ export default {
     if (callback._context.extension.options.isFullPage) {
       var $el = util.getIframeByExtensionId(callback._context.extension_id);
       var offset = $el.offset();
-      var $body = $('body');
+      var $window = $(window);
 
       callback({
-        scrollY: $body.scrollTop() - offset.top,
-        scrollX: $body.scrollLeft() - offset.left,
+        scrollY: $window.scrollTop() - offset.top,
+        scrollX: $window.scrollLeft() - offset.left,
         width: window.innerWidth,
         height: window.innerHeight
       });
