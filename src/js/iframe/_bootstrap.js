@@ -22,18 +22,34 @@
     }
   }
 
-  // Bootstrap any iframe body script being added to the DOM
-  // It can be:
-  // - JSON blob being placed on the page
-  // - JSON dynamically inserted on page by dialog
-  // - Macro rendered by an iframe
-  var observer = new MutationObserver(function (mutations) {
-    mutations.forEach(function (mutation) {
-      if (mutation.addedNodes.length) {
-        var iframeScripts = Array.prototype.slice.call(document.getElementsByClassName('ap-iframe-body-script'), 0);
-        iframeScripts.forEach(bootstrap);
+  function getScripts() {
+    return Array.prototype.slice.call(document.getElementsByClassName('ap-iframe-body-script'), 0);
+  }
+
+  if (typeof AP === 'object') {
+    // Bootstrap any iframe body script being added to the DOM
+    // It can be:
+    // - JSON blob being placed on the page
+    // - JSON dynamically inserted on page by dialog
+    // - Macro rendered by an iframe
+    var observer = new MutationObserver(function (mutations) {
+      var addedNode = false;
+      mutations.forEach(function (mutation) {
+        if (mutation.addedNodes.length) {
+          addedNode = true;
+          return false;
+        }
+      });
+
+      if (addedNode) {
+        getScripts().forEach(bootstrap);
       }
     });
-  });
-  observer.observe(document, {childList: true, subtree: true});
+    observer.observe(document, {childList: true, subtree: true});
+  } else {
+    // We don't need observer on host level
+    AJS.$(function() {
+      getScripts().forEach(bootstrap);
+    });
+  }
 })();
