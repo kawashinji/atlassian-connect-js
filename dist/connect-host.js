@@ -1574,9 +1574,13 @@
 	      };
 	    });
 
-	    targets.forEach(function (target) {
-	      EventActions.broadcastPublic(name, target, args, extension);
-	    });
+	    if (targets.length) {
+	      targets.forEach(function (target) {
+	        EventActions.broadcastPublic(name, target, args, extension);
+	      });
+	    } else {
+	      EventActions.broadcastPublic(name, {}, args, extension);
+	    }
 	  }
 	};
 
