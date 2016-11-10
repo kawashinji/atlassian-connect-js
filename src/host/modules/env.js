@@ -51,7 +51,7 @@ export default {
     if(!resizeFuncHolder[iframeId]){
       resizeFuncHolder[iframeId] = debounce(function(dwidth, dheight, dcallback){
         EnvActions.iframeResize(dwidth, dheight, dcallback._context);
-      });
+      }, 100);
     }
 
     resizeFuncHolder[iframeId](width, height, callback);
@@ -79,7 +79,7 @@ export default {
       // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
       util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
     }
-  })
+  }, 100)
 };
 
 EventDispatcher.register('after:iframe-unload', function(data){
