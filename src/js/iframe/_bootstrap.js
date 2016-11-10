@@ -22,34 +22,39 @@
     }
   }
 
-  function getScripts() {
-    return Array.prototype.slice.call(document.getElementsByClassName('ap-iframe-body-script'), 0);
-  }
+  var bootstrapAllScripts = (function () {
+    var timer;
+    return function () {
+      if (timer) {
+        clearTimeout(timer);
+      }
 
-  if (typeof AP === 'object') {
-    // Bootstrap any iframe body script being added to the DOM
-    // It can be:
-    // - JSON blob being placed on the page
-    // - JSON dynamically inserted on page by dialog
-    // - Macro rendered by an iframe
-    var observer = new MutationObserver(function (mutations) {
-      var addedNode = false;
-      mutations.forEach(function (mutation) {
-        if (mutation.addedNodes.length) {
-          addedNode = true;
-          return false;
-        }
-      });
+      // Debounce bootstrap for 50ms
+      timer = setTimeout(function () {
+        Array.prototype.slice
+          .call(document.getElementsByClassName('ap-iframe-body-script'), 0)
+          .forEach(bootstrap);
+      }, 50);
+    }
+  })();
 
-      if (addedNode) {
-        getScripts().forEach(bootstrap);
+  // Bootstrap any iframe body script being added to the DOM
+  // It can be:
+  // - JSON blob being placed on the page
+  // - JSON dynamically inserted on page by dialog
+  // - Macro rendered by an iframe
+  var observer = new MutationObserver(function (mutations) {
+    var addedNode = false;
+    mutations.forEach(function (mutation) {
+      if (mutation.addedNodes.length) {
+        addedNode = true;
+        return false;
       }
     });
-    observer.observe(document, {childList: true, subtree: true});
-  } else {
-    // We don't need observer on host level
-    AJS.$(function() {
-      getScripts().forEach(bootstrap);
-    });
-  }
+
+    if (addedNode) {
+      bootstrapAllScripts();
+    }
+  });
+  observer.observe(document, {childList: true, subtree: true});
 })();
