@@ -1385,12 +1385,8 @@ var   document$1 = window.document;
       reset();
     };
 
-    expand.addEventListener('scroll', function () {
-      onScroll();
-    });
-    shrink.addEventListener('scroll', function () {
-      onScroll();
-    });
+    expand.addEventListener('scroll', onScroll);
+    shrink.addEventListener('scroll', onScroll);
 
     var observerConfig = {
       attributes: true,
@@ -1420,27 +1416,48 @@ var   document$1 = window.document;
     function AutoResizeAction(callback) {
       classCallCheck(this, AutoResizeAction);
 
-      this.resizeStore = [];
+      this.dimensionStores = {
+        width: [],
+        height: []
+      };
       this.callback = callback;
     }
 
     createClass(AutoResizeAction, [{
-      key: "triggered",
+      key: '_setVal',
+      value: function _setVal(val, type, time) {
+        this.dimensionStores[type] = this.dimensionStores[type].filter(function (entry) {
+          return time - entry.setAt < 400;
+        });
+        this.dimensionStores[type].push({
+          val: val,
+          setAt: time
+        });
+      }
+    }, {
+      key: '_isFlicker',
+      value: function _isFlicker(val, type) {
+        return this.dimensionStores[type].length >= 5;
+      }
+    }, {
+      key: 'triggered',
       value: function triggered(dimensions) {
         dimensions = dimensions || size();
         var now = Date.now();
-        dimensions.setAt = now;
-        this.resizeStore = this.resizeStore.filter(function (entry) {
-          return now - entry.setAt < 1000;
-        });
-        this.resizeStore.push(dimensions);
-        if (this.resizeStore.length === 3) {
-          var oldDimensions = this.resizeStore[0];
-          this.resizeStore = this.resizeStore.slice(1);
-          if (dimensions.w <= oldDimensions.w && dimensions.h <= oldDimensions.h) {
-            console.log("SIMPLE XDM: auto resize flicker detected");
-            return;
-          }
+        this._setVal(dimensions.w, 'width', now);
+        this._setVal(dimensions.h, 'height', now);
+        var isFlickerWidth = this._isFlicker(dimensions.w, 'width', now);
+        var isFlickerHeight = this._isFlicker(dimensions.h, 'height', now);
+        if (isFlickerWidth) {
+          dimensions.w = "100%";
+          console.error("SIMPLE XDM: auto resize flickering width detected, setting to 100%");
+        }
+        if (isFlickerHeight) {
+          var vals = this.dimensionStores['height'].map(function (x) {
+            return x.val;
+          });
+          dimensions.h = Math.max(vals);
+          console.error("SIMPLE XDM: auto resize flickering height detected, setting to: " + dimensions.h);
         }
         this.callback(dimensions.w, dimensions.h);
       }
