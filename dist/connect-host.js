@@ -3779,6 +3779,7 @@
 	  data.$el[0].bridgeEstablished = true;
 	});
 
+<<<<<<< HEAD
 	var IframeFormUtils = function () {
 	  function IframeFormUtils() {
 	    classCallCheck(this, IframeFormUtils);
@@ -3867,6 +3868,8 @@
 
 	EventDispatcher$1.register('iframe-container-appended', IframeFormComponent.submit);
 
+=======
+>>>>>>> CE-720 Create form on both host and iframe side
 	var LoadingIndicatorActions = {
 	  timeout: function timeout($el, extension) {
 	    EventDispatcher$1.dispatch('iframe-bridge-timeout', { $el: $el, extension: extension });
@@ -3972,9 +3975,102 @@
 	  LoadingComponent.cancelled(data.$el, data.extension.id);
 	});
 
-	var IframeContainerActions = {
-	  notifyAppended: function notifyAppended($el, extension) {
-	    EventDispatcher$1.dispatch('iframe-container-appended', { $el: $el, extension: extension });
+	function randomIdentifier() {
+	  return 'iframe_form_' + _random();
+	}
+
+	function randomTargetName() {
+	  return 'iframe_' + _random();
+	}
+
+	function _random() {
+	  return Math.random().toString(16).substring(7);
+	}
+
+	function dataFromUrl(str) {
+	  return qs.parse(qs.extract(str));
+	}
+
+	function urlWithoutData(str) {
+	  return str.split('?')[0];
+	}
+
+	var IframeFormUtils = {
+	  randomIdentifier: randomIdentifier,
+	  randomTargetName: randomTargetName,
+	  dataFromUrl: dataFromUrl,
+	  urlWithoutData: urlWithoutData
+	};
+
+	var MAXIMUM_RETRY = 50;
+
+	function create$1(attributes, data) {
+	  if (!data) {
+	    data = IframeFormUtils.dataFromUrl(attributes.url);
+	    attributes.url = IframeFormUtils.urlWithoutData(attributes.url);
+	  }
+
+	  var form = document.createElement('form');
+	  form.setAttribute('id', attributes.id || IframeFormUtils.randomIdentifier());
+	  form.setAttribute('class', 'ap-iframe-form');
+	  form.setAttribute('action', attributes.url);
+	  form.setAttribute('target', attributes.target);
+	  form.setAttribute('method', attributes.method);
+	  Object.keys(data).forEach(function (key) {
+	    var input = document.createElement('input');
+	    input.setAttribute('name', key);
+	    input.setAttribute('type', 'hidden');
+	    input.setAttribute('value', data[key]);
+	    form.appendChild(input);
+	  });
+
+	  return form;
+	}
+
+	function submitOnceContainerAppended(container) {
+	  var checkHasParent = function checkHasParent() {
+	    var count = 0;
+	    setTimeout(function () {
+	      if (count++ >= MAXIMUM_RETRY) {
+	        return;
+	      }
+
+	      if (container.parentNode !== null) {
+	        var form = container.getElementsByClassName('ap-iframe-form');
+	        if (form.length) {
+	          form[0].submit();
+	        }
+	      } else {
+	        checkHasParent();
+	      }
+	    }, 50);
+	  };
+
+	  checkHasParent();
+	}
+
+	var IframeForm = {
+	  createIfNecessary: function createIfNecessary(container, renderingMethod) {
+	    if (container.length) {
+	      // Get raw element if it is a jquery like object
+	      container = container[0];
+	    }
+
+	    var iframe = container.getElementsByTagName('iframe');
+	    if (iframe.length && renderingMethod !== 'GET') {
+	      iframe = iframe[0];
+
+	      container.appendChild(create$1({
+	        target: iframe.getAttribute('name'),
+	        url: iframe.getAttribute('src'),
+	        method: renderingMethod
+	      }));
+
+	      // Set iframe source to empty to avoid loading the page
+	      iframe.setAttribute('src', '');
+
+	      submitOnceContainerAppended(container);
+	    }
 	  }
 	};
 
@@ -3993,23 +4089,7 @@
 	        $container.append(this._renderLoadingIndicator());
 	      }
 	      IframeComponent.simpleXdmExtension(extension, $container);
-	      this._onceContainerAppended(extension, $container);
 	      return $container;
-	    }
-	  }, {
-	    key: '_onceContainerAppended',
-	    value: function _onceContainerAppended(extension, $container) {
-	      var checkHasParent = function checkHasParent() {
-	        setTimeout(function () {
-	          if ($container.parent().length) {
-	            IframeContainerActions.notifyAppended($container, extension);
-	          } else {
-	            checkHasParent();
-	          }
-	        }, 50);
-	      };
-
-	      checkHasParent();
 	    }
 	  }, {
 	    key: '_renderContainer',
@@ -4028,6 +4108,7 @@
 	}();
 
 	var IframeContainerComponent = new IframeContainer();
+
 	EventDispatcher$1.register('iframe-create', function (data) {
 	  data.extension.options = data.extension.options || {};
 	  var renderingMethod = data.extension.options.renderingMethod || 'GET';
@@ -4035,18 +4116,7 @@
 	  var $container = data.extension.$el.parents('.ap-iframe-container');
 	  $container.attr('id', id);
 
-	  if (renderingMethod.toUpperCase() !== 'GET') {
-	    var $iframe = data.$el;
-	    var $form = IframeFormComponent.render({
-	      url: data.extension.url,
-	      method: renderingMethod,
-	      target: $iframe.attr('name')
-	    });
-	    $container.prepend($form);
-
-	    // Set iframe source to empty to avoid loading the page
-	    $iframe.attr('src', '');
-	  }
+	  IframeForm.createIfNecessary($container, renderingMethod);
 	});
 
 <<<<<<< HEAD

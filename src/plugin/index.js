@@ -7,6 +7,8 @@ import DialogCompat from './dialog';
 import AMD from './amd';
 import Meta from './meta';
 import _util from './util';
+import IframeForm from '../common/iframe_form';
+
 
 AP._hostModules._dollar = $;
 AP._hostModules['inline-dialog'] = AP._hostModules.inlineDialog;
@@ -54,6 +56,7 @@ AP._hostModules._util = AP._util = {
   isFunction: _util.isFunction,
   handleError: _util.handleError
 };
+AP._hostModules._iframeForm = IframeForm;
 
 if(AP.defineModule) {
   AP.defineModule('env', {resize: function(w, h, callback){

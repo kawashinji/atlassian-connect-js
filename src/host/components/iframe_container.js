@@ -1,9 +1,8 @@
 import $ from '../dollar';
 import IframeComponent from './iframe';
-import IframeFormComponent from './iframe_form';
 import LoadingIndicatorComponent from './loading_indicator';
 import EventDispatcher from '../dispatchers/event_dispatcher';
-import IframeContainerActions from '../actions/iframe_container_actions';
+import IframeForm from '../../common/iframe_form';
 
 const CONTAINER_CLASSES = ['ap-iframe-container'];
 
@@ -15,22 +14,7 @@ class IframeContainer {
       $container.append(this._renderLoadingIndicator());
     }
     IframeComponent.simpleXdmExtension(extension, $container);
-    this._onceContainerAppended(extension, $container);
     return $container;
-  }
-
-  _onceContainerAppended(extension, $container) {
-    var checkHasParent = function() {
-      setTimeout(function() {
-        if ($container.parent().length) {
-          IframeContainerActions.notifyAppended($container, extension);
-        } else {
-          checkHasParent();
-        }
-      }, 50);
-    };
-
-    checkHasParent();
   }
 
   _renderContainer(attributes){
@@ -46,6 +30,7 @@ class IframeContainer {
 }
 
 var IframeContainerComponent = new IframeContainer();
+
 EventDispatcher.register('iframe-create', (data) => {
   data.extension.options = data.extension.options || {};
   var renderingMethod = data.extension.options.renderingMethod || 'GET';
@@ -53,18 +38,7 @@ EventDispatcher.register('iframe-create', (data) => {
   var $container = data.extension.$el.parents('.ap-iframe-container');
   $container.attr('id', id);
 
-  if(renderingMethod.toUpperCase() !== 'GET') {
-    let $iframe = data.$el;
-    let $form = IframeFormComponent.render({
-      url: data.extension.url,
-      method: renderingMethod,
-      target: $iframe.attr('name')
-    });
-    $container.prepend($form);
-
-    // Set iframe source to empty to avoid loading the page
-    $iframe.attr('src', '');
-  }
+  IframeForm.createIfNecessary($container, renderingMethod);
 });
 
 export default IframeContainerComponent;
