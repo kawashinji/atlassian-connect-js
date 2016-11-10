@@ -5,7 +5,7 @@
 }(this, (function () { 'use strict';
 
 	// AUI includes underscore and exposes it globally.
-	var _$1 = window._;
+	var _ = window._;
 
 	var domain;
 
@@ -726,10 +726,10 @@
 	    value: function registerOnce(action, callback) {
 	      var _this2 = this;
 
-	      if (_$1.isString(action)) {
+	      if (_.isString(action)) {
 	        this.once(action, callback);
-	      } else if (_$1.isObject(action)) {
-	        _$1.keys(action).forEach(function (val, key) {
+	      } else if (_.isObject(action)) {
+	        _.keys(action).forEach(function (val, key) {
 	          _this2.once(key, val);
 	        }, this);
 	      }
@@ -739,10 +739,10 @@
 	    value: function register(action, callback) {
 	      var _this3 = this;
 
-	      if (_$1.isString(action)) {
+	      if (_.isString(action)) {
 	        this.on(action, callback);
-	      } else if (_$1.isObject(action)) {
-	        _$1.keys(action).forEach(function (val, key) {
+	      } else if (_.isObject(action)) {
+	        _.keys(action).forEach(function (val, key) {
 	          _this3.on(key, val);
 	        }, this);
 	      }
@@ -752,10 +752,10 @@
 	    value: function unregister(action, callback) {
 	      var _this4 = this;
 
-	      if (_$1.isString(action)) {
+	      if (_.isString(action)) {
 	        this.removeListener(action, callback);
-	      } else if (_$1.isObject(action)) {
-	        _$1.keys(action).forEach(function (val, key) {
+	      } else if (_.isObject(action)) {
+	        _.keys(action).forEach(function (val, key) {
 	          _this4.removeListener(key, val);
 	        }, this);
 	      }
@@ -1737,12 +1737,12 @@
 	    if (!data.resolver) {
 	      throw Error('ACJS: No content resolver supplied');
 	    }
-	    var promise = data.resolver.call(null, _$1.extend({ classifier: 'json' }, data.extension));
+	    var promise = data.resolver.call(null, _.extend({ classifier: 'json' }, data.extension));
 	    promise.done(function (promiseData) {
 	      var newExtensionConfiguration = {};
-	      if (_$1.isObject(promiseData)) {
+	      if (_.isObject(promiseData)) {
 	        newExtensionConfiguration = promiseData;
-	      } else if (_$1.isString(promiseData)) {
+	      } else if (_.isString(promiseData)) {
 	        try {
 	          newExtensionConfiguration = JSON.parse(promiseData);
 	        } catch (e) {
@@ -1750,7 +1750,7 @@
 	        }
 	      }
 	      data.extension.url = newExtensionConfiguration.url;
-	      _$1.extend(data.extension.options, newExtensionConfiguration.options);
+	      _.extend(data.extension.options, newExtensionConfiguration.options);
 	      EventDispatcher$1.dispatch('jwt-url-refreshed', {
 	        extension: data.extension,
 	        $container: data.$container,
@@ -1779,8 +1779,8 @@
 	      args[_key - 1] = arguments[_key];
 	    }
 
-	    var callback = _$1.last(args);
-	    args = _$1.first(args, -1);
+	    var callback = _.last(args);
+	    args = _.first(args, -1);
 	    EventActions.broadcast(name, {
 	      addon_key: callback._context.extension.addon_key
 	    }, args);
@@ -1830,7 +1830,7 @@
 	  var percent = false;
 	  var unit = 'px';
 
-	  if (_$1.isString(value)) {
+	  if (_.isString(value)) {
 	    percent = value.indexOf('%') === value.length - 1;
 	    value = parseInt(value, 10);
 	    if (percent) {
@@ -3420,7 +3420,7 @@
 	  createClass(Button, [{
 	    key: 'setType',
 	    value: function setType($button, type) {
-	      if (type && _$1.contains(BUTTON_TYPES, type)) {
+	      if (type && _.contains(BUTTON_TYPES, type)) {
 	        $button.addClass('aui-button-' + type);
 	      }
 	      return $button;
@@ -3703,7 +3703,7 @@
 	      });
 	      $dialog.addClass('aui-layer aui-dialog2 ' + DIALOG_CLASS);
 
-	      if (_$1.contains(DIALOG_SIZES, sanitizedOptions.size)) {
+	      if (_.contains(DIALOG_SIZES, sanitizedOptions.size)) {
 	        $dialog.addClass('aui-dialog2-' + sanitizedOptions.size);
 	      }
 
@@ -4013,14 +4013,14 @@
 	var Dialog = function Dialog(options, callback) {
 	  classCallCheck(this, Dialog);
 
-	  callback = _$1.last(arguments);
+	  callback = _.last(arguments);
 	  var _id = callback._id;
 	  var extension = callback._context.extension;
 
 	  var dialogExtension = {
 	    addon_key: extension.addon_key,
 	    key: options.key,
-	    options: _$1.pick(callback._context.extension.options, ['customData', 'productContext'])
+	    options: _.pick(callback._context.extension.options, ['customData', 'productContext'])
 	  };
 
 	  // ACJS-185: the following is a really bad idea but we need it
@@ -4028,7 +4028,7 @@
 	  dialogExtension.options.customData = options.customData;
 	  // terrible idea! - we need to remove this from p2 ASAP!
 	  var dialogModuleOptions = dialogUtilsInstance.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
-	  options = _$1.extend({}, dialogModuleOptions || {}, options);
+	  options = _.extend({}, dialogModuleOptions || {}, options);
 	  options.id = _id;
 
 	  DialogExtensionActions.open(dialogExtension, options);
@@ -4104,7 +4104,7 @@
 	  }, {
 	    key: 'isEnabled',
 	    value: function isEnabled(callback) {
-	      callback = _$1.last(arguments);
+	      callback = _.last(arguments);
 	      callback(this.enabled);
 	    }
 	    /**
@@ -4147,7 +4147,7 @@
 	  }, {
 	    key: 'trigger',
 	    value: function trigger(callback) {
-	      callback = _$1.last(arguments);
+	      callback = _.last(arguments);
 	      if (this.enabled) {
 	        DialogActions.dialogMessage({
 	          name: this.name,
@@ -4173,7 +4173,7 @@
 	  }, {
 	    key: 'isHidden',
 	    value: function isHidden(callback) {
-	      callback = _$1.last(arguments);
+	      callback = _.last(arguments);
 	      callback(this.hidden);
 	    }
 	    /**
@@ -4224,7 +4224,7 @@
 	var CreateButton = function CreateButton(options, callback) {
 	  classCallCheck(this, CreateButton);
 
-	  callback = _$1.last(arguments);
+	  callback = _.last(arguments);
 	  DialogExtensionActions.addUserButton({
 	    identifier: options.identifier,
 	    text: options.text
@@ -4304,7 +4304,7 @@
 	   * AP.dialog.close({foo: 'bar'});
 	   */
 	  close: function close(data, callback) {
-	    callback = _$1.last(arguments);
+	    callback = _.last(arguments);
 	    var dialogToClose;
 	    if (callback._context.extension.options.isDialog) {
 	      dialogToClose = DialogExtensionComponent.getByExtension(callback._context.extension.id)[0];
@@ -4331,7 +4331,7 @@
 	   *
 	   */
 	  getCustomData: function getCustomData(callback) {
-	    callback = _$1.last(arguments);
+	    callback = _.last(arguments);
 	    var dialog = getDialogFromContext(callback._context);
 	    if (dialog) {
 	      callback(dialog.customData);
@@ -4431,7 +4431,7 @@
 	   * });
 	   */
 	  getLocation: function getLocation(callback) {
-	    callback = _$1.last(arguments);
+	    callback = _.last(arguments);
 	    callback(window.location.href);
 	  },
 	  /**
@@ -4451,7 +4451,7 @@
 	   * @param {String} height  the desired height
 	   */
 	  resize: function resize(width, height, callback) {
-	    callback = _$1.last(arguments);
+	    callback = _.last(arguments);
 	    var iframeId = callback._context.extension.id;
 	    var options = callback._context.extension.options;
 	    if (options && options.isDialog) {
@@ -4475,7 +4475,7 @@
 	   * @param {boolean} hideFooter true if the footer is supposed to be hidden
 	   */
 	  sizeToParent: debounce(function (hideFooter, callback) {
-	    callback = _$1.last(arguments);
+	    callback = _.last(arguments);
 	    // sizeToParent is only available for general-pages
 	    if (callback._context.extension.options.isFullPage) {
 	      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
@@ -4586,7 +4586,7 @@
 	function filterMessageOptions(options) {
 	  var copy = {};
 	  var allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
-	  if (_$1.isObject(options)) {
+	  if (_.isObject(options)) {
 	    allowed.forEach(function (key) {
 	      if (key in options) {
 	        copy[key] = options[key];
@@ -4635,7 +4635,7 @@
 	function messageModule(messageType) {
 	  return {
 	    constructor: function constructor(title, body, options, callback) {
-	      callback = _$1.last(arguments);
+	      callback = _.last(arguments);
 	      var _id = callback._id;
 	      options.id = MSGID_PREFIX + _id;
 	      deprecatedShowMessage(messageType, title, body, options, callback);
@@ -4682,7 +4682,7 @@
 	  * });
 	  */
 	  onClose: function onClose(msg, callback) {
-	    callback = _$1.last(arguments);
+	    callback = _.last(arguments);
 	    var id = msg._id;
 	    if (_messages[id]) {
 	      _messages[id].onCloseTrigger = callback;
@@ -4893,7 +4893,7 @@
 	  function Flag(options, callback) {
 	    classCallCheck(this, Flag);
 
-	    callback = _$1.last(arguments);
+	    callback = _.last(arguments);
 	    this.flag = FlagComponent.render({
 	      type: options.type,
 	      title: options.title,
@@ -5005,7 +5005,7 @@
 
 	var analytics$1 = {
 	  trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, callback) {
-	    callback = _$1.last(arguments);
+	    callback = _.last(arguments);
 	    AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
 	  }
 	};
@@ -5052,9 +5052,9 @@
 
 	function sanitizeTriggers(triggers) {
 	  var onTriggers;
-	  if (_$1.isArray(triggers)) {
+	  if (_.isArray(triggers)) {
 	    onTriggers = triggers.join(' ');
-	  } else if (_$1.isString(triggers)) {
+	  } else if (_.isString(triggers)) {
 	    onTriggers = triggers.trim();
 	  }
 	  return onTriggers;
@@ -5068,20 +5068,20 @@
 	function getExtensionKey($target) {
 	  var cssClass = $target.attr('class');
 	  var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
-	  return _$1.isArray(m) ? m[1] : false;
+	  return _.isArray(m) ? m[1] : false;
 	}
 
 	// LEGACY: get module key by webitem for p2
 	function getKey($target) {
 	  var cssClass = $target.attr('class');
 	  var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
-	  return _$1.isArray(m) ? m[1] : false;
+	  return _.isArray(m) ? m[1] : false;
 	}
 
 	function getTargetKey($target) {
 	  var cssClass = $target.attr('class');
 	  var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
-	  return _$1.isArray(m) ? m[1] : false;
+	  return _.isArray(m) ? m[1] : false;
 	}
 
 	function getFullKey($target) {
@@ -5093,7 +5093,7 @@
 	  var targetKey = getTargetKey($target);
 	  var moduleType = type + 'Modules';
 	  if (window._AP && window._AP[moduleType] && window._AP[moduleType][addon_key] && window._AP[moduleType][addon_key][targetKey]) {
-	    return _$1.clone(window._AP[moduleType][addon_key][targetKey].options);
+	    return _.clone(window._AP[moduleType][addon_key][targetKey].options);
 	  }
 	}
 
@@ -5104,7 +5104,7 @@
 	  var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
 	  var options = getModuleOptionsForWebitem(type, $target);
 	  if (!options && window._AP && window._AP[type + 'Options']) {
-	    options = _$1.clone(window._AP[type + 'Options'][fullKey]) || {};
+	    options = _.clone(window._AP[type + 'Options'][fullKey]) || {};
 	  }
 	  if (!options) {
 	    options = {};
@@ -5115,7 +5115,7 @@
 	  var url = $target.attr('href');
 	  if (url) {
 	    var query = index$1.parse(index$1.extract(url));
-	    _$1.each(query, function (value, key) {
+	    _.each(query, function (value, key) {
 	      options.productContext[key] = value;
 	    });
 	  }
@@ -5148,13 +5148,13 @@
 	    key: 'requestContent',
 	    value: function requestContent(extension) {
 	      if (extension.addon_key && extension.key) {
-	        return this._contentResolver.call(null, _$1.extend({ classifier: 'json' }, extension));
+	        return this._contentResolver.call(null, _.extend({ classifier: 'json' }, extension));
 	      }
 	    }
 	  }, {
 	    key: 'getWebItemsBySelector',
 	    value: function getWebItemsBySelector(selector) {
-	      return _$1.find(this._webitems, function (obj) {
+	      return _.find(this._webitems, function (obj) {
 	        if (obj.selector) {
 	          return obj.selector.trim() === selector.trim();
 	        }
@@ -5218,7 +5218,7 @@
 	  var oldWebItem = e.detail.originalItem.querySelector('a[class*="ap-"]');
 	  if (oldWebItem) {
 	    var newWebItem = e.detail.newItem.querySelector('a');
-	    _$1.each(oldWebItem.classList, function (cls) {
+	    _.each(oldWebItem.classList, function (cls) {
 	      if (/^ap-/.test(cls)) {
 	        newWebItem.classList.add(cls);
 	      }
@@ -5427,7 +5427,7 @@
 	      }
 	      contentRequest.then(function (content) {
 	        content.options = content.options || {};
-	        _$1.extend(content.options, {
+	        _.extend(content.options, {
 	          autoresize: true,
 	          widthinpx: true
 	        });
@@ -5502,7 +5502,7 @@
 	  }, {
 	    key: '_dialogOptions',
 	    value: function _dialogOptions(options) {
-	      return _$1.extend({}, DEFAULT_WEBITEM_OPTIONS, options || {});
+	      return _.extend({}, DEFAULT_WEBITEM_OPTIONS, options || {});
 	    }
 	  }, {
 	    key: 'triggered',
@@ -5595,7 +5595,7 @@
 	    EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
 	      callback.call(null, {
 	        $el: data.$el,
-	        extension: _$1.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
+	        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
 	      });
 	    });
 	  },
@@ -5603,7 +5603,7 @@
 	    EventDispatcher$1.register('after:iframe-unload', function (data) {
 	      callback.call(null, {
 	        $el: data.$el,
-	        extension: _$1.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
+	        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
 	      });
 	    });
 	  },
