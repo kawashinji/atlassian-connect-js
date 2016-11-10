@@ -1,10 +1,5 @@
-function getScrollTop() {
-  return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-}
-
-function getScrollLeft() {
-  return window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft || 0;
-}
+import util from '../util';
+import $ from '../dollar';
 
 export default {
   /**
@@ -16,16 +11,19 @@ export default {
    * AP.scrollPosition.getPosition(function(obj) { console.log(obj); });
    */
   getPosition: function (callback) {
-    var rect = this.iframe.getBoundingClientRect();
-    var iframeTop = rect.top + getScrollTop();
-    var iframeLeft = rect.left + getScrollLeft();
+    callback = _.last(arguments);
+    // scrollPosition.getPosition is only available for general-pages
+    if (callback._context.extension.options.isFullPage) {
+      var $el = util.getIframeByExtensionId(callback._context.extension_id);
+      var offset = $el.offset();
+      var $body = $('body');
 
-    // Todo: work out if on general page or not
-    callback({
-      scrollY: window.scrollY - iframeTop,
-      scrollX: window.scrollX - iframeLeft,
-      width: window.innerWidth,
-      height: window.innerHeight
-    });
+      callback({
+        scrollY: $body.scrollTop() - offset.top,
+        scrollX: $body.scrollLeft() - offset.left,
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    }
   }
 };
