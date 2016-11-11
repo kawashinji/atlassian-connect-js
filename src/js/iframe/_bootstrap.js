@@ -1,4 +1,6 @@
 (function () {
+  var IDENTIFIER = 'insertion-detection-iframe-script';
+
   function bootstrap(element) {
     try {
       var iFrameData = JSON.parse(element.getAttribute('data-json').trim());
@@ -22,39 +24,32 @@
     }
   }
 
-  var bootstrapAllScripts = (function () {
-    var timer;
-    return function () {
-      if (timer) {
-        clearTimeout(timer);
-      }
-
-      // Debounce bootstrap for 50ms
-      timer = setTimeout(function () {
-        Array.prototype.slice
-          .call(document.getElementsByClassName('ap-iframe-body-script'), 0)
-          .forEach(bootstrap);
-      }, 50);
+  function createDetectionCssStyle(identifier) {
+    var detection = document.getElementById(identifier);
+    if (detection == null) {
+      detection = document.createElement('style');
+      detection.id = identifier;
+      var css = '.' + identifier + ' { animation-duration: 1ms; animation-name: ' + identifier + '; }\n';
+      ['', '-webkit-', '-moz-', '-o-'].forEach(function(prefix) {
+        css += '@' + prefix + 'keyframes ' + identifier + ' { from { opacity: 0.99; } to { opacity: 1; } }\n';
+      });
+      detection.innerHTML = css;
     }
-  })();
 
-  // Bootstrap any iframe body script being added to the DOM
-  // It can be:
-  // - JSON blob being placed on the page
-  // - JSON dynamically inserted on page by dialog
-  // - Macro rendered by an iframe
-  var observer = new MutationObserver(function (mutations) {
-    var addedNode = false;
-    mutations.forEach(function (mutation) {
-      if (mutation.addedNodes.length) {
-        addedNode = true;
-        return false;
+    document.getElementsByTagName('head')[0].appendChild(detection);
+  }
+
+  function onInserted(identifier, callback) {
+    createDetectionCssStyle(identifier);
+
+    document.addEventListener('animationstart', function(event) {
+      if (event.animationName === identifier) {
+        callback(event.target);
       }
-    });
+    }, true);
+  }
 
-    if (addedNode) {
-      bootstrapAllScripts();
-    }
-  });
-  observer.observe(document, {childList: true, subtree: true});
+  // Bootstrap all scrips that statically and dynamically added.
+  // We added an animation to the element and detect the insertion by "animationstart".
+  onInserted(IDENTIFIER, bootstrap);
 })();
