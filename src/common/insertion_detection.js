@@ -12,6 +12,7 @@ export default {
     }
 
     document.getElementsByTagName('head')[0].appendChild(detection);
+    return detection;
   },
 
   onceElementInserted(element, identifier, callback) {
@@ -19,8 +20,8 @@ export default {
 
     var inserted = function (event) {
       if (event.animationName === identifier) {
-        element.removeEventListener('animationstart', identifier);
-        callback.call(event.target);
+        element.removeEventListener('animationstart', inserted);
+        callback(event.target);
       }
     };
 

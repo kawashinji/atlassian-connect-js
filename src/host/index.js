@@ -79,7 +79,7 @@ export default {
     DomEventActions.unregisterKeyEvent({extension_id, key, modifiers, callback});
   },
   onIframeEstablished: (callback) => {
-    EventDispatcher.register('after:iframe-bridge-established', function (data) {
+    EventDispatcher.register('after:iframe-bridge-established', function(data) {
       callback.call(null, {
         $el: data.$el,
         extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
@@ -87,14 +87,14 @@ export default {
     });
   },
   onIframeUnload: (callback) => {
-    EventDispatcher.register('after:iframe-unload', function (data) {
+    EventDispatcher.register('after:iframe-unload', function(data) {
       callback.call(null, {
         $el: data.$el,
         extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
       });
     });
   },
-  destroy: function (extension_id) {
+  destroy: function(extension_id){
     IframeActions.notifyIframeDestroyed({extension_id: extension_id});
   },
   registerContentResolver: {
