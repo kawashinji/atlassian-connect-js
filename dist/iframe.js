@@ -5610,8 +5610,6 @@ var 	document$1 = window.document;
 	  urlWithoutData: urlWithoutData
 	};
 
-	var MAXIMUM_RETRY = 50;
-
 	function create(attributes, data) {
 	  if (!data) {
 	    data = IframeFormUtils.dataFromUrl(attributes.url);
@@ -5636,25 +5634,27 @@ var 	document$1 = window.document;
 	}
 
 	function submitOnceContainerAppended(container) {
-	  var checkHasParent = function checkHasParent() {
-	    var count = 0;
-	    setTimeout(function () {
-	      if (count++ >= MAXIMUM_RETRY) {
-	        return;
-	      }
+	  var observer = new MutationObserver(function (mutations) {
+	    console.debug(container);
+	    console.debug(mutations);
 
-	      if (container.parentNode !== null) {
-	        var form = container.getElementsByClassName('ap-iframe-form');
-	        if (form.length) {
-	          form[0].submit();
-	        }
-	      } else {
-	        checkHasParent();
+	    var nodeAdded = false;
+	    mutations.forEach(function (mutation) {
+	      if (mutation.addedNodes.length) {
+	        nodeAdded = true;
+	        return false;
 	      }
-	    }, 50);
-	  };
+	    });
 
-	  checkHasParent();
+	    if (nodeAdded) {
+	      var form = container.getElementsByClassName('ap-iframe-form');
+	      if (form.length) {
+	        form[0].submit();
+	      }
+	      observer.disconnect();
+	    }
+	  });
+	  observer.observe(container, { childList: true, subtree: true, attributes: true });
 	}
 
 	var IframeForm = {

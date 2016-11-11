@@ -26,25 +26,27 @@ function create(attributes, data) {
 }
 
 function submitOnceContainerAppended(container) {
-  var checkHasParent = function() {
-    var count = 0;
-    setTimeout(function() {
-      if (count++ >= MAXIMUM_RETRY) {
-        return;
-      }
+  var observer = new MutationObserver(function (mutations) {
+    console.debug(container);
+    console.debug(mutations);
 
-      if (container.parentNode !== null) {
-        var form = container.getElementsByClassName('ap-iframe-form');
-        if (form.length) {
-          form[0].submit();
-        }
-      } else {
-        checkHasParent();
+    var nodeAdded = false;
+    mutations.forEach(function (mutation) {
+      if (mutation.addedNodes.length) {
+        nodeAdded = true;
+        return false;
       }
-    }, 50);
-  };
+    });
 
-  checkHasParent();
+    if (nodeAdded) {
+      var form = container.getElementsByClassName('ap-iframe-form');
+      if (form.length) {
+        form[0].submit();
+      }
+      observer.disconnect();
+    }
+  });
+  observer.observe(container, {childList: true, subtree: true, attributes: true});
 }
 
 export default {
