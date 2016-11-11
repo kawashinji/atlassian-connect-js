@@ -5610,6 +5610,46 @@ var 	document$1 = window.document;
 	  urlWithoutData: urlWithoutData
 	};
 
+	var InsertionDetection = {
+	  createDetectionCssStyle: function createDetectionCssStyle(identifier) {
+	    var detection = document.getElementById(identifier);
+	    if (detection == null) {
+	      detection = document.createElement('style');
+	      detection.id = identifier;
+	      var css = '.' + identifier + ' { animation-duration: 1ms; animation-name: ' + identifier + '; }\n';
+	      ['', '-webkit-', '-moz-', '-o-'].forEach(function (prefix) {
+	        css += '@' + prefix + 'keyframes ' + identifier + ' { from { opacity: 0.99; } to { opacity: 1; } }\n';
+	      });
+	      detection.innerHTML = css;
+	    }
+
+	    document.getElementsByTagName('head')[0].appendChild(detection);
+	  },
+	  onceElementInserted: function onceElementInserted(element, identifier, callback) {
+	    this.createDetectionCssStyle(identifier);
+
+	    var inserted = function inserted(event) {
+	      if (event.animationName === identifier) {
+	        element.removeEventListener('animationstart', identifier);
+	        callback.call(event.target);
+	      }
+	    };
+
+	    element.addEventListener('animationstart', inserted);
+	  },
+	  onInserted: function onInserted(identifier, callback) {
+	    this.createDetectionCssStyle(identifier);
+
+	    document.addEventListener('animationstart', function (event) {
+	      if (event.animationName === identifier) {
+	        callback(event.target);
+	      }
+	    }, true);
+	  }
+	};
+
+	var IDENTIFIER = 'insertion-detection-iframe-form';
+
 	function create(attributes, data) {
 	  if (!data) {
 	    data = IframeFormUtils.dataFromUrl(attributes.url);
@@ -5618,7 +5658,7 @@ var 	document$1 = window.document;
 
 	  var form = document.createElement('form');
 	  form.setAttribute('id', attributes.id || IframeFormUtils.randomIdentifier());
-	  form.setAttribute('class', 'ap-iframe-form');
+	  form.setAttribute('class', 'ap-iframe-form ' + IDENTIFIER);
 	  form.setAttribute('action', attributes.url);
 	  form.setAttribute('target', attributes.target);
 	  form.setAttribute('method', attributes.method);
@@ -5633,30 +5673,6 @@ var 	document$1 = window.document;
 	  return form;
 	}
 
-	function submitOnceContainerAppended(container) {
-	  var observer = new MutationObserver(function (mutations) {
-	    console.debug(container);
-	    console.debug(mutations);
-
-	    var nodeAdded = false;
-	    mutations.forEach(function (mutation) {
-	      if (mutation.addedNodes.length) {
-	        nodeAdded = true;
-	        return false;
-	      }
-	    });
-
-	    if (nodeAdded) {
-	      var form = container.getElementsByClassName('ap-iframe-form');
-	      if (form.length) {
-	        form[0].submit();
-	      }
-	      observer.disconnect();
-	    }
-	  });
-	  observer.observe(container, { childList: true, subtree: true, attributes: true });
-	}
-
 	var IframeForm = {
 	  createIfNecessary: function createIfNecessary(container, renderingMethod) {
 	    if (container.length) {
@@ -5668,16 +5684,19 @@ var 	document$1 = window.document;
 	    if (iframe.length && renderingMethod !== 'GET') {
 	      iframe = iframe[0];
 
-	      container.appendChild(create({
+	      var form = create({
 	        target: iframe.getAttribute('name'),
 	        url: iframe.getAttribute('src'),
 	        method: renderingMethod
-	      }));
+	      });
+	      container.appendChild(form);
 
 	      // Set iframe source to empty to avoid loading the page
 	      iframe.setAttribute('src', '');
 
-	      submitOnceContainerAppended(container);
+	      InsertionDetection.onceElementInserted(container, IDENTIFIER, function () {
+	        form.submit();
+	      });
 	    }
 	  }
 	};
@@ -5731,6 +5750,7 @@ var 	document$1 = window.document;
 	  handleError: util$1.handleError
 	};
 	combined._hostModules._iframeForm = IframeForm;
+	combined._hostModules._insertionDetection = InsertionDetection;
 
 	if (combined.defineModule) {
 	  combined.defineModule('env', { resize: function resize(w, h, callback) {

@@ -18,6 +18,8 @@ import EventActions from './actions/event_actions';
 import IframeActions from './actions/iframe_actions';
 import DialogExtensionActions from './actions/dialog_extension_actions';
 import scrollPosition from './modules/scroll-position';
+import InsertionDetection from '../common/insertion_detection';
+
 import InlineDialogWebItemComponent from './components/inline_dialog_webitem';
 import DialogWebItemComponent from './components/dialog_webitem';
 import DialogExtensionComponent from './components/dialog_extension';
@@ -77,7 +79,7 @@ export default {
     DomEventActions.unregisterKeyEvent({extension_id, key, modifiers, callback});
   },
   onIframeEstablished: (callback) => {
-    EventDispatcher.register('after:iframe-bridge-established', function(data) {
+    EventDispatcher.register('after:iframe-bridge-established', function (data) {
       callback.call(null, {
         $el: data.$el,
         extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
@@ -85,14 +87,14 @@ export default {
     });
   },
   onIframeUnload: (callback) => {
-    EventDispatcher.register('after:iframe-unload', function(data) {
+    EventDispatcher.register('after:iframe-unload', function (data) {
       callback.call(null, {
         $el: data.$el,
         extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
       });
     });
   },
-  destroy: function(extension_id){
+  destroy: function (extension_id) {
     IframeActions.notifyIframeDestroyed({extension_id: extension_id});
   },
   registerContentResolver: {
@@ -109,5 +111,6 @@ export default {
   create: create,
   getExtensions: (filter) => {
     return simpleXDM.getExtensions(filter);
-  }
+  },
+  insertionDetection: InsertionDetection
 };

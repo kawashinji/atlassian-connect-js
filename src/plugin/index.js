@@ -8,6 +8,7 @@ import AMD from './amd';
 import Meta from './meta';
 import _util from './util';
 import IframeForm from '../common/iframe_form';
+import InsertionDetection from '../common/insertion_detection';
 
 
 AP._hostModules._dollar = $;
@@ -57,6 +58,7 @@ AP._hostModules._util = AP._util = {
   handleError: _util.handleError
 };
 AP._hostModules._iframeForm = IframeForm;
+AP._hostModules._insertionDetection = InsertionDetection;
 
 if(AP.defineModule) {
   AP.defineModule('env', {resize: function(w, h, callback){

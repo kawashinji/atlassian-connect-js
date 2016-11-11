@@ -1,6 +1,7 @@
 import IframeFormUtils from './utils/iframe_form';
+import InsertionDetection from './insertion_detection';
 
-const MAXIMUM_RETRY = 50;
+const IDENTIFIER = 'insertion-detection-iframe-form';
 
 function create(attributes, data) {
   if (!data) {
@@ -10,7 +11,7 @@ function create(attributes, data) {
 
   var form = document.createElement('form');
   form.setAttribute('id', attributes.id || IframeFormUtils.randomIdentifier());
-  form.setAttribute('class', 'ap-iframe-form');
+  form.setAttribute('class', 'ap-iframe-form ' + IDENTIFIER);
   form.setAttribute('action', attributes.url);
   form.setAttribute('target', attributes.target);
   form.setAttribute('method', attributes.method);
@@ -25,30 +26,6 @@ function create(attributes, data) {
   return form;
 }
 
-function submitOnceContainerAppended(container) {
-  var observer = new MutationObserver(function (mutations) {
-    console.debug(container);
-    console.debug(mutations);
-
-    var nodeAdded = false;
-    mutations.forEach(function (mutation) {
-      if (mutation.addedNodes.length) {
-        nodeAdded = true;
-        return false;
-      }
-    });
-
-    if (nodeAdded) {
-      var form = container.getElementsByClassName('ap-iframe-form');
-      if (form.length) {
-        form[0].submit();
-      }
-      observer.disconnect();
-    }
-  });
-  observer.observe(container, {childList: true, subtree: true, attributes: true});
-}
-
 export default {
 
   createIfNecessary(container, renderingMethod) {
@@ -61,16 +38,19 @@ export default {
     if(iframe.length && renderingMethod !== 'GET') {
       iframe = iframe[0];
 
-      container.appendChild(create({
+      var form = create({
         target: iframe.getAttribute('name'),
         url: iframe.getAttribute('src'),
         method: renderingMethod
-      }));
+      });
+      container.appendChild(form);
 
       // Set iframe source to empty to avoid loading the page
       iframe.setAttribute('src', '');
 
-      submitOnceContainerAppended(container);
+      InsertionDetection.onceElementInserted(container, IDENTIFIER, function() {
+        form.submit();
+      });
     }
   }
 
