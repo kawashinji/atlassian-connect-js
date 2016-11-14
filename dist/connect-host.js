@@ -7,11 +7,438 @@
 	// AUI includes underscore and exposes it globally.
 	var _ = window._;
 
+	var domain;
+
+	// This constructor is used to store event handlers. Instantiating this is
+	// faster than explicitly calling `Object.create(null)` to get a "clean" empty
+	// object (tested with v8 v4.9).
+	function EventHandlers() {}
+	EventHandlers.prototype = Object.create(null);
+
+	function EventEmitter() {
+	  EventEmitter.init.call(this);
+	}
+	EventEmitter.usingDomains = false;
+
+	EventEmitter.prototype.domain = undefined;
+	EventEmitter.prototype._events = undefined;
+	EventEmitter.prototype._maxListeners = undefined;
+
+	// By default EventEmitters will print a warning if more than 10 listeners are
+	// added to it. This is a useful default which helps finding memory leaks.
+	EventEmitter.defaultMaxListeners = 10;
+
+	EventEmitter.init = function () {
+	  this.domain = null;
+	  if (EventEmitter.usingDomains) {
+	    // if there is an active domain, then attach to it.
+	    if (domain.active && !(this instanceof domain.Domain)) {
+	      this.domain = domain.active;
+	    }
+	  }
+
+	  if (!this._events || this._events === Object.getPrototypeOf(this)._events) {
+	    this._events = new EventHandlers();
+	    this._eventsCount = 0;
+	  }
+
+	  this._maxListeners = this._maxListeners || undefined;
+	};
+
+	// Obviously not all Emitters should be limited to 10. This function allows
+	// that to be increased. Set to zero for unlimited.
+	EventEmitter.prototype.setMaxListeners = function setMaxListeners(n) {
+	  if (typeof n !== 'number' || n < 0 || isNaN(n)) throw new TypeError('"n" argument must be a positive number');
+	  this._maxListeners = n;
+	  return this;
+	};
+
+	function $getMaxListeners(that) {
+	  if (that._maxListeners === undefined) return EventEmitter.defaultMaxListeners;
+	  return that._maxListeners;
+	}
+
+	EventEmitter.prototype.getMaxListeners = function getMaxListeners() {
+	  return $getMaxListeners(this);
+	};
+
+	// These standalone emit* functions are used to optimize calling of event
+	// handlers for fast cases because emit() itself often has a variable number of
+	// arguments and can be deoptimized because of that. These functions always have
+	// the same number of arguments and thus do not get deoptimized, so the code
+	// inside them can execute faster.
+	function emitNone(handler, isFn, self) {
+	  if (isFn) handler.call(self);else {
+	    var len = handler.length;
+	    var listeners = arrayClone(handler, len);
+	    for (var i = 0; i < len; ++i) {
+	      listeners[i].call(self);
+	    }
+	  }
+	}
+	function emitOne(handler, isFn, self, arg1) {
+	  if (isFn) handler.call(self, arg1);else {
+	    var len = handler.length;
+	    var listeners = arrayClone(handler, len);
+	    for (var i = 0; i < len; ++i) {
+	      listeners[i].call(self, arg1);
+	    }
+	  }
+	}
+	function emitTwo(handler, isFn, self, arg1, arg2) {
+	  if (isFn) handler.call(self, arg1, arg2);else {
+	    var len = handler.length;
+	    var listeners = arrayClone(handler, len);
+	    for (var i = 0; i < len; ++i) {
+	      listeners[i].call(self, arg1, arg2);
+	    }
+	  }
+	}
+	function emitThree(handler, isFn, self, arg1, arg2, arg3) {
+	  if (isFn) handler.call(self, arg1, arg2, arg3);else {
+	    var len = handler.length;
+	    var listeners = arrayClone(handler, len);
+	    for (var i = 0; i < len; ++i) {
+	      listeners[i].call(self, arg1, arg2, arg3);
+	    }
+	  }
+	}
+
+	function emitMany(handler, isFn, self, args) {
+	  if (isFn) handler.apply(self, args);else {
+	    var len = handler.length;
+	    var listeners = arrayClone(handler, len);
+	    for (var i = 0; i < len; ++i) {
+	      listeners[i].apply(self, args);
+	    }
+	  }
+	}
+
+	EventEmitter.prototype.emit = function emit(type) {
+	  var er, handler, len, args, i, events, domain;
+	  var needDomainExit = false;
+	  var doError = type === 'error';
+
+	  events = this._events;
+	  if (events) doError = doError && events.error == null;else if (!doError) return false;
+
+	  domain = this.domain;
+
+	  // If there is no 'error' event listener then throw.
+	  if (doError) {
+	    er = arguments[1];
+	    if (domain) {
+	      if (!er) er = new Error('Uncaught, unspecified "error" event');
+	      er.domainEmitter = this;
+	      er.domain = domain;
+	      er.domainThrown = false;
+	      domain.emit('error', er);
+	    } else if (er instanceof Error) {
+	      throw er; // Unhandled 'error' event
+	    } else {
+	      // At least give some kind of context to the user
+	      var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
+	      err.context = er;
+	      throw err;
+	    }
+	    return false;
+	  }
+
+	  handler = events[type];
+
+	  if (!handler) return false;
+
+	  var isFn = typeof handler === 'function';
+	  len = arguments.length;
+	  switch (len) {
+	    // fast cases
+	    case 1:
+	      emitNone(handler, isFn, this);
+	      break;
+	    case 2:
+	      emitOne(handler, isFn, this, arguments[1]);
+	      break;
+	    case 3:
+	      emitTwo(handler, isFn, this, arguments[1], arguments[2]);
+	      break;
+	    case 4:
+	      emitThree(handler, isFn, this, arguments[1], arguments[2], arguments[3]);
+	      break;
+	    // slower
+	    default:
+	      args = new Array(len - 1);
+	      for (i = 1; i < len; i++) {
+	        args[i - 1] = arguments[i];
+	      }emitMany(handler, isFn, this, args);
+	  }
+
+	  if (needDomainExit) domain.exit();
+
+	  return true;
+	};
+
+	function _addListener(target, type, listener, prepend) {
+	  var m;
+	  var events;
+	  var existing;
+
+	  if (typeof listener !== 'function') throw new TypeError('"listener" argument must be a function');
+
+	  events = target._events;
+	  if (!events) {
+	    events = target._events = new EventHandlers();
+	    target._eventsCount = 0;
+	  } else {
+	    // To avoid recursion in the case that type === "newListener"! Before
+	    // adding it to the listeners, first emit "newListener".
+	    if (events.newListener) {
+	      target.emit('newListener', type, listener.listener ? listener.listener : listener);
+
+	      // Re-assign `events` because a newListener handler could have caused the
+	      // this._events to be assigned to a new object
+	      events = target._events;
+	    }
+	    existing = events[type];
+	  }
+
+	  if (!existing) {
+	    // Optimize the case of one listener. Don't need the extra array object.
+	    existing = events[type] = listener;
+	    ++target._eventsCount;
+	  } else {
+	    if (typeof existing === 'function') {
+	      // Adding the second element, need to change to array.
+	      existing = events[type] = prepend ? [listener, existing] : [existing, listener];
+	    } else {
+	      // If we've already got an array, just append.
+	      if (prepend) {
+	        existing.unshift(listener);
+	      } else {
+	        existing.push(listener);
+	      }
+	    }
+
+	    // Check for listener leak
+	    if (!existing.warned) {
+	      m = $getMaxListeners(target);
+	      if (m && m > 0 && existing.length > m) {
+	        existing.warned = true;
+	        var w = new Error('Possible EventEmitter memory leak detected. ' + existing.length + ' ' + type + ' listeners added. ' + 'Use emitter.setMaxListeners() to increase limit');
+	        w.name = 'MaxListenersExceededWarning';
+	        w.emitter = target;
+	        w.type = type;
+	        w.count = existing.length;
+	        emitWarning(w);
+	      }
+	    }
+	  }
+
+	  return target;
+	}
+	function emitWarning(e) {
+	  typeof console.warn === 'function' ? console.warn(e) : console.log(e);
+	}
+	EventEmitter.prototype.addListener = function addListener(type, listener) {
+	  return _addListener(this, type, listener, false);
+	};
+
+	EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+	EventEmitter.prototype.prependListener = function prependListener(type, listener) {
+	  return _addListener(this, type, listener, true);
+	};
+
+	function _onceWrap(target, type, listener) {
+	  var fired = false;
+	  function g() {
+	    target.removeListener(type, g);
+	    if (!fired) {
+	      fired = true;
+	      listener.apply(target, arguments);
+	    }
+	  }
+	  g.listener = listener;
+	  return g;
+	}
+
+	EventEmitter.prototype.once = function once(type, listener) {
+	  if (typeof listener !== 'function') throw new TypeError('"listener" argument must be a function');
+	  this.on(type, _onceWrap(this, type, listener));
+	  return this;
+	};
+
+	EventEmitter.prototype.prependOnceListener = function prependOnceListener(type, listener) {
+	  if (typeof listener !== 'function') throw new TypeError('"listener" argument must be a function');
+	  this.prependListener(type, _onceWrap(this, type, listener));
+	  return this;
+	};
+
+	// emits a 'removeListener' event iff the listener was removed
+	EventEmitter.prototype.removeListener = function removeListener(type, listener) {
+	  var list, events, position, i, originalListener;
+
+	  if (typeof listener !== 'function') throw new TypeError('"listener" argument must be a function');
+
+	  events = this._events;
+	  if (!events) return this;
+
+	  list = events[type];
+	  if (!list) return this;
+
+	  if (list === listener || list.listener && list.listener === listener) {
+	    if (--this._eventsCount === 0) this._events = new EventHandlers();else {
+	      delete events[type];
+	      if (events.removeListener) this.emit('removeListener', type, list.listener || listener);
+	    }
+	  } else if (typeof list !== 'function') {
+	    position = -1;
+
+	    for (i = list.length; i-- > 0;) {
+	      if (list[i] === listener || list[i].listener && list[i].listener === listener) {
+	        originalListener = list[i].listener;
+	        position = i;
+	        break;
+	      }
+	    }
+
+	    if (position < 0) return this;
+
+	    if (list.length === 1) {
+	      list[0] = undefined;
+	      if (--this._eventsCount === 0) {
+	        this._events = new EventHandlers();
+	        return this;
+	      } else {
+	        delete events[type];
+	      }
+	    } else {
+	      spliceOne(list, position);
+	    }
+
+	    if (events.removeListener) this.emit('removeListener', type, originalListener || listener);
+	  }
+
+	  return this;
+	};
+
+	EventEmitter.prototype.removeAllListeners = function removeAllListeners(type) {
+	  var listeners, events;
+
+	  events = this._events;
+	  if (!events) return this;
+
+	  // not listening for removeListener, no need to emit
+	  if (!events.removeListener) {
+	    if (arguments.length === 0) {
+	      this._events = new EventHandlers();
+	      this._eventsCount = 0;
+	    } else if (events[type]) {
+	      if (--this._eventsCount === 0) this._events = new EventHandlers();else delete events[type];
+	    }
+	    return this;
+	  }
+
+	  // emit removeListener for all listeners on all events
+	  if (arguments.length === 0) {
+	    var keys = Object.keys(events);
+	    for (var i = 0, key; i < keys.length; ++i) {
+	      key = keys[i];
+	      if (key === 'removeListener') continue;
+	      this.removeAllListeners(key);
+	    }
+	    this.removeAllListeners('removeListener');
+	    this._events = new EventHandlers();
+	    this._eventsCount = 0;
+	    return this;
+	  }
+
+	  listeners = events[type];
+
+	  if (typeof listeners === 'function') {
+	    this.removeListener(type, listeners);
+	  } else if (listeners) {
+	    // LIFO order
+	    do {
+	      this.removeListener(type, listeners[listeners.length - 1]);
+	    } while (listeners[0]);
+	  }
+
+	  return this;
+	};
+
+	EventEmitter.prototype.listeners = function listeners(type) {
+	  var evlistener;
+	  var ret;
+	  var events = this._events;
+
+	  if (!events) ret = [];else {
+	    evlistener = events[type];
+	    if (!evlistener) ret = [];else if (typeof evlistener === 'function') ret = [evlistener.listener || evlistener];else ret = unwrapListeners(evlistener);
+	  }
+
+	  return ret;
+	};
+
+	EventEmitter.listenerCount = function (emitter, type) {
+	  if (typeof emitter.listenerCount === 'function') {
+	    return emitter.listenerCount(type);
+	  } else {
+	    return listenerCount.call(emitter, type);
+	  }
+	};
+
+	EventEmitter.prototype.listenerCount = listenerCount;
+	function listenerCount(type) {
+	  var events = this._events;
+
+	  if (events) {
+	    var evlistener = events[type];
+
+	    if (typeof evlistener === 'function') {
+	      return 1;
+	    } else if (evlistener) {
+	      return evlistener.length;
+	    }
+	  }
+
+	  return 0;
+	}
+
+	EventEmitter.prototype.eventNames = function eventNames() {
+	  return this._eventsCount > 0 ? Reflect.ownKeys(this._events) : [];
+	};
+
+	// About 1.5x faster than the two-arg version of Array#splice().
+	function spliceOne(list, index) {
+	  for (var i = index, k = i + 1, n = list.length; k < n; i += 1, k += 1) {
+	    list[i] = list[k];
+	  }list.pop();
+	}
+
+	function arrayClone(arr, i) {
+	  var copy = new Array(i);
+	  while (i--) {
+	    copy[i] = arr[i];
+	  }return copy;
+	}
+
+	function unwrapListeners(arr) {
+	  var ret = new Array(arr.length);
+	  for (var i = 0; i < ret.length; ++i) {
+	    ret[i] = arr[i].listener || arr[i];
+	  }
+	  return ret;
+	}
+
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
 	  return typeof obj;
 	} : function (obj) {
 	  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 	};
+
+
+
+
 
 	var asyncGenerator = function () {
 	  function AwaitValue(value) {
@@ -126,6 +553,10 @@
 	  };
 	}();
 
+
+
+
+
 	var classCallCheck = function (instance, Constructor) {
 	  if (!(instance instanceof Constructor)) {
 	    throw new TypeError("Cannot call a class as a function");
@@ -150,6 +581,37 @@
 	  };
 	}();
 
+
+
+
+
+
+
+	var get = function get(object, property, receiver) {
+	  if (object === null) object = Function.prototype;
+	  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+	  if (desc === undefined) {
+	    var parent = Object.getPrototypeOf(object);
+
+	    if (parent === null) {
+	      return undefined;
+	    } else {
+	      return get(parent, property, receiver);
+	    }
+	  } else if ("value" in desc) {
+	    return desc.value;
+	  } else {
+	    var getter = desc.get;
+
+	    if (getter === undefined) {
+	      return undefined;
+	    }
+
+	    return getter.call(receiver);
+	  }
+	};
+
 	var inherits = function (subClass, superClass) {
 	  if (typeof superClass !== "function" && superClass !== null) {
 	    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
@@ -166,6 +628,16 @@
 	  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	};
 
+
+
+
+
+
+
+
+
+
+
 	var possibleConstructorReturn = function (self, call) {
 	  if (!self) {
 	    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -173,6 +645,44 @@
 
 	  return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	};
+
+
+
+	var set = function set(object, property, value, receiver) {
+	  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+	  if (desc === undefined) {
+	    var parent = Object.getPrototypeOf(object);
+
+	    if (parent !== null) {
+	      set(parent, property, value, receiver);
+	    }
+	  } else if ("value" in desc && desc.writable) {
+	    desc.value = value;
+	  } else {
+	    var setter = desc.set;
+
+	    if (setter !== undefined) {
+	      setter.call(receiver, value);
+	    }
+	  }
+
+	  return value;
+	};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	var toConsumableArray = function (arr) {
 	  if (Array.isArray(arr)) {
@@ -183,270 +693,6 @@
 	    return Array.from(arr);
 	  }
 	};
-
-	// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-	function EventEmitter() {
-	  this._events = this._events || {};
-	  this._maxListeners = this._maxListeners || undefined;
-	}
-	// Backwards-compat with node 0.10.x
-	EventEmitter.EventEmitter = EventEmitter;
-
-	EventEmitter.prototype._events = undefined;
-	EventEmitter.prototype._maxListeners = undefined;
-
-	// By default EventEmitters will print a warning if more than 10 listeners are
-	// added to it. This is a useful default which helps finding memory leaks.
-	EventEmitter.defaultMaxListeners = 10;
-
-	// Obviously not all Emitters should be limited to 10. This function allows
-	// that to be increased. Set to zero for unlimited.
-	EventEmitter.prototype.setMaxListeners = function (n) {
-	  if (!isNumber(n) || n < 0 || isNaN(n)) throw TypeError('n must be a positive number');
-	  this._maxListeners = n;
-	  return this;
-	};
-
-	EventEmitter.prototype.emit = function (type) {
-	  var er, handler, len, args, i, listeners;
-
-	  if (!this._events) this._events = {};
-
-	  // If there is no 'error' event listener then throw.
-	  if (type === 'error') {
-	    if (!this._events.error || isObject(this._events.error) && !this._events.error.length) {
-	      er = arguments[1];
-	      if (er instanceof Error) {
-	        throw er; // Unhandled 'error' event
-	      }
-	      throw TypeError('Uncaught, unspecified "error" event.');
-	    }
-	  }
-
-	  handler = this._events[type];
-
-	  if (isUndefined(handler)) return false;
-
-	  if (isFunction(handler)) {
-	    switch (arguments.length) {
-	      // fast cases
-	      case 1:
-	        handler.call(this);
-	        break;
-	      case 2:
-	        handler.call(this, arguments[1]);
-	        break;
-	      case 3:
-	        handler.call(this, arguments[1], arguments[2]);
-	        break;
-	      // slower
-	      default:
-	        args = Array.prototype.slice.call(arguments, 1);
-	        handler.apply(this, args);
-	    }
-	  } else if (isObject(handler)) {
-	    args = Array.prototype.slice.call(arguments, 1);
-	    listeners = handler.slice();
-	    len = listeners.length;
-	    for (i = 0; i < len; i++) {
-	      listeners[i].apply(this, args);
-	    }
-	  }
-
-	  return true;
-	};
-
-	EventEmitter.prototype.addListener = function (type, listener) {
-	  var m;
-
-	  if (!isFunction(listener)) throw TypeError('listener must be a function');
-
-	  if (!this._events) this._events = {};
-
-	  // To avoid recursion in the case that type === "newListener"! Before
-	  // adding it to the listeners, first emit "newListener".
-	  if (this._events.newListener) this.emit('newListener', type, isFunction(listener.listener) ? listener.listener : listener);
-
-	  if (!this._events[type])
-	    // Optimize the case of one listener. Don't need the extra array object.
-	    this._events[type] = listener;else if (isObject(this._events[type]))
-	    // If we've already got an array, just append.
-	    this._events[type].push(listener);else
-	    // Adding the second element, need to change to array.
-	    this._events[type] = [this._events[type], listener];
-
-	  // Check for listener leak
-	  if (isObject(this._events[type]) && !this._events[type].warned) {
-	    if (!isUndefined(this._maxListeners)) {
-	      m = this._maxListeners;
-	    } else {
-	      m = EventEmitter.defaultMaxListeners;
-	    }
-
-	    if (m && m > 0 && this._events[type].length > m) {
-	      this._events[type].warned = true;
-	      console.error('(node) warning: possible EventEmitter memory ' + 'leak detected. %d listeners added. ' + 'Use emitter.setMaxListeners() to increase limit.', this._events[type].length);
-	      if (typeof console.trace === 'function') {
-	        // not supported in IE 10
-	        console.trace();
-	      }
-	    }
-	  }
-
-	  return this;
-	};
-
-	EventEmitter.prototype.on = EventEmitter.prototype.addListener;
-
-	EventEmitter.prototype.once = function (type, listener) {
-	  if (!isFunction(listener)) throw TypeError('listener must be a function');
-
-	  var fired = false;
-
-	  function g() {
-	    this.removeListener(type, g);
-
-	    if (!fired) {
-	      fired = true;
-	      listener.apply(this, arguments);
-	    }
-	  }
-
-	  g.listener = listener;
-	  this.on(type, g);
-
-	  return this;
-	};
-
-	// emits a 'removeListener' event iff the listener was removed
-	EventEmitter.prototype.removeListener = function (type, listener) {
-	  var list, position, length, i;
-
-	  if (!isFunction(listener)) throw TypeError('listener must be a function');
-
-	  if (!this._events || !this._events[type]) return this;
-
-	  list = this._events[type];
-	  length = list.length;
-	  position = -1;
-
-	  if (list === listener || isFunction(list.listener) && list.listener === listener) {
-	    delete this._events[type];
-	    if (this._events.removeListener) this.emit('removeListener', type, listener);
-	  } else if (isObject(list)) {
-	    for (i = length; i-- > 0;) {
-	      if (list[i] === listener || list[i].listener && list[i].listener === listener) {
-	        position = i;
-	        break;
-	      }
-	    }
-
-	    if (position < 0) return this;
-
-	    if (list.length === 1) {
-	      list.length = 0;
-	      delete this._events[type];
-	    } else {
-	      list.splice(position, 1);
-	    }
-
-	    if (this._events.removeListener) this.emit('removeListener', type, listener);
-	  }
-
-	  return this;
-	};
-
-	EventEmitter.prototype.removeAllListeners = function (type) {
-	  var key, listeners;
-
-	  if (!this._events) return this;
-
-	  // not listening for removeListener, no need to emit
-	  if (!this._events.removeListener) {
-	    if (arguments.length === 0) this._events = {};else if (this._events[type]) delete this._events[type];
-	    return this;
-	  }
-
-	  // emit removeListener for all listeners on all events
-	  if (arguments.length === 0) {
-	    for (key in this._events) {
-	      if (key === 'removeListener') continue;
-	      this.removeAllListeners(key);
-	    }
-	    this.removeAllListeners('removeListener');
-	    this._events = {};
-	    return this;
-	  }
-
-	  listeners = this._events[type];
-
-	  if (isFunction(listeners)) {
-	    this.removeListener(type, listeners);
-	  } else if (listeners) {
-	    // LIFO order
-	    while (listeners.length) {
-	      this.removeListener(type, listeners[listeners.length - 1]);
-	    }
-	  }
-	  delete this._events[type];
-
-	  return this;
-	};
-
-	EventEmitter.prototype.listeners = function (type) {
-	  var ret;
-	  if (!this._events || !this._events[type]) ret = [];else if (isFunction(this._events[type])) ret = [this._events[type]];else ret = this._events[type].slice();
-	  return ret;
-	};
-
-	EventEmitter.prototype.listenerCount = function (type) {
-	  if (this._events) {
-	    var evlistener = this._events[type];
-
-	    if (isFunction(evlistener)) return 1;else if (evlistener) return evlistener.length;
-	  }
-	  return 0;
-	};
-
-	EventEmitter.listenerCount = function (emitter, type) {
-	  return emitter.listenerCount(type);
-	};
-
-	function isFunction(arg) {
-	  return typeof arg === 'function';
-	}
-
-	function isNumber(arg) {
-	  return typeof arg === 'number';
-	}
-
-	function isObject(arg) {
-	  return (typeof arg === 'undefined' ? 'undefined' : _typeof(arg)) === 'object' && arg !== null;
-	}
-
-	function isUndefined(arg) {
-	  return arg === void 0;
-	}
 
 	/**
 	* pub/sub for extension state (created, destroyed, initialized)
@@ -635,6 +881,118 @@
 	});
 	EventDispatcher$1.register('analytics-deprecated-method-used', function (data) {
 	  analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
+	});
+
+	var LoadingIndicatorActions = {
+	  timeout: function timeout($el, extension) {
+	    EventDispatcher$1.dispatch('iframe-bridge-timeout', { $el: $el, extension: extension });
+	  },
+	  cancelled: function cancelled($el, extension) {
+	    EventDispatcher$1.dispatch('iframe-bridge-cancelled', { $el: $el, extension: extension });
+	  }
+	};
+
+	/**
+	 * The iframe-side code exposes a jquery-like implementation via _dollar.
+	 * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
+	 * to code that runs on host and iframe.
+	 */
+	var $ = AJS.$;
+
+	var LOADING_INDICATOR_CLASS = 'ap-status-indicator';
+
+	var LOADING_STATUSES = {
+	  loading: '<div class="ap-loading"><div class="small-spinner"></div>Loading add-on...</div>',
+	  'load-timeout': '<div class="ap-load-timeout"><div class="small-spinner"></div>Add-on is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?</div>',
+	  'load-error': 'Add-on failed to load.'
+	};
+
+	var LOADING_TIMEOUT = 12000;
+
+	var LoadingIndicator = function () {
+	  function LoadingIndicator() {
+	    classCallCheck(this, LoadingIndicator);
+
+	    this._stateRegistry = {};
+	  }
+
+	  createClass(LoadingIndicator, [{
+	    key: '_loadingContainer',
+	    value: function _loadingContainer($iframeContainer) {
+	      return $iframeContainer.find('.' + LOADING_INDICATOR_CLASS);
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var $container = $('<div />').addClass(LOADING_INDICATOR_CLASS);
+	      $container.append(LOADING_STATUSES.loading);
+	      this._startSpinner($container);
+	      return $container;
+	    }
+	  }, {
+	    key: '_startSpinner',
+	    value: function _startSpinner($container) {
+	      // TODO: AUI or spin.js broke something. This is bad but ironically matches v3's implementation.
+	      setTimeout(function () {
+	        var spinner = $container.find('.small-spinner');
+	        if (spinner.length && spinner.spin) {
+	          spinner.spin({ lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1 });
+	        }
+	      }, 10);
+	    }
+	  }, {
+	    key: 'hide',
+	    value: function hide($iframeContainer, extensionId) {
+	      clearTimeout(this._stateRegistry[extensionId]);
+	      delete this._stateRegistry[extensionId];
+	      this._loadingContainer($iframeContainer).hide();
+	    }
+	  }, {
+	    key: 'cancelled',
+	    value: function cancelled($iframeContainer, extensionId) {
+	      var status = LOADING_STATUSES['load-error'];
+	      this._loadingContainer($iframeContainer).empty().text(status);
+	    }
+	  }, {
+	    key: '_setupTimeout',
+	    value: function _setupTimeout($container, extension) {
+	      this._stateRegistry[extension.id] = setTimeout(function () {
+	        LoadingIndicatorActions.timeout($container, extension);
+	      }, LOADING_TIMEOUT);
+	    }
+	  }, {
+	    key: 'timeout',
+	    value: function timeout($iframeContainer, extensionId) {
+	      var status = $(LOADING_STATUSES['load-timeout']);
+	      var container = this._loadingContainer($iframeContainer);
+	      container.empty().append(status);
+	      this._startSpinner(container);
+	      $('a.ap-btn-cancel', container).click(function () {
+	        LoadingIndicatorActions.cancelled($iframeContainer, extensionId);
+	      });
+	      delete this._stateRegistry[extensionId];
+	      return container;
+	    }
+	  }]);
+	  return LoadingIndicator;
+	}();
+
+	var LoadingComponent = new LoadingIndicator();
+
+	EventDispatcher$1.register('iframe-create', function (data) {
+	  LoadingComponent._setupTimeout(data.$el.parents('.ap-iframe-container'), data.extension);
+	});
+
+	EventDispatcher$1.register('iframe-bridge-established', function (data) {
+	  LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
+	});
+
+	EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
+	  LoadingComponent.timeout(data.$el, data.extension.id);
+	});
+
+	EventDispatcher$1.register('iframe-bridge-cancelled', function (data) {
+	  LoadingComponent.cancelled(data.$el, data.extension.id);
 	});
 
 	var LOG_PREFIX = "[Simple-XDM] ";
@@ -1481,44 +1839,11 @@
 	  return Connect;
 	}();
 
-	var host = new Connect();
-
-	var JwtActions = {
-	  registerContentResolver: function registerContentResolver(data) {
-	    EventDispatcher$1.dispatch('content-resolver-register-by-extension', data);
-	  },
-	  requestRefreshUrl: function requestRefreshUrl(data) {
-	    if (!data.resolver) {
-	      throw Error('ACJS: No content resolver supplied');
-	    }
-	    var promise = data.resolver.call(null, _.extend({ classifier: 'json' }, data.extension));
-	    promise.done(function (promiseData) {
-	      var newExtensionConfiguration = {};
-	      if (_.isObject(promiseData)) {
-	        newExtensionConfiguration = promiseData;
-	      } else if (_.isString(promiseData)) {
-	        try {
-	          newExtensionConfiguration = JSON.parse(promiseData);
-	        } catch (e) {
-	          console.error('ACJS: invalid response from content resolver');
-	        }
-	      }
-	      data.extension.url = newExtensionConfiguration.url;
-	      _.extend(data.extension.options, newExtensionConfiguration.options);
-	      EventDispatcher$1.dispatch('jwt-url-refreshed', {
-	        extension: data.extension,
-	        $container: data.$container,
-	        url: data.extension.url
-	      });
-	    });
-	    EventDispatcher$1.dispatch('jwt-url-refresh-request', { data: data });
-	  }
-
-	};
+	var simpleXDM$1 = new Connect();
 
 	var EventActions = {
 	  broadcast: function broadcast(type, targetSpec, event) {
-	    host.dispatch(type, targetSpec, { event: event });
+	    simpleXDM$1.dispatch(type, targetSpec, { event: event });
 	    EventDispatcher$1.dispatch('event-dispatch', {
 	      type: type,
 	      targetSpec: targetSpec,
@@ -1526,18 +1851,19 @@
 	    });
 	  },
 
-	  broadcastPublic: function broadcastPublic(type, targetSpec, event, extension) {
-	    var emitterData = {
-	      addonKey: extension.addon_key,
-	      key: extension.key
-	    };
-	    host.dispatch(type, targetSpec, { emitterData: emitterData, event: event });
-	    EventDispatcher$1.dispatch('event-dispatch', {
-	      isPublicEvent: true,
+	  broadcastPublic: function broadcastPublic(type, event, sender) {
+	    EventDispatcher$1.dispatch('event-public-dispatch', {
 	      type: type,
-	      targetSpec: targetSpec,
 	      event: event,
-	      extension: extension
+	      sender: sender
+	    });
+
+	    simpleXDM$1.dispatch(type, {}, {
+	      sender: {
+	        addonKey: sender.addon_key,
+	        key: sender.key
+	      },
+	      event: event
 	    });
 	  }
 	};
@@ -1555,64 +1881,83 @@
 	    }, args);
 	  },
 
-	  emitPublic: function emitPublic(name, targets) {
-	    for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
-	      args[_key2 - 2] = arguments[_key2];
+	  emitPublic: function emitPublic(name) {
+	    for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+	      args[_key2 - 1] = arguments[_key2];
 	    }
 
-	    var extension = _.last(args)._context.extension;
+	    var callback = _.last(args);
+	    var extension = callback._context.extension;
 	    args = _.first(args, -1);
-
-	    if (!Array.isArray(targets)) {
-	      targets = [targets];
-	    }
-	    targets = targets.filter(function (target) {
-	      return target.addonKey !== undefined;
-	    }).map(function (target) {
-	      return {
-	        addon_key: target.addonKey
-	      };
-	    });
-
-	    if (targets.length) {
-	      targets.forEach(function (target) {
-	        EventActions.broadcastPublic(name, target, args, extension);
-	      });
-	    } else {
-	      EventActions.broadcastPublic(name, {}, args, extension);
-	    }
+	    EventActions.broadcastPublic(name, args, extension);
 	  }
 	};
 
-	/**
-	 * The iframe-side code exposes a jquery-like implementation via _dollar.
-	 * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
-	 * to code that runs on host and iframe.
-	 */
-	var $ = AJS.$;
-
-	var IframeActions = {
-	  notifyIframeCreated: function notifyIframeCreated($el, extension) {
-	    EventDispatcher$1.dispatch('iframe-create', { $el: $el, extension: extension });
-	  },
-
-	  notifyBridgeEstablished: function notifyBridgeEstablished($el, extension) {
-	    EventDispatcher$1.dispatch('iframe-bridge-established', { $el: $el, extension: extension });
-	  },
-
-	  notifyIframeDestroyed: function notifyIframeDestroyed(extension_id) {
-	    var extension = host.getExtensions({
-	      extension_id: extension_id
+	var DialogExtensionActions = {
+	  open: function open(extension, options) {
+	    EventDispatcher$1.dispatch('dialog-extension-open', {
+	      extension: extension,
+	      options: options
 	    });
-	    if (extension.length === 1) {
-	      extension = extension[0];
-	    }
-	    EventDispatcher$1.dispatch('iframe-destroyed', { extension: extension });
-	    host.unregisterExtension({ extension_id: extension_id });
 	  },
+	  close: function close() {
+	    EventDispatcher$1.dispatch('dialog-close-active', {});
+	  },
+	  addUserButton: function addUserButton(options, extension) {
+	    EventDispatcher$1.dispatch('dialog-button-add', {
+	      button: {
+	        text: options.text,
+	        identifier: options.identifier,
+	        data: {
+	          userButton: true
+	        }
+	      },
+	      extension: extension
+	    });
+	  }
+	};
 
-	  notifyUnloaded: function notifyUnloaded($el, extension) {
-	    EventDispatcher$1.dispatch('iframe-unload', { $el: $el, extension: extension });
+	var DialogActions = {
+	  close: function close(data) {
+	    EventDispatcher$1.dispatch('dialog-close', {
+	      dialog: data.dialog,
+	      extension: data.extension,
+	      customData: data.customData
+	    });
+	  },
+	  closeActive: function closeActive(data) {
+	    EventDispatcher$1.dispatch('dialog-close-active', data);
+	  },
+	  clickButton: function clickButton(identifier, $el, extension) {
+	    EventDispatcher$1.dispatch('dialog-button-click', {
+	      identifier: identifier,
+	      $el: $el,
+	      extension: extension
+	    });
+	  },
+	  toggleButton: function toggleButton(data) {
+	    EventDispatcher$1.dispatch('dialog-button-toggle', data);
+	  },
+	  toggleButtonVisibility: function toggleButtonVisibility(data) {
+	    EventDispatcher$1.dispatch('dialog-button-toggle-visibility', data);
+	  }
+	};
+
+	var DomEventActions = {
+	  registerKeyEvent: function registerKeyEvent(data) {
+	    simpleXDM$1.registerKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
+	    EventDispatcher$1.dispatch('dom-event-register', data);
+	  },
+	  unregisterKeyEvent: function unregisterKeyEvent(data) {
+	    simpleXDM$1.unregisterKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
+	    EventDispatcher$1.dispatch('dom-event-unregister', data);
+	  },
+	  registerWindowKeyEvent: function registerWindowKeyEvent(data) {
+	    window.addEventListener('keydown', function (event) {
+	      if (event.keyCode === data.keyCode) {
+	        data.callback();
+	      }
+	    });
 	  }
 	};
 
@@ -1650,33 +1995,238 @@
 	  getIframeByExtensionId: getIframeByExtensionId
 	};
 
-	function interopDefault(ex) {
-		return ex && typeof ex === 'object' && 'default' in ex ? ex['default'] : ex;
-	}
+	var ButtonUtils = function () {
+	  function ButtonUtils() {
+	    classCallCheck(this, ButtonUtils);
+	  }
 
-	function createCommonjsModule(fn, module) {
-		return module = { exports: {} }, fn(module, module.exports), module.exports;
-	}
+	  createClass(ButtonUtils, [{
+	    key: "randomIdentifier",
 
-	var index$2 = createCommonjsModule(function (module) {
-	'use strict';
+	    // button identifier for XDM. NOT an id attribute
+	    value: function randomIdentifier() {
+	      return Math.random().toString(16).substring(7);
+	    }
+	  }]);
+	  return ButtonUtils;
+	}();
 
-	module.exports = function (str) {
+	var buttonUtilsInstance = new ButtonUtils();
+
+	var DialogUtils = function () {
+	  function DialogUtils() {
+	    classCallCheck(this, DialogUtils);
+	  }
+
+	  createClass(DialogUtils, [{
+	    key: '_size',
+	    value: function _size(options) {
+	      var size = options.size;
+	      if (options.size === 'x-large') {
+	        size = 'xlarge';
+	      }
+	      if (options.size !== 'maximum' && options.width === '100%' && options.height === '100%') {
+	        size = 'fullscreen';
+	      }
+	      return size;
+	    }
+	  }, {
+	    key: '_header',
+	    value: function _header(text) {
+	      var headerText = '';
+	      switch (typeof text === 'undefined' ? 'undefined' : _typeof(text)) {
+	        case 'string':
+	          headerText = text;
+	          break;
+
+	        case 'object':
+	          headerText = text.value;
+	          break;
+	      }
+
+	      return headerText;
+	    }
+	  }, {
+	    key: '_hint',
+	    value: function _hint(text) {
+	      if (typeof text === 'string') {
+	        return text;
+	      }
+	      return '';
+	    }
+	  }, {
+	    key: '_chrome',
+	    value: function _chrome(options) {
+	      var returnval = false;
+	      if (typeof options.chrome === 'boolean') {
+	        returnval = options.chrome;
+	      }
+	      if (options.size === 'fullscreen') {
+	        returnval = true;
+	      }
+	      if (options.size === 'maximum') {
+	        returnval = false;
+	      }
+	      return returnval;
+	    }
+	  }, {
+	    key: '_width',
+	    value: function _width(options) {
+	      if (options.size) {
+	        return undefined;
+	      }
+	      if (options.width) {
+	        return util$1.stringToDimension(options.width);
+	      }
+	      return '50%';
+	    }
+	  }, {
+	    key: '_height',
+	    value: function _height(options) {
+	      if (options.size) {
+	        return undefined;
+	      }
+	      if (options.height) {
+	        return util$1.stringToDimension(options.height);
+	      }
+	      return '50%';
+	    }
+	  }, {
+	    key: '_actions',
+	    value: function _actions(options) {
+	      var sanitizedActions = [];
+	      options = options || {};
+	      if (!options.actions) {
+
+	        sanitizedActions = [{
+	          name: 'submit',
+	          identifier: 'submit',
+	          text: options.submitText || 'Submit',
+	          type: 'primary'
+	        }, {
+	          name: 'cancel',
+	          identifier: 'cancel',
+	          text: options.cancelText || 'Cancel',
+	          type: 'link',
+	          immutable: true
+	        }];
+	      }
+
+	      if (options.buttons) {
+	        sanitizedActions = sanitizedActions.concat(this._buttons(options));
+	      }
+
+	      return sanitizedActions;
+	    }
+	  }, {
+	    key: '_id',
+	    value: function _id(str) {
+	      if (typeof str !== 'string') {
+	        str = Math.random().toString(36).substring(2, 8);
+	      }
+	      return str;
+	    }
+	    // user defined action buttons
+
+	  }, {
+	    key: '_buttons',
+	    value: function _buttons(options) {
+	      var buttons = [];
+	      if (options.buttons && Array.isArray(options.buttons)) {
+	        options.buttons.forEach(function (button) {
+	          var text;
+	          var identifier;
+	          var disabled = false;
+	          if (button.text && typeof button.text === 'string') {
+	            text = button.text;
+	          }
+	          if (button.identifier && typeof button.identifier === 'string') {
+	            identifier = button.identifier;
+	          } else {
+	            identifier = buttonUtilsInstance.randomIdentifier();
+	          }
+	          if (button.disabled && button.disabled === true) {
+	            disabled = true;
+	          }
+
+	          buttons.push({
+	            text: text,
+	            identifier: identifier,
+	            type: 'secondary',
+	            custom: true,
+	            disabled: disabled
+	          });
+	        });
+	      }
+	      return buttons;
+	    }
+	  }, {
+	    key: 'sanitizeOptions',
+	    value: function sanitizeOptions(options) {
+	      options = options || {};
+	      var sanitized = {
+	        chrome: this._chrome(options),
+	        header: this._header(options.header),
+	        hint: this._hint(options.hint),
+	        width: this._width(options),
+	        height: this._height(options),
+	        $content: options.$content,
+	        extension: options.extension,
+	        actions: this._actions(options),
+	        id: this._id(options.id),
+	        size: options.size
+	      };
+	      sanitized.size = this._size(sanitized);
+
+	      return sanitized;
+	    }
+	    // such a bad idea! this entire concept needs rewriting in the p2 plugin.
+
+	  }, {
+	    key: 'moduleOptionsFromGlobal',
+	    value: function moduleOptionsFromGlobal(addon_key, key) {
+	      if (window._AP && window._AP.dialogModules && window._AP.dialogModules[addon_key] && window._AP.dialogModules[addon_key][key]) {
+	        return window._AP.dialogModules[addon_key][key].options;
+	      }
+	      return false;
+	    }
+	  }]);
+	  return DialogUtils;
+	}();
+
+	var dialogUtilsInstance = new DialogUtils();
+
+	var IframeActions = {
+	  notifyIframeCreated: function notifyIframeCreated($el, extension) {
+	    EventDispatcher$1.dispatch('iframe-create', { $el: $el, extension: extension });
+	  },
+
+	  notifyBridgeEstablished: function notifyBridgeEstablished($el, extension) {
+	    EventDispatcher$1.dispatch('iframe-bridge-established', { $el: $el, extension: extension });
+	  },
+
+	  notifyIframeDestroyed: function notifyIframeDestroyed(extension_id) {
+	    var extension = simpleXDM$1.getExtensions({
+	      extension_id: extension_id
+	    });
+	    if (extension.length === 1) {
+	      extension = extension[0];
+	    }
+	    EventDispatcher$1.dispatch('iframe-destroyed', { extension: extension });
+	    simpleXDM$1.unregisterExtension({ extension_id: extension_id });
+	  },
+
+	  notifyUnloaded: function notifyUnloaded($el, extension) {
+	    EventDispatcher$1.dispatch('iframe-unload', { $el: $el, extension: extension });
+	  }
+	};
+
+	var index$1 = function (str) {
 		return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
 			return '%' + c.charCodeAt(0).toString(16).toUpperCase();
 		});
 	};
-	});
 
-	var index$3 = interopDefault(index$2);
-
-
-	var require$$1 = Object.freeze({
-		default: index$3
-	});
-
-	var index$4 = createCommonjsModule(function (module) {
-	'use strict';
 	/* eslint-disable no-unused-vars */
 
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -1733,7 +2283,7 @@
 		}
 	}
 
-	module.exports = shouldUseNative() ? Object.assign : function (target, source) {
+	var index$3 = shouldUseNative() ? Object.assign : function (target, source) {
 		var from;
 		var to = toObject(target);
 		var symbols;
@@ -1759,22 +2309,11 @@
 
 		return to;
 	};
-	});
 
-	var index$5 = interopDefault(index$4);
+	var strictUriEncode = index$1;
+	var objectAssign = index$3;
 
-
-	var require$$0 = Object.freeze({
-		default: index$5
-	});
-
-	var index$1 = createCommonjsModule(function (module, exports) {
-	'use strict';
-
-	var strictUriEncode = interopDefault(require$$1);
-	var objectAssign = interopDefault(require$$0);
-
-	function encode(value, opts) {
+	function encode$1(value, opts) {
 		if (opts.encode) {
 			return opts.strict ? strictUriEncode(value) : encodeURIComponent(value);
 		}
@@ -1782,11 +2321,11 @@
 		return value;
 	}
 
-	exports.extract = function (str) {
+	var extract = function (str) {
 		return str.split('?')[1] || '';
 	};
 
-	exports.parse = function (str) {
+	var parse = function (str) {
 		// Create an object with no prototype
 		// https://github.com/sindresorhus/query-string/issues/47
 		var ret = Object.create(null);
@@ -1826,7 +2365,7 @@
 		return ret;
 	};
 
-	exports.stringify = function (obj, opts) {
+	var stringify = function (obj, opts) {
 		var defaults = {
 			encode: true,
 			strict: true
@@ -1842,7 +2381,7 @@
 			}
 
 			if (val === null) {
-				return encode(key, opts);
+				return encode$1(key, opts);
 			}
 
 			if (Array.isArray(val)) {
@@ -1854,30 +2393,29 @@
 					}
 
 					if (val2 === null) {
-						result.push(encode(key, opts));
+						result.push(encode$1(key, opts));
 					} else {
-						result.push(encode(key, opts) + '=' + encode(val2, opts));
+						result.push(encode$1(key, opts) + '=' + encode$1(val2, opts));
 					}
 				});
 
 				return result.join('&');
 			}
 
-			return encode(key, opts) + '=' + encode(val, opts);
+			return encode$1(key, opts) + '=' + encode$1(val, opts);
 		}).filter(function (x) {
 			return x.length > 0;
 		}).join('&') : '';
 	};
-	});
 
-	var qs = interopDefault(index$1);
+	var index = {
+		extract: extract,
+		parse: parse,
+		stringify: stringify
+	};
 
-	var index$6 = createCommonjsModule(function (module, exports) {
-	'use strict';
-
-	exports.byteLength = byteLength;
-	exports.toByteArray = toByteArray;
-	exports.fromByteArray = fromByteArray;
+	var toByteArray_1 = toByteArray;
+	var fromByteArray_1 = fromByteArray;
 
 	var lookup = [];
 	var revLookup = [];
@@ -1904,11 +2442,6 @@
 	  // if there is only one, then the three characters before it represent 2 bytes
 	  // this is just a cheap hack to not do indexOf twice
 	  return b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0;
-	}
-
-	function byteLength(b64) {
-	  // base64 is 4/3 + up to two characters of the original data
-	  return b64.length * 3 / 4 - placeHoldersCount(b64);
 	}
 
 	function toByteArray(b64) {
@@ -1987,11 +2520,6 @@
 
 	  return parts.join('');
 	}
-	});
-
-	interopDefault(index$6);
-	var fromByteArray = index$6.fromByteArray;
-	var toByteArray = index$6.toByteArray;
 
 	// This is free and unencumbered software released into the public domain.
 	// See LICENSE.md for more information.
@@ -2604,7 +3132,7 @@
 
 	var base64 = {
 	  encode: function encode(string) {
-	    return fromByteArray(TextEncoder('utf-8').encode(string));
+	    return fromByteArray_1(TextEncoder('utf-8').encode(string));
 	  },
 	  decode: function decode(string) {
 	    var padding = 4 - string.length % 4;
@@ -2613,7 +3141,7 @@
 	    } else if (padding === 2) {
 	      string += '==';
 	    }
-	    return TextDecoder('utf-8').decode(toByteArray(string));
+	    return TextDecoder('utf-8').decode(toByteArray_1(string));
 	  }
 	};
 
@@ -2675,7 +3203,7 @@
 	}
 
 	function _getJwt(urlStr) {
-	  var query = qs.parse(qs.extract(urlStr));
+	  var query = index.parse(index.extract(urlStr));
 	  return query['jwt'];
 	}
 
@@ -2687,6 +3215,39 @@
 	var urlUtil = {
 	  hasJwt: hasJwt,
 	  isJwtExpired: isJwtExpired
+	};
+
+	var jwtActions = {
+	  registerContentResolver: function registerContentResolver(data) {
+	    EventDispatcher$1.dispatch('content-resolver-register-by-extension', data);
+	  },
+	  requestRefreshUrl: function requestRefreshUrl(data) {
+	    if (!data.resolver) {
+	      throw Error('ACJS: No content resolver supplied');
+	    }
+	    var promise = data.resolver.call(null, _.extend({ classifier: 'json' }, data.extension));
+	    promise.done(function (promiseData) {
+	      var newExtensionConfiguration = {};
+	      if (_.isObject(promiseData)) {
+	        newExtensionConfiguration = promiseData;
+	      } else if (_.isString(promiseData)) {
+	        try {
+	          newExtensionConfiguration = JSON.parse(promiseData);
+	        } catch (e) {
+	          console.error('ACJS: invalid response from content resolver');
+	        }
+	      }
+	      data.extension.url = newExtensionConfiguration.url;
+	      _.extend(data.extension.options, newExtensionConfiguration.options);
+	      EventDispatcher$1.dispatch('jwt-url-refreshed', {
+	        extension: data.extension,
+	        $container: data.$container,
+	        url: data.extension.url
+	      });
+	    });
+	    EventDispatcher$1.dispatch('jwt-url-refresh-request', { data: data });
+	  }
+
 	};
 
 	var iframeUtils = {
@@ -2732,7 +3293,7 @@
 	    value: function simpleXdmExtension(extension, $container) {
 	      if (!extension.url || urlUtil.hasJwt(extension.url) && urlUtil.isJwtExpired(extension.url)) {
 	        if (this._contentResolver) {
-	          JwtActions.requestRefreshUrl({
+	          jwtActions.requestRefreshUrl({
 	            extension: extension,
 	            resolver: this._contentResolver,
 	            $container: $container
@@ -2747,7 +3308,7 @@
 	  }, {
 	    key: '_simpleXdmCreate',
 	    value: function _simpleXdmCreate(extension) {
-	      var iframeAttributes = host.create(extension, function () {
+	      var iframeAttributes = simpleXDM$1.create(extension, function () {
 	        if (!extension.options) {
 	          extension.options = {};
 	        }
@@ -2802,430 +3363,6 @@
 	EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
 	  data.$el[0].bridgeEstablished = true;
 	});
-
-	var LoadingIndicatorActions = {
-	  timeout: function timeout($el, extension) {
-	    EventDispatcher$1.dispatch('iframe-bridge-timeout', { $el: $el, extension: extension });
-	  },
-	  cancelled: function cancelled($el, extension) {
-	    EventDispatcher$1.dispatch('iframe-bridge-cancelled', { $el: $el, extension: extension });
-	  }
-	};
-
-	var LOADING_INDICATOR_CLASS = 'ap-status-indicator';
-
-	var LOADING_STATUSES = {
-	  loading: '<div class="ap-loading"><div class="small-spinner"></div>Loading add-on...</div>',
-	  'load-timeout': '<div class="ap-load-timeout"><div class="small-spinner"></div>Add-on is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?</div>',
-	  'load-error': 'Add-on failed to load.'
-	};
-
-	var LOADING_TIMEOUT = 12000;
-
-	var LoadingIndicator = function () {
-	  function LoadingIndicator() {
-	    classCallCheck(this, LoadingIndicator);
-
-	    this._stateRegistry = {};
-	  }
-
-	  createClass(LoadingIndicator, [{
-	    key: '_loadingContainer',
-	    value: function _loadingContainer($iframeContainer) {
-	      return $iframeContainer.find('.' + LOADING_INDICATOR_CLASS);
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      var $container = $('<div />').addClass(LOADING_INDICATOR_CLASS);
-	      $container.append(LOADING_STATUSES.loading);
-	      this._startSpinner($container);
-	      return $container;
-	    }
-	  }, {
-	    key: '_startSpinner',
-	    value: function _startSpinner($container) {
-	      // TODO: AUI or spin.js broke something. This is bad but ironically matches v3's implementation.
-	      setTimeout(function () {
-	        var spinner = $container.find('.small-spinner');
-	        if (spinner.length && spinner.spin) {
-	          spinner.spin({ lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1 });
-	        }
-	      }, 10);
-	    }
-	  }, {
-	    key: 'hide',
-	    value: function hide($iframeContainer, extensionId) {
-	      clearTimeout(this._stateRegistry[extensionId]);
-	      delete this._stateRegistry[extensionId];
-	      this._loadingContainer($iframeContainer).hide();
-	    }
-	  }, {
-	    key: 'cancelled',
-	    value: function cancelled($iframeContainer, extensionId) {
-	      var status = LOADING_STATUSES['load-error'];
-	      this._loadingContainer($iframeContainer).empty().text(status);
-	    }
-	  }, {
-	    key: '_setupTimeout',
-	    value: function _setupTimeout($container, extension) {
-	      this._stateRegistry[extension.id] = setTimeout(function () {
-	        LoadingIndicatorActions.timeout($container, extension);
-	      }, LOADING_TIMEOUT);
-	    }
-	  }, {
-	    key: 'timeout',
-	    value: function timeout($iframeContainer, extensionId) {
-	      var status = $(LOADING_STATUSES['load-timeout']);
-	      var container = this._loadingContainer($iframeContainer);
-	      container.empty().append(status);
-	      this._startSpinner(container);
-	      $('a.ap-btn-cancel', container).click(function () {
-	        LoadingIndicatorActions.cancelled($iframeContainer, extensionId);
-	      });
-	      delete this._stateRegistry[extensionId];
-	      return container;
-	    }
-	  }]);
-	  return LoadingIndicator;
-	}();
-
-	var LoadingComponent = new LoadingIndicator();
-
-	EventDispatcher$1.register('iframe-create', function (data) {
-	  LoadingComponent._setupTimeout(data.$el.parents('.ap-iframe-container'), data.extension);
-	});
-
-	EventDispatcher$1.register('iframe-bridge-established', function (data) {
-	  LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
-	});
-
-	EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
-	  LoadingComponent.timeout(data.$el, data.extension.id);
-	});
-
-	EventDispatcher$1.register('iframe-bridge-cancelled', function (data) {
-	  LoadingComponent.cancelled(data.$el, data.extension.id);
-	});
-
-	var CONTAINER_CLASSES = ['ap-iframe-container'];
-
-	var IframeContainer = function () {
-	  function IframeContainer() {
-	    classCallCheck(this, IframeContainer);
-	  }
-
-	  createClass(IframeContainer, [{
-	    key: 'createExtension',
-	    value: function createExtension(extension, options) {
-	      var $container = this._renderContainer();
-	      if (!options || options.loadingIndicator !== false) {
-	        $container.append(this._renderLoadingIndicator());
-	      }
-	      IframeComponent.simpleXdmExtension(extension, $container);
-	      return $container;
-	    }
-	  }, {
-	    key: '_renderContainer',
-	    value: function _renderContainer(attributes) {
-	      var container = $('<div />').attr(attributes || {});
-	      container.addClass(CONTAINER_CLASSES.join(' '));
-	      return container;
-	    }
-	  }, {
-	    key: '_renderLoadingIndicator',
-	    value: function _renderLoadingIndicator() {
-	      return LoadingComponent.render();
-	    }
-	  }]);
-	  return IframeContainer;
-	}();
-
-	var IframeContainerComponent = new IframeContainer();
-
-	EventDispatcher$1.register('iframe-create', function (data) {
-	  var id = 'embedded-' + data.extension.id;
-	  data.extension.$el.parents('.ap-iframe-container').attr('id', id);
-	});
-
-	function create(extension) {
-	  var simpleXdmExtension = {
-	    addon_key: extension.addon_key,
-	    key: extension.key,
-	    url: extension.url,
-	    options: extension.options
-	  };
-	  return IframeContainerComponent.createExtension(simpleXdmExtension);
-	}
-
-	var DialogExtensionActions = {
-	  open: function open(extension, options) {
-	    EventDispatcher$1.dispatch('dialog-extension-open', {
-	      extension: extension,
-	      options: options
-	    });
-	  },
-	  close: function close() {
-	    EventDispatcher$1.dispatch('dialog-close-active', {});
-	  },
-	  addUserButton: function addUserButton(options, extension) {
-	    EventDispatcher$1.dispatch('dialog-button-add', {
-	      button: {
-	        text: options.text,
-	        identifier: options.identifier,
-	        data: {
-	          userButton: true
-	        }
-	      },
-	      extension: extension
-	    });
-	  }
-	};
-
-	var DialogActions = {
-	  close: function close(data) {
-	    EventDispatcher$1.dispatch('dialog-close', {
-	      dialog: data.dialog,
-	      extension: data.extension,
-	      customData: data.customData
-	    });
-	  },
-	  closeActive: function closeActive(data) {
-	    EventDispatcher$1.dispatch('dialog-close-active', data);
-	  },
-	  clickButton: function clickButton(identifier, $el, extension) {
-	    EventDispatcher$1.dispatch('dialog-button-click', {
-	      identifier: identifier,
-	      $el: $el,
-	      extension: extension
-	    });
-	  },
-	  toggleButton: function toggleButton(data) {
-	    EventDispatcher$1.dispatch('dialog-button-toggle', data);
-	  },
-	  toggleButtonVisibility: function toggleButtonVisibility(data) {
-	    EventDispatcher$1.dispatch('dialog-button-toggle-visibility', data);
-	  }
-	};
-
-	var DomEventActions = {
-	  registerKeyEvent: function registerKeyEvent(data) {
-	    host.registerKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
-	    EventDispatcher$1.dispatch('dom-event-register', data);
-	  },
-	  unregisterKeyEvent: function unregisterKeyEvent(data) {
-	    host.unregisterKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
-	    EventDispatcher$1.dispatch('dom-event-unregister', data);
-	  },
-	  registerWindowKeyEvent: function registerWindowKeyEvent(data) {
-	    window.addEventListener('keydown', function (event) {
-	      if (event.keyCode === data.keyCode) {
-	        data.callback();
-	      }
-	    });
-	  }
-	};
-
-	var ButtonUtils = function () {
-	  function ButtonUtils() {
-	    classCallCheck(this, ButtonUtils);
-	  }
-
-	  createClass(ButtonUtils, [{
-	    key: "randomIdentifier",
-
-	    // button identifier for XDM. NOT an id attribute
-	    value: function randomIdentifier() {
-	      return Math.random().toString(16).substring(7);
-	    }
-	  }]);
-	  return ButtonUtils;
-	}();
-
-	var buttonUtilsInstance = new ButtonUtils();
-
-	var DialogUtils = function () {
-	  function DialogUtils() {
-	    classCallCheck(this, DialogUtils);
-	  }
-
-	  createClass(DialogUtils, [{
-	    key: '_size',
-	    value: function _size(options) {
-	      var size = options.size;
-	      if (options.size === 'x-large') {
-	        size = 'xlarge';
-	      }
-	      if (options.size !== 'maximum' && options.width === '100%' && options.height === '100%') {
-	        size = 'fullscreen';
-	      }
-	      return size;
-	    }
-	  }, {
-	    key: '_header',
-	    value: function _header(text) {
-	      var headerText = '';
-	      switch (typeof text === 'undefined' ? 'undefined' : _typeof(text)) {
-	        case 'string':
-	          headerText = text;
-	          break;
-
-	        case 'object':
-	          headerText = text.value;
-	          break;
-	      }
-
-	      return headerText;
-	    }
-	  }, {
-	    key: '_hint',
-	    value: function _hint(text) {
-	      if (typeof text === 'string') {
-	        return text;
-	      }
-	      return '';
-	    }
-	  }, {
-	    key: '_chrome',
-	    value: function _chrome(options) {
-	      var returnval = false;
-	      if (typeof options.chrome === 'boolean') {
-	        returnval = options.chrome;
-	      }
-	      if (options.size === 'fullscreen') {
-	        returnval = true;
-	      }
-	      if (options.size === 'maximum') {
-	        returnval = false;
-	      }
-	      return returnval;
-	    }
-	  }, {
-	    key: '_width',
-	    value: function _width(options) {
-	      if (options.size) {
-	        return undefined;
-	      }
-	      if (options.width) {
-	        return util$1.stringToDimension(options.width);
-	      }
-	      return '50%';
-	    }
-	  }, {
-	    key: '_height',
-	    value: function _height(options) {
-	      if (options.size) {
-	        return undefined;
-	      }
-	      if (options.height) {
-	        return util$1.stringToDimension(options.height);
-	      }
-	      return '50%';
-	    }
-	  }, {
-	    key: '_actions',
-	    value: function _actions(options) {
-	      var sanitizedActions = [];
-	      options = options || {};
-	      if (!options.actions) {
-
-	        sanitizedActions = [{
-	          name: 'submit',
-	          identifier: 'submit',
-	          text: options.submitText || 'Submit',
-	          type: 'primary'
-	        }, {
-	          name: 'cancel',
-	          identifier: 'cancel',
-	          text: options.cancelText || 'Cancel',
-	          type: 'link',
-	          immutable: true
-	        }];
-	      }
-
-	      if (options.buttons) {
-	        sanitizedActions = sanitizedActions.concat(this._buttons(options));
-	      }
-
-	      return sanitizedActions;
-	    }
-	  }, {
-	    key: '_id',
-	    value: function _id(str) {
-	      if (typeof str !== 'string') {
-	        str = Math.random().toString(36).substring(2, 8);
-	      }
-	      return str;
-	    }
-	    // user defined action buttons
-
-	  }, {
-	    key: '_buttons',
-	    value: function _buttons(options) {
-	      var buttons = [];
-	      if (options.buttons && Array.isArray(options.buttons)) {
-	        options.buttons.forEach(function (button) {
-	          var text;
-	          var identifier;
-	          var disabled = false;
-	          if (button.text && typeof button.text === 'string') {
-	            text = button.text;
-	          }
-	          if (button.identifier && typeof button.identifier === 'string') {
-	            identifier = button.identifier;
-	          } else {
-	            identifier = buttonUtilsInstance.randomIdentifier();
-	          }
-	          if (button.disabled && button.disabled === true) {
-	            disabled = true;
-	          }
-
-	          buttons.push({
-	            text: text,
-	            identifier: identifier,
-	            type: 'secondary',
-	            custom: true,
-	            disabled: disabled
-	          });
-	        });
-	      }
-	      return buttons;
-	    }
-	  }, {
-	    key: 'sanitizeOptions',
-	    value: function sanitizeOptions(options) {
-	      options = options || {};
-	      var sanitized = {
-	        chrome: this._chrome(options),
-	        header: this._header(options.header),
-	        hint: this._hint(options.hint),
-	        width: this._width(options),
-	        height: this._height(options),
-	        $content: options.$content,
-	        extension: options.extension,
-	        actions: this._actions(options),
-	        id: this._id(options.id),
-	        size: options.size
-	      };
-	      sanitized.size = this._size(sanitized);
-
-	      return sanitized;
-	    }
-	    // such a bad idea! this entire concept needs rewriting in the p2 plugin.
-
-	  }, {
-	    key: 'moduleOptionsFromGlobal',
-	    value: function moduleOptionsFromGlobal(addon_key, key) {
-	      if (window._AP && window._AP.dialogModules && window._AP.dialogModules[addon_key] && window._AP.dialogModules[addon_key][key]) {
-	        return window._AP.dialogModules[addon_key][key].options;
-	      }
-	      return false;
-	    }
-	  }]);
-	  return DialogUtils;
-	}();
-
-	var dialogUtilsInstance = new DialogUtils();
 
 	var ButtonActions = {
 	  clicked: function clicked($el) {
@@ -3379,7 +3516,7 @@
 	var DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
 	var DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
 
-	function getActiveDialog() {
+	function getActiveDialog$1() {
 	  var $el = AJS.LayerManager.global.getTopLayer();
 	  if ($el && DLGID_REGEXP.test($el.attr('id'))) {
 	    var dialog = AJS.dialog2($el);
@@ -3593,12 +3730,12 @@
 	  }, {
 	    key: 'getActive',
 	    value: function getActive() {
-	      return getActiveDialog();
+	      return getActiveDialog$1();
 	    }
 	  }, {
 	    key: 'buttonIsEnabled',
 	    value: function buttonIsEnabled(identifier) {
-	      var dialog = getActiveDialog();
+	      var dialog = getActiveDialog$1();
 	      if (dialog) {
 	        var $button = getButtonByIdentifier(identifier, dialog.$el);
 	        return ButtonComponent.isEnabled($button);
@@ -3607,7 +3744,7 @@
 	  }, {
 	    key: 'buttonIsVisible',
 	    value: function buttonIsVisible(identifier) {
-	      var dialog = getActiveDialog();
+	      var dialog = getActiveDialog$1();
 	      if (dialog) {
 	        var $button = getButtonByIdentifier(identifier, dialog.$el);
 	        return ButtonComponent.isVisible($button);
@@ -3668,7 +3805,7 @@
 	      key: 27,
 	      callback: function callback() {
 	        DialogActions.close({
-	          dialog: getActiveDialog(),
+	          dialog: getActiveDialog$1(),
 	          extension: data.extension
 	        });
 	      }
@@ -3684,7 +3821,7 @@
 	});
 
 	EventDispatcher$1.register('dialog-close-active', function (data) {
-	  var activeDialog = getActiveDialog();
+	  var activeDialog = getActiveDialog$1();
 	  if (activeDialog) {
 	    DialogActions.close({
 	      customData: data.customData,
@@ -3699,7 +3836,7 @@
 	});
 
 	EventDispatcher$1.register('dialog-button-toggle', function (data) {
-	  var dialog = getActiveDialog();
+	  var dialog = getActiveDialog$1();
 	  if (dialog) {
 	    var $button = getButtonByIdentifier(data.identifier, dialog.$el);
 	    ButtonActions.toggle($button, !data.enabled);
@@ -3707,7 +3844,7 @@
 	});
 
 	EventDispatcher$1.register('dialog-button-toggle-visibility', function (data) {
-	  var dialog = getActiveDialog();
+	  var dialog = getActiveDialog$1();
 	  if (dialog) {
 	    var $button = getButtonByIdentifier(data.identifier, dialog.$el);
 	    ButtonActions.toggleVisibility($button, data.hidden);
@@ -3723,7 +3860,7 @@
 	      DialogActions.clickButton(ButtonComponent.getIdentifier($button), $button, $dialog.data('extension'));
 	    } else {
 	      DialogActions.close({
-	        dialog: getActiveDialog(),
+	        dialog: getActiveDialog$1(),
 	        extension: $button.extension
 	      });
 	    }
@@ -3748,6 +3885,46 @@
 	      extension: null
 	    });
 	  }
+	});
+
+	var CONTAINER_CLASSES$1 = ['ap-iframe-container'];
+
+	var IframeContainer = function () {
+	  function IframeContainer() {
+	    classCallCheck(this, IframeContainer);
+	  }
+
+	  createClass(IframeContainer, [{
+	    key: 'createExtension',
+	    value: function createExtension(extension, options) {
+	      var $container = this._renderContainer();
+	      if (!options || options.loadingIndicator !== false) {
+	        $container.append(this._renderLoadingIndicator());
+	      }
+	      IframeComponent.simpleXdmExtension(extension, $container);
+	      return $container;
+	    }
+	  }, {
+	    key: '_renderContainer',
+	    value: function _renderContainer(attributes) {
+	      var container = $('<div />').attr(attributes || {});
+	      container.addClass(CONTAINER_CLASSES$1.join(' '));
+	      return container;
+	    }
+	  }, {
+	    key: '_renderLoadingIndicator',
+	    value: function _renderLoadingIndicator() {
+	      return LoadingComponent.render();
+	    }
+	  }]);
+	  return IframeContainer;
+	}();
+
+	var IframeContainerComponent = new IframeContainer();
+
+	EventDispatcher$1.register('iframe-create', function (data) {
+	  var id = 'embedded-' + data.extension.id;
+	  data.extension.$el.parents('.ap-iframe-container').attr('id', id);
 	});
 
 	var DialogExtension = function () {
@@ -4850,6 +5027,43 @@
 	  }
 	};
 
+	var scrollPosition = {
+	  /**
+	   * Get's the scroll position relative to the browser viewport
+	   *
+	   * @param callback {Function} callback to pass the scroll position
+	   * @noDemo
+	   * @example
+	   * AP.scrollPosition.getPosition(function(obj) { console.log(obj); });
+	   */
+	  getPosition: function getPosition(callback) {
+	    callback = _.last(arguments);
+	    // scrollPosition.getPosition is only available for general-pages
+	    if (callback._context.extension.options.isFullPage) {
+	      var $el = util$1.getIframeByExtensionId(callback._context.extension_id);
+	      var offset = $el.offset();
+	      var $window = $(window);
+
+	      callback({
+	        scrollY: $window.scrollTop() - offset.top,
+	        scrollX: $window.scrollLeft() - offset.left,
+	        width: window.innerWidth,
+	        height: window.innerHeight
+	      });
+	    }
+	  }
+	};
+
+	function create$1(extension) {
+	  var simpleXdmExtension = {
+	    addon_key: extension.addon_key,
+	    key: extension.key,
+	    url: extension.url,
+	    options: extension.options
+	  };
+	  return IframeContainerComponent.createExtension(simpleXdmExtension);
+	}
+
 	var ModuleActions = {
 	  defineCustomModule: function defineCustomModule(name, methods) {
 	    var data = {};
@@ -4863,55 +5077,124 @@
 	  }
 	};
 
-	var callbacks = [];
+	var HostApi$1 = function () {
+	  function HostApi() {
+	    classCallCheck(this, HostApi);
 
-	function wrapCallback(callback, wrapper) {
-	  var wrappedCallback = function wrappedCallback(data) {
-	    callback.apply(null, wrapper(data));
-	  };
-	  callbacks.push({ wrappedCallback: wrappedCallback, callback: callback });
-	  return wrappedCallback;
-	}
-
-	function findWrappedCallback(callback) {
-	  for (var i = 0; i < callbacks.length; i++) {
-	    var item = callbacks[i];
-	    if (item.callback === callback) {
-	      return callbacks.splice(i, 1)[0].wrappedCallback;
-	    }
+	    this._increment = 1;
+	    this._callbacks = {};
+	    this.create = create$1;
+	    this.dialog = {
+	      create: function create$1(extension, dialogOptions) {
+	        DialogExtensionActions.open(extension, dialogOptions);
+	      },
+	      close: function close() {
+	        DialogExtensionActions.close();
+	      }
+	    };
+	    this.registerContentResolver = {
+	      resolveByExtension: function resolveByExtension(callback) {
+	        jwtActions.registerContentResolver({ callback: callback });
+	      }
+	    };
 	  }
-	  return null;
-	}
 
-	var IndexActions = {
-	  onIframeEstablished: function onIframeEstablished(callback) {
-	    EventDispatcher$1.register('after:iframe-bridge-established', wrapCallback(callback, function (data) {
-	      return {
-	        $el: data.$el,
-	        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
-	      };
-	    }));
-	  },
-	  onIframeUnload: function onIframeUnload(callback) {
-	    EventDispatcher$1.register('after:iframe-unload', wrapCallback(callback, function (data) {
-	      return {
-	        $el: data.$el,
-	        extension: _.pick(data.extension, ['id', 'addon_key', 'key', 'options', 'url'])
-	      };
-	    }));
-	  },
-	  onEventDispatched: function onEventDispatched(callback) {
-	    EventDispatcher$1.register('after:event-dispatch', wrapCallback(callback, function (data) {
-	      return [data.type, data.isPublicEvent, data.event, data.extension];
-	    }));
-	  },
-	  offEventDispatched: function offEventDispatched(callback) {
-	    var callbackFunc = findWrappedCallback(callback);
-	    if (callbackFunc) {
-	      EventDispatcher$1.unregister('after:event-dispatch', callbackFunc);
+	  createClass(HostApi, [{
+	    key: '_cleanExtension',
+	    value: function _cleanExtension($el, extension) {
+	      extension = _.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
+	      return { $el: $el, extension: extension };
 	    }
-	  }
-	};
+
+	    // tags a callback for later.
+
+	  }, {
+	    key: '_tagCallback',
+	    value: function _tagCallback(callback) {
+	      callback._id = this._increment++;
+	    }
+	  }, {
+	    key: 'onIframeEstablished',
+	    value: function onIframeEstablished(callback) {
+	      var _this = this;
+
+	      this._tagCallback(callback);
+	      this._callbacks[callback._id] = callback;
+	      EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
+	        _this._callbacks[callback._id].call({}, _this._cleanExtension(data.$el, data.extension));
+	      });
+	    }
+	  }, {
+	    key: 'onIframeUnload',
+	    value: function onIframeUnload(callback) {
+	      var _this2 = this;
+
+	      this._tagCallback(callback);
+	      this._callbacks[callback._id] = callback;
+	      EventDispatcher$1.register('after:iframe-unload', function (data) {
+	        _this2._callbacks[callback._id].call({}, _this2._cleanExtension(data.$el, data.extension));
+	      });
+	    }
+	  }, {
+	    key: 'onPublicEventDispatched',
+	    value: function onPublicEventDispatched(callback) {
+	      var _this3 = this;
+
+	      this._tagCallback(callback);
+	      this._callbacks[callback._id] = callback;
+	      EventDispatcher$1.register('after:event-public-dispatch', function (data) {
+	        _this3._callbacks[callback._id].call({}, {
+	          type: data.type,
+	          event: data.event,
+	          extension: _this3._cleanExtension(data.sender.$el, data.sender)
+	        });
+	      });
+	    }
+	  }, {
+	    key: 'offPublicEventDispatched',
+	    value: function offPublicEventDispatched(callback) {
+	      if (callback._id) {
+	        EventDispatcher$1.unregister('after:event-public-dispatch', this._callbacks[callback._id]);
+	        delete this._callbacks[callback._id];
+	      } else {
+	        throw new Error('cannot unregister event dispatch listener without _id reference');
+	      }
+	    }
+	  }, {
+	    key: 'onKeyEvent',
+	    value: function onKeyEvent(extension_id, key, modifiers, callback) {
+	      DomEventActions.registerKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
+	    }
+	  }, {
+	    key: 'offKeyEvent',
+	    value: function offKeyEvent(extension_id, key, modifiers, callback) {
+	      DomEventActions.unregisterKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
+	    }
+	  }, {
+	    key: 'destroy',
+	    value: function destroy(extension_id) {
+	      IframeActions.notifyIframeDestroyed({ extension_id: extension_id });
+	    }
+	  }, {
+	    key: 'defineModule',
+	    value: function defineModule(name, methods) {
+	      ModuleActions.defineCustomModule(name, methods);
+	    }
+	  }, {
+	    key: 'broadcastEvent',
+	    value: function broadcastEvent(type, targetSpec, event) {
+	      EventActions.broadcast(type, targetSpec, event);
+	    }
+	  }, {
+	    key: 'getExtensions',
+	    value: function getExtensions(filter) {
+	      return simpleXDM$1.getExtensions(filter);
+	    }
+	  }]);
+	  return HostApi;
+	}();
+
+	var HostApi$2 = new HostApi$1();
 
 	function sanitizeTriggers(triggers) {
 	  var onTriggers;
@@ -4977,7 +5260,7 @@
 	  // create product context from url params
 	  var url = $target.attr('href');
 	  if (url) {
-	    var query = qs.parse(qs.extract(url));
+	    var query = index.parse(index.extract(url));
 	    _.each(query, function (value, key) {
 	      options.productContext[key] = value;
 	    });
@@ -5304,7 +5587,7 @@
 	  }, {
 	    key: 'addExtension',
 	    value: function addExtension(data) {
-	      var addon = create(data.extension);
+	      var addon = create$1(data.extension);
 	      data.$el.empty().append(addon);
 	    }
 	  }, {
@@ -5414,22 +5697,23 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.20';
+	  window._AP.version = '5.0.0-beta.21';
 	}
 
-	host.defineModule('messages', messages);
-	host.defineModule('flag', flag);
-	host.defineModule('dialog', dialog);
-	host.defineModule('inlineDialog', inlineDialog);
-	host.defineModule('env', env);
-	host.defineModule('events', events);
-	host.defineModule('_analytics', analytics$1);
+	simpleXDM$1.defineModule('messages', messages);
+	simpleXDM$1.defineModule('flag', flag);
+	simpleXDM$1.defineModule('dialog', dialog);
+	simpleXDM$1.defineModule('inlineDialog', inlineDialog);
+	simpleXDM$1.defineModule('env', env);
+	simpleXDM$1.defineModule('events', events);
+	simpleXDM$1.defineModule('_analytics', analytics$1);
+	simpleXDM$1.defineModule('scrollPosition', scrollPosition);
 
 	EventDispatcher$1.register('module-define-custom', function (data) {
-	  host.defineModule(data.name, data.methods);
+	  simpleXDM$1.defineModule(data.name, data.methods);
 	});
 
-	host.registerRequestNotifier(function (data) {
+	simpleXDM$1.registerRequestNotifier(function (data) {
 	  analytics.dispatch('bridge.invokemethod', {
 	    module: data.module,
 	    fn: data.fn,
@@ -5438,45 +5722,6 @@
 	  });
 	});
 
-	var index = {
-	  dialog: {
-	    create: function create(extension, dialogOptions) {
-	      DialogExtensionActions.open(extension, dialogOptions);
-	    },
-	    close: function close() {
-	      DialogExtensionActions.close();
-	    }
-	  },
-	  onKeyEvent: function onKeyEvent(extension_id, key, modifiers, callback) {
-	    DomEventActions.registerKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
-	  },
-	  offKeyEvent: function offKeyEvent(extension_id, key, modifiers, callback) {
-	    DomEventActions.unregisterKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
-	  },
-	  onIframeEstablished: IndexActions.onIframeEstablished,
-	  onIframeUnload: IndexActions.onIframeUnload,
-	  onEventDispatched: IndexActions.onEventDispatched,
-	  offEventDispatched: IndexActions.offEventDispatched,
-	  destroy: function destroy(extension_id) {
-	    IframeActions.notifyIframeDestroyed({ extension_id: extension_id });
-	  },
-	  registerContentResolver: {
-	    resolveByExtension: function resolveByExtension(callback) {
-	      JwtActions.registerContentResolver({ callback: callback });
-	    }
-	  },
-	  defineModule: function defineModule(name, methods) {
-	    ModuleActions.defineCustomModule(name, methods);
-	  },
-	  broadcastEvent: function broadcastEvent(type, targetSpec, event) {
-	    EventActions.broadcast(type, targetSpec, event);
-	  },
-	  create: create,
-	  getExtensions: function getExtensions(filter) {
-	    return host.getExtensions(filter);
-	  }
-	};
-
-	return index;
+	return HostApi$2;
 
 })));

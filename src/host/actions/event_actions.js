@@ -1,5 +1,6 @@
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import SimpleXDM from 'simple-xdm/host';
+import _ from '../underscore';
 
 export default {
   broadcast: function(type, targetSpec, event){
@@ -11,18 +12,20 @@ export default {
     });
   },
 
-  broadcastPublic: function(type, targetSpec, event, extension){
-    var emitterData = {
-      addonKey: extension.addon_key,
-      key: extension.key
-    };
-    SimpleXDM.dispatch(type, targetSpec, {emitterData, event});
-    EventDispatcher.dispatch('event-dispatch', {
-      isPublicEvent: true,
+  broadcastPublic: function(type, event, sender){
+    EventDispatcher.dispatch('event-public-dispatch', {
       type,
-      targetSpec,
       event,
-      extension
+      sender
     });
+
+    SimpleXDM.dispatch(type, {}, {
+      sender: {
+        addonKey: sender.addon_key,
+        key: sender.key
+      },
+      event: event
+    });
+
   }
 };

@@ -2,7 +2,8 @@ import AP from 'simple-xdm/combined';
 import deprecate from './deprecate';
 import $ from './dollar';
 import consumerOptions from './consumer-options';
-import EventsModule from './events';
+import EventsInstance from './events-instance';
+import PublicEventsInstance from './public-events';
 import DialogCompat from './dialog';
 import AMD from './amd';
 import Meta from './meta';
@@ -21,8 +22,10 @@ if(consumerOptions.get('base') === true) {
   });
 }
 
-$.each(EventsModule.methods, (i, method) => {
-  AP._hostModules.events[method] = AP.events[method] = EventsModule[method].bind(EventsModule);
+
+$.each(EventsInstance.methods, (i, method) => {
+  AP._hostModules.events[method] = AP.events[method] = EventsInstance[method].bind(EventsInstance);
+  AP._hostModules.events[method + 'Public'] = AP.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
 });
 
 AP.define = deprecate((...args) => AMD.define(...args),
@@ -63,5 +66,14 @@ if(AP.defineModule) {
   }});
 }
 
+if(AP._data && AP._data.origin) {
+  AP.registerAny(function(data, callback){
+    if(data.event && data.sender){
+      PublicEventsInstance._anyListener(data, callback);
+    } else {
+      EventsInstance._anyListener(data, callback);
+    }
+  });
+}
 
 export default AP;

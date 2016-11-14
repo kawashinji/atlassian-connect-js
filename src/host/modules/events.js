@@ -10,27 +10,10 @@ export default {
     }, args);
   },
 
-  emitPublic: function(name, targets, ...args) {
-    var extension = _.last(args)._context.extension;
+  emitPublic: function(name, ...args) {
+    var callback = _.last(args);
+    var extension = callback._context.extension;
     args = _.first(args, -1);
-
-    if(!Array.isArray(targets)){
-      targets = [targets];
-    }
-    targets = targets.filter(target => {
-      return target.addonKey !== undefined;
-    }).map(target => {
-      return {
-        addon_key: target.addonKey
-      };
-    });
-
-    if (targets.length) {
-      targets.forEach(target => {
-        EventActions.broadcastPublic(name, target, args, extension);
-      });
-    } else {
-      EventActions.broadcastPublic(name, {}, args, extension);
-    }
+    EventActions.broadcastPublic(name, args, extension);
   }
 };
