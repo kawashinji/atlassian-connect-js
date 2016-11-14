@@ -4,7 +4,7 @@ import _ from '../underscore';
 
 export default {
   broadcast: function(type, targetSpec, event){
-    SimpleXDM.dispatch(type, targetSpec, {event});
+    SimpleXDM.dispatch(type, targetSpec, event);
     EventDispatcher.dispatch('event-dispatch', {
       type: type,
       targetSpec: targetSpec,

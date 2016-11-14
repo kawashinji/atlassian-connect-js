@@ -7,10 +7,6 @@ var AP = (function () {
     return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
   };
 
-
-
-
-
   var asyncGenerator = function () {
     function AwaitValue(value) {
       this.value = value;
@@ -124,10 +120,6 @@ var AP = (function () {
     };
   }();
 
-
-
-
-
   var classCallCheck = function (instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
@@ -151,10 +143,6 @@ var AP = (function () {
       return Constructor;
     };
   }();
-
-
-
-
 
   var defineProperty = function (obj, key, value) {
     if (key in obj) {
@@ -185,7 +173,7 @@ var AP = (function () {
     return target;
   };
 
-  var get$1 = function get$1(object, property, receiver) {
+  var get = function get(object, property, receiver) {
     if (object === null) object = Function.prototype;
     var desc = Object.getOwnPropertyDescriptor(object, property);
 
@@ -195,7 +183,7 @@ var AP = (function () {
       if (parent === null) {
         return undefined;
       } else {
-        return get$1(parent, property, receiver);
+        return get(parent, property, receiver);
       }
     } else if ("value" in desc) {
       return desc.value;
@@ -226,46 +214,12 @@ var AP = (function () {
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   };
 
-
-
-
-
-
-
-
-
-
-
   var possibleConstructorReturn = function (self, call) {
     if (!self) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
     }
 
     return call && (typeof call === "object" || typeof call === "function") ? call : self;
-  };
-
-
-
-  var set$1 = function set$1(object, property, value, receiver) {
-    var desc = Object.getOwnPropertyDescriptor(object, property);
-
-    if (desc === undefined) {
-      var parent = Object.getPrototypeOf(object);
-
-      if (parent !== null) {
-        set$1(parent, property, value, receiver);
-      }
-    } else if ("value" in desc && desc.writable) {
-      desc.value = value;
-    } else {
-      var setter = desc.set;
-
-      if (setter !== undefined) {
-        setter.call(receiver, value);
-      }
-    }
-
-    return value;
   };
 
   var LOG_PREFIX = "[Simple-XDM] ";
@@ -1113,8 +1067,7 @@ var AP = (function () {
   }();
 
   var _each = util.each;
-  var document$1 = window.document;
-
+var   document$1 = window.document;
   function $(sel, context) {
 
     context = context || document$1;
@@ -1481,7 +1434,7 @@ var AP = (function () {
 
   var POSSIBLE_MODIFIER_KEYS = ['ctrl', 'shift', 'alt', 'meta'];
 
-  var AP$3 = function (_PostMessage) {
+  var AP = function (_PostMessage) {
     inherits(AP, _PostMessage);
 
     function AP(options) {
@@ -1756,7 +1709,7 @@ var AP = (function () {
         sendResponse._context = {
           eventName: data.etyp
         };
-        function toArray$$1(handlers) {
+        function toArray(handlers) {
           if (handlers) {
             if (!Array.isArray(handlers)) {
               handlers = [handlers];
@@ -1765,8 +1718,8 @@ var AP = (function () {
           }
           return [];
         }
-        var handlers = toArray$$1(this._eventHandlers[data.etyp]);
-        handlers = handlers.concat(toArray$$1(this._eventHandlers._any));
+        var handlers = toArray(this._eventHandlers[data.etyp]);
+        handlers = handlers.concat(toArray(this._eventHandlers._any));
         handlers.forEach(function (handler) {
           try {
             handler(data.evnt, sendResponse);
@@ -1926,7 +1879,7 @@ var AP = (function () {
       var _this = possibleConstructorReturn(this, (Combined.__proto__ || Object.getPrototypeOf(Combined)).call(this));
 
       _this.parentTargets = { _globals: {} };
-      var plugin = new AP$3();
+      var plugin = new AP();
       // export options from plugin to host.
       Object.getOwnPropertyNames(plugin).forEach(function (prop) {
         if (['_hostModules', '_globals'].indexOf(prop) === -1 && this[prop] === undefined) {
@@ -1972,22 +1925,22 @@ var AP = (function () {
     return Combined;
   }(Connect);
 
-  var AP$2 = new Combined();
+  var combined = new Combined();
 
-  var deprecate = function (fn, name, alternate, sinceVersion) {
+  function deprecate (fn, name, alternate, sinceVersion) {
     var called = false;
     return function () {
       if (!called && typeof console !== 'undefined' && console.warn) {
         called = true;
         console.warn('DEPRECATED API - ' + name + ' has been deprecated since ACJS ' + sinceVersion + (' and will be removed in a future release. ' + (alternate ? 'Use ' + alternate + ' instead.' : 'No alternative will be provided.')));
-        AP$2._analytics.trackDeprecatedMethodUsed(name);
+        combined._analytics.trackDeprecatedMethodUsed(name);
       }
       return fn.apply(undefined, arguments);
     };
   };
 
   // universal iterator utility
-  function each$1(o, it) {
+  function each(o, it) {
     var l;
     var k;
     if (o) {
@@ -2043,7 +1996,7 @@ var AP = (function () {
   }
 
   var util$1 = {
-    each: each$1,
+    each: each,
     log: log,
     decodeQueryComponent: decodeQueryComponent,
     bind: binder$1('add', 'attach'),
@@ -2052,8 +2005,8 @@ var AP = (function () {
     extend: function extend(dest) {
       var args = arguments;
       var srcs = [].slice.call(args, 1, args.length);
-      each$1(srcs, function (i, src) {
-        each$1(src, function (k, v) {
+      each(srcs, function (i, src) {
+        each(src, function (k, v) {
           dest[k] = v;
         });
       });
@@ -2092,10 +2045,10 @@ var AP = (function () {
   };
 
   var _each$1 = util$1.each;
-  var extend$1 = util$1.extend;
+  var extend = util$1.extend;
   var document$2 = window.document;
 
-  function $$2(sel, context) {
+  function $$1(sel, context) {
 
     context = context || document$2;
 
@@ -2113,7 +2066,7 @@ var AP = (function () {
       }
     }
 
-    extend$1(els, {
+    extend(els, {
       each: function each(it) {
         _each$1(this, it);
         return this;
@@ -2166,7 +2119,7 @@ var AP = (function () {
     return els;
   }
 
-  var $$3 = extend$1($$2, util$1);
+  var $$2 = extend($$1, util$1);
 
   var ConsumerOptions$2 = function () {
     function ConsumerOptions() {
@@ -2177,10 +2130,10 @@ var AP = (function () {
       key: '_getConsumerOptions',
       value: function _getConsumerOptions() {
         var options = {};
-        var $script = $$3('script[src*=\'/atlassian-connect/all\']');
+        var $script = $$2('script[src*=\'/atlassian-connect/all\']');
 
         if (!($script && /\/atlassian-connect\/all(-debug)?\.js($|\?)/.test($script.attr('src')))) {
-          $script = $$3('#ac-iframe-options');
+          $script = $$2('#ac-iframe-options');
         }
 
         if ($script && $script.length > 0) {
@@ -2440,15 +2393,15 @@ var AP = (function () {
             listener.apply(null, data.event);
           }
         }.bind(this);
-        get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'on', this).call(this, name, listener._wrapped);
+        get(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'on', this).call(this, name, listener._wrapped);
       }
     }, {
       key: 'off',
       value: function off(name, listener) {
         if (listener._wrapped) {
-          get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'off', this).call(this, name, listener._wrapped);
+          get(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'off', this).call(this, name, listener._wrapped);
         } else {
-          get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'off', this).call(this, name, listener);
+          get(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'off', this).call(this, name, listener);
         }
       }
     }, {
@@ -2459,15 +2412,15 @@ var AP = (function () {
             listener.apply(null, data.event);
           }
         };
-        get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'onAny', this).call(this, listener._wrapped);
+        get(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'onAny', this).call(this, listener._wrapped);
       }
     }, {
       key: 'offAny',
       value: function offAny(listener) {
         if (listener._wrapped) {
-          get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'offAny', this).call(this, name, listener._wrapped);
+          get(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'offAny', this).call(this, name, listener._wrapped);
         } else {
-          get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'offAny', this).call(this, name, listener);
+          get(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'offAny', this).call(this, name, listener);
         }
       }
     }]);
@@ -2479,7 +2432,7 @@ var AP = (function () {
   var customButtonIncrement = 1;
 
   var getCustomData = deprecate(function () {
-    return AP$2._data.options.customData;
+    return combined._data.options.customData;
   }, 'AP.dialog.customData', 'AP.dialog.getCustomData()', '5.0');
 
   /**
@@ -2493,10 +2446,10 @@ var AP = (function () {
    *
    * @return {Object} Data Object passed to the dialog on creation.
    */
-  Object.defineProperty(AP$2._hostModules.dialog, 'customData', {
+  Object.defineProperty(combined._hostModules.dialog, 'customData', {
     get: getCustomData
   });
-  Object.defineProperty(AP$2.dialog, 'customData', {
+  Object.defineProperty(combined.dialog, 'customData', {
     get: getCustomData
   });
 
@@ -2550,7 +2503,7 @@ var AP = (function () {
       delete dialogHandlers[name];
     }
     if (shouldClose) {
-      AP$2.dialog.close();
+      combined.dialog.close();
     }
   }
 
@@ -2563,9 +2516,9 @@ var AP = (function () {
     }
   }
 
-  var original_dialogCreate = AP$2.dialog.create.prototype.constructor.bind({});
+  var original_dialogCreate = combined.dialog.create.prototype.constructor.bind({});
 
-  AP$2.dialog.create = AP$2._hostModules.dialog.create = function () {
+  combined.dialog.create = combined._hostModules.dialog.create = function () {
     var dialog = original_dialogCreate.apply(undefined, arguments);
     /**
      * Allows the add-on to register a callback function for the given event. The listener is only called once and must be re-registered if needed.
@@ -2582,9 +2535,9 @@ var AP = (function () {
     return dialog;
   };
 
-  var original_dialogGetButton = AP$2.dialog.getButton.prototype.constructor.bind({});
+  var original_dialogGetButton = combined.dialog.getButton.prototype.constructor.bind({});
 
-  AP$2.dialog.getButton = AP$2._hostModules.dialog.getButton = function (name) {
+  combined.dialog.getButton = combined._hostModules.dialog.getButton = function (name) {
     try {
       var button = original_dialogGetButton(name);
       /**
@@ -2609,9 +2562,9 @@ var AP = (function () {
     }
   };
 
-  var original_dialogCreateButton = AP$2.dialog.createButton.prototype.constructor.bind({});
+  var original_dialogCreateButton = combined.dialog.createButton.prototype.constructor.bind({});
 
-  AP$2.dialog.createButton = AP$2._hostModules.dialog.createButton = function (options) {
+  combined.dialog.createButton = combined._hostModules.dialog.createButton = function (options) {
     var buttonProperties = {};
     if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
       buttonProperties.text = options;
@@ -2623,7 +2576,7 @@ var AP = (function () {
       buttonProperties.identifier = 'user.button.' + customButtonIncrement++;
     }
     var createButton = original_dialogCreateButton(buttonProperties);
-    return AP$2.dialog.getButton(buttonProperties.identifier);
+    return combined.dialog.getButton(buttonProperties.identifier);
   };
 
   /**
@@ -2634,10 +2587,10 @@ var AP = (function () {
    * @param {String} buttonName - button either "cancel" or "submit"
    * @param {Function} listener - callback function invoked when the requested button is pressed
    */
-  AP$2.dialog.onDialogMessage = AP$2._hostModules.dialog.onDialogMessage = deprecate(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');
+  combined.dialog.onDialogMessage = combined._hostModules.dialog.onDialogMessage = deprecate(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');
 
-  if (!AP$2.Dialog) {
-    AP$2.Dialog = AP$2._hostModules.Dialog = AP$2.dialog;
+  if (!combined.Dialog) {
+    combined.Dialog = combined._hostModules.Dialog = combined.dialog;
   }
 
   var modules = {};
@@ -2704,12 +2657,12 @@ var AP = (function () {
 
   function getFromHostModules(name) {
     var module;
-    if (AP$2._hostModules) {
-      if (AP$2._hostModules[name]) {
-        module = AP$2._hostModules[name];
+    if (combined._hostModules) {
+      if (combined._hostModules[name]) {
+        module = combined._hostModules[name];
       }
-      if (AP$2._hostModules._globals && AP$2._hostModules._globals[name]) {
-        module = AP$2._hostModules._globals[name];
+      if (combined._hostModules._globals && combined._hostModules._globals[name]) {
+        module = combined._hostModules._globals[name];
       }
       if (module) {
         return {
@@ -2755,7 +2708,7 @@ var AP = (function () {
   };
 
   function getMeta(name) {
-    return $$3('meta[name=\'ap-' + name + '\']').attr('content');
+    return $$2('meta[name=\'ap-' + name + '\']').attr('content');
   }
 
   var Meta = {
@@ -2767,44 +2720,44 @@ var AP = (function () {
     }
   };
 
-  AP$2._hostModules._dollar = $$3;
-  AP$2._hostModules['inline-dialog'] = AP$2._hostModules.inlineDialog;
+  combined._hostModules._dollar = $$2;
+  combined._hostModules['inline-dialog'] = combined._hostModules.inlineDialog;
 
   if (consumerOptions.get('sizeToParent') === true) {
-    AP$2.env.sizeToParent(consumerOptions.get('hideFooter') === true);
+    combined.env.sizeToParent(consumerOptions.get('hideFooter') === true);
   }
 
   if (consumerOptions.get('base') === true) {
-    AP$2.env.getLocation(function (loc) {
-      $$3('head').append({ tag: 'base', href: loc, target: '_parent' });
+    combined.env.getLocation(function (loc) {
+      $$2('head').append({ tag: 'base', href: loc, target: '_parent' });
     });
   }
 
-  $$3.each(EventsInstance.methods, function (i, method) {
-    AP$2._hostModules.events[method] = AP$2.events[method] = EventsInstance[method].bind(EventsInstance);
-    AP$2._hostModules.events[method + 'Public'] = AP$2.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
+  $$2.each(EventsInstance.methods, function (i, method) {
+    combined._hostModules.events[method] = combined.events[method] = EventsInstance[method].bind(EventsInstance);
+    combined._hostModules.events[method + 'Public'] = combined.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
   });
 
-  AP$2.define = deprecate(function () {
+  combined.define = deprecate(function () {
     return AMD.define.apply(AMD, arguments);
   }, 'AP.define()', null, '5.0');
 
-  AP$2.require = deprecate(function () {
+  combined.require = deprecate(function () {
     return AMD.require.apply(AMD, arguments);
   }, 'AP.require()', null, '5.0');
 
-  var margin = AP$2._data.options.isDialog ? '10px 10px 0 10px' : '0';
+  var margin = combined._data.options.isDialog ? '10px 10px 0 10px' : '0';
   if (consumerOptions.get('margin') !== false) {
-    $$3('head').append({ tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}' });
+    $$2('head').append({ tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}' });
   }
 
-  AP$2.Meta = {
+  combined.Meta = {
     get: Meta.getMeta
   };
-  AP$2.meta = Meta.getMeta;
-  AP$2.localUrl = Meta.localUrl;
+  combined.meta = Meta.getMeta;
+  combined.localUrl = Meta.localUrl;
 
-  AP$2._hostModules._util = AP$2._util = {
+  combined._hostModules._util = combined._util = {
     each: util$1.each,
     log: util$1.log,
     decodeQueryComponent: util$1.decodeQueryComponent,
@@ -2817,16 +2770,16 @@ var AP = (function () {
     handleError: util$1.handleError
   };
 
-  if (AP$2.defineModule) {
-    AP$2.defineModule('env', { resize: function resize(w, h, callback) {
+  if (combined.defineModule) {
+    combined.defineModule('env', { resize: function resize(w, h, callback) {
         var iframe = document.getElementById(callback._context.extension_id);
         iframe.style.width = w;
         iframe.style.height = h;
       } });
   }
 
-  if (AP$2._data && AP$2._data.origin) {
-    AP$2.registerAny(function (data, callback) {
+  if (combined._data && combined._data.origin) {
+    combined.registerAny(function (data, callback) {
       if (data.event && data.sender) {
         PublicEventsInstance._anyListener(data, callback);
       } else {
@@ -2835,6 +2788,6 @@ var AP = (function () {
     });
   }
 
-  return AP$2;
+  return combined;
 
 }());

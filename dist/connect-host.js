@@ -7,438 +7,11 @@
 	// AUI includes underscore and exposes it globally.
 	var _ = window._;
 
-	var domain;
-
-	// This constructor is used to store event handlers. Instantiating this is
-	// faster than explicitly calling `Object.create(null)` to get a "clean" empty
-	// object (tested with v8 v4.9).
-	function EventHandlers() {}
-	EventHandlers.prototype = Object.create(null);
-
-	function EventEmitter() {
-	  EventEmitter.init.call(this);
-	}
-	EventEmitter.usingDomains = false;
-
-	EventEmitter.prototype.domain = undefined;
-	EventEmitter.prototype._events = undefined;
-	EventEmitter.prototype._maxListeners = undefined;
-
-	// By default EventEmitters will print a warning if more than 10 listeners are
-	// added to it. This is a useful default which helps finding memory leaks.
-	EventEmitter.defaultMaxListeners = 10;
-
-	EventEmitter.init = function () {
-	  this.domain = null;
-	  if (EventEmitter.usingDomains) {
-	    // if there is an active domain, then attach to it.
-	    if (domain.active && !(this instanceof domain.Domain)) {
-	      this.domain = domain.active;
-	    }
-	  }
-
-	  if (!this._events || this._events === Object.getPrototypeOf(this)._events) {
-	    this._events = new EventHandlers();
-	    this._eventsCount = 0;
-	  }
-
-	  this._maxListeners = this._maxListeners || undefined;
-	};
-
-	// Obviously not all Emitters should be limited to 10. This function allows
-	// that to be increased. Set to zero for unlimited.
-	EventEmitter.prototype.setMaxListeners = function setMaxListeners(n) {
-	  if (typeof n !== 'number' || n < 0 || isNaN(n)) throw new TypeError('"n" argument must be a positive number');
-	  this._maxListeners = n;
-	  return this;
-	};
-
-	function $getMaxListeners(that) {
-	  if (that._maxListeners === undefined) return EventEmitter.defaultMaxListeners;
-	  return that._maxListeners;
-	}
-
-	EventEmitter.prototype.getMaxListeners = function getMaxListeners() {
-	  return $getMaxListeners(this);
-	};
-
-	// These standalone emit* functions are used to optimize calling of event
-	// handlers for fast cases because emit() itself often has a variable number of
-	// arguments and can be deoptimized because of that. These functions always have
-	// the same number of arguments and thus do not get deoptimized, so the code
-	// inside them can execute faster.
-	function emitNone(handler, isFn, self) {
-	  if (isFn) handler.call(self);else {
-	    var len = handler.length;
-	    var listeners = arrayClone(handler, len);
-	    for (var i = 0; i < len; ++i) {
-	      listeners[i].call(self);
-	    }
-	  }
-	}
-	function emitOne(handler, isFn, self, arg1) {
-	  if (isFn) handler.call(self, arg1);else {
-	    var len = handler.length;
-	    var listeners = arrayClone(handler, len);
-	    for (var i = 0; i < len; ++i) {
-	      listeners[i].call(self, arg1);
-	    }
-	  }
-	}
-	function emitTwo(handler, isFn, self, arg1, arg2) {
-	  if (isFn) handler.call(self, arg1, arg2);else {
-	    var len = handler.length;
-	    var listeners = arrayClone(handler, len);
-	    for (var i = 0; i < len; ++i) {
-	      listeners[i].call(self, arg1, arg2);
-	    }
-	  }
-	}
-	function emitThree(handler, isFn, self, arg1, arg2, arg3) {
-	  if (isFn) handler.call(self, arg1, arg2, arg3);else {
-	    var len = handler.length;
-	    var listeners = arrayClone(handler, len);
-	    for (var i = 0; i < len; ++i) {
-	      listeners[i].call(self, arg1, arg2, arg3);
-	    }
-	  }
-	}
-
-	function emitMany(handler, isFn, self, args) {
-	  if (isFn) handler.apply(self, args);else {
-	    var len = handler.length;
-	    var listeners = arrayClone(handler, len);
-	    for (var i = 0; i < len; ++i) {
-	      listeners[i].apply(self, args);
-	    }
-	  }
-	}
-
-	EventEmitter.prototype.emit = function emit(type) {
-	  var er, handler, len, args, i, events, domain;
-	  var needDomainExit = false;
-	  var doError = type === 'error';
-
-	  events = this._events;
-	  if (events) doError = doError && events.error == null;else if (!doError) return false;
-
-	  domain = this.domain;
-
-	  // If there is no 'error' event listener then throw.
-	  if (doError) {
-	    er = arguments[1];
-	    if (domain) {
-	      if (!er) er = new Error('Uncaught, unspecified "error" event');
-	      er.domainEmitter = this;
-	      er.domain = domain;
-	      er.domainThrown = false;
-	      domain.emit('error', er);
-	    } else if (er instanceof Error) {
-	      throw er; // Unhandled 'error' event
-	    } else {
-	      // At least give some kind of context to the user
-	      var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
-	      err.context = er;
-	      throw err;
-	    }
-	    return false;
-	  }
-
-	  handler = events[type];
-
-	  if (!handler) return false;
-
-	  var isFn = typeof handler === 'function';
-	  len = arguments.length;
-	  switch (len) {
-	    // fast cases
-	    case 1:
-	      emitNone(handler, isFn, this);
-	      break;
-	    case 2:
-	      emitOne(handler, isFn, this, arguments[1]);
-	      break;
-	    case 3:
-	      emitTwo(handler, isFn, this, arguments[1], arguments[2]);
-	      break;
-	    case 4:
-	      emitThree(handler, isFn, this, arguments[1], arguments[2], arguments[3]);
-	      break;
-	    // slower
-	    default:
-	      args = new Array(len - 1);
-	      for (i = 1; i < len; i++) {
-	        args[i - 1] = arguments[i];
-	      }emitMany(handler, isFn, this, args);
-	  }
-
-	  if (needDomainExit) domain.exit();
-
-	  return true;
-	};
-
-	function _addListener(target, type, listener, prepend) {
-	  var m;
-	  var events;
-	  var existing;
-
-	  if (typeof listener !== 'function') throw new TypeError('"listener" argument must be a function');
-
-	  events = target._events;
-	  if (!events) {
-	    events = target._events = new EventHandlers();
-	    target._eventsCount = 0;
-	  } else {
-	    // To avoid recursion in the case that type === "newListener"! Before
-	    // adding it to the listeners, first emit "newListener".
-	    if (events.newListener) {
-	      target.emit('newListener', type, listener.listener ? listener.listener : listener);
-
-	      // Re-assign `events` because a newListener handler could have caused the
-	      // this._events to be assigned to a new object
-	      events = target._events;
-	    }
-	    existing = events[type];
-	  }
-
-	  if (!existing) {
-	    // Optimize the case of one listener. Don't need the extra array object.
-	    existing = events[type] = listener;
-	    ++target._eventsCount;
-	  } else {
-	    if (typeof existing === 'function') {
-	      // Adding the second element, need to change to array.
-	      existing = events[type] = prepend ? [listener, existing] : [existing, listener];
-	    } else {
-	      // If we've already got an array, just append.
-	      if (prepend) {
-	        existing.unshift(listener);
-	      } else {
-	        existing.push(listener);
-	      }
-	    }
-
-	    // Check for listener leak
-	    if (!existing.warned) {
-	      m = $getMaxListeners(target);
-	      if (m && m > 0 && existing.length > m) {
-	        existing.warned = true;
-	        var w = new Error('Possible EventEmitter memory leak detected. ' + existing.length + ' ' + type + ' listeners added. ' + 'Use emitter.setMaxListeners() to increase limit');
-	        w.name = 'MaxListenersExceededWarning';
-	        w.emitter = target;
-	        w.type = type;
-	        w.count = existing.length;
-	        emitWarning(w);
-	      }
-	    }
-	  }
-
-	  return target;
-	}
-	function emitWarning(e) {
-	  typeof console.warn === 'function' ? console.warn(e) : console.log(e);
-	}
-	EventEmitter.prototype.addListener = function addListener(type, listener) {
-	  return _addListener(this, type, listener, false);
-	};
-
-	EventEmitter.prototype.on = EventEmitter.prototype.addListener;
-
-	EventEmitter.prototype.prependListener = function prependListener(type, listener) {
-	  return _addListener(this, type, listener, true);
-	};
-
-	function _onceWrap(target, type, listener) {
-	  var fired = false;
-	  function g() {
-	    target.removeListener(type, g);
-	    if (!fired) {
-	      fired = true;
-	      listener.apply(target, arguments);
-	    }
-	  }
-	  g.listener = listener;
-	  return g;
-	}
-
-	EventEmitter.prototype.once = function once(type, listener) {
-	  if (typeof listener !== 'function') throw new TypeError('"listener" argument must be a function');
-	  this.on(type, _onceWrap(this, type, listener));
-	  return this;
-	};
-
-	EventEmitter.prototype.prependOnceListener = function prependOnceListener(type, listener) {
-	  if (typeof listener !== 'function') throw new TypeError('"listener" argument must be a function');
-	  this.prependListener(type, _onceWrap(this, type, listener));
-	  return this;
-	};
-
-	// emits a 'removeListener' event iff the listener was removed
-	EventEmitter.prototype.removeListener = function removeListener(type, listener) {
-	  var list, events, position, i, originalListener;
-
-	  if (typeof listener !== 'function') throw new TypeError('"listener" argument must be a function');
-
-	  events = this._events;
-	  if (!events) return this;
-
-	  list = events[type];
-	  if (!list) return this;
-
-	  if (list === listener || list.listener && list.listener === listener) {
-	    if (--this._eventsCount === 0) this._events = new EventHandlers();else {
-	      delete events[type];
-	      if (events.removeListener) this.emit('removeListener', type, list.listener || listener);
-	    }
-	  } else if (typeof list !== 'function') {
-	    position = -1;
-
-	    for (i = list.length; i-- > 0;) {
-	      if (list[i] === listener || list[i].listener && list[i].listener === listener) {
-	        originalListener = list[i].listener;
-	        position = i;
-	        break;
-	      }
-	    }
-
-	    if (position < 0) return this;
-
-	    if (list.length === 1) {
-	      list[0] = undefined;
-	      if (--this._eventsCount === 0) {
-	        this._events = new EventHandlers();
-	        return this;
-	      } else {
-	        delete events[type];
-	      }
-	    } else {
-	      spliceOne(list, position);
-	    }
-
-	    if (events.removeListener) this.emit('removeListener', type, originalListener || listener);
-	  }
-
-	  return this;
-	};
-
-	EventEmitter.prototype.removeAllListeners = function removeAllListeners(type) {
-	  var listeners, events;
-
-	  events = this._events;
-	  if (!events) return this;
-
-	  // not listening for removeListener, no need to emit
-	  if (!events.removeListener) {
-	    if (arguments.length === 0) {
-	      this._events = new EventHandlers();
-	      this._eventsCount = 0;
-	    } else if (events[type]) {
-	      if (--this._eventsCount === 0) this._events = new EventHandlers();else delete events[type];
-	    }
-	    return this;
-	  }
-
-	  // emit removeListener for all listeners on all events
-	  if (arguments.length === 0) {
-	    var keys = Object.keys(events);
-	    for (var i = 0, key; i < keys.length; ++i) {
-	      key = keys[i];
-	      if (key === 'removeListener') continue;
-	      this.removeAllListeners(key);
-	    }
-	    this.removeAllListeners('removeListener');
-	    this._events = new EventHandlers();
-	    this._eventsCount = 0;
-	    return this;
-	  }
-
-	  listeners = events[type];
-
-	  if (typeof listeners === 'function') {
-	    this.removeListener(type, listeners);
-	  } else if (listeners) {
-	    // LIFO order
-	    do {
-	      this.removeListener(type, listeners[listeners.length - 1]);
-	    } while (listeners[0]);
-	  }
-
-	  return this;
-	};
-
-	EventEmitter.prototype.listeners = function listeners(type) {
-	  var evlistener;
-	  var ret;
-	  var events = this._events;
-
-	  if (!events) ret = [];else {
-	    evlistener = events[type];
-	    if (!evlistener) ret = [];else if (typeof evlistener === 'function') ret = [evlistener.listener || evlistener];else ret = unwrapListeners(evlistener);
-	  }
-
-	  return ret;
-	};
-
-	EventEmitter.listenerCount = function (emitter, type) {
-	  if (typeof emitter.listenerCount === 'function') {
-	    return emitter.listenerCount(type);
-	  } else {
-	    return listenerCount.call(emitter, type);
-	  }
-	};
-
-	EventEmitter.prototype.listenerCount = listenerCount;
-	function listenerCount(type) {
-	  var events = this._events;
-
-	  if (events) {
-	    var evlistener = events[type];
-
-	    if (typeof evlistener === 'function') {
-	      return 1;
-	    } else if (evlistener) {
-	      return evlistener.length;
-	    }
-	  }
-
-	  return 0;
-	}
-
-	EventEmitter.prototype.eventNames = function eventNames() {
-	  return this._eventsCount > 0 ? Reflect.ownKeys(this._events) : [];
-	};
-
-	// About 1.5x faster than the two-arg version of Array#splice().
-	function spliceOne(list, index) {
-	  for (var i = index, k = i + 1, n = list.length; k < n; i += 1, k += 1) {
-	    list[i] = list[k];
-	  }list.pop();
-	}
-
-	function arrayClone(arr, i) {
-	  var copy = new Array(i);
-	  while (i--) {
-	    copy[i] = arr[i];
-	  }return copy;
-	}
-
-	function unwrapListeners(arr) {
-	  var ret = new Array(arr.length);
-	  for (var i = 0; i < ret.length; ++i) {
-	    ret[i] = arr[i].listener || arr[i];
-	  }
-	  return ret;
-	}
-
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
 	  return typeof obj;
 	} : function (obj) {
 	  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 	};
-
-
-
-
 
 	var asyncGenerator = function () {
 	  function AwaitValue(value) {
@@ -553,10 +126,6 @@
 	  };
 	}();
 
-
-
-
-
 	var classCallCheck = function (instance, Constructor) {
 	  if (!(instance instanceof Constructor)) {
 	    throw new TypeError("Cannot call a class as a function");
@@ -581,37 +150,6 @@
 	  };
 	}();
 
-
-
-
-
-
-
-	var get = function get(object, property, receiver) {
-	  if (object === null) object = Function.prototype;
-	  var desc = Object.getOwnPropertyDescriptor(object, property);
-
-	  if (desc === undefined) {
-	    var parent = Object.getPrototypeOf(object);
-
-	    if (parent === null) {
-	      return undefined;
-	    } else {
-	      return get(parent, property, receiver);
-	    }
-	  } else if ("value" in desc) {
-	    return desc.value;
-	  } else {
-	    var getter = desc.get;
-
-	    if (getter === undefined) {
-	      return undefined;
-	    }
-
-	    return getter.call(receiver);
-	  }
-	};
-
 	var inherits = function (subClass, superClass) {
 	  if (typeof superClass !== "function" && superClass !== null) {
 	    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
@@ -628,16 +166,6 @@
 	  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	};
 
-
-
-
-
-
-
-
-
-
-
 	var possibleConstructorReturn = function (self, call) {
 	  if (!self) {
 	    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -645,44 +173,6 @@
 
 	  return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	};
-
-
-
-	var set = function set(object, property, value, receiver) {
-	  var desc = Object.getOwnPropertyDescriptor(object, property);
-
-	  if (desc === undefined) {
-	    var parent = Object.getPrototypeOf(object);
-
-	    if (parent !== null) {
-	      set(parent, property, value, receiver);
-	    }
-	  } else if ("value" in desc && desc.writable) {
-	    desc.value = value;
-	  } else {
-	    var setter = desc.set;
-
-	    if (setter !== undefined) {
-	      setter.call(receiver, value);
-	    }
-	  }
-
-	  return value;
-	};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	var toConsumableArray = function (arr) {
 	  if (Array.isArray(arr)) {
@@ -693,6 +183,270 @@
 	    return Array.from(arr);
 	  }
 	};
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	function EventEmitter() {
+	  this._events = this._events || {};
+	  this._maxListeners = this._maxListeners || undefined;
+	}
+	// Backwards-compat with node 0.10.x
+	EventEmitter.EventEmitter = EventEmitter;
+
+	EventEmitter.prototype._events = undefined;
+	EventEmitter.prototype._maxListeners = undefined;
+
+	// By default EventEmitters will print a warning if more than 10 listeners are
+	// added to it. This is a useful default which helps finding memory leaks.
+	EventEmitter.defaultMaxListeners = 10;
+
+	// Obviously not all Emitters should be limited to 10. This function allows
+	// that to be increased. Set to zero for unlimited.
+	EventEmitter.prototype.setMaxListeners = function (n) {
+	  if (!isNumber(n) || n < 0 || isNaN(n)) throw TypeError('n must be a positive number');
+	  this._maxListeners = n;
+	  return this;
+	};
+
+	EventEmitter.prototype.emit = function (type) {
+	  var er, handler, len, args, i, listeners;
+
+	  if (!this._events) this._events = {};
+
+	  // If there is no 'error' event listener then throw.
+	  if (type === 'error') {
+	    if (!this._events.error || isObject(this._events.error) && !this._events.error.length) {
+	      er = arguments[1];
+	      if (er instanceof Error) {
+	        throw er; // Unhandled 'error' event
+	      }
+	      throw TypeError('Uncaught, unspecified "error" event.');
+	    }
+	  }
+
+	  handler = this._events[type];
+
+	  if (isUndefined(handler)) return false;
+
+	  if (isFunction(handler)) {
+	    switch (arguments.length) {
+	      // fast cases
+	      case 1:
+	        handler.call(this);
+	        break;
+	      case 2:
+	        handler.call(this, arguments[1]);
+	        break;
+	      case 3:
+	        handler.call(this, arguments[1], arguments[2]);
+	        break;
+	      // slower
+	      default:
+	        args = Array.prototype.slice.call(arguments, 1);
+	        handler.apply(this, args);
+	    }
+	  } else if (isObject(handler)) {
+	    args = Array.prototype.slice.call(arguments, 1);
+	    listeners = handler.slice();
+	    len = listeners.length;
+	    for (i = 0; i < len; i++) {
+	      listeners[i].apply(this, args);
+	    }
+	  }
+
+	  return true;
+	};
+
+	EventEmitter.prototype.addListener = function (type, listener) {
+	  var m;
+
+	  if (!isFunction(listener)) throw TypeError('listener must be a function');
+
+	  if (!this._events) this._events = {};
+
+	  // To avoid recursion in the case that type === "newListener"! Before
+	  // adding it to the listeners, first emit "newListener".
+	  if (this._events.newListener) this.emit('newListener', type, isFunction(listener.listener) ? listener.listener : listener);
+
+	  if (!this._events[type])
+	    // Optimize the case of one listener. Don't need the extra array object.
+	    this._events[type] = listener;else if (isObject(this._events[type]))
+	    // If we've already got an array, just append.
+	    this._events[type].push(listener);else
+	    // Adding the second element, need to change to array.
+	    this._events[type] = [this._events[type], listener];
+
+	  // Check for listener leak
+	  if (isObject(this._events[type]) && !this._events[type].warned) {
+	    if (!isUndefined(this._maxListeners)) {
+	      m = this._maxListeners;
+	    } else {
+	      m = EventEmitter.defaultMaxListeners;
+	    }
+
+	    if (m && m > 0 && this._events[type].length > m) {
+	      this._events[type].warned = true;
+	      console.error('(node) warning: possible EventEmitter memory ' + 'leak detected. %d listeners added. ' + 'Use emitter.setMaxListeners() to increase limit.', this._events[type].length);
+	      if (typeof console.trace === 'function') {
+	        // not supported in IE 10
+	        console.trace();
+	      }
+	    }
+	  }
+
+	  return this;
+	};
+
+	EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+	EventEmitter.prototype.once = function (type, listener) {
+	  if (!isFunction(listener)) throw TypeError('listener must be a function');
+
+	  var fired = false;
+
+	  function g() {
+	    this.removeListener(type, g);
+
+	    if (!fired) {
+	      fired = true;
+	      listener.apply(this, arguments);
+	    }
+	  }
+
+	  g.listener = listener;
+	  this.on(type, g);
+
+	  return this;
+	};
+
+	// emits a 'removeListener' event iff the listener was removed
+	EventEmitter.prototype.removeListener = function (type, listener) {
+	  var list, position, length, i;
+
+	  if (!isFunction(listener)) throw TypeError('listener must be a function');
+
+	  if (!this._events || !this._events[type]) return this;
+
+	  list = this._events[type];
+	  length = list.length;
+	  position = -1;
+
+	  if (list === listener || isFunction(list.listener) && list.listener === listener) {
+	    delete this._events[type];
+	    if (this._events.removeListener) this.emit('removeListener', type, listener);
+	  } else if (isObject(list)) {
+	    for (i = length; i-- > 0;) {
+	      if (list[i] === listener || list[i].listener && list[i].listener === listener) {
+	        position = i;
+	        break;
+	      }
+	    }
+
+	    if (position < 0) return this;
+
+	    if (list.length === 1) {
+	      list.length = 0;
+	      delete this._events[type];
+	    } else {
+	      list.splice(position, 1);
+	    }
+
+	    if (this._events.removeListener) this.emit('removeListener', type, listener);
+	  }
+
+	  return this;
+	};
+
+	EventEmitter.prototype.removeAllListeners = function (type) {
+	  var key, listeners;
+
+	  if (!this._events) return this;
+
+	  // not listening for removeListener, no need to emit
+	  if (!this._events.removeListener) {
+	    if (arguments.length === 0) this._events = {};else if (this._events[type]) delete this._events[type];
+	    return this;
+	  }
+
+	  // emit removeListener for all listeners on all events
+	  if (arguments.length === 0) {
+	    for (key in this._events) {
+	      if (key === 'removeListener') continue;
+	      this.removeAllListeners(key);
+	    }
+	    this.removeAllListeners('removeListener');
+	    this._events = {};
+	    return this;
+	  }
+
+	  listeners = this._events[type];
+
+	  if (isFunction(listeners)) {
+	    this.removeListener(type, listeners);
+	  } else if (listeners) {
+	    // LIFO order
+	    while (listeners.length) {
+	      this.removeListener(type, listeners[listeners.length - 1]);
+	    }
+	  }
+	  delete this._events[type];
+
+	  return this;
+	};
+
+	EventEmitter.prototype.listeners = function (type) {
+	  var ret;
+	  if (!this._events || !this._events[type]) ret = [];else if (isFunction(this._events[type])) ret = [this._events[type]];else ret = this._events[type].slice();
+	  return ret;
+	};
+
+	EventEmitter.prototype.listenerCount = function (type) {
+	  if (this._events) {
+	    var evlistener = this._events[type];
+
+	    if (isFunction(evlistener)) return 1;else if (evlistener) return evlistener.length;
+	  }
+	  return 0;
+	};
+
+	EventEmitter.listenerCount = function (emitter, type) {
+	  return emitter.listenerCount(type);
+	};
+
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+
+	function isObject(arg) {
+	  return (typeof arg === 'undefined' ? 'undefined' : _typeof(arg)) === 'object' && arg !== null;
+	}
+
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
 
 	/**
 	* pub/sub for extension state (created, destroyed, initialized)
@@ -1839,11 +1593,11 @@
 	  return Connect;
 	}();
 
-	var simpleXDM$1 = new Connect();
+	var host = new Connect();
 
 	var EventActions = {
 	  broadcast: function broadcast(type, targetSpec, event) {
-	    simpleXDM$1.dispatch(type, targetSpec, { event: event });
+	    host.dispatch(type, targetSpec, event);
 	    EventDispatcher$1.dispatch('event-dispatch', {
 	      type: type,
 	      targetSpec: targetSpec,
@@ -1858,7 +1612,7 @@
 	      sender: sender
 	    });
 
-	    simpleXDM$1.dispatch(type, {}, {
+	    host.dispatch(type, {}, {
 	      sender: {
 	        addonKey: sender.addon_key,
 	        key: sender.key
@@ -1945,11 +1699,11 @@
 
 	var DomEventActions = {
 	  registerKeyEvent: function registerKeyEvent(data) {
-	    simpleXDM$1.registerKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
+	    host.registerKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
 	    EventDispatcher$1.dispatch('dom-event-register', data);
 	  },
 	  unregisterKeyEvent: function unregisterKeyEvent(data) {
-	    simpleXDM$1.unregisterKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
+	    host.unregisterKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
 	    EventDispatcher$1.dispatch('dom-event-unregister', data);
 	  },
 	  registerWindowKeyEvent: function registerWindowKeyEvent(data) {
@@ -2206,14 +1960,14 @@
 	  },
 
 	  notifyIframeDestroyed: function notifyIframeDestroyed(extension_id) {
-	    var extension = simpleXDM$1.getExtensions({
+	    var extension = host.getExtensions({
 	      extension_id: extension_id
 	    });
 	    if (extension.length === 1) {
 	      extension = extension[0];
 	    }
 	    EventDispatcher$1.dispatch('iframe-destroyed', { extension: extension });
-	    simpleXDM$1.unregisterExtension({ extension_id: extension_id });
+	    host.unregisterExtension({ extension_id: extension_id });
 	  },
 
 	  notifyUnloaded: function notifyUnloaded($el, extension) {
@@ -2221,12 +1975,33 @@
 	  }
 	};
 
-	var index$1 = function (str) {
+	function interopDefault(ex) {
+		return ex && typeof ex === 'object' && 'default' in ex ? ex['default'] : ex;
+	}
+
+	function createCommonjsModule(fn, module) {
+		return module = { exports: {} }, fn(module, module.exports), module.exports;
+	}
+
+	var index$1 = createCommonjsModule(function (module) {
+	'use strict';
+
+	module.exports = function (str) {
 		return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
 			return '%' + c.charCodeAt(0).toString(16).toUpperCase();
 		});
 	};
+	});
 
+	var index$2 = interopDefault(index$1);
+
+
+	var require$$1 = Object.freeze({
+		default: index$2
+	});
+
+	var index$3 = createCommonjsModule(function (module) {
+	'use strict';
 	/* eslint-disable no-unused-vars */
 
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -2283,7 +2058,7 @@
 		}
 	}
 
-	var index$3 = shouldUseNative() ? Object.assign : function (target, source) {
+	module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 		var from;
 		var to = toObject(target);
 		var symbols;
@@ -2309,11 +2084,22 @@
 
 		return to;
 	};
+	});
 
-	var strictUriEncode = index$1;
-	var objectAssign = index$3;
+	var index$4 = interopDefault(index$3);
 
-	function encode$1(value, opts) {
+
+	var require$$0 = Object.freeze({
+		default: index$4
+	});
+
+	var index = createCommonjsModule(function (module, exports) {
+	'use strict';
+
+	var strictUriEncode = interopDefault(require$$1);
+	var objectAssign = interopDefault(require$$0);
+
+	function encode(value, opts) {
 		if (opts.encode) {
 			return opts.strict ? strictUriEncode(value) : encodeURIComponent(value);
 		}
@@ -2321,11 +2107,11 @@
 		return value;
 	}
 
-	var extract = function (str) {
+	exports.extract = function (str) {
 		return str.split('?')[1] || '';
 	};
 
-	var parse = function (str) {
+	exports.parse = function (str) {
 		// Create an object with no prototype
 		// https://github.com/sindresorhus/query-string/issues/47
 		var ret = Object.create(null);
@@ -2365,7 +2151,7 @@
 		return ret;
 	};
 
-	var stringify = function (obj, opts) {
+	exports.stringify = function (obj, opts) {
 		var defaults = {
 			encode: true,
 			strict: true
@@ -2381,7 +2167,7 @@
 			}
 
 			if (val === null) {
-				return encode$1(key, opts);
+				return encode(key, opts);
 			}
 
 			if (Array.isArray(val)) {
@@ -2393,29 +2179,30 @@
 					}
 
 					if (val2 === null) {
-						result.push(encode$1(key, opts));
+						result.push(encode(key, opts));
 					} else {
-						result.push(encode$1(key, opts) + '=' + encode$1(val2, opts));
+						result.push(encode(key, opts) + '=' + encode(val2, opts));
 					}
 				});
 
 				return result.join('&');
 			}
 
-			return encode$1(key, opts) + '=' + encode$1(val, opts);
+			return encode(key, opts) + '=' + encode(val, opts);
 		}).filter(function (x) {
 			return x.length > 0;
 		}).join('&') : '';
 	};
+	});
 
-	var index = {
-		extract: extract,
-		parse: parse,
-		stringify: stringify
-	};
+	var qs = interopDefault(index);
 
-	var toByteArray_1 = toByteArray;
-	var fromByteArray_1 = fromByteArray;
+	var index$5 = createCommonjsModule(function (module, exports) {
+	'use strict';
+
+	exports.byteLength = byteLength;
+	exports.toByteArray = toByteArray;
+	exports.fromByteArray = fromByteArray;
 
 	var lookup = [];
 	var revLookup = [];
@@ -2442,6 +2229,11 @@
 	  // if there is only one, then the three characters before it represent 2 bytes
 	  // this is just a cheap hack to not do indexOf twice
 	  return b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0;
+	}
+
+	function byteLength(b64) {
+	  // base64 is 4/3 + up to two characters of the original data
+	  return b64.length * 3 / 4 - placeHoldersCount(b64);
 	}
 
 	function toByteArray(b64) {
@@ -2520,6 +2312,11 @@
 
 	  return parts.join('');
 	}
+	});
+
+	interopDefault(index$5);
+	var fromByteArray = index$5.fromByteArray;
+	var toByteArray = index$5.toByteArray;
 
 	// This is free and unencumbered software released into the public domain.
 	// See LICENSE.md for more information.
@@ -3132,7 +2929,7 @@
 
 	var base64 = {
 	  encode: function encode(string) {
-	    return fromByteArray_1(TextEncoder('utf-8').encode(string));
+	    return fromByteArray(TextEncoder('utf-8').encode(string));
 	  },
 	  decode: function decode(string) {
 	    var padding = 4 - string.length % 4;
@@ -3141,7 +2938,7 @@
 	    } else if (padding === 2) {
 	      string += '==';
 	    }
-	    return TextDecoder('utf-8').decode(toByteArray_1(string));
+	    return TextDecoder('utf-8').decode(toByteArray(string));
 	  }
 	};
 
@@ -3203,7 +3000,7 @@
 	}
 
 	function _getJwt(urlStr) {
-	  var query = index.parse(index.extract(urlStr));
+	  var query = qs.parse(qs.extract(urlStr));
 	  return query['jwt'];
 	}
 
@@ -3308,7 +3105,7 @@
 	  }, {
 	    key: '_simpleXdmCreate',
 	    value: function _simpleXdmCreate(extension) {
-	      var iframeAttributes = simpleXDM$1.create(extension, function () {
+	      var iframeAttributes = host.create(extension, function () {
 	        if (!extension.options) {
 	          extension.options = {};
 	        }
@@ -3516,7 +3313,7 @@
 	var DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
 	var DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
 
-	function getActiveDialog$1() {
+	function getActiveDialog() {
 	  var $el = AJS.LayerManager.global.getTopLayer();
 	  if ($el && DLGID_REGEXP.test($el.attr('id'))) {
 	    var dialog = AJS.dialog2($el);
@@ -3730,12 +3527,12 @@
 	  }, {
 	    key: 'getActive',
 	    value: function getActive() {
-	      return getActiveDialog$1();
+	      return getActiveDialog();
 	    }
 	  }, {
 	    key: 'buttonIsEnabled',
 	    value: function buttonIsEnabled(identifier) {
-	      var dialog = getActiveDialog$1();
+	      var dialog = getActiveDialog();
 	      if (dialog) {
 	        var $button = getButtonByIdentifier(identifier, dialog.$el);
 	        return ButtonComponent.isEnabled($button);
@@ -3744,7 +3541,7 @@
 	  }, {
 	    key: 'buttonIsVisible',
 	    value: function buttonIsVisible(identifier) {
-	      var dialog = getActiveDialog$1();
+	      var dialog = getActiveDialog();
 	      if (dialog) {
 	        var $button = getButtonByIdentifier(identifier, dialog.$el);
 	        return ButtonComponent.isVisible($button);
@@ -3805,7 +3602,7 @@
 	      key: 27,
 	      callback: function callback() {
 	        DialogActions.close({
-	          dialog: getActiveDialog$1(),
+	          dialog: getActiveDialog(),
 	          extension: data.extension
 	        });
 	      }
@@ -3821,7 +3618,7 @@
 	});
 
 	EventDispatcher$1.register('dialog-close-active', function (data) {
-	  var activeDialog = getActiveDialog$1();
+	  var activeDialog = getActiveDialog();
 	  if (activeDialog) {
 	    DialogActions.close({
 	      customData: data.customData,
@@ -3836,7 +3633,7 @@
 	});
 
 	EventDispatcher$1.register('dialog-button-toggle', function (data) {
-	  var dialog = getActiveDialog$1();
+	  var dialog = getActiveDialog();
 	  if (dialog) {
 	    var $button = getButtonByIdentifier(data.identifier, dialog.$el);
 	    ButtonActions.toggle($button, !data.enabled);
@@ -3844,7 +3641,7 @@
 	});
 
 	EventDispatcher$1.register('dialog-button-toggle-visibility', function (data) {
-	  var dialog = getActiveDialog$1();
+	  var dialog = getActiveDialog();
 	  if (dialog) {
 	    var $button = getButtonByIdentifier(data.identifier, dialog.$el);
 	    ButtonActions.toggleVisibility($button, data.hidden);
@@ -3860,7 +3657,7 @@
 	      DialogActions.clickButton(ButtonComponent.getIdentifier($button), $button, $dialog.data('extension'));
 	    } else {
 	      DialogActions.close({
-	        dialog: getActiveDialog$1(),
+	        dialog: getActiveDialog(),
 	        extension: $button.extension
 	      });
 	    }
@@ -5054,7 +4851,7 @@
 	  }
 	};
 
-	function create$1(extension) {
+	function create(extension) {
 	  var simpleXdmExtension = {
 	    addon_key: extension.addon_key,
 	    key: extension.key,
@@ -5077,13 +4874,13 @@
 	  }
 	};
 
-	var HostApi$1 = function () {
+	var HostApi = function () {
 	  function HostApi() {
 	    classCallCheck(this, HostApi);
 
-	    this.create = create$1;
+	    this.create = create;
 	    this.dialog = {
-	      create: function create$1(extension, dialogOptions) {
+	      create: function create(extension, dialogOptions) {
 	        DialogExtensionActions.open(extension, dialogOptions);
 	      },
 	      close: function close() {
@@ -5171,13 +4968,13 @@
 	  }, {
 	    key: 'getExtensions',
 	    value: function getExtensions(filter) {
-	      return simpleXDM$1.getExtensions(filter);
+	      return host.getExtensions(filter);
 	    }
 	  }]);
 	  return HostApi;
 	}();
 
-	var HostApi$2 = new HostApi$1();
+	var HostApi$1 = new HostApi();
 
 	function sanitizeTriggers(triggers) {
 	  var onTriggers;
@@ -5243,7 +5040,7 @@
 	  // create product context from url params
 	  var url = $target.attr('href');
 	  if (url) {
-	    var query = index.parse(index.extract(url));
+	    var query = qs.parse(qs.extract(url));
 	    _.each(query, function (value, key) {
 	      options.productContext[key] = value;
 	    });
@@ -5570,7 +5367,7 @@
 	  }, {
 	    key: 'addExtension',
 	    value: function addExtension(data) {
-	      var addon = create$1(data.extension);
+	      var addon = create(data.extension);
 	      data.$el.empty().append(addon);
 	    }
 	  }, {
@@ -5683,20 +5480,20 @@
 	  window._AP.version = '5.0.0-beta.21';
 	}
 
-	simpleXDM$1.defineModule('messages', messages);
-	simpleXDM$1.defineModule('flag', flag);
-	simpleXDM$1.defineModule('dialog', dialog);
-	simpleXDM$1.defineModule('inlineDialog', inlineDialog);
-	simpleXDM$1.defineModule('env', env);
-	simpleXDM$1.defineModule('events', events);
-	simpleXDM$1.defineModule('_analytics', analytics$1);
-	simpleXDM$1.defineModule('scrollPosition', scrollPosition);
+	host.defineModule('messages', messages);
+	host.defineModule('flag', flag);
+	host.defineModule('dialog', dialog);
+	host.defineModule('inlineDialog', inlineDialog);
+	host.defineModule('env', env);
+	host.defineModule('events', events);
+	host.defineModule('_analytics', analytics$1);
+	host.defineModule('scrollPosition', scrollPosition);
 
 	EventDispatcher$1.register('module-define-custom', function (data) {
-	  simpleXDM$1.defineModule(data.name, data.methods);
+	  host.defineModule(data.name, data.methods);
 	});
 
-	simpleXDM$1.registerRequestNotifier(function (data) {
+	host.registerRequestNotifier(function (data) {
 	  analytics.dispatch('bridge.invokemethod', {
 	    module: data.module,
 	    fn: data.fn,
@@ -5705,6 +5502,6 @@
 	  });
 	});
 
-	return HostApi$2;
+	return HostApi$1;
 
 })));
