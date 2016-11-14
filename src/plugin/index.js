@@ -68,7 +68,8 @@ if(AP.defineModule) {
 
 if(AP._data && AP._data.origin) {
   AP.registerAny(function(data, callback){
-    if(data.event && data.sender){
+    // dialog.close event doesn't have event data
+    if(data && data.event && data.sender){
       PublicEventsInstance._anyListener(data, callback);
     } else {
       EventsInstance._anyListener(data, callback);

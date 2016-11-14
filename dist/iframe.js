@@ -2780,7 +2780,8 @@ var   document$1 = window.document;
 
   if (combined._data && combined._data.origin) {
     combined.registerAny(function (data, callback) {
-      if (data.event && data.sender) {
+      // dialog.close event doesn't have event data
+      if (data && data.event && data.sender) {
         PublicEventsInstance._anyListener(data, callback);
       } else {
         EventsInstance._anyListener(data, callback);
