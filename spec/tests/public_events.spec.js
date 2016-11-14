@@ -39,7 +39,9 @@ describe('Public plugin events shim', function(){
 
   it('on is not called if filter function doesnt match', function(){
     var spy = jasmine.createSpy('spy');
-    events.on('something', spy, function(){ return false; });
+    events.on('something', spy, function(){
+      return false;
+    });
     events._events['something'][0].call({}, {
       sender: {
         addonKey: ''
@@ -51,7 +53,9 @@ describe('Public plugin events shim', function(){
 
   it('on is called if filter function matches', function(){
     var spy = jasmine.createSpy('spy');
-    events.on('something', spy, function(){ return true; });
+    events.on('something', spy, function(){
+      return true;
+    });
     events._events['something'][0].call({}, {
       sender: {
         addonKey: ''
