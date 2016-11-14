@@ -5081,8 +5081,6 @@
 	  function HostApi() {
 	    classCallCheck(this, HostApi);
 
-	    this._increment = 1;
-	    this._callbacks = {};
 	    this.create = create$1;
 	    this.dialog = {
 	      create: function create$1(extension, dialogOptions) {
@@ -5105,23 +5103,13 @@
 	      extension = _.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
 	      return { $el: $el, extension: extension };
 	    }
-
-	    // tags a callback for later.
-
-	  }, {
-	    key: '_tagCallback',
-	    value: function _tagCallback(callback) {
-	      callback._id = this._increment++;
-	    }
 	  }, {
 	    key: 'onIframeEstablished',
 	    value: function onIframeEstablished(callback) {
 	      var _this = this;
 
-	      this._tagCallback(callback);
-	      this._callbacks[callback._id] = callback;
 	      EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
-	        _this._callbacks[callback._id].call({}, _this._cleanExtension(data.$el, data.extension));
+	        callback.call({}, _this._cleanExtension(data.$el, data.extension));
 	      });
 	    }
 	  }, {
@@ -5129,35 +5117,30 @@
 	    value: function onIframeUnload(callback) {
 	      var _this2 = this;
 
-	      this._tagCallback(callback);
-	      this._callbacks[callback._id] = callback;
 	      EventDispatcher$1.register('after:iframe-unload', function (data) {
-	        _this2._callbacks[callback._id].call({}, _this2._cleanExtension(data.$el, data.extension));
+	        callback.call({}, _this2._cleanExtension(data.$el, data.extension));
 	      });
 	    }
 	  }, {
 	    key: 'onPublicEventDispatched',
 	    value: function onPublicEventDispatched(callback) {
-	      var _this3 = this;
-
-	      this._tagCallback(callback);
-	      this._callbacks[callback._id] = callback;
-	      EventDispatcher$1.register('after:event-public-dispatch', function (data) {
-	        _this3._callbacks[callback._id].call({}, {
+	      var wrapper = function wrapper(data) {
+	        callback.call({}, {
 	          type: data.type,
 	          event: data.event,
-	          extension: _this3._cleanExtension(data.sender.$el, data.sender)
+	          extension: this._cleanExtension(data.sender.$el, data.sender)
 	        });
-	      });
+	      };
+	      callback._wrapper = wrapper.bind(this);
+	      EventDispatcher$1.register('after:event-public-dispatch', callback._wrapper);
 	    }
 	  }, {
 	    key: 'offPublicEventDispatched',
 	    value: function offPublicEventDispatched(callback) {
-	      if (callback._id) {
-	        EventDispatcher$1.unregister('after:event-public-dispatch', this._callbacks[callback._id]);
-	        delete this._callbacks[callback._id];
+	      if (callback._wrapper) {
+	        EventDispatcher$1.unregister('after:event-public-dispatch', callback._wrapper);
 	      } else {
-	        throw new Error('cannot unregister event dispatch listener without _id reference');
+	        throw new Error('cannot unregister event dispatch listener without _wrapper reference');
 	      }
 	    }
 	  }, {

@@ -22,6 +22,15 @@ class PublicEvents extends Events {
     return value;
   }
 
+  once(name, listener, filter) {
+    var that = this;
+    function runOnce(data) {
+      listener.apply(null, data);
+      that.off(name, runOnce);
+    }
+    this.on(name, runOnce, filter);
+  }
+
   on(name, listener, filter){
     listener._wrapped = function(data){
       if(this._filterEval(filter, data.sender)) {
@@ -41,14 +50,14 @@ class PublicEvents extends Events {
 
   onAny(listener, filter) {
     listener._wrapped = function(data){
-      if(this._filterEval(filter, data.sender)) {
+      if(data.sender && this._filterEval(filter, data.sender)) {
         listener.apply(null, data.event);
       }
     };
     super.onAny(listener._wrapped);
   }
 
-  offAny(listener, filter) {
+  offAny(listener) {
     if(listener._wrapped) {
       super.offAny(name, listener._wrapped);
     } else {

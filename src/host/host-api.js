@@ -12,8 +12,6 @@ import IframeActions from './actions/iframe_actions';
 
 class HostApi {
   constructor(){
-    this._increment = 1;
-    this._callbacks = {};
     this.create = create;
     this.dialog = {
       create: (extension, dialogOptions) => {
@@ -35,45 +33,35 @@ class HostApi {
     return {$el, extension};
   }
 
-  // tags a callback for later.
-  _tagCallback(callback){
-    callback._id = this._increment++;
-  }
-
   onIframeEstablished (callback) {
-    this._tagCallback(callback);
-    this._callbacks[callback._id] = callback;
     EventDispatcher.register('after:iframe-bridge-established', (data) => {
-      this._callbacks[callback._id].call({}, this._cleanExtension(data.$el, data.extension));
+      callback.call({}, this._cleanExtension(data.$el, data.extension));
     });
   }
 
   onIframeUnload(callback){
-    this._tagCallback(callback);
-    this._callbacks[callback._id] = callback;
     EventDispatcher.register('after:iframe-unload', (data) => {
-      this._callbacks[callback._id].call({}, this._cleanExtension(data.$el, data.extension));
+      callback.call({}, this._cleanExtension(data.$el, data.extension));
     });
   }
 
   onPublicEventDispatched(callback) {
-    this._tagCallback(callback);
-    this._callbacks[callback._id] = callback;
-    EventDispatcher.register('after:event-public-dispatch', (data) => {
-      this._callbacks[callback._id].call({}, {
+    var wrapper = function(data){
+      callback.call({}, {
         type: data.type,
         event: data.event,
         extension: this._cleanExtension(data.sender.$el, data.sender)
       });
-    });
+    };
+    callback._wrapper = wrapper.bind(this);
+    EventDispatcher.register('after:event-public-dispatch', callback._wrapper);
   }
 
   offPublicEventDispatched(callback) {
-    if(callback._id){
-      EventDispatcher.unregister('after:event-public-dispatch', this._callbacks[callback._id]);
-      delete this._callbacks[callback._id];
+    if(callback._wrapper){
+      EventDispatcher.unregister('after:event-public-dispatch', callback._wrapper);
     } else {
-      throw new Error('cannot unregister event dispatch listener without _id reference');
+      throw new Error('cannot unregister event dispatch listener without _wrapper reference');
     }
   }
 

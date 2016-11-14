@@ -2423,6 +2423,16 @@ var AP = (function () {
         return value;
       }
     }, {
+      key: 'once',
+      value: function once(name, listener, filter) {
+        var that = this;
+        function runOnce(data) {
+          listener.apply(null, data);
+          that.off(name, runOnce);
+        }
+        this.on(name, runOnce, filter);
+      }
+    }, {
       key: 'on',
       value: function on(name, listener, filter) {
         listener._wrapped = function (data) {
@@ -2445,7 +2455,7 @@ var AP = (function () {
       key: 'onAny',
       value: function onAny(listener, filter) {
         listener._wrapped = function (data) {
-          if (this._filterEval(filter, data.sender)) {
+          if (data.sender && this._filterEval(filter, data.sender)) {
             listener.apply(null, data.event);
           }
         };
@@ -2453,7 +2463,7 @@ var AP = (function () {
       }
     }, {
       key: 'offAny',
-      value: function offAny(listener, filter) {
+      value: function offAny(listener) {
         if (listener._wrapped) {
           get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'offAny', this).call(this, name, listener._wrapped);
         } else {
