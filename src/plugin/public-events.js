@@ -9,6 +9,9 @@ class PublicEvents extends Events {
 
   _filterEval(filter, toCompare){
     var value = true;
+    if(!filter){
+      return value;
+    }
     switch(typeof filter) {
     case 'function':
       value = Boolean(filter.call(null, toCompare));

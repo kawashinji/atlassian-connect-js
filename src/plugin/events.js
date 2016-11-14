@@ -20,7 +20,7 @@ class Events {
     this.ANY_PREFIX = '_any';
     this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
   }
-  // FILTER THIS FOR ONLY NON-PUBLIC
+
   _anyListener(data, callback){
     var eventName = callback._context.eventName;
     var any = this._events[this.ANY_PREFIX] || [];

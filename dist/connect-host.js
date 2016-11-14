@@ -5099,9 +5099,8 @@
 
 	  createClass(HostApi, [{
 	    key: '_cleanExtension',
-	    value: function _cleanExtension($el, extension) {
-	      extension = _.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
-	      return { $el: $el, extension: extension };
+	    value: function _cleanExtension(extension) {
+	      return _.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
 	    }
 	  }, {
 	    key: 'onIframeEstablished',
@@ -5109,7 +5108,10 @@
 	      var _this = this;
 
 	      EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
-	        callback.call({}, _this._cleanExtension(data.$el, data.extension));
+	        callback.call({}, {
+	          $el: data.$el,
+	          extension: _this._cleanExtension(data.extension)
+	        });
 	      });
 	    }
 	  }, {
@@ -5118,7 +5120,10 @@
 	      var _this2 = this;
 
 	      EventDispatcher$1.register('after:iframe-unload', function (data) {
-	        callback.call({}, _this2._cleanExtension(data.$el, data.extension));
+	        callback.call({}, {
+	          $el: data.$el,
+	          extension: _this2._cleanExtension(data.extension)
+	        });
 	      });
 	    }
 	  }, {
@@ -5128,7 +5133,7 @@
 	        callback.call({}, {
 	          type: data.type,
 	          event: data.event,
-	          extension: this._cleanExtension(data.sender.$el, data.sender)
+	          extension: this._cleanExtension(data.sender)
 	        });
 	      };
 	      callback._wrapper = wrapper.bind(this);

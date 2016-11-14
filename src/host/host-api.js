@@ -28,20 +28,25 @@ class HostApi {
     }
   }
 
-  _cleanExtension($el, extension){
-    extension = _.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
-    return {$el, extension};
+  _cleanExtension(extension){
+    return _.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
   }
 
   onIframeEstablished (callback) {
     EventDispatcher.register('after:iframe-bridge-established', (data) => {
-      callback.call({}, this._cleanExtension(data.$el, data.extension));
+      callback.call({}, {
+        $el: data.$el,
+        extension: this._cleanExtension(data.extension)
+      });
     });
   }
 
   onIframeUnload(callback){
     EventDispatcher.register('after:iframe-unload', (data) => {
-      callback.call({}, this._cleanExtension(data.$el, data.extension));
+      callback.call({}, {
+        $el: data.$el,
+        extension: this._cleanExtension(data.extension)
+      });
     });
   }
 
@@ -50,7 +55,7 @@ class HostApi {
       callback.call({}, {
         type: data.type,
         event: data.event,
-        extension: this._cleanExtension(data.sender.$el, data.sender)
+        extension: this._cleanExtension(data.sender)
       });
     };
     callback._wrapper = wrapper.bind(this);

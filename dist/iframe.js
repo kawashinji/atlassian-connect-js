@@ -2248,8 +2248,6 @@ var AP = (function () {
       this.ANY_PREFIX = '_any';
       this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
     }
-    // FILTER THIS FOR ONLY NON-PUBLIC
-
 
     createClass(Events, [{
       key: '_anyListener',
@@ -2410,6 +2408,9 @@ var AP = (function () {
       key: '_filterEval',
       value: function _filterEval(filter, toCompare) {
         var value = true;
+        if (!filter) {
+          return value;
+        }
         switch (typeof filter === 'undefined' ? 'undefined' : _typeof(filter)) {
           case 'function':
             value = Boolean(filter.call(null, toCompare));
