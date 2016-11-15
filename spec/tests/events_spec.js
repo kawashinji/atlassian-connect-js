@@ -1,9 +1,10 @@
 import AP from 'simple-xdm/plugin';
 AP._data.origin = '*'; // prevent AP._registerOnUnload() from failing
 
-import events from 'src/plugin/events';
+import Events from 'src/plugin/events';
 
 describe('Plugin events shim', function(){
+  var events = new Events();
   beforeEach(function(){
     events._events = {};
   });

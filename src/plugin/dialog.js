@@ -1,6 +1,7 @@
 import AP from 'simple-xdm/combined';
-import events from './events';
 import deprecate from './deprecate';
+import EventsInstance from './events-instance';
+
 let customButtonIncrement = 1;
 
 const getCustomData = deprecate(() => {
@@ -27,7 +28,7 @@ Object.defineProperty(AP.dialog, 'customData', {
 
 const dialogHandlers = {};
 
-events.onAny(eventDelegator);
+EventsInstance.onAny(eventDelegator);
 function eventDelegator(name, args) {
   let dialogEventMatch = name.match(/^dialog\.(\w+)/);
   if(!dialogEventMatch) {

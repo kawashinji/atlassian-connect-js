@@ -1498,7 +1498,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.21";
+      _this._version = "5.0.0-beta.22";
       _this._apiTampered = undefined;
       _this._isSubIframe = window.top !== window.parent;
       _this._onConfirmedFns = [];
@@ -2247,9 +2247,6 @@ var AP = (function () {
       this._events = {};
       this.ANY_PREFIX = '_any';
       this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
-      if (AP$2._data && AP$2._data.origin) {
-        AP$2.registerAny(this._anyListener.bind(this));
-      }
     }
 
     createClass(Events, [{
@@ -2393,7 +2390,92 @@ var AP = (function () {
     return Events;
   }();
 
-  var events = new Events();
+  var EventsInstance = new Events();
+
+  var PublicEvents = function (_Events) {
+    inherits(PublicEvents, _Events);
+
+    function PublicEvents() {
+      classCallCheck(this, PublicEvents);
+
+      var _this = possibleConstructorReturn(this, (PublicEvents.__proto__ || Object.getPrototypeOf(PublicEvents)).call(this));
+
+      _this.methods = ['offPublic', 'offAllPublic', 'offAnyPublic', 'onPublic', 'onAnyPublic', 'oncePublic'];
+      return _this;
+    }
+
+    createClass(PublicEvents, [{
+      key: '_filterEval',
+      value: function _filterEval(filter, toCompare) {
+        var value = true;
+        if (!filter) {
+          return value;
+        }
+        switch (typeof filter === 'undefined' ? 'undefined' : _typeof(filter)) {
+          case 'function':
+            value = Boolean(filter.call(null, toCompare));
+            break;
+          case 'object':
+            value = Object.getOwnPropertyNames(filter).every(function (prop) {
+              return toCompare[prop] === filter[prop];
+            });
+            break;
+        }
+        return value;
+      }
+    }, {
+      key: 'once',
+      value: function once(name, listener, filter) {
+        var that = this;
+        function runOnce(data) {
+          listener.apply(null, data);
+          that.off(name, runOnce);
+        }
+        this.on(name, runOnce, filter);
+      }
+    }, {
+      key: 'on',
+      value: function on(name, listener, filter) {
+        listener._wrapped = function (data) {
+          if (this._filterEval(filter, data.sender)) {
+            listener.apply(null, data.event);
+          }
+        }.bind(this);
+        get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'on', this).call(this, name, listener._wrapped);
+      }
+    }, {
+      key: 'off',
+      value: function off(name, listener) {
+        if (listener._wrapped) {
+          get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'off', this).call(this, name, listener._wrapped);
+        } else {
+          get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'off', this).call(this, name, listener);
+        }
+      }
+    }, {
+      key: 'onAny',
+      value: function onAny(listener, filter) {
+        listener._wrapped = function (data) {
+          if (data.sender && this._filterEval(filter, data.sender)) {
+            listener.apply(null, data.event);
+          }
+        };
+        get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'onAny', this).call(this, listener._wrapped);
+      }
+    }, {
+      key: 'offAny',
+      value: function offAny(listener) {
+        if (listener._wrapped) {
+          get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'offAny', this).call(this, name, listener._wrapped);
+        } else {
+          get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'offAny', this).call(this, name, listener);
+        }
+      }
+    }]);
+    return PublicEvents;
+  }(Events);
+
+  var PublicEventsInstance = new PublicEvents();
 
   var customButtonIncrement = 1;
 
@@ -2421,7 +2503,7 @@ var AP = (function () {
 
   var dialogHandlers = {};
 
-  events.onAny(eventDelegator);
+  EventsInstance.onAny(eventDelegator);
   function eventDelegator(name, args) {
     var dialogEventMatch = name.match(/^dialog\.(\w+)/);
     if (!dialogEventMatch) {
@@ -2699,8 +2781,9 @@ var AP = (function () {
     });
   }
 
-  $$3.each(events.methods, function (i, method) {
-    AP$2._hostModules.events[method] = AP$2.events[method] = events[method].bind(events);
+  $$3.each(EventsInstance.methods, function (i, method) {
+    AP$2._hostModules.events[method] = AP$2.events[method] = EventsInstance[method].bind(EventsInstance);
+    AP$2._hostModules.events[method + 'Public'] = AP$2.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
   });
 
   AP$2.define = deprecate(function () {
@@ -2741,6 +2824,17 @@ var AP = (function () {
         iframe.style.width = w;
         iframe.style.height = h;
       } });
+  }
+
+  if (AP$2._data && AP$2._data.origin) {
+    AP$2.registerAny(function (data, callback) {
+      // dialog.close event doesn't have event data
+      if (data && data.event && data.sender) {
+        PublicEventsInstance._anyListener(data, callback);
+      } else {
+        EventsInstance._anyListener(data, callback);
+      }
+    });
   }
 
   return AP$2;
