@@ -5054,6 +5054,68 @@
 	  }
 	};
 
+	var Dropdown = function () {
+	  function Dropdown() {
+	    classCallCheck(this, Dropdown);
+
+	    console.log("RUNNING", arguments, this);
+	  }
+
+	  createClass(Dropdown, [{
+	    key: "getSelected",
+	    value: function getSelected() {}
+	  }, {
+	    key: "hide",
+	    value: function hide() {}
+	  }, {
+	    key: "isVisible",
+	    value: function isVisible() {}
+	  }, {
+	    key: "moveDown",
+	    value: function moveDown() {}
+	  }, {
+	    key: "moveUp",
+	    value: function moveUp() {}
+	  }, {
+	    key: "onHide",
+	    value: function onHide() {}
+	  }, {
+	    key: "onSelect",
+	    value: function onSelect() {}
+	  }, {
+	    key: "query",
+	    value: function query() {}
+	  }, {
+	    key: "select",
+	    value: function select() {}
+	  }, {
+	    key: "setItems",
+	    value: function setItems(items, callback) {}
+	  }, {
+	    key: "showAt",
+	    value: function showAt() {}
+	  }]);
+	  return Dropdown;
+	}();
+
+	// export default {
+	//   create: {
+	//     constructor: Dropdown
+	//   },
+	//   setItems: function(){
+	//     console.log("SET ITEMS???", arguments, this);
+	//   }
+	// };
+
+
+	console.log("DEPR???");
+	var dropdown = {
+	  create: {
+	    constructor: Dropdown,
+	    setItems: Dropdown.prototype.setItems
+	  }
+	};
+
 	function create$1(extension) {
 	  var simpleXdmExtension = {
 	    addon_key: extension.addon_key,
@@ -5696,6 +5758,7 @@
 	simpleXDM$1.defineModule('events', events);
 	simpleXDM$1.defineModule('_analytics', analytics$1);
 	simpleXDM$1.defineModule('scrollPosition', scrollPosition);
+	simpleXDM$1.defineModule('dropdown', dropdown);
 
 	EventDispatcher$1.register('module-define-custom', function (data) {
 	  simpleXDM$1.defineModule(data.name, data.methods);
