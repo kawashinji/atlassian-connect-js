@@ -1293,9 +1293,11 @@
 	  }, {
 	    key: '_handleSubInit',
 	    value: function _handleSubInit(event, reg) {
+	      console.log("SUB INIT", event, reg, this._registeredExtensions);
 	      this.registerExtension(event.data.ext.id, {
 	        extension: event.data.ext
 	      });
+	      console.log("SUB INIT AFTER EXTENSION", this._registeredExtensions);
 	    }
 	  }, {
 	    key: '_handleResponse',
@@ -1360,23 +1362,23 @@
 	          })();
 	        }
 	        var method = module[fnName];
-	        if (method) {
-	          var methodArgs = data.args;
+	        var methodArgs = data.args;
+	        sendResponse._context = extension;
+	        if (typeof method === 'function') {
 	          var padLength = method.length - 1;
-	          sendResponse._context = extension;
 	          methodArgs = this._padUndefinedArguments(methodArgs, padLength);
-	          methodArgs.push(sendResponse);
-	          method.apply(module, methodArgs);
-	          if (this._registeredRequestNotifier) {
-	            this._registeredRequestNotifier.call(null, {
-	              module: data.mod,
-	              fn: data.fn,
-	              type: data.type,
-	              addon_key: reg.extension.addon_key,
-	              key: reg.extension.key,
-	              extension_id: reg.extension_id
-	            });
-	          }
+	        }
+	        methodArgs.push(sendResponse);
+	        method.apply(module, methodArgs);
+	        if (this._registeredRequestNotifier) {
+	          this._registeredRequestNotifier.call(null, {
+	            module: data.mod,
+	            fn: data.fn,
+	            type: data.type,
+	            addon_key: reg.extension.addon_key,
+	            key: reg.extension.key,
+	            extension_id: reg.extension_id
+	          });
 	        }
 	      }
 	    }
@@ -1668,6 +1670,7 @@
 
 	      if (!isValidOrigin) {
 	        util.warn("Failed to validate origin: " + event.origin);
+	        console.error("XDMRPC ERROR", isNoSourceType, sourceTypeMatches, hasExtensionUrl, isValidOrigin, event, reg);
 	      }
 	      return isValidOrigin;
 	    }
