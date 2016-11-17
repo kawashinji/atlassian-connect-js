@@ -15,6 +15,7 @@ import env from './env';
 import dialog from './dialog';
 import inlineDialog from './inline-dialog';
 import messages from './messages';
+import getData from './getData'
 
 // import cookie from './cookie';
 // import request from './request';

@@ -14,6 +14,7 @@ import rpc from './rpc';
 import statusHelper from './status-helper';
 import uiParams from '../common/ui-params';
 import uri from '../common/uri';
+import getData from './getData'
 
 /**
  * Private namespace for host-side code.
@@ -35,6 +36,7 @@ rpc.extend(inlineDialog);
 rpc.extend(loadingIndicator);
 rpc.extend(messages);
 rpc.extend(resize);
+rpc.extend(getData);
 
 export default {
     extend: rpc.extend,
