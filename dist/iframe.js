@@ -1498,7 +1498,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.22";
+      _this._version = "5.0.0-beta.23";
       _this._apiTampered = undefined;
       _this._isSubIframe = window.top !== window.parent;
       _this._onConfirmedFns = [];
@@ -2821,8 +2821,8 @@ var AP = (function () {
   if (AP$2.defineModule) {
     AP$2.defineModule('env', { resize: function resize(w, h, callback) {
         var iframe = document.getElementById(callback._context.extension_id);
-        iframe.style.width = w;
-        iframe.style.height = h;
+        iframe.style.width = w + (typeof w === 'number' ? 'px' : '');
+        iframe.style.height = h + (typeof h === 'number' ? 'px' : '');
       } });
   }
 
