@@ -4352,6 +4352,8 @@
 	    var dialog = getDialogFromContext(callback._context);
 	    if (dialog) {
 	      callback(dialog.customData);
+	    } else {
+	      callback(undefined);
 	    }
 	  },
 	  /**
@@ -5685,7 +5687,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.23';
+	  window._AP.version = '5.0.0-beta.24';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

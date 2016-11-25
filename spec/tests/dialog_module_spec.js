@@ -282,5 +282,20 @@ describe('Dialog module', () => {
       var dialog = new DialogModule.create.constructor(options, callback);
       expect(dialog.customData).toEqual(options.customData);
     });
+
+    it('callback runs even when no dialog is set', (done) => {
+      var cb = function(data){
+        expect(data).toEqual(undefined);
+        done();
+      };
+      cb._context = {
+        extension: {
+          addon_key: 'some.addon_key',
+          key: 'some.module_key',
+          options: { }
+        }
+      };
+      DialogModule.getCustomData(cb);
+    });
   });
 });

@@ -332,6 +332,8 @@ export default {
     const dialog = getDialogFromContext(callback._context);
     if (dialog) {
       callback(dialog.customData);
+    } else {
+      callback(undefined);
     }
   },
   /**
