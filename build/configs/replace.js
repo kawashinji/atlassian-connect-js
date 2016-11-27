@@ -3,7 +3,7 @@ module.exports = {
         src: ['dist/**/*.js', 'dist/**/*.html', 'dist/**/*.css', '.tmp/**/*.js'],
         overwrite: true,
         replacements: [{
-            from: /\${project.version}/,
+            from: /\${project.version}/g,
             to: '<%= pkg.version %>'
         }]
     }
