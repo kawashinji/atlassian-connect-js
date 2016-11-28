@@ -1528,7 +1528,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.23";
+      _this._version = "5.0.0-beta.24";
       _this._apiTampered = undefined;
       _this._isSubIframe = window.top !== window.parent;
       _this._onConfirmedFns = [];
@@ -2562,17 +2562,20 @@ var AP = (function () {
   function submitOrCancelEvent(name, args) {
     var handlers = dialogHandlers[name];
     var shouldClose = name !== 'close';
-
+    var context = null;
     // ignore events that are triggered by button clicks
     // allow dialog.close through for close on ESC
     if (shouldClose && typeof args.button === 'undefined') {
       return;
     }
+    if (args.button && args.button.name) {
+      context = AP$2.dialog.getButton(args.button.name);
+    }
 
     try {
       if (handlers) {
         shouldClose = handlers.reduce(function (result, cb) {
-          return cb(args) && result;
+          return cb.call(context, args) && result;
         }, shouldClose);
       }
     } catch (err) {

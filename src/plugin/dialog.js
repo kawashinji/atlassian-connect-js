@@ -57,16 +57,19 @@ function customButtonEvent(buttonIdentifier, args) {
 function submitOrCancelEvent(name, args) {
   let handlers = dialogHandlers[name];
   let shouldClose = name !== 'close';
-
+  var context = null;
   // ignore events that are triggered by button clicks
   // allow dialog.close through for close on ESC
   if (shouldClose && typeof args.button === 'undefined') {
     return;
   }
+  if(args.button && args.button.name) {
+    context = AP.dialog.getButton(args.button.name);
+  }
 
   try {
     if (handlers) {
-      shouldClose = handlers.reduce((result, cb) => cb(args) && result, shouldClose);
+      shouldClose = handlers.reduce((result, cb) => cb.call(context, args) && result, shouldClose);
     }
   } catch (err) {
     console.error(err);
