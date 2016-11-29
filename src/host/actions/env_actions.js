@@ -13,10 +13,12 @@ EventDispatcher.register('iframe-size-to-parent', function(data){
   if(data.hideFooter) {
     $el.addClass('full-size-general-page-no-footer');
     $('.ac-content-page #footer').css({display: 'none'});
-    $('.ac-content-page').css({overflow: 'hidden !important'});
-    height = $(document).height() - $('#header > nav').outerHeight();
+    $('.ac-content-page').css({overflow: 'hidden'});
+    height = $(document).height() - $('#header').outerHeight();
   } else {
-    height = $(document).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 20;
+    height = $(document).height() - $('#header').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+    $el.removeClass('full-size-general-page-no-footer');
+    $('.ac-content-page #footer').css({ display: 'block' });
   }
 
   EventDispatcher.dispatch('iframe-resize', {width: '100%', height: height + 'px', $el});
