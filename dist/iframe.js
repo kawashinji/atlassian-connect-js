@@ -297,8 +297,17 @@ var AP = (function () {
       return length > 0 && typeof args[length - 1] === 'function';
     },
     error: function error(msg) {
-      if (window.console) {
-        console.error(LOG_PREFIX + msg);
+      if (window.console && window.console.error) {
+        var outputError = [];
+
+        if (typeof msg === "string") {
+          outputError.push(LOG_PREFIX + msg);
+          outputError = outputError.concat(Array.prototype.slice.call(arguments, 1));
+        } else {
+          outputError.push(LOG_PREFIX);
+          outputError = outputError.concat(Array.prototype.slice.call(arguments));
+        }
+        window.console.error.apply(null, outputError);
       }
     },
     warn: function warn(msg) {
@@ -733,11 +742,13 @@ var AP = (function () {
           var eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
           var isSameTarget = !element.targetSpec || _this2._findRegistrations(element.targetSpec).length !== 0;
 
+          if (isSameTarget && element.targetSpec.key) {
+            isSameTarget = element.targetSpec.addon_key === extension.extension.addon_key && element.targetSpec.key === extension.extension.key;
+          }
+
           if (eventIsValid && isSameTarget) {
             executed[index] = element;
             element.targetSpec = element.targetSpec || {};
-            element.targetSpec.addon_key = extension.extension.addon_key;
-            element.targetSpec.key = extension.extension.key;
             _this2.dispatch(element.type, element.targetSpec, element.event, element.callback, message.source);
           } else if (!eventIsValid) {
             delete _this2._pendingEvents[index];
@@ -1335,7 +1346,8 @@ var AP = (function () {
     element.appendChild(element.resizeSensor);
 
     // https://bugzilla.mozilla.org/show_bug.cgi?id=548397
-    if (window.getComputedStyle && window.getComputedStyle(element).position === 'static') {
+    // do not set body to relative
+    if (element.nodeName !== 'BODY' && window.getComputedStyle && window.getComputedStyle(element).position === 'static') {
       element.style.position = 'relative';
     }
 
@@ -2568,7 +2580,7 @@ var AP = (function () {
     if (shouldClose && typeof args.button === 'undefined') {
       return;
     }
-    if (args.button && args.button.name) {
+    if (args && args.button && args.button.name) {
       context = AP$2.dialog.getButton(args.button.name);
     }
 

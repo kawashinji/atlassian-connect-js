@@ -75,7 +75,7 @@
     "base64-js": "1.2.0",
     "events": "1.1.1",
     "query-string": "4.2.3",
-    "simple-xdm": "0.7.1",
+    "simple-xdm": "0.7.5",
     "text-encoding-utf-8": "1.0.1"
   }
 }
