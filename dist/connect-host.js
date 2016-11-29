@@ -1460,11 +1460,13 @@
 	        var eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
 	        var isSameTarget = !element.targetSpec || _this2._findRegistrations(element.targetSpec).length !== 0;
 
+	        if (isSameTarget && element.targetSpec.key) {
+	          isSameTarget = element.targetSpec.addon_key === extension.extension.addon_key && element.targetSpec.key === extension.extension.key;
+	        }
+
 	        if (eventIsValid && isSameTarget) {
 	          executed[index] = element;
 	          element.targetSpec = element.targetSpec || {};
-	          element.targetSpec.addon_key = extension.extension.addon_key;
-	          element.targetSpec.key = extension.extension.key;
 	          _this2.dispatch(element.type, element.targetSpec, element.event, element.callback, message.source);
 	        } else if (!eventIsValid) {
 	          delete _this2._pendingEvents[index];
@@ -1779,7 +1781,14 @@
 	      var data = {
 	        extension_id: extension_id,
 	        api: this._xdm.getApiSpec(),
-	        origin: util.locationOrigin(),
+	        /**
+	         * Note to Chris & Ziming:
+	         * The reason I need to change this is because in iframe in iframe case
+	         * this function is executed inside an iframe. Calling Utils.locationOrigin() will not get the correct host origin
+	         * as /simple-xdm/src/plugin/ap.js is expecting.
+	         * This is making macros that nested more than 2 layers fail to render.
+	         */
+	        origin: extension.hostOrigin,
 	        options: extension.options || {}
 	      };
 
@@ -5059,7 +5068,8 @@
 	    addon_key: extension.addon_key,
 	    key: extension.key,
 	    url: extension.url,
-	    options: extension.options
+	    options: extension.options,
+	    hostOrigin: extension.hostOrigin
 	  };
 	  return IframeContainerComponent.createExtension(simpleXdmExtension);
 	}

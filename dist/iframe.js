@@ -733,11 +733,13 @@ var AP = (function () {
           var eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
           var isSameTarget = !element.targetSpec || _this2._findRegistrations(element.targetSpec).length !== 0;
 
+          if (isSameTarget && element.targetSpec.key) {
+            isSameTarget = element.targetSpec.addon_key === extension.extension.addon_key && element.targetSpec.key === extension.extension.key;
+          }
+
           if (eventIsValid && isSameTarget) {
             executed[index] = element;
             element.targetSpec = element.targetSpec || {};
-            element.targetSpec.addon_key = extension.extension.addon_key;
-            element.targetSpec.key = extension.extension.key;
             _this2.dispatch(element.type, element.targetSpec, element.event, element.callback, message.source);
           } else if (!eventIsValid) {
             delete _this2._pendingEvents[index];
@@ -1052,7 +1054,14 @@ var AP = (function () {
         var data = {
           extension_id: extension_id,
           api: this._xdm.getApiSpec(),
-          origin: util.locationOrigin(),
+          /**
+           * Note to Chris & Ziming:
+           * The reason I need to change this is because in iframe in iframe case
+           * this function is executed inside an iframe. Calling Utils.locationOrigin() will not get the correct host origin
+           * as /simple-xdm/src/plugin/ap.js is expecting.
+           * This is making macros that nested more than 2 layers fail to render.
+           */
+          origin: extension.hostOrigin,
           options: extension.options || {}
         };
 
@@ -1521,8 +1530,11 @@ var AP = (function () {
 
       ConfigurationOptions$1.set(options);
       _this._data = _this._parseInitData();
+      _this._host = _this._getHostFrame(_this._data.hostFrameOffset);
+      if (_this._host !== window.top) {
+        _this._verifyHostFrameOffset();
+      }
       ConfigurationOptions$1.set(_this._data.options);
-      _this._host = window.parent || window;
       _this._isKeyDownBound = false;
       _this._hostModules = {};
       _this._eventHandlers = {};
@@ -1530,7 +1542,7 @@ var AP = (function () {
       _this._keyListeners = [];
       _this._version = "5.0.0-beta.23";
       _this._apiTampered = undefined;
-      _this._isSubIframe = window.top !== window.parent;
+      _this._isSubIframe = _this._host !== window.parent;
       _this._onConfirmedFns = [];
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
@@ -1546,9 +1558,6 @@ var AP = (function () {
 
       if (_this._data.origin) {
         _this._sendInit(_this._host);
-        if (_this._isSubIframe) {
-          _this._sendInit(window.top);
-        }
       }
       _this._registerOnUnload();
       _this.resize = util._bind(_this, function (width, height) {
@@ -1570,6 +1579,43 @@ var AP = (function () {
     }
 
     createClass(AP, [{
+      key: '_getHostFrame',
+      value: function _getHostFrame(offset) {
+        // Climb up the iframe tree to find the real host
+        if (typeof offset === 'number') {
+          var hostFrame = window;
+          for (var i = 0; i < offset; i++) {
+            hostFrame = hostFrame.parent;
+          }
+          return hostFrame;
+        } else {
+          return window.top;
+        }
+      }
+    }, {
+      key: '_verifyHostFrameOffset',
+      value: function _verifyHostFrameOffset() {
+        // Asynchronously verify the host frame option with window.top
+        var offset = this._data.hostFrameOffset;
+        var that = this;
+
+        var callback = function callback(e) {
+          if (e.source === window.top && e.data && typeof e.data.hostFrameOffset === 'number') {
+            console.debug('XDM: Received offset verification from window.top with hostFrameOffset: ' + e.data.hostFrameOffset);
+            window.removeEventListener('message', callback);
+
+            if (that._getHostFrame(e.data.hostFrameOffset) !== that._host) {
+              console.error('hostFrameOffset tampering detected, setting host frame to window.top');
+              that._host = window.top;
+            }
+          }
+        };
+        window.addEventListener('message', callback);
+
+        window.top.postMessage({ requestHostFrameOffset: true }, '*');
+        console.debug('XDM: hostFrameOffset verification message sent to window.top');
+      }
+    }, {
       key: '_handleApiTamper',
       value: function _handleApiTamper(event) {
         if (event.data.tampered !== false) {
@@ -1731,7 +1777,7 @@ var AP = (function () {
           var targetOrigin = '*';
           var target;
           if (that._findTarget(methodData.mod, methodData.fn) === 'top') {
-            target = window.top;
+            target = that._host;
           } else {
             target = that._host;
             targetOrigin = that._data.origin;
@@ -1765,7 +1811,7 @@ var AP = (function () {
           try {
             pendingCallback.apply(window, data.args);
           } catch (e) {
-            util.error('exception thrown in callback', e);
+            util.error(e.message, e.stack);
           }
         }
       }
@@ -1864,7 +1910,7 @@ var AP = (function () {
           return true;
         }
 
-        if (this._isSubIframe && event.source === window.top) {
+        if (this._isSubIframe && event.source === this._host) {
           return true;
         }
 
@@ -1874,7 +1920,7 @@ var AP = (function () {
       key: '_sendInit',
       value: function _sendInit(frame) {
         var targets;
-        if (frame === window.top && window.top !== window.parent) {
+        if (frame === this._host && this._host !== window.parent) {
           targets = ConfigurationOptions$1.get('targets');
         }
 
