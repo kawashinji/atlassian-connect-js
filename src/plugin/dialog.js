@@ -63,7 +63,7 @@ function submitOrCancelEvent(name, args) {
   if (shouldClose && typeof args.button === 'undefined') {
     return;
   }
-  if(args.button && args.button.name) {
+  if(args && args.button && args.button.name) {
     context = AP.dialog.getButton(args.button.name);
   }
 

@@ -2580,7 +2580,7 @@ var AP = (function () {
     if (shouldClose && typeof args.button === 'undefined') {
       return;
     }
-    if (args.button && args.button.name) {
+    if (args && args.button && args.button.name) {
       context = AP$2.dialog.getButton(args.button.name);
     }
 
