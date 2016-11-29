@@ -1024,8 +1024,17 @@
 	    return length > 0 && typeof args[length - 1] === 'function';
 	  },
 	  error: function error(msg) {
-	    if (window.console) {
-	      console.error(LOG_PREFIX + msg);
+	    if (window.console && window.console.error) {
+	      var outputError = [];
+
+	      if (typeof msg === "string") {
+	        outputError.push(LOG_PREFIX + msg);
+	        outputError = outputError.concat(Array.prototype.slice.call(arguments, 1));
+	      } else {
+	        outputError.push(LOG_PREFIX);
+	        outputError = outputError.concat(Array.prototype.slice.call(arguments));
+	      }
+	      window.console.error.apply(null, outputError);
 	    }
 	  },
 	  warn: function warn(msg) {
@@ -1460,11 +1469,13 @@
 	        var eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
 	        var isSameTarget = !element.targetSpec || _this2._findRegistrations(element.targetSpec).length !== 0;
 
+	        if (isSameTarget && element.targetSpec.key) {
+	          isSameTarget = element.targetSpec.addon_key === extension.extension.addon_key && element.targetSpec.key === extension.extension.key;
+	        }
+
 	        if (eventIsValid && isSameTarget) {
 	          executed[index] = element;
 	          element.targetSpec = element.targetSpec || {};
-	          element.targetSpec.addon_key = extension.extension.addon_key;
-	          element.targetSpec.key = extension.extension.key;
 	          _this2.dispatch(element.type, element.targetSpec, element.event, element.callback, message.source);
 	        } else if (!eventIsValid) {
 	          delete _this2._pendingEvents[index];
@@ -4401,10 +4412,12 @@
 	  if (data.hideFooter) {
 	    $el.addClass('full-size-general-page-no-footer');
 	    $('.ac-content-page #footer').css({ display: 'none' });
-	    $('.ac-content-page').css({ overflow: 'hidden !important' });
-	    height = $(document).height() - $('#header > nav').outerHeight();
+	    $('.ac-content-page').css({ overflow: 'hidden' });
+	    height = $(document).height() - $('#header').outerHeight();
 	  } else {
-	    height = $(document).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 20;
+	    height = $(document).height() - $('#header').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+	    $el.removeClass('full-size-general-page-no-footer');
+	    $('.ac-content-page #footer').css({ display: 'block' });
 	  }
 
 	  EventDispatcher$1.dispatch('iframe-resize', { width: '100%', height: height + 'px', $el: $el });
