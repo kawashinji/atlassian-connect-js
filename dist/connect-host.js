@@ -4413,9 +4413,9 @@
 	    $el.addClass('full-size-general-page-no-footer');
 	    $('.ac-content-page #footer').css({ display: 'none' });
 	    $('.ac-content-page').css({ overflow: 'hidden' });
-	    height = $(document).height() - $('#header').outerHeight();
+	    height = $(document).height() - $('#header > nav').outerHeight();
 	  } else {
-	    height = $(document).height() - $('#header').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+	    height = $(document).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
 	    $el.removeClass('full-size-general-page-no-footer');
 	    $('.ac-content-page #footer').css({ display: 'block' });
 	  }
@@ -5700,7 +5700,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.24';
+	  window._AP.version = '5.0.0-beta.25';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
