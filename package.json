@@ -77,5 +77,18 @@
     "query-string": "4.2.3",
     "simple-xdm": "0.7.5",
     "text-encoding-utf-8": "1.0.1"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015",
+            "stage-2"
+          ]
+        }
+      ]
+    ]
   }
 }
