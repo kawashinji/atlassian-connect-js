@@ -5193,6 +5193,11 @@
 	    value: function getExtensions(filter) {
 	      return simpleXDM$1.getExtensions(filter);
 	    }
+	  }, {
+	    key: 'trackDeprecatedMethodUsed',
+	    value: function trackDeprecatedMethodUsed(methodUsed, extension) {
+	      analytics.trackDeprecatedMethodUsed(methodUsed, extension);
+	    }
 	  }]);
 	  return HostApi;
 	}();
