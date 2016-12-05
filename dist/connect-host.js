@@ -5196,7 +5196,7 @@
 	  }, {
 	    key: 'trackDeprecatedMethodUsed',
 	    value: function trackDeprecatedMethodUsed(methodUsed, extension) {
-	      analytics.trackDeprecatedMethodUsed(methodUsed, extension);
+	      analytics.trackUseOfDeprecatedMethod(methodUsed, extension);
 	    }
 	  }]);
 	  return HostApi;

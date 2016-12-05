@@ -95,7 +95,7 @@ class HostApi {
   }
 
   trackDeprecatedMethodUsed(methodUsed, extension) {
-    AnalyticsDispatcher.trackDeprecatedMethodUsed(methodUsed, extension);
+    AnalyticsDispatcher.trackUseOfDeprecatedMethod(methodUsed, extension);
   }
 }
 
