@@ -8,7 +8,7 @@ import ModuleActions from './actions/module_actions';
 import EventActions from './actions/event_actions';
 import simpleXDM from 'simple-xdm/host';
 import IframeActions from './actions/iframe_actions';
-import AnalyticsDispatcher from './dispatchers/analytics_dispatcher';
+import AnalyticsAction from './actions/analytics_action';
 
 class HostApi {
   constructor(){
@@ -95,7 +95,7 @@ class HostApi {
   }
 
   trackDeprecatedMethodUsed(methodUsed, extension) {
-    AnalyticsDispatcher.trackUseOfDeprecatedMethod(methodUsed, extension);
+    AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
   }
 }
 
