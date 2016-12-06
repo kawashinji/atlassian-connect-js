@@ -1281,10 +1281,11 @@ var AP = (function () {
         h,
         docHeight;
     var widthInPx = Boolean(ConfigurationOptions$1.get('widthinpx'));
-
+    container = container || getContainer();
     if (!container) {
-      container = getContainer();
+      util.warn('size called before container or body appeared, ignoring');
     }
+
     if (widthInPx && typeof w === "string" && w.search('%') !== -1) {
       w = Math.max(container.scrollWidth, container.offsetWidth, container.clientWidth);
     }
@@ -1564,6 +1565,10 @@ var AP = (function () {
       }
       _this._registerOnUnload();
       _this.resize = util._bind(_this, function (width, height) {
+        if (!getContainer()) {
+          util.warn('resize called before container or body appeared, ignoring');
+          return;
+        }
         var dimensions = size();
         if (!width) {
           width = dimensions.w;
