@@ -1372,10 +1372,14 @@
 	        if (method) {
 	          var methodArgs = data.args;
 	          var padLength = method.length - 1;
+	          if ((typeof method === 'undefined' ? 'undefined' : _typeof(method)) === 'object' && method.constructor) {
+	            padLength = method.constructor.length - 1;
+	          }
 	          sendResponse._context = extension;
 	          methodArgs = this._padUndefinedArguments(methodArgs, padLength);
 	          methodArgs.push(sendResponse);
 	          method.apply(module, methodArgs);
+
 	          if (this._registeredRequestNotifier) {
 	            this._registeredRequestNotifier.call(null, {
 	              module: data.mod,
@@ -4669,6 +4673,7 @@
 	    constructor: function constructor(title, body, options, callback) {
 	      callback = _.last(arguments);
 	      var _id = callback._id;
+	      options = options || {};
 	      options.id = MSGID_PREFIX + _id;
 	      deprecatedShowMessage(messageType, title, body, options, callback);
 	      _messages[_id] = this;

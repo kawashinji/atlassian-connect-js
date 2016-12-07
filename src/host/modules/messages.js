@@ -89,6 +89,7 @@ function messageModule(messageType) {
     constructor: function(title, body, options, callback) {
       callback = _.last(arguments);
       const _id = callback._id;
+      options = options || {};
       options.id = MSGID_PREFIX + _id;
       deprecatedShowMessage(messageType, title, body, options, callback);
       _messages[_id] = this;
