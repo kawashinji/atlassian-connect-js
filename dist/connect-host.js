@@ -1050,6 +1050,18 @@
 	      return fn.apply(thisp, arguments);
 	    };
 	  },
+	  debounce: function debounce(fn, wait, context) {
+	    var timeout = null;
+	    var callbackArgs = null;
+	    var later = function later() {
+	      return fn.apply(context, callbackArgs);
+	    };
+	    return function () {
+	      callbackArgs = arguments;
+	      clearTimeout(timeout);
+	      timeout = setTimeout(later, wait);
+	    };
+	  },
 	  each: function each(list, iteratee) {
 	    var length;
 	    var key;
@@ -4446,7 +4458,7 @@
 	  }
 	};
 
-	var debounce = AJS.debounce || $.debounce;
+	var debounce$1 = AJS.debounce || $.debounce;
 	var resizeFuncHolder = {};
 	/**
 	 * Utility methods that are available without requiring additional modules.
@@ -4491,9 +4503,9 @@
 	    }
 
 	    if (!resizeFuncHolder[iframeId]) {
-	      resizeFuncHolder[iframeId] = debounce(function (dwidth, dheight, dcallback) {
+	      resizeFuncHolder[iframeId] = debounce$1(function (dwidth, dheight, dcallback) {
 	        EnvActions.iframeResize(dwidth, dheight, dcallback._context);
-	      });
+	      }, 50);
 	    }
 
 	    resizeFuncHolder[iframeId](width, height, callback);
@@ -4506,7 +4518,7 @@
 	   * @method
 	   * @param {boolean} hideFooter true if the footer is supposed to be hidden
 	   */
-	  sizeToParent: debounce(function (hideFooter, callback) {
+	  sizeToParent: debounce$1(function (hideFooter, callback) {
 	    callback = _.last(arguments);
 	    // sizeToParent is only available for general-pages
 	    if (callback._context.extension.options.isFullPage) {
@@ -5705,7 +5717,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.27';
+	  window._AP.version = '5.0.0-beta.28';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

@@ -323,6 +323,18 @@ var AP = (function () {
         return fn.apply(thisp, arguments);
       };
     },
+    debounce: function debounce(fn, wait, context) {
+      var timeout = null;
+      var callbackArgs = null;
+      var later = function later() {
+        return fn.apply(context, callbackArgs);
+      };
+      return function () {
+        callbackArgs = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    },
     each: function each(list, iteratee) {
       var length;
       var key;
@@ -1415,6 +1427,10 @@ var AP = (function () {
     function AutoResizeAction(callback) {
       classCallCheck(this, AutoResizeAction);
 
+      this.resizeError = util.debounce(function (msg) {
+        console.info(msg);
+      }, 1000);
+
       this.dimensionStores = {
         width: [],
         height: []
@@ -1449,14 +1465,14 @@ var AP = (function () {
         var isFlickerHeight = this._isFlicker(dimensions.h, 'height', now);
         if (isFlickerWidth) {
           dimensions.w = "100%";
-          console.error("SIMPLE XDM: auto resize flickering width detected, setting to 100%");
+          this.resizeError("SIMPLE XDM: auto resize flickering width detected, setting to 100%");
         }
         if (isFlickerHeight) {
           var vals = this.dimensionStores['height'].map(function (x) {
             return x.val;
           });
           dimensions.h = Math.max.apply(null, vals) + 'px';
-          console.error("SIMPLE XDM: auto resize flickering height detected, setting to: " + dimensions.h);
+          this.resizeError("SIMPLE XDM: auto resize flickering height detected, setting to: " + dimensions.h);
         }
         this.callback(dimensions.w, dimensions.h);
       }
@@ -1541,7 +1557,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.27";
+      _this._version = "5.0.0-beta.28";
       _this._apiTampered = undefined;
       _this._isSubIframe = window.top !== window.parent;
       _this._onConfirmedFns = [];
