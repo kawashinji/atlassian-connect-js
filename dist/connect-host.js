@@ -1050,16 +1050,14 @@
 	      return fn.apply(thisp, arguments);
 	    };
 	  },
-	  debounce: function debounce(fn, wait, context) {
-	    var timeout = null;
-	    var callbackArgs = null;
-	    var later = function later() {
-	      return fn.apply(context, callbackArgs);
-	    };
+	  throttle: function throttle(func, wait, context) {
+	    var previous = 0;
 	    return function () {
-	      callbackArgs = arguments;
-	      clearTimeout(timeout);
-	      timeout = setTimeout(later, wait);
+	      var now = Date.now();
+	      if (now - previous > wait) {
+	        previous = now;
+	        func.apply(context, arguments);
+	      }
 	    };
 	  },
 	  each: function each(list, iteratee) {
@@ -1384,10 +1382,14 @@
 	        if (method) {
 	          var methodArgs = data.args;
 	          var padLength = method.length - 1;
+	          if (fnName === '_construct') {
+	            padLength = module.constructor.length - 1;
+	          }
 	          sendResponse._context = extension;
 	          methodArgs = this._padUndefinedArguments(methodArgs, padLength);
 	          methodArgs.push(sendResponse);
 	          method.apply(module, methodArgs);
+
 	          if (this._registeredRequestNotifier) {
 	            this._registeredRequestNotifier.call(null, {
 	              module: data.mod,
@@ -4458,7 +4460,7 @@
 	  }
 	};
 
-	var debounce$1 = AJS.debounce || $.debounce;
+	var debounce = AJS.debounce || $.debounce;
 	var resizeFuncHolder = {};
 	/**
 	 * Utility methods that are available without requiring additional modules.
@@ -4503,7 +4505,7 @@
 	    }
 
 	    if (!resizeFuncHolder[iframeId]) {
-	      resizeFuncHolder[iframeId] = debounce$1(function (dwidth, dheight, dcallback) {
+	      resizeFuncHolder[iframeId] = debounce(function (dwidth, dheight, dcallback) {
 	        EnvActions.iframeResize(dwidth, dheight, dcallback._context);
 	      }, 50);
 	    }
@@ -4518,7 +4520,7 @@
 	   * @method
 	   * @param {boolean} hideFooter true if the footer is supposed to be hidden
 	   */
-	  sizeToParent: debounce$1(function (hideFooter, callback) {
+	  sizeToParent: debounce(function (hideFooter, callback) {
 	    callback = _.last(arguments);
 	    // sizeToParent is only available for general-pages
 	    if (callback._context.extension.options.isFullPage) {
