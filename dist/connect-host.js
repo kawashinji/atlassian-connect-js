@@ -4683,6 +4683,12 @@
 	    constructor: function constructor(title, body, options, callback) {
 	      callback = _.last(arguments);
 	      var _id = callback._id;
+	      if (typeof title !== 'string') {
+	        title = '';
+	      }
+	      if (typeof body !== 'string') {
+	        body = '';
+	      }
 	      if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
 	        options = {};
 	      }
@@ -4943,6 +4949,9 @@
 	    classCallCheck(this, Flag);
 
 	    callback = _.last(arguments);
+	    if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
+	      return;
+	    }
 	    this.flag = FlagComponent.render({
 	      type: options.type,
 	      title: options.title,

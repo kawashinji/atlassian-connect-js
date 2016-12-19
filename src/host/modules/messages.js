@@ -89,6 +89,12 @@ function messageModule(messageType) {
     constructor: function(title, body, options, callback) {
       callback = _.last(arguments);
       const _id = callback._id;
+      if(typeof title !== 'string') {
+        title = '';
+      }
+      if(typeof body !== 'string') {
+        body = '';
+      }
       if(typeof options !== 'object') {
         options = {};
       }
