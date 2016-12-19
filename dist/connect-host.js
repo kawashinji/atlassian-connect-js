@@ -4683,6 +4683,9 @@
 	    constructor: function constructor(title, body, options, callback) {
 	      callback = _.last(arguments);
 	      var _id = callback._id;
+	      if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
+	        options = {};
+	      }
 	      options.id = MSGID_PREFIX + _id;
 	      deprecatedShowMessage(messageType, title, body, options, callback);
 	      _messages[_id] = this;
