@@ -34,7 +34,7 @@ describe('Module methods with variable args', () => {
           // -1 because last arg is always callback
           for(var i=0; i<fn.length-1; i++) {
             var args = [];
-            args.fill(undefined, 0, i);
+            args = (i > 0) ? args.concat(new Array(i)) : args;
             args.push(fakeCallback);
             expect(function(){
               if(isClass) {
