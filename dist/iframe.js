@@ -1351,6 +1351,14 @@ var AP = (function () {
       return;
     }
 
+    // padding / margins on the body causes numerous resizing bugs.
+    if (element.nodeName === 'BODY') {
+      ['padding', 'margin'].forEach(function (attr) {
+        element.style[attr + '-bottom'] = '0px';
+        element.style[attr + '-top'] = '0px';
+      }, this);
+    }
+
     element.resizeSensor = document.createElement('div');
     element.resizeSensor.className = 'ac-resize-sensor';
     var style = 'position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: scroll; z-index: -1; visibility: hidden;';
@@ -1407,6 +1415,7 @@ var AP = (function () {
     };
 
     var observer = new MutationObserver(onScroll);
+    element.resizeObserver = observer;
     observer.observe(element, observerConfig);
   }
 
@@ -1418,6 +1427,7 @@ var AP = (function () {
     remove: function remove() {
       var container = getContainer();
       if (container.resizeSensor) {
+        container.resizeObserver.disconnect();
         container.removeChild(container.resizeSensor);
         delete container.resizeSensor;
         delete container.resizedAttached;
@@ -2011,19 +2021,21 @@ var AP = (function () {
 
       //write plugin modules to host.
       var moduleSpec = plugin._data.api;
-      Object.getOwnPropertyNames(moduleSpec).forEach(function (moduleName) {
-        var accumulator = {};
-        Object.getOwnPropertyNames(moduleSpec[moduleName]).forEach(function (methodName) {
-          if (moduleSpec[moduleName][methodName].hasOwnProperty('constructor')) {
-            accumulator[methodName] = {
-              constructor: plugin._hostModules[moduleName][methodName]
-            };
-          } else {
-            accumulator[methodName] = plugin._hostModules[moduleName][methodName];
-          }
-        }, this);
-        this._xdm.defineAPIModule(accumulator, moduleName);
-      }, _this);
+      if ((typeof moduleSpec === 'undefined' ? 'undefined' : _typeof(moduleSpec)) === 'object') {
+        Object.getOwnPropertyNames(moduleSpec).forEach(function (moduleName) {
+          var accumulator = {};
+          Object.getOwnPropertyNames(moduleSpec[moduleName]).forEach(function (methodName) {
+            if (moduleSpec[moduleName][methodName].hasOwnProperty('constructor')) {
+              accumulator[methodName] = {
+                constructor: plugin._hostModules[moduleName][methodName]
+              };
+            } else {
+              accumulator[methodName] = plugin._hostModules[moduleName][methodName];
+            }
+          }, this);
+          this._xdm.defineAPIModule(accumulator, moduleName);
+        }, _this);
+      }
 
       _this._hostModules = plugin._hostModules;
 
