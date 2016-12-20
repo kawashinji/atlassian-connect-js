@@ -323,6 +323,16 @@ var AP = (function () {
         return fn.apply(thisp, arguments);
       };
     },
+    throttle: function throttle(func, wait, context) {
+      var previous = 0;
+      return function () {
+        var now = Date.now();
+        if (now - previous > wait) {
+          previous = now;
+          func.apply(context, arguments);
+        }
+      };
+    },
     each: function each(list, iteratee) {
       var length;
       var key;
@@ -645,10 +655,14 @@ var AP = (function () {
           if (method) {
             var methodArgs = data.args;
             var padLength = method.length - 1;
+            if (fnName === '_construct') {
+              padLength = module.constructor.length - 1;
+            }
             sendResponse._context = extension;
             methodArgs = this._padUndefinedArguments(methodArgs, padLength);
             methodArgs.push(sendResponse);
             method.apply(module, methodArgs);
+
             if (this._registeredRequestNotifier) {
               this._registeredRequestNotifier.call(null, {
                 module: data.mod,
@@ -1337,6 +1351,14 @@ var AP = (function () {
       return;
     }
 
+    // padding / margins on the body causes numerous resizing bugs.
+    if (element.nodeName === 'BODY') {
+      ['padding', 'margin'].forEach(function (attr) {
+        element.style[attr + '-bottom'] = '0px';
+        element.style[attr + '-top'] = '0px';
+      }, this);
+    }
+
     element.resizeSensor = document.createElement('div');
     element.resizeSensor.className = 'ac-resize-sensor';
     var style = 'position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: scroll; z-index: -1; visibility: hidden;';
@@ -1393,6 +1415,7 @@ var AP = (function () {
     };
 
     var observer = new MutationObserver(onScroll);
+    element.resizeObserver = observer;
     observer.observe(element, observerConfig);
   }
 
@@ -1404,6 +1427,7 @@ var AP = (function () {
     remove: function remove() {
       var container = getContainer();
       if (container.resizeSensor) {
+        container.resizeObserver.disconnect();
         container.removeChild(container.resizeSensor);
         delete container.resizeSensor;
         delete container.resizedAttached;
@@ -1414,6 +1438,10 @@ var AP = (function () {
   var AutoResizeAction = function () {
     function AutoResizeAction(callback) {
       classCallCheck(this, AutoResizeAction);
+
+      this.resizeError = util.throttle(function (msg) {
+        console.info(msg);
+      }, 1000);
 
       this.dimensionStores = {
         width: [],
@@ -1449,14 +1477,14 @@ var AP = (function () {
         var isFlickerHeight = this._isFlicker(dimensions.h, 'height', now);
         if (isFlickerWidth) {
           dimensions.w = "100%";
-          console.error("SIMPLE XDM: auto resize flickering width detected, setting to 100%");
+          this.resizeError("SIMPLE XDM: auto resize flickering width detected, setting to 100%");
         }
         if (isFlickerHeight) {
           var vals = this.dimensionStores['height'].map(function (x) {
             return x.val;
           });
           dimensions.h = Math.max.apply(null, vals) + 'px';
-          console.error("SIMPLE XDM: auto resize flickering height detected, setting to: " + dimensions.h);
+          this.resizeError("SIMPLE XDM: auto resize flickering height detected, setting to: " + dimensions.h);
         }
         this.callback(dimensions.w, dimensions.h);
       }
@@ -1536,12 +1564,13 @@ var AP = (function () {
       _this._data = _this._parseInitData();
       ConfigurationOptions$1.set(_this._data.options);
       _this._host = window.parent || window;
+      _this._top = window.top;
       _this._isKeyDownBound = false;
       _this._hostModules = {};
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.27";
+      _this._version = "5.0.0-beta.28";
       _this._apiTampered = undefined;
       _this._isSubIframe = window.top !== window.parent;
       _this._onConfirmedFns = [];
@@ -1560,7 +1589,7 @@ var AP = (function () {
       if (_this._data.origin) {
         _this._sendInit(_this._host);
         if (_this._isSubIframe) {
-          _this._sendInit(window.top);
+          _this._sendInit(_this._top);
         }
       }
       _this._registerOnUnload();
@@ -1605,11 +1634,17 @@ var AP = (function () {
       key: '_registerOnUnload',
       value: function _registerOnUnload() {
         $.bind(window, 'unload', util._bind(this, function () {
-          this._host.postMessage({
-            eid: this._data.extension_id,
-            type: 'unload'
-          }, this._data.origin || '*');
+          this._sendUnload(this._host, this._data.origin);
+          this._sendUnload(this._top);
         }));
+      }
+    }, {
+      key: '_sendUnload',
+      value: function _sendUnload(frame, origin) {
+        frame.postMessage({
+          eid: this._data.extension_id,
+          type: 'unload'
+        }, origin || '*');
       }
     }, {
       key: '_bindKeyDown',
@@ -1674,8 +1709,7 @@ var AP = (function () {
           } else {
             accumulator[memberName] = _this2._createMethodHandler({
               mod: moduleName,
-              fn: memberName,
-              target: _this2._findTarget(moduleName, memberName)
+              fn: memberName
             });
           }
           return accumulator;
@@ -1986,10 +2020,22 @@ var AP = (function () {
       }, _this);
 
       //write plugin modules to host.
-      Object.getOwnPropertyNames(plugin._hostModules).forEach(function (moduleName) {
-        this[moduleName] = plugin._hostModules[moduleName];
-        this._xdm.defineAPIModule(plugin._hostModules[moduleName], moduleName);
-      }, _this);
+      var moduleSpec = plugin._data.api;
+      if ((typeof moduleSpec === 'undefined' ? 'undefined' : _typeof(moduleSpec)) === 'object') {
+        Object.getOwnPropertyNames(moduleSpec).forEach(function (moduleName) {
+          var accumulator = {};
+          Object.getOwnPropertyNames(moduleSpec[moduleName]).forEach(function (methodName) {
+            if (moduleSpec[moduleName][methodName].hasOwnProperty('constructor')) {
+              accumulator[methodName] = {
+                constructor: plugin._hostModules[moduleName][methodName]
+              };
+            } else {
+              accumulator[methodName] = plugin._hostModules[moduleName][methodName];
+            }
+          }, this);
+          this._xdm.defineAPIModule(accumulator, moduleName);
+        }, _this);
+      }
 
       _this._hostModules = plugin._hostModules;
 

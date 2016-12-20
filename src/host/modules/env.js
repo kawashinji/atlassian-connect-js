@@ -51,7 +51,7 @@ export default {
     if(!resizeFuncHolder[iframeId]){
       resizeFuncHolder[iframeId] = debounce(function(dwidth, dheight, dcallback){
         EnvActions.iframeResize(dwidth, dheight, dcallback._context);
-      });
+      }, 50);
     }
 
     resizeFuncHolder[iframeId](width, height, callback);

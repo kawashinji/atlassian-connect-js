@@ -1,6 +1,6 @@
 {
   "name": "atlassian-connect-js",
-  "version": "5.0.0-beta.27",
+  "version": "5.0.0-beta.28",
   "license": "Apache-2.0",
   "description": "Atlassian Connect JavaScript bridge",
   "main": "dist/connect-host.js",
@@ -14,10 +14,10 @@
   },
   "devDependencies": {
     "@atlassian/eslint-config-atlassian-fecq": "2.0.3",
-    "babel-core": "6.18.2",
+    "babel-core": "6.20.0",
     "babel-loader": "6.2.7",
     "babel-preset-es2015": "6.18.0",
-    "babel-preset-es2015-rollup": "1.2.0",
+    "babel-preset-es2015-rollup": "3.0.0",
     "babel-preset-stage-2": "6.18.0",
     "babelify": "7.3.0",
     "browserify": "13.1.1",
@@ -57,7 +57,7 @@
     "node-libs-browser": "1.0.0",
     "qunitjs": "2.0.1",
     "rollup": "0.36.3",
-    "rollup-plugin-babel": "2.6.1",
+    "rollup-plugin-babel": "2.7.1",
     "rollup-plugin-commonjs": "5.0.5",
     "rollup-plugin-node-builtins": "2.0.0",
     "rollup-plugin-node-resolve": "2.0.0",
@@ -75,7 +75,7 @@
     "base64-js": "1.2.0",
     "events": "1.1.1",
     "query-string": "4.2.3",
-    "simple-xdm": "0.7.6",
+    "simple-xdm": "0.7.11",
     "text-encoding-utf-8": "1.0.1"
   },
   "browserify": {

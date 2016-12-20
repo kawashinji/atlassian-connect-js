@@ -1050,6 +1050,16 @@
 	      return fn.apply(thisp, arguments);
 	    };
 	  },
+	  throttle: function throttle(func, wait, context) {
+	    var previous = 0;
+	    return function () {
+	      var now = Date.now();
+	      if (now - previous > wait) {
+	        previous = now;
+	        func.apply(context, arguments);
+	      }
+	    };
+	  },
 	  each: function each(list, iteratee) {
 	    var length;
 	    var key;
@@ -1372,10 +1382,14 @@
 	        if (method) {
 	          var methodArgs = data.args;
 	          var padLength = method.length - 1;
+	          if (fnName === '_construct') {
+	            padLength = module.constructor.length - 1;
+	          }
 	          sendResponse._context = extension;
 	          methodArgs = this._padUndefinedArguments(methodArgs, padLength);
 	          methodArgs.push(sendResponse);
 	          method.apply(module, methodArgs);
+
 	          if (this._registeredRequestNotifier) {
 	            this._registeredRequestNotifier.call(null, {
 	              module: data.mod,
@@ -4493,7 +4507,7 @@
 	    if (!resizeFuncHolder[iframeId]) {
 	      resizeFuncHolder[iframeId] = debounce(function (dwidth, dheight, dcallback) {
 	        EnvActions.iframeResize(dwidth, dheight, dcallback._context);
-	      });
+	      }, 50);
 	    }
 
 	    resizeFuncHolder[iframeId](width, height, callback);
@@ -4669,6 +4683,15 @@
 	    constructor: function constructor(title, body, options, callback) {
 	      callback = _.last(arguments);
 	      var _id = callback._id;
+	      if (typeof title !== 'string') {
+	        title = '';
+	      }
+	      if (typeof body !== 'string') {
+	        body = '';
+	      }
+	      if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
+	        options = {};
+	      }
 	      options.id = MSGID_PREFIX + _id;
 	      deprecatedShowMessage(messageType, title, body, options, callback);
 	      _messages[_id] = this;
@@ -4926,6 +4949,9 @@
 	    classCallCheck(this, Flag);
 
 	    callback = _.last(arguments);
+	    if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
+	      return;
+	    }
 	    this.flag = FlagComponent.render({
 	      type: options.type,
 	      title: options.title,
@@ -5705,7 +5731,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.27';
+	  window._AP.version = '5.0.0-beta.28';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

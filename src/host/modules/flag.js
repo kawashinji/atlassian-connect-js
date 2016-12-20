@@ -18,6 +18,9 @@ const _flags = {};
 class Flag {
   constructor(options, callback) {
     callback = _.last(arguments);
+    if(typeof options !== 'object') {
+      return;
+    }
     this.flag = FlagComponent.render({
       type: options.type,
       title: options.title,
