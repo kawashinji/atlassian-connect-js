@@ -1570,7 +1570,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.28";
+      _this._version = "5.0.0-beta.29";
       _this._apiTampered = undefined;
       _this._isSubIframe = window.top !== window.parent;
       _this._onConfirmedFns = [];
@@ -1658,7 +1658,7 @@ var AP = (function () {
       key: '_autoResizer',
       value: function _autoResizer() {
         this._enableAutoResize = Boolean(ConfigurationOptions$1.get('autoresize'));
-        if (ConsumerOptions$1.get('resize') === false) {
+        if (ConsumerOptions$1.get('resize') === false || ConsumerOptions$1.get('sizeToParent') === true) {
           this._enableAutoResize = false;
         }
         if (this._enableAutoResize) {
@@ -2261,64 +2261,6 @@ var AP = (function () {
 
   var $$3 = extend$1($$2, util$1);
 
-  var ConsumerOptions$2 = function () {
-    function ConsumerOptions() {
-      classCallCheck(this, ConsumerOptions);
-    }
-
-    createClass(ConsumerOptions, [{
-      key: '_getConsumerOptions',
-      value: function _getConsumerOptions() {
-        var options = {};
-        var $script = $$3('script[src*=\'/atlassian-connect/all\']');
-
-        if (!($script && /\/atlassian-connect\/all(-debug)?\.js($|\?)/.test($script.attr('src')))) {
-          $script = $$3('#ac-iframe-options');
-        }
-
-        if ($script && $script.length > 0) {
-          // get its data-options attribute, if any
-          var optStr = $script.attr('data-options');
-          if (optStr) {
-            // if found, parse the value into kv pairs following the format of a style element
-            optStr.split(';').forEach(function (nvpair) {
-              nvpair = nvpair.trim();
-              if (nvpair) {
-                var nv = nvpair.split(':');
-                var k = nv[0].trim();
-                var v = nv[1].trim();
-                if (k && v != null) {
-                  options[k] = v === 'true' || v === 'false' ? v === 'true' : v;
-                }
-              }
-            });
-          }
-        }
-
-        return options;
-      }
-    }, {
-      key: '_flush',
-      value: function _flush() {
-        delete this._options;
-      }
-    }, {
-      key: 'get',
-      value: function get(key) {
-        if (!this._options) {
-          this._options = this._getConsumerOptions();
-        }
-        if (key) {
-          return this._options[key];
-        }
-        return this._options;
-      }
-    }]);
-    return ConsumerOptions;
-  }();
-
-  var consumerOptions = new ConsumerOptions$2();
-
   /**
    * The Events module provides a mechanism for emitting and receiving events.
    * <h3>Basic example</h3>
@@ -2867,11 +2809,11 @@ var AP = (function () {
   AP$2._hostModules._dollar = $$3;
   AP$2._hostModules['inline-dialog'] = AP$2._hostModules.inlineDialog;
 
-  if (consumerOptions.get('sizeToParent') === true) {
-    AP$2.env.sizeToParent(consumerOptions.get('hideFooter') === true);
+  if (ConsumerOptions$1.get('sizeToParent') === true) {
+    AP$2.env.sizeToParent(ConsumerOptions$1.get('hideFooter') === true);
   }
 
-  if (consumerOptions.get('base') === true) {
+  if (ConsumerOptions$1.get('base') === true) {
     AP$2.env.getLocation(function (loc) {
       $$3('head').append({ tag: 'base', href: loc, target: '_parent' });
     });
@@ -2891,7 +2833,7 @@ var AP = (function () {
   }, 'AP.require()', null, '5.0');
 
   var margin = AP$2._data.options.isDialog ? '10px 10px 0 10px' : '0';
-  if (consumerOptions.get('margin') !== false) {
+  if (ConsumerOptions$1.get('margin') !== false) {
     $$3('head').append({ tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}' });
   }
 
