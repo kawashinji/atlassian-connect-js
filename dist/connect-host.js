@@ -3170,6 +3170,8 @@
 	  }
 	};
 
+	var JWT_SKEW = 60; // in seconds.
+
 	function parseJwtIssuer(jwt) {
 	  return parseJwtClaims(jwt)['iss'];
 	}
@@ -3199,7 +3201,7 @@
 
 	function isJwtExpired$1(jwtString, skew) {
 	  if (skew === undefined) {
-	    skew = 60; // give a minute of leeway to allow clock skew
+	    skew = JWT_SKEW;
 	  }
 	  var claims = parseJwtClaims(jwtString);
 	  var expires = 0;
@@ -3215,6 +3217,10 @@
 
 	  return false;
 	}
+
+	EventDispatcher$1.register('jwt-skew-set', function (data) {
+	  JWT_SKEW = data.skew;
+	});
 
 	var jwtUtil = {
 	  parseJwtIssuer: parseJwtIssuer,
@@ -3271,6 +3277,14 @@
 	      });
 	    });
 	    EventDispatcher$1.dispatch('jwt-url-refresh-request', { data: data });
+	  },
+
+	  setClockSkew: function setClockSkew(skew) {
+	    if (typeof skew === 'number') {
+	      EventDispatcher$1.dispatch('jwt-skew-set', { skew: skew });
+	    } else {
+	      console.error('ACJS: invalid JWT clock skew set');
+	    }
 	  }
 
 	};
@@ -5223,6 +5237,11 @@
 	    key: 'trackDeprecatedMethodUsed',
 	    value: function trackDeprecatedMethodUsed(methodUsed, extension) {
 	      AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
+	    }
+	  }, {
+	    key: 'setJwtClockSkew',
+	    value: function setJwtClockSkew(skew) {
+	      jwtActions.setClockSkew(skew);
 	    }
 	  }]);
 	  return HostApi;
