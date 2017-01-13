@@ -1790,6 +1790,7 @@
 	    *     addon_key: 'my-addon',
 	    *     key: 'my-module',
 	    *     url: 'https://example.com/my-module',
+	    *     hostOrigin: 'https://confluence.atlassian.net/'
 	    *     options: { autoresize: false }
 	    *   }
 	    *
@@ -1805,6 +1806,7 @@
 	        extension_id: extension_id,
 	        api: this._xdm.getApiSpec(),
 	        origin: util.locationOrigin(),
+	        hostOrigin: extension.hostOrigin,
 	        options: extension.options || {}
 	      };
 
@@ -5100,6 +5102,7 @@
 	    addon_key: extension.addon_key,
 	    key: extension.key,
 	    url: extension.url,
+	    hostOrigin: extension.hostOrigin,
 	    options: extension.options
 	  };
 	  return IframeContainerComponent.createExtension(simpleXdmExtension);

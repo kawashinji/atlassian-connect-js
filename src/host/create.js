@@ -5,6 +5,7 @@ function create(extension) {
     addon_key: extension.addon_key,
     key: extension.key,
     url: extension.url,
+    hostOrigin: extension.hostOrigin,
     options: extension.options
   };
   return IframeContainerComponent.createExtension(simpleXdmExtension);
