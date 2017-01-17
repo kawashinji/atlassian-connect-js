@@ -535,6 +535,7 @@ var AP = (function () {
         event_query: _this._handleEventQuery,
         broadcast: _this._handleBroadcast,
         key_triggered: _this._handleKeyTriggered,
+        get_host_offset: _this._getHostOffset,
         unload: _this._handleUnload,
         sub: _this._handleSubInit
       };
@@ -588,6 +589,40 @@ var AP = (function () {
         this.registerExtension(event.data.ext.id, {
           extension: event.data.ext
         });
+      }
+    }, {
+      key: '_getHostOffset',
+      value: function _getHostOffset(event) {
+        var hostWindow = event.source;
+        var hostFrameOffset = 0;
+        while (!this._hasSameOrigin(hostWindow)) {
+          // Climb up the iframe tree 1 layer
+          hostFrameOffset++;
+          hostWindow = hostWindow.parent;
+        }
+        event.source.postMessage({
+          hostFrameOffset: hostFrameOffset
+        }, event.origin);
+      }
+    }, {
+      key: '_hasSameOrigin',
+      value: function _hasSameOrigin(window) {
+        if (window === window.top) {
+          return true;
+        }
+
+        try {
+          // Try set & read a variable on the given window
+          // If we can successfully read the value then it means the given window has the same origin
+          // as the window that is currently executing the script
+          var testVariableName = 'test_var_' + Math.random().toString(16).substr(2);
+          window[testVariableName] = true;
+          return window[testVariableName];
+        } catch (e) {
+          // A exception will be thrown if the windows doesn't have the same origin
+        }
+
+        return false;
       }
     }, {
       key: '_handleResponse',
@@ -959,6 +994,11 @@ var AP = (function () {
         var hasExtensionUrl = reg && reg.extension.url.indexOf(event.origin) === 0;
         var isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches);
 
+        // get_host_offset fires before init
+        if (event.data.type === 'get_host_offset' && window === window.top) {
+          isValidOrigin = true;
+        }
+
         // check undefined for chromium (Issue 395010)
         if (event.data.type === 'unload' && (sourceTypeMatches || event.source === undefined)) {
           isValidOrigin = true;
@@ -1063,6 +1103,7 @@ var AP = (function () {
       *     addon_key: 'my-addon',
       *     key: 'my-module',
       *     url: 'https://example.com/my-module',
+      *     hostOrigin: 'https://connect-host.example.com/'
       *     options: { autoresize: false }
       *   }
       *
@@ -1073,12 +1114,14 @@ var AP = (function () {
       key: 'create',
       value: function create(extension, initCallback) {
         var extension_id = this.registerExtension(extension, initCallback);
+        var options = extension.options || {};
 
         var data = {
           extension_id: extension_id,
           api: this._xdm.getApiSpec(),
           origin: util.locationOrigin(),
-          options: extension.options || {}
+          hostOrigin: options.hostOrigin,
+          options: options
         };
 
         return {
@@ -1563,16 +1606,19 @@ var AP = (function () {
       ConfigurationOptions$1.set(options);
       _this._data = _this._parseInitData();
       ConfigurationOptions$1.set(_this._data.options);
-      _this._host = window.parent || window;
       _this._top = window.top;
+      _this._host = _this._getHostFrame(_this._data.hostFrameOffset);
+      if (_this._host !== _this._top) {
+        _this._verifyHostFrameOffset();
+      }
       _this._isKeyDownBound = false;
       _this._hostModules = {};
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.29";
+      _this._version = "5.0.0-beta.30";
       _this._apiTampered = undefined;
-      _this._isSubIframe = window.top !== window.parent;
+      _this._isSubIframe = _this._host !== window.parent;
       _this._onConfirmedFns = [];
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
@@ -1588,9 +1634,6 @@ var AP = (function () {
 
       if (_this._data.origin) {
         _this._sendInit(_this._host);
-        if (_this._isSubIframe) {
-          _this._sendInit(_this._top);
-        }
       }
       _this._registerOnUnload();
       _this.resize = util._bind(_this, function (width, height) {
@@ -1616,12 +1659,48 @@ var AP = (function () {
     }
 
     createClass(AP, [{
+      key: '_getHostFrame',
+      value: function _getHostFrame(offset) {
+        // Climb up the iframe tree to find the real host
+        if (typeof offset === 'number') {
+          var hostFrame = window;
+          for (var i = 0; i < offset; i++) {
+            hostFrame = hostFrame.parent;
+          }
+          return hostFrame;
+        } else {
+          return this._top;
+        }
+      }
+    }, {
+      key: '_verifyHostFrameOffset',
+      value: function _verifyHostFrameOffset() {
+        var _this2 = this;
+
+        // Asynchronously verify the host frame option with this._top
+        var callback = function callback(e) {
+          if (e.source === _this2._top && e.data && typeof e.data.hostFrameOffset === 'number') {
+            window.removeEventListener('message', callback);
+
+            if (_this2._getHostFrame(e.data.hostFrameOffset) !== _this2._host) {
+              util.error('hostFrameOffset tampering detected, setting host frame to top window');
+              _this2._host = _this2._top;
+            }
+          }
+        };
+        window.addEventListener('message', callback);
+
+        this._top.postMessage({
+          type: 'get_host_offset'
+        }, this._data.hostOrigin);
+      }
+    }, {
       key: '_handleApiTamper',
       value: function _handleApiTamper(event) {
         if (event.data.tampered !== false) {
           this._host = undefined;
           this._apiTampered = true;
-          console.error('XDM API tampering detected, api disabled');
+          util.error('XDM API tampering detected, api disabled');
         } else {
           this._apiTampered = false;
           this._onConfirmedFns.forEach(function (cb) {
@@ -1634,8 +1713,7 @@ var AP = (function () {
       key: '_registerOnUnload',
       value: function _registerOnUnload() {
         $.bind(window, 'unload', util._bind(this, function () {
-          this._sendUnload(this._host, this._data.origin);
-          this._sendUnload(this._top);
+          this._sendUnload(this._host, this._data.hostOrigin);
         }));
       }
     }, {
@@ -1700,14 +1778,14 @@ var AP = (function () {
     }, {
       key: '_createModule',
       value: function _createModule(moduleName, api) {
-        var _this2 = this;
+        var _this3 = this;
 
         return Object.getOwnPropertyNames(api).reduce(function (accumulator, memberName) {
           var member = api[memberName];
           if (member.hasOwnProperty('constructor')) {
-            accumulator[memberName] = _this2._createProxy(moduleName, member, memberName);
+            accumulator[memberName] = _this3._createProxy(moduleName, member, memberName);
           } else {
-            accumulator[memberName] = _this2._createMethodHandler({
+            accumulator[memberName] = _this3._createMethodHandler({
               mod: moduleName,
               fn: memberName
             });
@@ -1718,27 +1796,27 @@ var AP = (function () {
     }, {
       key: '_setupAPI',
       value: function _setupAPI(api) {
-        var _this3 = this;
+        var _this4 = this;
 
         this._hostModules = Object.getOwnPropertyNames(api).reduce(function (accumulator, moduleName) {
-          accumulator[moduleName] = _this3._createModule(moduleName, api[moduleName], api[moduleName]._options);
+          accumulator[moduleName] = _this4._createModule(moduleName, api[moduleName], api[moduleName]._options);
           return accumulator;
         }, {});
 
         Object.getOwnPropertyNames(this._hostModules._globals || {}).forEach(function (global) {
-          _this3[global] = _this3._hostModules._globals[global];
+          _this4[global] = _this4._hostModules._globals[global];
         });
       }
     }, {
       key: '_setupAPIWithoutRequire',
       value: function _setupAPIWithoutRequire(api) {
-        var _this4 = this;
+        var _this5 = this;
 
         Object.getOwnPropertyNames(api).forEach(function (moduleName) {
-          if (typeof _this4[moduleName] !== "undefined") {
+          if (typeof _this5[moduleName] !== "undefined") {
             throw new Error('XDM module: ' + moduleName + ' will collide with existing variable');
           }
-          _this4[moduleName] = _this4._createModule(moduleName, api[moduleName]);
+          _this5[moduleName] = _this5._createModule(moduleName, api[moduleName]);
         }, this);
       }
     }, {
@@ -1782,10 +1860,10 @@ var AP = (function () {
           var targetOrigin = '*';
           var target;
           if (that._findTarget(methodData.mod, methodData.fn) === 'top') {
-            target = window.top;
+            target = that._host;
           } else {
             target = that._host;
-            targetOrigin = that._data.origin;
+            targetOrigin = that._data.hostOrigin;
           }
           if (util.hasCallback(args)) {
             data.mid = util.randomString();
@@ -1816,7 +1894,7 @@ var AP = (function () {
           try {
             pendingCallback.apply(window, data.args);
           } catch (e) {
-            util.error('exception thrown in callback', e);
+            util.error(e.message, e.stack);
           }
         }
       }
@@ -1830,7 +1908,7 @@ var AP = (function () {
             mid: event.data.mid,
             type: 'resp',
             args: args
-          }, this._data.origin);
+          }, this._data.hostOrigin);
         };
         var data = event.data;
         sendResponse = util._bind(this, sendResponse);
@@ -1876,7 +1954,7 @@ var AP = (function () {
             keycode: event.keyCode,
             modifiers: modifiers,
             type: 'key_triggered'
-          }, this._data.origin);
+          }, this._data.hostOrigin);
         }
       }
     }, {
@@ -1915,7 +1993,7 @@ var AP = (function () {
           return true;
         }
 
-        if (this._isSubIframe && event.source === window.top) {
+        if (this._isSubIframe && event.source === this._host) {
           return true;
         }
 
@@ -1925,7 +2003,7 @@ var AP = (function () {
       key: '_sendInit',
       value: function _sendInit(frame) {
         var targets;
-        if (frame === window.top && window.top !== window.parent) {
+        if (frame === this._host && this._host !== window.parent) {
           targets = ConfigurationOptions$1.get('targets');
         }
 
@@ -1933,7 +2011,7 @@ var AP = (function () {
           eid: this._data.extension_id,
           type: 'init',
           targets: targets
-        }, '*');
+        }, this._data.hostOrigin);
       }
     }, {
       key: 'sendSubCreate',
@@ -1943,7 +2021,7 @@ var AP = (function () {
           eid: this._data.extension_id,
           type: 'sub',
           ext: options
-        }, this._data.origin);
+        }, this._data.hostOrigin);
       }
     }, {
       key: 'broadcast',
@@ -1957,16 +2035,16 @@ var AP = (function () {
           type: 'broadcast',
           etyp: event,
           evnt: evnt
-        }, this._data.origin);
+        }, this._data.hostOrigin);
       }
     }, {
       key: 'require',
       value: function require(modules, callback) {
-        var _this5 = this;
+        var _this6 = this;
 
         var requiredModules = Array.isArray(modules) ? modules : [modules],
             args = requiredModules.map(function (module) {
-          return _this5._hostModules[module] || _this5._hostModules._globals[module];
+          return _this6._hostModules[module] || _this6._hostModules._globals[module];
         });
         callback.apply(window, args);
       }
@@ -1979,7 +2057,7 @@ var AP = (function () {
             eid: this._data.extension_id,
             type: 'event_query',
             args: Object.getOwnPropertyNames(handlers)
-          }, this._data.origin);
+          }, this._data.hostOrigin);
         }
       }
     }, {
