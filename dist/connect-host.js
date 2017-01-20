@@ -1847,7 +1847,6 @@
 	        extension_id: extension_id,
 	        api: this._xdm.getApiSpec(),
 	        origin: util.locationOrigin(),
-	        hostOrigin: options.hostOrigin,
 	        options: options
 	      };
 

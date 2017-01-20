@@ -1120,7 +1120,6 @@ var AP = (function () {
           extension_id: extension_id,
           api: this._xdm.getApiSpec(),
           origin: util.locationOrigin(),
-          hostOrigin: options.hostOrigin,
           options: options
         };
 
@@ -1606,9 +1605,11 @@ var AP = (function () {
       ConfigurationOptions$1.set(options);
       _this._data = _this._parseInitData();
       ConfigurationOptions$1.set(_this._data.options);
+      _this._hostOrigin = _this._data.options.hostOrigin || '*';
       _this._top = window.top;
-      _this._host = _this._getHostFrame(_this._data.hostFrameOffset);
-      if (_this._host !== _this._top) {
+      _this._host = window.parent || window;
+      _this._topHost = _this._getHostFrame(_this._data.options.hostFrameOffset);
+      if (_this._topHost !== _this._top) {
         _this._verifyHostFrameOffset();
       }
       _this._isKeyDownBound = false;
@@ -1618,7 +1619,7 @@ var AP = (function () {
       _this._keyListeners = [];
       _this._version = "5.0.0-beta.30";
       _this._apiTampered = undefined;
-      _this._isSubIframe = _this._host !== window.parent;
+      _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
@@ -1633,7 +1634,10 @@ var AP = (function () {
       };
 
       if (_this._data.origin) {
-        _this._sendInit(_this._host);
+        _this._sendInit(_this._host, _this._data.origin);
+        if (_this._isSubIframe) {
+          _this._sendInit(_this._topHost, _this._hostOrigin);
+        }
       }
       _this._registerOnUnload();
       _this.resize = util._bind(_this, function (width, height) {
@@ -1662,7 +1666,7 @@ var AP = (function () {
       key: '_getHostFrame',
       value: function _getHostFrame(offset) {
         // Climb up the iframe tree to find the real host
-        if (typeof offset === 'number') {
+        if (offset && typeof offset === 'number') {
           var hostFrame = window;
           for (var i = 0; i < offset; i++) {
             hostFrame = hostFrame.parent;
@@ -1682,9 +1686,9 @@ var AP = (function () {
           if (e.source === _this2._top && e.data && typeof e.data.hostFrameOffset === 'number') {
             window.removeEventListener('message', callback);
 
-            if (_this2._getHostFrame(e.data.hostFrameOffset) !== _this2._host) {
+            if (_this2._getHostFrame(e.data.hostFrameOffset) !== _this2._topHost) {
               util.error('hostFrameOffset tampering detected, setting host frame to top window');
-              _this2._host = _this2._top;
+              _this2._topHost = _this2._top;
             }
           }
         };
@@ -1692,7 +1696,7 @@ var AP = (function () {
 
         this._top.postMessage({
           type: 'get_host_offset'
-        }, this._data.hostOrigin);
+        }, this._hostOrigin);
       }
     }, {
       key: '_handleApiTamper',
@@ -1713,7 +1717,8 @@ var AP = (function () {
       key: '_registerOnUnload',
       value: function _registerOnUnload() {
         $.bind(window, 'unload', util._bind(this, function () {
-          this._sendUnload(this._host, this._data.hostOrigin);
+          this._sendUnload(this._host, this._data.origin);
+          this._sendUnload(this._topHost, this._hostOrigin);
         }));
       }
     }, {
@@ -1857,13 +1862,14 @@ var AP = (function () {
             fn: methodData.fn
           };
 
-          var targetOrigin = '*';
+          var targetOrigin;
           var target;
           if (that._findTarget(methodData.mod, methodData.fn) === 'top') {
-            target = that._host;
+            target = that._topHost;
+            targetOrigin = that._hostOrigin;
           } else {
             target = that._host;
-            targetOrigin = that._data.hostOrigin;
+            targetOrigin = that._data.origin;
           }
           if (util.hasCallback(args)) {
             data.mid = util.randomString();
@@ -1908,7 +1914,7 @@ var AP = (function () {
             mid: event.data.mid,
             type: 'resp',
             args: args
-          }, this._data.hostOrigin);
+          }, this._data.origin);
         };
         var data = event.data;
         sendResponse = util._bind(this, sendResponse);
@@ -1954,7 +1960,7 @@ var AP = (function () {
             keycode: event.keyCode,
             modifiers: modifiers,
             type: 'key_triggered'
-          }, this._data.hostOrigin);
+          }, this._data.origin);
         }
       }
     }, {
@@ -1993,7 +1999,7 @@ var AP = (function () {
           return true;
         }
 
-        if (this._isSubIframe && event.source === this._host) {
+        if (this._isSubIframe && event.source === this._topHost) {
           return true;
         }
 
@@ -2001,9 +2007,9 @@ var AP = (function () {
       }
     }, {
       key: '_sendInit',
-      value: function _sendInit(frame) {
+      value: function _sendInit(frame, origin) {
         var targets;
-        if (frame === this._host && this._host !== window.parent) {
+        if (frame === this._topHost && this._topHost !== window.parent) {
           targets = ConfigurationOptions$1.get('targets');
         }
 
@@ -2011,17 +2017,17 @@ var AP = (function () {
           eid: this._data.extension_id,
           type: 'init',
           targets: targets
-        }, this._data.hostOrigin);
+        }, origin || '*');
       }
     }, {
       key: 'sendSubCreate',
       value: function sendSubCreate(extension_id, options) {
         options.id = extension_id;
-        this._host.postMessage({
+        this._topHost.postMessage({
           eid: this._data.extension_id,
           type: 'sub',
           ext: options
-        }, this._data.hostOrigin);
+        }, this._hostOrigin);
       }
     }, {
       key: 'broadcast',
@@ -2035,7 +2041,7 @@ var AP = (function () {
           type: 'broadcast',
           etyp: event,
           evnt: evnt
-        }, this._data.hostOrigin);
+        }, this._data.origin);
       }
     }, {
       key: 'require',
@@ -2057,7 +2063,7 @@ var AP = (function () {
             eid: this._data.extension_id,
             type: 'event_query',
             args: Object.getOwnPropertyNames(handlers)
-          }, this._data.hostOrigin);
+          }, this._data.origin);
         }
       }
     }, {
