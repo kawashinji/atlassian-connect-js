@@ -47,9 +47,10 @@ export default {
     if(options && options.isDialog) {
       return;
     }
-
+    console.log('resizefunc holder?', iframeId, resizeFuncHolder);
     if(!resizeFuncHolder[iframeId]){
       resizeFuncHolder[iframeId] = debounce(function(dwidth, dheight, dcallback){
+        console.log('debounce triggered', arguments);
         EnvActions.iframeResize(dwidth, dheight, dcallback._context);
       }, 50);
     }

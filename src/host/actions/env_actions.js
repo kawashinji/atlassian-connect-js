@@ -36,7 +36,7 @@ export default {
     } else {
       $el = context;
     }
-
+    console.log('iframeResize', width, height, context.extension_id, $el, context);
     EventDispatcher.dispatch('iframe-resize', {width, height, $el, extension: context.extension});
   },
   sizeToParent: function(context, hideFooter){

@@ -26,6 +26,7 @@ class Iframe {
       width: width,
       height: height
     });
+    console.log('iframe component resize', width, height, $el);
     $el.trigger('resized', {width: width, height: height});
   }
 

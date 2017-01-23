@@ -3315,6 +3315,7 @@
 	        width: width,
 	        height: height
 	      });
+	      console.log('iframe component resize', width, height, $el);
 	      $el.trigger('resized', { width: width, height: height });
 	    }
 	  }, {
@@ -4458,7 +4459,7 @@
 	    } else {
 	      $el = context;
 	    }
-
+	    console.log('iframeResize', width, height, context.extension_id, $el, context);
 	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
 	  },
 	  sizeToParent: function sizeToParent(context, hideFooter) {
@@ -4512,9 +4513,10 @@
 	    if (options && options.isDialog) {
 	      return;
 	    }
-
+	    console.log('resizefunc holder?', iframeId, resizeFuncHolder);
 	    if (!resizeFuncHolder[iframeId]) {
 	      resizeFuncHolder[iframeId] = debounce(function (dwidth, dheight, dcallback) {
+	        console.log('debounce triggered', arguments);
 	        EnvActions.iframeResize(dwidth, dheight, dcallback._context);
 	      }, 50);
 	    }
