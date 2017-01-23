@@ -959,6 +959,7 @@
 	      this._stateRegistry[extension.id] = setTimeout(function () {
 	        LoadingIndicatorActions.timeout($container, extension);
 	      }, LOADING_TIMEOUT);
+	      console.log('LOADING TIMEOUT', this._stateRegistry, extension.id, extension, $container);
 	    }
 	  }, {
 	    key: 'timeout',
@@ -984,6 +985,7 @@
 	});
 
 	EventDispatcher$1.register('iframe-bridge-established', function (data) {
+	  console.log('LOADING bridge established', data, data.$el, data.$el.parents('.ap-iframe-container'));
 	  LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
 	});
 
@@ -1163,7 +1165,7 @@
 	  }
 
 	  createClass(PostMessage, [{
-	    key: "_registerListener",
+	    key: '_registerListener',
 	    value: function _registerListener(listenOn) {
 	      if (!listenOn || !listenOn.addEventListener) {
 	        listenOn = window;
@@ -1171,7 +1173,7 @@
 	      listenOn.addEventListener("message", util._bind(this, this._receiveMessage), false);
 	    }
 	  }, {
-	    key: "_receiveMessage",
+	    key: '_receiveMessage',
 	    value: function _receiveMessage(event) {
 
 	      var handler = this._messageHandlers[event.data.type],
@@ -1183,6 +1185,7 @@
 	      }
 
 	      if (!handler || !this._checkOrigin(event, reg)) {
+	        console.log('ORIGIN CHECK FAILED', event.data.type, handler, event, reg);
 	        return false;
 	      }
 
@@ -1298,6 +1301,7 @@
 	  }, {
 	    key: '_handleInit',
 	    value: function _handleInit(event, reg) {
+	      console.log('SIMPLE handle init?', event, reg, this._registeredExtensions);
 	      this._registeredExtensions[reg.extension_id].source = event.source;
 	      if (reg.initCallback) {
 	        reg.initCallback(event.data.eid);
@@ -3333,12 +3337,17 @@
 	  }, {
 	    key: '_simpleXdmCreate',
 	    value: function _simpleXdmCreate(extension) {
+	      var _arguments = arguments;
+
+	      console.log('_simpleXdmCreate', extension);
 	      var iframeAttributes = simpleXDM$1.create(extension, function () {
 	        if (!extension.options) {
 	          extension.options = {};
 	        }
+	        console.log('bridge established', extension, _arguments);
 	        IframeActions.notifyBridgeEstablished(extension.$el, extension);
 	      }, function () {
+	        console.log('unloaded', extension, _arguments);
 	        IframeActions.notifyUnloaded(extension.$el, extension);
 	      });
 	      extension.id = iframeAttributes.id;

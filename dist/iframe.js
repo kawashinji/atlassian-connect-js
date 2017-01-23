@@ -436,7 +436,7 @@ var AP = (function () {
     }
 
     createClass(PostMessage, [{
-      key: "_registerListener",
+      key: '_registerListener',
       value: function _registerListener(listenOn) {
         if (!listenOn || !listenOn.addEventListener) {
           listenOn = window;
@@ -444,7 +444,7 @@ var AP = (function () {
         listenOn.addEventListener("message", util._bind(this, this._receiveMessage), false);
       }
     }, {
-      key: "_receiveMessage",
+      key: '_receiveMessage',
       value: function _receiveMessage(event) {
 
         var handler = this._messageHandlers[event.data.type],
@@ -456,6 +456,7 @@ var AP = (function () {
         }
 
         if (!handler || !this._checkOrigin(event, reg)) {
+          console.log('ORIGIN CHECK FAILED', event.data.type, handler, event, reg);
           return false;
         }
 
@@ -571,6 +572,7 @@ var AP = (function () {
     }, {
       key: '_handleInit',
       value: function _handleInit(event, reg) {
+        console.log('SIMPLE handle init?', event, reg, this._registeredExtensions);
         this._registeredExtensions[reg.extension_id].source = event.source;
         if (reg.initCallback) {
           reg.initCallback(event.data.eid);
