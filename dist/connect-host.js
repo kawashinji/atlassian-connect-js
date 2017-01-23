@@ -959,7 +959,6 @@
 	      this._stateRegistry[extension.id] = setTimeout(function () {
 	        LoadingIndicatorActions.timeout($container, extension);
 	      }, LOADING_TIMEOUT);
-	      console.log('LOADING TIMEOUT', this._stateRegistry, extension.id, extension, $container);
 	    }
 	  }, {
 	    key: 'timeout',
@@ -985,7 +984,6 @@
 	});
 
 	EventDispatcher$1.register('iframe-bridge-established', function (data) {
-	  console.log('LOADING bridge established', data, data.$el, data.$el.parents('.ap-iframe-container'));
 	  LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
 	});
 
@@ -1165,7 +1163,7 @@
 	  }
 
 	  createClass(PostMessage, [{
-	    key: '_registerListener',
+	    key: "_registerListener",
 	    value: function _registerListener(listenOn) {
 	      if (!listenOn || !listenOn.addEventListener) {
 	        listenOn = window;
@@ -1173,7 +1171,7 @@
 	      listenOn.addEventListener("message", util._bind(this, this._receiveMessage), false);
 	    }
 	  }, {
-	    key: '_receiveMessage',
+	    key: "_receiveMessage",
 	    value: function _receiveMessage(event) {
 
 	      var handler = this._messageHandlers[event.data.type],
@@ -1185,7 +1183,6 @@
 	      }
 
 	      if (!handler || !this._checkOrigin(event, reg)) {
-	        console.log('ORIGIN CHECK FAILED', event.data.type, handler, event, reg);
 	        return false;
 	      }
 
@@ -1301,7 +1298,6 @@
 	  }, {
 	    key: '_handleInit',
 	    value: function _handleInit(event, reg) {
-	      console.log('SIMPLE handle init?', event, reg, this._registeredExtensions);
 	      this._registeredExtensions[reg.extension_id].source = event.source;
 	      if (reg.initCallback) {
 	        reg.initCallback(event.data.eid);
@@ -3315,7 +3311,6 @@
 	        width: width,
 	        height: height
 	      });
-	      console.log('iframe component resize', width, height, $el);
 	      $el.trigger('resized', { width: width, height: height });
 	    }
 	  }, {
@@ -3338,17 +3333,12 @@
 	  }, {
 	    key: '_simpleXdmCreate',
 	    value: function _simpleXdmCreate(extension) {
-	      var _arguments = arguments;
-
-	      console.log('_simpleXdmCreate', extension);
 	      var iframeAttributes = simpleXDM$1.create(extension, function () {
 	        if (!extension.options) {
 	          extension.options = {};
 	        }
-	        console.log('bridge established', extension, _arguments);
 	        IframeActions.notifyBridgeEstablished(extension.$el, extension);
 	      }, function () {
-	        console.log('unloaded', extension, _arguments);
 	        IframeActions.notifyUnloaded(extension.$el, extension);
 	      });
 	      extension.id = iframeAttributes.id;
@@ -4459,7 +4449,6 @@
 	    } else {
 	      $el = context;
 	    }
-	    console.log('iframeResize', width, height, context.extension_id, $el, context);
 	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
 	  },
 	  sizeToParent: function sizeToParent(context, hideFooter) {
@@ -4513,10 +4502,8 @@
 	    if (options && options.isDialog) {
 	      return;
 	    }
-	    console.log('resizefunc holder?', iframeId, resizeFuncHolder);
 	    if (!resizeFuncHolder[iframeId]) {
 	      resizeFuncHolder[iframeId] = debounce(function (dwidth, dheight, dcallback) {
-	        console.log('debounce triggered', arguments);
 	        EnvActions.iframeResize(dwidth, dheight, dcallback._context);
 	      }, 50);
 	    }

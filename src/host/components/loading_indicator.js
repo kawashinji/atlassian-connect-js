@@ -53,7 +53,6 @@ class LoadingIndicator {
     this._stateRegistry[extension.id] = setTimeout(() => {
       LoadingIndicatorActions.timeout($container, extension);
     }, LOADING_TIMEOUT);
-    console.log('LOADING TIMEOUT', this._stateRegistry, extension.id, extension, $container);
   }
 
   timeout($iframeContainer, extensionId){
@@ -76,7 +75,6 @@ EventDispatcher.register('iframe-create', (data) => {
 });
 
 EventDispatcher.register('iframe-bridge-established', (data) => {
-  console.log('LOADING bridge established', data, data.$el, data.$el.parents('.ap-iframe-container'));
   LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
 });
 

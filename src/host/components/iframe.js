@@ -26,7 +26,6 @@ class Iframe {
       width: width,
       height: height
     });
-    console.log('iframe component resize', width, height, $el);
     $el.trigger('resized', {width: width, height: height});
   }
 
@@ -47,15 +46,12 @@ class Iframe {
   }
 
   _simpleXdmCreate(extension){
-    console.log('_simpleXdmCreate', extension);
     var iframeAttributes = simpleXDM.create(extension, () => {
       if(!extension.options){
         extension.options = {};
       }
-      console.log('bridge established', extension, arguments);
       IframeActions.notifyBridgeEstablished(extension.$el, extension);
     }, () => {
-      console.log('unloaded', extension, arguments);
       IframeActions.notifyUnloaded(extension.$el, extension);
     });
     extension.id = iframeAttributes.id;
