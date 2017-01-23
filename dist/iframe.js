@@ -842,15 +842,15 @@ var AP = (function () {
       key: 'registerExtension',
       value: function registerExtension(extension_id, data) {
         // delete duplicate registrations
-        if (data.extension.addon_key && data.extension.key) {
-          var existingView = this._findRegistrations({
-            addon_key: data.extension.addon_key,
-            key: data.extension.key
-          });
-          if (existingView.length !== 0) {
-            delete this._registeredExtensions[existingView[0].extension_id];
-          }
-        }
+        // if(data.extension.addon_key && data.extension.key){
+        //   let existingView = this._findRegistrations({
+        //     addon_key: data.extension.addon_key,
+        //     key: data.extension.key
+        //   });
+        //   if(existingView.length !== 0){
+        //     delete this._registeredExtensions[existingView[0].extension_id];
+        //   }
+        // }
         data._proxies = {};
         data.extension_id = extension_id;
         this._registeredExtensions[extension_id] = data;
