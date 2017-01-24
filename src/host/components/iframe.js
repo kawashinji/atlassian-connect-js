@@ -30,6 +30,14 @@ class Iframe {
   }
 
   simpleXdmExtension(extension, $container) {
+    if (!extension.url) {
+      throw new Error('extension.url empty: ' + JSON.stringify(extension));
+    }
+
+    if (urlUtil.hasJwt(extension.url) && urlUtil.isJwtExpired(extension.url)) {
+      throw new Error('urlUtil.hasJwt(extension.url): ' + urlUtil.hasJwt(extension.url) + ', urlUtil.isJwtExpired(extension.url): ' + urlUtil.isJwtExpired(extension.url));
+    }
+
     if(!extension.url || (urlUtil.hasJwt(extension.url) && urlUtil.isJwtExpired(extension.url))){
       if(this._contentResolver){
         JwtActions.requestRefreshUrl({
@@ -38,7 +46,7 @@ class Iframe {
           $container: $container
         });
       } else {
-        console.error('JWT is expired and no content resolver was specified');
+        throw new Error('this._contentResolver empty');
       }
     } else {
       this._appendExtension($container, this._simpleXdmCreate(extension));
