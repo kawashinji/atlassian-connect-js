@@ -1103,8 +1103,10 @@ var AP = (function () {
       *     addon_key: 'my-addon',
       *     key: 'my-module',
       *     url: 'https://example.com/my-module',
-      *     hostOrigin: 'https://connect-host.example.com/'
-      *     options: { autoresize: false }
+      *     options: {
+      *         autoresize: false,
+      *         hostOrigin: 'https://connect-host.example.com/'
+      *     }
       *   }
       *
       * @param initCallback The optional initCallback is called when the bridge between host and iframe is established.
@@ -1605,6 +1607,7 @@ var AP = (function () {
       ConfigurationOptions$1.set(options);
       _this._data = _this._parseInitData();
       ConfigurationOptions$1.set(_this._data.options);
+      _this._data.options = _this._data.options || {};
       _this._hostOrigin = _this._data.options.hostOrigin || '*';
       _this._top = window.top;
       _this._host = window.parent || window;

@@ -1830,8 +1830,10 @@
 	    *     addon_key: 'my-addon',
 	    *     key: 'my-module',
 	    *     url: 'https://example.com/my-module',
-	    *     hostOrigin: 'https://connect-host.example.com/'
-	    *     options: { autoresize: false }
+	    *     options: {
+	    *         autoresize: false,
+	    *         hostOrigin: 'https://connect-host.example.com/'
+	    *     }
 	    *   }
 	    *
 	    * @param initCallback The optional initCallback is called when the bridge between host and iframe is established.
