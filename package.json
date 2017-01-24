@@ -75,7 +75,7 @@
     "base64-js": "1.2.0",
     "events": "1.1.1",
     "query-string": "4.2.3",
-    "simple-xdm": "git+https://git@bitbucket.org/atlassian/simple-xdm.git#issue/CE-685-get-macro-body-offset",
+    "simple-xdm": "0.8.0",
     "text-encoding-utf-8": "1.0.1"
   },
   "browserify": {
