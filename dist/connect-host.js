@@ -1262,6 +1262,7 @@
 	      event_query: _this._handleEventQuery,
 	      broadcast: _this._handleBroadcast,
 	      key_triggered: _this._handleKeyTriggered,
+	      get_host_offset: _this._getHostOffset,
 	      unload: _this._handleUnload,
 	      sub: _this._handleSubInit
 	    };
@@ -1315,6 +1316,40 @@
 	      this.registerExtension(event.data.ext.id, {
 	        extension: event.data.ext
 	      });
+	    }
+	  }, {
+	    key: '_getHostOffset',
+	    value: function _getHostOffset(event) {
+	      var hostWindow = event.source;
+	      var hostFrameOffset = 0;
+	      while (!this._hasSameOrigin(hostWindow)) {
+	        // Climb up the iframe tree 1 layer
+	        hostFrameOffset++;
+	        hostWindow = hostWindow.parent;
+	      }
+	      event.source.postMessage({
+	        hostFrameOffset: hostFrameOffset
+	      }, event.origin);
+	    }
+	  }, {
+	    key: '_hasSameOrigin',
+	    value: function _hasSameOrigin(window) {
+	      if (window === window.top) {
+	        return true;
+	      }
+
+	      try {
+	        // Try set & read a variable on the given window
+	        // If we can successfully read the value then it means the given window has the same origin
+	        // as the window that is currently executing the script
+	        var testVariableName = 'test_var_' + Math.random().toString(16).substr(2);
+	        window[testVariableName] = true;
+	        return window[testVariableName];
+	      } catch (e) {
+	        // A exception will be thrown if the windows doesn't have the same origin
+	      }
+
+	      return false;
 	    }
 	  }, {
 	    key: '_handleResponse',
@@ -1686,6 +1721,11 @@
 	      var hasExtensionUrl = reg && reg.extension.url.indexOf(event.origin) === 0;
 	      var isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches);
 
+	      // get_host_offset fires before init
+	      if (event.data.type === 'get_host_offset' && window === window.top) {
+	        isValidOrigin = true;
+	      }
+
 	      // check undefined for chromium (Issue 395010)
 	      if (event.data.type === 'unload' && (sourceTypeMatches || event.source === undefined)) {
 	        isValidOrigin = true;
@@ -1790,7 +1830,10 @@
 	    *     addon_key: 'my-addon',
 	    *     key: 'my-module',
 	    *     url: 'https://example.com/my-module',
-	    *     options: { autoresize: false }
+	    *     options: {
+	    *         autoresize: false,
+	    *         hostOrigin: 'https://connect-host.example.com/'
+	    *     }
 	    *   }
 	    *
 	    * @param initCallback The optional initCallback is called when the bridge between host and iframe is established.
@@ -1800,12 +1843,13 @@
 	    key: 'create',
 	    value: function create(extension, initCallback) {
 	      var extension_id = this.registerExtension(extension, initCallback);
+	      var options = extension.options || {};
 
 	      var data = {
 	        extension_id: extension_id,
 	        api: this._xdm.getApiSpec(),
 	        origin: util.locationOrigin(),
-	        options: extension.options || {}
+	        options: options
 	      };
 
 	      return {
@@ -5731,7 +5775,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.29';
+	  window._AP.version = '5.0.0-beta.30';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
