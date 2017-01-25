@@ -1601,16 +1601,6 @@
 	  }, {
 	    key: 'registerExtension',
 	    value: function registerExtension(extension_id, data) {
-	      // delete duplicate registrations
-	      if (data.extension.addon_key && data.extension.key) {
-	        var existingView = this._findRegistrations({
-	          addon_key: data.extension.addon_key,
-	          key: data.extension.key
-	        });
-	        if (existingView.length !== 0) {
-	          delete this._registeredExtensions[existingView[0].extension_id];
-	        }
-	      }
 	      data._proxies = {};
 	      data.extension_id = extension_id;
 	      this._registeredExtensions[extension_id] = data;
@@ -2296,8 +2286,15 @@
 		});
 	};
 
+	/*
+	object-assign
+	(c) Sindre Sorhus
+	@license MIT
+	*/
+
 	/* eslint-disable no-unused-vars */
 
+	var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
 
@@ -2318,7 +2315,7 @@
 			// Detect buggy property enumeration order in older V8 versions.
 
 			// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-			var test1 = new String('abc'); // eslint-disable-line
+			var test1 = new String('abc'); // eslint-disable-line no-new-wrappers
 			test1[5] = 'de';
 			if (Object.getOwnPropertyNames(test1)[0] === '5') {
 				return false;
@@ -2346,7 +2343,7 @@
 			}
 
 			return true;
-		} catch (e) {
+		} catch (err) {
 			// We don't expect any of the above to throw, but better to be safe.
 			return false;
 		}
@@ -2366,8 +2363,8 @@
 				}
 			}
 
-			if (Object.getOwnPropertySymbols) {
-				symbols = Object.getOwnPropertySymbols(from);
+			if (getOwnPropertySymbols) {
+				symbols = getOwnPropertySymbols(from);
 				for (var i = 0; i < symbols.length; i++) {
 					if (propIsEnumerable.call(from, symbols[i])) {
 						to[symbols[i]] = from[symbols[i]];
@@ -5775,7 +5772,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.30';
+	  window._AP.version = '5.0.0-beta.31';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
