@@ -41,8 +41,8 @@ function isJwtExpired(jwtString, skew) {
   }
 
   console.log('checking is expired?', skew, expires - now, now, expires);
-
-  if ((expires - now) < skew) {
+  if ((expires - skew) < now){
+  // if ((expires - now) < skew) {
     return true;
   }
 
