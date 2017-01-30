@@ -1262,6 +1262,7 @@
 	      event_query: _this._handleEventQuery,
 	      broadcast: _this._handleBroadcast,
 	      key_triggered: _this._handleKeyTriggered,
+	      get_host_offset: _this._getHostOffset,
 	      unload: _this._handleUnload,
 	      sub: _this._handleSubInit
 	    };
@@ -1315,6 +1316,40 @@
 	      this.registerExtension(event.data.ext.id, {
 	        extension: event.data.ext
 	      });
+	    }
+	  }, {
+	    key: '_getHostOffset',
+	    value: function _getHostOffset(event) {
+	      var hostWindow = event.source;
+	      var hostFrameOffset = 0;
+	      while (!this._hasSameOrigin(hostWindow)) {
+	        // Climb up the iframe tree 1 layer
+	        hostFrameOffset++;
+	        hostWindow = hostWindow.parent;
+	      }
+	      event.source.postMessage({
+	        hostFrameOffset: hostFrameOffset
+	      }, event.origin);
+	    }
+	  }, {
+	    key: '_hasSameOrigin',
+	    value: function _hasSameOrigin(window) {
+	      if (window === window.top) {
+	        return true;
+	      }
+
+	      try {
+	        // Try set & read a variable on the given window
+	        // If we can successfully read the value then it means the given window has the same origin
+	        // as the window that is currently executing the script
+	        var testVariableName = 'test_var_' + Math.random().toString(16).substr(2);
+	        window[testVariableName] = true;
+	        return window[testVariableName];
+	      } catch (e) {
+	        // A exception will be thrown if the windows doesn't have the same origin
+	      }
+
+	      return false;
 	    }
 	  }, {
 	    key: '_handleResponse',
@@ -1566,16 +1601,6 @@
 	  }, {
 	    key: 'registerExtension',
 	    value: function registerExtension(extension_id, data) {
-	      // delete duplicate registrations
-	      if (data.extension.addon_key && data.extension.key) {
-	        var existingView = this._findRegistrations({
-	          addon_key: data.extension.addon_key,
-	          key: data.extension.key
-	        });
-	        if (existingView.length !== 0) {
-	          delete this._registeredExtensions[existingView[0].extension_id];
-	        }
-	      }
 	      data._proxies = {};
 	      data.extension_id = extension_id;
 	      this._registeredExtensions[extension_id] = data;
@@ -1686,6 +1711,11 @@
 	      var hasExtensionUrl = reg && reg.extension.url.indexOf(event.origin) === 0;
 	      var isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches);
 
+	      // get_host_offset fires before init
+	      if (event.data.type === 'get_host_offset' && window === window.top) {
+	        isValidOrigin = true;
+	      }
+
 	      // check undefined for chromium (Issue 395010)
 	      if (event.data.type === 'unload' && (sourceTypeMatches || event.source === undefined)) {
 	        isValidOrigin = true;
@@ -1790,7 +1820,10 @@
 	    *     addon_key: 'my-addon',
 	    *     key: 'my-module',
 	    *     url: 'https://example.com/my-module',
-	    *     options: { autoresize: false }
+	    *     options: {
+	    *         autoresize: false,
+	    *         hostOrigin: 'https://connect-host.example.com/'
+	    *     }
 	    *   }
 	    *
 	    * @param initCallback The optional initCallback is called when the bridge between host and iframe is established.
@@ -1800,12 +1833,13 @@
 	    key: 'create',
 	    value: function create(extension, initCallback) {
 	      var extension_id = this.registerExtension(extension, initCallback);
+	      var options = extension.options || {};
 
 	      var data = {
 	        extension_id: extension_id,
 	        api: this._xdm.getApiSpec(),
 	        origin: util.locationOrigin(),
-	        options: extension.options || {}
+	        options: options
 	      };
 
 	      return {
@@ -2252,8 +2286,15 @@
 		});
 	};
 
+	/*
+	object-assign
+	(c) Sindre Sorhus
+	@license MIT
+	*/
+
 	/* eslint-disable no-unused-vars */
 
+	var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
 
@@ -2274,7 +2315,7 @@
 			// Detect buggy property enumeration order in older V8 versions.
 
 			// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-			var test1 = new String('abc'); // eslint-disable-line
+			var test1 = new String('abc'); // eslint-disable-line no-new-wrappers
 			test1[5] = 'de';
 			if (Object.getOwnPropertyNames(test1)[0] === '5') {
 				return false;
@@ -2302,7 +2343,7 @@
 			}
 
 			return true;
-		} catch (e) {
+		} catch (err) {
 			// We don't expect any of the above to throw, but better to be safe.
 			return false;
 		}
@@ -2322,8 +2363,8 @@
 				}
 			}
 
-			if (Object.getOwnPropertySymbols) {
-				symbols = Object.getOwnPropertySymbols(from);
+			if (getOwnPropertySymbols) {
+				symbols = getOwnPropertySymbols(from);
 				for (var i = 0; i < symbols.length; i++) {
 					if (propIsEnumerable.call(from, symbols[i])) {
 						to[symbols[i]] = from[symbols[i]];
@@ -3206,10 +3247,11 @@
 	  var claims = parseJwtClaims(jwtString);
 	  var expires = 0;
 	  var now = Math.floor(Date.now() / 1000); // UTC timestamp now
-
 	  if (claims && claims.exp) {
 	    expires = claims.exp;
 	  }
+
+	  console.log('checking is expired?', skew, expires - now, now, expires);
 
 	  if (expires - now < skew) {
 	    return true;

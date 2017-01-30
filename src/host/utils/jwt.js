@@ -36,10 +36,11 @@ function isJwtExpired(jwtString, skew) {
   var claims = parseJwtClaims(jwtString);
   var expires = 0;
   var now = Math.floor(Date.now() / 1000); // UTC timestamp now
-
   if (claims && claims.exp) {
     expires = claims.exp;
   }
+
+  console.log('checking is expired?', skew, expires - now, now, expires);
 
   if ((expires - now) < skew) {
     return true;
