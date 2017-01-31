@@ -5772,7 +5772,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.31';
+	  window._AP.version = '5.0.0-beta.32';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

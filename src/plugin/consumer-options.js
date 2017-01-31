@@ -2,17 +2,27 @@ import $ from './dollar';
 
 class ConsumerOptions {
 
+  _elementExists($el) {
+    return ($el && $el.length === 1);
+  }
+  _elementOptions($el) {
+    return $el.attr('data-options');
+  }
+
   _getConsumerOptions() {
     var options = {};
-    var $script = $('script[src*=\'/atlassian-connect/all\']');
+    var $optionElement = $('#ac-iframe-options');
+    var $scriptElement = $('script[src*="/atlassian-connect/all"]');
 
-    if ( !($script && /\/atlassian-connect\/all(-debug)?\.js($|\?)/.test($script.attr('src'))) ){
-      $script = $('#ac-iframe-options');
+    if(!this._elementExists($optionElement) || !this._elementOptions($optionElement)) {
+      if(this._elementExists($scriptElement)) {
+        $optionElement = $scriptElement;
+      }
     }
 
-    if($script && $script.length > 0) {
+    if(this._elementExists($optionElement)) {
       // get its data-options attribute, if any
-      var optStr = $script.attr('data-options');
+      var optStr = this._elementOptions($optionElement);
       if (optStr) {
         // if found, parse the value into kv pairs following the format of a style element
         optStr.split(';').forEach((nvpair) => {

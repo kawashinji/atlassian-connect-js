@@ -1532,18 +1532,31 @@ var AP = (function () {
     }
 
     createClass(ConsumerOptions, [{
+      key: "_elementExists",
+      value: function _elementExists($el) {
+        return $el && $el.length === 1;
+      }
+    }, {
+      key: "_elementOptions",
+      value: function _elementOptions($el) {
+        return $el.attr("data-options");
+      }
+    }, {
       key: "_getConsumerOptions",
       value: function _getConsumerOptions() {
         var options = {},
-            $script = $("script[src*='/atlassian-connect/all']");
+            $optionElement = $("#ac-iframe-options"),
+            $scriptElement = $("script[src*='/atlassian-connect/all']");
 
-        if (!($script && /\/atlassian-connect\/all(-debug)?\.js($|\?)/.test($script.attr("src")))) {
-          $script = $("#ac-iframe-options");
+        if (!this._elementExists($optionElement) || !this._elementOptions($optionElement)) {
+          if (this._elementExists($scriptElement)) {
+            $optionElement = $scriptElement;
+          }
         }
 
-        if ($script && $script.length > 0) {
+        if (this._elementExists($optionElement)) {
           // get its data-options attribute, if any
-          var optStr = $script.attr("data-options");
+          var optStr = this._elementOptions($optionElement);
           if (optStr) {
             // if found, parse the value into kv pairs following the format of a style element
             optStr.split(";").forEach(function (nvpair) {
@@ -1610,7 +1623,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.31";
+      _this._version = "5.0.0-beta.32";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
