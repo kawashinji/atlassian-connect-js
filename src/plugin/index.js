@@ -8,6 +8,7 @@ import DialogCompat from './dialog';
 import AMD from './amd';
 import Meta from './meta';
 import _util from './util';
+import debounce from '../shared/debounce';
 
 AP._hostModules._dollar = $;
 AP._hostModules['inline-dialog'] = AP._hostModules.inlineDialog;
@@ -53,7 +54,7 @@ AP._hostModules._util = AP._util = {
   unbind: _util.unbind,
   extend: _util.extend,
   trim: _util.trim,
-  debounce: _util.debounce,
+  debounce: debounce,
   isFunction: _util.isFunction,
   handleError: _util.handleError
 };

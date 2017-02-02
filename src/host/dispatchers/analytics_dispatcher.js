@@ -30,9 +30,9 @@ class AnalyticsDispatcher {
     data.version = w._AP.version;
     data.userAgent = w.navigator.userAgent;
 
-    if(w.AJS.Analytics){
+    if(w.AJS && w.AJS.Analytics){
       w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
-    } else if(w.AJS.trigger) {
+    } else if(w.AJS && w.AJS.trigger) {
       // BTF fallback
       AJS.trigger('analyticsEvent', {
         name: prefixedName,

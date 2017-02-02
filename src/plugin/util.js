@@ -76,22 +76,6 @@ export default {
     return s && s.replace(/^\s+|\s+$/g, '');
   },
 
-  debounce: function (fn, wait) {
-    var timeout;
-    return function () {
-      var ctx = this;
-      var args = [].slice.call(arguments);
-      function later() {
-        timeout = null;
-        fn.apply(ctx, args);
-      }
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-      timeout = setTimeout(later, wait || 50);
-    };
-  },
-
   isFunction: function (fn) {
     return typeof fn === 'function';
   },

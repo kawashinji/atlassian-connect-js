@@ -46,4 +46,8 @@ EventDispatcher.register('flag-close', (data) => {
   FlagComponent.close(data.id);
 });
 
+EventDispatcher.register('flag-open', (data) => {
+  FlagComponent.render(data.options);
+});
+
 export default FlagComponent;

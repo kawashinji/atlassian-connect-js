@@ -2,13 +2,11 @@
 * Flags are the primary method for providing system feedback in the product user interface. Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
 * @module Flag
 */
-
 import $ from '../dollar';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import FlagActions from '../actions/flag_actions';
-import FlagComponent from '../components/flag';
 import _ from '../underscore';
-
+import util from '../util';
 const _flags = {};
 
 /**
@@ -21,19 +19,27 @@ class Flag {
     if(typeof options !== 'object') {
       return;
     }
-    this.flag = FlagComponent.render({
-      type: options.type,
-      title: options.title,
-      body: AJS.escapeHtml(options.body),
-      close: options.close,
-      id: callback._id
-    });
+    options.id = this.flag_id = callback._id;
+    FlagActions.open(options);
+    // this.flag = FlagComponent.render({
+    //   type: options.type,
+    //   title: options.title,
+    //   body: util.escapeHtml(options.body),
+    //   close: options.close,
+    //   id: callback._id
+    // });
+    // <FlagComponentReact
+    //   type={options.type}
+    //   title= {options.title}
+    //   body= {util.escapeHtml(options.body)}
+    //   close= {options.close}
+    //   id= {callback._id} />
+    
+    // FlagActions.open(this.flag.attr('id'));
 
-    FlagActions.open(this.flag.attr('id'));
+    // this.onTriggers= {};
 
-    this.onTriggers= {};
-
-    _flags[this.flag.attr('id')] = this;
+    // _flags[this.flag.attr('id')] = this;
   }
 
   /**

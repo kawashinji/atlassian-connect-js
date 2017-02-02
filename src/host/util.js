@@ -8,6 +8,25 @@ function escapeSelector(s) {
   return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
 }
 
+function escapeHtml (str) {
+    return str.replace(/[&"'<>`]/g, function (str) {
+        var special = {
+            '<': '&lt;',
+            '>': '&gt;',
+            '&': '&amp;',
+            '\'': '&#39;',
+            '`': '&#96;'
+        };
+
+        if (typeof special[str] === 'string') {
+            return special[str];
+        }
+
+        return '&quot;';
+    });
+}
+
+
 function stringToDimension(value) {
   var percent = false;
   var unit = 'px';
@@ -30,6 +49,7 @@ function getIframeByExtensionId(id) {
 }
 
 export default {
+  escapeHtml,
   escapeSelector,
   stringToDimension,
   getIframeByExtensionId

@@ -2,7 +2,6 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
 import IframeComponent from '../components/iframe';
 import $ from '../dollar';
-
 EventDispatcher.register('iframe-resize', function(data){
   IframeComponent.resize(data.width, data.height, data.$el);
 });
@@ -24,7 +23,7 @@ EventDispatcher.register('iframe-size-to-parent', function(data){
   EventDispatcher.dispatch('iframe-resize', {width: '100%', height: height + 'px', $el});
 });
 
-AJS.$(window).on('resize', function (e) {
+$('body').on('resize', function (e) {
   EventDispatcher.dispatch('host-window-resize', e);
 });
 

@@ -1,6 +1,9 @@
 import EventDispatcher from '../dispatchers/event_dispatcher';
 
 export default {
+  create: function(options) {
+    EventDispatcher.dispatch('flag-create', {options});
+  },
   open: function(flagId){
     EventDispatcher.dispatch('flag-open', {id: flagId});
   },

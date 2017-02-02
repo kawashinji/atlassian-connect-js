@@ -30,7 +30,8 @@ function build(entryModule, distModule, options) {
       babel({
         presets: [
           'es2015-rollup',
-          'stage-2'
+          'stage-2',
+          'react'
         ]
       }),
       builtins(),

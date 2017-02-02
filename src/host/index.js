@@ -1,3 +1,5 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
 import AnalyticsDispatcher from './dispatchers/analytics_dispatcher';
 import EventDispatcher from './dispatchers/event_dispatcher';
 import loadingIndicator from './components/loading_indicator';

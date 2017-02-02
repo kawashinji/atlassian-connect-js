@@ -2,17 +2,19 @@ import _ from './underscore';
 import EventDispatcher from './dispatchers/event_dispatcher';
 import DialogExtensionActions from './actions/dialog_extension_actions';
 import DomEventActions from './actions/dom_event_actions';
-import create from './create';
 import jwtActions from './actions/jwt_actions';
 import ModuleActions from './actions/module_actions';
 import EventActions from './actions/event_actions';
 import simpleXDM from 'simple-xdm/host';
 import IframeActions from './actions/iframe_actions';
 import AnalyticsAction from './actions/analytics_action';
+import IframeContainerComponent from './components/iframe_container_react';
+import ActionTypes from 'actions/action_types';
 
 class HostApi {
   constructor(){
-    this.create = create;
+    this.ActionTypes = ActionTypes;
+    this.IframeContainerComponent = IframeContainerComponent;
     this.dialog = {
       create: (extension, dialogOptions) => {
         DialogExtensionActions.open(extension, dialogOptions);
@@ -86,6 +88,13 @@ class HostApi {
     ModuleActions.defineCustomModule(name, methods);
   }
 
+  setModuleActionInterceptor(name, callback) {
+    ModuleActions.setActionInterceptor(name, callback);
+  }
+  unsetModuleActionInterceptor(name, callback) {
+    ModuleActions.unsetActionInterceptor(name, callback);
+  }
+
   broadcastEvent (type, targetSpec, event) {
     EventActions.broadcast(type, targetSpec, event);
   }
@@ -97,6 +106,7 @@ class HostApi {
   trackDeprecatedMethodUsed(methodUsed, extension) {
     AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
   }
+
 }
 
 export default new HostApi();

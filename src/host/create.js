@@ -1,13 +1,13 @@
-import IframeContainerComponent from './components/iframe_container';
+import IframeContainerComponent from './components/iframe_container_react';
 
-function create(extension) {
-  var simpleXdmExtension = {
-    addon_key: extension.addon_key,
-    key: extension.key,
-    url: extension.url,
-    options: extension.options
-  };
-  return IframeContainerComponent.createExtension(simpleXdmExtension);
+function create(props) {
+  // var simpleXdmExtension = {
+  //   addon_key: props.addon_key,
+  //   key: props.key,
+  //   url: props.url,
+  //   options: props.options
+  // };
+  return IframeContainerComponent;
 }
 
 export default create;

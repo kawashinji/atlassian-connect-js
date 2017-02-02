@@ -2247,22 +2247,6 @@ var AP = (function () {
       return s && s.replace(/^\s+|\s+$/g, '');
     },
 
-    debounce: function debounce(fn, wait) {
-      var timeout;
-      return function () {
-        var ctx = this;
-        var args = [].slice.call(arguments);
-        function later() {
-          timeout = null;
-          fn.apply(ctx, args);
-        }
-        if (timeout) {
-          clearTimeout(timeout);
-        }
-        timeout = setTimeout(later, wait || 50);
-      };
-    },
-
     isFunction: function isFunction(fn) {
       return typeof fn === 'function';
     },
@@ -2896,6 +2880,22 @@ var AP = (function () {
     }
   };
 
+  var debounce = function (fn, wait) {
+    var timeout;
+    return function () {
+      var ctx = this;
+      var args = [].slice.call(arguments);
+      function later() {
+        timeout = null;
+        fn.apply(ctx, args);
+      }
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+      timeout = setTimeout(later, wait || 50);
+    };
+  };
+
   AP$2._hostModules._dollar = $$3;
   AP$2._hostModules['inline-dialog'] = AP$2._hostModules.inlineDialog;
 
@@ -2941,7 +2941,7 @@ var AP = (function () {
     unbind: util$1.unbind,
     extend: util$1.extend,
     trim: util$1.trim,
-    debounce: util$1.debounce,
+    debounce: debounce,
     isFunction: util$1.isFunction,
     handleError: util$1.handleError
   };
