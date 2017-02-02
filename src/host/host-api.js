@@ -86,6 +86,10 @@ class HostApi {
     ModuleActions.defineCustomModule(name, methods);
   }
 
+  interceptModuleActions(name, cb) {
+    ModuleActions.setInterceptor(name, cb);
+  }
+
   broadcastEvent (type, targetSpec, event) {
     EventActions.broadcast(type, targetSpec, event);
   }

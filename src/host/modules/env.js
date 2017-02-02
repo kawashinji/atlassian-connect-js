@@ -3,8 +3,8 @@ import EnvActions from '../actions/env_actions';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
 import _ from '../underscore';
+import debounce from '../../shared/debounce';
 
-var debounce = AJS.debounce || $.debounce;
 var resizeFuncHolder = {};
 /**
  * Utility methods that are available without requiring additional modules.

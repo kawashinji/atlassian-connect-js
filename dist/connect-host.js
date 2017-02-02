@@ -899,7 +899,8 @@
 	 * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
 	 * to code that runs on host and iframe.
 	 */
-	var $ = AJS.$;
+	// export default AJS.$;
+	var $ = window.$;
 
 	var LOADING_INDICATOR_CLASS = 'ap-status-indicator';
 
@@ -4480,7 +4481,7 @@
 	  EventDispatcher$1.dispatch('iframe-resize', { width: '100%', height: height + 'px', $el: $el });
 	});
 
-	AJS.$(window).on('resize', function (e) {
+	$(window).on('resize', function (e) {
 	  EventDispatcher$1.dispatch('host-window-resize', e);
 	});
 
@@ -4503,7 +4504,22 @@
 	  }
 	};
 
-	var debounce = AJS.debounce || $.debounce;
+	var debounce = function (fn, wait) {
+	  var timeout;
+	  return function () {
+	    var ctx = this;
+	    var args = [].slice.call(arguments);
+	    function later() {
+	      timeout = null;
+	      fn.apply(ctx, args);
+	    }
+	    if (timeout) {
+	      clearTimeout(timeout);
+	    }
+	    timeout = setTimeout(later, wait || 50);
+	  };
+	};
+
 	var resizeFuncHolder = {};
 	/**
 	 * Utility methods that are available without requiring additional modules.
@@ -5251,6 +5267,11 @@
 	    key: 'defineModule',
 	    value: function defineModule(name, methods) {
 	      ModuleActions.defineCustomModule(name, methods);
+	    }
+	  }, {
+	    key: 'interceptModuleActions',
+	    value: function interceptModuleActions(name, cb) {
+	      ModuleActions.setInterceptor(name, cb);
 	    }
 	  }, {
 	    key: 'broadcastEvent',

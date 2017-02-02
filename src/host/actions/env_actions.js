@@ -24,7 +24,7 @@ EventDispatcher.register('iframe-size-to-parent', function(data){
   EventDispatcher.dispatch('iframe-resize', {width: '100%', height: height + 'px', $el});
 });
 
-AJS.$(window).on('resize', function (e) {
+$(window).on('resize', function (e) {
   EventDispatcher.dispatch('host-window-resize', e);
 });
 
