@@ -9,10 +9,12 @@ import EventActions from './actions/event_actions';
 import simpleXDM from 'simple-xdm/host';
 import IframeActions from './actions/iframe_actions';
 import AnalyticsAction from './actions/analytics_action';
+import * as ModuleActionTypes from './actions/module_action_types';
 
 class HostApi {
   constructor(){
     this.create = create;
+    this.ACTION_TYPES = ModuleActionTypes;
     this.dialog = {
       create: (extension, dialogOptions) => {
         DialogExtensionActions.open(extension, dialogOptions);

@@ -1,0 +1,1 @@
+export const FLAG_OPEN = 'flag_open';

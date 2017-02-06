@@ -1,6 +1,9 @@
 import $ from '../dollar';
 import FlagActions from '../actions/flag_actions';
 import EventDispatcher from '../dispatchers/event_dispatcher';
+import ModuleActions from '../actions/module_actions';
+import {FLAG_OPEN} from '../actions/module_action_types';
+
 const FLAGID_PREFIX = 'ap-flag-';
 
 class Flag {
@@ -44,6 +47,12 @@ $(document).on('aui-flag-close', (e) => {
 
 EventDispatcher.register('flag-close', (data) => {
   FlagComponent.close(data.id);
+});
+
+EventDispatcher.register(FLAG_OPEN, (data) => {
+  if(!ModuleActions.isIntercepted(FLAG_OPEN)) {
+    FlagComponent.render(data);
+  }
 });
 
 export default FlagComponent;

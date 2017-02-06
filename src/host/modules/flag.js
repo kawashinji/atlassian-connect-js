@@ -21,19 +21,27 @@ class Flag {
     if(typeof options !== 'object') {
       return;
     }
-    this.flag = FlagComponent.render({
+    // this.flag = FlagComponent.render({
+    //   type: options.type,
+    //   title: options.title,
+    //   body: AJS.escapeHtml(options.body),
+    //   close: options.close,
+    //   id: callback._id
+    // });
+
+    // FlagActions.open(this.flag.attr('id'));
+
+    // this.onTriggers= {};
+
+    // _flags[this.flag.attr('id')] = this;
+
+    FlagActions.open({
       type: options.type,
       title: options.title,
-      body: AJS.escapeHtml(options.body),
+      body: options.body,
       close: options.close,
       id: callback._id
     });
-
-    FlagActions.open(this.flag.attr('id'));
-
-    this.onTriggers= {};
-
-    _flags[this.flag.attr('id')] = this;
   }
 
   /**

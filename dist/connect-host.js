@@ -4924,10 +4924,19 @@
 	  hint: messageModule('hint')
 	};
 
+	var FLAG_OPEN = 'flag_open';
+
+var ModuleActionTypes = Object.freeze({
+		FLAG_OPEN: FLAG_OPEN
+	});
+
 	var FlagActions = {
-	  open: function open(flagId) {
-	    EventDispatcher$1.dispatch('flag-open', { id: flagId });
+	  open: function open(options) {
+	    EventDispatcher$1.dispatch(FLAG_OPEN, options);
 	  },
+	  // open: function(flagId){
+	  //   EventDispatcher.dispatch('flag-open', {id: flagId});
+	  // },
 	  //called to close a flag
 	  close: function close(flagId) {
 	    EventDispatcher$1.dispatch('flag-close', { id: flagId });
@@ -4935,6 +4944,27 @@
 	  //called by AUI when closed
 	  closed: function closed(flagId) {
 	    EventDispatcher$1.dispatch('flag-closed', { id: flagId });
+	  }
+	};
+
+	var ModuleActions = {
+	  intercepted: [],
+	  defineCustomModule: function defineCustomModule(name, methods) {
+	    var data = {};
+	    if (!methods) {
+	      data.methods = name;
+	    } else {
+	      data.methods = methods;
+	      data.name = name;
+	    }
+	    EventDispatcher$1.dispatch('module-define-custom', data);
+	  },
+	  isIntercepted: function isIntercepted(name) {
+	    return this.intercepted.indexOf(name) > -1;
+	  },
+	  setInterceptor: function setInterceptor(name, callback) {
+	    this.intercepted.push(name);
+	    EventDispatcher$1.on(name, callback);
 	  }
 	};
 
@@ -4991,6 +5021,12 @@
 	  FlagComponent.close(data.id);
 	});
 
+	EventDispatcher$1.register(FLAG_OPEN, function (data) {
+	  if (!ModuleActions.isIntercepted(FLAG_OPEN)) {
+	    FlagComponent.render(data);
+	  }
+	});
+
 	/**
 	* Flags are the primary method for providing system feedback in the product user interface. Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
 	* @module Flag
@@ -5011,19 +5047,27 @@
 	    if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
 	      return;
 	    }
-	    this.flag = FlagComponent.render({
+	    // this.flag = FlagComponent.render({
+	    //   type: options.type,
+	    //   title: options.title,
+	    //   body: AJS.escapeHtml(options.body),
+	    //   close: options.close,
+	    //   id: callback._id
+	    // });
+
+	    // FlagActions.open(this.flag.attr('id'));
+
+	    // this.onTriggers= {};
+
+	    // _flags[this.flag.attr('id')] = this;
+
+	    FlagActions.open({
 	      type: options.type,
 	      title: options.title,
-	      body: AJS.escapeHtml(options.body),
+	      body: options.body,
 	      close: options.close,
 	      id: callback._id
 	    });
-
-	    FlagActions.open(this.flag.attr('id'));
-
-	    this.onTriggers = {};
-
-	    _flags[this.flag.attr('id')] = this;
 	  }
 
 	  /**
@@ -5164,24 +5208,12 @@
 	  return IframeContainerComponent.createExtension(simpleXdmExtension);
 	}
 
-	var ModuleActions = {
-	  defineCustomModule: function defineCustomModule(name, methods) {
-	    var data = {};
-	    if (!methods) {
-	      data.methods = name;
-	    } else {
-	      data.methods = methods;
-	      data.name = name;
-	    }
-	    EventDispatcher$1.dispatch('module-define-custom', data);
-	  }
-	};
-
 	var HostApi$1 = function () {
 	  function HostApi() {
 	    classCallCheck(this, HostApi);
 
 	    this.create = create$1;
+	    this.ACTION_TYPES = ModuleActionTypes;
 	    this.dialog = {
 	      create: function create$1(extension, dialogOptions) {
 	        DialogExtensionActions.open(extension, dialogOptions);
