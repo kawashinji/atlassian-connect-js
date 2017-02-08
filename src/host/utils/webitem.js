@@ -39,16 +39,20 @@ function getFullKey($target){
   return getExtensionKey($target) + '__' + getKey($target);
 }
 
-function getModuleOptionsForWebitem(type, $target){
-  var addon_key = getExtensionKey($target);
-  var targetKey = getTargetKey($target);
+function getModuleOptionsByAddonAndModuleKey(type, addonKey, moduleKey) {
   var moduleType = type + 'Modules';
   if(window._AP
     && window._AP[moduleType]
-    && window._AP[moduleType][addon_key]
-    && window._AP[moduleType][addon_key][targetKey]) {
-    return _.clone(window._AP[moduleType][addon_key][targetKey].options);
+    && window._AP[moduleType][addonKey]
+    && window._AP[moduleType][addonKey][moduleKey]) {
+    return _.clone(window._AP[moduleType][addonKey][moduleKey].options);
   }
+}
+
+function getModuleOptionsForWebitem(type, $target){
+  var addon_key = getExtensionKey($target);
+  var targetKey = getTargetKey($target);
+  return getModuleOptionsByAddonAndModuleKey(type, addon_key, targetKey);
 }
 
 // LEGACY - method for handling webitem options for p2
@@ -82,5 +86,6 @@ export default {
   uniqueId,
   getExtensionKey,
   getKey,
-  getOptionsForWebItem
+  getOptionsForWebItem,
+  getModuleOptionsByAddonAndModuleKey
 };
