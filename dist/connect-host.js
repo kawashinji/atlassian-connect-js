@@ -3253,9 +3253,7 @@
 	    expires = claims.exp;
 	  }
 
-	  console.log('checking is expired?', skew, expires - now, now, expires);
 	  if (expires - skew < now) {
-	    // if ((expires - now) < skew) {
 	    return true;
 	  }
 
@@ -5801,7 +5799,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.34';
+	  window._AP.version = '5.0.0-beta.35';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

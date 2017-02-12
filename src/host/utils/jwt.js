@@ -40,9 +40,7 @@ function isJwtExpired(jwtString, skew) {
     expires = claims.exp;
   }
 
-  console.log('checking is expired?', skew, expires - now, now, expires);
   if ((expires - skew) < now){
-  // if ((expires - now) < skew) {
     return true;
   }
 
