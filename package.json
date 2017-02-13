@@ -1,6 +1,6 @@
 {
   "name": "atlassian-connect-js",
-  "version": "5.0.0-beta.34",
+  "version": "5.0.0-beta.35",
   "license": "Apache-2.0",
   "description": "Atlassian Connect JavaScript bridge",
   "main": "dist/connect-host.js",

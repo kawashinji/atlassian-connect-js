@@ -4648,7 +4648,7 @@
 	* //create a message
 	* var message = AP.messages.info('plain text title', 'plain text body');
 	* ```
-	* @deprecated Please use the [Flag module](module-Flag.html) instead.
+	* @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
 	* @name messages
 	* @module
 	*/
@@ -4745,7 +4745,7 @@
 	var messages = {
 	  /**
 	  * Close a message
-	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
 	  * @name clear
 	  * @method
 	  * @memberof module:messages#
@@ -4766,7 +4766,7 @@
 
 	  /**
 	  * Trigger an event when a message is closed
-	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
 	  * @name onClose
 	  * @method
 	  * @memberof module:messages#
@@ -4789,7 +4789,7 @@
 
 	  /**
 	  * Show a generic message
-	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
 	  * @name generic
 	  * @method
 	  * @memberof module:messages#
@@ -4809,7 +4809,7 @@
 
 	  /**
 	  * Show an error message
-	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
 	  * @name error
 	  * @method
 	  * @memberof module:messages#
@@ -4829,7 +4829,7 @@
 
 	  /**
 	  * Show a warning message
-	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
 	  * @name warning
 	  * @method
 	  * @memberof module:messages#
@@ -4849,7 +4849,7 @@
 
 	  /**
 	  * Show a success message
-	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
 	  * @name success
 	  * @method
 	  * @memberof module:messages#
@@ -4869,7 +4869,7 @@
 
 	  /**
 	  * Show an info message
-	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
 	  * @name info
 	  * @method
 	  * @memberof module:messages#
@@ -4889,7 +4889,7 @@
 
 	  /**
 	  * Show a hint message
-	  * @deprecated Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
 	  * @name hint
 	  * @method
 	  * @memberof module:messages#
@@ -5781,7 +5781,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.34';
+	  window._AP.version = '5.0.0-beta.35';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
