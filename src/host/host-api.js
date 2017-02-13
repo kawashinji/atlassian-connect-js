@@ -9,13 +9,16 @@ import EventActions from './actions/event_actions';
 import simpleXDM from 'simple-xdm/host';
 import IframeActions from './actions/iframe_actions';
 import AnalyticsAction from './actions/analytics_action';
+import WebItemUtils from './utils/webitem';
 
 class HostApi {
   constructor(){
     this.create = create;
     this.dialog = {
       create: (extension, dialogOptions) => {
-        DialogExtensionActions.open(extension, dialogOptions);
+        var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
+        var completeOptions = _.extend({}, dialogBeanOptions || {}, dialogOptions);
+        DialogExtensionActions.open(extension, completeOptions);
       },
       close: () => {
         DialogExtensionActions.close();
