@@ -82,7 +82,7 @@ require(["_dollar", "_rpc", "_ui-params"], function ($, rpc, uiParams) {
     function keyMatchesOrigin(addonKey, origin) {
         return  addonKey && _AP.addonOriginMap &&
                 _AP.addonOriginMap[addonKey] !== undefined &&
-								_AP.addonOriginMap[addonKey].toLowerCase().substr(0, origin.length) === origin.toLowerCase();
+		_AP.addonOriginMap[addonKey].toLowerCase().substr(0, origin.length) === origin.toLowerCase();
     }
 
     /**
