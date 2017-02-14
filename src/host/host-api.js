@@ -100,6 +100,10 @@ class HostApi {
   trackDeprecatedMethodUsed(methodUsed, extension) {
     AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
   }
+
+  setJwtClockSkew(skew) {
+    jwtActions.setClockSkew(skew);
+  }
 }
 
 export default new HostApi();

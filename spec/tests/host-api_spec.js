@@ -40,6 +40,15 @@ describe('Host API', function() {
     expect(spy).not.toHaveBeenCalled();
   });
 
+  it('setJwtClockSkew sets the clockSkew', function(done){
+    var skew = 12345;
+    EventDispatcher.once('jwt-skew-set', (data) => {
+      expect(data.skew).toEqual(skew);
+      done();
+    });
+    HostApi.setJwtClockSkew(skew);
+  });
+
   it('dialog.create uses dialog module options', function(done){
     var extension = {
       addon_key: 'abc',

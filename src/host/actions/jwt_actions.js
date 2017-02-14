@@ -30,6 +30,14 @@ export default {
       });
     });
     EventDispatcher.dispatch('jwt-url-refresh-request', {data});
+  },
+
+  setClockSkew: function(skew) {
+    if(typeof skew === 'number') {
+      EventDispatcher.dispatch('jwt-skew-set', {skew});
+    } else {
+      console.error('ACJS: invalid JWT clock skew set');
+    }
   }
 
 };

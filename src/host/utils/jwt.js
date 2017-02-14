@@ -1,4 +1,6 @@
 import base64 from './base64';
+import EventDispatcher from '../dispatchers/event_dispatcher';
+var JWT_SKEW = 60; // in seconds.
 
 function parseJwtIssuer(jwt) {
   return parseJwtClaims(jwt)['iss'];
@@ -29,23 +31,27 @@ function parseJwtClaims(jwt) {
 
 function isJwtExpired(jwtString, skew) {
   if (skew === undefined) {
-    skew = 60; // give a minute of leeway to allow clock skew
+    skew = JWT_SKEW;
   }
   var claims = parseJwtClaims(jwtString);
   var expires = 0;
   var now = Math.floor(Date.now() / 1000); // UTC timestamp now
-
   if (claims && claims.exp) {
     expires = claims.exp;
   }
 
-  if ((expires - now) < skew) {
+  if ((expires - skew) < now){
     return true;
   }
 
   return false;
 
 }
+
+EventDispatcher.register('jwt-skew-set', function(data){
+  JWT_SKEW = data.skew;
+});
+
 
 export default {
   parseJwtIssuer,
