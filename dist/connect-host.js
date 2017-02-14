@@ -1386,34 +1386,32 @@
 	      if (module) {
 	        var fnName = data.fn;
 	        if (data._cls) {
-	          (function () {
-	            var Cls = module[data._cls];
-	            var ns = data.mod + '-' + data._cls + '-';
-	            sendResponse._id = data._id;
-	            if (fnName === 'constructor') {
-	              if (!Cls._construct) {
-	                Cls.constructor.prototype._destroy = function () {
-	                  delete this._context._proxies[ns + this._id];
-	                };
-	                Cls._construct = function () {
-	                  for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	                    args[_key] = arguments[_key];
-	                  }
+	          var Cls = module[data._cls];
+	          var ns = data.mod + '-' + data._cls + '-';
+	          sendResponse._id = data._id;
+	          if (fnName === 'constructor') {
+	            if (!Cls._construct) {
+	              Cls.constructor.prototype._destroy = function () {
+	                delete this._context._proxies[ns + this._id];
+	              };
+	              Cls._construct = function () {
+	                for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	                  args[_key] = arguments[_key];
+	                }
 
-	                  var inst = new (Function.prototype.bind.apply(Cls.constructor, [null].concat(args)))();
-	                  var callback = args[args.length - 1];
-	                  inst._id = callback._id;
-	                  inst._context = callback._context;
-	                  inst._context._proxies[ns + inst._id] = inst;
-	                  return inst;
-	                };
-	              }
-	              module = Cls;
-	              fnName = '_construct';
-	            } else {
-	              module = extension._proxies[ns + data._id];
+	                var inst = new (Function.prototype.bind.apply(Cls.constructor, [null].concat(args)))();
+	                var callback = args[args.length - 1];
+	                inst._id = callback._id;
+	                inst._context = callback._context;
+	                inst._context._proxies[ns + inst._id] = inst;
+	                return inst;
+	              };
 	            }
-	          })();
+	            module = Cls;
+	            fnName = '_construct';
+	          } else {
+	            module = extension._proxies[ns + data._id];
+	          }
 	        }
 	        var method = module[fnName];
 	        if (method) {
@@ -5799,7 +5797,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.35';
+	  window._AP.version = '5.0.0-beta.36';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
