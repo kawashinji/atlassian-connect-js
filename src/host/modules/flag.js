@@ -8,6 +8,7 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
 import FlagActions from '../actions/flag_actions';
 import FlagComponent from '../components/flag';
 import _ from '../underscore';
+import EventActions from '../actions/event_actions';
 
 const _flags = {};
 
@@ -25,6 +26,7 @@ class Flag {
       type: options.type,
       title: options.title,
       body: AJS.escapeHtml(options.body),
+      actions: options.actions,
       close: options.close,
       id: callback._id
     });
@@ -32,7 +34,7 @@ class Flag {
     FlagActions.open(this.flag.attr('id'));
 
     this.onTriggers= {};
-
+    this.extension = callback._context.extension;
     _flags[this.flag.attr('id')] = this;
   }
 
@@ -48,7 +50,8 @@ class Flag {
   * var flag = AP.flag.create({
   *   title: 'Successfully created a flag.',
   *   body: 'This is a flag.',
-  *   type: 'info'
+  *   type: 'info',
+  *   actions: {'key': 'click me'}
   * });
   *
   * // Log a message to the console when the flag has closed.
@@ -86,14 +89,37 @@ class Flag {
   }
 }
 
-EventDispatcher.register('flag-closed', (data) => {
-  if (_flags[data.id] && $.isFunction(_flags[data.id].onTriggers['close'])) {
-    _flags[data.id].onTriggers['close']();
+function invokeTrigger(id, eventName) {
+  if (_flags[id] && $.isFunction(_flags[id].onTriggers[eventName])) {
+    _flags[id].onTriggers[eventName]();
   }
+}
+
+EventDispatcher.register('flag-closed', (data) => {
+  invokeTrigger(data.id, 'close');
   if (_flags[data.id]) {
     delete _flags[data.id];
   }
 });
+EventDispatcher.register('flag-action-invoked', (data) => {
+  invokeTrigger(data.id, data.actionId);
+});
+
+
+// EventDispatcher.register('flag-action-invoked', (data) => {
+//   console.log('module FLAG ACTION INVOKED', data, _flags[data.id], _flags);
+//   if (_flags[data.id] && _flags[data.id].extension) {
+//     var eventData = {
+//       flag: data.cleanFlagId,
+//       action: data.actionId
+//     };
+//     var extension = _flags[data.id].extension;
+
+//     EventActions.broadcast('flag-action', {
+//       extension_id: extension.extesion_id
+//     }, eventData);
+//   }
+// });
 
 export default {
   /**

@@ -4920,6 +4920,13 @@
 	};
 
 	var FlagActions = {
+	  actionInvoked: function actionInvoked(actionId, cleanFlagId, flagId) {
+	    EventDispatcher$1.dispatch('flag-action-invoked', {
+	      id: flagId,
+	      cleanFlagId: cleanFlagId,
+	      actionId: actionId
+	    });
+	  },
 	  open: function open(flagId) {
 	    EventDispatcher$1.dispatch('flag-open', { id: flagId });
 	  },
@@ -4934,6 +4941,8 @@
 	};
 
 	var FLAGID_PREFIX = 'ap-flag-';
+	var FLAG_CLASS = 'ac-aui-flag';
+	var FLAG_ACTION_CLASS = 'ac-flag-actions';
 
 	var Flag$1 = function () {
 	  function Flag() {
@@ -4941,6 +4950,16 @@
 	  }
 
 	  createClass(Flag, [{
+	    key: 'cleanKey',
+	    value: function cleanKey(dirtyKey) {
+	      var cleanFlagKeyRegExp = new RegExp('^' + FLAGID_PREFIX + '(.+)$');
+	      var matches = dirtyKey.match(cleanFlagKeyRegExp);
+	      if (matches && matches[1]) {
+	        return matches[1];
+	      }
+	      return null;
+	    }
+	  }, {
 	    key: '_toHtmlString',
 	    value: function _toHtmlString(str) {
 	      if ($.type(str) === 'string') {
@@ -4950,19 +4969,44 @@
 	      }
 	    }
 	  }, {
+	    key: '_renderBody',
+	    value: function _renderBody(body) {
+	      var body = this._toHtmlString(body);
+	      var $body = $('<div />').html(body);
+	      $('<p />').addClass(FLAG_ACTION_CLASS).appendTo($body);
+	      return $body.html();
+	    }
+	  }, {
+	    key: '_renderActions',
+	    value: function _renderActions($flag, actions) {
+	      var $actionContainer = $flag.find('.' + FLAG_ACTION_CLASS);
+	      actions = actions || {};
+	      var $action;
+
+	      Object.getOwnPropertyNames(actions).forEach(function (key) {
+	        $action = $('<a />').attr('href', '#').data({
+	          'key': key,
+	          'flag_id': $flag.attr('id')
+	        }).text(actions[key]);
+	        $actionContainer.append($action);
+	      }, this);
+	      return $flag;
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render(options) {
 	      var _id = FLAGID_PREFIX + options.id;
 	      var auiFlag = AJS.flag({
 	        type: options.type,
 	        title: options.title,
-	        body: this._toHtmlString(options.body),
+	        body: this._renderBody(options.body),
 	        close: options.close
 	      });
 	      auiFlag.setAttribute('id', _id);
 	      var $auiFlag = $(auiFlag);
+	      this._renderActions($auiFlag, options.actions);
+	      $auiFlag.addClass(FLAG_CLASS);
 	      $auiFlag.close = auiFlag.close;
-
 	      return $auiFlag;
 	    }
 	  }, {
@@ -4980,6 +5024,14 @@
 	$(document).on('aui-flag-close', function (e) {
 	  var _id = e.target.id;
 	  FlagActions.closed(_id);
+	});
+
+	$(document).on('click', '.ac-flag-actions', function (e) {
+	  var $target = $(e.target);
+	  var actionKey = $target.data('key');
+	  var internalFlagId = $target.data('flag_id');
+	  var cleanFlagId = FlagComponent.cleanKey(internalFlagId);
+	  FlagActions.actionInvoked(actionKey, cleanFlagId, internalFlagId);
 	});
 
 	EventDispatcher$1.register('flag-close', function (data) {
@@ -5010,6 +5062,7 @@
 	      type: options.type,
 	      title: options.title,
 	      body: AJS.escapeHtml(options.body),
+	      actions: options.actions,
 	      close: options.close,
 	      id: callback._id
 	    });
@@ -5017,7 +5070,7 @@
 	    FlagActions.open(this.flag.attr('id'));
 
 	    this.onTriggers = {};
-
+	    this.extension = callback._context.extension;
 	    _flags[this.flag.attr('id')] = this;
 	  }
 
@@ -5033,7 +5086,8 @@
 	  * var flag = AP.flag.create({
 	  *   title: 'Successfully created a flag.',
 	  *   body: 'This is a flag.',
-	  *   type: 'info'
+	  *   type: 'info',
+	  *   actions: {'key': 'click me'}
 	  * });
 	  *
 	  * // Log a message to the console when the flag has closed.
@@ -5080,14 +5134,36 @@
 	  return Flag;
 	}();
 
-	EventDispatcher$1.register('flag-closed', function (data) {
-	  if (_flags[data.id] && $.isFunction(_flags[data.id].onTriggers['close'])) {
-	    _flags[data.id].onTriggers['close']();
+	function invokeTrigger(id, eventName) {
+	  if (_flags[id] && $.isFunction(_flags[id].onTriggers[eventName])) {
+	    _flags[id].onTriggers[eventName]();
 	  }
+	}
+
+	EventDispatcher$1.register('flag-closed', function (data) {
+	  invokeTrigger(data.id, 'close');
 	  if (_flags[data.id]) {
 	    delete _flags[data.id];
 	  }
 	});
+	EventDispatcher$1.register('flag-action-invoked', function (data) {
+	  invokeTrigger(data.id, data.actionId);
+	});
+
+	// EventDispatcher.register('flag-action-invoked', (data) => {
+	//   console.log('module FLAG ACTION INVOKED', data, _flags[data.id], _flags);
+	//   if (_flags[data.id] && _flags[data.id].extension) {
+	//     var eventData = {
+	//       flag: data.cleanFlagId,
+	//       action: data.actionId
+	//     };
+	//     var extension = _flags[data.id].extension;
+
+	//     EventActions.broadcast('flag-action', {
+	//       extension_id: extension.extesion_id
+	//     }, eventData);
+	//   }
+	// });
 
 	var flag = {
 	  /**

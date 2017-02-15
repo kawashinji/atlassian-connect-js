@@ -19,6 +19,7 @@ describe('flag api module', () => {
         expect(e.id).toEqual('ap-flag-abc123');
         expect($('#' + e.id).hasClass('aui-flag')).toBe(true);
         expect($('#' + e.id).find('.title').text()).toEqual('some title');
+        expect($('#' + e.id).find('.ac-flag-actions a').text()).toEqual('action text');
         done();
       });
 
@@ -27,9 +28,36 @@ describe('flag api module', () => {
       new FlagModule.create.constructor({
         type: 'success',
         title: 'some title',
-        body: 'the body'
+        body: 'the body',
+        actions: {
+          key: 'action text'
+        }
       }, flagCallback);
 
+    });
+  });
+
+  describe('action', () => {
+    it('should trigger an event on click', () =>{
+      var flagCallback = function(){};
+      flagCallback._id = 'a1';
+      flagCallback._context = {
+        extension: {}
+      };
+      var flag = new FlagModule.create.constructor({
+        type: 'success',
+        title: 'some title',
+        body: 'the body',
+        actions: {
+          akey: 'some value'
+        }
+      }, flagCallback);
+      expect($('.ac-flag-actions a').length).toEqual(1);
+      var spy = jasmine.createSpy('spy');
+      flag.on('akey', spy);
+      expect(spy).not.toHaveBeenCalled();
+      $('.ac-flag-actions a').click();
+      expect(spy).toHaveBeenCalled();
     });
   });
 
@@ -37,6 +65,9 @@ describe('flag api module', () => {
     it('should close the flag', () =>{
       var flagCallback = function(){};
       flagCallback._id = 'abc1234';
+      flagCallback._context = {
+        extension: {}
+      };
       var flag = new FlagModule.create.constructor({
         type: 'success',
         title: 'some title',
@@ -52,6 +83,9 @@ describe('flag api module', () => {
     it('should set an event hanler', () => {
       var flagCallback = function(){};
       flagCallback._id = 'abc1234';
+      flagCallback._context = {
+        extension: {}
+      };
       var flag = new FlagModule.create.constructor({
         type: 'success',
         title: 'some title',
