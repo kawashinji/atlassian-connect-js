@@ -5031,12 +5031,10 @@
 	  var $target = $(e.target);
 	  var actionKey = $target.data('key');
 	  var flagId = $target.data('flag_id');
-	  console.log('clicked action', actionKey, flagId);
 	  FlagActions.actionInvoked(actionKey, flagId);
 	});
 
 	EventDispatcher$1.register('flag-close', function (data) {
-	  console.log('flag close triggered', data);
 	  FlagComponent.close(data.id);
 	});
 
@@ -5855,7 +5853,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.36';
+	  window._AP.version = '5.0.0-beta.37';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
