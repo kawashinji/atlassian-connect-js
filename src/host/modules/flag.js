@@ -15,6 +15,28 @@ const _flags = {};
 /**
 * @class Flag~Flag
 * @description A flag object created by the [AP.flag]{@link module:Flag} module.
+* @example
+* // complete flag API example:
+* var flag = AP.flag.create({
+*   title: 'Successfully created a flag.',
+*   body: 'This is a flag.',
+*   type: 'info',
+*   actions: {
+*     'actionOne': 'action name'
+*   }
+* });
+* // Each flag will have a unique id. Save it for later.
+* var ourFlagId = flag._id;
+* // listen to flag events
+* AP.events.on('flag-closed', function(data) {
+* // a flag was closed. data.flagIdentifier should match ourFlagId
+*   console.log('flag id: ', data.flagIdentifier);
+* });
+* AP.events.on('flag-action-invoked', function(data) {
+* // a flag action was clicked. data.actionIdentifier will be 'actionOne'
+* // data.flagIdentifier will equal ourFlagId
+*   console.log('flag id: ', data.flagIdentifier, 'flag action id', data.actionIdentifier);
+* });
 */
 class Flag {
   constructor(options, callback) {
@@ -35,36 +57,7 @@ class Flag {
 
     this.onTriggers= {};
     this.extension = callback._context.extension;
-    _flags[this.flag.attr('id')] = this;
-  }
-
-  /**
-  * @name on
-  * @memberof Flag~Flag
-  * @method
-  * @description Binds a callback function to an event that is triggered by the Flag.
-  * @param {Event} event A flag event; currently, the only valid option is 'close'.
-  * @param {Function} callback The function that runs when the event occurs.
-  * @example
-  * // Display a nice green flag using the Flags JavaScript API.
-  * var flag = AP.flag.create({
-  *   title: 'Successfully created a flag.',
-  *   body: 'This is a flag.',
-  *   type: 'info',
-  *   actions: {'key': 'click me'}
-  * });
-  *
-  * // Log a message to the console when the flag has closed.
-  * flag.on('close', function (data) {
-  *   console.log('Flag has been closed!');
-  * })
-  *
-  */
-  on(event, callback) {
-    const id = this.flag.id;
-    if ($.isFunction(callback)) {
-      this.onTriggers[event] = callback;
-    }
+    _flags[callback._id] = this;
   }
 
   /**
@@ -89,37 +82,27 @@ class Flag {
   }
 }
 
-function invokeTrigger(id, eventName) {
-  if (_flags[id] && $.isFunction(_flags[id].onTriggers[eventName])) {
-    _flags[id].onTriggers[eventName]();
+function invokeTrigger(id, eventName, data) {
+  if (_flags[id]) {
+    let extension = _flags[id].extension;
+    data = data || {};
+    data.flagIdentifier = id;
+    EventActions.broadcast(eventName, {
+      extension_id: extension.extension_id
+    }, data);
   }
 }
 
 EventDispatcher.register('flag-closed', (data) => {
-  invokeTrigger(data.id, 'close');
+  invokeTrigger(data.id, 'flag-closed');
   if (_flags[data.id]) {
     delete _flags[data.id];
   }
 });
+
 EventDispatcher.register('flag-action-invoked', (data) => {
-  invokeTrigger(data.id, data.actionId);
+  invokeTrigger(data.id, 'flag-action-invoked', {actionIdentifier: data.actionId});
 });
-
-
-// EventDispatcher.register('flag-action-invoked', (data) => {
-//   console.log('module FLAG ACTION INVOKED', data, _flags[data.id], _flags);
-//   if (_flags[data.id] && _flags[data.id].extension) {
-//     var eventData = {
-//       flag: data.cleanFlagId,
-//       action: data.actionId
-//     };
-//     var extension = _flags[data.id].extension;
-
-//     EventActions.broadcast('flag-action', {
-//       extension_id: extension.extesion_id
-//     }, eventData);
-//   }
-// });
 
 export default {
   /**
@@ -142,7 +125,6 @@ export default {
   */
   create: {
     constructor: Flag,
-    on: Flag.prototype.on,
     close: Flag.prototype.close
   }
 }

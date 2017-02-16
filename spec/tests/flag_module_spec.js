@@ -1,5 +1,6 @@
 import FlagModule from 'src/host/modules/flag';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
+import EventActions from 'src/host/actions/event_actions';
 
 describe('flag api module', () => {
 
@@ -9,7 +10,7 @@ describe('flag api module', () => {
 
   it('should return the flag api the correct methods', () => {
     expect(Object.getOwnPropertyNames(FlagModule)).toEqual(['create']);
-    expect(Object.getOwnPropertyNames(FlagModule.create)).toEqual(['constructor', 'on', 'close']);
+    expect(Object.getOwnPropertyNames(FlagModule.create)).toEqual(['constructor', 'close']);
   });
 
   describe('constructor', () => {
@@ -42,7 +43,9 @@ describe('flag api module', () => {
       var flagCallback = function(){};
       flagCallback._id = 'a1';
       flagCallback._context = {
-        extension: {}
+        extension: {
+          extension_id: 'an-extension-id'
+        }
       };
       var flag = new FlagModule.create.constructor({
         type: 'success',
@@ -53,11 +56,17 @@ describe('flag api module', () => {
         }
       }, flagCallback);
       expect($('.ac-flag-actions a').length).toEqual(1);
-      var spy = jasmine.createSpy('spy');
-      flag.on('akey', spy);
-      expect(spy).not.toHaveBeenCalled();
+      spyOn(EventActions,'broadcast');
+      expect(EventActions.broadcast).not.toHaveBeenCalled();
       $('.ac-flag-actions a').click();
-      expect(spy).toHaveBeenCalled();
+      expect(EventActions.broadcast).toHaveBeenCalled();
+      expect(EventActions.broadcast).toHaveBeenCalledWith(
+        'flag-action-invoked',
+        flagCallback._context.extension,
+        {
+          flagIdentifier: flagCallback._id,
+          actionIdentifier: 'akey'
+        });
     });
   });
 
@@ -84,18 +93,20 @@ describe('flag api module', () => {
       var flagCallback = function(){};
       flagCallback._id = 'abc1234';
       flagCallback._context = {
-        extension: {}
+        extension: {
+          extension_id: 'some-extension-id'
+        }
       };
       var flag = new FlagModule.create.constructor({
         type: 'success',
         title: 'some title',
         body: 'the body'
       }, flagCallback);
-      var spy = jasmine.createSpy('spy');
-      flag.on('close', spy);
-      expect(spy).not.toHaveBeenCalled();
+      spyOn(EventActions,'broadcast');
+      expect(EventActions.broadcast).not.toHaveBeenCalled();
       flag.close();
-      expect(spy).toHaveBeenCalled();
+      expect(EventActions.broadcast).toHaveBeenCalled();
+      expect(EventActions.broadcast).toHaveBeenCalledWith('flag-closed', flagCallback._context.extension, { flagIdentifier: flagCallback._id });
     });
   });
 

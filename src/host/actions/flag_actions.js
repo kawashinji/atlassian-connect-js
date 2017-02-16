@@ -1,10 +1,10 @@
 import EventDispatcher from '../dispatchers/event_dispatcher';
 
 export default {
-  actionInvoked: function (actionId, cleanFlagId, flagId) {
+  // called on action click
+  actionInvoked: function (actionId, flagId) {
     EventDispatcher.dispatch('flag-action-invoked', {
       id: flagId,
-      cleanFlagId: cleanFlagId,
       actionId: actionId
     });
   },

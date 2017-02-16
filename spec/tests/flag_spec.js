@@ -214,7 +214,7 @@ describe('Flag Component', () => {
         expect(FlagActions.actionInvoked).not.toHaveBeenCalled();
         $flag.find('.ac-flag-actions a').click();
         expect(FlagActions.actionInvoked).toHaveBeenCalled();
-        expect(FlagActions.actionInvoked).toHaveBeenCalledWith('akey', 'some-id', 'ap-flag-some-id');
+        expect(FlagActions.actionInvoked).toHaveBeenCalledWith('akey', 'some-id');
         done();
       });
     });

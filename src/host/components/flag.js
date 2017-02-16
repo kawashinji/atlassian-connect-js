@@ -31,7 +31,7 @@ class Flag {
     return $body.html();
   }
 
-  _renderActions($flag, actions) {
+  _renderActions($flag, flagId, actions) {
     var $actionContainer = $flag.find('.' + FLAG_ACTION_CLASS);
     actions = actions || {};
     var $action;
@@ -41,7 +41,7 @@ class Flag {
         .attr('href', '#')
         .data({
           'key': key,
-          'flag_id': $flag.attr('id')
+          'flag_id': flagId
         })
         .text(actions[key]);
       $actionContainer.append($action);
@@ -59,7 +59,7 @@ class Flag {
     });
     auiFlag.setAttribute('id', _id);
     var $auiFlag = $(auiFlag);
-    this._renderActions($auiFlag, options.actions);
+    this._renderActions($auiFlag, options.id, options.actions);
     $auiFlag.addClass(FLAG_CLASS);
     $auiFlag.close = auiFlag.close;
     return $auiFlag;
@@ -76,15 +76,15 @@ var FlagComponent = new Flag();
 
 $(document).on('aui-flag-close', (e) => {
   const _id = e.target.id;
-  FlagActions.closed(_id);
+  var cleanFlagId = FlagComponent.cleanKey(_id);
+  FlagActions.closed(cleanFlagId);
 });
 
 $(document).on('click', '.ac-flag-actions', (e) => {
   var $target = $(e.target);
   var actionKey = $target.data('key');
-  var internalFlagId = $target.data('flag_id');
-  var cleanFlagId = FlagComponent.cleanKey(internalFlagId);
-  FlagActions.actionInvoked(actionKey, cleanFlagId, internalFlagId);
+  var flagId = $target.data('flag_id');
+  FlagActions.actionInvoked(actionKey, flagId);
 });
 
 EventDispatcher.register('flag-close', (data) => {
