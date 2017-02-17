@@ -2,7 +2,7 @@ import _ from './underscore';
 import EventDispatcher from './dispatchers/event_dispatcher';
 import DialogExtensionActions from './actions/dialog_extension_actions';
 import DomEventActions from './actions/dom_event_actions';
-import create from './create';
+import IframeCreate from './create';
 import jwtActions from './actions/jwt_actions';
 import ModuleActions from './actions/module_actions';
 import EventActions from './actions/event_actions';
@@ -13,7 +13,7 @@ import WebItemUtils from './utils/webitem';
 
 class HostApi {
   constructor(){
-    this.create = create;
+    this.create = IframeCreate;
     this.dialog = {
       create: (extension, dialogOptions) => {
         var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
