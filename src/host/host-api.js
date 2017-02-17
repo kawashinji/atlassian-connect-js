@@ -2,7 +2,7 @@ import _ from './underscore';
 import EventDispatcher from './dispatchers/event_dispatcher';
 import DialogExtensionActions from './actions/dialog_extension_actions';
 import DomEventActions from './actions/dom_event_actions';
-import IframeCreate from './create';
+import IframeCreate from './iframe-create';
 import jwtActions from './actions/jwt_actions';
 import ModuleActions from './actions/module_actions';
 import EventActions from './actions/event_actions';
