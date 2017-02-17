@@ -1,6 +1,6 @@
-import create from 'src/host/create';
+import IframeCreate from 'src/host/iframe-create';
 
-describe('Create', () => {
+describe('Iframe Create', () => {
   var extensionConfig = {
     addon_key: 'addon-key',
     key: 'module-key',
@@ -17,14 +17,14 @@ describe('Create', () => {
 
 
   it('returns an iframe container node', () => {
-    var container = create(extensionConfig);
+    var container = IframeCreate(extensionConfig);
     expect(container.length).toEqual(1);
     expect(container.hasClass('ap-iframe-container')).toBe(true);
     expect(container.find('iframe').length).toEqual(1);
   });
 
   describe('iframe has attribute', () => {
-    var iframe = create(extensionConfig).find('iframe');
+    var iframe = IframeCreate(extensionConfig).find('iframe');
     it('src', () => {
       expect(iframe.attr('src')).toContain(extensionConfig.url);
     });
