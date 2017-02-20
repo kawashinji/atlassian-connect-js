@@ -28,11 +28,11 @@ const _flags = {};
 * // Each flag will have a unique id. Save it for later.
 * var ourFlagId = flag._id;
 * // listen to flag events
-* AP.events.on('flag-closed', function(data) {
+* AP.events.on('flag.close', function(data) {
 * // a flag was closed. data.flagIdentifier should match ourFlagId
 *   console.log('flag id: ', data.flagIdentifier);
 * });
-* AP.events.on('flag-action-invoked', function(data) {
+* AP.events.on('flag.action', function(data) {
 * // a flag action was clicked. data.actionIdentifier will be 'actionOne'
 * // data.flagIdentifier will equal ourFlagId
 *   console.log('flag id: ', data.flagIdentifier, 'flag action id', data.actionIdentifier);
@@ -94,14 +94,14 @@ function invokeTrigger(id, eventName, data) {
 }
 
 EventDispatcher.register('flag-closed', (data) => {
-  invokeTrigger(data.id, 'flag-closed');
+  invokeTrigger(data.id, 'flag.close');
   if (_flags[data.id]) {
     delete _flags[data.id];
   }
 });
 
 EventDispatcher.register('flag-action-invoked', (data) => {
-  invokeTrigger(data.id, 'flag-action-invoked', {actionIdentifier: data.actionId});
+  invokeTrigger(data.id, 'flag.action', {actionIdentifier: data.actionId});
 });
 
 export default {

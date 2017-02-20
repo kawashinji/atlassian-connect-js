@@ -61,7 +61,7 @@ describe('flag api module', () => {
       $('.ac-flag-actions a').click();
       expect(EventActions.broadcast).toHaveBeenCalled();
       expect(EventActions.broadcast).toHaveBeenCalledWith(
-        'flag-action-invoked',
+        'flag.action',
         flagCallback._context.extension,
         {
           flagIdentifier: flagCallback._id,
@@ -106,7 +106,7 @@ describe('flag api module', () => {
       expect(EventActions.broadcast).not.toHaveBeenCalled();
       flag.close();
       expect(EventActions.broadcast).toHaveBeenCalled();
-      expect(EventActions.broadcast).toHaveBeenCalledWith('flag-closed', flagCallback._context.extension, { flagIdentifier: flagCallback._id });
+      expect(EventActions.broadcast).toHaveBeenCalledWith('flag.close', flagCallback._context.extension, { flagIdentifier: flagCallback._id });
     });
   });
 

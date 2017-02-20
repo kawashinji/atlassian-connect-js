@@ -440,118 +440,7 @@
 
 
 
-	var asyncGenerator = function () {
-	  function AwaitValue(value) {
-	    this.value = value;
-	  }
 
-	  function AsyncGenerator(gen) {
-	    var front, back;
-
-	    function send(key, arg) {
-	      return new Promise(function (resolve, reject) {
-	        var request = {
-	          key: key,
-	          arg: arg,
-	          resolve: resolve,
-	          reject: reject,
-	          next: null
-	        };
-
-	        if (back) {
-	          back = back.next = request;
-	        } else {
-	          front = back = request;
-	          resume(key, arg);
-	        }
-	      });
-	    }
-
-	    function resume(key, arg) {
-	      try {
-	        var result = gen[key](arg);
-	        var value = result.value;
-
-	        if (value instanceof AwaitValue) {
-	          Promise.resolve(value.value).then(function (arg) {
-	            resume("next", arg);
-	          }, function (arg) {
-	            resume("throw", arg);
-	          });
-	        } else {
-	          settle(result.done ? "return" : "normal", result.value);
-	        }
-	      } catch (err) {
-	        settle("throw", err);
-	      }
-	    }
-
-	    function settle(type, value) {
-	      switch (type) {
-	        case "return":
-	          front.resolve({
-	            value: value,
-	            done: true
-	          });
-	          break;
-
-	        case "throw":
-	          front.reject(value);
-	          break;
-
-	        default:
-	          front.resolve({
-	            value: value,
-	            done: false
-	          });
-	          break;
-	      }
-
-	      front = front.next;
-
-	      if (front) {
-	        resume(front.key, front.arg);
-	      } else {
-	        back = null;
-	      }
-	    }
-
-	    this._invoke = send;
-
-	    if (typeof gen.return !== "function") {
-	      this.return = undefined;
-	    }
-	  }
-
-	  if (typeof Symbol === "function" && Symbol.asyncIterator) {
-	    AsyncGenerator.prototype[Symbol.asyncIterator] = function () {
-	      return this;
-	    };
-	  }
-
-	  AsyncGenerator.prototype.next = function (arg) {
-	    return this._invoke("next", arg);
-	  };
-
-	  AsyncGenerator.prototype.throw = function (arg) {
-	    return this._invoke("throw", arg);
-	  };
-
-	  AsyncGenerator.prototype.return = function (arg) {
-	    return this._invoke("return", arg);
-	  };
-
-	  return {
-	    wrap: function (fn) {
-	      return function () {
-	        return new AsyncGenerator(fn.apply(this, arguments));
-	      };
-	    },
-	    await: function (value) {
-	      return new AwaitValue(value);
-	    }
-	  };
-	}();
 
 
 
@@ -5061,11 +4950,11 @@
 	* // Each flag will have a unique id. Save it for later.
 	* var ourFlagId = flag._id;
 	* // listen to flag events
-	* AP.events.on('flag-closed', function(data) {
+	* AP.events.on('flag.close', function(data) {
 	* // a flag was closed. data.flagIdentifier should match ourFlagId
 	*   console.log('flag id: ', data.flagIdentifier);
 	* });
-	* AP.events.on('flag-action-invoked', function(data) {
+	* AP.events.on('flag.action', function(data) {
 	* // a flag action was clicked. data.actionIdentifier will be 'actionOne'
 	* // data.flagIdentifier will equal ourFlagId
 	*   console.log('flag id: ', data.flagIdentifier, 'flag action id', data.actionIdentifier);
@@ -5136,14 +5025,14 @@
 	}
 
 	EventDispatcher$1.register('flag-closed', function (data) {
-	  invokeTrigger(data.id, 'flag-closed');
+	  invokeTrigger(data.id, 'flag.close');
 	  if (_flags[data.id]) {
 	    delete _flags[data.id];
 	  }
 	});
 
 	EventDispatcher$1.register('flag-action-invoked', function (data) {
-	  invokeTrigger(data.id, 'flag-action-invoked', { actionIdentifier: data.actionId });
+	  invokeTrigger(data.id, 'flag.action', { actionIdentifier: data.actionId });
 	});
 
 	var flag = {
@@ -5320,7 +5209,7 @@
 
 	    this.create = create$1;
 	    this.dialog = {
-	      create: function create$1(extension, dialogOptions) {
+	      create: function create(extension, dialogOptions) {
 	        var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
 	        var completeOptions = _.extend({}, dialogBeanOptions || {}, dialogOptions);
 	        DialogExtensionActions.open(extension, completeOptions);
@@ -5853,7 +5742,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.37';
+	  window._AP.version = '5.0.0-beta.39';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
