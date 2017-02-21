@@ -4,7 +4,7 @@
   "dependencies": {
     "aui": "http://bitbucket.org/atlassian/aui.git#5.4.4",
     "aui-dist": "http://bitbucket.org/atlassian/aui-dist.git#5.4.4",
-    "jquery": "1.8.3",
-    "almond": "0.3.0"
+    "jquery": "https://github.com/jquery/jquery.git#1.8.3",
+    "almond": "https://github.com/requirejs/almond.git#0.3.0"
   }
 }
