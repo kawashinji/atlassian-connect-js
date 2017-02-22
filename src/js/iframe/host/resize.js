@@ -22,7 +22,6 @@ define("resize", ["_dollar", "_rpc"], function ($, rpc) {
                         var height;
                         if (hideFooter) {
                             $('#footer').css({display: "none"});
-                            $(iframe).css({overflow: "hidden !important"});
                             height = $(window).height() - $("#header > nav").outerHeight();
                         } else {
                             height = $(window).height() - $("#header > nav").outerHeight() - $("#footer").outerHeight() - 20;
