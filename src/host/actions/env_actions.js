@@ -13,7 +13,6 @@ EventDispatcher.register('iframe-size-to-parent', function(data){
   if(data.hideFooter) {
     $el.addClass('full-size-general-page-no-footer');
     $('#footer').css({display: 'none'});
-    $el.css({overflow: 'hidden'});
     height = $(window).height() - $('#header > nav').outerHeight();
   } else {
     height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page

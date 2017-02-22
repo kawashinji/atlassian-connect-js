@@ -4369,7 +4369,6 @@
 	  if (data.hideFooter) {
 	    $el.addClass('full-size-general-page-no-footer');
 	    $('#footer').css({ display: 'none' });
-	    $el.css({ overflow: 'hidden' });
 	    height = $(window).height() - $('#header > nav').outerHeight();
 	  } else {
 	    height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
@@ -5686,7 +5685,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.38';
+	  window._AP.version = '5.0.0-beta.39';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
