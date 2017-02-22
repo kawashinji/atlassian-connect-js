@@ -5153,7 +5153,7 @@
 
 	    this.create = create$1;
 	    this.dialog = {
-	      create: function create$1(extension, dialogOptions) {
+	      create: function create(extension, dialogOptions) {
 	        var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
 	        var completeOptions = _.extend({}, dialogBeanOptions || {}, dialogOptions);
 	        DialogExtensionActions.open(extension, completeOptions);

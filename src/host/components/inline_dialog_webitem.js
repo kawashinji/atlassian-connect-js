@@ -6,7 +6,7 @@ import WebitemComponent from './webitem';
 import WebItemUtils from '../utils/webitem';
 import IframeContainer from './iframe_container';
 import $ from '../dollar';
-import create from '../create';
+import IframeCreate from '../iframe-create';
 import _ from '../underscore';
 
 const ITEM_NAME = 'inline-dialog';
@@ -80,7 +80,7 @@ class InlineDialogWebItem {
   }
 
   addExtension(data){
-    var addon = create(data.extension);
+    var addon = IframeCreate(data.extension);
     data.$el.empty().append(addon);
   }
 
