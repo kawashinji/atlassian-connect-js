@@ -6,6 +6,9 @@ import _ from '../underscore';
 
 var debounce = AJS.debounce || $.debounce;
 var resizeFuncHolder = {};
+// ignore resize events for iframes that use sizeToParent
+var ignoreResizeForExtension = [];
+
 /**
  * Utility methods that are available without requiring additional modules.
  * @exports AP
@@ -44,8 +47,8 @@ export default {
     callback = _.last(arguments);
     var iframeId = callback._context.extension.id;
     var options = callback._context.extension.options;
-    if(options && options.isDialog) {
-      return;
+    if(ignoreResizeForExtension.indexOf(iframeId) !== -1 || (options && options.isDialog)) {
+      return false;
     }
 
     if(!resizeFuncHolder[iframeId]){
@@ -55,6 +58,7 @@ export default {
     }
 
     resizeFuncHolder[iframeId](width, height, callback);
+    return true;
   },
   /**
    * Resize the iframe, so that it takes the entire page. Add-on may define to hide the footer using data-options.
@@ -84,4 +88,18 @@ export default {
 
 EventDispatcher.register('after:iframe-unload', function(data){
   delete resizeFuncHolder[data.extension.id];
+  if(ignoreResizeForExtension.indexOf(data.extension.id) !== -1) {
+    ignoreResizeForExtension.splice(ignoreResizeForExtension.indexOf(data.extension.id), 1);
+  }
 });
+
+EventDispatcher.register('before:iframe-size-to-parent', function(data){
+  if(data.context.extension.id === 'abc1234'){
+    console.log("HERE");
+  }
+
+  // if(ignoreResizeForExtension.indexOf(data.context.extension.id) !== -1) {
+  //   ignoreResizeForExtension.push(data.context.extension.id);
+  // }
+});
+

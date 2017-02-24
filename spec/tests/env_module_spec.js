@@ -10,6 +10,26 @@ describe('env module', () => {
       $('#footer').remove();
     });
 
+    it('disables resize function', () => {
+      var callback = function(){};
+      var $el = $('<iframe class="tempiframe" id="abc1234" />');
+      callback._context = {
+        extension_id: 'abc1234',
+        extension: {
+          id: 'abc1234',
+          $el: $el,
+          options: {
+            isFullPage: true
+          }
+        }
+      };
+
+      $('body').append($el);
+      expect(envModule.resize('10px','10px', callback)).toEqual(true);
+      envModule.sizeToParent(true, callback);
+      expect(envModule.resize('10px','10px', callback)).toEqual(false);
+    });
+
     it('hideFooter hides the footer on pages', (done) =>{
       var $contentPage = $('<div class="ac-content-page" />');
       var $footer = $('<div id="footer" />');
