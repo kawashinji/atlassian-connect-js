@@ -21,11 +21,10 @@ define("resize", ["_dollar", "_rpc"], function ($, rpc) {
                     var resizeHandler = function (iframe) {
                         var height;
                         if (hideFooter) {
-                            $('.ac-content-page #footer').css({display: "none"});
-                            $('.ac-content-page').css({overflow: "hidden !important"});
-                            height = $(document).height() - $("#header > nav").outerHeight();
+                            $('#footer').css({display: "none"});
+                            height = $(window).height() - $("#header > nav").outerHeight();
                         } else {
-                            height = $(document).height() - $("#header > nav").outerHeight() - $("#footer").outerHeight() - 20;
+                            height = $(window).height() - $("#header > nav").outerHeight() - $("#footer").outerHeight() - 20;
                         }
 
                         $(iframe).css({width: "100%", height: height + "px"});
