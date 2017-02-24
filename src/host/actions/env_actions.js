@@ -12,13 +12,12 @@ EventDispatcher.register('iframe-size-to-parent', function(data){
   var $el = util.getIframeByExtensionId(data.context.extension_id);
   if(data.hideFooter) {
     $el.addClass('full-size-general-page-no-footer');
-    $('.ac-content-page #footer').css({display: 'none'});
-    $('.ac-content-page').css({overflow: 'hidden'});
-    height = $(document).height() - $('#header > nav').outerHeight();
+    $('#footer').css({display: 'none'});
+    height = $(window).height() - $('#header > nav').outerHeight();
   } else {
-    height = $(document).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+    height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
     $el.removeClass('full-size-general-page-no-footer');
-    $('.ac-content-page #footer').css({ display: 'block' });
+    $('#footer').css({ display: 'block' });
   }
 
   EventDispatcher.dispatch('iframe-resize', {width: '100%', height: height + 'px', $el});

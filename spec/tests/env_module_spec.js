@@ -29,13 +29,55 @@ describe('env module', () => {
       $('body').append($el);
       $contentPage.append($footer);
       $('body').append($contentPage);
-
-      EventDispatcher.registerOnce('iframe-resize', function(data){
-        expect($('#footer').css('display')).toEqual('none');
-        done();
-      });
+      function spy (data){
+        if(data.$el.attr('id') === 'abc123') {
+          expect($('#footer').css('display')).toEqual('none');
+          EventDispatcher.unregister('iframe-resize', spy);
+          done();
+        }
+      }
+      EventDispatcher.register('iframe-resize', spy);
 
       envModule.sizeToParent(true, callback);
+    });
+
+    it('changes the dimensions of the iframe to fill the rest of the page', (done) => {
+      var $contentPage = $('<div class="ac-content-page" />');
+      var $footer = $('<div id="footer" />').css('height', '50px');
+      var $nav = $('<nav />').css('height', '23px');
+      var $header = $('<header id="header"></header>').append($nav);
+      var callback = function(){};
+      var $el = $('<iframe class="tempiframe" id="zxy123" />').css({
+        border: 0,
+        padding: 0,
+        margin: 0
+      });
+      callback._context = {
+        extension_id: 'zxy123',
+        extension: {
+          id: 'zxy123',
+          $el: $el,
+          options: {
+            isFullPage: true
+          }
+        }
+      };
+
+      $contentPage.append($header);
+      $contentPage.append($el);
+      $contentPage.append($footer);
+      $('body').append($contentPage);
+      // full height - header - footer - 1px border = scrollbar only on iframe
+      var correctIframeHeight = $(window).height() - 50 - 23 - 1;
+      function spy (data){
+        if(data.$el.attr('id') === callback._context.extension_id) {
+          expect($el.height()).toEqual(correctIframeHeight);
+          EventDispatcher.unregister('iframe-resize', spy);
+          done();
+        }
+      }
+      EventDispatcher.register('iframe-resize', spy);
+      envModule.sizeToParent(false, callback);
     });
   });
 
