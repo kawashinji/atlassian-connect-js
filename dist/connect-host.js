@@ -4916,7 +4916,7 @@
 	  FlagActions.closed(cleanFlagId);
 	});
 
-	$(document).on('click', '.ac-flag-actions', function (e) {
+	$(document).on('click', '.' + FLAG_ACTION_CLASS, function (e) {
 	  var $target = $(e.target);
 	  var actionKey = $target.data('key');
 	  var flagId = $target.data('flag_id');

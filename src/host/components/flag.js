@@ -80,7 +80,7 @@ $(document).on('aui-flag-close', (e) => {
   FlagActions.closed(cleanFlagId);
 });
 
-$(document).on('click', '.ac-flag-actions', (e) => {
+$(document).on('click', '.' + FLAG_ACTION_CLASS, (e) => {
   var $target = $(e.target);
   var actionKey = $target.data('key');
   var flagId = $target.data('flag_id');
