@@ -20,7 +20,11 @@ EventDispatcher.register('iframe-size-to-parent', function(data){
     $('#footer').css({ display: 'block' });
   }
 
-  EventDispatcher.dispatch('iframe-resize', {width: '100%', height: height + 'px', $el});
+  EventDispatcher.dispatch('iframe-resize', {
+    width: '100%',
+    height: height + 'px',
+    $el
+  });
 });
 
 AJS.$(window).on('resize', function (e) {
