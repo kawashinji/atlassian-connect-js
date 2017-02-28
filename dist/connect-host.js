@@ -4365,7 +4365,7 @@
 
 	EventDispatcher$1.register('iframe-size-to-parent', function (data) {
 	  var height;
-	  var $el = util$1.getIframeByExtensionId(data.context.extension_id);
+	  var $el = util$1.getIframeByExtensionId(data.extensionId);
 	  if (data.hideFooter) {
 	    $el.addClass('full-size-general-page-no-footer');
 	    $('#footer').css({ display: 'none' });
@@ -4398,10 +4398,10 @@
 
 	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
 	  },
-	  sizeToParent: function sizeToParent(context, hideFooter) {
+	  sizeToParent: function sizeToParent(extensionId, hideFooter) {
 	    EventDispatcher$1.dispatch('iframe-size-to-parent', {
 	      hideFooter: hideFooter,
-	      context: context
+	      extensionId: extensionId
 	    });
 	  }
 	};
@@ -4477,7 +4477,7 @@
 	    if (callback._context.extension.options.isFullPage) {
 	      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
 	      util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
-	      EnvActions.sizeToParent(callback._context, hideFooter);
+	      EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
 	      sizeToParentExtension[callback._context.extension_id] = { hideFooter: hideFooter };
 	    } else {
 	      // This is only here to support integration testing
@@ -4502,8 +4502,8 @@
 	});
 
 	EventDispatcher$1.register('before:iframe-size-to-parent', function (data) {
-	  if (ignoreResizeForExtension.indexOf(data.context.extension.id) === -1) {
-	    ignoreResizeForExtension.push(data.context.extension.id);
+	  if (ignoreResizeForExtension.indexOf(data.extensionId) === -1) {
+	    ignoreResizeForExtension.push(data.extensionId);
 	  }
 	});
 

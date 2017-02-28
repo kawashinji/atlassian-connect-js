@@ -75,7 +75,7 @@ export default {
     if (callback._context.extension.options.isFullPage) {
       // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
       util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
-      EnvActions.sizeToParent(callback._context, hideFooter);
+      EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
       sizeToParentExtension[callback._context.extension_id] = {hideFooter: hideFooter};
     } else {
       // This is only here to support integration testing
@@ -100,8 +100,8 @@ EventDispatcher.register('after:iframe-unload', function(data){
 });
 
 EventDispatcher.register('before:iframe-size-to-parent', function(data){
-  if(ignoreResizeForExtension.indexOf(data.context.extension.id) === -1) {
-    ignoreResizeForExtension.push(data.context.extension.id);
+  if(ignoreResizeForExtension.indexOf(data.extensionId) === -1) {
+    ignoreResizeForExtension.push(data.extensionId);
   }
 });
 

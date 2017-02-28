@@ -27,7 +27,7 @@ describe('env module', () => {
       $('body').append($el);
       expect(envModule.resize('10px','10px', callback)).toEqual(true);
       var resizeSpy = (data) => {
-        if(data.context.extension_id === callback._context.extension_id) {
+        if(data.extensionId === callback._context.extension_id) {
           expect(envModule.resize('10px','10px', callback)).toEqual(false);
           done();
           EventDispatcher.unregister('after:iframe-size-to-parent', resizeSpy);
