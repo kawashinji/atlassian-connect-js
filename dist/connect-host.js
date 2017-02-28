@@ -1264,7 +1264,8 @@
 	        var args = util.sanitizeStructuredClone(util.argumentsToArray(arguments));
 	        event.source.postMessage({
 	          mid: event.data.mid,
-	          type: 'presp',
+	          type: 'resp',
+	          forPlugin: true,
 	          args: args
 	        }, reg.extension.url);
 	      }
@@ -1427,7 +1428,14 @@
 	  }, {
 	    key: '_handleUnload',
 	    value: function _handleUnload(event, reg) {
-	      delete this._registeredExtensions[reg.extension_id].source;
+	      if (!reg) {
+	        return;
+	      }
+
+	      if (reg.extension_id && this._registeredExtensions[reg.extension_id]) {
+	        delete this._registeredExtensions[reg.extension_id].source;
+	      }
+
 	      if (reg.unloadCallback) {
 	        reg.unloadCallback(event.data.eid);
 	      }
@@ -5685,7 +5693,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.39';
+	  window._AP.version = '5.0.0-beta.40';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

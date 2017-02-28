@@ -535,7 +535,8 @@ var AP = (function () {
           var args = util.sanitizeStructuredClone(util.argumentsToArray(arguments));
           event.source.postMessage({
             mid: event.data.mid,
-            type: 'presp',
+            type: 'resp',
+            forPlugin: true,
             args: args
           }, reg.extension.url);
         }
@@ -698,7 +699,14 @@ var AP = (function () {
     }, {
       key: '_handleUnload',
       value: function _handleUnload(event, reg) {
-        delete this._registeredExtensions[reg.extension_id].source;
+        if (!reg) {
+          return;
+        }
+
+        if (reg.extension_id && this._registeredExtensions[reg.extension_id]) {
+          delete this._registeredExtensions[reg.extension_id].source;
+        }
+
         if (reg.unloadCallback) {
           reg.unloadCallback(event.data.eid);
         }
@@ -1510,7 +1518,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.39";
+      _this._version = "5.0.0-beta.40";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
@@ -1520,7 +1528,7 @@ var AP = (function () {
       }
 
       _this._messageHandlers = {
-        presp: _this._handleResponse,
+        resp: _this._handleResponse,
         evt: _this._handleEvent,
         key_listen: _this._handleKeyListen,
         api_tamper: _this._handleApiTamper
@@ -1787,6 +1795,11 @@ var AP = (function () {
       key: '_handleResponse',
       value: function _handleResponse(event) {
         var data = event.data;
+
+        if (!data.forPlugin) {
+          return;
+        }
+
         var pendingCallback = this._pendingCallbacks[data.mid];
         if (pendingCallback) {
           delete this._pendingCallbacks[data.mid];
