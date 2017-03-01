@@ -6,6 +6,10 @@ import _ from '../underscore';
 
 var debounce = AJS.debounce || $.debounce;
 var resizeFuncHolder = {};
+// ignore resize events for iframes that use sizeToParent
+var ignoreResizeForExtension = [];
+var sizeToParentExtension = {};
+
 /**
  * Utility methods that are available without requiring additional modules.
  * @exports AP
@@ -44,8 +48,8 @@ export default {
     callback = _.last(arguments);
     var iframeId = callback._context.extension.id;
     var options = callback._context.extension.options;
-    if(options && options.isDialog) {
-      return;
+    if(ignoreResizeForExtension.indexOf(iframeId) !== -1 || (options && options.isDialog)) {
+      return false;
     }
 
     if(!resizeFuncHolder[iframeId]){
@@ -55,6 +59,7 @@ export default {
     }
 
     resizeFuncHolder[iframeId](width, height, callback);
+    return true;
   },
   /**
    * Resize the iframe, so that it takes the entire page. Add-on may define to hide the footer using data-options.
@@ -70,10 +75,8 @@ export default {
     if (callback._context.extension.options.isFullPage) {
       // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
       util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
-      EventDispatcher.register('host-window-resize', (data) => {
-        EnvActions.sizeToParent(callback._context, hideFooter);
-      });
-      EnvActions.sizeToParent(callback._context, hideFooter);
+      EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
+      sizeToParentExtension[callback._context.extension_id] = {hideFooter: hideFooter};
     } else {
       // This is only here to support integration testing
       // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
@@ -82,6 +85,23 @@ export default {
   })
 };
 
+EventDispatcher.register('host-window-resize', (data) => {
+  Object.getOwnPropertyNames(sizeToParentExtension).forEach((extensionId) => {
+    EnvActions.sizeToParent(extensionId, sizeToParentExtension[extensionId].hideFooter);
+  });
+});
+
 EventDispatcher.register('after:iframe-unload', function(data){
   delete resizeFuncHolder[data.extension.id];
+  delete sizeToParentExtension[data.extension.id];
+  if(ignoreResizeForExtension.indexOf(data.extension.id) !== -1) {
+    ignoreResizeForExtension.splice(ignoreResizeForExtension.indexOf(data.extension.id), 1);
+  }
 });
+
+EventDispatcher.register('before:iframe-size-to-parent', function(data){
+  if(ignoreResizeForExtension.indexOf(data.extensionId) === -1) {
+    ignoreResizeForExtension.push(data.extensionId);
+  }
+});
+
