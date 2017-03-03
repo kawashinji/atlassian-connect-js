@@ -5584,6 +5584,7 @@
 	  }, {
 	    key: 'opened',
 	    value: function opened(data) {
+	      return;
 	      var contentRequest = webItemInstance.requestContent(data.extension);
 	      if (!contentRequest) {
 	        console.warn('no content resolver found');
