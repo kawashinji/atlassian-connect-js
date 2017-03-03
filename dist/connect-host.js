@@ -5575,7 +5575,7 @@
 
 	      var $inlineDialog = this._createInlineDialog({
 	        id: webitemId,
-	        extension: data.extension,
+	        // extension: data.extension,
 	        $target: $target,
 	        options: data.extension.options || {}
 	      });
