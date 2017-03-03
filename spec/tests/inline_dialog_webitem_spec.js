@@ -159,6 +159,34 @@ describe('Inline Dialog Webitem', () => {
       });
     });
 
+    it('only calls the content resolver once per add-on', (done) => {
+      var spy = jasmine.createSpy('spy');
+
+      jwtActions.registerContentResolver({callback: function(data){
+        spy();
+        // if you don't return a promise this regression test will always pass
+        return jQuery.Deferred(function(defer){
+          defer.resolve({
+            url: 'http://www.example.com',
+            addon_key: data.addon_key,
+            key: data.key,
+            options: {
+              productContext: {
+                a: 'b'
+              }
+            }
+          });
+        }).promise();
+      }});
+      $(function(){
+        $('.ap-inline-dialog').trigger('click');
+        setTimeout(function(){
+          expect(spy.calls.count()).toEqual(1);
+          done();
+        }, 300);
+      });
+    });
+
   });
 
 });

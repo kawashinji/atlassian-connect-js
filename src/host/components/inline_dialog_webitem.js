@@ -29,12 +29,13 @@ class InlineDialogWebItem {
   }
 
   _createInlineDialog(data){
-    var $iframeContainer = IframeContainer.createExtension(data.extension);
+    // var $iframeContainer = IframeContainer.createExtension(data.extension);
     var $inlineDialog = InlineDialogComponent.render({
       extension: data.extension,
       id: data.id,
       bindTo: data.$target,
-      $content: $iframeContainer,
+      $content: $('<div />'),
+      // $content: $iframeContainer,
       inlineDialogOptions: data.extension.options
     });
 
@@ -60,29 +61,23 @@ class InlineDialogWebItem {
   }
 
   opened(data){
-    // var contentRequest = WebitemComponent.requestContent(data.extension);
-    // if(!contentRequest){
-    //   console.warn('no content resolver found');
-    //   return false;
-    // }
-    // contentRequest.then(function(content){
-    //   content.options = content.options || {};
-    //   _.extend(content.options, {
-    //     autoresize: true,
-    //     widthinpx: true
-    //   });
+    var contentRequest = WebitemComponent.requestContent(data.extension);
+    if(!contentRequest){
+      console.warn('no content resolver found');
+      return false;
+    }
+    contentRequest.then(function(content){
+      content.options = content.options || {};
+      _.extend(content.options, {
+        autoresize: true,
+        widthinpx: true
+      });
 
-    // });
-
-    _.extend(data.extension.options, {
-      autoresize: true,
-      widthinpx: true
+      InlineDialogWebItemActions.addExtension({
+        $el: data.$el,
+        extension: content
+      });
     });
-    InlineDialogWebItemActions.addExtension({
-      $el: data.$el,
-      extension: data.extension
-    });
-
   }
 
   addExtension(data){
