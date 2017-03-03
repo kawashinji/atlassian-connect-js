@@ -29,13 +29,11 @@ class InlineDialogWebItem {
   }
 
   _createInlineDialog(data){
-    // var $iframeContainer = IframeContainer.createExtension(data.extension);
     var $inlineDialog = InlineDialogComponent.render({
       extension: data.extension,
       id: data.id,
       bindTo: data.$target,
       $content: $('<div />'),
-      // $content: $iframeContainer,
       inlineDialogOptions: data.extension.options
     });
 

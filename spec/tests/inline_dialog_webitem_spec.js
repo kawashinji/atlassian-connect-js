@@ -36,7 +36,6 @@ describe('Inline Dialog Webitem', () => {
     it('renders an inline dialog', (done) => {
       EventDispatcher.registerOnce('after:webitem-invoked:inline-dialog', function(){
         expect($('.aui-inline-dialog').length).toBe(1);
-        expect($('.ap-iframe-container').length).toEqual(1);
         done();
       });
       $(function(){
@@ -48,10 +47,8 @@ describe('Inline Dialog Webitem', () => {
       $(function(){
         $('.ap-inline-dialog').click();
         expect($('.aui-inline-dialog').length).toBe(1);
-        expect($('.ap-iframe-container').length).toEqual(1);
         $('.ap-inline-dialog').click();
         expect($('.aui-inline-dialog').length).toBe(1);
-        expect($('.ap-iframe-container').length).toEqual(1);
         done();
       });
     });
