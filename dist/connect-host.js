@@ -5575,7 +5575,7 @@
 
 	      var $inlineDialog = this._createInlineDialog({
 	        id: webitemId,
-	        // extension: data.extension,
+	        extension: data.extension,
 	        $target: $target,
 	        options: data.extension.options || {}
 	      });
@@ -5585,22 +5585,27 @@
 	  }, {
 	    key: 'opened',
 	    value: function opened(data) {
-	      var contentRequest = webItemInstance.requestContent(data.extension);
-	      if (!contentRequest) {
-	        console.warn('no content resolver found');
-	        return false;
-	      }
-	      contentRequest.then(function (content) {
-	        content.options = content.options || {};
-	        _.extend(content.options, {
-	          autoresize: true,
-	          widthinpx: true
-	        });
+	      // var contentRequest = WebitemComponent.requestContent(data.extension);
+	      // if(!contentRequest){
+	      //   console.warn('no content resolver found');
+	      //   return false;
+	      // }
+	      // contentRequest.then(function(content){
+	      //   content.options = content.options || {};
+	      //   _.extend(content.options, {
+	      //     autoresize: true,
+	      //     widthinpx: true
+	      //   });
 
-	        InlineDialogWebItemActions.addExtension({
-	          $el: data.$el,
-	          extension: content
-	        });
+	      // });
+
+	      _.extend(data.extension.options, {
+	        autoresize: true,
+	        widthinpx: true
+	      });
+	      InlineDialogWebItemActions.addExtension({
+	        $el: data.$el,
+	        extension: data.extension
 	      });
 	    }
 	  }, {
