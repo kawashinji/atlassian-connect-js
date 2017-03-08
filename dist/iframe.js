@@ -823,13 +823,14 @@ var AP = (function () {
           } else {
             delete this._keycodeCallbacks[keycodeEntry];
           }
-
-          reg.source.postMessage({
-            type: 'key_listen',
-            keycode: key,
-            modifiers: modifiers,
-            action: 'remove'
-          }, reg.extension.url);
+          if (reg.source && reg.source.postMessage) {
+            reg.source.postMessage({
+              type: 'key_listen',
+              keycode: key,
+              modifiers: modifiers,
+              action: 'remove'
+            }, reg.extension.url);
+          }
         }
       }
     }, {
