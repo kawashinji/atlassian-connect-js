@@ -715,7 +715,7 @@ var AP = (function () {
       key: 'dispatch',
       value: function dispatch(type, targetSpec, event, callback, source) {
         function sendEvent(reg, evnt) {
-          if (reg.source) {
+          if (reg.source && reg.source.postMessage) {
             var mid;
             if (callback) {
               mid = util.randomString();
