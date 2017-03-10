@@ -1230,13 +1230,13 @@ var AP = (function () {
     }
 
     if (widthInPx && typeof w === "string" && w.search('%') !== -1) {
-      w = Math.max(container.scrollWidth, container.offsetWidth, container.clientWidth);
+      w = Math.max(container.scrollWidth, container.offsetWidth, container.clientWidth) + 1;
     }
     if (height) {
       h = height;
     } else {
       // Determine height of document element
-      docHeight = Math.max(container.scrollHeight, document.documentElement.scrollHeight, container.offsetHeight, document.documentElement.offsetHeight, container.clientHeight, document.documentElement.clientHeight);
+      docHeight = Math.max(container.scrollHeight, document.documentElement.scrollHeight, container.offsetHeight, document.documentElement.offsetHeight, container.clientHeight, document.documentElement.clientHeight) + 1;
 
       if (container === document.body) {
         h = docHeight;

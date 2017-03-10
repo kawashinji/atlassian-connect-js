@@ -1930,7 +1930,7 @@
 
 	  if (_.isString(value)) {
 	    percent = value.indexOf('%') === value.length - 1;
-	    value = parseInt(value, 10);
+	    value = Math.ceil(parseFloat(value));
 	    if (percent) {
 	      unit = '%';
 	    }
