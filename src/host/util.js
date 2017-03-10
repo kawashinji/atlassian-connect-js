@@ -14,7 +14,7 @@ function stringToDimension(value) {
 
   if(_.isString(value)) {
     percent = value.indexOf('%') === value.length - 1;
-    value = Math.ceil(parseFloat(value));
+    value = parseInt(value, 10);
     if (percent) {
       unit = '%';
     }
