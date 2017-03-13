@@ -17,6 +17,7 @@ const _flags = {};
 * @description A flag object created by the [AP.flag]{@link module:Flag} module.
 * @example
 * // complete flag API example:
+* var outFlagId;
 * var flag = AP.flag.create({
 *   title: 'Successfully created a flag.',
 *   body: 'This is a flag.',
@@ -24,9 +25,11 @@ const _flags = {};
 *   actions: {
 *     'actionOne': 'action name'
 *   }
-* });
+* }, function(identifier) {
 * // Each flag will have a unique id. Save it for later.
-* var ourFlagId = flag._id;
+*   ourFlagId = identifier;
+* });
+*
 * // listen to flag events
 * AP.events.on('flag.close', function(data) {
 * // a flag was closed. data.flagIdentifier should match ourFlagId
@@ -58,6 +61,7 @@ class Flag {
     this.onTriggers= {};
     this.extension = callback._context.extension;
     _flags[callback._id] = this;
+    callback.call(null, callback._id);
   }
 
   /**
