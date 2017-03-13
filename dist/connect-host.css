@@ -137,6 +137,9 @@
 .ap-header-controls .aui-dialog2-content {
     max-height: calc(100% - 50px);
 }
+.ac-flag-actions a {
+  margin-right: 10px;
+}
 .ap-status-indicator {
   padding-top: 5px;
   font-size: 12px;
