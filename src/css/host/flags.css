@@ -1,3 +1,5 @@
 .ac-flag-actions a {
   margin-right: 10px;
+  /* whole flag text appears on 1 line */
+  display: inline-block;
 }
