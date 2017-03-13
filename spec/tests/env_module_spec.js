@@ -10,6 +10,33 @@ describe('env module', () => {
       $('#footer').remove();
     });
 
+    it('disables resize function', (done) => {
+      var callback = function(){};
+      var $el = $('<iframe class="tempiframe" id="d32idas" />');
+      callback._context = {
+        extension_id: 'd32idas',
+        extension: {
+          id: 'd32idas',
+          $el: $el,
+          options: {
+            isFullPage: true
+          }
+        }
+      };
+
+      $('body').append($el);
+      expect(envModule.resize('10px','10px', callback)).toEqual(true);
+      var resizeSpy = (data) => {
+        if(data.extensionId === callback._context.extension_id) {
+          expect(envModule.resize('10px','10px', callback)).toEqual(false);
+          done();
+          EventDispatcher.unregister('after:iframe-size-to-parent', resizeSpy);
+        }
+      };
+      EventDispatcher.register('after:iframe-size-to-parent', resizeSpy);
+      envModule.sizeToParent(true, callback);
+    });
+
     it('hideFooter hides the footer on pages', (done) =>{
       var $contentPage = $('<div class="ac-content-page" />');
       var $footer = $('<div id="footer" />');
@@ -29,13 +56,55 @@ describe('env module', () => {
       $('body').append($el);
       $contentPage.append($footer);
       $('body').append($contentPage);
-
-      EventDispatcher.registerOnce('iframe-resize', function(data){
-        expect($('#footer').css('display')).toEqual('none');
-        done();
-      });
+      function spy (data){
+        if(data.$el.attr('id') === 'abc123') {
+          expect($('#footer').css('display')).toEqual('none');
+          EventDispatcher.unregister('iframe-resize', spy);
+          done();
+        }
+      }
+      EventDispatcher.register('iframe-resize', spy);
 
       envModule.sizeToParent(true, callback);
+    });
+
+    it('changes the dimensions of the iframe to fill the rest of the page', (done) => {
+      var $contentPage = $('<div class="ac-content-page" />');
+      var $footer = $('<div id="footer" />').css('height', '50px');
+      var $nav = $('<nav />').css('height', '23px');
+      var $header = $('<header id="header"></header>').append($nav);
+      var callback = function(){};
+      var $el = $('<iframe class="tempiframe" id="zxy123" />').css({
+        border: 0,
+        padding: 0,
+        margin: 0
+      });
+      callback._context = {
+        extension_id: 'zxy123',
+        extension: {
+          id: 'zxy123',
+          $el: $el,
+          options: {
+            isFullPage: true
+          }
+        }
+      };
+
+      $contentPage.append($header);
+      $contentPage.append($el);
+      $contentPage.append($footer);
+      $('body').append($contentPage);
+      // full height - header - footer - 1px border = scrollbar only on iframe
+      var correctIframeHeight = $(window).height() - 50 - 23 - 1;
+      function spy (data){
+        if(data.$el.attr('id') === callback._context.extension_id) {
+          expect($el.height()).toEqual(correctIframeHeight);
+          EventDispatcher.unregister('iframe-resize', spy);
+          done();
+        }
+      }
+      EventDispatcher.register('iframe-resize', spy);
+      envModule.sizeToParent(false, callback);
     });
   });
 
@@ -49,23 +118,25 @@ describe('env module', () => {
       var width = '100px';
       var height = '120px';
       var callback = function(){};
-      var $el = $('<iframe class="tempiframe" id="abc123" />');
+      var $el = $('<iframe class="tempiframe" id="xabc123" />');
       callback._context = {
-        extension_id: 'abc123',
+        extension_id: 'xabc123',
         extension: {
-          id: 'abc123',
+          id: 'xabc123',
           $el: $el
         }
       };
       $('body').append($el);
-
-      EventDispatcher.registerOnce('iframe-resize', function(data){
-        expect(data.width).toEqual(width);
-        expect(data.height).toEqual(height);
-        expect(data.extension.id).toEqual(callback._context.extension.id);
-        done();
-      });
-
+      function resizeSpy(data){
+        if(data.extension && data.extension.id === callback._context.extension.id){
+          expect(data.width).toEqual(width);
+          expect(data.height).toEqual(height);
+          expect(data.extension.id).toEqual(callback._context.extension.id);
+          EventDispatcher.unregister('after:iframe-resize', resizeSpy);
+          done();
+        }
+      }
+      EventDispatcher.register('after:iframe-resize', resizeSpy);
       envModule.resize(width, height, callback);
     });
 

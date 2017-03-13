@@ -1264,7 +1264,8 @@
 	        var args = util.sanitizeStructuredClone(util.argumentsToArray(arguments));
 	        event.source.postMessage({
 	          mid: event.data.mid,
-	          type: 'presp',
+	          type: 'resp',
+	          forPlugin: true,
 	          args: args
 	        }, reg.extension.url);
 	      }
@@ -1427,7 +1428,14 @@
 	  }, {
 	    key: '_handleUnload',
 	    value: function _handleUnload(event, reg) {
-	      delete this._registeredExtensions[reg.extension_id].source;
+	      if (!reg) {
+	        return;
+	      }
+
+	      if (reg.extension_id && this._registeredExtensions[reg.extension_id]) {
+	        delete this._registeredExtensions[reg.extension_id].source;
+	      }
+
 	      if (reg.unloadCallback) {
 	        reg.unloadCallback(event.data.eid);
 	      }
@@ -1436,7 +1444,7 @@
 	    key: 'dispatch',
 	    value: function dispatch(type, targetSpec, event, callback, source) {
 	      function sendEvent(reg, evnt) {
-	        if (reg.source) {
+	        if (reg.source && reg.source.postMessage) {
 	          var mid;
 	          if (callback) {
 	            mid = util.randomString();
@@ -1544,13 +1552,14 @@
 	        } else {
 	          delete this._keycodeCallbacks[keycodeEntry];
 	        }
-
-	        reg.source.postMessage({
-	          type: 'key_listen',
-	          keycode: key,
-	          modifiers: modifiers,
-	          action: 'remove'
-	        }, reg.extension.url);
+	        if (reg.source && reg.source.postMessage) {
+	          reg.source.postMessage({
+	            type: 'key_listen',
+	            keycode: key,
+	            modifiers: modifiers,
+	            action: 'remove'
+	          }, reg.extension.url);
+	        }
 	      }
 	    }
 	  }, {
@@ -4365,19 +4374,22 @@
 
 	EventDispatcher$1.register('iframe-size-to-parent', function (data) {
 	  var height;
-	  var $el = util$1.getIframeByExtensionId(data.context.extension_id);
+	  var $el = util$1.getIframeByExtensionId(data.extensionId);
 	  if (data.hideFooter) {
 	    $el.addClass('full-size-general-page-no-footer');
-	    $('.ac-content-page #footer').css({ display: 'none' });
-	    $('.ac-content-page').css({ overflow: 'hidden' });
-	    height = $(document).height() - $('#header > nav').outerHeight();
+	    $('#footer').css({ display: 'none' });
+	    height = $(window).height() - $('#header > nav').outerHeight();
 	  } else {
-	    height = $(document).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+	    height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
 	    $el.removeClass('full-size-general-page-no-footer');
-	    $('.ac-content-page #footer').css({ display: 'block' });
+	    $('#footer').css({ display: 'block' });
 	  }
 
-	  EventDispatcher$1.dispatch('iframe-resize', { width: '100%', height: height + 'px', $el: $el });
+	  EventDispatcher$1.dispatch('iframe-resize', {
+	    width: '100%',
+	    height: height + 'px',
+	    $el: $el
+	  });
 	});
 
 	AJS.$(window).on('resize', function (e) {
@@ -4395,16 +4407,20 @@
 
 	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
 	  },
-	  sizeToParent: function sizeToParent(context, hideFooter) {
+	  sizeToParent: function sizeToParent(extensionId, hideFooter) {
 	    EventDispatcher$1.dispatch('iframe-size-to-parent', {
 	      hideFooter: hideFooter,
-	      context: context
+	      extensionId: extensionId
 	    });
 	  }
 	};
 
 	var debounce = AJS.debounce || $.debounce;
 	var resizeFuncHolder = {};
+	// ignore resize events for iframes that use sizeToParent
+	var ignoreResizeForExtension = [];
+	var sizeToParentExtension = {};
+
 	/**
 	 * Utility methods that are available without requiring additional modules.
 	 * @exports AP
@@ -4443,8 +4459,8 @@
 	    callback = _.last(arguments);
 	    var iframeId = callback._context.extension.id;
 	    var options = callback._context.extension.options;
-	    if (options && options.isDialog) {
-	      return;
+	    if (ignoreResizeForExtension.indexOf(iframeId) !== -1 || options && options.isDialog) {
+	      return false;
 	    }
 
 	    if (!resizeFuncHolder[iframeId]) {
@@ -4454,6 +4470,7 @@
 	    }
 
 	    resizeFuncHolder[iframeId](width, height, callback);
+	    return true;
 	  },
 	  /**
 	   * Resize the iframe, so that it takes the entire page. Add-on may define to hide the footer using data-options.
@@ -4469,10 +4486,8 @@
 	    if (callback._context.extension.options.isFullPage) {
 	      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
 	      util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
-	      EventDispatcher$1.register('host-window-resize', function (data) {
-	        EnvActions.sizeToParent(callback._context, hideFooter);
-	      });
-	      EnvActions.sizeToParent(callback._context, hideFooter);
+	      EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
+	      sizeToParentExtension[callback._context.extension_id] = { hideFooter: hideFooter };
 	    } else {
 	      // This is only here to support integration testing
 	      // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
@@ -4481,8 +4496,24 @@
 	  })
 	};
 
+	EventDispatcher$1.register('host-window-resize', function (data) {
+	  Object.getOwnPropertyNames(sizeToParentExtension).forEach(function (extensionId) {
+	    EnvActions.sizeToParent(extensionId, sizeToParentExtension[extensionId].hideFooter);
+	  });
+	});
+
 	EventDispatcher$1.register('after:iframe-unload', function (data) {
 	  delete resizeFuncHolder[data.extension.id];
+	  delete sizeToParentExtension[data.extension.id];
+	  if (ignoreResizeForExtension.indexOf(data.extension.id) !== -1) {
+	    ignoreResizeForExtension.splice(ignoreResizeForExtension.indexOf(data.extension.id), 1);
+	  }
+	});
+
+	EventDispatcher$1.register('before:iframe-size-to-parent', function (data) {
+	  if (ignoreResizeForExtension.indexOf(data.extensionId) === -1) {
+	    ignoreResizeForExtension.push(data.extensionId);
+	  }
 	});
 
 	var InlineDialogActions = {
@@ -5742,7 +5773,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.39';
+	  window._AP.version = '5.0.0-beta.42';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
