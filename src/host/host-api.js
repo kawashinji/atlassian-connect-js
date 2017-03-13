@@ -23,11 +23,15 @@ class HostApi {
       close: () => {
         DialogExtensionActions.close();
       }
-    }
+    };
     this.registerContentResolver = {
       resolveByExtension: (callback) => {
         jwtActions.registerContentResolver({callback: callback});
       }
+    };
+    this._componentProviders = {};
+    this.registerProvider = (componentName, component) => {
+        this._componentProviders[componentName] = component;
     }
   }
 

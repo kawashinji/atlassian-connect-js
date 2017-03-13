@@ -7,6 +7,7 @@ import $ from '../dollar';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import FlagActions from '../actions/flag_actions';
 import FlagComponent from '../components/flag';
+import HostApi from '../host-api';
 import _ from '../underscore';
 
 const _flags = {};
@@ -21,15 +22,27 @@ class Flag {
     if(typeof options !== 'object') {
       return;
     }
-    this.flag = FlagComponent.render({
-      type: options.type,
-      title: options.title,
-      body: AJS.escapeHtml(options.body),
-      close: options.close,
-      id: callback._id
-    });
+    let flagComponent = HostApi._componentProviders['flag'];
+    if (flagComponent) {
+        let akFlagOptions = {
+            id: this.flag.id,
+            title: options.title,
+            // key: '',
+            // icon: {},
+            description: options.body
+        };
+        flagComponent.create(akFlagOptions);
+    } else {
+        this.flag = FlagComponent.render({
+            type: options.type,
+            title: options.title,
+            body: AJS.escapeHtml(options.body),
+            close: options.close,
+            id: callback._id
+        });
 
-    FlagActions.open(this.flag.attr('id'));
+        FlagActions.open(this.flag.attr('id'));
+    }
 
     this.onTriggers= {};
 
