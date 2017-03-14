@@ -5552,12 +5552,11 @@
 	  }, {
 	    key: '_createInlineDialog',
 	    value: function _createInlineDialog(data) {
-	      var $iframeContainer = IframeContainerComponent.createExtension(data.extension);
 	      var $inlineDialog = InlineDialogComponent.render({
 	        extension: data.extension,
 	        id: data.id,
 	        bindTo: data.$target,
-	        $content: $iframeContainer,
+	        $content: $('<div />'),
 	        inlineDialogOptions: data.extension.options
 	      });
 
@@ -5716,7 +5715,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.41';
+	  window._AP.version = '5.0.0-beta.42';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
