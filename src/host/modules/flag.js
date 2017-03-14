@@ -18,17 +18,19 @@ const _flags = {};
 */
 class Flag {
   constructor(options, callback) {
+    console.log('In flag constructor:', options);
     callback = _.last(arguments);
     if(typeof options !== 'object') {
       return;
     }
     let flagComponent = HostApi._componentProviders['flag'];
     if (flagComponent) {
+        let now = Date.now();
         let akFlagOptions = {
-            id: this.flag.id,
+            id: now,
+            key: now,
             title: options.title,
-            // key: '',
-            // icon: {},
+            //icon: {}, // TODO: ACJS-549
             description: options.body
         };
         flagComponent.create(akFlagOptions);

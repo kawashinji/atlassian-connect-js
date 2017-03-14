@@ -5040,6 +5040,9 @@
 	    this.registerProvider = function (componentName, component) {
 	      _this._componentProviders[componentName] = component;
 	    };
+	    this.getProvider = function (componentName) {
+	      return _this._componentProviders[componentName];
+	    };
 	  }
 
 	  createClass(HostApi, [{
@@ -5155,17 +5158,19 @@
 	  function Flag(options, callback) {
 	    classCallCheck(this, Flag);
 
+	    console.log('In flag constructor:', options);
 	    callback = _.last(arguments);
 	    if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
 	      return;
 	    }
 	    var flagComponent = HostApi$2._componentProviders['flag'];
 	    if (flagComponent) {
+	      var now = Date.now();
 	      var akFlagOptions = {
-	        id: this.flag.id,
+	        id: now,
+	        key: now,
 	        title: options.title,
-	        // key: '',
-	        // icon: {},
+	        //icon: {}, // TODO: ACJS-549
 	        description: options.body
 	      };
 	      flagComponent.create(akFlagOptions);
