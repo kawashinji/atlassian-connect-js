@@ -23,17 +23,17 @@ class Flag {
     if(typeof options !== 'object') {
       return;
     }
-    let flagComponent = HostApi._componentProviders['flag'];
-    if (flagComponent) {
-        let now = Date.now();
-        let akFlagOptions = {
-            id: now,
-            key: now,
-            title: options.title,
-            //icon: {}, // TODO: ACJS-549
-            description: options.body
-        };
-        flagComponent.create(akFlagOptions);
+    let flagProvider = HostApi.getProvider('flag');
+    if (flagProvider) {
+      let now = Date.now();
+      let flagOptions = {
+          id: now,
+          key: now,
+          title: options.title,
+          //icon: {}, // TODO: ACJS-549
+          description: options.body
+      };
+      flagProvider.create(flagOptions);
     } else {
         this.flag = FlagComponent.render({
             type: options.type,

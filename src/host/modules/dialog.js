@@ -5,6 +5,7 @@ import EventActions from '../actions/event_actions';
 import DialogExtensionComponent from '../components/dialog_extension';
 import ButtonComponent from '../components/button';
 import DialogUtils from '../utils/dialog';
+import HostApi from '../host-api';
 import _ from '../underscore';
 
 const _dialogs = {};
@@ -49,23 +50,35 @@ class Dialog {
     const _id = callback._id;
     const extension = callback._context.extension;
 
-    var dialogExtension = {
-      addon_key: extension.addon_key,
-      key: options.key,
-      options: _.pick(callback._context.extension.options, ['customData', 'productContext'])
-    };
+    let dialogProvider = HostApi.getProvider('dialog');
+    if (dialogProvider) {
+      console.log('Creating the dialog via the product');
+      let now = Date.now();
+      let dialogOptions = {
+        id: now,
+        key: now,
+        buttons: options.buttons
+      };
+      dialogProvider.create(dialogOptions);
+    } else {
+      var dialogExtension = {
+          addon_key: extension.addon_key,
+          key: options.key,
+          options: _.pick(callback._context.extension.options, ['customData', 'productContext'])
+      };
 
-    // ACJS-185: the following is a really bad idea but we need it
-    // for compat until AP.dialog.customData has been deprecated
-    dialogExtension.options.customData = options.customData;
-    // terrible idea! - we need to remove this from p2 ASAP!
-    var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
-    options = _.extend({}, dialogModuleOptions || {}, options);
-    options.id = _id;
+      // ACJS-185: the following is a really bad idea but we need it
+      // for compat until AP.dialog.customData has been deprecated
+      dialogExtension.options.customData = options.customData;
+      // terrible idea! - we need to remove this from p2 ASAP!
+      var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
+      options = _.extend({}, dialogModuleOptions || {}, options);
+      options.id = _id;
 
-    DialogExtensionActions.open(dialogExtension, options);
-    this.customData = options.customData;
-    _dialogs[_id] = this;
+      DialogExtensionActions.open(dialogExtension, options);
+      this.customData = options.customData;
+      _dialogs[_id] = this;
+    }
   }
 }
 
@@ -223,10 +236,22 @@ function getDialogFromContext(context) {
 class CreateButton {
   constructor(options, callback) {
     callback = _.last(arguments);
-    DialogExtensionActions.addUserButton({
-      identifier: options.identifier,
-      text: options.text
-    }, callback._context.extension);
+    let dialogProvider = HostApi.getProvider('dialog');
+    if (dialogProvider) {
+      console.log('Adding a button to the dialog via the product');
+      let now = Date.now();
+      let buttonOptions = {
+        id: now,
+        key: options.identifier,
+        text: options.text
+      };
+      dialogProvider.createButton(buttonOptions);
+    } else {
+      DialogExtensionActions.addUserButton({
+        identifier: options.identifier,
+        text: options.text
+      }, callback._context.extension);
+    }
   }
 }
 
