@@ -73,6 +73,32 @@ describe('Iframe component', () => {
       });
       expect(IframeComponent._contentResolver).toEqual(spy);
     });
+
+    it('renders an error when content resolver fails', () => {
+      var addon_key = 'someaddonkey';
+      var key = 'somekey';
+      var options = {};
+      var errorText = 'some error text';
+      var $container = $('<div />');
+      var failingResolver = function(){
+        return AJS.$.Deferred(function(defer){
+          defer.reject({
+            addon_key: addon_key,
+            key: key,
+            options: options
+          }, {
+            text: errorText
+          });
+        }).promise();
+      };
+      IframeComponent.setContentResolver(failingResolver);
+      var simpleExtension = IframeComponent.simpleXdmExtension({
+        addon_key: addon_key,
+        key: key,
+        options: options
+      }, $container);
+      expect($container.text()).toContain(errorText);
+    });
   });
 
   describe('_simpleXdmCreate', () => {
