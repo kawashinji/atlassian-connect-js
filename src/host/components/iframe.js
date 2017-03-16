@@ -72,7 +72,7 @@ class Iframe {
   _appendExtensionError($container, text) {
     var $error = $('<div class="connect-resolve-error"></div>');
     var $additionalText = $('<p />').text(text);
-    $error.append('<p>Unable to resolve connect add-on URL. The content resolver threw an error</p>');
+    $error.append('<p class="error">Error: The content resolver threw the following error:</p>');
     $error.append($additionalText);
     $container.prepend($error);
   }
@@ -83,7 +83,6 @@ class Iframe {
   }
 
   resolverFailResponse(data) {
-    console.log('resolverFailResponse', arguments);
     this._appendExtensionError(data.$container, data.errorText);
   }
 

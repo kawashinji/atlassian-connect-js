@@ -3195,16 +3195,14 @@
 	      throw Error('ACJS: No content resolver supplied');
 	    }
 	    var promise = data.resolver.call(null, _.extend({ classifier: 'json' }, data.extension));
-	    promise.fail(function (data, error) {
+	    promise.fail(function (promiseData, error) {
 	      EventDispatcher$1.dispatch('jwt-url-refreshed-failed', {
 	        extension: data.extension,
 	        $container: data.$container,
 	        errorText: error.text
 	      });
-	      console.log('fail args?', arguments);
 	    });
 	    promise.done(function (promiseData) {
-	      console.log('done args?', arguments);
 	      var newExtensionConfiguration = {};
 	      if (_.isObject(promiseData)) {
 	        newExtensionConfiguration = promiseData;
@@ -3322,7 +3320,7 @@
 	    value: function _appendExtensionError($container, text) {
 	      var $error = $('<div class="connect-resolve-error"></div>');
 	      var $additionalText = $('<p />').text(text);
-	      $error.append('<p>Unable to resolve connect add-on URL. The content resolver threw an error</p>');
+	      $error.append('<p class="error">Error: The content resolver threw the following error:</p>');
 	      $error.append($additionalText);
 	      $container.prepend($error);
 	    }
@@ -3335,7 +3333,6 @@
 	  }, {
 	    key: 'resolverFailResponse',
 	    value: function resolverFailResponse(data) {
-	      console.log('resolverFailResponse', arguments);
 	      this._appendExtensionError(data.$container, data.errorText);
 	    }
 	  }, {

@@ -53,3 +53,8 @@
   animation-delay: 1s;
   animation-fill-mode: forwards;
 }
+
+.connect-resolve-error {
+  font-size: 12px;
+  line-height: 1.42857142857143;  
+}
