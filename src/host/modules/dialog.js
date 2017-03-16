@@ -3,6 +3,7 @@ import DialogExtensionActions from '../actions/dialog_extension_actions';
 import DialogActions from '../actions/dialog_actions';
 import EventActions from '../actions/event_actions';
 import DialogExtensionComponent from '../components/dialog_extension';
+import ProductDialog from '../components/product_dialog';
 import ButtonComponent from '../components/button';
 import DialogUtils from '../utils/dialog';
 import HostApi from '../host-api';
@@ -88,13 +89,25 @@ class Dialog {
  */
 class Button {
   constructor(identifier) {
-    if (!DialogExtensionComponent.getActiveDialog()) {
-      throw new Error('Failed to find an active dialog.');
+    console.log('Button constructor: ');
+    let dialogProvider = HostApi.getProvider('dialog');
+    if (dialogProvider) {
+      if (!ProductDialog.getActiveDialog()) {
+        throw new Error('Failed to find an active dialog.');
+      }
+      this.name = identifier;
+      this.identifier = identifier;
+      this.enabled = ProductDialog.buttonIsEnabled(identifier);
+      this.hidden = !ProductDialog.buttonIsVisible(identifier);
+    } else {
+      if (!DialogExtensionComponent.getActiveDialog()) {
+        throw new Error('Failed to find an active dialog.');
+      }
+      this.name = identifier;
+      this.identifier = identifier;
+      this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
+      this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
     }
-    this.name = identifier;
-    this.identifier = identifier;
-    this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
-    this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
   }
   /**
    * Sets the button state to enabled
@@ -238,14 +251,29 @@ class CreateButton {
     callback = _.last(arguments);
     let dialogProvider = HostApi.getProvider('dialog');
     if (dialogProvider) {
-      console.log('Adding a button to the dialog via the product');
+      console.log('CreateButton constructor: Adding a button to the dialog via the product');
       let now = Date.now();
       let buttonOptions = {
         id: now,
         key: options.identifier,
-        text: options.text
+        text: options.text,
+        clickHandler: function(event) {
+          console.log('CreateButton.clickHandler', event);
+          var eventData = {
+            button: {
+              name: 'xxxx',
+              identifier: options.identifier,
+              text: options.text
+            }
+          };
+          var eventName = 'dialog.button.click';
+          EventActions.broadcast(eventName, {
+            addon_key: callback._context.extension.addon_key,
+            key: callback._context.extension.key
+          }, eventData);
+        }
       };
-      dialogProvider.createButton(buttonOptions);
+      dialogProvider.addUserButton(buttonOptions);
     } else {
       DialogExtensionActions.addUserButton({
         identifier: options.identifier,

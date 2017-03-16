@@ -3966,6 +3966,22 @@
 	  DialogExtensionComponent.render(data.extension, data.options);
 	});
 
+	var ProductDialogComponent = function () {
+	  function ProductDialogComponent() {
+	    classCallCheck(this, ProductDialogComponent);
+	  }
+
+	  createClass(ProductDialogComponent, [{
+	    key: "getActiveDialog",
+	    value: function getActiveDialog() {
+	      return null;
+	    }
+	  }]);
+	  return ProductDialogComponent;
+	}();
+
+	var ProductDialog = new ProductDialogComponent();
+
 	function create$1(extension) {
 	  var simpleXdmExtension = {
 	    addon_key: extension.addon_key,
@@ -4294,13 +4310,25 @@
 	  function Button(identifier) {
 	    classCallCheck(this, Button);
 
-	    if (!DialogExtensionComponent.getActiveDialog()) {
-	      throw new Error('Failed to find an active dialog.');
+	    console.log('Button constructor: ');
+	    var dialogProvider = HostApi$2.getProvider('dialog');
+	    if (dialogProvider) {
+	      if (!ProductDialog.getActiveDialog()) {
+	        throw new Error('Failed to find an active dialog.');
+	      }
+	      this.name = identifier;
+	      this.identifier = identifier;
+	      this.enabled = ProductDialog.buttonIsEnabled(identifier);
+	      this.hidden = !ProductDialog.buttonIsVisible(identifier);
+	    } else {
+	      if (!DialogExtensionComponent.getActiveDialog()) {
+	        throw new Error('Failed to find an active dialog.');
+	      }
+	      this.name = identifier;
+	      this.identifier = identifier;
+	      this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
+	      this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
 	    }
-	    this.name = identifier;
-	    this.identifier = identifier;
-	    this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
-	    this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
 	  }
 	  /**
 	   * Sets the button state to enabled
@@ -4475,14 +4503,29 @@
 	  callback = _.last(arguments);
 	  var dialogProvider = HostApi$2.getProvider('dialog');
 	  if (dialogProvider) {
-	    console.log('Adding a button to the dialog via the product');
+	    console.log('CreateButton constructor: Adding a button to the dialog via the product');
 	    var now = Date.now();
 	    var buttonOptions = {
 	      id: now,
 	      key: options.identifier,
-	      text: options.text
+	      text: options.text,
+	      clickHandler: function clickHandler(event) {
+	        console.log('CreateButton.clickHandler', event);
+	        var eventData = {
+	          button: {
+	            name: 'xxxx',
+	            identifier: options.identifier,
+	            text: options.text
+	          }
+	        };
+	        var eventName = 'dialog.button.click';
+	        EventActions.broadcast(eventName, {
+	          addon_key: callback._context.extension.addon_key,
+	          key: callback._context.extension.key
+	        }, eventData);
+	      }
 	    };
-	    dialogProvider.createButton(buttonOptions);
+	    dialogProvider.addUserButton(buttonOptions);
 	  } else {
 	    DialogExtensionActions.addUserButton({
 	      identifier: options.identifier,
