@@ -1444,7 +1444,7 @@
 	    key: 'dispatch',
 	    value: function dispatch(type, targetSpec, event, callback, source) {
 	      function sendEvent(reg, evnt) {
-	        if (reg.source) {
+	        if (reg.source && reg.source.postMessage) {
 	          var mid;
 	          if (callback) {
 	            mid = util.randomString();
@@ -1552,13 +1552,14 @@
 	        } else {
 	          delete this._keycodeCallbacks[keycodeEntry];
 	        }
-
-	        reg.source.postMessage({
-	          type: 'key_listen',
-	          keycode: key,
-	          modifiers: modifiers,
-	          action: 'remove'
-	        }, reg.extension.url);
+	        if (reg.source && reg.source.postMessage) {
+	          reg.source.postMessage({
+	            type: 'key_listen',
+	            keycode: key,
+	            modifiers: modifiers,
+	            action: 'remove'
+	          }, reg.extension.url);
+	        }
 	      }
 	    }
 	  }, {
@@ -4839,6 +4840,13 @@
 	};
 
 	var FlagActions = {
+	  // called on action click
+	  actionInvoked: function actionInvoked(actionId, flagId) {
+	    EventDispatcher$1.dispatch('flag-action-invoked', {
+	      id: flagId,
+	      actionId: actionId
+	    });
+	  },
 	  open: function open(flagId) {
 	    EventDispatcher$1.dispatch('flag-open', { id: flagId });
 	  },
@@ -4853,6 +4861,8 @@
 	};
 
 	var FLAGID_PREFIX = 'ap-flag-';
+	var FLAG_CLASS = 'ac-aui-flag';
+	var FLAG_ACTION_CLASS = 'ac-flag-actions';
 
 	var Flag$1 = function () {
 	  function Flag() {
@@ -4860,6 +4870,16 @@
 	  }
 
 	  createClass(Flag, [{
+	    key: 'cleanKey',
+	    value: function cleanKey(dirtyKey) {
+	      var cleanFlagKeyRegExp = new RegExp('^' + FLAGID_PREFIX + '(.+)$');
+	      var matches = dirtyKey.match(cleanFlagKeyRegExp);
+	      if (matches && matches[1]) {
+	        return matches[1];
+	      }
+	      return null;
+	    }
+	  }, {
 	    key: '_toHtmlString',
 	    value: function _toHtmlString(str) {
 	      if ($.type(str) === 'string') {
@@ -4869,19 +4889,44 @@
 	      }
 	    }
 	  }, {
+	    key: '_renderBody',
+	    value: function _renderBody(body) {
+	      var body = this._toHtmlString(body);
+	      var $body = $('<div />').html(body);
+	      $('<p />').addClass(FLAG_ACTION_CLASS).appendTo($body);
+	      return $body.html();
+	    }
+	  }, {
+	    key: '_renderActions',
+	    value: function _renderActions($flag, flagId, actions) {
+	      var $actionContainer = $flag.find('.' + FLAG_ACTION_CLASS);
+	      actions = actions || {};
+	      var $action;
+
+	      Object.getOwnPropertyNames(actions).forEach(function (key) {
+	        $action = $('<a />').attr('href', '#').data({
+	          'key': key,
+	          'flag_id': flagId
+	        }).text(actions[key]);
+	        $actionContainer.append($action);
+	      }, this);
+	      return $flag;
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render(options) {
 	      var _id = FLAGID_PREFIX + options.id;
 	      var auiFlag = AJS.flag({
 	        type: options.type,
 	        title: options.title,
-	        body: this._toHtmlString(options.body),
+	        body: this._renderBody(options.body),
 	        close: options.close
 	      });
 	      auiFlag.setAttribute('id', _id);
 	      var $auiFlag = $(auiFlag);
+	      this._renderActions($auiFlag, options.id, options.actions);
+	      $auiFlag.addClass(FLAG_CLASS);
 	      $auiFlag.close = auiFlag.close;
-
 	      return $auiFlag;
 	    }
 	  }, {
@@ -4898,7 +4943,15 @@
 
 	$(document).on('aui-flag-close', function (e) {
 	  var _id = e.target.id;
-	  FlagActions.closed(_id);
+	  var cleanFlagId = FlagComponent.cleanKey(_id);
+	  FlagActions.closed(cleanFlagId);
+	});
+
+	$(document).on('click', '.' + FLAG_ACTION_CLASS, function (e) {
+	  var $target = $(e.target);
+	  var actionKey = $target.data('key');
+	  var flagId = $target.data('flag_id');
+	  FlagActions.actionInvoked(actionKey, flagId);
 	});
 
 	EventDispatcher$1.register('flag-close', function (data) {
@@ -4915,6 +4968,31 @@
 	/**
 	* @class Flag~Flag
 	* @description A flag object created by the [AP.flag]{@link module:Flag} module.
+	* @example
+	* // complete flag API example:
+	* var outFlagId;
+	* var flag = AP.flag.create({
+	*   title: 'Successfully created a flag.',
+	*   body: 'This is a flag.',
+	*   type: 'info',
+	*   actions: {
+	*     'actionOne': 'action name'
+	*   }
+	* }, function(identifier) {
+	* // Each flag will have a unique id. Save it for later.
+	*   ourFlagId = identifier;
+	* });
+	*
+	* // listen to flag events
+	* AP.events.on('flag.close', function(data) {
+	* // a flag was closed. data.flagIdentifier should match ourFlagId
+	*   console.log('flag id: ', data.flagIdentifier);
+	* });
+	* AP.events.on('flag.action', function(data) {
+	* // a flag action was clicked. data.actionIdentifier will be 'actionOne'
+	* // data.flagIdentifier will equal ourFlagId
+	*   console.log('flag id: ', data.flagIdentifier, 'flag action id', data.actionIdentifier);
+	* });
 	*/
 
 	var Flag = function () {
@@ -4929,6 +5007,7 @@
 	      type: options.type,
 	      title: options.title,
 	      body: AJS.escapeHtml(options.body),
+	      actions: options.actions,
 	      close: options.close,
 	      id: callback._id
 	    });
@@ -4936,17 +5015,16 @@
 	    FlagActions.open(this.flag.attr('id'));
 
 	    this.onTriggers = {};
-
-	    _flags[this.flag.attr('id')] = this;
+	    this.extension = callback._context.extension;
+	    _flags[callback._id] = this;
+	    callback.call(null, callback._id);
 	  }
 
 	  /**
-	  * @name on
+	  * @name close
 	  * @memberof Flag~Flag
 	  * @method
-	  * @description Binds a callback function to an event that is triggered by the Flag.
-	  * @param {Event} event A flag event; currently, the only valid option is 'close'.
-	  * @param {Function} callback The function that runs when the event occurs.
+	  * @description Closes the Flag.
 	  * @example
 	  * // Display a nice green flag using the Flags JavaScript API.
 	  * var flag = AP.flag.create({
@@ -4955,42 +5033,13 @@
 	  *   type: 'info'
 	  * });
 	  *
-	  * // Log a message to the console when the flag has closed.
-	  * flag.on('close', function (data) {
-	  *   console.log('Flag has been closed!');
-	  * })
+	  * // Close the flag.
+	  * flag.close()
 	  *
 	  */
 
 
 	  createClass(Flag, [{
-	    key: 'on',
-	    value: function on(event, callback) {
-	      var id = this.flag.id;
-	      if ($.isFunction(callback)) {
-	        this.onTriggers[event] = callback;
-	      }
-	    }
-
-	    /**
-	    * @name close
-	    * @memberof Flag~Flag
-	    * @method
-	    * @description Closes the Flag.
-	    * @example
-	    * // Display a nice green flag using the Flags JavaScript API.
-	    * var flag = AP.flag.create({
-	    *   title: 'Successfully created a flag.',
-	    *   body: 'This is a flag.',
-	    *   type: 'info'
-	    * });
-	    *
-	    * // Close the flag.
-	    * flag.close()
-	    *
-	    */
-
-	  }, {
 	    key: 'close',
 	    value: function close() {
 	      this.flag.close();
@@ -4999,13 +5048,26 @@
 	  return Flag;
 	}();
 
-	EventDispatcher$1.register('flag-closed', function (data) {
-	  if (_flags[data.id] && $.isFunction(_flags[data.id].onTriggers['close'])) {
-	    _flags[data.id].onTriggers['close']();
+	function invokeTrigger(id, eventName, data) {
+	  if (_flags[id]) {
+	    var extension = _flags[id].extension;
+	    data = data || {};
+	    data.flagIdentifier = id;
+	    EventActions.broadcast(eventName, {
+	      extension_id: extension.extension_id
+	    }, data);
 	  }
+	}
+
+	EventDispatcher$1.register('flag-closed', function (data) {
+	  invokeTrigger(data.id, 'flag.close');
 	  if (_flags[data.id]) {
 	    delete _flags[data.id];
 	  }
+	});
+
+	EventDispatcher$1.register('flag-action-invoked', function (data) {
+	  invokeTrigger(data.id, 'flag.action', { actionIdentifier: data.actionId });
 	});
 
 	var flag = {
@@ -5029,7 +5091,6 @@
 	  */
 	  create: {
 	    constructor: Flag,
-	    on: Flag.prototype.on,
 	    close: Flag.prototype.close
 	  }
 	};
@@ -5715,7 +5776,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.42';
+	  window._AP.version = '5.0.0-beta.43';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

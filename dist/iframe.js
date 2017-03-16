@@ -715,7 +715,7 @@ var AP = (function () {
       key: 'dispatch',
       value: function dispatch(type, targetSpec, event, callback, source) {
         function sendEvent(reg, evnt) {
-          if (reg.source) {
+          if (reg.source && reg.source.postMessage) {
             var mid;
             if (callback) {
               mid = util.randomString();
@@ -823,13 +823,14 @@ var AP = (function () {
           } else {
             delete this._keycodeCallbacks[keycodeEntry];
           }
-
-          reg.source.postMessage({
-            type: 'key_listen',
-            keycode: key,
-            modifiers: modifiers,
-            action: 'remove'
-          }, reg.extension.url);
+          if (reg.source && reg.source.postMessage) {
+            reg.source.postMessage({
+              type: 'key_listen',
+              keycode: key,
+              modifiers: modifiers,
+              action: 'remove'
+            }, reg.extension.url);
+          }
         }
       }
     }, {
@@ -1518,7 +1519,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0-beta.42";
+      _this._version = "5.0.0-beta.43";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
