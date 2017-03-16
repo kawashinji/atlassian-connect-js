@@ -10,6 +10,9 @@ export default {
       throw Error('ACJS: No content resolver supplied');
     }
     var promise = data.resolver.call(null, _.extend({classifier: 'json'}, data.extension));
+    promise.fail(function(data) {
+      console.log('fail args?', arguments);
+    });
     promise.done(function (promiseData) {
       var newExtensionConfiguration = {};
       if(_.isObject(promiseData)) {
