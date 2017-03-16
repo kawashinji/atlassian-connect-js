@@ -3195,7 +3195,12 @@
 	      throw Error('ACJS: No content resolver supplied');
 	    }
 	    var promise = data.resolver.call(null, _.extend({ classifier: 'json' }, data.extension));
-	    promise.fail(function (data) {
+	    promise.fail(function (data, error) {
+	      EventDispatcher$1.dispatch('jwt-url-refreshed-failed', {
+	        extension: data.extension,
+	        $container: data.$container,
+	        errorText: error.text
+	      });
 	      console.log('fail args?', arguments);
 	    });
 	    promise.done(function (promiseData) {
@@ -3313,10 +3318,25 @@
 	      IframeActions.notifyIframeCreated(extension.$el, extension);
 	    }
 	  }, {
+	    key: '_appendExtensionError',
+	    value: function _appendExtensionError($container, text) {
+	      var $error = $('<div class="connect-resolve-error"></div>');
+	      var $additionalText = $('<p />').text(text);
+	      $error.append('<p>Unable to resolve connect add-on URL. The content resolver threw an error</p>');
+	      $error.append($additionalText);
+	      $container.prepend($error);
+	    }
+	  }, {
 	    key: 'resolverResponse',
 	    value: function resolverResponse(data) {
 	      var simpleExtension = this._simpleXdmCreate(data.extension);
 	      this._appendExtension(data.$container, simpleExtension);
+	    }
+	  }, {
+	    key: 'resolverFailResponse',
+	    value: function resolverFailResponse(data) {
+	      console.log('resolverFailResponse', arguments);
+	      this._appendExtensionError(data.$container, data.errorText);
 	    }
 	  }, {
 	    key: 'render',
@@ -3339,6 +3359,10 @@
 
 	EventDispatcher$1.register('jwt-url-refreshed', function (data) {
 	  IframeComponent.resolverResponse(data);
+	});
+
+	EventDispatcher$1.register('jwt-url-refreshed-failed', function (data) {
+	  IframeComponent.resolverFailResponse(data);
 	});
 
 	EventDispatcher$1.register('after:iframe-bridge-established', function (data) {

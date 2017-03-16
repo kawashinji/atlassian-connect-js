@@ -10,7 +10,12 @@ export default {
       throw Error('ACJS: No content resolver supplied');
     }
     var promise = data.resolver.call(null, _.extend({classifier: 'json'}, data.extension));
-    promise.fail(function(data) {
+    promise.fail(function(data, error) {
+      EventDispatcher.dispatch('jwt-url-refreshed-failed', {
+        extension: data.extension,
+        $container: data.$container,
+        errorText: error.text
+      });
       console.log('fail args?', arguments);
     });
     promise.done(function (promiseData) {

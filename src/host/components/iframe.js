@@ -69,9 +69,22 @@ class Iframe {
     IframeActions.notifyIframeCreated(extension.$el, extension);
   }
 
+  _appendExtensionError($container, text) {
+    var $error = $('<div class="connect-resolve-error"></div>');
+    var $additionalText = $('<p />').text(text);
+    $error.append('<p>Unable to resolve connect add-on URL. The content resolver threw an error</p>');
+    $error.append($additionalText);
+    $container.prepend($error);
+  }
+
   resolverResponse(data) {
     var simpleExtension = this._simpleXdmCreate(data.extension);
     this._appendExtension(data.$container, simpleExtension);
+  }
+
+  resolverFailResponse(data) {
+    console.log('resolverFailResponse', arguments);
+    this._appendExtensionError(data.$container, data.errorText);
   }
 
   render(attributes){
@@ -92,6 +105,11 @@ EventDispatcher.register('content-resolver-register-by-extension', function(data
 EventDispatcher.register('jwt-url-refreshed', function(data) {
   IframeComponent.resolverResponse(data);
 });
+
+EventDispatcher.register('jwt-url-refreshed-failed', function(data) {
+  IframeComponent.resolverFailResponse(data);
+});
+
 
 EventDispatcher.register('after:iframe-bridge-established', function(data) {
   data.$el[0].bridgeEstablished = true;
