@@ -5613,12 +5613,11 @@
 	  }, {
 	    key: '_createInlineDialog',
 	    value: function _createInlineDialog(data) {
-	      var $iframeContainer = IframeContainerComponent.createExtension(data.extension);
 	      var $inlineDialog = InlineDialogComponent.render({
 	        extension: data.extension,
 	        id: data.id,
 	        bindTo: data.$target,
-	        $content: $iframeContainer,
+	        $content: $('<div />'),
 	        inlineDialogOptions: data.extension.options
 	      });
 
