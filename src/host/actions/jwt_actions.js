@@ -14,6 +14,7 @@ export default {
       console.log('fail args?', arguments);
     });
     promise.done(function (promiseData) {
+      console.log('done args?', arguments);
       var newExtensionConfiguration = {};
       if(_.isObject(promiseData)) {
         newExtensionConfiguration = promiseData;
