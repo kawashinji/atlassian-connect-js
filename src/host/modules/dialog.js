@@ -3,7 +3,6 @@ import DialogExtensionActions from '../actions/dialog_extension_actions';
 import DialogActions from '../actions/dialog_actions';
 import EventActions from '../actions/event_actions';
 import DialogExtensionComponent from '../components/dialog_extension';
-import ProductDialog from '../components/product_dialog';
 import ButtonComponent from '../components/button';
 import DialogUtils from '../utils/dialog';
 import HostApi from '../host-api';
@@ -92,13 +91,20 @@ class Button {
     console.log('Button constructor: ');
     let dialogProvider = HostApi.getProvider('dialog');
     if (dialogProvider) {
-      if (!ProductDialog.getActiveDialog()) {
+      var activeDialog = dialogProvider.getActiveDialog();
+      if (!activeDialog) {
         throw new Error('Failed to find an active dialog.');
       }
       this.name = identifier;
       this.identifier = identifier;
-      this.enabled = ProductDialog.buttonIsEnabled(identifier);
-      this.hidden = !ProductDialog.buttonIsVisible(identifier);
+      let buttonProxy = activeDialog.getButtonByIdentifier(identifier);
+      if (buttonProxy) {
+        this.enabled = buttonProxy.isEnabled(identifier);
+        this.hidden = !buttonProxy.isVisible(identifier);
+      } else {
+        // This exception will be caught by plugin/dialog which will then return an empty object as per the API contract.
+        throw new Error('Failed to find button with identifier "' + identifier + '".');
+      }
     } else {
       if (!DialogExtensionComponent.getActiveDialog()) {
         throw new Error('Failed to find an active dialog.');
@@ -108,6 +114,7 @@ class Button {
       this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
       this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
     }
+    console.log('Button constructor: completed');
   }
   /**
    * Sets the button state to enabled
@@ -261,7 +268,7 @@ class CreateButton {
           console.log('CreateButton.clickHandler', event);
           var eventData = {
             button: {
-              name: 'xxxx',
+              name: 'xxxx', // TODO
               identifier: options.identifier,
               text: options.text
             }

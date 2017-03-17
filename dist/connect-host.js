@@ -3966,22 +3966,6 @@
 	  DialogExtensionComponent.render(data.extension, data.options);
 	});
 
-	var ProductDialogComponent = function () {
-	  function ProductDialogComponent() {
-	    classCallCheck(this, ProductDialogComponent);
-	  }
-
-	  createClass(ProductDialogComponent, [{
-	    key: "getActiveDialog",
-	    value: function getActiveDialog() {
-	      return null;
-	    }
-	  }]);
-	  return ProductDialogComponent;
-	}();
-
-	var ProductDialog = new ProductDialogComponent();
-
 	function create$1(extension) {
 	  var simpleXdmExtension = {
 	    addon_key: extension.addon_key,
@@ -4313,13 +4297,20 @@
 	    console.log('Button constructor: ');
 	    var dialogProvider = HostApi$2.getProvider('dialog');
 	    if (dialogProvider) {
-	      if (!ProductDialog.getActiveDialog()) {
+	      var activeDialog = dialogProvider.getActiveDialog();
+	      if (!activeDialog) {
 	        throw new Error('Failed to find an active dialog.');
 	      }
 	      this.name = identifier;
 	      this.identifier = identifier;
-	      this.enabled = ProductDialog.buttonIsEnabled(identifier);
-	      this.hidden = !ProductDialog.buttonIsVisible(identifier);
+	      var buttonProxy = activeDialog.getButtonByIdentifier(identifier);
+	      if (buttonProxy) {
+	        this.enabled = buttonProxy.isEnabled(identifier);
+	        this.hidden = !buttonProxy.isVisible(identifier);
+	      } else {
+	        // This exception will be caught by plugin/dialog which will then return an empty object as per the API contract.
+	        throw new Error('Failed to find button with identifier "' + identifier + '".');
+	      }
 	    } else {
 	      if (!DialogExtensionComponent.getActiveDialog()) {
 	        throw new Error('Failed to find an active dialog.');
@@ -4329,6 +4320,7 @@
 	      this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
 	      this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
 	    }
+	    console.log('Button constructor: completed');
 	  }
 	  /**
 	   * Sets the button state to enabled
@@ -4513,7 +4505,7 @@
 	        console.log('CreateButton.clickHandler', event);
 	        var eventData = {
 	          button: {
-	            name: 'xxxx',
+	            name: 'xxxx', // TODO
 	            identifier: options.identifier,
 	            text: options.text
 	          }
