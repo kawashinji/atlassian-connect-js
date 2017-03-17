@@ -3195,6 +3195,13 @@
 	      throw Error('ACJS: No content resolver supplied');
 	    }
 	    var promise = data.resolver.call(null, _.extend({ classifier: 'json' }, data.extension));
+	    promise.fail(function (promiseData, error) {
+	      EventDispatcher$1.dispatch('jwt-url-refreshed-failed', {
+	        extension: data.extension,
+	        $container: data.$container,
+	        errorText: error.text
+	      });
+	    });
 	    promise.done(function (promiseData) {
 	      var newExtensionConfiguration = {};
 	      if (_.isObject(promiseData)) {
@@ -3309,10 +3316,24 @@
 	      IframeActions.notifyIframeCreated(extension.$el, extension);
 	    }
 	  }, {
+	    key: '_appendExtensionError',
+	    value: function _appendExtensionError($container, text) {
+	      var $error = $('<div class="connect-resolve-error"></div>');
+	      var $additionalText = $('<p />').text(text);
+	      $error.append('<p class="error">Error: The content resolver threw the following error:</p>');
+	      $error.append($additionalText);
+	      $container.prepend($error);
+	    }
+	  }, {
 	    key: 'resolverResponse',
 	    value: function resolverResponse(data) {
 	      var simpleExtension = this._simpleXdmCreate(data.extension);
 	      this._appendExtension(data.$container, simpleExtension);
+	    }
+	  }, {
+	    key: 'resolverFailResponse',
+	    value: function resolverFailResponse(data) {
+	      this._appendExtensionError(data.$container, data.errorText);
 	    }
 	  }, {
 	    key: 'render',
@@ -3335,6 +3356,10 @@
 
 	EventDispatcher$1.register('jwt-url-refreshed', function (data) {
 	  IframeComponent.resolverResponse(data);
+	});
+
+	EventDispatcher$1.register('jwt-url-refreshed-failed', function (data) {
+	  IframeComponent.resolverFailResponse(data);
 	});
 
 	EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
@@ -5776,7 +5801,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.43';
+	  window._AP.version = '5.0.0-beta.44';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
