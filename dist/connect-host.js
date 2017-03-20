@@ -3897,10 +3897,11 @@
 	});
 
 	EventDispatcher$1.register('host-window-resize', debounce(function () {
-	  $('.' + DIALOG_CLASS).each(function (i, $dialog) {
+	  $('.' + DIALOG_CLASS).each(function (i, dialog) {
+	    var $dialog = $(dialog);
 	    var sanitizedOptions = dialogUtilsInstance.sanitizeOptions($dialog.data('originalOptions'));
-	    $dialog[0].style.width = sanitizedOptions.width;
-	    $dialog[0].style.height = sanitizedOptions.height;
+	    dialog.style.width = sanitizedOptions.width;
+	    dialog.style.height = sanitizedOptions.height;
 	  });
 	}, 100));
 

@@ -356,10 +356,11 @@ EventDispatcher.register('dialog-button-add', (data) => {
 });
 
 EventDispatcher.register('host-window-resize', debounce(() => {
-  $('.' + DIALOG_CLASS).each((i, $dialog) => {
+  $('.' + DIALOG_CLASS).each((i, dialog) => {
+    var $dialog = $(dialog);
     var sanitizedOptions = dialogUtils.sanitizeOptions($dialog.data('originalOptions'));
-    $dialog[0].style.width = sanitizedOptions.width;
-    $dialog[0].style.height = sanitizedOptions.height;
+    dialog.style.width = sanitizedOptions.width;
+    dialog.style.height = sanitizedOptions.height;
   });
 }, 100));
 
