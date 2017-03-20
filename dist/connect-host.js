@@ -3973,7 +3973,13 @@
 	    url: extension.url,
 	    options: extension.options
 	  };
-	  return IframeContainerComponent.createExtension(simpleXdmExtension);
+	  var addonProvider = HostApi$2.getProvider('addon');
+	  if (addonProvider) {
+	    // return addonProvider.createExtension(simpleXdmExtension);
+	    return IframeContainerComponent.createExtension(simpleXdmExtension);
+	  } else {
+	    return IframeContainerComponent.createExtension(simpleXdmExtension);
+	  }
 	}
 
 	var ModuleActions = {
