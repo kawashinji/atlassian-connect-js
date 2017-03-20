@@ -3686,6 +3686,7 @@
 	  }, {
 	    key: 'render',
 	    value: function render(options) {
+	      var originalOptions = _.extend({}, options);
 	      var sanitizedOptions = dialogUtilsInstance.sanitizeOptions(options);
 	      var $dialog = $('<section />').attr({
 	        role: 'dialog',
@@ -3738,7 +3739,7 @@
 	      }
 	      dialog.show();
 	      dialog.$el.data('extension', sanitizedOptions.extension);
-	      dialog.$el.data('originalOptions', options);
+	      dialog.$el.data('originalOptions', originalOptions);
 	      return $dialog;
 	    }
 	  }, {

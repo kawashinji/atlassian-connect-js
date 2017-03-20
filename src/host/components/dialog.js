@@ -157,6 +157,7 @@ class Dialog {
   }
   **/
   render(options){
+    var originalOptions = _.extend({}, options);
     var sanitizedOptions = dialogUtils.sanitizeOptions(options);
     const $dialog = $('<section />').attr({
       role: 'dialog',
@@ -209,7 +210,7 @@ class Dialog {
     }
     dialog.show();
     dialog.$el.data('extension', sanitizedOptions.extension);
-    dialog.$el.data('originalOptions', options);
+    dialog.$el.data('originalOptions', originalOptions);
     return $dialog;
   }
 
