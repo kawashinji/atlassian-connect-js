@@ -3522,7 +3522,6 @@
 	  ButtonComponent.setHidden(data.$el, data.hidden);
 	});
 
-	var _arguments = arguments;
 	var DLGID_PREFIX = 'ap-dialog-';
 	var DIALOG_CLASS = 'ap-aui-dialog2';
 	var DLGID_REGEXP = new RegExp('^' + DLGID_PREFIX + '[0-9A-Za-z]+$');
@@ -3739,6 +3738,7 @@
 	      }
 	      dialog.show();
 	      dialog.$el.data('extension', sanitizedOptions.extension);
+	      dialog.$el.data('originalOptions', options);
 	      return $dialog;
 	    }
 	  }, {
@@ -3897,8 +3897,10 @@
 	});
 
 	EventDispatcher$1.register('host-window-resize', debounce(function () {
-	  $('.' + DIALOG_CLASS).forEach(function (a) {
-	    console.log('arguments???', _arguments);
+	  $('.' + DIALOG_CLASS).each(function (i, $dialog) {
+	    var sanitizedOptions = dialogUtilsInstance.sanitizeOptions($dialog.data('originalOptions'));
+	    $dialog[0].style.width = sanitizedOptions.width;
+	    $dialog[0].style.height = sanitizedOptions.height;
 	  });
 	}, 100));
 
