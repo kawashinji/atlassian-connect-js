@@ -8,12 +8,13 @@ function create(extension) {
     url: extension.url,
     options: extension.options
   };
+  let identifier = extension.key; // TODO: matches ConnectAddon.jsx in RefApp, but is this right?
   let addonProvider = HostApi.getProvider('addon');
   if (addonProvider) {
     // return addonProvider.createExtension(simpleXdmExtension);
     let extension = IframeContainerComponent.createExtension(simpleXdmExtension);
     addonProvider.registerExtension(extension);
-    return return;
+    return extension;
   } else {
     return IframeContainerComponent.createExtension(simpleXdmExtension);
   }

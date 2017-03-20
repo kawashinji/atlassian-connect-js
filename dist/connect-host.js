@@ -3973,10 +3973,16 @@
 	    url: extension.url,
 	    options: extension.options
 	  };
+	  var identifier = extension.key; // TODO: matches ConnectAddon.jsx in RefApp, but is this right?
 	  var addonProvider = HostApi$2.getProvider('addon');
 	  if (addonProvider) {
 	    // return addonProvider.createExtension(simpleXdmExtension);
-	    return IframeContainerComponent.createExtension(simpleXdmExtension);
+	    var _extension = IframeContainerComponent.createExtension(simpleXdmExtension);
+	    addonProvider.registerExtension(_extension);
+	    setTimeout(function () {
+	      addonProvider.setHeight(identifier, '800px');
+	    }, 1000);
+	    return _extension;
 	  } else {
 	    return IframeContainerComponent.createExtension(simpleXdmExtension);
 	  }
