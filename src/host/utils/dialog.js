@@ -1,7 +1,20 @@
 import util from '../util';
 import buttonUtils from './button';
+import $ from '../dollar';
 
 class DialogUtils {
+  _maxDimension(val, maxPxVal){
+    var parsed = util.stringToDimension(val);
+    var parsedInt = parseInt(parsed, 10);
+    var parsedMaxPxVal = parseInt(maxPxVal, 10);
+
+    if ((parsed.indexOf('%') > -1 && parsedInt >= 100) // %
+      || (parsedInt > parsedMaxPxVal)) { // px
+      return '100%';
+    }
+    return parsed;
+  }
+
   _size (options){
     var size = options.size;
     if (options.size === 'x-large') {
@@ -54,7 +67,7 @@ class DialogUtils {
       return undefined;
     }
     if(options.width) {
-      return util.stringToDimension(options.width);
+      return this._maxDimension(options.width, $(window).width());
     }
     return '50%';
   }
@@ -64,7 +77,7 @@ class DialogUtils {
       return undefined;
     }
     if(options.height) {
-      return util.stringToDimension(options.height);
+      return this._maxDimension(options.height, $(window).height());
     }
     return '50%';
   }

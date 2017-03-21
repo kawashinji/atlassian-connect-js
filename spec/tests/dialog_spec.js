@@ -237,5 +237,29 @@ describe('dialog component', () => {
         expect($dialog.width()).toEqual($(window).width());
       });
     })
+
   });
+
+  describe('max dimensions are no greater than the window', () => {
+    it('will not open larger than 100% width / height', () => {
+      var $dialog = DialogComponent.render({
+        height: '101%',
+        width: '102%'
+      });
+
+      expect($dialog[0].style.height).toEqual('100%');
+      expect($dialog[0].style.width).toEqual('100%');
+    });
+
+    it('will not open larger than window in PX', () => {
+      var $dialog = DialogComponent.render({
+        height: '100000px',
+        width: '100000px',
+      });
+      expect($dialog.height()).toEqual($(window).height());
+      expect($dialog.width()).toEqual($(window).width());
+    });
+  });
+
+
 });

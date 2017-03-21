@@ -1976,6 +1976,20 @@
 	  }
 
 	  createClass(DialogUtils, [{
+	    key: '_maxDimension',
+	    value: function _maxDimension(val, maxPxVal) {
+	      var parsed = util$1.stringToDimension(val);
+	      var parsedInt = parseInt(parsed, 10);
+	      var parsedMaxPxVal = parseInt(maxPxVal, 10);
+
+	      if (parsed.indexOf('%') > -1 && parsedInt >= 100 || // %
+	      parsedInt > parsedMaxPxVal) {
+	        // px
+	        return '100%';
+	      }
+	      return parsed;
+	    }
+	  }, {
 	    key: '_size',
 	    value: function _size(options) {
 	      var size = options.size;
@@ -2033,7 +2047,7 @@
 	        return undefined;
 	      }
 	      if (options.width) {
-	        return util$1.stringToDimension(options.width);
+	        return this._maxDimension(options.width, $(window).width());
 	      }
 	      return '50%';
 	    }
@@ -2044,7 +2058,7 @@
 	        return undefined;
 	      }
 	      if (options.height) {
-	        return util$1.stringToDimension(options.height);
+	        return this._maxDimension(options.height, $(window).height());
 	      }
 	      return '50%';
 	    }
@@ -3518,6 +3532,8 @@
 	var DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
 	var DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
 
+	var debounce = AJS.debounce || $.debounce;
+
 	function getActiveDialog$1() {
 	  var $el = AJS.LayerManager.global.getTopLayer();
 	  if ($el && DLGID_REGEXP.test($el.attr('id'))) {
@@ -3670,6 +3686,7 @@
 	  }, {
 	    key: 'render',
 	    value: function render(options) {
+	      var originalOptions = _.extend({}, options);
 	      var sanitizedOptions = dialogUtilsInstance.sanitizeOptions(options);
 	      var $dialog = $('<section />').attr({
 	        role: 'dialog',
@@ -3722,6 +3739,7 @@
 	      }
 	      dialog.show();
 	      dialog.$el.data('extension', sanitizedOptions.extension);
+	      dialog.$el.data('originalOptions', originalOptions);
 	      return $dialog;
 	    }
 	  }, {
@@ -3878,6 +3896,15 @@
 	EventDispatcher$1.register('dialog-button-add', function (data) {
 	  DialogComponent.addButton(data.extension, data.button);
 	});
+
+	EventDispatcher$1.register('host-window-resize', debounce(function () {
+	  $('.' + DIALOG_CLASS).each(function (i, dialog) {
+	    var $dialog = $(dialog);
+	    var sanitizedOptions = dialogUtilsInstance.sanitizeOptions($dialog.data('originalOptions'));
+	    dialog.style.width = sanitizedOptions.width;
+	    dialog.style.height = sanitizedOptions.height;
+	  });
+	}, 100));
 
 	DomEventActions.registerWindowKeyEvent({
 	  keyCode: 27,
@@ -4440,7 +4467,7 @@
 	  }
 	};
 
-	var debounce = AJS.debounce || $.debounce;
+	var debounce$1 = AJS.debounce || $.debounce;
 	var resizeFuncHolder = {};
 	// ignore resize events for iframes that use sizeToParent
 	var ignoreResizeForExtension = [];
@@ -4489,7 +4516,7 @@
 	    }
 
 	    if (!resizeFuncHolder[iframeId]) {
-	      resizeFuncHolder[iframeId] = debounce(function (dwidth, dheight, dcallback) {
+	      resizeFuncHolder[iframeId] = debounce$1(function (dwidth, dheight, dcallback) {
 	        EnvActions.iframeResize(dwidth, dheight, dcallback._context);
 	      }, 50);
 	    }
@@ -4505,7 +4532,7 @@
 	   * @method
 	   * @param {boolean} hideFooter true if the footer is supposed to be hidden
 	   */
-	  sizeToParent: debounce(function (hideFooter, callback) {
+	  sizeToParent: debounce$1(function (hideFooter, callback) {
 	    callback = _.last(arguments);
 	    // sizeToParent is only available for general-pages
 	    if (callback._context.extension.options.isFullPage) {
@@ -5801,7 +5828,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.44';
+	  window._AP.version = '5.0.0-beta.45';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
