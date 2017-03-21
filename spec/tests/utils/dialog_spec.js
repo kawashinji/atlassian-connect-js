@@ -290,7 +290,7 @@ describe('dialog utils', () => {
     });
 
     it('returns expected options with defaults', () => {
-      expect(DialogUtils.moduleOptionsFromGlobal('addonKey', 'moduleKey')).toEqual(Object.assign({}, defaults, options.options));
+      expect(DialogUtils.moduleOptionsFromGlobal('addonKey', 'moduleKey')).toEqual($.extend({}, defaults, options.options));
     });
   });
 });
