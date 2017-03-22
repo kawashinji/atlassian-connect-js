@@ -137,6 +137,11 @@
 .ap-header-controls .aui-dialog2-content {
     max-height: calc(100% - 50px);
 }
+.ac-flag-actions a {
+  margin-right: 10px;
+  /* whole flag text appears on 1 line */
+  display: inline-block;
+}
 .ap-status-indicator {
   padding-top: 5px;
   font-size: 12px;
@@ -193,6 +198,10 @@
   animation-fill-mode: forwards;
 }
 
+.connect-resolve-error {
+  font-size: 12px;
+  line-height: 1.42857142857143;  
+}
 #ac-message-container {
 	top: 20px;
 	left: 50%;

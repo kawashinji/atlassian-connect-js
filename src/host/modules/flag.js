@@ -9,12 +9,38 @@ import FlagActions from '../actions/flag_actions';
 import FlagComponent from '../components/flag';
 import HostApi from '../host-api';
 import _ from '../underscore';
+import EventActions from '../actions/event_actions';
 
 const _flags = {};
 
 /**
 * @class Flag~Flag
 * @description A flag object created by the [AP.flag]{@link module:Flag} module.
+* @example
+* // complete flag API example:
+* var outFlagId;
+* var flag = AP.flag.create({
+*   title: 'Successfully created a flag.',
+*   body: 'This is a flag.',
+*   type: 'info',
+*   actions: {
+*     'actionOne': 'action name'
+*   }
+* }, function(identifier) {
+* // Each flag will have a unique id. Save it for later.
+*   ourFlagId = identifier;
+* });
+*
+* // listen to flag events
+* AP.events.on('flag.close', function(data) {
+* // a flag was closed. data.flagIdentifier should match ourFlagId
+*   console.log('flag id: ', data.flagIdentifier);
+* });
+* AP.events.on('flag.action', function(data) {
+* // a flag action was clicked. data.actionIdentifier will be 'actionOne'
+* // data.flagIdentifier will equal ourFlagId
+*   console.log('flag id: ', data.flagIdentifier, 'flag action id', data.actionIdentifier);
+* });
 */
 class Flag {
   constructor(options, callback) {
@@ -39,6 +65,7 @@ class Flag {
             type: options.type,
             title: options.title,
             body: AJS.escapeHtml(options.body),
+            actions: options.actions,
             close: options.close,
             id: callback._id
         });
@@ -47,36 +74,9 @@ class Flag {
     }
 
     this.onTriggers= {};
-
-    _flags[this.flag.attr('id')] = this;
-  }
-
-  /**
-  * @name on
-  * @memberof Flag~Flag
-  * @method
-  * @description Binds a callback function to an event that is triggered by the Flag.
-  * @param {Event} event A flag event; currently, the only valid option is 'close'.
-  * @param {Function} callback The function that runs when the event occurs.
-  * @example
-  * // Display a nice green flag using the Flags JavaScript API.
-  * var flag = AP.flag.create({
-  *   title: 'Successfully created a flag.',
-  *   body: 'This is a flag.',
-  *   type: 'info'
-  * });
-  *
-  * // Log a message to the console when the flag has closed.
-  * flag.on('close', function (data) {
-  *   console.log('Flag has been closed!');
-  * })
-  *
-  */
-  on(event, callback) {
-    const id = this.flag.id;
-    if ($.isFunction(callback)) {
-      this.onTriggers[event] = callback;
-    }
+    this.extension = callback._context.extension;
+    _flags[callback._id] = this;
+    callback.call(null, callback._id);
   }
 
   /**
@@ -101,13 +101,26 @@ class Flag {
   }
 }
 
-EventDispatcher.register('flag-closed', (data) => {
-  if (_flags[data.id] && $.isFunction(_flags[data.id].onTriggers['close'])) {
-    _flags[data.id].onTriggers['close']();
+function invokeTrigger(id, eventName, data) {
+  if (_flags[id]) {
+    let extension = _flags[id].extension;
+    data = data || {};
+    data.flagIdentifier = id;
+    EventActions.broadcast(eventName, {
+      extension_id: extension.extension_id
+    }, data);
   }
+}
+
+EventDispatcher.register('flag-closed', (data) => {
+  invokeTrigger(data.id, 'flag.close');
   if (_flags[data.id]) {
     delete _flags[data.id];
   }
+});
+
+EventDispatcher.register('flag-action-invoked', (data) => {
+  invokeTrigger(data.id, 'flag.action', {actionIdentifier: data.actionId});
 });
 
 export default {
@@ -131,7 +144,6 @@ export default {
   */
   create: {
     constructor: Flag,
-    on: Flag.prototype.on,
     close: Flag.prototype.close
   }
 }

@@ -1975,6 +1975,20 @@
 	  }
 
 	  createClass(DialogUtils, [{
+	    key: '_maxDimension',
+	    value: function _maxDimension(val, maxPxVal) {
+	      var parsed = util$1.stringToDimension(val);
+	      var parsedInt = parseInt(parsed, 10);
+	      var parsedMaxPxVal = parseInt(maxPxVal, 10);
+
+	      if (parsed.indexOf('%') > -1 && parsedInt >= 100 || // %
+	      parsedInt > parsedMaxPxVal) {
+	        // px
+	        return '100%';
+	      }
+	      return parsed;
+	    }
+	  }, {
 	    key: '_size',
 	    value: function _size(options) {
 	      var size = options.size;
@@ -2032,7 +2046,7 @@
 	        return undefined;
 	      }
 	      if (options.width) {
-	        return util$1.stringToDimension(options.width);
+	        return this._maxDimension(options.width, $(window).width());
 	      }
 	      return '50%';
 	    }
@@ -2043,7 +2057,7 @@
 	        return undefined;
 	      }
 	      if (options.height) {
-	        return util$1.stringToDimension(options.height);
+	        return this._maxDimension(options.height, $(window).height());
 	      }
 	      return '50%';
 	    }
@@ -3194,6 +3208,13 @@
 	      throw Error('ACJS: No content resolver supplied');
 	    }
 	    var promise = data.resolver.call(null, _.extend({ classifier: 'json' }, data.extension));
+	    promise.fail(function (promiseData, error) {
+	      EventDispatcher$1.dispatch('jwt-url-refreshed-failed', {
+	        extension: data.extension,
+	        $container: data.$container,
+	        errorText: error.text
+	      });
+	    });
 	    promise.done(function (promiseData) {
 	      var newExtensionConfiguration = {};
 	      if (_.isObject(promiseData)) {
@@ -3308,10 +3329,24 @@
 	      IframeActions.notifyIframeCreated(extension.$el, extension);
 	    }
 	  }, {
+	    key: '_appendExtensionError',
+	    value: function _appendExtensionError($container, text) {
+	      var $error = $('<div class="connect-resolve-error"></div>');
+	      var $additionalText = $('<p />').text(text);
+	      $error.append('<p class="error">Error: The content resolver threw the following error:</p>');
+	      $error.append($additionalText);
+	      $container.prepend($error);
+	    }
+	  }, {
 	    key: 'resolverResponse',
 	    value: function resolverResponse(data) {
 	      var simpleExtension = this._simpleXdmCreate(data.extension);
 	      this._appendExtension(data.$container, simpleExtension);
+	    }
+	  }, {
+	    key: 'resolverFailResponse',
+	    value: function resolverFailResponse(data) {
+	      this._appendExtensionError(data.$container, data.errorText);
 	    }
 	  }, {
 	    key: 'render',
@@ -3334,6 +3369,10 @@
 
 	EventDispatcher$1.register('jwt-url-refreshed', function (data) {
 	  IframeComponent.resolverResponse(data);
+	});
+
+	EventDispatcher$1.register('jwt-url-refreshed-failed', function (data) {
+	  IframeComponent.resolverFailResponse(data);
 	});
 
 	EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
@@ -3492,6 +3531,8 @@
 	var DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
 	var DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
 
+	var debounce = AJS.debounce || $.debounce;
+
 	function getActiveDialog$1() {
 	  var $el = AJS.LayerManager.global.getTopLayer();
 	  if ($el && DLGID_REGEXP.test($el.attr('id'))) {
@@ -3644,6 +3685,7 @@
 	  }, {
 	    key: 'render',
 	    value: function render(options) {
+	      var originalOptions = _.extend({}, options);
 	      var sanitizedOptions = dialogUtilsInstance.sanitizeOptions(options);
 	      var $dialog = $('<section />').attr({
 	        role: 'dialog',
@@ -3696,6 +3738,7 @@
 	      }
 	      dialog.show();
 	      dialog.$el.data('extension', sanitizedOptions.extension);
+	      dialog.$el.data('originalOptions', originalOptions);
 	      return $dialog;
 	    }
 	  }, {
@@ -3853,6 +3896,15 @@
 	  DialogComponent.addButton(data.extension, data.button);
 	});
 
+	EventDispatcher$1.register('host-window-resize', debounce(function () {
+	  $('.' + DIALOG_CLASS).each(function (i, dialog) {
+	    var $dialog = $(dialog);
+	    var sanitizedOptions = dialogUtilsInstance.sanitizeOptions($dialog.data('originalOptions'));
+	    dialog.style.width = sanitizedOptions.width;
+	    dialog.style.height = sanitizedOptions.height;
+	  });
+	}, 100));
+
 	DomEventActions.registerWindowKeyEvent({
 	  keyCode: 27,
 	  callback: function callback() {
@@ -3979,9 +4031,6 @@
 	    // return addonProvider.createExtension(simpleXdmExtension);
 	    var _extension = IframeContainerComponent.createExtension(simpleXdmExtension);
 	    addonProvider.registerExtension(_extension);
-	    setTimeout(function () {
-	      addonProvider.setHeight(identifier, '800px');
-	    }, 1000);
 	    return _extension;
 	  } else {
 	    return IframeContainerComponent.createExtension(simpleXdmExtension);
@@ -4728,7 +4777,7 @@
 	  }
 	};
 
-	var debounce = AJS.debounce || $.debounce;
+	var debounce$1 = AJS.debounce || $.debounce;
 	var resizeFuncHolder = {};
 	// ignore resize events for iframes that use sizeToParent
 	var ignoreResizeForExtension = [];
@@ -4777,7 +4826,7 @@
 	    }
 
 	    if (!resizeFuncHolder[iframeId]) {
-	      resizeFuncHolder[iframeId] = debounce(function (dwidth, dheight, dcallback) {
+	      resizeFuncHolder[iframeId] = debounce$1(function (dwidth, dheight, dcallback) {
 	        EnvActions.iframeResize(dwidth, dheight, dcallback._context);
 	      }, 50);
 	    }
@@ -4793,7 +4842,7 @@
 	   * @method
 	   * @param {boolean} hideFooter true if the footer is supposed to be hidden
 	   */
-	  sizeToParent: debounce(function (hideFooter, callback) {
+	  sizeToParent: debounce$1(function (hideFooter, callback) {
 	    callback = _.last(arguments);
 	    // sizeToParent is only available for general-pages
 	    if (callback._context.extension.options.isFullPage) {
@@ -5147,6 +5196,13 @@
 	};
 
 	var FlagActions = {
+	  // called on action click
+	  actionInvoked: function actionInvoked(actionId, flagId) {
+	    EventDispatcher$1.dispatch('flag-action-invoked', {
+	      id: flagId,
+	      actionId: actionId
+	    });
+	  },
 	  open: function open(flagId) {
 	    EventDispatcher$1.dispatch('flag-open', { id: flagId });
 	  },
@@ -5161,6 +5217,8 @@
 	};
 
 	var FLAGID_PREFIX = 'ap-flag-';
+	var FLAG_CLASS = 'ac-aui-flag';
+	var FLAG_ACTION_CLASS = 'ac-flag-actions';
 
 	var Flag$1 = function () {
 	  function Flag() {
@@ -5168,6 +5226,16 @@
 	  }
 
 	  createClass(Flag, [{
+	    key: 'cleanKey',
+	    value: function cleanKey(dirtyKey) {
+	      var cleanFlagKeyRegExp = new RegExp('^' + FLAGID_PREFIX + '(.+)$');
+	      var matches = dirtyKey.match(cleanFlagKeyRegExp);
+	      if (matches && matches[1]) {
+	        return matches[1];
+	      }
+	      return null;
+	    }
+	  }, {
 	    key: '_toHtmlString',
 	    value: function _toHtmlString(str) {
 	      if ($.type(str) === 'string') {
@@ -5177,19 +5245,44 @@
 	      }
 	    }
 	  }, {
+	    key: '_renderBody',
+	    value: function _renderBody(body) {
+	      var body = this._toHtmlString(body);
+	      var $body = $('<div />').html(body);
+	      $('<p />').addClass(FLAG_ACTION_CLASS).appendTo($body);
+	      return $body.html();
+	    }
+	  }, {
+	    key: '_renderActions',
+	    value: function _renderActions($flag, flagId, actions) {
+	      var $actionContainer = $flag.find('.' + FLAG_ACTION_CLASS);
+	      actions = actions || {};
+	      var $action;
+
+	      Object.getOwnPropertyNames(actions).forEach(function (key) {
+	        $action = $('<a />').attr('href', '#').data({
+	          'key': key,
+	          'flag_id': flagId
+	        }).text(actions[key]);
+	        $actionContainer.append($action);
+	      }, this);
+	      return $flag;
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render(options) {
 	      var _id = FLAGID_PREFIX + options.id;
 	      var auiFlag = AJS.flag({
 	        type: options.type,
 	        title: options.title,
-	        body: this._toHtmlString(options.body),
+	        body: this._renderBody(options.body),
 	        close: options.close
 	      });
 	      auiFlag.setAttribute('id', _id);
 	      var $auiFlag = $(auiFlag);
+	      this._renderActions($auiFlag, options.id, options.actions);
+	      $auiFlag.addClass(FLAG_CLASS);
 	      $auiFlag.close = auiFlag.close;
-
 	      return $auiFlag;
 	    }
 	  }, {
@@ -5206,7 +5299,15 @@
 
 	$(document).on('aui-flag-close', function (e) {
 	  var _id = e.target.id;
-	  FlagActions.closed(_id);
+	  var cleanFlagId = FlagComponent.cleanKey(_id);
+	  FlagActions.closed(cleanFlagId);
+	});
+
+	$(document).on('click', '.' + FLAG_ACTION_CLASS, function (e) {
+	  var $target = $(e.target);
+	  var actionKey = $target.data('key');
+	  var flagId = $target.data('flag_id');
+	  FlagActions.actionInvoked(actionKey, flagId);
 	});
 
 	EventDispatcher$1.register('flag-close', function (data) {
@@ -5223,6 +5324,31 @@
 	/**
 	* @class Flag~Flag
 	* @description A flag object created by the [AP.flag]{@link module:Flag} module.
+	* @example
+	* // complete flag API example:
+	* var outFlagId;
+	* var flag = AP.flag.create({
+	*   title: 'Successfully created a flag.',
+	*   body: 'This is a flag.',
+	*   type: 'info',
+	*   actions: {
+	*     'actionOne': 'action name'
+	*   }
+	* }, function(identifier) {
+	* // Each flag will have a unique id. Save it for later.
+	*   ourFlagId = identifier;
+	* });
+	*
+	* // listen to flag events
+	* AP.events.on('flag.close', function(data) {
+	* // a flag was closed. data.flagIdentifier should match ourFlagId
+	*   console.log('flag id: ', data.flagIdentifier);
+	* });
+	* AP.events.on('flag.action', function(data) {
+	* // a flag action was clicked. data.actionIdentifier will be 'actionOne'
+	* // data.flagIdentifier will equal ourFlagId
+	*   console.log('flag id: ', data.flagIdentifier, 'flag action id', data.actionIdentifier);
+	* });
 	*/
 
 	var Flag = function () {
@@ -5250,6 +5376,7 @@
 	        type: options.type,
 	        title: options.title,
 	        body: AJS.escapeHtml(options.body),
+	        actions: options.actions,
 	        close: options.close,
 	        id: callback._id
 	      });
@@ -5258,17 +5385,16 @@
 	    }
 
 	    this.onTriggers = {};
-
-	    _flags[this.flag.attr('id')] = this;
+	    this.extension = callback._context.extension;
+	    _flags[callback._id] = this;
+	    callback.call(null, callback._id);
 	  }
 
 	  /**
-	  * @name on
+	  * @name close
 	  * @memberof Flag~Flag
 	  * @method
-	  * @description Binds a callback function to an event that is triggered by the Flag.
-	  * @param {Event} event A flag event; currently, the only valid option is 'close'.
-	  * @param {Function} callback The function that runs when the event occurs.
+	  * @description Closes the Flag.
 	  * @example
 	  * // Display a nice green flag using the Flags JavaScript API.
 	  * var flag = AP.flag.create({
@@ -5277,42 +5403,13 @@
 	  *   type: 'info'
 	  * });
 	  *
-	  * // Log a message to the console when the flag has closed.
-	  * flag.on('close', function (data) {
-	  *   console.log('Flag has been closed!');
-	  * })
+	  * // Close the flag.
+	  * flag.close()
 	  *
 	  */
 
 
 	  createClass(Flag, [{
-	    key: 'on',
-	    value: function on(event, callback) {
-	      var id = this.flag.id;
-	      if ($.isFunction(callback)) {
-	        this.onTriggers[event] = callback;
-	      }
-	    }
-
-	    /**
-	    * @name close
-	    * @memberof Flag~Flag
-	    * @method
-	    * @description Closes the Flag.
-	    * @example
-	    * // Display a nice green flag using the Flags JavaScript API.
-	    * var flag = AP.flag.create({
-	    *   title: 'Successfully created a flag.',
-	    *   body: 'This is a flag.',
-	    *   type: 'info'
-	    * });
-	    *
-	    * // Close the flag.
-	    * flag.close()
-	    *
-	    */
-
-	  }, {
 	    key: 'close',
 	    value: function close() {
 	      this.flag.close();
@@ -5321,13 +5418,26 @@
 	  return Flag;
 	}();
 
-	EventDispatcher$1.register('flag-closed', function (data) {
-	  if (_flags[data.id] && $.isFunction(_flags[data.id].onTriggers['close'])) {
-	    _flags[data.id].onTriggers['close']();
+	function invokeTrigger(id, eventName, data) {
+	  if (_flags[id]) {
+	    var extension = _flags[id].extension;
+	    data = data || {};
+	    data.flagIdentifier = id;
+	    EventActions.broadcast(eventName, {
+	      extension_id: extension.extension_id
+	    }, data);
 	  }
+	}
+
+	EventDispatcher$1.register('flag-closed', function (data) {
+	  invokeTrigger(data.id, 'flag.close');
 	  if (_flags[data.id]) {
 	    delete _flags[data.id];
 	  }
+	});
+
+	EventDispatcher$1.register('flag-action-invoked', function (data) {
+	  invokeTrigger(data.id, 'flag.action', { actionIdentifier: data.actionId });
 	});
 
 	var flag = {
@@ -5351,7 +5461,6 @@
 	  */
 	  create: {
 	    constructor: Flag,
-	    on: Flag.prototype.on,
 	    close: Flag.prototype.close
 	  }
 	};
@@ -5646,12 +5755,11 @@
 	  }, {
 	    key: '_createInlineDialog',
 	    value: function _createInlineDialog(data) {
-	      var $iframeContainer = IframeContainerComponent.createExtension(data.extension);
 	      var $inlineDialog = InlineDialogComponent.render({
 	        extension: data.extension,
 	        id: data.id,
 	        bindTo: data.$target,
-	        $content: $iframeContainer,
+	        $content: $('<div />'),
 	        inlineDialogOptions: data.extension.options
 	      });
 
@@ -5810,7 +5918,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.41';
+	  window._AP.version = '5.0.0-beta.45';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

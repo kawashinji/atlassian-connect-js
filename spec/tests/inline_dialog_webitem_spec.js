@@ -36,7 +36,6 @@ describe('Inline Dialog Webitem', () => {
     it('renders an inline dialog', (done) => {
       EventDispatcher.registerOnce('after:webitem-invoked:inline-dialog', function(){
         expect($('.aui-inline-dialog').length).toBe(1);
-        expect($('.ap-iframe-container').length).toEqual(1);
         done();
       });
       $(function(){
@@ -48,10 +47,8 @@ describe('Inline Dialog Webitem', () => {
       $(function(){
         $('.ap-inline-dialog').click();
         expect($('.aui-inline-dialog').length).toBe(1);
-        expect($('.ap-iframe-container').length).toEqual(1);
         $('.ap-inline-dialog').click();
         expect($('.aui-inline-dialog').length).toBe(1);
-        expect($('.ap-iframe-container').length).toEqual(1);
         done();
       });
     });
@@ -156,6 +153,34 @@ describe('Inline Dialog Webitem', () => {
         var extensionObj = WebItemActions.webitemInvoked.calls.first().args[2];
         expect(extensionObj.options.productContext).toEqual({'b.c': 'd'});
         done();
+      });
+    });
+
+    it('only calls the content resolver once per add-on', (done) => {
+      var spy = jasmine.createSpy('spy');
+
+      jwtActions.registerContentResolver({callback: function(data){
+        spy();
+        // if you don't return a promise this regression test will always pass
+        return jQuery.Deferred(function(defer){
+          defer.resolve({
+            url: 'http://www.example.com',
+            addon_key: data.addon_key,
+            key: data.key,
+            options: {
+              productContext: {
+                a: 'b'
+              }
+            }
+          });
+        }).promise();
+      }});
+      $(function(){
+        $('.ap-inline-dialog').trigger('click');
+        setTimeout(function(){
+          expect(spy.calls.count()).toEqual(1);
+          done();
+        }, 300);
       });
     });
 

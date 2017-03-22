@@ -164,6 +164,80 @@ describe('Flag Component', () => {
       });
     });
 
+    it('renders an action', (done) => {
+      window.require(['aui/flag'], () => {
+        var $flag = FlagComponent.render({
+          id: 'some-id',
+          type: 'success',
+          body: 'hello world',
+          actions: {
+            akey: 'a value'
+          },
+          title: AJS.$('<b>some title</b>')
+        });
+        expect($flag.find('.ac-flag-actions a').length).toEqual(1);
+        expect($flag.find('.ac-flag-actions a').text()).toEqual('a value');
+        done();
+      });
+    });
+    it('renders multiple actions', (done) => {
+      window.require(['aui/flag'], () => {
+        var $flag = FlagComponent.render({
+          id: 'some-id',
+          type: 'success',
+          body: 'hello world',
+          actions: {
+            akey: 'a value',
+            anotherKey: 'another value'
+          },
+          title: AJS.$('<b>some title</b>')
+        });
+        expect($flag.find('.ac-flag-actions a').length).toEqual(2);
+        expect($flag.find('.ac-flag-actions a:first').text()).toEqual('a value');
+        expect($flag.find('.ac-flag-actions a:nth-child(2)').text()).toEqual('another value');
+        done();
+      });
+    });
+
+    it('triggers an event on action click', (done) => {
+      window.require(['aui/flag'], () => {
+        var $flag = FlagComponent.render({
+          id: 'some-id',
+          type: 'success',
+          body: 'hello world',
+          actions: {
+            akey: 'a value'
+          },
+          title: AJS.$('<b>some title</b>')
+        });
+        spyOn(FlagActions, 'actionInvoked');
+        expect(FlagActions.actionInvoked).not.toHaveBeenCalled();
+        $flag.find('.ac-flag-actions a').click();
+        expect(FlagActions.actionInvoked).toHaveBeenCalled();
+        expect(FlagActions.actionInvoked).toHaveBeenCalledWith('akey', 'some-id');
+        done();
+      });
+    });
+
+
+    it('escapes html in actions', (done) => {
+      var actions = {};
+      actions['<b>hello</b>'] = '<i>world</i>';
+      window.require(['aui/flag'], () => {
+        var $flag = FlagComponent.render({
+          id: 'some-id',
+          type: 'success',
+          body: 'hello world',
+          actions: actions,
+          title: AJS.$('<b>some title</b>')
+        });
+        expect($flag.find('.ac-flag-actions a').length).toEqual(1);
+        expect($flag.find('.ac-flag-actions a').html()).toEqual('&lt;i&gt;world&lt;/i&gt;');
+        expect($flag.find('.ac-flag-actions a').text()).toEqual('<i>world</i>');
+        done();
+      });
+    });
+
   });
 
 });

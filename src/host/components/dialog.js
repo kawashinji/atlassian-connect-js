@@ -19,6 +19,8 @@ const DIALOG_FOOTER_CLASS = 'aui-dialog2-footer';
 const DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
 const DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
 
+var debounce = AJS.debounce || $.debounce;
+
 function getActiveDialog() {
   const $el = AJS.LayerManager.global.getTopLayer();
   if ($el && DLGID_REGEXP.test($el.attr('id'))) {
@@ -155,6 +157,7 @@ class Dialog {
   }
   **/
   render(options){
+    var originalOptions = _.extend({}, options);
     var sanitizedOptions = dialogUtils.sanitizeOptions(options);
     const $dialog = $('<section />').attr({
       role: 'dialog',
@@ -207,6 +210,7 @@ class Dialog {
     }
     dialog.show();
     dialog.$el.data('extension', sanitizedOptions.extension);
+    dialog.$el.data('originalOptions', originalOptions);
     return $dialog;
   }
 
@@ -351,6 +355,15 @@ EventDispatcher.register('iframe-create', (data) => {
 EventDispatcher.register('dialog-button-add', (data) => {
   DialogComponent.addButton(data.extension, data.button);
 });
+
+EventDispatcher.register('host-window-resize', debounce(() => {
+  $('.' + DIALOG_CLASS).each((i, dialog) => {
+    var $dialog = $(dialog);
+    var sanitizedOptions = dialogUtils.sanitizeOptions($dialog.data('originalOptions'));
+    dialog.style.width = sanitizedOptions.width;
+    dialog.style.height = sanitizedOptions.height;
+  });
+}, 100));
 
 DomEventActions.registerWindowKeyEvent({
   keyCode: 27,
