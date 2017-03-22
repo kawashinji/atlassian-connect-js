@@ -62,9 +62,9 @@ class Dialog {
       dialogProvider.create(dialogOptions);
     } else {
       var dialogExtension = {
-          addon_key: extension.addon_key,
-          key: options.key,
-          options: _.pick(callback._context.extension.options, ['customData', 'productContext'])
+        addon_key: extension.addon_key,
+        key: options.key,
+        options: _.pick(callback._context.extension.options, ['customData', 'productContext'])
       };
 
       // ACJS-185: the following is a really bad idea but we need it

@@ -53,24 +53,24 @@ class Flag {
     if (flagProvider) {
       let now = Date.now();
       let flagOptions = {
-          id: now,
-          key: now,
-          title: options.title,
-          //icon: {}, // TODO: ACJS-549
-          description: options.body
+        id: now,
+        key: now,
+        title: options.title,
+        //icon: {}, // TODO: ACJS-549
+        description: options.body
       };
       flagProvider.create(flagOptions);
     } else {
-        this.flag = FlagComponent.render({
-            type: options.type,
-            title: options.title,
-            body: AJS.escapeHtml(options.body),
-            actions: options.actions,
-            close: options.close,
-            id: callback._id
-        });
+      this.flag = FlagComponent.render({
+        type: options.type,
+        title: options.title,
+        body: AJS.escapeHtml(options.body),
+        actions: options.actions,
+        close: options.close,
+        id: callback._id
+      });
 
-        FlagActions.open(this.flag.attr('id'));
+      FlagActions.open(this.flag.attr('id'));
     }
 
     this.onTriggers= {};

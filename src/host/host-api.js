@@ -31,11 +31,11 @@ class HostApi {
     };
     this._componentProviders = {};
     this.registerProvider = (componentName, component) => {
-        this._componentProviders[componentName] = component;
-    }
+      this._componentProviders[componentName] = component;
+    };
     this.getProvider = (componentName) => {
-        return this._componentProviders[componentName];
-    }
+      return this._componentProviders[componentName];
+    };
   }
 
   _cleanExtension(extension){
