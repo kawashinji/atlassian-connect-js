@@ -49,15 +49,15 @@ class Flag {
     if(typeof options !== 'object') {
       return;
     }
+    const flagId = callback._id;
     let flagProvider = HostApi.getProvider('flag');
     if (flagProvider) {
-      let now = Date.now();
       let flagOptions = {
-        id: now,
-        key: now,
+        id: flagId,
+        key: flagId,
         title: options.title,
-        //icon: {}, // TODO: ACJS-549
-        description: options.body
+        description: options.body,
+        type: options.type
       };
       flagProvider.create(flagOptions);
     } else {
@@ -67,7 +67,7 @@ class Flag {
         body: AJS.escapeHtml(options.body),
         actions: options.actions,
         close: options.close,
-        id: callback._id
+        id: flagId
       });
 
       FlagActions.open(this.flag.attr('id'));

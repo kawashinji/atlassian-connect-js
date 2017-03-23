@@ -1444,7 +1444,7 @@
 	    key: 'dispatch',
 	    value: function dispatch(type, targetSpec, event, callback, source) {
 	      function sendEvent(reg, evnt) {
-	        if (reg.source) {
+	        if (reg.source && reg.source.postMessage) {
 	          var mid;
 	          if (callback) {
 	            mid = util.randomString();
@@ -1552,13 +1552,14 @@
 	        } else {
 	          delete this._keycodeCallbacks[keycodeEntry];
 	        }
-
-	        reg.source.postMessage({
-	          type: 'key_listen',
-	          keycode: key,
-	          modifiers: modifiers,
-	          action: 'remove'
-	        }, reg.extension.url);
+	        if (reg.source && reg.source.postMessage) {
+	          reg.source.postMessage({
+	            type: 'key_listen',
+	            keycode: key,
+	            modifiers: modifiers,
+	            action: 'remove'
+	          }, reg.extension.url);
+	        }
 	      }
 	    }
 	  }, {
@@ -5360,15 +5361,15 @@
 	    if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
 	      return;
 	    }
+	    var flagId = callback._id;
 	    var flagProvider = HostApi$2.getProvider('flag');
 	    if (flagProvider) {
-	      var now = Date.now();
 	      var flagOptions = {
-	        id: now,
-	        key: now,
+	        id: flagId,
+	        key: flagId,
 	        title: options.title,
-	        //icon: {}, // TODO: ACJS-549
-	        description: options.body
+	        description: options.body,
+	        type: options.type
 	      };
 	      flagProvider.create(flagOptions);
 	    } else {
@@ -5378,7 +5379,7 @@
 	        body: AJS.escapeHtml(options.body),
 	        actions: options.actions,
 	        close: options.close,
-	        id: callback._id
+	        id: flagId
 	      });
 
 	      FlagActions.open(this.flag.attr('id'));
