@@ -2156,8 +2156,12 @@
 	  }, {
 	    key: 'moduleOptionsFromGlobal',
 	    value: function moduleOptionsFromGlobal(addon_key, key) {
+	      var defaultOptions = {
+	        chrome: true
+	      };
+
 	      if (window._AP && window._AP.dialogModules && window._AP.dialogModules[addon_key] && window._AP.dialogModules[addon_key][key]) {
-	        return window._AP.dialogModules[addon_key][key].options;
+	        return _.extend({}, defaultOptions, window._AP.dialogModules[addon_key][key].options);
 	      }
 	      return false;
 	    }
@@ -5828,7 +5832,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.45';
+	  window._AP.version = '5.0.0-beta.46';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

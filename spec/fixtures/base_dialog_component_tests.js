@@ -71,13 +71,15 @@ function customButtons($el, options) {
       return $(button).data('identifier') === identifier;
     });
   }
-  options.buttons.forEach(function(button) {
-    var $btn = buttonByIdentifier($el, button.identifier);
-    expect($btn.length).toEqual(1);
-    expect($btn.hasClass('ap-dialog-custom-button')).toEqual(true);
-    expect($btn.hasClass('aui-button-secondary')).toEqual(true);
-    expect($btn.text()).toEqual(button.text);
-  });
+  if(options.buttons) {
+    options.buttons.forEach(function(button) {
+      var $btn = buttonByIdentifier($el, button.identifier);
+      expect($btn.length).toEqual(1);
+      expect($btn.hasClass('ap-dialog-custom-button')).toEqual(true);
+      expect($btn.hasClass('aui-button-secondary')).toEqual(true);
+      expect($btn.text()).toEqual(button.text);
+    });
+  }
 }
 
 

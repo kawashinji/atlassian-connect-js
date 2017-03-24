@@ -13,6 +13,50 @@ describe('Dialog module', () => {
     $('.aui-blanket').remove();
   });
 
+  it('defaults to chromeless', () => {
+    var options = {
+      key: 'anykey'
+    };
+    var callback = function(){};
+    callback._id = 'cbc123';
+    callback._context = {
+      extension: {
+        addon_key: 'some.addon_key',
+        key: 'some.different_module',
+        options: {}
+      }
+    };
+    new DialogModule.create.constructor(options, callback);
+    expect($('.aui-dialog2').hasClass('aui-dialog2-chromeless')).toEqual(true);
+  });
+
+  it('defaults to chrome in a dialogModule', () => {
+    window._AP = {
+      dialogModules: {
+        someaddon_key: {
+          dialogmodulekey: {
+            options: {}
+          }
+        }
+      }
+    }
+    var options = {
+      key: 'dialogmodulekey'
+    };
+    var callback = function(){};
+    callback._id = 'abdc123';
+    callback._context = {
+      extension: {
+        addon_key: 'someaddon_key',
+        key: 'some.different_module',
+        options: {}
+      }
+    };
+    new DialogModule.create.constructor(options, callback);
+    expect($('.aui-dialog2').hasClass('aui-dialog2-chromeless')).toEqual(false);
+    expect($('.aui-dialog2').hasClass('aui-dialog2')).toEqual(true);
+  });
+
   it('renders a chromed dialog', () => {
     var options = baseDialogComponentTests.getChromeOptions();
     options.key = 'some.module_key';
