@@ -5362,8 +5362,8 @@
 	      return;
 	    }
 	    var flagId = callback._id;
-	    var flagProvider = HostApi$2.getProvider('flag');
-	    if (flagProvider) {
+	    this.flagProvider = HostApi$2.getProvider('flag');
+	    if (this.flagProvider) {
 	      var flagOptions = {
 	        id: flagId,
 	        key: flagId,
@@ -5371,7 +5371,7 @@
 	        description: options.body,
 	        type: options.type
 	      };
-	      flagProvider.create(flagOptions);
+	      this.flagProvider.create(flagOptions);
 	    } else {
 	      this.flag = FlagComponent.render({
 	        type: options.type,
@@ -5413,7 +5413,13 @@
 	  createClass(Flag, [{
 	    key: 'close',
 	    value: function close() {
-	      this.flag.close();
+	      var callback = _.last(arguments);
+	      var flagId = callback._id;
+	      if (this.flagProvider) {
+	        this.flagProvider.close(flagId);
+	      } else {
+	        this.flag.close();
+	      }
 	    }
 	  }]);
 	  return Flag;

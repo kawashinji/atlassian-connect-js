@@ -50,8 +50,8 @@ class Flag {
       return;
     }
     const flagId = callback._id;
-    let flagProvider = HostApi.getProvider('flag');
-    if (flagProvider) {
+    this.flagProvider = HostApi.getProvider('flag');
+    if (this.flagProvider) {
       let flagOptions = {
         id: flagId,
         key: flagId,
@@ -59,7 +59,7 @@ class Flag {
         description: options.body,
         type: options.type
       };
-      flagProvider.create(flagOptions);
+      this.flagProvider.create(flagOptions);
     } else {
       this.flag = FlagComponent.render({
         type: options.type,
@@ -97,7 +97,13 @@ class Flag {
   *
   */
   close() {
-    this.flag.close();
+    const callback = _.last(arguments);
+    const flagId = callback._id;
+    if (this.flagProvider) {
+      this.flagProvider.close(flagId);
+    } else {
+      this.flag.close();
+    }
   }
 }
 
