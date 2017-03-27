@@ -52,11 +52,19 @@ class Flag {
     const flagId = callback._id;
     this.flagProvider = HostApi.getProvider('flag');
     if (this.flagProvider) {
+      let flagActions = [];
+      if (typeof options.actions === 'object') {
+        flagActions = _.map(options.actions, (value, key) => ({
+          content: value,
+          onClick: FlagActions.actionInvoked.bind(null, key, flagId)
+        }));
+      }
       let flagOptions = {
         id: flagId,
         key: flagId,
         title: options.title,
         description: options.body,
+        actions: flagActions,
         type: options.type
       };
       this.flagProvider.create(flagOptions);
@@ -139,6 +147,7 @@ export default {
   * @param {String} options.body      The body text of the flag.
   * @param {String} options.type=info Sets the type of the message. Valid options are "info", "success", "warning" and "error".
   * @param {String} options.close     The closing behaviour that this flag has. Valid options are "manual", "auto" and "never".
+  * @param {Object} actions           Map of {actionIdentifier: 'Action link text'} to add to the flag. The actionIdentifier will be passed to a 'flag.action' event if the link is clicked.
   * @returns {Flag~Flag}
   * @example
   * // Display a nice green flag using the Flags JavaScript API.
