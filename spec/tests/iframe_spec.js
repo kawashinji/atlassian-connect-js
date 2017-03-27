@@ -8,6 +8,10 @@ describe('Iframe component', () => {
     return Math.floor(Math.random() * max);
   }
 
+  function randomFloatDimension(max) {
+    return (Math.random() * max);
+  }
+
   describe('resize', () =>{
     it('sets dimensions', () => {
       var $mock = $('<div />');
@@ -39,6 +43,26 @@ describe('Iframe component', () => {
         height: height,
         width: width
       });
+    });
+
+
+    it('sets dimensions to float', () => {
+      var $mock = $('<div />');
+      var width = randomFloatDimension(100) + 'px';
+      var height = randomFloatDimension(100) + 'px';
+      IframeComponent.resize(width, height, $mock);
+      expect($mock.css('height')).toEqual($('<iframe />').css('height', height).css('height'));
+      expect($mock.css('width')).toEqual($('<iframe />').css('width', width).css('width'));
+
+    });
+
+    it('sets dimensions to float in %', () => {
+      var $mock = $('<div />');
+      var width = randomFloatDimension(99) + '%';
+      var height = randomFloatDimension(99) + '%';
+      IframeComponent.resize(width, height, $mock);
+      expect($mock.css('height')).toEqual($('<iframe />').css('height', height).css('height'));
+      expect($mock.css('width')).toEqual($('<iframe />').css('width', width).css('width'));
     });
 
     it('is triggered by a iframe-resize event', () => {

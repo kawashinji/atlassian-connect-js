@@ -8,13 +8,18 @@ function escapeSelector(s) {
   return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
 }
 
-function stringToDimension(value) {
+function stringToDimension(value, precision) {
   var percent = false;
   var unit = 'px';
 
   if(_.isString(value)) {
     percent = value.indexOf('%') === value.length - 1;
-    value = parseInt(value, 10);
+    value = parseFloat(value);
+    // if not a whole number, use precision
+    if((value % 1 !== 0) && precision) {
+      value = value.toFixed(precision);
+    }
+
     if (percent) {
       unit = '%';
     }

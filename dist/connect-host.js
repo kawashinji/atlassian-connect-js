@@ -1925,13 +1925,18 @@
 	  return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
 	}
 
-	function stringToDimension(value) {
+	function stringToDimension(value, precision) {
 	  var percent = false;
 	  var unit = 'px';
 
 	  if (_.isString(value)) {
 	    percent = value.indexOf('%') === value.length - 1;
-	    value = parseInt(value, 10);
+	    value = parseFloat(value);
+	    // if not a whole number, use precision
+	    if (value % 1 !== 0 && precision) {
+	      value = value.toFixed(precision);
+	    }
+
 	    if (percent) {
 	      unit = '%';
 	    }
@@ -5832,7 +5837,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.46';
+	  window._AP.version = '5.0.0-beta.47';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
