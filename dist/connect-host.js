@@ -5136,13 +5136,17 @@
 	  * @param {String} options.body      The body text of the flag.
 	  * @param {String} options.type=info Sets the type of the message. Valid options are "info", "success", "warning" and "error".
 	  * @param {String} options.close     The closing behaviour that this flag has. Valid options are "manual", "auto" and "never".
+	  * @param {Object} options.actions   Object containing optional clickable action links
 	  * @returns {Flag~Flag}
 	  * @example
 	  * // Display a nice green flag using the Flags JavaScript API.
 	  * var flag = AP.flag.create({
 	  *   title: 'Successfully created a flag.',
 	  *   body: 'This is a flag.',
-	  *   type: 'success'
+	  *   type: 'success',
+	  *   actions: {
+	  *     'actionkey': 'Click me'
+	  *   }
 	  * });
 	  */
 	  create: {
@@ -5832,7 +5836,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.46';
+	  window._AP.version = '5.0.0-beta.47';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
