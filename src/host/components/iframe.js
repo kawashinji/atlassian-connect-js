@@ -19,7 +19,7 @@ class Iframe {
     this._contentResolver = callback;
   }
 
-  resize(width, height, $el){
+  resize(width, height, $el, extensionId){
     width = util.stringToDimension(width);
     height = util.stringToDimension(height);
     $el.css({
@@ -94,6 +94,7 @@ class Iframe {
 var IframeComponent = new Iframe();
 
 EventDispatcher.register('iframe-resize', function(data){
+  console.log('iframe.js: Received iframe-resize event: ', data);
   IframeComponent.resize(data.width, data.height, data.$el);
 });
 

@@ -2891,9 +2891,10 @@ var AP = (function () {
   AP$2._hostModules._dollar = $$3;
   AP$2._hostModules['inline-dialog'] = AP$2._hostModules.inlineDialog;
 
-  if (ConsumerOptions$1.get('sizeToParent') === true) {
-    AP$2.env.sizeToParent(ConsumerOptions$1.get('hideFooter') === true);
-  }
+  // if(consumerOptions.get('sizeToParent') === true) {
+  console.log('index.js: Calling AP.env.sizeToParent...');
+  AP$2.env.sizeToParent(ConsumerOptions$1.get('hideFooter') === true);
+  // }
 
   if (ConsumerOptions$1.get('base') === true) {
     AP$2.env.getLocation(function (loc) {

@@ -10,6 +10,8 @@ import _ from '../underscore';
 
 const _dialogs = {};
 
+console.log('dialog.js: Loading dialog module.');
+
 EventDispatcher.register('dialog-close', function (data) {
   const dialog = data.dialog;
   if (dialog && data.extension) {

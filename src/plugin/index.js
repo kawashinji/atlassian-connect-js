@@ -12,9 +12,10 @@ import _util from './util';
 AP._hostModules._dollar = $;
 AP._hostModules['inline-dialog'] = AP._hostModules.inlineDialog;
 
-if(consumerOptions.get('sizeToParent') === true) {
+// if(consumerOptions.get('sizeToParent') === true) {
+  console.log('index.js: Calling AP.env.sizeToParent...');
   AP.env.sizeToParent((consumerOptions.get('hideFooter') === true));
-}
+// }
 
 if(consumerOptions.get('base') === true) {
   AP.env.getLocation(loc => {
