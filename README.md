@@ -36,7 +36,7 @@ var addonFilter = {
     key: 'my-module-key'
 };
 var eventData = {
-    name: 'fred';
+    name: 'fred'
 };
 connectHost.broadcastEvent(eventName, addonFilter, eventData);
 ```
@@ -209,10 +209,14 @@ To automatically re-create the dist directory on code change, run:
 
     gulp watch
 
-To have your changes automatically loaded onto a running JIRA or Confluence instance, specify the path to your Atlassian
-Connect plugin resource directory using the `deployPath` parameter, e.g.
+To have your changes automatically loaded onto a locally running JIRA or Confluence instance, first make sure that you
+include `-Dconnect-js-v5=true` in your command to start the product. Then you can deploy the contents of your dist directory:
 
-    gulp deploy --deployPath=/tmp/resources
+    gulp deploy
+
+By default, this will deploy to the v5 resources directory inside your local `atlassian-connect` project, i.e.
+`/<path/to/my/projects>/atlassian-connect/jsapi-v5/src/main/resources/v5`. Changes will be automatically picked up by the
+running product.
 
 Contributing
 ------------

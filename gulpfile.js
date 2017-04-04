@@ -1,8 +1,6 @@
 /* eslint-env node */
-var _ = require('lodash');
 var buffer = require('vinyl-buffer');
 var gulp = require('gulp');
-var gutil = require('gulp-util');
 var source = require('vinyl-source-stream');
 var watch = require('gulp-watch');
 var concat = require('gulp-concat');
@@ -10,7 +8,7 @@ var cleanCSS = require('gulp-clean-css');
 var merge = require('merge-stream');
 var argv = require('yargs').argv;
 var runSequence = require('run-sequence');
-var deployPath = argv.deployPath || '../atlassian-connect/jsapi/src/main/resources';
+var deployPath = argv.deployPath || '../atlassian-connect/jsapi-v5/src/main/resources/v5';
 var rollup = require('rollup');
 var babel = require('rollup-plugin-babel');
 var commonjs = require('rollup-plugin-commonjs');
@@ -59,23 +57,33 @@ function build(entryModule, distModule, options) {
   });
 }
 
-function buildPlugin(options) {
-  options = options || {};
+function buildPlugin() {
   return build('src/plugin/index.js', 'iframe', {
     standalone: 'AP',
     env: {ENV: 'plugin'},
-    format: 'iife',
-    watch: options.watch
+    format: 'iife'
   });
 }
 
-function buildHost(options) {
-  options = options || {};
+function watchPlugin() {
+  return watch('src/plugin/**/*.js', {
+    name: 'Plugin watcher',
+    ignoreInitial: false
+  }, buildPlugin);
+}
+
+function buildHost() {
   return build('src/host/index.js', 'connect-host', {
     standalone: 'connectHost',
-    env: {ENV: 'host'},
-    watch: options.watch
+    env: {ENV: 'host'}
   });
+}
+
+function watchHost() {
+  return watch('src/host/**/*.js', {
+    name: 'Host watcher',
+    ignoreInitial: false
+  }, buildHost);
 }
 
 function buildCss(options) {
@@ -104,10 +112,10 @@ function deploy() {
 }
 
 gulp.task('plugin:build', buildPlugin);
-gulp.task('plugin:watch', buildPlugin.bind(null, {watch: true}));
+gulp.task('plugin:watch', watchPlugin);
 
 gulp.task('host:build', buildHost);
-gulp.task('host:watch', buildHost.bind(null, {watch: true}));
+gulp.task('host:watch', watchHost);
 
 gulp.task('css:build', buildCss);
 gulp.task('css:minify', buildCss.bind(null, {minify: true}));

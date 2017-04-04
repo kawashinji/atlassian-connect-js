@@ -2156,8 +2156,12 @@
 	  }, {
 	    key: 'moduleOptionsFromGlobal',
 	    value: function moduleOptionsFromGlobal(addon_key, key) {
+	      var defaultOptions = {
+	        chrome: true
+	      };
+
 	      if (window._AP && window._AP.dialogModules && window._AP.dialogModules[addon_key] && window._AP.dialogModules[addon_key][key]) {
-	        return window._AP.dialogModules[addon_key][key].options;
+	        return _.extend({}, defaultOptions, window._AP.dialogModules[addon_key][key].options);
 	      }
 	      return false;
 	    }
@@ -5469,6 +5473,7 @@
 	  * @param {String} options.body      The body text of the flag.
 	  * @param {String} options.type=info Sets the type of the message. Valid options are "info", "success", "warning" and "error".
 	  * @param {String} options.close     The closing behaviour that this flag has. Valid options are "manual", "auto" and "never".
+	  * @param {Object} options.actions   Object containing optional clickable action links
 	  * @param {Object} actions           Map of {actionIdentifier: 'Action link text'} to add to the flag. The actionIdentifier will be passed to a 'flag.action' event if the link is clicked.
 	  * @returns {Flag~Flag}
 	  * @example
@@ -5476,7 +5481,10 @@
 	  * var flag = AP.flag.create({
 	  *   title: 'Successfully created a flag.',
 	  *   body: 'This is a flag.',
-	  *   type: 'success'
+	  *   type: 'success',
+	  *   actions: {
+	  *     'actionkey': 'Click me'
+	  *   }
 	  * });
 	  */
 	  create: {
@@ -5938,7 +5946,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0-beta.45';
+	  window._AP.version = '5.0.0-beta.47';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
