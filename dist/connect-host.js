@@ -5473,8 +5473,7 @@
 	  * @param {String} options.body      The body text of the flag.
 	  * @param {String} options.type=info Sets the type of the message. Valid options are "info", "success", "warning" and "error".
 	  * @param {String} options.close     The closing behaviour that this flag has. Valid options are "manual", "auto" and "never".
-	  * @param {Object} options.actions   Object containing optional clickable action links
-	  * @param {Object} actions           Map of {actionIdentifier: 'Action link text'} to add to the flag. The actionIdentifier will be passed to a 'flag.action' event if the link is clicked.
+	  * @param {Object} options.actions   Map of {actionIdentifier: 'Action link text'} to add to the flag. The actionIdentifier will be passed to a 'flag.action' event if the link is clicked.
 	  * @returns {Flag~Flag}
 	  * @example
 	  * // Display a nice green flag using the Flags JavaScript API.
