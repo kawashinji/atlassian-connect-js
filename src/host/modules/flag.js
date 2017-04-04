@@ -52,20 +52,22 @@ class Flag {
     const flagId = callback._id;
     this.flagProvider = HostApi.getProvider('flag');
     if (this.flagProvider) {
-      let flagActions = [];
+      let actions = [];
       if (typeof options.actions === 'object') {
-        flagActions = _.map(options.actions, (value, key) => ({
+        actions = _.map(options.actions, (value, key) => ({
           content: value,
           onClick: FlagActions.actionInvoked.bind(null, key, flagId)
         }));
       }
+      let type = options.type || 'info';
       let flagOptions = {
         id: flagId,
         key: flagId,
         title: options.title,
         description: options.body,
-        actions: flagActions,
-        type: options.type
+        actions: actions,
+        onClose: FlagActions.closed,
+        type: type.toLowerCase()
       };
       this.flagProvider.create(flagOptions);
     } else {

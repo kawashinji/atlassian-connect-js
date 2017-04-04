@@ -5364,22 +5364,24 @@
 	    var flagId = callback._id;
 	    this.flagProvider = HostApi$2.getProvider('flag');
 	    if (this.flagProvider) {
-	      var flagActions = [];
+	      var actions = [];
 	      if (_typeof(options.actions) === 'object') {
-	        flagActions = _.map(options.actions, function (value, key) {
+	        actions = _.map(options.actions, function (value, key) {
 	          return {
 	            content: value,
 	            onClick: FlagActions.actionInvoked.bind(null, key, flagId)
 	          };
 	        });
 	      }
+	      var type = options.type || 'info';
 	      var flagOptions = {
 	        id: flagId,
 	        key: flagId,
 	        title: options.title,
 	        description: options.body,
-	        actions: flagActions,
-	        type: options.type
+	        actions: actions,
+	        onClose: FlagActions.closed,
+	        type: type.toLowerCase()
 	      };
 	      this.flagProvider.create(flagOptions);
 	    } else {
