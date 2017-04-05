@@ -2,6 +2,7 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
 import IframeComponent from '../components/iframe';
 import $ from '../dollar';
+import HostApi from '../host-api';
 
 EventDispatcher.register('iframe-resize', function(data){
   let addonProvider = HostApi.getProvider('addon');
