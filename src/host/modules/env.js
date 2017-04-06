@@ -15,7 +15,6 @@ var sizeToParentExtension = {};
  * @exports AP
  */
 export default {
-
   /**
    * Get the location of the current page of the host product.
    *
@@ -50,7 +49,7 @@ export default {
     var iframeId = callback._context.extension.id;
     var options = callback._context.extension.options;
     if(ignoreResizeForExtension.indexOf(iframeId) !== -1 || (options && options.isDialog)) {
-       return false;
+      return false;
     }
 
     if(!resizeFuncHolder[iframeId]){
@@ -105,3 +104,4 @@ EventDispatcher.register('before:iframe-size-to-parent', function(data){
     ignoreResizeForExtension.push(data.extensionId);
   }
 });
+
