@@ -4032,7 +4032,7 @@
 	    options: extension.options
 	  };
 	  var identifier = extension.key; // TODO: matches ConnectAddon.jsx in RefApp, but is this right?
-	  var addonProvider = HostApi$3.getProvider('addon');
+	  var addonProvider = HostApi$2.getProvider('addon');
 	  if (addonProvider) {
 	    // return addonProvider.createExtension(simpleXdmExtension);
 	    var _extension = IframeContainerComponent.createExtension(simpleXdmExtension);
@@ -4148,7 +4148,7 @@
 	  getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey
 	};
 
-	var HostApi$2 = function () {
+	var HostApi$1 = function () {
 	  function HostApi() {
 	    var _this = this;
 
@@ -4274,7 +4274,7 @@
 	  return HostApi;
 	}();
 
-	var HostApi$3 = new HostApi$2();
+	var HostApi$2 = new HostApi$1();
 
 	var _dialogs = {};
 
@@ -4322,7 +4322,7 @@
 	  var _id = callback._id;
 	  var extension = callback._context.extension;
 
-	  var dialogProvider = HostApi$3.getProvider('dialog');
+	  var dialogProvider = HostApi$2.getProvider('dialog');
 	  if (dialogProvider) {
 	    console.log('Creating the dialog via the product');
 	    var now = Date.now();
@@ -4364,7 +4364,7 @@
 	    classCallCheck(this, Button);
 
 	    console.log('Button constructor: ');
-	    var dialogProvider = HostApi$3.getProvider('dialog');
+	    var dialogProvider = HostApi$2.getProvider('dialog');
 	    if (dialogProvider) {
 	      var activeDialog = dialogProvider.getActiveDialog();
 	      if (!activeDialog) {
@@ -4562,7 +4562,7 @@
 	  classCallCheck(this, CreateButton);
 
 	  callback = _.last(arguments);
-	  var dialogProvider = HostApi$3.getProvider('dialog');
+	  var dialogProvider = HostApi$2.getProvider('dialog');
 	  if (dialogProvider) {
 	    console.log('CreateButton constructor: Adding a button to the dialog via the product');
 	    var now = Date.now();
@@ -4739,7 +4739,7 @@
 	};
 
 	EventDispatcher$1.register('iframe-resize', function (data) {
-	  var addonProvider = HostApi.getProvider('addon');
+	  var addonProvider = HostApi$2.getProvider('addon');
 	  if (addonProvider) {
 	    addonProvider.resize(data.width, data.height, data.$el, data.extensionId);
 	  } else {
@@ -5388,7 +5388,7 @@
 	      return;
 	    }
 	    var flagId = callback._id;
-	    this.flagProvider = HostApi$3.getProvider('flag');
+	    this.flagProvider = HostApi$2.getProvider('flag');
 	    if (this.flagProvider) {
 	      var actions = [];
 	      if (_typeof(options.actions) === 'object') {
@@ -5993,6 +5993,6 @@
 	  });
 	});
 
-	return HostApi$3;
+	return HostApi$2;
 
 })));
