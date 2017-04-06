@@ -271,6 +271,9 @@ describe('dialog utils', () => {
         someKey: 'someVal'
       }
     };
+    const defaults = {
+      chrome: true
+    };
 
     beforeEach(() => {
       window._AP = {
@@ -286,8 +289,8 @@ describe('dialog utils', () => {
       expect(DialogUtils.moduleOptionsFromGlobal('notAddonKey', 'something else')).toBe(false);
     });
 
-    it('returns expected options', () => {
-      expect(DialogUtils.moduleOptionsFromGlobal('addonKey', 'moduleKey')).toEqual(options.options);
+    it('returns expected options with defaults', () => {
+      expect(DialogUtils.moduleOptionsFromGlobal('addonKey', 'moduleKey')).toEqual($.extend({}, defaults, options.options));
     });
   });
 });
