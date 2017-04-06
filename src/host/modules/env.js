@@ -46,23 +46,19 @@ export default {
    * @param {String} height  the desired height
    */
   resize: function(width, height, callback) {
-    console.log('env.js: In resize.');
     callback = _.last(arguments);
     var iframeId = callback._context.extension.id;
     var options = callback._context.extension.options;
-    // if(ignoreResizeForExtension.indexOf(iframeId) !== -1 || (options && options.isDialog)) {
-    //   console.log('env.js.resize: Returning');
-    //   return false;
-    // }
+    if(ignoreResizeForExtension.indexOf(iframeId) !== -1 || (options && options.isDialog)) {
+       return false;
+    }
 
     if(!resizeFuncHolder[iframeId]){
       resizeFuncHolder[iframeId] = debounce(function(dwidth, dheight, dcallback){
-        console.log('env.js.resize: Calling iframeResize...');
         EnvActions.iframeResize(dwidth, dheight, dcallback._context);
       }, 50);
     }
 
-    console.log('env.js.resize: Calling resizeFuncHolder...');
     resizeFuncHolder[iframeId](width, height, callback);
     return true;
   },
@@ -75,11 +71,9 @@ export default {
    * @param {boolean} hideFooter true if the footer is supposed to be hidden
    */
   sizeToParent: debounce(function (hideFooter, callback) {
-    console.log('env.js: handling sizeToParent...');
     callback = _.last(arguments);
     // sizeToParent is only available for general-pages
-    // if (callback._context.extension.options.isFullPage) {
-    if (true) {
+    if (callback._context.extension.options.isFullPage) {
       // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
       util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
       EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
@@ -92,12 +86,8 @@ export default {
   })
 };
 
-//console.log('env.js: Registering for host-window-resize...');
-
 EventDispatcher.register('host-window-resize', (data) => {
-  console.log('env.js: host-window-resize event received: ', data);
   Object.getOwnPropertyNames(sizeToParentExtension).forEach((extensionId) => {
-    console.log('env.js: processing host-window-resize event for extension ' + extensionId);
     EnvActions.sizeToParent(extensionId, sizeToParentExtension[extensionId].hideFooter);
   });
 });
@@ -115,4 +105,3 @@ EventDispatcher.register('before:iframe-size-to-parent', function(data){
     ignoreResizeForExtension.push(data.extensionId);
   }
 });
-

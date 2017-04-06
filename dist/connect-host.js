@@ -3365,7 +3365,6 @@
 	var IframeComponent = new Iframe();
 
 	EventDispatcher$1.register('iframe-resize', function (data) {
-	  console.log('iframe.js: Received iframe-resize event: ', data);
 	  IframeComponent.resize(data.width, data.height, data.$el);
 	});
 
@@ -4278,8 +4277,6 @@
 
 	var _dialogs = {};
 
-	console.log('dialog.js: Loading dialog module.');
-
 	EventDispatcher$1.register('dialog-close', function (data) {
 	  var dialog = data.dialog;
 	  if (dialog && data.extension) {
@@ -4748,7 +4745,6 @@
 	});
 
 	EventDispatcher$1.register('iframe-size-to-parent', function (data) {
-	  console.log('env_actions.js: Received iframe-size-to-parent: ', data);
 	  var height;
 	  var $el = util$1.getIframeByExtensionId(data.extensionId);
 	  if (data.hideFooter) {
@@ -4769,15 +4765,12 @@
 	  });
 	});
 
-	console.log('env_actions.js: Registering for resize event...');
 	AJS.$(window).on('resize', function (e) {
-	  console.log('env_actions.js: Received resize: ', e);
 	  EventDispatcher$1.dispatch('host-window-resize', e);
 	});
 
 	var EnvActions = {
 	  iframeResize: function iframeResize(width, height, context) {
-	    console.log('env_actions.js: iframeResize called: ', context);
 	    var extensionId = context.extension_id;
 	    var $el;
 	    if (context.extension_id) {
@@ -4789,7 +4782,6 @@
 	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, extensionId: extensionId, $el: $el, extension: context.extension });
 	  },
 	  sizeToParent: function sizeToParent(extensionId, hideFooter) {
-	    console.log('env_actions.js: In sizeToParent...');
 	    EventDispatcher$1.dispatch('iframe-size-to-parent', {
 	      hideFooter: hideFooter,
 	      extensionId: extensionId
@@ -4839,23 +4831,19 @@
 	   * @param {String} height  the desired height
 	   */
 	  resize: function resize(width, height, callback) {
-	    console.log('env.js: In resize.');
 	    callback = _.last(arguments);
 	    var iframeId = callback._context.extension.id;
 	    var options = callback._context.extension.options;
-	    // if(ignoreResizeForExtension.indexOf(iframeId) !== -1 || (options && options.isDialog)) {
-	    //   console.log('env.js.resize: Returning');
-	    //   return false;
-	    // }
+	    if (ignoreResizeForExtension.indexOf(iframeId) !== -1 || options && options.isDialog) {
+	      return false;
+	    }
 
 	    if (!resizeFuncHolder[iframeId]) {
 	      resizeFuncHolder[iframeId] = debounce$1(function (dwidth, dheight, dcallback) {
-	        console.log('env.js.resize: Calling iframeResize...');
 	        EnvActions.iframeResize(dwidth, dheight, dcallback._context);
 	      }, 50);
 	    }
 
-	    console.log('env.js.resize: Calling resizeFuncHolder...');
 	    resizeFuncHolder[iframeId](width, height, callback);
 	    return true;
 	  },
@@ -4868,25 +4856,23 @@
 	   * @param {boolean} hideFooter true if the footer is supposed to be hidden
 	   */
 	  sizeToParent: debounce$1(function (hideFooter, callback) {
-	    console.log('env.js: handling sizeToParent...');
 	    callback = _.last(arguments);
 	    // sizeToParent is only available for general-pages
-	    // if (callback._context.extension.options.isFullPage) {
-	    {
+	    if (callback._context.extension.options.isFullPage) {
 	      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
 	      util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
 	      EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
 	      sizeToParentExtension[callback._context.extension_id] = { hideFooter: hideFooter };
+	    } else {
+	      // This is only here to support integration testing
+	      // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
+	      util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
 	    }
 	  })
 	};
 
-	//console.log('env.js: Registering for host-window-resize...');
-
 	EventDispatcher$1.register('host-window-resize', function (data) {
-	  console.log('env.js: host-window-resize event received: ', data);
 	  Object.getOwnPropertyNames(sizeToParentExtension).forEach(function (extensionId) {
-	    console.log('env.js: processing host-window-resize event for extension ' + extensionId);
 	    EnvActions.sizeToParent(extensionId, sizeToParentExtension[extensionId].hideFooter);
 	  });
 	});

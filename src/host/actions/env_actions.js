@@ -14,7 +14,6 @@ EventDispatcher.register('iframe-resize', function(data){
 });
 
 EventDispatcher.register('iframe-size-to-parent', function(data){
-  console.log('env_actions.js: Received iframe-size-to-parent: ', data);
   var height;
   var $el = util.getIframeByExtensionId(data.extensionId);
   if(data.hideFooter) {
@@ -35,15 +34,12 @@ EventDispatcher.register('iframe-size-to-parent', function(data){
   });
 });
 
-console.log('env_actions.js: Registering for resize event...');
 AJS.$(window).on('resize', function (e) {
-  console.log('env_actions.js: Received resize: ', e);
   EventDispatcher.dispatch('host-window-resize', e);
 });
 
 export default {
   iframeResize: function(width, height, context){
-    console.log('env_actions.js: iframeResize called: ', context);
     var extensionId = context.extension_id;
     var $el;
     if(context.extension_id){
@@ -55,7 +51,6 @@ export default {
     EventDispatcher.dispatch('iframe-resize', {width, height, extensionId, $el, extension: context.extension});
   },
   sizeToParent: function(extensionId, hideFooter){
-    console.log('env_actions.js: In sizeToParent...');
     EventDispatcher.dispatch('iframe-size-to-parent', {
       hideFooter: hideFooter,
       extensionId: extensionId
