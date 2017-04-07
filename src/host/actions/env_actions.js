@@ -42,13 +42,13 @@ export default {
   iframeResize: function(width, height, context){
     var extensionId = context.extension_id;
     var $el;
-    if(context.extension_id){
+    if(extensionId){
       $el = util.getIframeByExtensionId(extensionId);
     } else {
       $el = context;
     }
 
-    EventDispatcher.dispatch('iframe-resize', {width, height, extensionId, $el, extension: context.extension});
+    EventDispatcher.dispatch('iframe-resize', {width, height, $el, extensionId});
   },
   sizeToParent: function(extensionId, hideFooter){
     EventDispatcher.dispatch('iframe-size-to-parent', {

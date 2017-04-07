@@ -4773,13 +4773,13 @@
 	  iframeResize: function iframeResize(width, height, context) {
 	    var extensionId = context.extension_id;
 	    var $el;
-	    if (context.extension_id) {
+	    if (extensionId) {
 	      $el = util$1.getIframeByExtensionId(extensionId);
 	    } else {
 	      $el = context;
 	    }
 
-	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, extensionId: extensionId, $el: $el, extension: context.extension });
+	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, $el: $el, extensionId: extensionId });
 	  },
 	  sizeToParent: function sizeToParent(extensionId, hideFooter) {
 	    EventDispatcher$1.dispatch('iframe-size-to-parent', {
