@@ -4738,7 +4738,7 @@
 	EventDispatcher$1.register('iframe-resize', function (data) {
 	  var addonProvider = HostApi$2.getProvider('addon');
 	  if (addonProvider) {
-	    addonProvider.resize(data.width, data.height, data.extensionId);
+	    addonProvider.resize(data.width, data.height, data.extension.extension_id);
 	  } else {
 	    IframeComponent.resize(data.width, data.height, data.$el);
 	  }
@@ -4779,7 +4779,7 @@
 	      $el = context;
 	    }
 
-	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, $el: $el, extensionId: extensionId });
+	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
 	  },
 	  sizeToParent: function sizeToParent(extensionId, hideFooter) {
 	    EventDispatcher$1.dispatch('iframe-size-to-parent', {

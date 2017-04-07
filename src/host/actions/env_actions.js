@@ -7,7 +7,7 @@ import HostApi from '../host-api';
 EventDispatcher.register('iframe-resize', function(data){
   let addonProvider = HostApi.getProvider('addon');
   if (addonProvider) {
-    addonProvider.resize(data.width, data.height, data.extensionId);
+    addonProvider.resize(data.width, data.height, data.extension.extension_id);
   } else {
     IframeComponent.resize(data.width, data.height, data.$el);
   }
@@ -48,7 +48,7 @@ export default {
       $el = context;
     }
 
-    EventDispatcher.dispatch('iframe-resize', {width, height, $el, extensionId});
+    EventDispatcher.dispatch('iframe-resize', {width, height, $el, extension: context.extension});
   },
   sizeToParent: function(extensionId, hideFooter){
     EventDispatcher.dispatch('iframe-size-to-parent', {
