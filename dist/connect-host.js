@@ -3281,7 +3281,7 @@
 	    }
 	  }, {
 	    key: 'resize',
-	    value: function resize(width, height, $el, extensionId) {
+	    value: function resize(width, height, $el) {
 	      width = util$1.stringToDimension(width);
 	      height = util$1.stringToDimension(height);
 	      $el.css({
@@ -4738,9 +4738,9 @@
 	EventDispatcher$1.register('iframe-resize', function (data) {
 	  var addonProvider = HostApi$2.getProvider('addon');
 	  if (addonProvider) {
-	    addonProvider.resize(data.width, data.height, data.$el, data.extensionId);
+	    addonProvider.resize(data.width, data.height, data.extensionId);
 	  } else {
-	    IframeComponent.resize(data.width, data.height, data.$el, data.extensionId);
+	    IframeComponent.resize(data.width, data.height, data.$el);
 	  }
 	});
 
@@ -5747,7 +5747,6 @@
 	    InlineDialogComponent.resize({
 	      width: data.width,
 	      height: data.height,
-	      extensionId: data.extensionId,
 	      $el: container
 	    });
 	  }

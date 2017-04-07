@@ -7,9 +7,9 @@ import HostApi from '../host-api';
 EventDispatcher.register('iframe-resize', function(data){
   let addonProvider = HostApi.getProvider('addon');
   if (addonProvider) {
-    addonProvider.resize(data.width, data.height, data.$el, data.extensionId);
+    addonProvider.resize(data.width, data.height, data.extensionId);
   } else {
-    IframeComponent.resize(data.width, data.height, data.$el, data.extensionId);
+    IframeComponent.resize(data.width, data.height, data.$el);
   }
 });
 

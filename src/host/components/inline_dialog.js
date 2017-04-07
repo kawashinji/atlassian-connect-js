@@ -80,7 +80,6 @@ EventDispatcher.register('iframe-resize', function(data) {
     InlineDialogComponent.resize({
       width: data.width,
       height: data.height,
-      extensionId: data.extensionId,
       $el: container
     });
   }

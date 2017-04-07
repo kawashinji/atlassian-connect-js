@@ -19,7 +19,7 @@ class Iframe {
     this._contentResolver = callback;
   }
 
-  resize(width, height, $el, extensionId){
+  resize(width, height, $el){
     width = util.stringToDimension(width);
     height = util.stringToDimension(height);
     $el.css({
