@@ -4147,10 +4147,24 @@
 	  getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey
 	};
 
+	var Providers = function Providers() {
+	  var _this = this;
+
+	  classCallCheck(this, Providers);
+
+	  this._componentProviders = { addon: IframeComponent };
+	  this.registerProvider = function (componentName, component) {
+	    _this._componentProviders[componentName] = component;
+	  };
+	  this.getProvider = function (componentName) {
+	    return _this._componentProviders[componentName];
+	  };
+	};
+
+	var Providers$1 = new Providers();
+
 	var HostApi$1 = function () {
 	  function HostApi() {
-	    var _this = this;
-
 	    classCallCheck(this, HostApi);
 
 	    this.create = create$1;
@@ -4169,12 +4183,11 @@
 	        jwtActions.registerContentResolver({ callback: callback });
 	      }
 	    };
-	    this._componentProviders = {};
 	    this.registerProvider = function (componentName, component) {
-	      _this._componentProviders[componentName] = component;
+	      Providers$1.registerProvider(componentName, component);
 	    };
 	    this.getProvider = function (componentName) {
-	      return _this._componentProviders[componentName];
+	      Providers$1.getProvider(componentName);
 	    };
 	  }
 
@@ -4186,24 +4199,24 @@
 	  }, {
 	    key: 'onIframeEstablished',
 	    value: function onIframeEstablished(callback) {
-	      var _this2 = this;
+	      var _this = this;
 
 	      EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
 	        callback.call({}, {
 	          $el: data.$el,
-	          extension: _this2._cleanExtension(data.extension)
+	          extension: _this._cleanExtension(data.extension)
 	        });
 	      });
 	    }
 	  }, {
 	    key: 'onIframeUnload',
 	    value: function onIframeUnload(callback) {
-	      var _this3 = this;
+	      var _this2 = this;
 
 	      EventDispatcher$1.register('after:iframe-unload', function (data) {
 	        callback.call({}, {
 	          $el: data.$el,
-	          extension: _this3._cleanExtension(data.extension)
+	          extension: _this2._cleanExtension(data.extension)
 	        });
 	      });
 	    }
@@ -4736,12 +4749,7 @@
 	};
 
 	EventDispatcher$1.register('iframe-resize', function (data) {
-	  var addonProvider = HostApi$2.getProvider('addon');
-	  if (addonProvider) {
-	    addonProvider.resize(data.width, data.height, data.extension.extension_id);
-	  } else {
-	    IframeComponent.resize(data.width, data.height, data.$el);
-	  }
+	  Providers$1.getProvider('addon').resize(data.width, data.height, data.$el, data.extension);
 	});
 
 	EventDispatcher$1.register('iframe-size-to-parent', function (data) {

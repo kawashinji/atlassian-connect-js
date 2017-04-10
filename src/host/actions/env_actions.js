@@ -2,15 +2,10 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
 import IframeComponent from '../components/iframe';
 import $ from '../dollar';
-import HostApi from '../host-api';
+import Providers from '../providers';
 
 EventDispatcher.register('iframe-resize', function(data){
-  let addonProvider = HostApi.getProvider('addon');
-  if (addonProvider) {
-    addonProvider.resize(data.width, data.height, data.extension.extension_id);
-  } else {
-    IframeComponent.resize(data.width, data.height, data.$el);
-  }
+  Providers.getProvider('addon').resize(data.width, data.height, data.$el, data.extension);
 });
 
 EventDispatcher.register('iframe-size-to-parent', function(data){
