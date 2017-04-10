@@ -2,13 +2,16 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
 import IframeComponent from '../components/iframe';
 import $ from '../dollar';
+import Providers from '../providers';
 
 EventDispatcher.register('iframe-resize', function(data){
-  IframeComponent.resize(data.width, data.height, data.$el);
+  Providers.getProvider('addon').resize(data.width, data.height, data.$el, data.extension);
 });
 
 EventDispatcher.register('iframe-size-to-parent', function(data){
   var height;
+  var extension = {};
+  extension['extension_id'] = data.extensionId;
   var $el = util.getIframeByExtensionId(data.extensionId);
   if(data.hideFooter) {
     $el.addClass('full-size-general-page-no-footer');
@@ -23,7 +26,8 @@ EventDispatcher.register('iframe-size-to-parent', function(data){
   EventDispatcher.dispatch('iframe-resize', {
     width: '100%',
     height: height + 'px',
-    $el
+    $el,
+    extension
   });
 });
 
@@ -33,9 +37,10 @@ AJS.$(window).on('resize', function (e) {
 
 export default {
   iframeResize: function(width, height, context){
+    var extensionId = context.extension_id;
     var $el;
-    if(context.extension_id){
-      $el = util.getIframeByExtensionId(context.extension_id);
+    if(extensionId){
+      $el = util.getIframeByExtensionId(extensionId);
     } else {
       $el = context;
     }

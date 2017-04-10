@@ -10,6 +10,7 @@ import simpleXDM from 'simple-xdm/host';
 import IframeActions from './actions/iframe_actions';
 import AnalyticsAction from './actions/analytics_action';
 import WebItemUtils from './utils/webitem';
+import Providers from './providers';
 
 class HostApi {
   constructor(){
@@ -29,12 +30,11 @@ class HostApi {
         jwtActions.registerContentResolver({callback: callback});
       }
     };
-    this._componentProviders = {};
     this.registerProvider = (componentName, component) => {
-      this._componentProviders[componentName] = component;
+      Providers.registerProvider(componentName, component);
     };
     this.getProvider = (componentName) => {
-      return this._componentProviders[componentName];
+      Providers.getProvider(componentName);
     };
   }
 
