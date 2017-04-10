@@ -4754,6 +4754,8 @@
 
 	EventDispatcher$1.register('iframe-size-to-parent', function (data) {
 	  var height;
+	  var extension = {};
+	  extension['extension_id'] = data.extensionId;
 	  var $el = util$1.getIframeByExtensionId(data.extensionId);
 	  if (data.hideFooter) {
 	    $el.addClass('full-size-general-page-no-footer');
@@ -4768,8 +4770,8 @@
 	  EventDispatcher$1.dispatch('iframe-resize', {
 	    width: '100%',
 	    height: height + 'px',
-	    extensionId: data.extensionId,
-	    $el: $el
+	    $el: $el,
+	    extension: extension
 	  });
 	});
 

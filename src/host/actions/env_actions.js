@@ -10,6 +10,8 @@ EventDispatcher.register('iframe-resize', function(data){
 
 EventDispatcher.register('iframe-size-to-parent', function(data){
   var height;
+  var extension = {};
+  extension['extension_id'] = data.extensionId;
   var $el = util.getIframeByExtensionId(data.extensionId);
   if(data.hideFooter) {
     $el.addClass('full-size-general-page-no-footer');
@@ -24,8 +26,8 @@ EventDispatcher.register('iframe-size-to-parent', function(data){
   EventDispatcher.dispatch('iframe-resize', {
     width: '100%',
     height: height + 'px',
-    extensionId: data.extensionId,
-    $el
+    $el,
+    extension
   });
 });
 
