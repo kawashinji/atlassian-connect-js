@@ -93,9 +93,4 @@ EventDispatcher.register('inline-dialog-hide', function(data) {
   InlineDialogComponent.hideInlineDialog(data.$el);
 });
 
-EventDispatcher.register('inline-dialog-close', function(data) {
-  InlineDialogComponent.closeInlineDialog();
-});
-
-
 export default InlineDialogComponent;

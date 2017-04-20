@@ -9,6 +9,7 @@
  */
 
 import InlineDialogActions from '../actions/inline_dialog_actions';
+import _ from '../underscore';
 
 export default {
   /**
@@ -19,7 +20,8 @@ export default {
    * @example
    * AP.inlineDialog.hide();
    */
-  hide: function(callback){
-    InlineDialogActions.close();
+  hide: function(){
+    callback = _.last(arguments);
+    InlineDialogActions.close(callback._context);
   }
 };

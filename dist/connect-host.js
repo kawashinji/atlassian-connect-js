@@ -4147,12 +4147,149 @@
 	  getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey
 	};
 
+	EventDispatcher$1.register('inline-dialog-close', function (data) {
+	  Providers$1.getProvider('inlineDialog').closeInlineDialog(data.context);
+	});
+
+	var InlineDialogActions = {
+	  hide: function hide($el) {
+	    EventDispatcher$1.dispatch('inline-dialog-hide', {
+	      $el: $el
+	    });
+	  },
+	  refresh: function refresh($el) {
+	    EventDispatcher$1.dispatch('inline-dialog-refresh', { $el: $el });
+	  },
+	  hideTriggered: function hideTriggered(extension_id, $el) {
+	    EventDispatcher$1.dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
+	  },
+	  close: function close(data) {
+	    EventDispatcher$1.dispatch('inline-dialog-close', {
+	      context: data.context
+	    });
+	  },
+	  created: function created(data) {
+	    EventDispatcher$1.dispatch('inline-dialog-opened', {
+	      $el: data.$el,
+	      trigger: data.trigger,
+	      extension: data.extension
+	    });
+	  }
+	};
+
+	var InlineDialog = function () {
+	  function InlineDialog() {
+	    classCallCheck(this, InlineDialog);
+	  }
+
+	  createClass(InlineDialog, [{
+	    key: 'resize',
+	    value: function resize(data) {
+	      var width = util$1.stringToDimension(data.width);
+	      var height = util$1.stringToDimension(data.height);
+	      var $content = data.$el.find('.contents');
+	      if ($content.length === 1) {
+	        $content.css({
+	          width: width,
+	          height: height
+	        });
+	        InlineDialogActions.refresh(data.$el);
+	      }
+	    }
+	  }, {
+	    key: 'refresh',
+	    value: function refresh($el) {
+	      $el[0].popup.reset();
+	    }
+	  }, {
+	    key: '_getInlineDialog',
+	    value: function _getInlineDialog($el) {
+	      return AJS.InlineDialog($el);
+	    }
+	  }, {
+	    key: '_renderContainer',
+	    value: function _renderContainer() {
+	      return $('<div />').addClass('aui-inline-dialog-contents');
+	    }
+	  }, {
+	    key: '_displayInlineDialog',
+	    value: function _displayInlineDialog(data) {
+	      InlineDialogActions.created({
+	        $el: data.$el,
+	        trigger: data.trigger,
+	        extension: data.extension
+	      });
+	    }
+	  }, {
+	    key: 'hideInlineDialog',
+	    value: function hideInlineDialog($el) {
+	      $el.hide();
+	    }
+	  }, {
+	    key: 'closeInlineDialog',
+	    value: function closeInlineDialog() {
+	      $('.aui-inline-dialog').filter(function () {
+	        return $(this).find('.ap-iframe-container').length > 0;
+	      }).hide();
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render(data) {
+	      var _this = this;
+
+	      var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
+
+	      if ($inlineDialog.length !== 0) {
+	        $inlineDialog.remove();
+	      }
+
+	      var $el = AJS.InlineDialog(data.bindTo,
+	      //assign unique id to inline Dialog
+	      data.id, function ($placeholder, trigger, showInlineDialog) {
+	        $placeholder.append(data.$content);
+	        _this._displayInlineDialog({
+	          extension: data.extension,
+	          $el: $placeholder,
+	          trigger: trigger
+	        });
+	        showInlineDialog();
+	      }, data.inlineDialogOptions);
+	      return $el;
+	    }
+	  }]);
+	  return InlineDialog;
+	}();
+
+	var InlineDialogComponent = new InlineDialog();
+
+	EventDispatcher$1.register('iframe-resize', function (data) {
+	  var container = data.$el.parents('.aui-inline-dialog');
+	  if (container.length === 1) {
+	    InlineDialogComponent.resize({
+	      width: data.width,
+	      height: data.height,
+	      $el: container
+	    });
+	  }
+	});
+
+	EventDispatcher$1.register('inline-dialog-refresh', function (data) {
+	  InlineDialogComponent.refresh(data.$el);
+	});
+
+	EventDispatcher$1.register('inline-dialog-hide', function (data) {
+	  InlineDialogComponent.hideInlineDialog(data.$el);
+	});
+
 	var Providers = function Providers() {
 	  var _this = this;
 
 	  classCallCheck(this, Providers);
 
-	  this._componentProviders = { addon: IframeComponent };
+	  this._componentProviders = {
+	    addon: IframeComponent,
+	    inlineDialog: InlineDialogComponent
+	  };
 	  this.registerProvider = function (componentName, component) {
 	    _this._componentProviders[componentName] = component;
 	  };
@@ -4900,30 +5037,6 @@
 	  }
 	});
 
-	var InlineDialogActions = {
-	  hide: function hide($el) {
-	    EventDispatcher$1.dispatch('inline-dialog-hide', {
-	      $el: $el
-	    });
-	  },
-	  refresh: function refresh($el) {
-	    EventDispatcher$1.dispatch('inline-dialog-refresh', { $el: $el });
-	  },
-	  hideTriggered: function hideTriggered(extension_id, $el) {
-	    EventDispatcher$1.dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
-	  },
-	  close: function close() {
-	    EventDispatcher$1.dispatch('inline-dialog-close', {});
-	  },
-	  created: function created(data) {
-	    EventDispatcher$1.dispatch('inline-dialog-opened', {
-	      $el: data.$el,
-	      trigger: data.trigger,
-	      extension: data.extension
-	    });
-	  }
-	};
-
 	/**
 	 * The inline dialog is a wrapper for secondary content/controls to be displayed on user request. Consider this component as displayed in context to the triggering control with the dialog overlaying the page content.
 	 * A inline dialog should be preferred over a modal dialog when a connection between the action has a clear benefit versus having a lower user focus.
@@ -4943,8 +5056,9 @@
 	   * @example
 	   * AP.inlineDialog.hide();
 	   */
-	  hide: function hide(callback) {
-	    InlineDialogActions.close();
+	  hide: function hide() {
+	    callback = _.last(arguments);
+	    InlineDialogActions.close(callback._context);
 	  }
 	};
 
@@ -5665,114 +5779,6 @@
 	    });
 	  }
 	};
-
-	var InlineDialog = function () {
-	  function InlineDialog() {
-	    classCallCheck(this, InlineDialog);
-	  }
-
-	  createClass(InlineDialog, [{
-	    key: 'resize',
-	    value: function resize(data) {
-	      var width = util$1.stringToDimension(data.width);
-	      var height = util$1.stringToDimension(data.height);
-	      var $content = data.$el.find('.contents');
-	      if ($content.length === 1) {
-	        $content.css({
-	          width: width,
-	          height: height
-	        });
-	        InlineDialogActions.refresh(data.$el);
-	      }
-	    }
-	  }, {
-	    key: 'refresh',
-	    value: function refresh($el) {
-	      $el[0].popup.reset();
-	    }
-	  }, {
-	    key: '_getInlineDialog',
-	    value: function _getInlineDialog($el) {
-	      return AJS.InlineDialog($el);
-	    }
-	  }, {
-	    key: '_renderContainer',
-	    value: function _renderContainer() {
-	      return $('<div />').addClass('aui-inline-dialog-contents');
-	    }
-	  }, {
-	    key: '_displayInlineDialog',
-	    value: function _displayInlineDialog(data) {
-	      InlineDialogActions.created({
-	        $el: data.$el,
-	        trigger: data.trigger,
-	        extension: data.extension
-	      });
-	    }
-	  }, {
-	    key: 'hideInlineDialog',
-	    value: function hideInlineDialog($el) {
-	      $el.hide();
-	    }
-	  }, {
-	    key: 'closeInlineDialog',
-	    value: function closeInlineDialog() {
-	      $('.aui-inline-dialog').filter(function () {
-	        return $(this).find('.ap-iframe-container').length > 0;
-	      }).hide();
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render(data) {
-	      var _this = this;
-
-	      var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
-
-	      if ($inlineDialog.length !== 0) {
-	        $inlineDialog.remove();
-	      }
-
-	      var $el = AJS.InlineDialog(data.bindTo,
-	      //assign unique id to inline Dialog
-	      data.id, function ($placeholder, trigger, showInlineDialog) {
-	        $placeholder.append(data.$content);
-	        _this._displayInlineDialog({
-	          extension: data.extension,
-	          $el: $placeholder,
-	          trigger: trigger
-	        });
-	        showInlineDialog();
-	      }, data.inlineDialogOptions);
-	      return $el;
-	    }
-	  }]);
-	  return InlineDialog;
-	}();
-
-	var InlineDialogComponent = new InlineDialog();
-
-	EventDispatcher$1.register('iframe-resize', function (data) {
-	  var container = data.$el.parents('.aui-inline-dialog');
-	  if (container.length === 1) {
-	    InlineDialogComponent.resize({
-	      width: data.width,
-	      height: data.height,
-	      $el: container
-	    });
-	  }
-	});
-
-	EventDispatcher$1.register('inline-dialog-refresh', function (data) {
-	  InlineDialogComponent.refresh(data.$el);
-	});
-
-	EventDispatcher$1.register('inline-dialog-hide', function (data) {
-	  InlineDialogComponent.hideInlineDialog(data.$el);
-	});
-
-	EventDispatcher$1.register('inline-dialog-close', function (data) {
-	  InlineDialogComponent.closeInlineDialog();
-	});
 
 	var ITEM_NAME = 'inline-dialog';
 	var SELECTOR = '.ap-inline-dialog';

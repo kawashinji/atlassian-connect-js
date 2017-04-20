@@ -1,8 +1,12 @@
 import IframeComponent from './components/iframe';
+import InlineDialogComponent from './components/inline_dialog';
 
 class Providers {
   constructor(){
-    this._componentProviders = {addon: IframeComponent};
+    this._componentProviders = {
+      addon: IframeComponent,
+      inlineDialog: InlineDialogComponent
+    };
     this.registerProvider = (componentName, component) => {
       this._componentProviders[componentName] = component;
     };
