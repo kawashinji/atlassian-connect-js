@@ -39,14 +39,6 @@ class WebItem {
 
   }
 
-  _removeTriggers(webitem) {
-    var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
-    $(() => {
-      $('body').off(onTriggers, webitem.selector, this._webitems[webitem.name]._on);
-    });
-    delete this._webitems[webitem.name]._on;
-  }
-
   _addTriggers (webitem) {
     var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
     webitem._on = (event) => {

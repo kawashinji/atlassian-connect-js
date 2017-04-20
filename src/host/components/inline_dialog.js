@@ -25,18 +25,13 @@ class InlineDialog {
   _getInlineDialog($el){
     return AJS.InlineDialog($el);
   }
-  _renderContainer(){
-    return $('<div />').addClass('aui-inline-dialog-contents');
-  }
+
   _displayInlineDialog(data){
     InlineDialogActions.created({
       $el: data.$el,
       trigger: data.trigger,
       extension: data.extension
     });
-  }
-  hideInlineDialog($el){
-    $el.hide();
   }
 
   closeInlineDialog(){
@@ -87,10 +82,6 @@ EventDispatcher.register('iframe-resize', function(data) {
 
 EventDispatcher.register('inline-dialog-refresh', function(data){
   InlineDialogComponent.refresh(data.$el);
-});
-
-EventDispatcher.register('inline-dialog-hide', function(data) {
-  InlineDialogComponent.hideInlineDialog(data.$el);
 });
 
 EventDispatcher.register('inline-dialog-close', function(data) {

@@ -4901,16 +4901,8 @@
 	});
 
 	var InlineDialogActions = {
-	  hide: function hide($el) {
-	    EventDispatcher$1.dispatch('inline-dialog-hide', {
-	      $el: $el
-	    });
-	  },
 	  refresh: function refresh($el) {
 	    EventDispatcher$1.dispatch('inline-dialog-refresh', { $el: $el });
-	  },
-	  hideTriggered: function hideTriggered(extension_id, $el) {
-	    EventDispatcher$1.dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
 	  },
 	  close: function close() {
 	    EventDispatcher$1.dispatch('inline-dialog-close', {});
@@ -5583,17 +5575,6 @@
 	      };
 	    }
 	  }, {
-	    key: '_removeTriggers',
-	    value: function _removeTriggers(webitem) {
-	      var _this = this;
-
-	      var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
-	      $(function () {
-	        $('body').off(onTriggers, webitem.selector, _this._webitems[webitem.name]._on);
-	      });
-	      delete this._webitems[webitem.name]._on;
-	    }
-	  }, {
 	    key: '_addTriggers',
 	    value: function _addTriggers(webitem) {
 	      var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
@@ -5696,11 +5677,6 @@
 	      return AJS.InlineDialog($el);
 	    }
 	  }, {
-	    key: '_renderContainer',
-	    value: function _renderContainer() {
-	      return $('<div />').addClass('aui-inline-dialog-contents');
-	    }
-	  }, {
 	    key: '_displayInlineDialog',
 	    value: function _displayInlineDialog(data) {
 	      InlineDialogActions.created({
@@ -5708,11 +5684,6 @@
 	        trigger: data.trigger,
 	        extension: data.extension
 	      });
-	    }
-	  }, {
-	    key: 'hideInlineDialog',
-	    value: function hideInlineDialog($el) {
-	      $el.hide();
 	    }
 	  }, {
 	    key: 'closeInlineDialog',
@@ -5764,10 +5735,6 @@
 
 	EventDispatcher$1.register('inline-dialog-refresh', function (data) {
 	  InlineDialogComponent.refresh(data.$el);
-	});
-
-	EventDispatcher$1.register('inline-dialog-hide', function (data) {
-	  InlineDialogComponent.hideInlineDialog(data.$el);
 	});
 
 	EventDispatcher$1.register('inline-dialog-close', function (data) {
