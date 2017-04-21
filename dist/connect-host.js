@@ -4175,6 +4175,10 @@
 	  Providers$1.getProvider('inlineDialog').closeInlineDialog(data.context);
 	});
 
+	EventDispatcher$1.register('iframe-resize', function (data) {
+	  Providers$1.getProvider('inlineDialog').resize(data.width, data.height, data.context);
+	});
+
 	var InlineDialogActions = {
 	  hide: function hide($el) {
 	    EventDispatcher$1.dispatch('inline-dialog-hide', {
@@ -4187,9 +4191,9 @@
 	  hideTriggered: function hideTriggered(extension_id, $el) {
 	    EventDispatcher$1.dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
 	  },
-	  close: function close(data) {
+	  close: function close(context) {
 	    EventDispatcher$1.dispatch('inline-dialog-close', {
-	      context: data.context
+	      context: context
 	    });
 	  },
 	  created: function created(data) {
@@ -4208,16 +4212,18 @@
 
 	  createClass(InlineDialog, [{
 	    key: 'resize',
-	    value: function resize(data) {
-	      var width = util$1.stringToDimension(data.width);
-	      var height = util$1.stringToDimension(data.height);
-	      var $content = data.$el.find('.contents');
-	      if ($content.length === 1) {
+	    value: function resize(width, height, context) {
+	      var $el = util$1.getIframeByContext(context);
+	      var container = $el.parents('.aui-inline-dialog');
+	      if (container.length === 1) {
+	        var newWidth = util$1.stringToDimension(width);
+	        var newHeight = util$1.stringToDimension(height);
+	        var $content = $el.find('.contents');
 	        $content.css({
-	          width: width,
-	          height: height
+	          width: newWidth,
+	          height: newHeight
 	        });
-	        InlineDialogActions.refresh(data.$el);
+	        InlineDialogActions.refresh($el);
 	      }
 	    }
 	  }, {
@@ -4285,18 +4291,6 @@
 	}();
 
 	var InlineDialogComponent = new InlineDialog();
-
-	EventDispatcher$1.register('iframe-resize', function (data) {
-	  var $el = util$1.getIframeByContext(data.context);
-	  var container = $el.parents('.aui-inline-dialog');
-	  if (container.length === 1) {
-	    InlineDialogComponent.resize({
-	      width: data.width,
-	      height: data.height,
-	      $el: container
-	    });
-	  }
-	});
 
 	EventDispatcher$1.register('inline-dialog-refresh', function (data) {
 	  InlineDialogComponent.refresh(data.$el);
@@ -5052,7 +5046,7 @@
 	   * AP.inlineDialog.hide();
 	   */
 	  hide: function hide() {
-	    callback = _.last(arguments);
+	    var callback = _.last(arguments);
 	    InlineDialogActions.close(callback._context);
 	  }
 	};

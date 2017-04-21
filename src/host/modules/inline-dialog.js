@@ -21,7 +21,7 @@ export default {
    * AP.inlineDialog.hide();
    */
   hide: function(){
-    callback = _.last(arguments);
+    let callback = _.last(arguments);
     InlineDialogActions.close(callback._context);
   }
 };
