@@ -94,8 +94,8 @@ EventDispatcher.register('after:iframe-unload', function(data){
 });
 
 EventDispatcher.register('before:iframe-size-to-parent', function(data){
-  if(ignoreResizeForExtension.indexOf(data.extensionId) === -1) {
-    ignoreResizeForExtension.push(data.extensionId);
+  if(ignoreResizeForExtension.indexOf(data.context.extension_id) === -1) {
+    ignoreResizeForExtension.push(data.context.extension_id);
   }
 });
 

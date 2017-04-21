@@ -27,7 +27,7 @@ describe('env module', () => {
       $('body').append($el);
       expect(envModule.resize('10px','10px', callback)).toEqual(true);
       var resizeSpy = (data) => {
-        if(data.extensionId === callback._context.extension_id) {
+        if(data.context.extension_id === callback._context.extension_id) {
           expect(envModule.resize('10px','10px', callback)).toEqual(false);
           done();
           EventDispatcher.unregister('after:iframe-size-to-parent', resizeSpy);
@@ -57,7 +57,7 @@ describe('env module', () => {
       $contentPage.append($footer);
       $('body').append($contentPage);
       function spy (data){
-        if(data.extensionId === 'abc123') {
+        if(data.context.extension_id === 'abc123') {
           expect($('#footer').css('display')).toEqual('none');
           EventDispatcher.unregister('iframe-size-to-parent', spy);
           done();
@@ -97,7 +97,7 @@ describe('env module', () => {
       // full height - header - footer - 1px border = scrollbar only on iframe
       var correctIframeHeight = $(window).height() - 50 - 23 - 1;
       function spy (data){
-        if(data.extensionId === callback._context.extension_id) {
+        if(data.context.extension_id === callback._context.extension_id) {
           expect($el.height()).toEqual(correctIframeHeight);
           EventDispatcher.unregister('iframe-size-to-parent', spy);
           done();
