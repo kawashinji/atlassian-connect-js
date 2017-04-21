@@ -9,7 +9,7 @@ EventDispatcher.register('iframe-resize', function(data){
 });
 
 EventDispatcher.register('iframe-size-to-parent', function(data){
-  Providers.getProvider('addon').sizeToParent(data.extensionId, data.hideFooter);
+  Providers.getProvider('addon').sizeToParent(data.context, data.hideFooter);
 });
 
 AJS.$(window).on('resize', function (e) {
@@ -20,7 +20,7 @@ export default {
   iframeResize: function(width, height, context){
     EventDispatcher.dispatch('iframe-resize', {width, height, context});
   },
-  sizeToParent: function(extensionId, hideFooter){
-    EventDispatcher.dispatch('iframe-size-to-parent', {extensionId, hideFooter});
+  sizeToParent: function(context, hideFooter){
+    EventDispatcher.dispatch('iframe-size-to-parent', {context, hideFooter});
   }
 }

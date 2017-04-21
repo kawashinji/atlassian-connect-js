@@ -3302,21 +3302,27 @@
 	    }
 	  }, {
 	    key: 'sizeToParent',
-	    value: function sizeToParent(extensionId, hideFooter) {
-	      var height;
-	      var context = {};
-	      context['extension_id'] = extensionId;
-	      var $el = util$1.getIframeByExtensionId(extensionId);
-	      if (hideFooter) {
-	        $el.addClass('full-size-general-page-no-footer');
-	        $('#footer').css({ display: 'none' });
-	        height = $(window).height() - $('#header > nav').outerHeight();
+	    value: function sizeToParent(context, hideFooter) {
+	      if (context.extension.options.isFullPage) {
+	        var height;
+	        // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
+	        util$1.getIframeByExtensionId(context.extension_id).addClass('full-size-general-page');
+	        var $el = util$1.getIframeByExtensionId(context.extension_id);
+	        if (hideFooter) {
+	          $el.addClass('full-size-general-page-no-footer');
+	          $('#footer').css({ display: 'none' });
+	          height = $(window).height() - $('#header > nav').outerHeight();
+	        } else {
+	          height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+	          $el.removeClass('full-size-general-page-no-footer');
+	          $('#footer').css({ display: 'block' });
+	        }
+	        this.resize('100%', height + 'px', context);
 	      } else {
-	        height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
-	        $el.removeClass('full-size-general-page-no-footer');
-	        $('#footer').css({ display: 'block' });
+	        // This is only here to support integration testing
+	        // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
+	        util$1.getIframeByExtensionId(context.extension_id).addClass('full-size-general-page-fail');
 	      }
-	      this.resize('100%', height + 'px', context);
 	    }
 	  }, {
 	    key: 'simpleXdmExtension',
@@ -4909,7 +4915,7 @@
 	});
 
 	EventDispatcher$1.register('iframe-size-to-parent', function (data) {
-	  Providers$1.getProvider('addon').sizeToParent(data.extensionId, data.hideFooter);
+	  Providers$1.getProvider('addon').sizeToParent(data.context, data.hideFooter);
 	});
 
 	AJS.$(window).on('resize', function (e) {
@@ -4920,8 +4926,8 @@
 	  iframeResize: function iframeResize(width, height, context) {
 	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, context: context });
 	  },
-	  sizeToParent: function sizeToParent(extensionId, hideFooter) {
-	    EventDispatcher$1.dispatch('iframe-size-to-parent', { extensionId: extensionId, hideFooter: hideFooter });
+	  sizeToParent: function sizeToParent(context, hideFooter) {
+	    EventDispatcher$1.dispatch('iframe-size-to-parent', { context: context, hideFooter: hideFooter });
 	  }
 	};
 
@@ -4992,23 +4998,17 @@
 	   */
 	  sizeToParent: debounce$1(function (hideFooter, callback) {
 	    callback = _.last(arguments);
-	    // sizeToParent is only available for general-pages
-	    if (callback._context.extension.options.isFullPage) {
-	      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
-	      util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
-	      EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
-	      sizeToParentExtension[callback._context.extension_id] = { hideFooter: hideFooter };
-	    } else {
-	      // This is only here to support integration testing
-	      // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-	      util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
-	    }
+	    EnvActions.sizeToParent(callback._context, hideFooter);
+	    sizeToParentExtension[callback._context.extension_id] = {
+	      context: callback._context,
+	      hideFooter: hideFooter
+	    };
 	  })
 	};
 
 	EventDispatcher$1.register('host-window-resize', function (data) {
 	  Object.getOwnPropertyNames(sizeToParentExtension).forEach(function (extensionId) {
-	    EnvActions.sizeToParent(extensionId, sizeToParentExtension[extensionId].hideFooter);
+	    EnvActions.sizeToParent(sizeToParentExtension[extensionId].context, sizeToParentExtension[extensionId].hideFooter);
 	  });
 	});
 

@@ -71,23 +71,17 @@ export default {
    */
   sizeToParent: debounce(function (hideFooter, callback) {
     callback = _.last(arguments);
-    // sizeToParent is only available for general-pages
-    if (callback._context.extension.options.isFullPage) {
-      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
-      util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
-      EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
-      sizeToParentExtension[callback._context.extension_id] = {hideFooter: hideFooter};
-    } else {
-      // This is only here to support integration testing
-      // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-      util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
-    }
+    EnvActions.sizeToParent(callback._context, hideFooter);
+    sizeToParentExtension[callback._context.extension_id] = {
+      context: callback._context,
+      hideFooter: hideFooter
+    };
   })
-};
+}
 
 EventDispatcher.register('host-window-resize', (data) => {
   Object.getOwnPropertyNames(sizeToParentExtension).forEach((extensionId) => {
-    EnvActions.sizeToParent(extensionId, sizeToParentExtension[extensionId].hideFooter);
+    EnvActions.sizeToParent(sizeToParentExtension[extensionId].context, sizeToParentExtension[extensionId].hideFooter);
   });
 });
 

@@ -30,21 +30,27 @@ class Iframe {
     $el.trigger('resized', {width: width, height: height});
   }
 
-  sizeToParent(extensionId, hideFooter){
-    var height;
-    var context = {};
-    context['extension_id'] = extensionId;
-    var $el = util.getIframeByExtensionId(extensionId);
-    if(hideFooter) {
-      $el.addClass('full-size-general-page-no-footer');
-      $('#footer').css({display: 'none'});
-      height = $(window).height() - $('#header > nav').outerHeight();
+  sizeToParent(context, hideFooter){
+    if (context.extension.options.isFullPage) {
+      var height;
+      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
+      util.getIframeByExtensionId(context.extension_id).addClass('full-size-general-page');
+      var $el = util.getIframeByExtensionId(context.extension_id);
+      if(hideFooter) {
+        $el.addClass('full-size-general-page-no-footer');
+        $('#footer').css({display: 'none'});
+        height = $(window).height() - $('#header > nav').outerHeight();
+      } else {
+        height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+        $el.removeClass('full-size-general-page-no-footer');
+        $('#footer').css({ display: 'block' });
+      }
+      this.resize('100%', height + 'px', context);
     } else {
-      height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
-      $el.removeClass('full-size-general-page-no-footer');
-      $('#footer').css({ display: 'block' });
+      // This is only here to support integration testing
+      // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
+      util.getIframeByExtensionId(context.extension_id).addClass('full-size-general-page-fail');
     }
-    this.resize('100%', height + 'px', context);
   }
 
   simpleXdmExtension(extension, $container) {
