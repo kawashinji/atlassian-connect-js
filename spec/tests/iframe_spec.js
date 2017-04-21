@@ -1,3 +1,4 @@
+import EnvActions from 'src/host/actions/env_actions';
 import IframeComponent from 'src/host/components/iframe';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import simpleXDM from 'simple-xdm/host';
@@ -43,7 +44,7 @@ describe('Iframe component', () => {
 
     it('is triggered by a iframe-resize event', () => {
       var data = {
-        $el: $('<div />'),
+        context: $('<div />'),
         width: randomWholeNumber(1000) + 'px',
         height: randomWholeNumber(1000) + 'px'
       };
@@ -53,7 +54,7 @@ describe('Iframe component', () => {
       var args = IframeComponent.resize.calls.first().args;
       expect(args[0]).toEqual(data.width);
       expect(args[1]).toEqual(data.height);
-      expect(args[2]).toEqual(data.$el);
+      expect(args[2]).toEqual(data.context);
     });
   });
 

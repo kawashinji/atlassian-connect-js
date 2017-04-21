@@ -13,7 +13,7 @@ function create(extension) {
   if (addonProvider) {
     // return addonProvider.createExtension(simpleXdmExtension);
     let extension = IframeContainerComponent.createExtension(simpleXdmExtension);
-    addonProvider.registerExtension(extension);
+    //addonProvider.registerExtension(extension);
     return extension;
   } else {
     return IframeContainerComponent.createExtension(simpleXdmExtension);

@@ -1946,10 +1946,19 @@
 	  return $('iframe#' + escapeSelector(id));
 	}
 
+	function getIframeByContext(context) {
+	  if (typeof context.extension_id === 'undefined') {
+	    return context;
+	  } else {
+	    return getIframeByExtensionId(context.extension_id);
+	  }
+	}
+
 	var util$1 = {
 	  escapeSelector: escapeSelector,
 	  stringToDimension: stringToDimension,
-	  getIframeByExtensionId: getIframeByExtensionId
+	  getIframeByExtensionId: getIframeByExtensionId,
+	  getIframeByContext: getIframeByContext
 	};
 
 	var ButtonUtils = function () {
@@ -3281,7 +3290,8 @@
 	    }
 	  }, {
 	    key: 'resize',
-	    value: function resize(width, height, $el) {
+	    value: function resize(width, height, context) {
+	      var $el = util$1.getIframeByContext(context);
 	      width = util$1.stringToDimension(width);
 	      height = util$1.stringToDimension(height);
 	      $el.css({
@@ -3289,6 +3299,24 @@
 	        height: height
 	      });
 	      $el.trigger('resized', { width: width, height: height });
+	    }
+	  }, {
+	    key: 'sizeToParent',
+	    value: function sizeToParent(extensionId, hideFooter) {
+	      var height;
+	      var context = {};
+	      context['extension_id'] = extensionId;
+	      var $el = util$1.getIframeByExtensionId(extensionId);
+	      if (hideFooter) {
+	        $el.addClass('full-size-general-page-no-footer');
+	        $('#footer').css({ display: 'none' });
+	        height = $(window).height() - $('#header > nav').outerHeight();
+	      } else {
+	        height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+	        $el.removeClass('full-size-general-page-no-footer');
+	        $('#footer').css({ display: 'block' });
+	      }
+	      this.resize('100%', height + 'px', context);
 	    }
 	  }, {
 	    key: 'simpleXdmExtension',
@@ -3363,10 +3391,6 @@
 	}();
 
 	var IframeComponent = new Iframe();
-
-	EventDispatcher$1.register('iframe-resize', function (data) {
-	  IframeComponent.resize(data.width, data.height, data.$el);
-	});
 
 	EventDispatcher$1.register('content-resolver-register-by-extension', function (data) {
 	  IframeComponent.setContentResolver(data.callback);
@@ -4035,7 +4059,7 @@
 	  if (addonProvider) {
 	    // return addonProvider.createExtension(simpleXdmExtension);
 	    var _extension = IframeContainerComponent.createExtension(simpleXdmExtension);
-	    addonProvider.registerExtension(_extension);
+	    //addonProvider.registerExtension(extension);
 	    return _extension;
 	  } else {
 	    return IframeContainerComponent.createExtension(simpleXdmExtension);
@@ -4263,7 +4287,8 @@
 	var InlineDialogComponent = new InlineDialog();
 
 	EventDispatcher$1.register('iframe-resize', function (data) {
-	  var container = data.$el.parents('.aui-inline-dialog');
+	  var $el = util$1.getIframeByContext(data.context);
+	  var container = $el.parents('.aui-inline-dialog');
 	  if (container.length === 1) {
 	    InlineDialogComponent.resize({
 	      width: data.width,
@@ -4324,7 +4349,7 @@
 	      Providers$1.registerProvider(componentName, component);
 	    };
 	    this.getProvider = function (componentName) {
-	      Providers$1.getProvider(componentName);
+	      return Providers$1.getProvider(componentName);
 	    };
 	  }
 
@@ -4886,30 +4911,11 @@
 	};
 
 	EventDispatcher$1.register('iframe-resize', function (data) {
-	  Providers$1.getProvider('addon').resize(data.width, data.height, data.$el, data.extension);
+	  Providers$1.getProvider('addon').resize(data.width, data.height, data.context);
 	});
 
 	EventDispatcher$1.register('iframe-size-to-parent', function (data) {
-	  var height;
-	  var extension = {};
-	  extension['extension_id'] = data.extensionId;
-	  var $el = util$1.getIframeByExtensionId(data.extensionId);
-	  if (data.hideFooter) {
-	    $el.addClass('full-size-general-page-no-footer');
-	    $('#footer').css({ display: 'none' });
-	    height = $(window).height() - $('#header > nav').outerHeight();
-	  } else {
-	    height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
-	    $el.removeClass('full-size-general-page-no-footer');
-	    $('#footer').css({ display: 'block' });
-	  }
-
-	  EventDispatcher$1.dispatch('iframe-resize', {
-	    width: '100%',
-	    height: height + 'px',
-	    $el: $el,
-	    extension: extension
-	  });
+	  Providers$1.getProvider('addon').sizeToParent(data.extensionId, data.hideFooter);
 	});
 
 	AJS.$(window).on('resize', function (e) {
@@ -4918,21 +4924,10 @@
 
 	var EnvActions = {
 	  iframeResize: function iframeResize(width, height, context) {
-	    var extensionId = context.extension_id;
-	    var $el;
-	    if (extensionId) {
-	      $el = util$1.getIframeByExtensionId(extensionId);
-	    } else {
-	      $el = context;
-	    }
-
-	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
+	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, context: context });
 	  },
 	  sizeToParent: function sizeToParent(extensionId, hideFooter) {
-	    EventDispatcher$1.dispatch('iframe-size-to-parent', {
-	      hideFooter: hideFooter,
-	      extensionId: extensionId
-	    });
+	    EventDispatcher$1.dispatch('iframe-size-to-parent', { extensionId: extensionId, hideFooter: hideFooter });
 	  }
 	};
 

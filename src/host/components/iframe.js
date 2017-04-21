@@ -19,7 +19,8 @@ class Iframe {
     this._contentResolver = callback;
   }
 
-  resize(width, height, $el){
+  resize(width, height, context){
+    var $el = util.getIframeByContext(context);
     width = util.stringToDimension(width);
     height = util.stringToDimension(height);
     $el.css({
@@ -27,6 +28,23 @@ class Iframe {
       height: height
     });
     $el.trigger('resized', {width: width, height: height});
+  }
+
+  sizeToParent(extensionId, hideFooter){
+    var height;
+    var context = {};
+    context['extension_id'] = extensionId;
+    var $el = util.getIframeByExtensionId(extensionId);
+    if(hideFooter) {
+      $el.addClass('full-size-general-page-no-footer');
+      $('#footer').css({display: 'none'});
+      height = $(window).height() - $('#header > nav').outerHeight();
+    } else {
+      height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+      $el.removeClass('full-size-general-page-no-footer');
+      $('#footer').css({ display: 'block' });
+    }
+    this.resize('100%', height + 'px', context);
   }
 
   simpleXdmExtension(extension, $container) {
@@ -93,10 +111,6 @@ class Iframe {
 
 var IframeComponent = new Iframe();
 
-EventDispatcher.register('iframe-resize', function(data){
-  IframeComponent.resize(data.width, data.height, data.$el);
-});
-
 EventDispatcher.register('content-resolver-register-by-extension', function(data){
   IframeComponent.setContentResolver(data.callback);
 });
@@ -108,7 +122,6 @@ EventDispatcher.register('jwt-url-refreshed', function(data) {
 EventDispatcher.register('jwt-url-refreshed-failed', function(data) {
   IframeComponent.resolverFailResponse(data);
 });
-
 
 EventDispatcher.register('after:iframe-bridge-established', function(data) {
   data.$el[0].bridgeEstablished = true;
