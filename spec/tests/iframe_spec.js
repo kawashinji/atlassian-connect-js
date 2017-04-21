@@ -1,3 +1,4 @@
+import EnvActions from 'src/host/actions/env_actions';
 import IframeComponent from 'src/host/components/iframe';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import simpleXDM from 'simple-xdm/host';

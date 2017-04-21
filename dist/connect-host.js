@@ -3392,13 +3392,15 @@
 
 	var IframeComponent = new Iframe();
 
-	EventDispatcher$1.register('iframe-resize', function (data) {
+	/*
+	EventDispatcher.register('iframe-resize', function(data){
 	  IframeComponent.resize(data.width, data.height, data.context);
 	});
 
-	EventDispatcher$1.register('iframe-size-to-parent', function (data) {
+	EventDispatcher.register('iframe-size-to-parent', function(data){
 	  IframeComponent.sizeToParent(data.extensionId, data.hideFooter);
 	});
+	*/
 
 	EventDispatcher$1.register('content-resolver-register-by-extension', function (data) {
 	  IframeComponent.setContentResolver(data.callback);
@@ -4067,7 +4069,7 @@
 	  if (addonProvider) {
 	    // return addonProvider.createExtension(simpleXdmExtension);
 	    var _extension = IframeContainerComponent.createExtension(simpleXdmExtension);
-	    addonProvider.registerExtension(_extension);
+	    //addonProvider.registerExtension(extension);
 	    return _extension;
 	  } else {
 	    return IframeContainerComponent.createExtension(simpleXdmExtension);
@@ -4219,7 +4221,7 @@
 	      Providers$1.registerProvider(componentName, component);
 	    };
 	    this.getProvider = function (componentName) {
-	      Providers$1.getProvider(componentName);
+	      return Providers$1.getProvider(componentName);
 	    };
 	  }
 

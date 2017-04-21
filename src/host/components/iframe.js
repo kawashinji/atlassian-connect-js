@@ -111,14 +111,6 @@ class Iframe {
 
 var IframeComponent = new Iframe();
 
-EventDispatcher.register('iframe-resize', function(data){
-  IframeComponent.resize(data.width, data.height, data.context);
-});
-
-EventDispatcher.register('iframe-size-to-parent', function(data){
-  IframeComponent.sizeToParent(data.extensionId, data.hideFooter);
-});
-
 EventDispatcher.register('content-resolver-register-by-extension', function(data){
   IframeComponent.setContentResolver(data.callback);
 });
