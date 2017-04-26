@@ -4060,16 +4060,7 @@
 	    url: extension.url,
 	    options: extension.options
 	  };
-	  var identifier = extension.key; // TODO: matches ConnectAddon.jsx in RefApp, but is this right?
-	  var addonProvider = HostApi$2.getProvider('addon');
-	  if (addonProvider) {
-	    // return addonProvider.createExtension(simpleXdmExtension);
-	    var _extension = IframeContainerComponent.createExtension(simpleXdmExtension);
-	    //addonProvider.registerExtension(extension);
-	    return _extension;
-	  } else {
-	    return IframeContainerComponent.createExtension(simpleXdmExtension);
-	  }
+	  return IframeContainerComponent.createExtension(simpleXdmExtension);
 	}
 
 	var ModuleActions = {
@@ -5021,8 +5012,8 @@
 	});
 
 	EventDispatcher$1.register('before:iframe-size-to-parent', function (data) {
-	  if (ignoreResizeForExtension.indexOf(data.extensionId) === -1) {
-	    ignoreResizeForExtension.push(data.extensionId);
+	  if (ignoreResizeForExtension.indexOf(data.context.extension_id) === -1) {
+	    ignoreResizeForExtension.push(data.context.extension_id);
 	  }
 	});
 
@@ -5045,8 +5036,8 @@
 	   * @example
 	   * AP.inlineDialog.hide();
 	   */
-	  hide: function hide() {
-	    var callback = _.last(arguments);
+	  hide: function hide(callback) {
+	    callback = _.last(arguments);
 	    InlineDialogActions.close(callback._context);
 	  }
 	};

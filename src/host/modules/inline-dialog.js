@@ -20,8 +20,8 @@ export default {
    * @example
    * AP.inlineDialog.hide();
    */
-  hide: function(){
-    let callback = _.last(arguments);
+  hide: function(callback){
+    callback = _.last(arguments);
     InlineDialogActions.close(callback._context);
   }
 };
