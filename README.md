@@ -1,3 +1,8 @@
+[quote]
+#Notice
+Following the rollout of ACJS V5, this branch has now been fully deprecated and locked.
+[/quote]
+
 Atlassian Connect JS
 ===
 
