@@ -1,6 +1,5 @@
-<aside class="warning">
-Following the rollout of ACJS V5, this branch has now been fully deprecated and locked.
-</aside>
+***Following the rollout of ACJS V5, this branch has now been fully deprecated and locked.***
+===
 
 
 Atlassian Connect JS
