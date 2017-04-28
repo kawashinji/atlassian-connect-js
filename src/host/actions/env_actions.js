@@ -5,30 +5,11 @@ import $ from '../dollar';
 import Providers from '../providers';
 
 EventDispatcher.register('iframe-resize', function(data){
-  Providers.getProvider('addon').resize(data.width, data.height, data.$el, data.extension);
+  Providers.getProvider('addon').resize(data.width, data.height, data.context);
 });
 
 EventDispatcher.register('iframe-size-to-parent', function(data){
-  var height;
-  var extension = {};
-  extension['extension_id'] = data.extensionId;
-  var $el = util.getIframeByExtensionId(data.extensionId);
-  if(data.hideFooter) {
-    $el.addClass('full-size-general-page-no-footer');
-    $('#footer').css({display: 'none'});
-    height = $(window).height() - $('#header > nav').outerHeight();
-  } else {
-    height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
-    $el.removeClass('full-size-general-page-no-footer');
-    $('#footer').css({ display: 'block' });
-  }
-
-  EventDispatcher.dispatch('iframe-resize', {
-    width: '100%',
-    height: height + 'px',
-    $el,
-    extension
-  });
+  Providers.getProvider('addon').sizeToParent(data.context, data.hideFooter);
 });
 
 AJS.$(window).on('resize', function (e) {
@@ -37,20 +18,9 @@ AJS.$(window).on('resize', function (e) {
 
 export default {
   iframeResize: function(width, height, context){
-    var extensionId = context.extension_id;
-    var $el;
-    if(extensionId){
-      $el = util.getIframeByExtensionId(extensionId);
-    } else {
-      $el = context;
-    }
-
-    EventDispatcher.dispatch('iframe-resize', {width, height, $el, extension: context.extension});
+    EventDispatcher.dispatch('iframe-resize', {width, height, context});
   },
-  sizeToParent: function(extensionId, hideFooter){
-    EventDispatcher.dispatch('iframe-size-to-parent', {
-      hideFooter: hideFooter,
-      extensionId: extensionId
-    });
+  sizeToParent: function(context, hideFooter){
+    EventDispatcher.dispatch('iframe-size-to-parent', {context, hideFooter});
   }
 }

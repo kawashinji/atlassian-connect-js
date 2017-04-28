@@ -1946,10 +1946,19 @@
 	  return $('iframe#' + escapeSelector(id));
 	}
 
+	function getIframeByContext(context) {
+	  if (typeof context.extension_id === 'undefined') {
+	    return context;
+	  } else {
+	    return getIframeByExtensionId(context.extension_id);
+	  }
+	}
+
 	var util$1 = {
 	  escapeSelector: escapeSelector,
 	  stringToDimension: stringToDimension,
-	  getIframeByExtensionId: getIframeByExtensionId
+	  getIframeByExtensionId: getIframeByExtensionId,
+	  getIframeByContext: getIframeByContext
 	};
 
 	var ButtonUtils = function () {
@@ -3281,7 +3290,8 @@
 	    }
 	  }, {
 	    key: 'resize',
-	    value: function resize(width, height, $el) {
+	    value: function resize(width, height, context) {
+	      var $el = util$1.getIframeByContext(context);
 	      width = util$1.stringToDimension(width);
 	      height = util$1.stringToDimension(height);
 	      $el.css({
@@ -3289,6 +3299,30 @@
 	        height: height
 	      });
 	      $el.trigger('resized', { width: width, height: height });
+	    }
+	  }, {
+	    key: 'sizeToParent',
+	    value: function sizeToParent(context, hideFooter) {
+	      if (context.extension.options.isFullPage) {
+	        var height;
+	        // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
+	        util$1.getIframeByExtensionId(context.extension_id).addClass('full-size-general-page');
+	        var $el = util$1.getIframeByExtensionId(context.extension_id);
+	        if (hideFooter) {
+	          $el.addClass('full-size-general-page-no-footer');
+	          $('#footer').css({ display: 'none' });
+	          height = $(window).height() - $('#header > nav').outerHeight();
+	        } else {
+	          height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+	          $el.removeClass('full-size-general-page-no-footer');
+	          $('#footer').css({ display: 'block' });
+	        }
+	        this.resize('100%', height + 'px', context);
+	      } else {
+	        // This is only here to support integration testing
+	        // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
+	        util$1.getIframeByExtensionId(context.extension_id).addClass('full-size-general-page-fail');
+	      }
 	    }
 	  }, {
 	    key: 'simpleXdmExtension',
@@ -3363,10 +3397,6 @@
 	}();
 
 	var IframeComponent = new Iframe();
-
-	EventDispatcher$1.register('iframe-resize', function (data) {
-	  IframeComponent.resize(data.width, data.height, data.$el);
-	});
 
 	EventDispatcher$1.register('content-resolver-register-by-extension', function (data) {
 	  IframeComponent.setContentResolver(data.callback);
@@ -4030,16 +4060,7 @@
 	    url: extension.url,
 	    options: extension.options
 	  };
-	  var identifier = extension.key; // TODO: matches ConnectAddon.jsx in RefApp, but is this right?
-	  var addonProvider = HostApi$2.getProvider('addon');
-	  if (addonProvider) {
-	    // return addonProvider.createExtension(simpleXdmExtension);
-	    var _extension = IframeContainerComponent.createExtension(simpleXdmExtension);
-	    addonProvider.registerExtension(_extension);
-	    return _extension;
-	  } else {
-	    return IframeContainerComponent.createExtension(simpleXdmExtension);
-	  }
+	  return IframeContainerComponent.createExtension(simpleXdmExtension);
 	}
 
 	var ModuleActions = {
@@ -4147,12 +4168,144 @@
 	  getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey
 	};
 
+	EventDispatcher$1.register('inline-dialog-close', function (data) {
+	  Providers$1.getProvider('inlineDialog').closeInlineDialog(data.context);
+	});
+
+	EventDispatcher$1.register('iframe-resize', function (data) {
+	  Providers$1.getProvider('inlineDialog').resize(data.width, data.height, data.context);
+	});
+
+	var InlineDialogActions = {
+	  hide: function hide($el) {
+	    EventDispatcher$1.dispatch('inline-dialog-hide', {
+	      $el: $el
+	    });
+	  },
+	  refresh: function refresh($el) {
+	    EventDispatcher$1.dispatch('inline-dialog-refresh', { $el: $el });
+	  },
+	  hideTriggered: function hideTriggered(extension_id, $el) {
+	    EventDispatcher$1.dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
+	  },
+	  close: function close(context) {
+	    EventDispatcher$1.dispatch('inline-dialog-close', {
+	      context: context
+	    });
+	  },
+	  created: function created(data) {
+	    EventDispatcher$1.dispatch('inline-dialog-opened', {
+	      $el: data.$el,
+	      trigger: data.trigger,
+	      extension: data.extension
+	    });
+	  }
+	};
+
+	var InlineDialog = function () {
+	  function InlineDialog() {
+	    classCallCheck(this, InlineDialog);
+	  }
+
+	  createClass(InlineDialog, [{
+	    key: 'resize',
+	    value: function resize(width, height, context) {
+	      var $el = util$1.getIframeByContext(context);
+	      var container = $el.parents('.aui-inline-dialog');
+	      if (container.length === 1) {
+	        var newWidth = util$1.stringToDimension(width);
+	        var newHeight = util$1.stringToDimension(height);
+	        var $content = $el.find('.contents');
+	        $content.css({
+	          width: newWidth,
+	          height: newHeight
+	        });
+	        InlineDialogActions.refresh($el);
+	      }
+	    }
+	  }, {
+	    key: 'refresh',
+	    value: function refresh($el) {
+	      $el[0].popup.reset();
+	    }
+	  }, {
+	    key: '_getInlineDialog',
+	    value: function _getInlineDialog($el) {
+	      return AJS.InlineDialog($el);
+	    }
+	  }, {
+	    key: '_renderContainer',
+	    value: function _renderContainer() {
+	      return $('<div />').addClass('aui-inline-dialog-contents');
+	    }
+	  }, {
+	    key: '_displayInlineDialog',
+	    value: function _displayInlineDialog(data) {
+	      InlineDialogActions.created({
+	        $el: data.$el,
+	        trigger: data.trigger,
+	        extension: data.extension
+	      });
+	    }
+	  }, {
+	    key: 'hideInlineDialog',
+	    value: function hideInlineDialog($el) {
+	      $el.hide();
+	    }
+	  }, {
+	    key: 'closeInlineDialog',
+	    value: function closeInlineDialog() {
+	      $('.aui-inline-dialog').filter(function () {
+	        return $(this).find('.ap-iframe-container').length > 0;
+	      }).hide();
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render(data) {
+	      var _this = this;
+
+	      var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
+
+	      if ($inlineDialog.length !== 0) {
+	        $inlineDialog.remove();
+	      }
+
+	      var $el = AJS.InlineDialog(data.bindTo,
+	      //assign unique id to inline Dialog
+	      data.id, function ($placeholder, trigger, showInlineDialog) {
+	        $placeholder.append(data.$content);
+	        _this._displayInlineDialog({
+	          extension: data.extension,
+	          $el: $placeholder,
+	          trigger: trigger
+	        });
+	        showInlineDialog();
+	      }, data.inlineDialogOptions);
+	      return $el;
+	    }
+	  }]);
+	  return InlineDialog;
+	}();
+
+	var InlineDialogComponent = new InlineDialog();
+
+	EventDispatcher$1.register('inline-dialog-refresh', function (data) {
+	  InlineDialogComponent.refresh(data.$el);
+	});
+
+	EventDispatcher$1.register('inline-dialog-hide', function (data) {
+	  InlineDialogComponent.hideInlineDialog(data.$el);
+	});
+
 	var Providers = function Providers() {
 	  var _this = this;
 
 	  classCallCheck(this, Providers);
 
-	  this._componentProviders = { addon: IframeComponent };
+	  this._componentProviders = {
+	    addon: IframeComponent,
+	    inlineDialog: InlineDialogComponent
+	  };
 	  this.registerProvider = function (componentName, component) {
 	    _this._componentProviders[componentName] = component;
 	  };
@@ -4749,30 +4902,11 @@
 	};
 
 	EventDispatcher$1.register('iframe-resize', function (data) {
-	  Providers$1.getProvider('addon').resize(data.width, data.height, data.$el, data.extension);
+	  Providers$1.getProvider('addon').resize(data.width, data.height, data.context);
 	});
 
 	EventDispatcher$1.register('iframe-size-to-parent', function (data) {
-	  var height;
-	  var extension = {};
-	  extension['extension_id'] = data.extensionId;
-	  var $el = util$1.getIframeByExtensionId(data.extensionId);
-	  if (data.hideFooter) {
-	    $el.addClass('full-size-general-page-no-footer');
-	    $('#footer').css({ display: 'none' });
-	    height = $(window).height() - $('#header > nav').outerHeight();
-	  } else {
-	    height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
-	    $el.removeClass('full-size-general-page-no-footer');
-	    $('#footer').css({ display: 'block' });
-	  }
-
-	  EventDispatcher$1.dispatch('iframe-resize', {
-	    width: '100%',
-	    height: height + 'px',
-	    $el: $el,
-	    extension: extension
-	  });
+	  Providers$1.getProvider('addon').sizeToParent(data.context, data.hideFooter);
 	});
 
 	AJS.$(window).on('resize', function (e) {
@@ -4781,21 +4915,10 @@
 
 	var EnvActions = {
 	  iframeResize: function iframeResize(width, height, context) {
-	    var extensionId = context.extension_id;
-	    var $el;
-	    if (extensionId) {
-	      $el = util$1.getIframeByExtensionId(extensionId);
-	    } else {
-	      $el = context;
-	    }
-
-	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
+	    EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, context: context });
 	  },
-	  sizeToParent: function sizeToParent(extensionId, hideFooter) {
-	    EventDispatcher$1.dispatch('iframe-size-to-parent', {
-	      hideFooter: hideFooter,
-	      extensionId: extensionId
-	    });
+	  sizeToParent: function sizeToParent(context, hideFooter) {
+	    EventDispatcher$1.dispatch('iframe-size-to-parent', { context: context, hideFooter: hideFooter });
 	  }
 	};
 
@@ -4866,23 +4989,17 @@
 	   */
 	  sizeToParent: debounce$1(function (hideFooter, callback) {
 	    callback = _.last(arguments);
-	    // sizeToParent is only available for general-pages
-	    if (callback._context.extension.options.isFullPage) {
-	      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
-	      util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
-	      EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
-	      sizeToParentExtension[callback._context.extension_id] = { hideFooter: hideFooter };
-	    } else {
-	      // This is only here to support integration testing
-	      // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-	      util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
-	    }
+	    EnvActions.sizeToParent(callback._context, hideFooter);
+	    sizeToParentExtension[callback._context.extension_id] = {
+	      context: callback._context,
+	      hideFooter: hideFooter
+	    };
 	  })
 	};
 
 	EventDispatcher$1.register('host-window-resize', function (data) {
 	  Object.getOwnPropertyNames(sizeToParentExtension).forEach(function (extensionId) {
-	    EnvActions.sizeToParent(extensionId, sizeToParentExtension[extensionId].hideFooter);
+	    EnvActions.sizeToParent(sizeToParentExtension[extensionId].context, sizeToParentExtension[extensionId].hideFooter);
 	  });
 	});
 
@@ -4895,34 +5012,10 @@
 	});
 
 	EventDispatcher$1.register('before:iframe-size-to-parent', function (data) {
-	  if (ignoreResizeForExtension.indexOf(data.extensionId) === -1) {
-	    ignoreResizeForExtension.push(data.extensionId);
+	  if (ignoreResizeForExtension.indexOf(data.context.extension_id) === -1) {
+	    ignoreResizeForExtension.push(data.context.extension_id);
 	  }
 	});
-
-	var InlineDialogActions = {
-	  hide: function hide($el) {
-	    EventDispatcher$1.dispatch('inline-dialog-hide', {
-	      $el: $el
-	    });
-	  },
-	  refresh: function refresh($el) {
-	    EventDispatcher$1.dispatch('inline-dialog-refresh', { $el: $el });
-	  },
-	  hideTriggered: function hideTriggered(extension_id, $el) {
-	    EventDispatcher$1.dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
-	  },
-	  close: function close() {
-	    EventDispatcher$1.dispatch('inline-dialog-close', {});
-	  },
-	  created: function created(data) {
-	    EventDispatcher$1.dispatch('inline-dialog-opened', {
-	      $el: data.$el,
-	      trigger: data.trigger,
-	      extension: data.extension
-	    });
-	  }
-	};
 
 	/**
 	 * The inline dialog is a wrapper for secondary content/controls to be displayed on user request. Consider this component as displayed in context to the triggering control with the dialog overlaying the page content.
@@ -4944,7 +5037,8 @@
 	   * AP.inlineDialog.hide();
 	   */
 	  hide: function hide(callback) {
-	    InlineDialogActions.close();
+	    callback = _.last(arguments);
+	    InlineDialogActions.close(callback._context);
 	  }
 	};
 
@@ -5665,114 +5759,6 @@
 	    });
 	  }
 	};
-
-	var InlineDialog = function () {
-	  function InlineDialog() {
-	    classCallCheck(this, InlineDialog);
-	  }
-
-	  createClass(InlineDialog, [{
-	    key: 'resize',
-	    value: function resize(data) {
-	      var width = util$1.stringToDimension(data.width);
-	      var height = util$1.stringToDimension(data.height);
-	      var $content = data.$el.find('.contents');
-	      if ($content.length === 1) {
-	        $content.css({
-	          width: width,
-	          height: height
-	        });
-	        InlineDialogActions.refresh(data.$el);
-	      }
-	    }
-	  }, {
-	    key: 'refresh',
-	    value: function refresh($el) {
-	      $el[0].popup.reset();
-	    }
-	  }, {
-	    key: '_getInlineDialog',
-	    value: function _getInlineDialog($el) {
-	      return AJS.InlineDialog($el);
-	    }
-	  }, {
-	    key: '_renderContainer',
-	    value: function _renderContainer() {
-	      return $('<div />').addClass('aui-inline-dialog-contents');
-	    }
-	  }, {
-	    key: '_displayInlineDialog',
-	    value: function _displayInlineDialog(data) {
-	      InlineDialogActions.created({
-	        $el: data.$el,
-	        trigger: data.trigger,
-	        extension: data.extension
-	      });
-	    }
-	  }, {
-	    key: 'hideInlineDialog',
-	    value: function hideInlineDialog($el) {
-	      $el.hide();
-	    }
-	  }, {
-	    key: 'closeInlineDialog',
-	    value: function closeInlineDialog() {
-	      $('.aui-inline-dialog').filter(function () {
-	        return $(this).find('.ap-iframe-container').length > 0;
-	      }).hide();
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render(data) {
-	      var _this = this;
-
-	      var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
-
-	      if ($inlineDialog.length !== 0) {
-	        $inlineDialog.remove();
-	      }
-
-	      var $el = AJS.InlineDialog(data.bindTo,
-	      //assign unique id to inline Dialog
-	      data.id, function ($placeholder, trigger, showInlineDialog) {
-	        $placeholder.append(data.$content);
-	        _this._displayInlineDialog({
-	          extension: data.extension,
-	          $el: $placeholder,
-	          trigger: trigger
-	        });
-	        showInlineDialog();
-	      }, data.inlineDialogOptions);
-	      return $el;
-	    }
-	  }]);
-	  return InlineDialog;
-	}();
-
-	var InlineDialogComponent = new InlineDialog();
-
-	EventDispatcher$1.register('iframe-resize', function (data) {
-	  var container = data.$el.parents('.aui-inline-dialog');
-	  if (container.length === 1) {
-	    InlineDialogComponent.resize({
-	      width: data.width,
-	      height: data.height,
-	      $el: container
-	    });
-	  }
-	});
-
-	EventDispatcher$1.register('inline-dialog-refresh', function (data) {
-	  InlineDialogComponent.refresh(data.$el);
-	});
-
-	EventDispatcher$1.register('inline-dialog-hide', function (data) {
-	  InlineDialogComponent.hideInlineDialog(data.$el);
-	});
-
-	EventDispatcher$1.register('inline-dialog-close', function (data) {
-	  InlineDialogComponent.closeInlineDialog();
-	});
 
 	var ITEM_NAME = 'inline-dialog';
 	var SELECTOR = '.ap-inline-dialog';

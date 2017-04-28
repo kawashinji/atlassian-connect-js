@@ -29,8 +29,17 @@ function getIframeByExtensionId(id) {
   return $('iframe#' + escapeSelector(id));
 }
 
+function getIframeByContext(context) {
+  if(typeof context.extension_id === 'undefined') {
+    return context;
+  } else {
+    return getIframeByExtensionId(context.extension_id);
+  }
+}
+
 export default {
   escapeSelector,
   stringToDimension,
-  getIframeByExtensionId
+  getIframeByExtensionId,
+  getIframeByContext
 };

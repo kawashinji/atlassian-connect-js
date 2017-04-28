@@ -27,7 +27,7 @@ describe('env module', () => {
       $('body').append($el);
       expect(envModule.resize('10px','10px', callback)).toEqual(true);
       var resizeSpy = (data) => {
-        if(data.extensionId === callback._context.extension_id) {
+        if(data.context.extension_id === callback._context.extension_id) {
           expect(envModule.resize('10px','10px', callback)).toEqual(false);
           done();
           EventDispatcher.unregister('after:iframe-size-to-parent', resizeSpy);
@@ -57,13 +57,13 @@ describe('env module', () => {
       $contentPage.append($footer);
       $('body').append($contentPage);
       function spy (data){
-        if(data.$el.attr('id') === 'abc123') {
+        if(data.context.extension_id === 'abc123') {
           expect($('#footer').css('display')).toEqual('none');
-          EventDispatcher.unregister('iframe-resize', spy);
+          EventDispatcher.unregister('iframe-size-to-parent', spy);
           done();
         }
       }
-      EventDispatcher.register('iframe-resize', spy);
+      EventDispatcher.register('iframe-size-to-parent', spy);
 
       envModule.sizeToParent(true, callback);
     });
@@ -97,13 +97,13 @@ describe('env module', () => {
       // full height - header - footer - 1px border = scrollbar only on iframe
       var correctIframeHeight = $(window).height() - 50 - 23 - 1;
       function spy (data){
-        if(data.$el.attr('id') === callback._context.extension_id) {
+        if(data.context.extension_id === callback._context.extension_id) {
           expect($el.height()).toEqual(correctIframeHeight);
-          EventDispatcher.unregister('iframe-resize', spy);
+          EventDispatcher.unregister('iframe-size-to-parent', spy);
           done();
         }
       }
-      EventDispatcher.register('iframe-resize', spy);
+      EventDispatcher.register('iframe-size-to-parent', spy);
       envModule.sizeToParent(false, callback);
     });
   });
@@ -128,10 +128,10 @@ describe('env module', () => {
       };
       $('body').append($el);
       function resizeSpy(data){
-        if(data.extension && data.extension.id === callback._context.extension.id){
+        if(data.context.extension && data.context.extension.id === callback._context.extension.id){
           expect(data.width).toEqual(width);
           expect(data.height).toEqual(height);
-          expect(data.extension.id).toEqual(callback._context.extension.id);
+          expect(data.context.extension.id).toEqual(callback._context.extension.id);
           EventDispatcher.unregister('after:iframe-resize', resizeSpy);
           done();
         }
@@ -174,8 +174,8 @@ describe('env module', () => {
 
       setTimeout(function(){
         expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(0)[0].extension.id).toEqual('abc1234');
-        expect(spy.calls.argsFor(1)[0].extension.id).toEqual('xyz123');
+        expect(spy.calls.argsFor(0)[0].context.extension.id).toEqual('abc1234');
+        expect(spy.calls.argsFor(1)[0].context.extension.id).toEqual('xyz123');
         EventDispatcher.unregister('iframe-resize', spy);
       }, 500);
       done();

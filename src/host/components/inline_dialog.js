@@ -5,16 +5,18 @@ import util from '../util';
 
 class InlineDialog {
 
-  resize(data){
-    var width = util.stringToDimension(data.width);
-    var height = util.stringToDimension(data.height);
-    var $content = data.$el.find('.contents');
-    if($content.length === 1){
+  resize(width, height, context){
+    var $el = util.getIframeByContext(context);
+    var container = $el.parents('.aui-inline-dialog');
+    if(container.length === 1) {
+      var newWidth = util.stringToDimension(width);
+      var newHeight = util.stringToDimension(height);
+      var $content = $el.find('.contents');
       $content.css({
-        width: width,
-        height: height
+        width: newWidth,
+        height: newHeight
       });
-      InlineDialogActions.refresh(data.$el);
+      InlineDialogActions.refresh($el);
     }
   }
 
@@ -74,17 +76,6 @@ class InlineDialog {
 
 var InlineDialogComponent = new InlineDialog();
 
-EventDispatcher.register('iframe-resize', function(data) {
-  var container = data.$el.parents('.aui-inline-dialog');
-  if(container.length === 1) {
-    InlineDialogComponent.resize({
-      width: data.width,
-      height: data.height,
-      $el: container
-    });
-  }
-});
-
 EventDispatcher.register('inline-dialog-refresh', function(data){
   InlineDialogComponent.refresh(data.$el);
 });
@@ -92,10 +83,5 @@ EventDispatcher.register('inline-dialog-refresh', function(data){
 EventDispatcher.register('inline-dialog-hide', function(data) {
   InlineDialogComponent.hideInlineDialog(data.$el);
 });
-
-EventDispatcher.register('inline-dialog-close', function(data) {
-  InlineDialogComponent.closeInlineDialog();
-});
-
 
 export default InlineDialogComponent;
