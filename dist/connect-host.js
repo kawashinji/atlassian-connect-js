@@ -4187,7 +4187,7 @@
 	      Providers$1.registerProvider(componentName, component);
 	    };
 	    this.getProvider = function (componentName) {
-	      Providers$1.getProvider(componentName);
+	      return Providers$1.getProvider(componentName);
 	    };
 	  }
 
