@@ -34,7 +34,7 @@ class HostApi {
       Providers.registerProvider(componentName, component);
     };
     this.getProvider = (componentName) => {
-      Providers.getProvider(componentName);
+      return Providers.getProvider(componentName);
     };
   }
 
