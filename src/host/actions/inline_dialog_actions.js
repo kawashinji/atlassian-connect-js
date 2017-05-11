@@ -1,13 +1,4 @@
 import EventDispatcher from '../dispatchers/event_dispatcher';
-import Providers from '../providers';
-
-EventDispatcher.register('inline-dialog-close', function(data){
-  Providers.getProvider('inlineDialog').closeInlineDialog(data.context);
-});
-
-EventDispatcher.register('iframe-resize', function(data) {
-  Providers.getProvider('inlineDialog').resize(data.width, data.height, data.context);
-});
 
 export default {
   hide: function($el){
@@ -21,9 +12,8 @@ export default {
   hideTriggered: function(extension_id, $el){
     EventDispatcher.dispatch('inline-dialog-hidden', {extension_id, $el});
   },
-  close: function(context){
+  close: function(){
     EventDispatcher.dispatch('inline-dialog-close', {
-      context
     });
   },
   created: function(data) {
