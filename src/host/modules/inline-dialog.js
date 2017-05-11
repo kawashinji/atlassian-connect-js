@@ -9,6 +9,8 @@
  */
 
 import InlineDialogActions from '../actions/inline_dialog_actions';
+import Providers from '../providers';
+import _ from '../underscore';
 
 export default {
   /**
@@ -20,6 +22,12 @@ export default {
    * AP.inlineDialog.hide();
    */
   hide: function(callback){
-    InlineDialogActions.close();
+    callback = _.last(arguments);
+    const inlineDialogProvider = Providers.getProvider('inlineDialog');
+    if (inlineDialogProvider) {
+      inlineDialogProvider.hide(callback._context);
+    } else {
+      InlineDialogActions.close();
+    }
   }
 };

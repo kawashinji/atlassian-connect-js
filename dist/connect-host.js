@@ -4596,6 +4596,22 @@
 	  }
 	};
 
+	var Providers = function Providers() {
+	  var _this = this;
+
+	  classCallCheck(this, Providers);
+
+	  this._componentProviders = {};
+	  this.registerProvider = function (componentName, component) {
+	    _this._componentProviders[componentName] = component;
+	  };
+	  this.getProvider = function (componentName) {
+	    return _this._componentProviders[componentName];
+	  };
+	};
+
+	var Providers$1 = new Providers();
+
 	/**
 	 * The inline dialog is a wrapper for secondary content/controls to be displayed on user request. Consider this component as displayed in context to the triggering control with the dialog overlaying the page content.
 	 * A inline dialog should be preferred over a modal dialog when a connection between the action has a clear benefit versus having a lower user focus.
@@ -4616,7 +4632,13 @@
 	   * AP.inlineDialog.hide();
 	   */
 	  hide: function hide(callback) {
-	    InlineDialogActions.close();
+	    callback = _.last(arguments);
+	    var inlineDialogProvider = Providers$1.getProvider('inlineDialog');
+	    if (inlineDialogProvider) {
+	      inlineDialogProvider.hide(callback._context);
+	    } else {
+	      InlineDialogActions.close();
+	    }
 	  }
 	};
 
@@ -5297,22 +5319,6 @@
 	  getOptionsForWebItem: getOptionsForWebItem,
 	  getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey
 	};
-
-	var Providers = function Providers() {
-	  var _this = this;
-
-	  classCallCheck(this, Providers);
-
-	  this._componentProviders = {};
-	  this.registerProvider = function (componentName, component) {
-	    _this._componentProviders[componentName] = component;
-	  };
-	  this.getProvider = function (componentName) {
-	    return _this._componentProviders[componentName];
-	  };
-	};
-
-	var Providers$1 = new Providers();
 
 	var HostApi$1 = function () {
 	  function HostApi() {
