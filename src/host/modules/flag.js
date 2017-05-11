@@ -9,6 +9,7 @@ import FlagActions from '../actions/flag_actions';
 import FlagComponent from '../components/flag';
 import _ from '../underscore';
 import EventActions from '../actions/event_actions';
+import Providers from '../providers';
 
 const _flags = {};
 
@@ -48,7 +49,7 @@ class Flag {
       return;
     }
     const flagId = callback._id;
-    this.flagProvider = HostApi.getProvider('flag');
+    this.flagProvider = Providers.getProvider('flag');
     if (this.flagProvider) {
       let actions = [];
       if (typeof options.actions === 'object') {
@@ -77,6 +78,7 @@ class Flag {
         close: options.close,
         id: flagId
       });
+    }
 
     FlagActions.open(this.flag.attr('id'));
 
