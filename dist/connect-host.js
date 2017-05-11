@@ -1143,7 +1143,6 @@
 
 	    _this._registeredExtensions = config.extensions || {};
 	    _this._registeredAPIModules = {};
-	    _this._registeredAPIModules._globals = {};
 	    _this._pendingCallbacks = {};
 	    _this._keycodeCallbacks = {};
 	    _this._pendingEvents = {};
@@ -1211,25 +1210,14 @@
 	    }
 	  }, {
 	    key: '_getHostOffset',
-	    value: function _getHostOffset(event, _window) {
+	    value: function _getHostOffset(event) {
 	      var hostWindow = event.source;
-	      var hostFrameOffset = null;
-	      var windowReference = _window || window; // For testing
-
-	      if (windowReference === windowReference.top && typeof windowReference.getHostOffsetFunctionOverride === 'function') {
-	        hostFrameOffset = windowReference.getHostOffsetFunctionOverride(hostWindow);
+	      var hostFrameOffset = 0;
+	      while (!this._hasSameOrigin(hostWindow)) {
+	        // Climb up the iframe tree 1 layer
+	        hostFrameOffset++;
+	        hostWindow = hostWindow.parent;
 	      }
-
-	      if (typeof hostFrameOffset !== 'number') {
-	        hostFrameOffset = 0;
-	        // Find the closest frame that has the same origin as event source
-	        while (!this._hasSameOrigin(hostWindow)) {
-	          // Climb up the iframe tree 1 layer
-	          hostFrameOffset++;
-	          hostWindow = hostWindow.parent;
-	        }
-	      }
-
 	      event.source.postMessage({
 	        hostFrameOffset: hostFrameOffset
 	      }, event.origin);
@@ -5310,6 +5298,22 @@
 	  getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey
 	};
 
+	var Providers = function Providers() {
+	  var _this = this;
+
+	  classCallCheck(this, Providers);
+
+	  this._componentProviders = {};
+	  this.registerProvider = function (componentName, component) {
+	    _this._componentProviders[componentName] = component;
+	  };
+	  this.getProvider = function (componentName) {
+	    return _this._componentProviders[componentName];
+	  };
+	};
+
+	var Providers$1 = new Providers();
+
 	var HostApi$1 = function () {
 	  function HostApi() {
 	    classCallCheck(this, HostApi);
@@ -5329,6 +5333,12 @@
 	      resolveByExtension: function resolveByExtension(callback) {
 	        jwtActions.registerContentResolver({ callback: callback });
 	      }
+	    };
+	    this.registerProvider = function (componentName, component) {
+	      Providers$1.registerProvider(componentName, component);
+	    };
+	    this.getProvider = function (componentName) {
+	      return Providers$1.getProvider(componentName);
 	    };
 	  }
 
