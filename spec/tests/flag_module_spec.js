@@ -83,7 +83,7 @@ describe('flag api module', () => {
         body: 'the body'
       }, flagCallback);
       expect($('.aui-flag').attr('aria-hidden')).toEqual('false');
-      flag.close();
+      flag.close(flagCallback);
       expect($('.aui-flag').attr('aria-hidden')).toEqual('true');
     });
   });
@@ -104,7 +104,7 @@ describe('flag api module', () => {
       }, flagCallback);
       spyOn(EventActions,'broadcast');
       expect(EventActions.broadcast).not.toHaveBeenCalled();
-      flag.close();
+      flag.close(flagCallback);
       expect(EventActions.broadcast).toHaveBeenCalled();
       expect(EventActions.broadcast).toHaveBeenCalledWith('flag.close', flagCallback._context.extension, { flagIdentifier: flagCallback._id });
     });

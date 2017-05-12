@@ -9,6 +9,7 @@ import FlagActions from '../actions/flag_actions';
 import FlagComponent from '../components/flag';
 import _ from '../underscore';
 import EventActions from '../actions/event_actions';
+import Providers from '../providers';
 
 const _flags = {};
 
@@ -47,14 +48,37 @@ class Flag {
     if(typeof options !== 'object') {
       return;
     }
-    this.flag = FlagComponent.render({
-      type: options.type,
-      title: options.title,
-      body: AJS.escapeHtml(options.body),
-      actions: options.actions,
-      close: options.close,
-      id: callback._id
-    });
+    const flagId = callback._id;
+    this.flagProvider = Providers.getProvider('flag');
+    if (this.flagProvider) {
+      let actions = [];
+      if (typeof options.actions === 'object') {
+        actions = _.map(options.actions, (value, key) => ({
+          content: value,
+          onClick: FlagActions.actionInvoked.bind(null, key, flagId)
+        }));
+      }
+      let type = options.type || 'info';
+      let flagOptions = {
+        id: flagId,
+        key: flagId,
+        title: options.title,
+        description: options.body,
+        actions: actions,
+        onClose: FlagActions.closed,
+        type: type.toLowerCase()
+      };
+      this.flagProvider.create(flagOptions);
+    } else {
+      this.flag = FlagComponent.render({
+        type: options.type,
+        title: options.title,
+        body: AJS.escapeHtml(options.body),
+        actions: options.actions,
+        close: options.close,
+        id: flagId
+      });
+    }
 
     FlagActions.open(this.flag.attr('id'));
 
@@ -82,7 +106,13 @@ class Flag {
   *
   */
   close() {
-    this.flag.close();
+    const callback = _.last(arguments);
+    const flagId = callback._id;
+    if (this.flagProvider) {
+      this.flagProvider.close(flagId);
+    } else {
+      this.flag.close();
+    }
   }
 }
 
@@ -118,7 +148,7 @@ export default {
   * @param {String} options.body      The body text of the flag.
   * @param {String} options.type=info Sets the type of the message. Valid options are "info", "success", "warning" and "error".
   * @param {String} options.close     The closing behaviour that this flag has. Valid options are "manual", "auto" and "never".
-  * @param {Object} options.actions   Object containing optional clickable action links
+  * @param {Object} options.actions           Map of {actionIdentifier: 'Action link text'} to add to the flag. The actionIdentifier will be passed to a 'flag.action' event if the link is clicked.
   * @returns {Flag~Flag}
   * @example
   * // Display a nice green flag using the Flags JavaScript API.
