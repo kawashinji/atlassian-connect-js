@@ -5394,10 +5394,10 @@
 	      }
 	    };
 	    this.registerProvider = function (componentName, component) {
-	      Providers.registerProvider(componentName, component);
+	      ModuleProviders$1.registerProvider(componentName, component);
 	    };
 	    this.getProvider = function (componentName) {
-	      return Providers.getProvider(componentName);
+	      return ModuleProviders$1.getProvider(componentName);
 	    };
 	  }
 

@@ -31,10 +31,10 @@ class HostApi {
       }
     }
     this.registerProvider = (componentName, component) => {
-      Providers.registerProvider(componentName, component);
+      ModuleProviders.registerProvider(componentName, component);
     };
     this.getProvider = (componentName) => {
-      return Providers.getProvider(componentName);
+      return ModuleProviders.getProvider(componentName);
     };
   }
 
