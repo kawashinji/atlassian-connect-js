@@ -10,7 +10,7 @@ import simpleXDM from 'simple-xdm/host';
 import IframeActions from './actions/iframe_actions';
 import AnalyticsAction from './actions/analytics_action';
 import WebItemUtils from './utils/webitem';
-import Providers from './providers';
+import ModuleProviders from './module-providers';
 
 class HostApi {
   constructor(){

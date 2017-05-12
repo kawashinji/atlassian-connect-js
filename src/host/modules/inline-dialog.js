@@ -9,7 +9,7 @@
  */
 
 import InlineDialogActions from '../actions/inline_dialog_actions';
-import Providers from '../providers';
+import ModuleProviders from '../module-providers';
 import _ from '../underscore';
 
 export default {
@@ -23,7 +23,7 @@ export default {
    */
   hide: function(callback){
     callback = _.last(arguments);
-    const inlineDialogProvider = Providers.getProvider('inlineDialog');
+    const inlineDialogProvider = ModuleProviders.getProvider('inlineDialog');
     if (inlineDialogProvider) {
       inlineDialogProvider.hide(callback._context);
     } else {

@@ -414,6 +414,7 @@ var AP = (function () {
 
       _this._registeredExtensions = config.extensions || {};
       _this._registeredAPIModules = {};
+      _this._registeredAPIModules._globals = {};
       _this._pendingCallbacks = {};
       _this._keycodeCallbacks = {};
       _this._pendingEvents = {};
@@ -481,14 +482,25 @@ var AP = (function () {
       }
     }, {
       key: '_getHostOffset',
-      value: function _getHostOffset(event) {
+      value: function _getHostOffset(event, _window) {
         var hostWindow = event.source;
-        var hostFrameOffset = 0;
-        while (!this._hasSameOrigin(hostWindow)) {
-          // Climb up the iframe tree 1 layer
-          hostFrameOffset++;
-          hostWindow = hostWindow.parent;
+        var hostFrameOffset = null;
+        var windowReference = _window || window; // For testing
+
+        if (windowReference === windowReference.top && typeof windowReference.getHostOffsetFunctionOverride === 'function') {
+          hostFrameOffset = windowReference.getHostOffsetFunctionOverride(hostWindow);
         }
+
+        if (typeof hostFrameOffset !== 'number') {
+          hostFrameOffset = 0;
+          // Find the closest frame that has the same origin as event source
+          while (!this._hasSameOrigin(hostWindow)) {
+            // Climb up the iframe tree 1 layer
+            hostFrameOffset++;
+            hostWindow = hostWindow.parent;
+          }
+        }
+
         event.source.postMessage({
           hostFrameOffset: hostFrameOffset
         }, event.origin);
@@ -1519,7 +1531,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.0";
+      _this._version = "5.0.1";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];

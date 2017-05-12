@@ -3,7 +3,7 @@ import EnvActions from '../actions/env_actions';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
 import _ from '../underscore';
-import Providers from '../providers';
+import ModuleProviders from '../module-providers';
 
 var debounce = AJS.debounce || $.debounce;
 var resizeFuncHolder = {};
@@ -47,7 +47,7 @@ export default {
    */
   resize: function(width, height, callback) {
     callback = _.last(arguments);
-    let addon = Providers.getProvider('addon');
+    let addon = ModuleProviders.getProvider('addon');
     if (addon) {
       addon.resize(width, height, callback._context);
     } else {
@@ -77,7 +77,7 @@ export default {
    */
   sizeToParent: debounce(function (hideFooter, callback) {
     callback = _.last(arguments);
-    let addon = Providers.getProvider('addon');
+    let addon = ModuleProviders.getProvider('addon');
     if (addon) {
       addon.sizeToParent(hideFooter, callback._context);
     } else {

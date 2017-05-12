@@ -1143,6 +1143,7 @@
 
 	    _this._registeredExtensions = config.extensions || {};
 	    _this._registeredAPIModules = {};
+	    _this._registeredAPIModules._globals = {};
 	    _this._pendingCallbacks = {};
 	    _this._keycodeCallbacks = {};
 	    _this._pendingEvents = {};
@@ -1210,14 +1211,25 @@
 	    }
 	  }, {
 	    key: '_getHostOffset',
-	    value: function _getHostOffset(event) {
+	    value: function _getHostOffset(event, _window) {
 	      var hostWindow = event.source;
-	      var hostFrameOffset = 0;
-	      while (!this._hasSameOrigin(hostWindow)) {
-	        // Climb up the iframe tree 1 layer
-	        hostFrameOffset++;
-	        hostWindow = hostWindow.parent;
+	      var hostFrameOffset = null;
+	      var windowReference = _window || window; // For testing
+
+	      if (windowReference === windowReference.top && typeof windowReference.getHostOffsetFunctionOverride === 'function') {
+	        hostFrameOffset = windowReference.getHostOffsetFunctionOverride(hostWindow);
 	      }
+
+	      if (typeof hostFrameOffset !== 'number') {
+	        hostFrameOffset = 0;
+	        // Find the closest frame that has the same origin as event source
+	        while (!this._hasSameOrigin(hostWindow)) {
+	          // Climb up the iframe tree 1 layer
+	          hostFrameOffset++;
+	          hostWindow = hostWindow.parent;
+	        }
+	      }
+
 	      event.source.postMessage({
 	        hostFrameOffset: hostFrameOffset
 	      }, event.origin);
@@ -4471,21 +4483,21 @@
 	  }
 	};
 
-	var Providers = function Providers() {
+	var ModuleProviders = function ModuleProviders() {
 	  var _this = this;
 
-	  classCallCheck(this, Providers);
+	  classCallCheck(this, ModuleProviders);
 
-	  this._componentProviders = {};
-	  this.registerProvider = function (componentName, component) {
-	    _this._componentProviders[componentName] = component;
+	  this._providers = {};
+	  this.registerProvider = function (name, provider) {
+	    _this._providers[name] = provider;
 	  };
-	  this.getProvider = function (componentName) {
-	    return _this._componentProviders[componentName];
+	  this.getProvider = function (name) {
+	    return _this._providers[name];
 	  };
 	};
 
-	var Providers$1 = new Providers();
+	var ModuleProviders$1 = new ModuleProviders();
 
 	var debounce$1 = AJS.debounce || $.debounce;
 	var resizeFuncHolder = {};
@@ -4529,7 +4541,7 @@
 	   */
 	  resize: function resize(width, height, callback) {
 	    callback = _.last(arguments);
-	    var addon = Providers$1.getProvider('addon');
+	    var addon = ModuleProviders$1.getProvider('addon');
 	    if (addon) {
 	      addon.resize(width, height, callback._context);
 	    } else {
@@ -4559,7 +4571,7 @@
 	   */
 	  sizeToParent: debounce$1(function (hideFooter, callback) {
 	    callback = _.last(arguments);
-	    var addon = Providers$1.getProvider('addon');
+	    var addon = ModuleProviders$1.getProvider('addon');
 	    if (addon) {
 	      addon.sizeToParent(hideFooter, callback._context);
 	    } else {
@@ -4643,7 +4655,7 @@
 	   */
 	  hide: function hide(callback) {
 	    callback = _.last(arguments);
-	    var inlineDialogProvider = Providers$1.getProvider('inlineDialog');
+	    var inlineDialogProvider = ModuleProviders$1.getProvider('inlineDialog');
 	    if (inlineDialogProvider) {
 	      inlineDialogProvider.hide(callback._context);
 	    } else {
@@ -5092,7 +5104,7 @@
 	      return;
 	    }
 	    var flagId = callback._id;
-	    this.flagProvider = Providers$1.getProvider('flag');
+	    this.flagProvider = ModuleProviders$1.getProvider('flag');
 	    if (this.flagProvider) {
 	      var actions = [];
 	      if (_typeof(options.actions) === 'object') {
@@ -5199,7 +5211,7 @@
 	  * @param {String} options.body      The body text of the flag.
 	  * @param {String} options.type=info Sets the type of the message. Valid options are "info", "success", "warning" and "error".
 	  * @param {String} options.close     The closing behaviour that this flag has. Valid options are "manual", "auto" and "never".
-	  * @param {Object} options.actions           Map of {actionIdentifier: 'Action link text'} to add to the flag. The actionIdentifier will be passed to a 'flag.action' event if the link is clicked.
+	  * @param {Object} options.actions   Map of {actionIdentifier: 'Action link text'} to add to the flag. The actionIdentifier will be passed to a 'flag.action' event if the link is clicked.
 	  * @returns {Flag~Flag}
 	  * @example
 	  * // Display a nice green flag using the Flags JavaScript API.
@@ -5382,10 +5394,10 @@
 	      }
 	    };
 	    this.registerProvider = function (componentName, component) {
-	      Providers$1.registerProvider(componentName, component);
+	      Providers.registerProvider(componentName, component);
 	    };
 	    this.getProvider = function (componentName) {
-	      return Providers$1.getProvider(componentName);
+	      return Providers.getProvider(componentName);
 	    };
 	  }
 
@@ -5905,7 +5917,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.0';
+	  window._AP.version = '5.0.1';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
