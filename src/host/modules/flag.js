@@ -78,9 +78,9 @@ class Flag {
         close: options.close,
         id: flagId
       });
-    }
 
-    FlagActions.open(this.flag.attr('id'));
+      FlagActions.open(this.flag.attr('id'));
+    }
 
     this.onTriggers= {};
     this.extension = callback._context.extension;
