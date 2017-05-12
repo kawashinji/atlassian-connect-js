@@ -50,8 +50,7 @@ export default {
     let addon = Providers.getProvider('addon');
     if (addon) {
       addon.resize(width, height, callback._context);
-    }
-    else {
+    } else {
       var iframeId = callback._context.extension.id;
       var options = callback._context.extension.options;
       if(ignoreResizeForExtension.indexOf(iframeId) !== -1 || (options && options.isDialog)) {
