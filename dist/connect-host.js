@@ -4471,6 +4471,22 @@
 	  }
 	};
 
+	var Providers = function Providers() {
+	  var _this = this;
+
+	  classCallCheck(this, Providers);
+
+	  this._componentProviders = {};
+	  this.registerProvider = function (componentName, component) {
+	    _this._componentProviders[componentName] = component;
+	  };
+	  this.getProvider = function (componentName) {
+	    return _this._componentProviders[componentName];
+	  };
+	};
+
+	var Providers$1 = new Providers();
+
 	var debounce$1 = AJS.debounce || $.debounce;
 	var resizeFuncHolder = {};
 	// ignore resize events for iframes that use sizeToParent
@@ -4513,19 +4529,24 @@
 	   */
 	  resize: function resize(width, height, callback) {
 	    callback = _.last(arguments);
-	    var iframeId = callback._context.extension.id;
-	    var options = callback._context.extension.options;
-	    if (ignoreResizeForExtension.indexOf(iframeId) !== -1 || options && options.isDialog) {
-	      return false;
-	    }
+	    var addon = Providers$1.getProvider('addon');
+	    if (addon) {
+	      addon.resize(width, height, callback._context);
+	    } else {
+	      var iframeId = callback._context.extension.id;
+	      var options = callback._context.extension.options;
+	      if (ignoreResizeForExtension.indexOf(iframeId) !== -1 || options && options.isDialog) {
+	        return false;
+	      }
 
-	    if (!resizeFuncHolder[iframeId]) {
-	      resizeFuncHolder[iframeId] = debounce$1(function (dwidth, dheight, dcallback) {
-	        EnvActions.iframeResize(dwidth, dheight, dcallback._context);
-	      }, 50);
-	    }
+	      if (!resizeFuncHolder[iframeId]) {
+	        resizeFuncHolder[iframeId] = debounce$1(function (dwidth, dheight, dcallback) {
+	          EnvActions.iframeResize(dwidth, dheight, dcallback._context);
+	        }, 50);
+	      }
 
-	    resizeFuncHolder[iframeId](width, height, callback);
+	      resizeFuncHolder[iframeId](width, height, callback);
+	    }
 	    return true;
 	  },
 	  /**
@@ -4538,16 +4559,21 @@
 	   */
 	  sizeToParent: debounce$1(function (hideFooter, callback) {
 	    callback = _.last(arguments);
-	    // sizeToParent is only available for general-pages
-	    if (callback._context.extension.options.isFullPage) {
-	      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
-	      util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
-	      EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
-	      sizeToParentExtension[callback._context.extension_id] = { hideFooter: hideFooter };
+	    var addon = Providers$1.getProvider('addon');
+	    if (addon) {
+	      addon.sizeToParent(hideFooter, callback._context);
 	    } else {
-	      // This is only here to support integration testing
-	      // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-	      util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
+	      // sizeToParent is only available for general-pages
+	      if (callback._context.extension.options.isFullPage) {
+	        // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
+	        util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
+	        EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
+	        sizeToParentExtension[callback._context.extension_id] = { hideFooter: hideFooter };
+	      } else {
+	        // This is only here to support integration testing
+	        // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
+	        util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
+	      }
 	    }
 	  })
 	};
@@ -4595,22 +4621,6 @@
 	    });
 	  }
 	};
-
-	var Providers = function Providers() {
-	  var _this = this;
-
-	  classCallCheck(this, Providers);
-
-	  this._componentProviders = {};
-	  this.registerProvider = function (componentName, component) {
-	    _this._componentProviders[componentName] = component;
-	  };
-	  this.getProvider = function (componentName) {
-	    return _this._componentProviders[componentName];
-	  };
-	};
-
-	var Providers$1 = new Providers();
 
 	/**
 	 * The inline dialog is a wrapper for secondary content/controls to be displayed on user request. Consider this component as displayed in context to the triggering control with the dialog overlaying the page content.

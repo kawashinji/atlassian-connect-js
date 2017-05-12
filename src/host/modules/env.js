@@ -3,6 +3,7 @@ import EnvActions from '../actions/env_actions';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
 import _ from '../underscore';
+import Providers from '../providers';
 
 var debounce = AJS.debounce || $.debounce;
 var resizeFuncHolder = {};
@@ -46,19 +47,25 @@ export default {
    */
   resize: function(width, height, callback) {
     callback = _.last(arguments);
-    var iframeId = callback._context.extension.id;
-    var options = callback._context.extension.options;
-    if(ignoreResizeForExtension.indexOf(iframeId) !== -1 || (options && options.isDialog)) {
-      return false;
+    let addon = Providers.getProvider('addon');
+    if (addon) {
+      addon.resize(width, height, callback._context);
     }
+    else {
+      var iframeId = callback._context.extension.id;
+      var options = callback._context.extension.options;
+      if(ignoreResizeForExtension.indexOf(iframeId) !== -1 || (options && options.isDialog)) {
+        return false;
+      }
 
-    if(!resizeFuncHolder[iframeId]){
-      resizeFuncHolder[iframeId] = debounce(function(dwidth, dheight, dcallback){
-        EnvActions.iframeResize(dwidth, dheight, dcallback._context);
-      }, 50);
+      if(!resizeFuncHolder[iframeId]){
+        resizeFuncHolder[iframeId] = debounce(function(dwidth, dheight, dcallback){
+          EnvActions.iframeResize(dwidth, dheight, dcallback._context);
+        }, 50);
+      }
+
+      resizeFuncHolder[iframeId](width, height, callback);
     }
-
-    resizeFuncHolder[iframeId](width, height, callback);
     return true;
   },
   /**
@@ -71,16 +78,21 @@ export default {
    */
   sizeToParent: debounce(function (hideFooter, callback) {
     callback = _.last(arguments);
-    // sizeToParent is only available for general-pages
-    if (callback._context.extension.options.isFullPage) {
-      // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
-      util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
-      EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
-      sizeToParentExtension[callback._context.extension_id] = {hideFooter: hideFooter};
+    let addon = Providers.getProvider('addon');
+    if (addon) {
+      addon.sizeToParent(hideFooter, callback._context);
     } else {
-      // This is only here to support integration testing
-      // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-      util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
+      // sizeToParent is only available for general-pages
+      if (callback._context.extension.options.isFullPage) {
+        // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
+        util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
+        EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
+        sizeToParentExtension[callback._context.extension_id] = {hideFooter: hideFooter};
+      } else {
+        // This is only here to support integration testing
+        // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
+        util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
+      }
     }
   })
 };
