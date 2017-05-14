@@ -26,8 +26,23 @@ function build(entryModule, distModule, options) {
     entry: entryModule,
     plugins: [
       babel({
+        plugins: ['external-helpers'],
         presets: [
-          'es2015-rollup',
+          ['env', {
+            'targets': {
+              'browsers': [
+                'last 1 Chrome versions',
+                'last 1 Firefox versions',
+                'last 1 Safari versions',
+                'Explorer 11',
+                'last 1 Edge versions'
+              ]
+            },
+            'modules': false,
+            'useBuiltIns': true,
+            'loose': true,
+            'debug': true
+          }],
           'stage-2'
         ]
       }),
