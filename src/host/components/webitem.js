@@ -19,14 +19,21 @@ class WebItem {
       return this._contentResolver.call(null, Object.assign({classifier: 'json'}, extension));
     }
   }
-
+  // originally i had this written nicely with Object.values but
+  // ie11 didn't like it and i couldn't find a nice pollyfill
   getWebItemsBySelector(selector) {
-    return Object.values(this._webitems).find((obj) => {
-      if(obj.selector){
-        return obj.selector.trim() === selector.trim();
-      }
+    let returnVal;
+    const keys = Object.getOwnPropertyNames(this._webitems).some((key) => {
+      let obj = this._webitems[key];
+      if(obj.selector) {
+        if(obj.selector.trim() === selector.trim()) {
+          returnVal = obj;
+          return true;
+        }
+      };
       return false;
     });
+    return returnVal;
   }
 
   setWebItem(potentialWebItem) {

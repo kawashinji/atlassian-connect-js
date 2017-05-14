@@ -5324,14 +5324,25 @@
 	      return this._contentResolver.call(null, Object.assign({ classifier: 'json' }, extension));
 	    }
 	  };
+	  // originally i had this written nicely with Object.values but
+	  // ie11 didn't like it and i couldn't find a nice pollyfill
+
 
 	  WebItem.prototype.getWebItemsBySelector = function getWebItemsBySelector(selector) {
-	    return Object.values(this._webitems).find(function (obj) {
+	    var _this = this;
+
+	    var returnVal = void 0;
+	    var keys = Object.getOwnPropertyNames(this._webitems).some(function (key) {
+	      var obj = _this._webitems[key];
 	      if (obj.selector) {
-	        return obj.selector.trim() === selector.trim();
+	        if (obj.selector.trim() === selector.trim()) {
+	          returnVal = obj;
+	          return true;
+	        }
 	      }
 	      return false;
 	    });
+	    return returnVal;
 	  };
 
 	  WebItem.prototype.setWebItem = function setWebItem(potentialWebItem) {
@@ -5343,11 +5354,11 @@
 	  };
 
 	  WebItem.prototype._removeTriggers = function _removeTriggers(webitem) {
-	    var _this = this;
+	    var _this2 = this;
 
 	    var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
 	    $(function () {
-	      $('body').off(onTriggers, webitem.selector, _this._webitems[webitem.name]._on);
+	      $('body').off(onTriggers, webitem.selector, _this2._webitems[webitem.name]._on);
 	    });
 	    delete this._webitems[webitem.name]._on;
 	  };
