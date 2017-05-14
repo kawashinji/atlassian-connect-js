@@ -2,7 +2,6 @@ import $ from '../dollar';
 import EnvActions from '../actions/env_actions';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
-import _ from '../underscore';
 import ModuleProviders from '../module-providers';
 
 var debounce = AJS.debounce || $.debounce;
@@ -26,7 +25,7 @@ export default {
    * });
    */
   getLocation: function (callback) {
-    callback = _.last(arguments);
+    callback = util.last(arguments);
     callback(window.location.href);
   },
   /**
@@ -46,7 +45,7 @@ export default {
    * @param {String} height  the desired height
    */
   resize: function(width, height, callback) {
-    callback = _.last(arguments);
+    callback = util.last(arguments);
     let addon = ModuleProviders.getProvider('addon');
     if (addon) {
       addon.resize(width, height, callback._context);
@@ -76,7 +75,7 @@ export default {
    * @param {boolean} hideFooter true if the footer is supposed to be hidden
    */
   sizeToParent: debounce(function (hideFooter, callback) {
-    callback = _.last(arguments);
+    callback = util.last(arguments);
     let addon = ModuleProviders.getProvider('addon');
     if (addon) {
       addon.sizeToParent(hideFooter, callback._context);

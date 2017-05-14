@@ -13,7 +13,7 @@
 */
 
 import $ from '../dollar';
-import _ from '../underscore';
+import util from '../util';
 import AnalyticsAction from '../actions/analytics_action';
 
 const MESSAGE_BAR_ID = 'ac-message-container';
@@ -38,7 +38,7 @@ function getMessageBar() {
 function filterMessageOptions(options) {
   const copy = {};
   const allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
-  if(_.isObject(options)){
+  if(typeof options === 'object'){
     allowed.forEach(key => {
       if (key in options) {
         copy[key] = options[key];
@@ -87,7 +87,7 @@ $(document).on('aui-message-close', function (e, $msg) {
 function messageModule(messageType) {
   return {
     constructor: function(title, body, options, callback) {
-      callback = _.last(arguments);
+      callback = util.last(arguments);
       const _id = callback._id;
       if(typeof title !== 'string') {
         title = '';
@@ -143,7 +143,7 @@ export default {
   * });
   */
   onClose: function (msg, callback) {
-    callback = _.last(arguments);
+    callback = util.last(arguments);
     const id = msg._id;
     if (_messages[id]) {
       _messages[id].onCloseTrigger = callback;

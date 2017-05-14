@@ -4,9 +4,6 @@
 	(global.connectHost = factory());
 }(this, (function () { 'use strict';
 
-	// AUI includes underscore and exposes it globally.
-	var _ = window._;
-
 	var domain;
 
 	// This constructor is used to store event handlers. Instantiating this is
@@ -474,7 +471,20 @@
 
 
 
+	var defineProperty = function (obj, key, value) {
+	  if (key in obj) {
+	    Object.defineProperty(obj, key, {
+	      value: value,
+	      enumerable: true,
+	      configurable: true,
+	      writable: true
+	    });
+	  } else {
+	    obj[key] = value;
+	  }
 
+	  return obj;
+	};
 
 	var get = function get(object, property, receiver) {
 	  if (object === null) object = Function.prototype;
@@ -559,7 +569,43 @@
 	  return value;
 	};
 
+	var slicedToArray = function () {
+	  function sliceIterator(arr, i) {
+	    var _arr = [];
+	    var _n = true;
+	    var _d = false;
+	    var _e = undefined;
 
+	    try {
+	      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+	        _arr.push(_s.value);
+
+	        if (i && _arr.length === i) break;
+	      }
+	    } catch (err) {
+	      _d = true;
+	      _e = err;
+	    } finally {
+	      try {
+	        if (!_n && _i["return"]) _i["return"]();
+	      } finally {
+	        if (_d) throw _e;
+	      }
+	    }
+
+	    return _arr;
+	  }
+
+	  return function (arr, i) {
+	    if (Array.isArray(arr)) {
+	      return arr;
+	    } else if (Symbol.iterator in Object(arr)) {
+	      return sliceIterator(arr, i);
+	    } else {
+	      throw new TypeError("Invalid attempt to destructure non-iterable instance");
+	    }
+	  };
+	}();
 
 
 
@@ -587,6 +633,7 @@
 	* pub/sub for extension state (created, destroyed, initialized)
 	* taken from hipchat webcore
 	**/
+
 	var EventDispatcher = function (_EventEmitter) {
 	  inherits(EventDispatcher, _EventEmitter);
 
@@ -613,40 +660,28 @@
 	  }, {
 	    key: 'registerOnce',
 	    value: function registerOnce(action, callback) {
-	      var _this2 = this;
-
-	      if (_.isString(action)) {
+	      if (typeof action === 'string') {
 	        this.once(action, callback);
-	      } else if (_.isObject(action)) {
-	        _.keys(action).forEach(function (val, key) {
-	          _this2.once(key, val);
-	        }, this);
+	      } else {
+	        throw 'ACJS: event name must be string';
 	      }
 	    }
 	  }, {
 	    key: 'register',
 	    value: function register(action, callback) {
-	      var _this3 = this;
-
-	      if (_.isString(action)) {
+	      if (typeof action === 'string') {
 	        this.on(action, callback);
-	      } else if (_.isObject(action)) {
-	        _.keys(action).forEach(function (val, key) {
-	          _this3.on(key, val);
-	        }, this);
+	      } else {
+	        throw 'ACJS: event name must be string';
 	      }
 	    }
 	  }, {
 	    key: 'unregister',
 	    value: function unregister(action, callback) {
-	      var _this4 = this;
-
-	      if (_.isString(action)) {
+	      if (typeof action === 'string') {
 	        this.removeListener(action, callback);
-	      } else if (_.isObject(action)) {
-	        _.keys(action).forEach(function (val, key) {
-	          _this4.removeListener(key, val);
-	        }, this);
+	      } else {
+	        throw 'ACJS: event name must be string';
 	      }
 	    }
 	  }]);
@@ -1837,14 +1872,73 @@
 	  }
 	};
 
+	function escapeSelector(s) {
+	  if (!s) {
+	    throw new Error('No selector to escape');
+	  }
+	  return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
+	}
+
+	function stringToDimension(value) {
+	  var percent = false;
+	  var unit = 'px';
+
+	  if (typeof value === 'string') {
+	    percent = value.indexOf('%') === value.length - 1;
+	    value = parseInt(value, 10);
+	    if (percent) {
+	      unit = '%';
+	    }
+	  }
+
+	  if (!isNaN(value)) {
+	    return value + unit;
+	  }
+	}
+
+	function getIframeByExtensionId(id) {
+	  return $('iframe#' + escapeSelector(id));
+	}
+
+	function first(arr, numb) {
+	  if (numb) {
+	    return arr.slice(0, numb);
+	  }
+	  return arr[0];
+	}
+
+	function last(arr) {
+	  return arr[arr.length - 1];
+	}
+
+	function pick(obj, values) {
+	  if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) !== 'object') {
+	    return {};
+	  }
+	  return Object.keys(obj).filter(function (key) {
+	    return values.indexOf(key) >= 0;
+	  }).reduce(function (newObj, key) {
+	    return Object.assign(newObj, defineProperty({}, key, obj[key]));
+	  }, {});
+	}
+
+	var util$1 = {
+	  escapeSelector: escapeSelector,
+	  stringToDimension: stringToDimension,
+	  getIframeByExtensionId: getIframeByExtensionId,
+	  first: first,
+	  last: last,
+	  pick: pick
+	};
+
 	var events = {
 	  emit: function emit(name) {
 	    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 	      args[_key - 1] = arguments[_key];
 	    }
 
-	    var callback = _.last(args);
-	    args = _.first(args, -1);
+	    var callback = util$1.last(args);
+	    args = util$1.first(args, -1);
 	    EventActions.broadcast(name, {
 	      addon_key: callback._context.extension.addon_key
 	    }, args);
@@ -1855,9 +1949,9 @@
 	      args[_key2 - 1] = arguments[_key2];
 	    }
 
-	    var callback = _.last(args);
+	    var callback = util$1.last(args);
 	    var extension = callback._context.extension;
-	    args = _.first(args, -1);
+	    args = util$1.first(args, -1);
 	    EventActions.broadcastPublic(name, args, extension);
 	  }
 	};
@@ -1928,40 +2022,6 @@
 	      }
 	    });
 	  }
-	};
-
-	function escapeSelector(s) {
-	  if (!s) {
-	    throw new Error('No selector to escape');
-	  }
-	  return s.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
-	}
-
-	function stringToDimension(value) {
-	  var percent = false;
-	  var unit = 'px';
-
-	  if (_.isString(value)) {
-	    percent = value.indexOf('%') === value.length - 1;
-	    value = parseInt(value, 10);
-	    if (percent) {
-	      unit = '%';
-	    }
-	  }
-
-	  if (!isNaN(value)) {
-	    return value + unit;
-	  }
-	}
-
-	function getIframeByExtensionId(id) {
-	  return $('iframe#' + escapeSelector(id));
-	}
-
-	var util$1 = {
-	  escapeSelector: escapeSelector,
-	  stringToDimension: stringToDimension,
-	  getIframeByExtensionId: getIframeByExtensionId
 	};
 
 	var ButtonUtils = function () {
@@ -2173,7 +2233,7 @@
 	      };
 
 	      if (window._AP && window._AP.dialogModules && window._AP.dialogModules[addon_key] && window._AP.dialogModules[addon_key][key]) {
-	        return _.extend({}, defaultOptions, window._AP.dialogModules[addon_key][key].options);
+	        return Object.assign({}, defaultOptions, window._AP.dialogModules[addon_key][key].options);
 	      }
 	      return false;
 	    }
@@ -3224,7 +3284,7 @@
 	    if (!data.resolver) {
 	      throw Error('ACJS: No content resolver supplied');
 	    }
-	    var promise = data.resolver.call(null, _.extend({ classifier: 'json' }, data.extension));
+	    var promise = data.resolver.call(null, Object.assign({ classifier: 'json' }, data.extension));
 	    promise.fail(function (promiseData, error) {
 	      EventDispatcher$1.dispatch('jwt-url-refreshed-failed', {
 	        extension: data.extension,
@@ -3234,9 +3294,9 @@
 	    });
 	    promise.done(function (promiseData) {
 	      var newExtensionConfiguration = {};
-	      if (_.isObject(promiseData)) {
+	      if ((typeof promiseData === 'undefined' ? 'undefined' : _typeof(promiseData)) === 'object') {
 	        newExtensionConfiguration = promiseData;
-	      } else if (_.isString(promiseData)) {
+	      } else if (typeof promiseData === 'string') {
 	        try {
 	          newExtensionConfiguration = JSON.parse(promiseData);
 	        } catch (e) {
@@ -3244,7 +3304,7 @@
 	        }
 	      }
 	      data.extension.url = newExtensionConfiguration.url;
-	      _.extend(data.extension.options, newExtensionConfiguration.options);
+	      Object.assign(data.extension.options, newExtensionConfiguration.options);
 	      EventDispatcher$1.dispatch('jwt-url-refreshed', {
 	        extension: data.extension,
 	        $container: data.$container,
@@ -3429,7 +3489,7 @@
 	  createClass(Button, [{
 	    key: 'setType',
 	    value: function setType($button, type) {
-	      if (type && _.contains(BUTTON_TYPES, type)) {
+	      if (type && BUTTON_TYPES.indexOf(type) >= 0) {
 	        $button.addClass('aui-button-' + type);
 	      }
 	      return $button;
@@ -3702,7 +3762,7 @@
 	  }, {
 	    key: 'render',
 	    value: function render(options) {
-	      var originalOptions = _.extend({}, options);
+	      var originalOptions = Object.assign({}, options);
 	      var sanitizedOptions = dialogUtilsInstance.sanitizeOptions(options);
 	      var $dialog = $('<section />').attr({
 	        role: 'dialog',
@@ -3715,7 +3775,7 @@
 	      });
 	      $dialog.addClass('aui-layer aui-dialog2 ' + DIALOG_CLASS);
 
-	      if (_.contains(DIALOG_SIZES, sanitizedOptions.size)) {
+	      if (DIALOG_SIZES.indexOf(sanitizedOptions.size) >= 0) {
 	        $dialog.addClass('aui-dialog2-' + sanitizedOptions.size);
 	      }
 
@@ -4075,14 +4135,14 @@
 	var Dialog = function Dialog(options, callback) {
 	  classCallCheck(this, Dialog);
 
-	  callback = _.last(arguments);
+	  callback = util$1.last(arguments);
 	  var _id = callback._id;
 	  var extension = callback._context.extension;
 
 	  var dialogExtension = {
 	    addon_key: extension.addon_key,
 	    key: options.key,
-	    options: _.pick(callback._context.extension.options, ['customData', 'productContext'])
+	    options: util$1.pick(callback._context.extension.options, ['customData', 'productContext'])
 	  };
 
 	  // ACJS-185: the following is a really bad idea but we need it
@@ -4090,7 +4150,7 @@
 	  dialogExtension.options.customData = options.customData;
 	  // terrible idea! - we need to remove this from p2 ASAP!
 	  var dialogModuleOptions = dialogUtilsInstance.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
-	  options = _.extend({}, dialogModuleOptions || {}, options);
+	  options = Object.assign({}, dialogModuleOptions || {}, options);
 	  options.id = _id;
 
 	  DialogExtensionActions.open(dialogExtension, options);
@@ -4166,7 +4226,7 @@
 	  }, {
 	    key: 'isEnabled',
 	    value: function isEnabled(callback) {
-	      callback = _.last(arguments);
+	      callback = util$1.last(arguments);
 	      callback(this.enabled);
 	    }
 	    /**
@@ -4209,7 +4269,7 @@
 	  }, {
 	    key: 'trigger',
 	    value: function trigger(callback) {
-	      callback = _.last(arguments);
+	      callback = util$1.last(arguments);
 	      if (this.enabled) {
 	        DialogActions.dialogMessage({
 	          name: this.name,
@@ -4235,7 +4295,7 @@
 	  }, {
 	    key: 'isHidden',
 	    value: function isHidden(callback) {
-	      callback = _.last(arguments);
+	      callback = util$1.last(arguments);
 	      callback(this.hidden);
 	    }
 	    /**
@@ -4286,7 +4346,7 @@
 	var CreateButton = function CreateButton(options, callback) {
 	  classCallCheck(this, CreateButton);
 
-	  callback = _.last(arguments);
+	  callback = util$1.last(arguments);
 	  DialogExtensionActions.addUserButton({
 	    identifier: options.identifier,
 	    text: options.text
@@ -4366,7 +4426,7 @@
 	   * AP.dialog.close({foo: 'bar'});
 	   */
 	  close: function close(data, callback) {
-	    callback = _.last(arguments);
+	    callback = util$1.last(arguments);
 	    var dialogToClose;
 	    if (callback._context.extension.options.isDialog) {
 	      dialogToClose = DialogExtensionComponent.getByExtension(callback._context.extension.id)[0];
@@ -4393,7 +4453,7 @@
 	   *
 	   */
 	  getCustomData: function getCustomData(callback) {
-	    callback = _.last(arguments);
+	    callback = util$1.last(arguments);
 	    var dialog = getDialogFromContext(callback._context);
 	    if (dialog) {
 	      callback(dialog.customData);
@@ -4520,7 +4580,7 @@
 	   * });
 	   */
 	  getLocation: function getLocation(callback) {
-	    callback = _.last(arguments);
+	    callback = util$1.last(arguments);
 	    callback(window.location.href);
 	  },
 	  /**
@@ -4540,7 +4600,7 @@
 	   * @param {String} height  the desired height
 	   */
 	  resize: function resize(width, height, callback) {
-	    callback = _.last(arguments);
+	    callback = util$1.last(arguments);
 	    var addon = ModuleProviders$1.getProvider('addon');
 	    if (addon) {
 	      addon.resize(width, height, callback._context);
@@ -4570,7 +4630,7 @@
 	   * @param {boolean} hideFooter true if the footer is supposed to be hidden
 	   */
 	  sizeToParent: debounce$1(function (hideFooter, callback) {
-	    callback = _.last(arguments);
+	    callback = util$1.last(arguments);
 	    var addon = ModuleProviders$1.getProvider('addon');
 	    if (addon) {
 	      addon.sizeToParent(hideFooter, callback._context);
@@ -4654,7 +4714,7 @@
 	   * AP.inlineDialog.hide();
 	   */
 	  hide: function hide(callback) {
-	    callback = _.last(arguments);
+	    callback = util$1.last(arguments);
 	    var inlineDialogProvider = ModuleProviders$1.getProvider('inlineDialog');
 	    if (inlineDialogProvider) {
 	      inlineDialogProvider.hide(callback._context);
@@ -4706,7 +4766,7 @@
 	function filterMessageOptions(options) {
 	  var copy = {};
 	  var allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
-	  if (_.isObject(options)) {
+	  if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object') {
 	    allowed.forEach(function (key) {
 	      if (key in options) {
 	        copy[key] = options[key];
@@ -4755,7 +4815,7 @@
 	function messageModule(messageType) {
 	  return {
 	    constructor: function constructor(title, body, options, callback) {
-	      callback = _.last(arguments);
+	      callback = util$1.last(arguments);
 	      var _id = callback._id;
 	      if (typeof title !== 'string') {
 	        title = '';
@@ -4811,7 +4871,7 @@
 	  * });
 	  */
 	  onClose: function onClose(msg, callback) {
-	    callback = _.last(arguments);
+	    callback = util$1.last(arguments);
 	    var id = msg._id;
 	    if (_messages[id]) {
 	      _messages[id].onCloseTrigger = callback;
@@ -5099,7 +5159,7 @@
 	  function Flag(options, callback) {
 	    classCallCheck(this, Flag);
 
-	    callback = _.last(arguments);
+	    callback = util$1.last(arguments);
 	    if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
 	      return;
 	    }
@@ -5108,11 +5168,15 @@
 	    if (this.flagProvider) {
 	      var actions = [];
 	      if (_typeof(options.actions) === 'object') {
-	        actions = _.map(options.actions, function (value, key) {
-	          return {
+	        Object.entries(options.actions).forEach(function (_ref) {
+	          var _ref2 = slicedToArray(_ref, 2),
+	              key = _ref2[0],
+	              value = _ref2[1];
+
+	          actions.push({
 	            content: value,
 	            onClick: FlagActions.actionInvoked.bind(null, key, flagId)
-	          };
+	          });
 	        });
 	      }
 	      var type = options.type || 'info';
@@ -5167,7 +5231,7 @@
 	  createClass(Flag, [{
 	    key: 'close',
 	    value: function close() {
-	      var callback = _.last(arguments);
+	      var callback = util$1.last(arguments);
 	      var flagId = callback._id;
 	      if (this.flagProvider) {
 	        this.flagProvider.close(flagId);
@@ -5232,7 +5296,7 @@
 
 	var analytics$1 = {
 	  trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, callback) {
-	    callback = _.last(arguments);
+	    callback = util$1.last(arguments);
 	    AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
 	  }
 	};
@@ -5247,7 +5311,7 @@
 	   * AP.scrollPosition.getPosition(function(obj) { console.log(obj); });
 	   */
 	  getPosition: function getPosition(callback) {
-	    callback = _.last(arguments);
+	    callback = util$1.last(arguments);
 	    // scrollPosition.getPosition is only available for general-pages
 	    if (callback._context.extension.options.isFullPage) {
 	      var $el = util$1.getIframeByExtensionId(callback._context.extension_id);
@@ -5289,9 +5353,9 @@
 
 	function sanitizeTriggers(triggers) {
 	  var onTriggers;
-	  if (_.isArray(triggers)) {
+	  if (Array.isArray(triggers)) {
 	    onTriggers = triggers.join(' ');
-	  } else if (_.isString(triggers)) {
+	  } else if (typeof triggers === 'string') {
 	    onTriggers = triggers.trim();
 	  }
 	  return onTriggers;
@@ -5305,20 +5369,20 @@
 	function getExtensionKey($target) {
 	  var cssClass = $target.attr('class');
 	  var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
-	  return _.isArray(m) ? m[1] : false;
+	  return Array.isArray(m) ? m[1] : false;
 	}
 
 	// LEGACY: get module key by webitem for p2
 	function getKey($target) {
 	  var cssClass = $target.attr('class');
 	  var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
-	  return _.isArray(m) ? m[1] : false;
+	  return Array.isArray(m) ? m[1] : false;
 	}
 
 	function getTargetKey($target) {
 	  var cssClass = $target.attr('class');
 	  var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
-	  return _.isArray(m) ? m[1] : false;
+	  return Array.isArray(m) ? m[1] : false;
 	}
 
 	function getFullKey($target) {
@@ -5328,7 +5392,7 @@
 	function getModuleOptionsByAddonAndModuleKey(type, addonKey, moduleKey) {
 	  var moduleType = type + 'Modules';
 	  if (window._AP && window._AP[moduleType] && window._AP[moduleType][addonKey] && window._AP[moduleType][addonKey][moduleKey]) {
-	    return _.clone(window._AP[moduleType][addonKey][moduleKey].options);
+	    return Object.assign({}, window._AP[moduleType][addonKey][moduleKey].options);
 	  }
 	}
 
@@ -5345,7 +5409,7 @@
 	  var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
 	  var options = getModuleOptionsForWebitem(type, $target);
 	  if (!options && window._AP && window._AP[type + 'Options']) {
-	    options = _.clone(window._AP[type + 'Options'][fullKey]) || {};
+	    options = Object.assign({}, window._AP[type + 'Options'][fullKey]) || {};
 	  }
 	  if (!options) {
 	    options = {};
@@ -5356,9 +5420,7 @@
 	  var url = $target.attr('href');
 	  if (url) {
 	    var query = index.parse(index.extract(url));
-	    _.each(query, function (value, key) {
-	      options.productContext[key] = value;
-	    });
+	    Object.assign(options.productContext, query);
 	  }
 
 	  return options;
@@ -5381,7 +5443,7 @@
 	    this.dialog = {
 	      create: function create(extension, dialogOptions) {
 	        var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
-	        var completeOptions = _.extend({}, dialogBeanOptions || {}, dialogOptions);
+	        var completeOptions = Object.assign({}, dialogBeanOptions || {}, dialogOptions);
 	        DialogExtensionActions.open(extension, completeOptions);
 	      },
 	      close: function close() {
@@ -5404,7 +5466,7 @@
 	  createClass(HostApi, [{
 	    key: '_cleanExtension',
 	    value: function _cleanExtension(extension) {
-	      return _.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
+	      return util$1.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
 	    }
 	  }, {
 	    key: 'onIframeEstablished',
@@ -5515,13 +5577,13 @@
 	    key: 'requestContent',
 	    value: function requestContent(extension) {
 	      if (extension.addon_key && extension.key) {
-	        return this._contentResolver.call(null, _.extend({ classifier: 'json' }, extension));
+	        return this._contentResolver.call(null, Object.assign({ classifier: 'json' }, extension));
 	      }
 	    }
 	  }, {
 	    key: 'getWebItemsBySelector',
 	    value: function getWebItemsBySelector(selector) {
-	      return _.find(this._webitems, function (obj) {
+	      return Object.values(this._webitems).find(function (obj) {
 	        if (obj.selector) {
 	          return obj.selector.trim() === selector.trim();
 	        }
@@ -5585,7 +5647,7 @@
 	  var oldWebItem = e.detail.originalItem.querySelector('a[class*="ap-"]');
 	  if (oldWebItem) {
 	    var newWebItem = e.detail.newItem.querySelector('a');
-	    _.each(oldWebItem.classList, function (cls) {
+	    oldWebItem.classList.forEach(function (cls) {
 	      if (/^ap-/.test(cls)) {
 	        newWebItem.classList.add(cls);
 	      }
@@ -5793,7 +5855,7 @@
 	      }
 	      contentRequest.then(function (content) {
 	        content.options = content.options || {};
-	        _.extend(content.options, {
+	        Object.assign(content.options, {
 	          autoresize: true,
 	          widthinpx: true
 	        });
@@ -5868,7 +5930,7 @@
 	  }, {
 	    key: '_dialogOptions',
 	    value: function _dialogOptions(options) {
-	      return _.extend({}, DEFAULT_WEBITEM_OPTIONS, options || {});
+	      return Object.assign({}, DEFAULT_WEBITEM_OPTIONS, options || {});
 	    }
 	  }, {
 	    key: 'triggered',

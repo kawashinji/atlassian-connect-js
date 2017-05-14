@@ -1,7 +1,6 @@
 import util from '../util';
 import buttonUtils from './button';
 import $ from '../dollar';
-import _ from '../underscore';
 
 class DialogUtils {
   _maxDimension(val, maxPxVal){
@@ -179,7 +178,7 @@ class DialogUtils {
       && window._AP.dialogModules
       && window._AP.dialogModules[addon_key]
       && window._AP.dialogModules[addon_key][key]) {
-      return _.extend({}, defaultOptions, window._AP.dialogModules[addon_key][key].options);
+      return Object.assign({}, defaultOptions, window._AP.dialogModules[addon_key][key].options);
     }
     return false;
   }

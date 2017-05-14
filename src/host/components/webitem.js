@@ -1,5 +1,4 @@
 import $ from '../dollar';
-import _ from '../underscore';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import WebItemActions from '../actions/webitem_actions';
 import WebItemUtils from '../utils/webitem';
@@ -17,12 +16,12 @@ class WebItem {
 
   requestContent(extension) {
     if(extension.addon_key && extension.key) {
-      return this._contentResolver.call(null, _.extend({classifier: 'json'}, extension));
+      return this._contentResolver.call(null, Object.assign({classifier: 'json'}, extension));
     }
   }
 
   getWebItemsBySelector(selector) {
-    return _.find(this._webitems, function(obj) {
+    return Object.values(this._webitems).find((obj) => {
       if(obj.selector){
         return obj.selector.trim() === selector.trim();
       }
@@ -81,7 +80,7 @@ document.addEventListener('aui-responsive-menu-item-created', (e) => {
   var oldWebItem = e.detail.originalItem.querySelector('a[class*="ap-"]');
   if (oldWebItem) {
     var newWebItem = e.detail.newItem.querySelector('a');
-    _.each(oldWebItem.classList, cls => {
+    oldWebItem.classList.forEach(cls => {
       if (/^ap-/.test(cls)) {
         newWebItem.classList.add(cls);
       }

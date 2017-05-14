@@ -1,4 +1,3 @@
-import _ from './underscore';
 import $ from './dollar';
 
 function escapeSelector(s) {
@@ -12,7 +11,7 @@ function stringToDimension(value) {
   var percent = false;
   var unit = 'px';
 
-  if(_.isString(value)) {
+  if(typeof value === 'string') {
     percent = value.indexOf('%') === value.length - 1;
     value = parseInt(value, 10);
     if (percent) {
@@ -29,8 +28,31 @@ function getIframeByExtensionId(id) {
   return $('iframe#' + escapeSelector(id));
 }
 
+function first(arr, numb){
+  if(numb) {
+    return arr.slice(0, numb);
+  }
+  return arr[0];
+}
+
+function last(arr){
+  return arr[arr.length - 1];
+}
+
+function pick(obj, values) {
+  if(typeof obj !== 'object') {
+    return {};
+  }
+  return Object.keys(obj)
+    .filter((key) => values.indexOf(key) >= 0)
+    .reduce((newObj, key) => Object.assign(newObj, { [key]: obj[key] }), {});
+}
+
 export default {
   escapeSelector,
   stringToDimension,
-  getIframeByExtensionId
+  getIframeByExtensionId,
+  first,
+  last,
+  pick
 };

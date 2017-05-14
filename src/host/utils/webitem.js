@@ -1,11 +1,10 @@
-import _ from '../underscore';
 import qs from 'query-string';
 
 function sanitizeTriggers(triggers) {
   var onTriggers;
-  if(_.isArray(triggers)) {
+  if(Array.isArray(triggers)) {
     onTriggers = triggers.join(' ');
-  } else if (_.isString(triggers)) {
+  } else if (typeof triggers === 'string') {
     onTriggers = triggers.trim();
   }
   return onTriggers;
@@ -19,20 +18,20 @@ function uniqueId(){
 function getExtensionKey($target){
   var cssClass = $target.attr('class');
   var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
-  return _.isArray(m) ? m[1] : false;
+  return Array.isArray(m) ? m[1] : false;
 }
 
 // LEGACY: get module key by webitem for p2
 function getKey($target){
   var cssClass = $target.attr('class');
   var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
-  return _.isArray(m) ? m[1] : false;
+  return Array.isArray(m) ? m[1] : false;
 }
 
 function getTargetKey($target){
   var cssClass = $target.attr('class');
   var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
-  return _.isArray(m) ? m[1] : false;
+  return Array.isArray(m) ? m[1] : false;
 }
 
 function getFullKey($target){
@@ -45,7 +44,7 @@ function getModuleOptionsByAddonAndModuleKey(type, addonKey, moduleKey) {
     && window._AP[moduleType]
     && window._AP[moduleType][addonKey]
     && window._AP[moduleType][addonKey][moduleKey]) {
-    return _.clone(window._AP[moduleType][addonKey][moduleKey].options);
+    return Object.assign({}, window._AP[moduleType][addonKey][moduleKey].options);
   }
 }
 
@@ -62,7 +61,7 @@ function getOptionsForWebItem($target) {
   var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
   var options = getModuleOptionsForWebitem(type, $target);
   if(!options && window._AP && window._AP[type + 'Options']) {
-    options = _.clone(window._AP[type + 'Options'][fullKey]) || {};
+    options = Object.assign({}, window._AP[type + 'Options'][fullKey]) || {};
   }
   if(!options){
     options = {};
@@ -73,9 +72,7 @@ function getOptionsForWebItem($target) {
   var url = $target.attr('href');
   if (url) {
     var query = qs.parse(qs.extract(url));
-    _.each(query, (value, key) => {
-      options.productContext[key] = value;
-    });
+    Object.assign(options.productContext, query);
   }
 
   return options;

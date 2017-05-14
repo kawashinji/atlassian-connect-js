@@ -2,7 +2,7 @@
 * pub/sub for extension state (created, destroyed, initialized)
 * taken from hipchat webcore
 **/
-import _ from '../underscore';
+
 import EventEmitter from 'events';
 
 class EventDispatcher extends EventEmitter {
@@ -19,32 +19,26 @@ class EventDispatcher extends EventEmitter {
   }
 
   registerOnce(action, callback) {
-    if (_.isString(action)) {
+    if (typeof action === 'string') {
       this.once(action, callback);
-    } else if (_.isObject(action)) {
-      _.keys(action).forEach((val, key) => {
-        this.once(key, val);
-      }, this);
+    } else {
+      throw 'ACJS: event name must be string';
     }
   }
 
   register(action, callback) {
-    if (_.isString(action)) {
+    if (typeof action === 'string') {
       this.on(action, callback);
-    } else if (_.isObject(action)) {
-      _.keys(action).forEach((val, key) => {
-        this.on(key, val);
-      }, this);
+    } else {
+      throw 'ACJS: event name must be string';
     }
   }
 
   unregister(action, callback) {
-    if (_.isString(action)) {
+    if (typeof action === 'string') {
       this.removeListener(action, callback);
-    } else if (_.isObject(action)) {
-      _.keys(action).forEach((val, key) => {
-        this.removeListener(key, val);
-      }, this);
+    } else {
+      throw 'ACJS: event name must be string';
     }
   }
 }

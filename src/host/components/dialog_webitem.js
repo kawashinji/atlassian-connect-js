@@ -2,7 +2,6 @@ import WebItemActions from '../actions/webitem_actions';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import WebItemUtils from '../utils/webitem';
 import DialogExtensionActions from '../actions/dialog_extension_actions';
-import _ from '../underscore';
 import $ from '../dollar';
 
 const ITEM_NAME = 'dialog';
@@ -27,7 +26,7 @@ class DialogWebItem {
   }
 
   _dialogOptions(options){
-    return _.extend({}, DEFAULT_WEBITEM_OPTIONS, options || {});
+    return Object.assign({}, DEFAULT_WEBITEM_OPTIONS, options || {});
   }
 
   triggered(data) {

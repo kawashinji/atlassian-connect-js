@@ -1,5 +1,4 @@
 import EventDispatcher from '../dispatchers/event_dispatcher';
-import _ from '../underscore';
 
 export default {
   registerContentResolver: function(data) {
@@ -9,7 +8,7 @@ export default {
     if(!data.resolver) {
       throw Error('ACJS: No content resolver supplied');
     }
-    var promise = data.resolver.call(null, _.extend({classifier: 'json'}, data.extension));
+    var promise = data.resolver.call(null, Object.assign({classifier: 'json'}, data.extension));
     promise.fail(function(promiseData, error) {
       EventDispatcher.dispatch('jwt-url-refreshed-failed', {
         extension: data.extension,
@@ -19,9 +18,9 @@ export default {
     });
     promise.done(function (promiseData) {
       var newExtensionConfiguration = {};
-      if(_.isObject(promiseData)) {
+      if(typeof promiseData === 'object') {
         newExtensionConfiguration = promiseData;
-      } else if(_.isString(promiseData)) {
+      } else if(typeof promiseData === 'string') {
         try{
           newExtensionConfiguration = JSON.parse(promiseData);
         } catch(e){
@@ -29,7 +28,7 @@ export default {
         }
       }
       data.extension.url = newExtensionConfiguration.url;
-      _.extend(data.extension.options, newExtensionConfiguration.options);
+      Object.assign(data.extension.options, newExtensionConfiguration.options);
       EventDispatcher.dispatch('jwt-url-refreshed', {
         extension: data.extension,
         $container: data.$container,
