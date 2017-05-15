@@ -88,7 +88,7 @@ document.addEventListener('aui-responsive-menu-item-created', (e) => {
   var oldWebItem = e.detail.originalItem.querySelector('a[class*="ap-"]');
   if (oldWebItem) {
     var newWebItem = e.detail.newItem.querySelector('a');
-    let classList = Array.prototype.slice.call(oldWebItem.classList);
+    let classList = [].slice.call(oldWebItem.classList);
     classList.forEach(cls => {
       if (/^ap-/.test(cls)) {
         newWebItem.classList.add(cls);

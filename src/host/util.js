@@ -40,12 +40,12 @@ function last(arr){
   return arr[arr.length - 1];
 }
 
-function pick(obj, values) {
+function pick(obj, keys) {
   if(typeof obj !== 'object') {
     return {};
   }
   return Object.keys(obj)
-    .filter((key) => values.indexOf(key) >= 0)
+    .filter((key) => keys.indexOf(key) >= 0)
     .reduce((newObj, key) => extend(newObj, { [key]: obj[key] }), {});
 }
 

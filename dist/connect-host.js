@@ -1846,12 +1846,12 @@
 	  return arr[arr.length - 1];
 	}
 
-	function pick(obj, values) {
+	function pick(obj, keys) {
 	  if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) !== 'object') {
 	    return {};
 	  }
 	  return Object.keys(obj).filter(function (key) {
-	    return values.indexOf(key) >= 0;
+	    return keys.indexOf(key) >= 0;
 	  }).reduce(function (newObj, key) {
 	    var _extend;
 
@@ -5413,7 +5413,7 @@
 	  var oldWebItem = e.detail.originalItem.querySelector('a[class*="ap-"]');
 	  if (oldWebItem) {
 	    var newWebItem = e.detail.newItem.querySelector('a');
-	    var classList = Array.prototype.slice.call(oldWebItem.classList);
+	    var classList = [].slice.call(oldWebItem.classList);
 	    classList.forEach(function (cls) {
 	      if (/^ap-/.test(cls)) {
 	        newWebItem.classList.add(cls);
