@@ -1,10 +1,9 @@
-import $ from '../dollar';
 import EnvActions from '../actions/env_actions';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
 import ModuleProviders from '../module-providers';
 
-var debounce = AJS.debounce || $.debounce;
+var debounce = util.debounce;
 var resizeFuncHolder = {};
 // ignore resize events for iframes that use sizeToParent
 var ignoreResizeForExtension = [];

@@ -22,7 +22,6 @@ module.exports = function(config) {
       'https://aui-cdn.atlassian.com/aui-adg/5.9.17/css/aui.min.css',
       'https://cdn.rawgit.com/requirejs/almond/0.3.1/almond.js',
       'https://aui-cdn.atlassian.com/aui-adg/5.9.17/js/aui-experimental.js',
-      'node_modules/babel-polyfill/dist/polyfill.js',
       {pattern: 'src/css/host/**', included: true, served: true}
       // {pattern: 'fixtures/**', included: false, served: true},
       // {pattern: 'dist/**', included: false, served: true}

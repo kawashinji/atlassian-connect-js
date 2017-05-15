@@ -1769,13 +1769,30 @@
 	  }, {});
 	}
 
+	function debounce(fn, wait) {
+	  var timeout;
+	  return function () {
+	    var ctx = this;
+	    var args = [].slice.call(arguments);
+	    function later() {
+	      timeout = null;
+	      fn.apply(ctx, args);
+	    }
+	    if (timeout) {
+	      clearTimeout(timeout);
+	    }
+	    timeout = setTimeout(later, wait || 50);
+	  };
+	}
+
 	var util$1 = {
 	  escapeSelector: escapeSelector,
 	  stringToDimension: stringToDimension,
 	  getIframeByExtensionId: getIframeByExtensionId,
 	  first: first,
 	  last: last,
-	  pick: pick
+	  pick: pick,
+	  debounce: debounce
 	};
 
 	var events = {
@@ -3417,7 +3434,7 @@
 	var DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
 	var DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
 
-	var debounce = AJS.debounce || $.debounce;
+	var debounce$1 = AJS.debounce || $.debounce;
 
 	function getActiveDialog$1() {
 	  var $el = AJS.LayerManager.global.getTopLayer();
@@ -3765,7 +3782,7 @@
 	  DialogComponent.addButton(data.extension, data.button);
 	});
 
-	EventDispatcher$1.register('host-window-resize', debounce(function () {
+	EventDispatcher$1.register('host-window-resize', debounce$1(function () {
 	  $('.' + DIALOG_CLASS).each(function (i, dialog) {
 	    var $dialog = $(dialog);
 	    var sanitizedOptions = dialogUtilsInstance.sanitizeOptions($dialog.data('originalOptions'));
@@ -4330,7 +4347,7 @@
 
 	var ModuleProviders$1 = new ModuleProviders();
 
-	var debounce$1 = AJS.debounce || $.debounce;
+	var debounce$2 = util$1.debounce;
 	var resizeFuncHolder = {};
 	// ignore resize events for iframes that use sizeToParent
 	var ignoreResizeForExtension = [];
@@ -4383,7 +4400,7 @@
 	      }
 
 	      if (!resizeFuncHolder[iframeId]) {
-	        resizeFuncHolder[iframeId] = debounce$1(function (dwidth, dheight, dcallback) {
+	        resizeFuncHolder[iframeId] = debounce$2(function (dwidth, dheight, dcallback) {
 	          EnvActions.iframeResize(dwidth, dheight, dcallback._context);
 	        }, 50);
 	      }
@@ -4400,7 +4417,7 @@
 	   * @method
 	   * @param {boolean} hideFooter true if the footer is supposed to be hidden
 	   */
-	  sizeToParent: debounce$1(function (hideFooter, callback) {
+	  sizeToParent: debounce$2(function (hideFooter, callback) {
 	    callback = util$1.last(arguments);
 	    var addon = ModuleProviders$1.getProvider('addon');
 	    if (addon) {
