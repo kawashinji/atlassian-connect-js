@@ -4950,14 +4950,11 @@
 	    if (this.flagProvider) {
 	      var actions = [];
 	      if (_typeof(options.actions) === 'object') {
-	        Object.entries(options.actions).forEach(function (_ref) {
-	          var key = _ref[0],
-	              value = _ref[1];
-
-	          actions.push({
-	            content: value,
+	        actions = Object.getOwnPropertyNames(options.actions).map(function (key) {
+	          return {
+	            content: options.actions[key],
 	            onClick: FlagActions.actionInvoked.bind(null, key, flagId)
-	          });
+	          };
 	        });
 	      }
 	      var type = options.type || 'info';

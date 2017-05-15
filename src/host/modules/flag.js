@@ -52,11 +52,11 @@ class Flag {
     if (this.flagProvider) {
       let actions = [];
       if (typeof options.actions === 'object') {
-        Object.entries(options.actions).forEach(([key, value]) => {
-          actions.push({
-            content: value,
+        actions = Object.getOwnPropertyNames(options.actions).map(key => {
+          return {
+            content: options.actions[key],
             onClick: FlagActions.actionInvoked.bind(null, key, flagId)
-          });
+          };
         });
       }
       let type = options.type || 'info';
