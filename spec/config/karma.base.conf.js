@@ -17,7 +17,6 @@ module.exports = function(config) {
     //frameworks: ['browserify', 'qunit', 'sinon'],
     // list of files / patterns to load in the browser
     files: [
-      'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore.js',
       'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js',
       'https://aui-cdn.atlassian.com/aui-adg/5.9.17/js/aui.js',
       'https://aui-cdn.atlassian.com/aui-adg/5.9.17/css/aui.min.css',
@@ -48,8 +47,22 @@ module.exports = function(config) {
             test: /\.js$/,
             loader: 'babel',
             query: {
-              cacheDirectory: true,
-              presets: ['es2015', 'stage-2']
+              cacheDirectory: false,
+              presets: [
+                ['env', {
+                  'targets': {
+                    'browsers': [
+                      'last 1 Chrome versions',
+                      'last 1 Firefox versions',
+                      'last 1 Safari versions',
+                      'Explorer 11',
+                      'last 1 Edge versions'
+                    ]
+                  },
+                  'useBuiltIns': true
+                }],
+                'stage-2'
+              ]
             }
           }
         ],

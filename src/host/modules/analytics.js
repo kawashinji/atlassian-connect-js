@@ -1,9 +1,9 @@
 import AnalyticsAction from '../actions/analytics_action';
-import _ from '../underscore';
+import util from '../util';
 
 export default {
   trackDeprecatedMethodUsed: function (methodUsed, callback) {
-    callback = _.last(arguments);
+    callback = util.last(arguments);
     AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
   }
 }

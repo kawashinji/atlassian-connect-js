@@ -1,4 +1,4 @@
-import _ from './underscore';
+import util from './util';
 import EventDispatcher from './dispatchers/event_dispatcher';
 import DialogExtensionActions from './actions/dialog_extension_actions';
 import DomEventActions from './actions/dom_event_actions';
@@ -11,6 +11,7 @@ import IframeActions from './actions/iframe_actions';
 import AnalyticsAction from './actions/analytics_action';
 import WebItemUtils from './utils/webitem';
 import ModuleProviders from './module-providers';
+import Util from './util';
 
 class HostApi {
   constructor(){
@@ -18,7 +19,7 @@ class HostApi {
     this.dialog = {
       create: (extension, dialogOptions) => {
         var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
-        var completeOptions = _.extend({}, dialogBeanOptions || {}, dialogOptions);
+        var completeOptions = Util.extend({}, dialogBeanOptions || {}, dialogOptions);
         DialogExtensionActions.open(extension, completeOptions);
       },
       close: () => {
@@ -39,7 +40,7 @@ class HostApi {
   }
 
   _cleanExtension(extension){
-    return _.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
+    return util.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
   }
 
   onIframeEstablished (callback) {

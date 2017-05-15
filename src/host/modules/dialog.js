@@ -5,7 +5,7 @@ import EventActions from '../actions/event_actions';
 import DialogExtensionComponent from '../components/dialog_extension';
 import ButtonComponent from '../components/button';
 import DialogUtils from '../utils/dialog';
-import _ from '../underscore';
+import Util from '../util';
 
 const _dialogs = {};
 
@@ -45,14 +45,14 @@ EventDispatcher.register('dialog-button-click', (data) => {
  */
 class Dialog {
   constructor(options, callback) {
-    callback = _.last(arguments);
+    callback = Util.last(arguments);
     const _id = callback._id;
     const extension = callback._context.extension;
 
     var dialogExtension = {
       addon_key: extension.addon_key,
       key: options.key,
-      options: _.pick(callback._context.extension.options, ['customData', 'productContext'])
+      options: Util.pick(callback._context.extension.options, ['customData', 'productContext'])
     };
 
     // ACJS-185: the following is a really bad idea but we need it
@@ -60,7 +60,7 @@ class Dialog {
     dialogExtension.options.customData = options.customData;
     // terrible idea! - we need to remove this from p2 ASAP!
     var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
-    options = _.extend({}, dialogModuleOptions || {}, options);
+    options = Util.extend({}, dialogModuleOptions || {}, options);
     options.id = _id;
 
     DialogExtensionActions.open(dialogExtension, options);
@@ -123,7 +123,7 @@ class Button {
    * });
    */
   isEnabled(callback) {
-    callback = _.last(arguments);
+    callback = Util.last(arguments);
     callback(this.enabled);
   }
   /**
@@ -158,7 +158,7 @@ class Button {
    * AP.dialog.getButton('submit').trigger();
    */
   trigger(callback) {
-    callback = _.last(arguments);
+    callback = Util.last(arguments);
     if (this.enabled) {
       DialogActions.dialogMessage({
         name: this.name,
@@ -181,7 +181,7 @@ class Button {
    * });
    */
   isHidden(callback) {
-    callback = _.last(arguments);
+    callback = Util.last(arguments);
     callback(this.hidden);
   }
   /**
@@ -222,7 +222,7 @@ function getDialogFromContext(context) {
 
 class CreateButton {
   constructor(options, callback) {
-    callback = _.last(arguments);
+    callback = Util.last(arguments);
     DialogExtensionActions.addUserButton({
       identifier: options.identifier,
       text: options.text
@@ -301,7 +301,7 @@ export default {
    * AP.dialog.close({foo: 'bar'});
    */
   close: function (data, callback) {
-    callback = _.last(arguments);
+    callback = Util.last(arguments);
     var dialogToClose;
     if(callback._context.extension.options.isDialog){
       dialogToClose = DialogExtensionComponent.getByExtension(callback._context.extension.id)[0];
@@ -328,7 +328,7 @@ export default {
    *
    */
   getCustomData: function (callback) {
-    callback = _.last(arguments);
+    callback = Util.last(arguments);
     const dialog = getDialogFromContext(callback._context);
     if (dialog) {
       callback(dialog.customData);

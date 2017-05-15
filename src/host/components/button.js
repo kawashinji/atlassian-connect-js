@@ -1,6 +1,5 @@
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import $ from '../dollar';
-import _ from '../underscore';
 import ButtonActions from '../actions/button_actions';
 import ButtonUtils from '../utils/button';
 
@@ -13,7 +12,7 @@ class Button {
   }
 
   setType($button, type){
-    if(type && _.contains(BUTTON_TYPES, type)) {
+    if(type && BUTTON_TYPES.indexOf(type) >= 0) {
       $button.addClass('aui-button-' + type);
     }
     return $button;

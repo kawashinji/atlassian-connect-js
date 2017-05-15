@@ -10,7 +10,7 @@
 
 import InlineDialogActions from '../actions/inline_dialog_actions';
 import ModuleProviders from '../module-providers';
-import _ from '../underscore';
+import util from '../util';
 
 export default {
   /**
@@ -22,7 +22,7 @@ export default {
    * AP.inlineDialog.hide();
    */
   hide: function(callback){
-    callback = _.last(arguments);
+    callback = util.last(arguments);
     const inlineDialogProvider = ModuleProviders.getProvider('inlineDialog');
     if (inlineDialogProvider) {
       inlineDialogProvider.hide(callback._context);

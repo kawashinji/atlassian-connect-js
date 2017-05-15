@@ -7,7 +7,7 @@ import WebItemUtils from '../utils/webitem';
 import IframeContainer from './iframe_container';
 import $ from '../dollar';
 import IframeCreate from '../iframe-create';
-import _ from '../underscore';
+import Util from '../util';
 
 const ITEM_NAME = 'inline-dialog';
 const SELECTOR = '.ap-inline-dialog';
@@ -66,7 +66,7 @@ class InlineDialogWebItem {
     }
     contentRequest.then(function(content){
       content.options = content.options || {};
-      _.extend(content.options, {
+      Util.extend(content.options, {
         autoresize: true,
         widthinpx: true
       });

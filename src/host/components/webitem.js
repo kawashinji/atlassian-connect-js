@@ -1,8 +1,8 @@
 import $ from '../dollar';
-import _ from '../underscore';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import WebItemActions from '../actions/webitem_actions';
 import WebItemUtils from '../utils/webitem';
+import Util from '../util';
 
 class WebItem {
 
@@ -17,17 +17,24 @@ class WebItem {
 
   requestContent(extension) {
     if(extension.addon_key && extension.key) {
-      return this._contentResolver.call(null, _.extend({classifier: 'json'}, extension));
+      return this._contentResolver.call(null, Util.extend({classifier: 'json'}, extension));
     }
   }
-
+  // originally i had this written nicely with Object.values but
+  // ie11 didn't like it and i couldn't find a nice pollyfill
   getWebItemsBySelector(selector) {
-    return _.find(this._webitems, function(obj) {
-      if(obj.selector){
-        return obj.selector.trim() === selector.trim();
-      }
+    let returnVal;
+    const keys = Object.getOwnPropertyNames(this._webitems).some((key) => {
+      let obj = this._webitems[key];
+      if(obj.selector) {
+        if(obj.selector.trim() === selector.trim()) {
+          returnVal = obj;
+          return true;
+        }
+      };
       return false;
     });
+    return returnVal;
   }
 
   setWebItem(potentialWebItem) {
@@ -81,7 +88,8 @@ document.addEventListener('aui-responsive-menu-item-created', (e) => {
   var oldWebItem = e.detail.originalItem.querySelector('a[class*="ap-"]');
   if (oldWebItem) {
     var newWebItem = e.detail.newItem.querySelector('a');
-    _.each(oldWebItem.classList, cls => {
+    let classList = Array.prototype.slice.call(oldWebItem.classList);
+    classList.forEach(cls => {
       if (/^ap-/.test(cls)) {
         newWebItem.classList.add(cls);
       }

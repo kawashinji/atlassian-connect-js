@@ -3,11 +3,10 @@
 * @module Flag
 */
 
-import $ from '../dollar';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import FlagActions from '../actions/flag_actions';
 import FlagComponent from '../components/flag';
-import _ from '../underscore';
+import util from '../util';
 import EventActions from '../actions/event_actions';
 import ModuleProviders from '../module-providers';
 
@@ -44,7 +43,7 @@ const _flags = {};
 */
 class Flag {
   constructor(options, callback) {
-    callback = _.last(arguments);
+    callback = util.last(arguments);
     if(typeof options !== 'object') {
       return;
     }
@@ -53,10 +52,12 @@ class Flag {
     if (this.flagProvider) {
       let actions = [];
       if (typeof options.actions === 'object') {
-        actions = _.map(options.actions, (value, key) => ({
-          content: value,
-          onClick: FlagActions.actionInvoked.bind(null, key, flagId)
-        }));
+        actions = Object.getOwnPropertyNames(options.actions).map(key => {
+          return {
+            content: options.actions[key],
+            onClick: FlagActions.actionInvoked.bind(null, key, flagId)
+          };
+        });
       }
       let type = options.type || 'info';
       let flagOptions = {
@@ -106,7 +107,7 @@ class Flag {
   *
   */
   close() {
-    const callback = _.last(arguments);
+    const callback = util.last(arguments);
     const flagId = callback._id;
     if (this.flagProvider) {
       this.flagProvider.close(flagId);

@@ -1,6 +1,5 @@
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import SimpleXDM from 'simple-xdm/host';
-import _ from '../underscore';
 
 export default {
   broadcast: function(type, targetSpec, event){

@@ -5,9 +5,8 @@ import dialogUtils from '../utils/dialog';
 import IframeComponent from './iframe';
 import Button from './button';
 import ButtonActions from '../actions/button_actions';
-
+import Util from '../util';
 import $ from '../dollar';
-import _ from '../underscore';
 
 const DLGID_PREFIX = 'ap-dialog-';
 const DIALOG_CLASS = 'ap-aui-dialog2';
@@ -157,7 +156,7 @@ class Dialog {
   }
   **/
   render(options){
-    var originalOptions = _.extend({}, options);
+    var originalOptions = Util.extend({}, options);
     var sanitizedOptions = dialogUtils.sanitizeOptions(options);
     const $dialog = $('<section />').attr({
       role: 'dialog',
@@ -170,7 +169,7 @@ class Dialog {
     });
     $dialog.addClass('aui-layer aui-dialog2 ' + DIALOG_CLASS);
 
-    if (_.contains(DIALOG_SIZES, sanitizedOptions.size)) {
+    if (DIALOG_SIZES.indexOf(sanitizedOptions.size) >= 0) {
       $dialog.addClass('aui-dialog2-' + sanitizedOptions.size);
     }
 

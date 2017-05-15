@@ -23,42 +23,13 @@ var AP = (function () {
     }
   };
 
-  var createClass = function () {
-    function defineProperties(target, props) {
-      for (var i = 0; i < props.length; i++) {
-        var descriptor = props[i];
-        descriptor.enumerable = descriptor.enumerable || false;
-        descriptor.configurable = true;
-        if ("value" in descriptor) descriptor.writable = true;
-        Object.defineProperty(target, descriptor.key, descriptor);
-      }
-    }
-
-    return function (Constructor, protoProps, staticProps) {
-      if (protoProps) defineProperties(Constructor.prototype, protoProps);
-      if (staticProps) defineProperties(Constructor, staticProps);
-      return Constructor;
-    };
-  }();
 
 
 
 
 
-  var defineProperty = function (obj, key, value) {
-    if (key in obj) {
-      Object.defineProperty(obj, key, {
-        value: value,
-        enumerable: true,
-        configurable: true,
-        writable: true
-      });
-    } else {
-      obj[key] = value;
-    }
 
-    return obj;
-  };
+
 
   var _extends = Object.assign || function (target) {
     for (var i = 1; i < arguments.length; i++) {
@@ -324,33 +295,30 @@ var AP = (function () {
       this._registerListener(d.listenOn);
     }
 
-    createClass(PostMessage, [{
-      key: "_registerListener",
-      value: function _registerListener(listenOn) {
-        if (!listenOn || !listenOn.addEventListener) {
-          listenOn = window;
-        }
-        listenOn.addEventListener("message", util._bind(this, this._receiveMessage), false);
+    PostMessage.prototype._registerListener = function _registerListener(listenOn) {
+      if (!listenOn || !listenOn.addEventListener) {
+        listenOn = window;
       }
-    }, {
-      key: "_receiveMessage",
-      value: function _receiveMessage(event) {
+      listenOn.addEventListener("message", util._bind(this, this._receiveMessage), false);
+    };
 
-        var handler = this._messageHandlers[event.data.type],
-            extensionId = event.data.eid,
-            reg = void 0;
+    PostMessage.prototype._receiveMessage = function _receiveMessage(event) {
 
-        if (extensionId && this._registeredExtensions) {
-          reg = this._registeredExtensions[extensionId];
-        }
+      var handler = this._messageHandlers[event.data.type],
+          extensionId = event.data.eid,
+          reg = void 0;
 
-        if (!handler || !this._checkOrigin(event, reg)) {
-          return false;
-        }
-
-        handler.call(this, event, reg);
+      if (extensionId && this._registeredExtensions) {
+        reg = this._registeredExtensions[extensionId];
       }
-    }]);
+
+      if (!handler || !this._checkOrigin(event, reg)) {
+        return false;
+      }
+
+      handler.call(this, event, reg);
+    };
+
     return PostMessage;
   }();
 
@@ -398,19 +366,17 @@ var AP = (function () {
 
   var XDMRPC = function (_PostMessage) {
     inherits(XDMRPC, _PostMessage);
-    createClass(XDMRPC, [{
-      key: '_padUndefinedArguments',
-      value: function _padUndefinedArguments(array, length) {
-        return array.length >= length ? array : array.concat(new Array(length - array.length));
-      }
-    }]);
+
+    XDMRPC.prototype._padUndefinedArguments = function _padUndefinedArguments(array, length) {
+      return array.length >= length ? array : array.concat(new Array(length - array.length));
+    };
 
     function XDMRPC(config) {
       classCallCheck(this, XDMRPC);
 
       config = config || {};
 
-      var _this = possibleConstructorReturn(this, (XDMRPC.__proto__ || Object.getPrototypeOf(XDMRPC)).call(this, config));
+      var _this = possibleConstructorReturn(this, _PostMessage.call(this, config));
 
       _this._registeredExtensions = config.extensions || {};
       _this._registeredAPIModules = {};
@@ -432,512 +398,486 @@ var AP = (function () {
       return _this;
     }
 
-    createClass(XDMRPC, [{
-      key: '_verifyAPI',
-      value: function _verifyAPI(event, reg) {
-        var untrustedTargets = event.data.targets;
-        if (!untrustedTargets) {
-          return;
-        }
-        var trustedSpec = this.getApiSpec();
-        var tampered = false;
+    XDMRPC.prototype._verifyAPI = function _verifyAPI(event, reg) {
+      var untrustedTargets = event.data.targets;
+      if (!untrustedTargets) {
+        return;
+      }
+      var trustedSpec = this.getApiSpec();
+      var tampered = false;
 
-        function check(trusted, untrusted) {
-          Object.getOwnPropertyNames(untrusted).forEach(function (name) {
-            if (_typeof(untrusted[name]) === 'object' && trusted[name]) {
-              check(trusted[name], untrusted[name]);
-            } else {
-              if (untrusted[name] === 'parent' && trusted[name]) {
-                tampered = true;
-              }
+      function check(trusted, untrusted) {
+        Object.getOwnPropertyNames(untrusted).forEach(function (name) {
+          if (_typeof(untrusted[name]) === 'object' && trusted[name]) {
+            check(trusted[name], untrusted[name]);
+          } else {
+            if (untrusted[name] === 'parent' && trusted[name]) {
+              tampered = true;
             }
-          });
+          }
+        });
+      }
+      check(trustedSpec, untrustedTargets);
+      event.source.postMessage({
+        type: 'api_tamper',
+        tampered: tampered
+      }, reg.extension.url);
+    };
+
+    XDMRPC.prototype._handleInit = function _handleInit(event, reg) {
+      this._registeredExtensions[reg.extension_id].source = event.source;
+      if (reg.initCallback) {
+        reg.initCallback(event.data.eid);
+        delete reg.initCallback;
+      }
+      if (event.data.targets) {
+        this._verifyAPI(event, reg);
+      }
+    };
+    // postMessage method to do registerExtension
+
+
+    XDMRPC.prototype._handleSubInit = function _handleSubInit(event, reg) {
+      this.registerExtension(event.data.ext.id, {
+        extension: event.data.ext
+      });
+    };
+
+    XDMRPC.prototype._getHostOffset = function _getHostOffset(event, _window) {
+      var hostWindow = event.source;
+      var hostFrameOffset = null;
+      var windowReference = _window || window; // For testing
+
+      if (windowReference === windowReference.top && typeof windowReference.getHostOffsetFunctionOverride === 'function') {
+        hostFrameOffset = windowReference.getHostOffsetFunctionOverride(hostWindow);
+      }
+
+      if (typeof hostFrameOffset !== 'number') {
+        hostFrameOffset = 0;
+        // Find the closest frame that has the same origin as event source
+        while (!this._hasSameOrigin(hostWindow)) {
+          // Climb up the iframe tree 1 layer
+          hostFrameOffset++;
+          hostWindow = hostWindow.parent;
         }
-        check(trustedSpec, untrustedTargets);
+      }
+
+      event.source.postMessage({
+        hostFrameOffset: hostFrameOffset
+      }, event.origin);
+    };
+
+    XDMRPC.prototype._hasSameOrigin = function _hasSameOrigin(window) {
+      if (window === window.top) {
+        return true;
+      }
+
+      try {
+        // Try set & read a variable on the given window
+        // If we can successfully read the value then it means the given window has the same origin
+        // as the window that is currently executing the script
+        var testVariableName = 'test_var_' + Math.random().toString(16).substr(2);
+        window[testVariableName] = true;
+        return window[testVariableName];
+      } catch (e) {
+        // A exception will be thrown if the windows doesn't have the same origin
+      }
+
+      return false;
+    };
+
+    XDMRPC.prototype._handleResponse = function _handleResponse(event) {
+      var data = event.data;
+      var pendingCallback = this._pendingCallbacks[data.mid];
+      if (pendingCallback) {
+        delete this._pendingCallbacks[data.mid];
+        pendingCallback.apply(window, data.args);
+      }
+    };
+
+    XDMRPC.prototype.registerRequestNotifier = function registerRequestNotifier(cb) {
+      this._registeredRequestNotifier = cb;
+    };
+
+    XDMRPC.prototype._handleRequest = function _handleRequest(event, reg) {
+      function sendResponse() {
+        var args = util.sanitizeStructuredClone(util.argumentsToArray(arguments));
         event.source.postMessage({
-          type: 'api_tamper',
-          tampered: tampered
+          mid: event.data.mid,
+          type: 'resp',
+          forPlugin: true,
+          args: args
         }, reg.extension.url);
       }
-    }, {
-      key: '_handleInit',
-      value: function _handleInit(event, reg) {
-        this._registeredExtensions[reg.extension_id].source = event.source;
-        if (reg.initCallback) {
-          reg.initCallback(event.data.eid);
-          delete reg.initCallback;
-        }
-        if (event.data.targets) {
-          this._verifyAPI(event, reg);
-        }
-      }
-      // postMessage method to do registerExtension
 
-    }, {
-      key: '_handleSubInit',
-      value: function _handleSubInit(event, reg) {
-        this.registerExtension(event.data.ext.id, {
-          extension: event.data.ext
-        });
-      }
-    }, {
-      key: '_getHostOffset',
-      value: function _getHostOffset(event, _window) {
-        var hostWindow = event.source;
-        var hostFrameOffset = null;
-        var windowReference = _window || window; // For testing
+      var data = event.data;
+      var module = this._registeredAPIModules[data.mod];
+      var extension = this.getRegisteredExtensions(reg.extension)[0];
+      if (module) {
+        var fnName = data.fn;
+        if (data._cls) {
+          var Cls = module[data._cls];
+          var ns = data.mod + '-' + data._cls + '-';
+          sendResponse._id = data._id;
+          if (fnName === 'constructor') {
+            if (!Cls._construct) {
+              Cls.constructor.prototype._destroy = function () {
+                delete this._context._proxies[ns + this._id];
+              };
+              Cls._construct = function () {
+                for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                  args[_key] = arguments[_key];
+                }
 
-        if (windowReference === windowReference.top && typeof windowReference.getHostOffsetFunctionOverride === 'function') {
-          hostFrameOffset = windowReference.getHostOffsetFunctionOverride(hostWindow);
-        }
-
-        if (typeof hostFrameOffset !== 'number') {
-          hostFrameOffset = 0;
-          // Find the closest frame that has the same origin as event source
-          while (!this._hasSameOrigin(hostWindow)) {
-            // Climb up the iframe tree 1 layer
-            hostFrameOffset++;
-            hostWindow = hostWindow.parent;
+                var inst = new (Function.prototype.bind.apply(Cls.constructor, [null].concat(args)))();
+                var callback = args[args.length - 1];
+                inst._id = callback._id;
+                inst._context = callback._context;
+                inst._context._proxies[ns + inst._id] = inst;
+                return inst;
+              };
+            }
+            module = Cls;
+            fnName = '_construct';
+          } else {
+            module = extension._proxies[ns + data._id];
           }
         }
-
-        event.source.postMessage({
-          hostFrameOffset: hostFrameOffset
-        }, event.origin);
-      }
-    }, {
-      key: '_hasSameOrigin',
-      value: function _hasSameOrigin(window) {
-        if (window === window.top) {
-          return true;
-        }
-
-        try {
-          // Try set & read a variable on the given window
-          // If we can successfully read the value then it means the given window has the same origin
-          // as the window that is currently executing the script
-          var testVariableName = 'test_var_' + Math.random().toString(16).substr(2);
-          window[testVariableName] = true;
-          return window[testVariableName];
-        } catch (e) {
-          // A exception will be thrown if the windows doesn't have the same origin
-        }
-
-        return false;
-      }
-    }, {
-      key: '_handleResponse',
-      value: function _handleResponse(event) {
-        var data = event.data;
-        var pendingCallback = this._pendingCallbacks[data.mid];
-        if (pendingCallback) {
-          delete this._pendingCallbacks[data.mid];
-          pendingCallback.apply(window, data.args);
-        }
-      }
-    }, {
-      key: 'registerRequestNotifier',
-      value: function registerRequestNotifier(cb) {
-        this._registeredRequestNotifier = cb;
-      }
-    }, {
-      key: '_handleRequest',
-      value: function _handleRequest(event, reg) {
-        function sendResponse() {
-          var args = util.sanitizeStructuredClone(util.argumentsToArray(arguments));
-          event.source.postMessage({
-            mid: event.data.mid,
-            type: 'resp',
-            forPlugin: true,
-            args: args
-          }, reg.extension.url);
-        }
-
-        var data = event.data;
-        var module = this._registeredAPIModules[data.mod];
-        var extension = this.getRegisteredExtensions(reg.extension)[0];
-        if (module) {
-          var fnName = data.fn;
-          if (data._cls) {
-            var Cls = module[data._cls];
-            var ns = data.mod + '-' + data._cls + '-';
-            sendResponse._id = data._id;
-            if (fnName === 'constructor') {
-              if (!Cls._construct) {
-                Cls.constructor.prototype._destroy = function () {
-                  delete this._context._proxies[ns + this._id];
-                };
-                Cls._construct = function () {
-                  for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-                    args[_key] = arguments[_key];
-                  }
-
-                  var inst = new (Function.prototype.bind.apply(Cls.constructor, [null].concat(args)))();
-                  var callback = args[args.length - 1];
-                  inst._id = callback._id;
-                  inst._context = callback._context;
-                  inst._context._proxies[ns + inst._id] = inst;
-                  return inst;
-                };
-              }
-              module = Cls;
-              fnName = '_construct';
-            } else {
-              module = extension._proxies[ns + data._id];
-            }
+        var method = module[fnName];
+        if (method) {
+          var methodArgs = data.args;
+          var padLength = method.length - 1;
+          if (fnName === '_construct') {
+            padLength = module.constructor.length - 1;
           }
-          var method = module[fnName];
-          if (method) {
-            var methodArgs = data.args;
-            var padLength = method.length - 1;
-            if (fnName === '_construct') {
-              padLength = module.constructor.length - 1;
-            }
-            sendResponse._context = extension;
-            methodArgs = this._padUndefinedArguments(methodArgs, padLength);
-            methodArgs.push(sendResponse);
-            method.apply(module, methodArgs);
+          sendResponse._context = extension;
+          methodArgs = this._padUndefinedArguments(methodArgs, padLength);
+          methodArgs.push(sendResponse);
+          method.apply(module, methodArgs);
 
-            if (this._registeredRequestNotifier) {
-              this._registeredRequestNotifier.call(null, {
-                module: data.mod,
-                fn: data.fn,
-                type: data.type,
-                addon_key: reg.extension.addon_key,
-                key: reg.extension.key,
-                extension_id: reg.extension_id
-              });
-            }
-          }
-        }
-      }
-    }, {
-      key: '_handleBroadcast',
-      value: function _handleBroadcast(event, reg) {
-        var event_data = event.data;
-        var targetSpec = function targetSpec(r) {
-          return r.extension.addon_key === reg.extension.addon_key && r.extension_id !== reg.extension_id;
-        };
-        this.dispatch(event_data.etyp, targetSpec, event_data.evnt, null, null);
-      }
-    }, {
-      key: '_handleKeyTriggered',
-      value: function _handleKeyTriggered(event, reg) {
-        var eventData = event.data;
-        var keycodeEntry = this._keycodeKey(eventData.keycode, eventData.modifiers, reg.extension_id);
-        var listeners = this._keycodeCallbacks[keycodeEntry];
-        if (listeners) {
-          listeners.forEach(function (listener) {
-            listener.call(null, {
+          if (this._registeredRequestNotifier) {
+            this._registeredRequestNotifier.call(null, {
+              module: data.mod,
+              fn: data.fn,
+              type: data.type,
               addon_key: reg.extension.addon_key,
               key: reg.extension.key,
-              extension_id: reg.extension_id,
-              keycode: eventData.keycode,
-              modifiers: eventData.modifiers
+              extension_id: reg.extension_id
             });
-          }, this);
-        }
-      }
-    }, {
-      key: 'defineAPIModule',
-      value: function defineAPIModule(module, moduleName) {
-        moduleName = moduleName || '_globals';
-        this._registeredAPIModules[moduleName] = util.extend({}, this._registeredAPIModules[moduleName] || {}, module);
-        return this._registeredAPIModules;
-      }
-    }, {
-      key: '_fullKey',
-      value: function _fullKey(targetSpec) {
-        var key = targetSpec.addon_key || 'global';
-        if (targetSpec.key) {
-          key = key + '@@' + targetSpec.key;
-        }
-
-        return key;
-      }
-    }, {
-      key: 'queueEvent',
-      value: function queueEvent(type, targetSpec, event, callback) {
-        var loaded_frame,
-            targets = this._findRegistrations(targetSpec);
-
-        loaded_frame = targets.some(function (target) {
-          return target.registered_events !== undefined;
-        }, this);
-
-        if (loaded_frame) {
-          this.dispatch(type, targetSpec, event, callback);
-        } else {
-          this._pendingEvents[this._fullKey(targetSpec)] = {
-            type: type,
-            targetSpec: targetSpec,
-            event: event,
-            callback: callback,
-            time: new Date().getTime(),
-            uid: util.randomString()
-          };
-        }
-      }
-    }, {
-      key: '_handleEventQuery',
-      value: function _handleEventQuery(message, extension) {
-        var _this2 = this;
-
-        var executed = {};
-        var now = new Date().getTime();
-        var keys = Object.keys(this._pendingEvents);
-        keys.forEach(function (index) {
-          var element = _this2._pendingEvents[index];
-          var eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
-          var isSameTarget = !element.targetSpec || _this2._findRegistrations(element.targetSpec).length !== 0;
-
-          if (isSameTarget && element.targetSpec.key) {
-            isSameTarget = element.targetSpec.addon_key === extension.extension.addon_key && element.targetSpec.key === extension.extension.key;
-          }
-
-          if (eventIsValid && isSameTarget) {
-            executed[index] = element;
-            element.targetSpec = element.targetSpec || {};
-            _this2.dispatch(element.type, element.targetSpec, element.event, element.callback, message.source);
-          } else if (!eventIsValid) {
-            delete _this2._pendingEvents[index];
-          }
-        });
-
-        this._registeredExtensions[extension.extension_id].registered_events = message.data.args;
-
-        return executed;
-      }
-    }, {
-      key: '_handleUnload',
-      value: function _handleUnload(event, reg) {
-        if (!reg) {
-          return;
-        }
-
-        if (reg.extension_id && this._registeredExtensions[reg.extension_id]) {
-          delete this._registeredExtensions[reg.extension_id].source;
-        }
-
-        if (reg.unloadCallback) {
-          reg.unloadCallback(event.data.eid);
-        }
-      }
-    }, {
-      key: 'dispatch',
-      value: function dispatch(type, targetSpec, event, callback, source) {
-        function sendEvent(reg, evnt) {
-          if (reg.source && reg.source.postMessage) {
-            var mid;
-            if (callback) {
-              mid = util.randomString();
-              this._pendingCallbacks[mid] = callback;
-            }
-
-            reg.source.postMessage({
-              type: 'evt',
-              mid: mid,
-              etyp: type,
-              evnt: evnt
-            }, reg.extension.url);
           }
         }
-
-        var registrations = this._findRegistrations(targetSpec || {});
-        registrations.forEach(function (reg) {
-          if (source && !reg.source) {
-            reg.source = source;
-          }
-
-          if (reg.source) {
-            util._bind(this, sendEvent)(reg, event);
-          }
-        }, this);
       }
-    }, {
-      key: '_findRegistrations',
-      value: function _findRegistrations(targetSpec) {
-        var _this3 = this;
+    };
 
-        if (this._registeredExtensions.length === 0) {
-          util.error('no registered extensions', this._registeredExtensions);
-          return [];
-        }
-        var keys = Object.getOwnPropertyNames(targetSpec);
-        var registrations = Object.getOwnPropertyNames(this._registeredExtensions).map(function (key) {
-          return _this3._registeredExtensions[key];
-        });
+    XDMRPC.prototype._handleBroadcast = function _handleBroadcast(event, reg) {
+      var event_data = event.data;
+      var targetSpec = function targetSpec(r) {
+        return r.extension.addon_key === reg.extension.addon_key && r.extension_id !== reg.extension_id;
+      };
+      this.dispatch(event_data.etyp, targetSpec, event_data.evnt, null, null);
+    };
 
-        if (targetSpec instanceof Function) {
-          return registrations.filter(targetSpec);
-        } else {
-          return registrations.filter(function (reg) {
-            return keys.every(function (key) {
-              return reg.extension[key] === targetSpec[key];
-            });
+    XDMRPC.prototype._handleKeyTriggered = function _handleKeyTriggered(event, reg) {
+      var eventData = event.data;
+      var keycodeEntry = this._keycodeKey(eventData.keycode, eventData.modifiers, reg.extension_id);
+      var listeners = this._keycodeCallbacks[keycodeEntry];
+      if (listeners) {
+        listeners.forEach(function (listener) {
+          listener.call(null, {
+            addon_key: reg.extension.addon_key,
+            key: reg.extension.key,
+            extension_id: reg.extension_id,
+            keycode: eventData.keycode,
+            modifiers: eventData.modifiers
           });
-        }
+        }, this);
       }
-    }, {
-      key: 'registerExtension',
-      value: function registerExtension(extension_id, data) {
-        data._proxies = {};
-        data.extension_id = extension_id;
-        this._registeredExtensions[extension_id] = data;
-      }
-    }, {
-      key: '_keycodeKey',
-      value: function _keycodeKey(key, modifiers, extension_id) {
-        var code = key;
+    };
 
-        if (modifiers) {
-          if (typeof modifiers === "string") {
-            modifiers = [modifiers];
+    XDMRPC.prototype.defineAPIModule = function defineAPIModule(module, moduleName) {
+      moduleName = moduleName || '_globals';
+      this._registeredAPIModules[moduleName] = util.extend({}, this._registeredAPIModules[moduleName] || {}, module);
+      return this._registeredAPIModules;
+    };
+
+    XDMRPC.prototype._fullKey = function _fullKey(targetSpec) {
+      var key = targetSpec.addon_key || 'global';
+      if (targetSpec.key) {
+        key = key + '@@' + targetSpec.key;
+      }
+
+      return key;
+    };
+
+    XDMRPC.prototype.queueEvent = function queueEvent(type, targetSpec, event, callback) {
+      var loaded_frame,
+          targets = this._findRegistrations(targetSpec);
+
+      loaded_frame = targets.some(function (target) {
+        return target.registered_events !== undefined;
+      }, this);
+
+      if (loaded_frame) {
+        this.dispatch(type, targetSpec, event, callback);
+      } else {
+        this._pendingEvents[this._fullKey(targetSpec)] = {
+          type: type,
+          targetSpec: targetSpec,
+          event: event,
+          callback: callback,
+          time: new Date().getTime(),
+          uid: util.randomString()
+        };
+      }
+    };
+
+    XDMRPC.prototype._handleEventQuery = function _handleEventQuery(message, extension) {
+      var _this2 = this;
+
+      var executed = {};
+      var now = new Date().getTime();
+      var keys = Object.keys(this._pendingEvents);
+      keys.forEach(function (index) {
+        var element = _this2._pendingEvents[index];
+        var eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
+        var isSameTarget = !element.targetSpec || _this2._findRegistrations(element.targetSpec).length !== 0;
+
+        if (isSameTarget && element.targetSpec.key) {
+          isSameTarget = element.targetSpec.addon_key === extension.extension.addon_key && element.targetSpec.key === extension.extension.key;
+        }
+
+        if (eventIsValid && isSameTarget) {
+          executed[index] = element;
+          element.targetSpec = element.targetSpec || {};
+          _this2.dispatch(element.type, element.targetSpec, element.event, element.callback, message.source);
+        } else if (!eventIsValid) {
+          delete _this2._pendingEvents[index];
+        }
+      });
+
+      this._registeredExtensions[extension.extension_id].registered_events = message.data.args;
+
+      return executed;
+    };
+
+    XDMRPC.prototype._handleUnload = function _handleUnload(event, reg) {
+      if (!reg) {
+        return;
+      }
+
+      if (reg.extension_id && this._registeredExtensions[reg.extension_id]) {
+        delete this._registeredExtensions[reg.extension_id].source;
+      }
+
+      if (reg.unloadCallback) {
+        reg.unloadCallback(event.data.eid);
+      }
+    };
+
+    XDMRPC.prototype.dispatch = function dispatch(type, targetSpec, event, callback, source) {
+      function sendEvent(reg, evnt) {
+        if (reg.source && reg.source.postMessage) {
+          var mid;
+          if (callback) {
+            mid = util.randomString();
+            this._pendingCallbacks[mid] = callback;
           }
-          modifiers.sort();
-          modifiers.forEach(function (modifier) {
-            code += '$$' + modifier;
-          }, this);
+
+          reg.source.postMessage({
+            type: 'evt',
+            mid: mid,
+            etyp: type,
+            evnt: evnt
+          }, reg.extension.url);
+        }
+      }
+
+      var registrations = this._findRegistrations(targetSpec || {});
+      registrations.forEach(function (reg) {
+        if (source && !reg.source) {
+          reg.source = source;
         }
 
-        return code + '__' + extension_id;
+        if (reg.source) {
+          util._bind(this, sendEvent)(reg, event);
+        }
+      }, this);
+    };
+
+    XDMRPC.prototype._findRegistrations = function _findRegistrations(targetSpec) {
+      var _this3 = this;
+
+      if (this._registeredExtensions.length === 0) {
+        util.error('no registered extensions', this._registeredExtensions);
+        return [];
       }
-    }, {
-      key: 'registerKeyListener',
-      value: function registerKeyListener(extension_id, key, modifiers, callback) {
+      var keys = Object.getOwnPropertyNames(targetSpec);
+      var registrations = Object.getOwnPropertyNames(this._registeredExtensions).map(function (key) {
+        return _this3._registeredExtensions[key];
+      });
+
+      if (targetSpec instanceof Function) {
+        return registrations.filter(targetSpec);
+      } else {
+        return registrations.filter(function (reg) {
+          return keys.every(function (key) {
+            return reg.extension[key] === targetSpec[key];
+          });
+        });
+      }
+    };
+
+    XDMRPC.prototype.registerExtension = function registerExtension(extension_id, data) {
+      data._proxies = {};
+      data.extension_id = extension_id;
+      this._registeredExtensions[extension_id] = data;
+    };
+
+    XDMRPC.prototype._keycodeKey = function _keycodeKey(key, modifiers, extension_id) {
+      var code = key;
+
+      if (modifiers) {
         if (typeof modifiers === "string") {
           modifiers = [modifiers];
         }
-        var reg = this._registeredExtensions[extension_id];
-        var keycodeEntry = this._keycodeKey(key, modifiers, extension_id);
-        if (!this._keycodeCallbacks[keycodeEntry]) {
-          this._keycodeCallbacks[keycodeEntry] = [];
+        modifiers.sort();
+        modifiers.forEach(function (modifier) {
+          code += '$$' + modifier;
+        }, this);
+      }
+
+      return code + '__' + extension_id;
+    };
+
+    XDMRPC.prototype.registerKeyListener = function registerKeyListener(extension_id, key, modifiers, callback) {
+      if (typeof modifiers === "string") {
+        modifiers = [modifiers];
+      }
+      var reg = this._registeredExtensions[extension_id];
+      var keycodeEntry = this._keycodeKey(key, modifiers, extension_id);
+      if (!this._keycodeCallbacks[keycodeEntry]) {
+        this._keycodeCallbacks[keycodeEntry] = [];
+        reg.source.postMessage({
+          type: 'key_listen',
+          keycode: key,
+          modifiers: modifiers,
+          action: 'add'
+        }, reg.extension.url);
+      }
+      this._keycodeCallbacks[keycodeEntry].push(callback);
+    };
+
+    XDMRPC.prototype.unregisterKeyListener = function unregisterKeyListener(extension_id, key, modifiers, callback) {
+      var keycodeEntry = this._keycodeKey(key, modifiers, extension_id);
+      var potentialCallbacks = this._keycodeCallbacks[keycodeEntry];
+      var reg = this._registeredExtensions[extension_id];
+
+      if (potentialCallbacks) {
+        if (callback) {
+          var index = potentialCallbacks.indexOf(callback);
+          this._keycodeCallbacks[keycodeEntry].splice(index, 1);
+        } else {
+          delete this._keycodeCallbacks[keycodeEntry];
+        }
+        if (reg.source && reg.source.postMessage) {
           reg.source.postMessage({
             type: 'key_listen',
             keycode: key,
             modifiers: modifiers,
-            action: 'add'
+            action: 'remove'
           }, reg.extension.url);
         }
-        this._keycodeCallbacks[keycodeEntry].push(callback);
       }
-    }, {
-      key: 'unregisterKeyListener',
-      value: function unregisterKeyListener(extension_id, key, modifiers, callback) {
-        var keycodeEntry = this._keycodeKey(key, modifiers, extension_id);
-        var potentialCallbacks = this._keycodeCallbacks[keycodeEntry];
-        var reg = this._registeredExtensions[extension_id];
+    };
 
-        if (potentialCallbacks) {
-          if (callback) {
-            var index = potentialCallbacks.indexOf(callback);
-            this._keycodeCallbacks[keycodeEntry].splice(index, 1);
-          } else {
-            delete this._keycodeCallbacks[keycodeEntry];
-          }
-          if (reg.source && reg.source.postMessage) {
-            reg.source.postMessage({
-              type: 'key_listen',
-              keycode: key,
-              modifiers: modifiers,
-              action: 'remove'
-            }, reg.extension.url);
-          }
+    XDMRPC.prototype.getApiSpec = function getApiSpec() {
+      var that = this;
+      function createModule(moduleName) {
+        var module = that._registeredAPIModules[moduleName];
+        if (!module) {
+          throw new Error("unregistered API module: " + moduleName);
         }
+        function getModuleDefinition(mod) {
+          return Object.getOwnPropertyNames(mod).reduce(function (accumulator, memberName) {
+            var member = mod[memberName];
+            switch (typeof member === 'undefined' ? 'undefined' : _typeof(member)) {
+              case 'function':
+                accumulator[memberName] = {
+                  args: util.argumentNames(member)
+                };
+                break;
+              case 'object':
+                if (member.hasOwnProperty('constructor')) {
+                  accumulator[memberName] = getModuleDefinition(member);
+                }
+                break;
+            }
+
+            return accumulator;
+          }, {});
+        }
+        return getModuleDefinition(module);
       }
-    }, {
-      key: 'getApiSpec',
-      value: function getApiSpec() {
-        var that = this;
-        function createModule(moduleName) {
-          var module = that._registeredAPIModules[moduleName];
-          if (!module) {
-            throw new Error("unregistered API module: " + moduleName);
-          }
-          function getModuleDefinition(mod) {
-            return Object.getOwnPropertyNames(mod).reduce(function (accumulator, memberName) {
-              var member = mod[memberName];
-              switch (typeof member === 'undefined' ? 'undefined' : _typeof(member)) {
-                case 'function':
-                  accumulator[memberName] = {
-                    args: util.argumentNames(member)
-                  };
-                  break;
-                case 'object':
-                  if (member.hasOwnProperty('constructor')) {
-                    accumulator[memberName] = getModuleDefinition(member);
-                  }
-                  break;
-              }
+      return Object.getOwnPropertyNames(this._registeredAPIModules).reduce(function (accumulator, moduleName) {
+        accumulator[moduleName] = createModule(moduleName);
+        return accumulator;
+      }, {});
+    };
 
-              return accumulator;
-            }, {});
-          }
-          return getModuleDefinition(module);
-        }
-        return Object.getOwnPropertyNames(this._registeredAPIModules).reduce(function (accumulator, moduleName) {
-          accumulator[moduleName] = createModule(moduleName);
-          return accumulator;
-        }, {});
+    // validate origin of postMessage
+
+
+    XDMRPC.prototype._checkOrigin = function _checkOrigin(event, reg) {
+      var no_source_types = ['init', 'event_query'];
+      var isNoSourceType = reg && !reg.source && no_source_types.indexOf(event.data.type) > -1;
+      var sourceTypeMatches = reg && event.source === reg.source;
+      var hasExtensionUrl = reg && reg.extension.url.indexOf(event.origin) === 0;
+      var isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches);
+
+      // get_host_offset fires before init
+      if (event.data.type === 'get_host_offset' && window === window.top) {
+        isValidOrigin = true;
       }
 
-      // validate origin of postMessage
-
-    }, {
-      key: '_checkOrigin',
-      value: function _checkOrigin(event, reg) {
-        var no_source_types = ['init', 'event_query'];
-        var isNoSourceType = reg && !reg.source && no_source_types.indexOf(event.data.type) > -1;
-        var sourceTypeMatches = reg && event.source === reg.source;
-        var hasExtensionUrl = reg && reg.extension.url.indexOf(event.origin) === 0;
-        var isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches);
-
-        // get_host_offset fires before init
-        if (event.data.type === 'get_host_offset' && window === window.top) {
-          isValidOrigin = true;
-        }
-
-        // check undefined for chromium (Issue 395010)
-        if (event.data.type === 'unload' && (sourceTypeMatches || event.source === undefined)) {
-          isValidOrigin = true;
-        }
-
-        if (!isValidOrigin) {
-          util.warn("Failed to validate origin: " + event.origin);
-        }
-        return isValidOrigin;
+      // check undefined for chromium (Issue 395010)
+      if (event.data.type === 'unload' && (sourceTypeMatches || event.source === undefined)) {
+        isValidOrigin = true;
       }
-    }, {
-      key: 'getRegisteredExtensions',
-      value: function getRegisteredExtensions(filter) {
-        if (filter) {
-          return this._findRegistrations(filter);
-        }
-        return this._registeredExtensions;
+
+      if (!isValidOrigin) {
+        util.warn("Failed to validate origin: " + event.origin);
       }
-    }, {
-      key: 'unregisterExtension',
-      value: function unregisterExtension(filter) {
-        var registrations = this._findRegistrations(filter);
-        if (registrations.length !== 0) {
-          registrations.forEach(function (registration) {
-            var _this4 = this;
+      return isValidOrigin;
+    };
 
-            var keys = Object.keys(this._pendingEvents);
-            keys.forEach(function (index) {
-              var element = _this4._pendingEvents[index];
-              var targetSpec = element.targetSpec || {};
-
-              if (targetSpec.addon_key === registration.extension.addon_key) {
-                delete _this4._pendingEvents[index];
-              }
-            });
-
-            delete this._registeredExtensions[registration.extension_id];
-          }, this);
-        }
+    XDMRPC.prototype.getRegisteredExtensions = function getRegisteredExtensions(filter) {
+      if (filter) {
+        return this._findRegistrations(filter);
       }
-    }]);
+      return this._registeredExtensions;
+    };
+
+    XDMRPC.prototype.unregisterExtension = function unregisterExtension(filter) {
+      var registrations = this._findRegistrations(filter);
+      if (registrations.length !== 0) {
+        registrations.forEach(function (registration) {
+          var _this4 = this;
+
+          var keys = Object.keys(this._pendingEvents);
+          keys.forEach(function (index) {
+            var element = _this4._pendingEvents[index];
+            var targetSpec = element.targetSpec || {};
+
+            if (targetSpec.addon_key === registration.extension.addon_key) {
+              delete _this4._pendingEvents[index];
+            }
+          });
+
+          delete this._registeredExtensions[registration.extension_id];
+        }, this);
+      }
+    };
+
     return XDMRPC;
   }(PostMessage);
 
@@ -960,122 +900,109 @@ var AP = (function () {
      */
 
 
-    createClass(Connect, [{
-      key: 'dispatch',
-      value: function dispatch(type, targetSpec, event, callback) {
-        this._xdm.queueEvent(type, targetSpec, event, callback);
-        return this.getExtensions(targetSpec);
-      }
+    Connect.prototype.dispatch = function dispatch(type, targetSpec, event, callback) {
+      this._xdm.queueEvent(type, targetSpec, event, callback);
+      return this.getExtensions(targetSpec);
+    };
 
-      /**
-       * Send a message to iframes matching the targetSpec immediately. This message will
-       *  only be sent to iframes that are already open, and will not be delivered if none
-       *  are currently open.
-       *
-       * @param type The name of the event type
-       * @param targetSpec The spec to match against extensions when sending this event
-       * @param event The event payload
-       */
+    /**
+     * Send a message to iframes matching the targetSpec immediately. This message will
+     *  only be sent to iframes that are already open, and will not be delivered if none
+     *  are currently open.
+     *
+     * @param type The name of the event type
+     * @param targetSpec The spec to match against extensions when sending this event
+     * @param event The event payload
+     */
 
-    }, {
-      key: 'broadcast',
-      value: function broadcast(type, targetSpec, event) {
-        this._xdm.dispatch(type, targetSpec, event, null, null);
-        return this.getExtensions(targetSpec);
-      }
-    }, {
-      key: '_createId',
-      value: function _createId(extension) {
-        if (!extension.addon_key || !extension.key) {
-          throw Error('Extensions require addon_key and key');
-        }
-        return extension.addon_key + '__' + extension.key + '__' + util.randomString();
-      }
-      /**
-      * Creates a new iframed module, without actually creating the DOM element.
-      * The iframe attributes are passed to the 'setupCallback', which is responsible for creating
-      * the DOM element and returning the window reference.
-      *
-      * @param extension The extension definition. Example:
-      *   {
-      *     addon_key: 'my-addon',
-      *     key: 'my-module',
-      *     url: 'https://example.com/my-module',
-      *     options: {
-      *         autoresize: false,
-      *         hostOrigin: 'https://connect-host.example.com/'
-      *     }
-      *   }
-      *
-      * @param initCallback The optional initCallback is called when the bridge between host and iframe is established.
-      **/
 
-    }, {
-      key: 'create',
-      value: function create(extension, initCallback) {
-        var extension_id = this.registerExtension(extension, initCallback);
-        var options = extension.options || {};
+    Connect.prototype.broadcast = function broadcast(type, targetSpec, event) {
+      this._xdm.dispatch(type, targetSpec, event, null, null);
+      return this.getExtensions(targetSpec);
+    };
 
-        var data = {
-          extension_id: extension_id,
-          api: this._xdm.getApiSpec(),
-          origin: util.locationOrigin(),
-          options: options
-        };
+    Connect.prototype._createId = function _createId(extension) {
+      if (!extension.addon_key || !extension.key) {
+        throw Error('Extensions require addon_key and key');
+      }
+      return extension.addon_key + '__' + extension.key + '__' + util.randomString();
+    };
+    /**
+    * Creates a new iframed module, without actually creating the DOM element.
+    * The iframe attributes are passed to the 'setupCallback', which is responsible for creating
+    * the DOM element and returning the window reference.
+    *
+    * @param extension The extension definition. Example:
+    *   {
+    *     addon_key: 'my-addon',
+    *     key: 'my-module',
+    *     url: 'https://example.com/my-module',
+    *     options: {
+    *         autoresize: false,
+    *         hostOrigin: 'https://connect-host.example.com/'
+    *     }
+    *   }
+    *
+    * @param initCallback The optional initCallback is called when the bridge between host and iframe is established.
+    **/
 
-        return {
-          id: extension_id,
-          name: JSON.stringify(data),
-          src: extension.url
-        };
-      }
-    }, {
-      key: 'registerRequestNotifier',
-      value: function registerRequestNotifier(callback) {
-        this._xdm.registerRequestNotifier(callback);
-      }
-    }, {
-      key: 'registerExtension',
-      value: function registerExtension(extension, initCallback, unloadCallback) {
-        var extension_id = this._createId(extension);
-        this._xdm.registerExtension(extension_id, {
-          extension: extension,
-          initCallback: initCallback,
-          unloadCallback: unloadCallback
-        });
-        return extension_id;
-      }
-    }, {
-      key: 'registerKeyListener',
-      value: function registerKeyListener(extension_id, key, modifiers, callback) {
-        this._xdm.registerKeyListener(extension_id, key, modifiers, callback);
-      }
-    }, {
-      key: 'unregisterKeyListener',
-      value: function unregisterKeyListener(extension_id, key, modifiers, callback) {
-        this._xdm.unregisterKeyListener(extension_id, key, modifiers, callback);
-      }
-    }, {
-      key: 'defineModule',
-      value: function defineModule(moduleName, module, options) {
-        this._xdm.defineAPIModule(module, moduleName, options);
-      }
-    }, {
-      key: 'defineGlobals',
-      value: function defineGlobals(module) {
-        this._xdm.defineAPIModule(module);
-      }
-    }, {
-      key: 'getExtensions',
-      value: function getExtensions(filter) {
-        return this._xdm.getRegisteredExtensions(filter);
-      }
-    }, {
-      key: 'unregisterExtension',
-      value: function unregisterExtension(filter) {
-        return this._xdm.unregisterExtension(filter);
-      }
-    }]);
+
+    Connect.prototype.create = function create(extension, initCallback) {
+      var extension_id = this.registerExtension(extension, initCallback);
+      var options = extension.options || {};
+
+      var data = {
+        extension_id: extension_id,
+        api: this._xdm.getApiSpec(),
+        origin: util.locationOrigin(),
+        options: options
+      };
+
+      return {
+        id: extension_id,
+        name: JSON.stringify(data),
+        src: extension.url
+      };
+    };
+
+    Connect.prototype.registerRequestNotifier = function registerRequestNotifier(callback) {
+      this._xdm.registerRequestNotifier(callback);
+    };
+
+    Connect.prototype.registerExtension = function registerExtension(extension, initCallback, unloadCallback) {
+      var extension_id = this._createId(extension);
+      this._xdm.registerExtension(extension_id, {
+        extension: extension,
+        initCallback: initCallback,
+        unloadCallback: unloadCallback
+      });
+      return extension_id;
+    };
+
+    Connect.prototype.registerKeyListener = function registerKeyListener(extension_id, key, modifiers, callback) {
+      this._xdm.registerKeyListener(extension_id, key, modifiers, callback);
+    };
+
+    Connect.prototype.unregisterKeyListener = function unregisterKeyListener(extension_id, key, modifiers, callback) {
+      this._xdm.unregisterKeyListener(extension_id, key, modifiers, callback);
+    };
+
+    Connect.prototype.defineModule = function defineModule(moduleName, module, options) {
+      this._xdm.defineAPIModule(module, moduleName, options);
+    };
+
+    Connect.prototype.defineGlobals = function defineGlobals(module) {
+      this._xdm.defineAPIModule(module);
+    };
+
+    Connect.prototype.getExtensions = function getExtensions(filter) {
+      return this._xdm.getRegisteredExtensions(filter);
+    };
+
+    Connect.prototype.unregisterExtension = function unregisterExtension(filter) {
+      return this._xdm.unregisterExtension(filter);
+    };
+
     return Connect;
   }();
 
@@ -1199,34 +1126,32 @@ var AP = (function () {
       this.options = {};
     }
 
-    createClass(ConfigurationOptions, [{
-      key: "_flush",
-      value: function _flush() {
-        this.options = {};
-      }
-    }, {
-      key: "get",
-      value: function get(item) {
-        return item ? this.options[item] : this.options;
-      }
-    }, {
-      key: "set",
-      value: function set(data, value) {
-        var _this = this;
+    ConfigurationOptions.prototype._flush = function _flush() {
+      this.options = {};
+    };
 
-        if (!data) {
-          return;
-        }
+    ConfigurationOptions.prototype.get = function get(item) {
+      return item ? this.options[item] : this.options;
+    };
 
-        if (value) {
-          data = defineProperty({}, data, value);
-        }
-        var keys = Object.getOwnPropertyNames(data);
-        keys.forEach(function (key) {
-          _this.options[key] = data[key];
-        }, this);
+    ConfigurationOptions.prototype.set = function set(data, value) {
+      var _this = this;
+
+      if (!data) {
+        return;
       }
-    }]);
+
+      if (value) {
+        var _data;
+
+        data = (_data = {}, _data[data] = value, _data);
+      }
+      var keys = Object.getOwnPropertyNames(data);
+      keys.forEach(function (key) {
+        _this.options[key] = data[key];
+      }, this);
+    };
+
     return ConfigurationOptions;
   }();
 
@@ -1392,45 +1317,41 @@ var AP = (function () {
       this.callback = callback;
     }
 
-    createClass(AutoResizeAction, [{
-      key: '_setVal',
-      value: function _setVal(val, type, time) {
-        this.dimensionStores[type] = this.dimensionStores[type].filter(function (entry) {
-          return time - entry.setAt < 400;
+    AutoResizeAction.prototype._setVal = function _setVal(val, type, time) {
+      this.dimensionStores[type] = this.dimensionStores[type].filter(function (entry) {
+        return time - entry.setAt < 400;
+      });
+      this.dimensionStores[type].push({
+        val: parseInt(val, 10),
+        setAt: time
+      });
+    };
+
+    AutoResizeAction.prototype._isFlicker = function _isFlicker(val, type) {
+      return this.dimensionStores[type].length >= 5;
+    };
+
+    AutoResizeAction.prototype.triggered = function triggered(dimensions) {
+      dimensions = dimensions || size();
+      var now = Date.now();
+      this._setVal(dimensions.w, 'width', now);
+      this._setVal(dimensions.h, 'height', now);
+      var isFlickerWidth = this._isFlicker(dimensions.w, 'width', now);
+      var isFlickerHeight = this._isFlicker(dimensions.h, 'height', now);
+      if (isFlickerWidth) {
+        dimensions.w = "100%";
+        this.resizeError("SIMPLE XDM: auto resize flickering width detected, setting to 100%");
+      }
+      if (isFlickerHeight) {
+        var vals = this.dimensionStores['height'].map(function (x) {
+          return x.val;
         });
-        this.dimensionStores[type].push({
-          val: parseInt(val, 10),
-          setAt: time
-        });
+        dimensions.h = Math.max.apply(null, vals) + 'px';
+        this.resizeError("SIMPLE XDM: auto resize flickering height detected, setting to: " + dimensions.h);
       }
-    }, {
-      key: '_isFlicker',
-      value: function _isFlicker(val, type) {
-        return this.dimensionStores[type].length >= 5;
-      }
-    }, {
-      key: 'triggered',
-      value: function triggered(dimensions) {
-        dimensions = dimensions || size();
-        var now = Date.now();
-        this._setVal(dimensions.w, 'width', now);
-        this._setVal(dimensions.h, 'height', now);
-        var isFlickerWidth = this._isFlicker(dimensions.w, 'width', now);
-        var isFlickerHeight = this._isFlicker(dimensions.h, 'height', now);
-        if (isFlickerWidth) {
-          dimensions.w = "100%";
-          this.resizeError("SIMPLE XDM: auto resize flickering width detected, setting to 100%");
-        }
-        if (isFlickerHeight) {
-          var vals = this.dimensionStores['height'].map(function (x) {
-            return x.val;
-          });
-          dimensions.h = Math.max.apply(null, vals) + 'px';
-          this.resizeError("SIMPLE XDM: auto resize flickering height detected, setting to: " + dimensions.h);
-        }
-        this.callback(dimensions.w, dimensions.h);
-      }
-    }]);
+      this.callback(dimensions.w, dimensions.h);
+    };
+
     return AutoResizeAction;
   }();
 
@@ -1439,67 +1360,61 @@ var AP = (function () {
       classCallCheck(this, ConsumerOptions);
     }
 
-    createClass(ConsumerOptions, [{
-      key: "_elementExists",
-      value: function _elementExists($el) {
-        return $el && $el.length === 1;
-      }
-    }, {
-      key: "_elementOptions",
-      value: function _elementOptions($el) {
-        return $el.attr("data-options");
-      }
-    }, {
-      key: "_getConsumerOptions",
-      value: function _getConsumerOptions() {
-        var options = {},
-            $optionElement = $("#ac-iframe-options"),
-            $scriptElement = $("script[src*='/atlassian-connect/all']");
+    ConsumerOptions.prototype._elementExists = function _elementExists($el) {
+      return $el && $el.length === 1;
+    };
 
-        if (!this._elementExists($optionElement) || !this._elementOptions($optionElement)) {
-          if (this._elementExists($scriptElement)) {
-            $optionElement = $scriptElement;
-          }
+    ConsumerOptions.prototype._elementOptions = function _elementOptions($el) {
+      return $el.attr("data-options");
+    };
+
+    ConsumerOptions.prototype._getConsumerOptions = function _getConsumerOptions() {
+      var options = {},
+          $optionElement = $("#ac-iframe-options"),
+          $scriptElement = $("script[src*='/atlassian-connect/all']");
+
+      if (!this._elementExists($optionElement) || !this._elementOptions($optionElement)) {
+        if (this._elementExists($scriptElement)) {
+          $optionElement = $scriptElement;
         }
+      }
 
-        if (this._elementExists($optionElement)) {
-          // get its data-options attribute, if any
-          var optStr = this._elementOptions($optionElement);
-          if (optStr) {
-            // if found, parse the value into kv pairs following the format of a style element
-            optStr.split(";").forEach(function (nvpair) {
-              nvpair = nvpair.trim();
-              if (nvpair) {
-                var nv = nvpair.split(":"),
-                    k = nv[0].trim(),
-                    v = nv[1].trim();
-                if (k && v != null) {
-                  options[k] = v === "true" || v === "false" ? v === "true" : v;
-                }
+      if (this._elementExists($optionElement)) {
+        // get its data-options attribute, if any
+        var optStr = this._elementOptions($optionElement);
+        if (optStr) {
+          // if found, parse the value into kv pairs following the format of a style element
+          optStr.split(";").forEach(function (nvpair) {
+            nvpair = nvpair.trim();
+            if (nvpair) {
+              var nv = nvpair.split(":"),
+                  k = nv[0].trim(),
+                  v = nv[1].trim();
+              if (k && v != null) {
+                options[k] = v === "true" || v === "false" ? v === "true" : v;
               }
-            });
-          }
+            }
+          });
         }
+      }
 
-        return options;
+      return options;
+    };
+
+    ConsumerOptions.prototype._flush = function _flush() {
+      delete this._options;
+    };
+
+    ConsumerOptions.prototype.get = function get(key) {
+      if (!this._options) {
+        this._options = this._getConsumerOptions();
       }
-    }, {
-      key: "_flush",
-      value: function _flush() {
-        delete this._options;
+      if (key) {
+        return this._options[key];
       }
-    }, {
-      key: "get",
-      value: function get(key) {
-        if (!this._options) {
-          this._options = this._getConsumerOptions();
-        }
-        if (key) {
-          return this._options[key];
-        }
-        return this._options;
-      }
-    }]);
+      return this._options;
+    };
+
     return ConsumerOptions;
   }();
 
@@ -1513,7 +1428,7 @@ var AP = (function () {
     function AP(options) {
       classCallCheck(this, AP);
 
-      var _this = possibleConstructorReturn(this, (AP.__proto__ || Object.getPrototypeOf(AP)).call(this));
+      var _this = possibleConstructorReturn(this, _PostMessage.call(this));
 
       ConfigurationOptions$1.set(options);
       _this._data = _this._parseInitData();
@@ -1531,7 +1446,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.1";
+      _this._version = "5.0.2";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
@@ -1576,428 +1491,399 @@ var AP = (function () {
       return _this;
     }
 
-    createClass(AP, [{
-      key: '_getHostFrame',
-      value: function _getHostFrame(offset) {
-        // Climb up the iframe tree to find the real host
-        if (offset && typeof offset === 'number') {
-          var hostFrame = window;
-          for (var i = 0; i < offset; i++) {
-            hostFrame = hostFrame.parent;
-          }
-          return hostFrame;
-        } else {
-          return this._top;
+    AP.prototype._getHostFrame = function _getHostFrame(offset) {
+      // Climb up the iframe tree to find the real host
+      if (offset && typeof offset === 'number') {
+        var hostFrame = window;
+        for (var i = 0; i < offset; i++) {
+          hostFrame = hostFrame.parent;
         }
+        return hostFrame;
+      } else {
+        return this._top;
       }
-    }, {
-      key: '_verifyHostFrameOffset',
-      value: function _verifyHostFrameOffset() {
-        var _this2 = this;
+    };
 
-        // Asynchronously verify the host frame option with this._top
-        var callback = function callback(e) {
-          if (e.source === _this2._top && e.data && typeof e.data.hostFrameOffset === 'number') {
-            window.removeEventListener('message', callback);
+    AP.prototype._verifyHostFrameOffset = function _verifyHostFrameOffset() {
+      var _this2 = this;
 
-            if (_this2._getHostFrame(e.data.hostFrameOffset) !== _this2._topHost) {
-              util.error('hostFrameOffset tampering detected, setting host frame to top window');
-              _this2._topHost = _this2._top;
-            }
+      // Asynchronously verify the host frame option with this._top
+      var callback = function callback(e) {
+        if (e.source === _this2._top && e.data && typeof e.data.hostFrameOffset === 'number') {
+          window.removeEventListener('message', callback);
+
+          if (_this2._getHostFrame(e.data.hostFrameOffset) !== _this2._topHost) {
+            util.error('hostFrameOffset tampering detected, setting host frame to top window');
+            _this2._topHost = _this2._top;
           }
-        };
-        window.addEventListener('message', callback);
+        }
+      };
+      window.addEventListener('message', callback);
 
-        this._top.postMessage({
-          type: 'get_host_offset'
-        }, this._hostOrigin);
+      this._top.postMessage({
+        type: 'get_host_offset'
+      }, this._hostOrigin);
+    };
+
+    AP.prototype._handleApiTamper = function _handleApiTamper(event) {
+      if (event.data.tampered !== false) {
+        this._host = undefined;
+        this._apiTampered = true;
+        util.error('XDM API tampering detected, api disabled');
+      } else {
+        this._apiTampered = false;
+        this._onConfirmedFns.forEach(function (cb) {
+          cb.apply(null);
+        });
       }
-    }, {
-      key: '_handleApiTamper',
-      value: function _handleApiTamper(event) {
-        if (event.data.tampered !== false) {
-          this._host = undefined;
-          this._apiTampered = true;
-          util.error('XDM API tampering detected, api disabled');
+      this._onConfirmedFns = [];
+    };
+
+    AP.prototype._registerOnUnload = function _registerOnUnload() {
+      $.bind(window, 'unload', util._bind(this, function () {
+        this._sendUnload(this._host, this._data.origin);
+        this._sendUnload(this._topHost, this._hostOrigin);
+      }));
+    };
+
+    AP.prototype._sendUnload = function _sendUnload(frame, origin) {
+      frame.postMessage({
+        eid: this._data.extension_id,
+        type: 'unload'
+      }, origin || '*');
+    };
+
+    AP.prototype._bindKeyDown = function _bindKeyDown() {
+      if (!this._isKeyDownBound) {
+        $.bind(window, 'keydown', util._bind(this, this._handleKeyDownDomEvent));
+        this._isKeyDownBound = true;
+      }
+    };
+
+    AP.prototype._autoResizer = function _autoResizer() {
+      this._enableAutoResize = Boolean(ConfigurationOptions$1.get('autoresize'));
+      if (ConsumerOptions$1.get('resize') === false || ConsumerOptions$1.get('sizeToParent') === true) {
+        this._enableAutoResize = false;
+      }
+      if (this._enableAutoResize) {
+        this._initResize();
+      }
+    };
+
+    /**
+    * The initialization data is passed in when the iframe is created as its 'name' attribute.
+    * Example:
+    * {
+    *   extension_id: The ID of this iframe as defined by the host
+    *   origin: 'https://example.org'  // The parent's window origin
+    *   api: {
+    *     _globals: { ... },
+    *     messages = {
+    *       clear: {},
+    *       ...
+    *     },
+    *     ...
+    *   }
+    * }
+    **/
+
+
+    AP.prototype._parseInitData = function _parseInitData(data) {
+      try {
+        return JSON.parse(data || window.name);
+      } catch (e) {
+        return {};
+      }
+    };
+
+    AP.prototype._findTarget = function _findTarget(moduleName, methodName) {
+      return this._data.options && this._data.options.targets && this._data.options.targets[moduleName] && this._data.options.targets[moduleName][methodName] ? this._data.options.targets[moduleName][methodName] : 'top';
+    };
+
+    AP.prototype._createModule = function _createModule(moduleName, api) {
+      var _this3 = this;
+
+      return Object.getOwnPropertyNames(api).reduce(function (accumulator, memberName) {
+        var member = api[memberName];
+        if (member.hasOwnProperty('constructor')) {
+          accumulator[memberName] = _this3._createProxy(moduleName, member, memberName);
         } else {
-          this._apiTampered = false;
-          this._onConfirmedFns.forEach(function (cb) {
-            cb.apply(null);
+          accumulator[memberName] = _this3._createMethodHandler({
+            mod: moduleName,
+            fn: memberName
           });
         }
-        this._onConfirmedFns = [];
-      }
-    }, {
-      key: '_registerOnUnload',
-      value: function _registerOnUnload() {
-        $.bind(window, 'unload', util._bind(this, function () {
-          this._sendUnload(this._host, this._data.origin);
-          this._sendUnload(this._topHost, this._hostOrigin);
-        }));
-      }
-    }, {
-      key: '_sendUnload',
-      value: function _sendUnload(frame, origin) {
-        frame.postMessage({
-          eid: this._data.extension_id,
-          type: 'unload'
-        }, origin || '*');
-      }
-    }, {
-      key: '_bindKeyDown',
-      value: function _bindKeyDown() {
-        if (!this._isKeyDownBound) {
-          $.bind(window, 'keydown', util._bind(this, this._handleKeyDownDomEvent));
-          this._isKeyDownBound = true;
+        return accumulator;
+      }, {});
+    };
+
+    AP.prototype._setupAPI = function _setupAPI(api) {
+      var _this4 = this;
+
+      this._hostModules = Object.getOwnPropertyNames(api).reduce(function (accumulator, moduleName) {
+        accumulator[moduleName] = _this4._createModule(moduleName, api[moduleName], api[moduleName]._options);
+        return accumulator;
+      }, {});
+
+      Object.getOwnPropertyNames(this._hostModules._globals || {}).forEach(function (global) {
+        _this4[global] = _this4._hostModules._globals[global];
+      });
+    };
+
+    AP.prototype._setupAPIWithoutRequire = function _setupAPIWithoutRequire(api) {
+      var _this5 = this;
+
+      Object.getOwnPropertyNames(api).forEach(function (moduleName) {
+        if (typeof _this5[moduleName] !== "undefined") {
+          throw new Error('XDM module: ' + moduleName + ' will collide with existing variable');
         }
-      }
-    }, {
-      key: '_autoResizer',
-      value: function _autoResizer() {
-        this._enableAutoResize = Boolean(ConfigurationOptions$1.get('autoresize'));
-        if (ConsumerOptions$1.get('resize') === false || ConsumerOptions$1.get('sizeToParent') === true) {
-          this._enableAutoResize = false;
+        _this5[moduleName] = _this5._createModule(moduleName, api[moduleName]);
+      }, this);
+    };
+
+    AP.prototype._pendingCallback = function _pendingCallback(mid, fn) {
+      this._pendingCallbacks[mid] = fn;
+    };
+
+    AP.prototype._createProxy = function _createProxy(moduleName, api, className) {
+      var module = this._createModule(moduleName, api);
+      function Cls(args) {
+        if (!(this instanceof Cls)) {
+          return new Cls(arguments);
         }
-        if (this._enableAutoResize) {
-          this._initResize();
+        this._cls = className;
+        this._id = util.randomString();
+        module.constructor.apply(this, args);
+        return this;
+      }
+      Object.getOwnPropertyNames(module).forEach(function (methodName) {
+        if (methodName !== 'constructor') {
+          Cls.prototype[methodName] = module[methodName];
         }
-      }
+      });
+      return Cls;
+    };
 
-      /**
-      * The initialization data is passed in when the iframe is created as its 'name' attribute.
-      * Example:
-      * {
-      *   extension_id: The ID of this iframe as defined by the host
-      *   origin: 'https://example.org'  // The parent's window origin
-      *   api: {
-      *     _globals: { ... },
-      *     messages = {
-      *       clear: {},
-      *       ...
-      *     },
-      *     ...
-      *   }
-      * }
-      **/
+    AP.prototype._createMethodHandler = function _createMethodHandler(methodData) {
+      var that = this;
+      return function () {
+        var args = util.argumentsToArray(arguments);
+        var data = {
+          eid: that._data.extension_id,
+          type: 'req',
+          mod: methodData.mod,
+          fn: methodData.fn
+        };
 
-    }, {
-      key: '_parseInitData',
-      value: function _parseInitData(data) {
-        try {
-          return JSON.parse(data || window.name);
-        } catch (e) {
-          return {};
+        var targetOrigin;
+        var target;
+        if (that._findTarget(methodData.mod, methodData.fn) === 'top') {
+          target = that._topHost;
+          targetOrigin = that._hostOrigin;
+        } else {
+          target = that._host;
+          targetOrigin = that._data.origin;
         }
-      }
-    }, {
-      key: '_findTarget',
-      value: function _findTarget(moduleName, methodName) {
-        return this._data.options && this._data.options.targets && this._data.options.targets[moduleName] && this._data.options.targets[moduleName][methodName] ? this._data.options.targets[moduleName][methodName] : 'top';
-      }
-    }, {
-      key: '_createModule',
-      value: function _createModule(moduleName, api) {
-        var _this3 = this;
-
-        return Object.getOwnPropertyNames(api).reduce(function (accumulator, memberName) {
-          var member = api[memberName];
-          if (member.hasOwnProperty('constructor')) {
-            accumulator[memberName] = _this3._createProxy(moduleName, member, memberName);
-          } else {
-            accumulator[memberName] = _this3._createMethodHandler({
-              mod: moduleName,
-              fn: memberName
-            });
-          }
-          return accumulator;
-        }, {});
-      }
-    }, {
-      key: '_setupAPI',
-      value: function _setupAPI(api) {
-        var _this4 = this;
-
-        this._hostModules = Object.getOwnPropertyNames(api).reduce(function (accumulator, moduleName) {
-          accumulator[moduleName] = _this4._createModule(moduleName, api[moduleName], api[moduleName]._options);
-          return accumulator;
-        }, {});
-
-        Object.getOwnPropertyNames(this._hostModules._globals || {}).forEach(function (global) {
-          _this4[global] = _this4._hostModules._globals[global];
-        });
-      }
-    }, {
-      key: '_setupAPIWithoutRequire',
-      value: function _setupAPIWithoutRequire(api) {
-        var _this5 = this;
-
-        Object.getOwnPropertyNames(api).forEach(function (moduleName) {
-          if (typeof _this5[moduleName] !== "undefined") {
-            throw new Error('XDM module: ' + moduleName + ' will collide with existing variable');
-          }
-          _this5[moduleName] = _this5._createModule(moduleName, api[moduleName]);
-        }, this);
-      }
-    }, {
-      key: '_pendingCallback',
-      value: function _pendingCallback(mid, fn) {
-        this._pendingCallbacks[mid] = fn;
-      }
-    }, {
-      key: '_createProxy',
-      value: function _createProxy(moduleName, api, className) {
-        var module = this._createModule(moduleName, api);
-        function Cls(args) {
-          if (!(this instanceof Cls)) {
-            return new Cls(arguments);
-          }
-          this._cls = className;
-          this._id = util.randomString();
-          module.constructor.apply(this, args);
-          return this;
+        if (util.hasCallback(args)) {
+          data.mid = util.randomString();
+          that._pendingCallback(data.mid, args.pop());
         }
-        Object.getOwnPropertyNames(module).forEach(function (methodName) {
-          if (methodName !== 'constructor') {
-            Cls.prototype[methodName] = module[methodName];
-          }
-        });
-        return Cls;
-      }
-    }, {
-      key: '_createMethodHandler',
-      value: function _createMethodHandler(methodData) {
-        var that = this;
-        return function () {
-          var args = util.argumentsToArray(arguments);
-          var data = {
-            eid: that._data.extension_id,
-            type: 'req',
-            mod: methodData.mod,
-            fn: methodData.fn
-          };
+        if (this && this._cls) {
+          data._cls = this._cls;
+          data._id = this._id;
+        }
+        data.args = util.sanitizeStructuredClone(args);
 
-          var targetOrigin;
-          var target;
-          if (that._findTarget(methodData.mod, methodData.fn) === 'top') {
-            target = that._topHost;
-            targetOrigin = that._hostOrigin;
-          } else {
-            target = that._host;
-            targetOrigin = that._data.origin;
-          }
-          if (util.hasCallback(args)) {
-            data.mid = util.randomString();
-            that._pendingCallback(data.mid, args.pop());
-          }
-          if (this && this._cls) {
-            data._cls = this._cls;
-            data._id = this._id;
-          }
-          data.args = util.sanitizeStructuredClone(args);
-
-          if (that._isSubIframe && typeof that._apiTampered === 'undefined') {
-            that._onConfirmedFns.push(function () {
-              target.postMessage(data, targetOrigin);
-            });
-          } else {
+        if (that._isSubIframe && typeof that._apiTampered === 'undefined') {
+          that._onConfirmedFns.push(function () {
             target.postMessage(data, targetOrigin);
-          }
-        };
-      }
-    }, {
-      key: '_handleResponse',
-      value: function _handleResponse(event) {
-        var data = event.data;
+          });
+        } else {
+          target.postMessage(data, targetOrigin);
+        }
+      };
+    };
 
-        if (!data.forPlugin) {
-          return;
-        }
+    AP.prototype._handleResponse = function _handleResponse(event) {
+      var data = event.data;
 
-        var pendingCallback = this._pendingCallbacks[data.mid];
-        if (pendingCallback) {
-          delete this._pendingCallbacks[data.mid];
-          try {
-            pendingCallback.apply(window, data.args);
-          } catch (e) {
-            util.error(e.message, e.stack);
-          }
-        }
+      if (!data.forPlugin) {
+        return;
       }
-    }, {
-      key: '_handleEvent',
-      value: function _handleEvent(event) {
-        var sendResponse = function sendResponse() {
-          var args = util.argumentsToArray(arguments);
-          event.source.postMessage({
-            eid: this._data.extension_id,
-            mid: event.data.mid,
-            type: 'resp',
-            args: args
-          }, this._data.origin);
-        };
-        var data = event.data;
-        sendResponse = util._bind(this, sendResponse);
-        sendResponse._context = {
-          eventName: data.etyp
-        };
-        function toArray$$1(handlers) {
-          if (handlers) {
-            if (!Array.isArray(handlers)) {
-              handlers = [handlers];
-            }
-            return handlers;
-          }
-          return [];
-        }
-        var handlers = toArray$$1(this._eventHandlers[data.etyp]);
-        handlers = handlers.concat(toArray$$1(this._eventHandlers._any));
-        handlers.forEach(function (handler) {
-          try {
-            handler(data.evnt, sendResponse);
-          } catch (e) {
-            util.error('exception thrown in event callback for:' + data.etyp);
-          }
-        }, this);
-        if (data.mid) {
-          sendResponse();
-        }
-      }
-    }, {
-      key: '_handleKeyDownDomEvent',
-      value: function _handleKeyDownDomEvent(event) {
-        var modifiers = [];
-        POSSIBLE_MODIFIER_KEYS.forEach(function (modifierKey) {
-          if (event[modifierKey + 'Key']) {
-            modifiers.push(modifierKey);
-          }
-        }, this);
-        var keyListenerId = this._keyListenerId(event.keyCode, modifiers);
-        var requestedKey = this._keyListeners.indexOf(keyListenerId);
-        if (requestedKey >= 0) {
-          this._host.postMessage({
-            eid: this._data.extension_id,
-            keycode: event.keyCode,
-            modifiers: modifiers,
-            type: 'key_triggered'
-          }, this._data.origin);
-        }
-      }
-    }, {
-      key: '_keyListenerId',
-      value: function _keyListenerId(keycode, modifiers) {
-        var keyListenerId = keycode;
-        if (modifiers) {
-          if (typeof modifiers === "string") {
-            modifiers = [modifiers];
-          }
-          modifiers.sort();
-          modifiers.forEach(function (modifier) {
-            keyListenerId += '$$' + modifier;
-          }, this);
-        }
-        return keyListenerId;
-      }
-    }, {
-      key: '_handleKeyListen',
-      value: function _handleKeyListen(postMessageEvent) {
-        var keyListenerId = this._keyListenerId(postMessageEvent.data.keycode, postMessageEvent.data.modifiers);
-        if (postMessageEvent.data.action === "remove") {
-          var index = this._keyListeners.indexOf(keyListenerId);
-          this._keyListeners.splice(index, 1);
-        } else if (postMessageEvent.data.action === "add") {
-          // only bind onKeyDown once a key is registered.
-          this._bindKeyDown();
-          this._keyListeners.push(keyListenerId);
-        }
-      }
-    }, {
-      key: '_checkOrigin',
-      value: function _checkOrigin(event) {
-        var no_source_types = ['api_tamper'];
-        if (event.data && no_source_types.indexOf(event.data.type) > -1) {
-          return true;
-        }
 
-        if (this._isSubIframe && event.source === this._topHost) {
-          return true;
+      var pendingCallback = this._pendingCallbacks[data.mid];
+      if (pendingCallback) {
+        delete this._pendingCallbacks[data.mid];
+        try {
+          pendingCallback.apply(window, data.args);
+        } catch (e) {
+          util.error(e.message, e.stack);
         }
-
-        return event.origin === this._data.origin && event.source === this._host;
       }
-    }, {
-      key: '_sendInit',
-      value: function _sendInit(frame, origin) {
-        var targets;
-        if (frame === this._topHost && this._topHost !== window.parent) {
-          targets = ConfigurationOptions$1.get('targets');
-        }
+    };
 
-        frame.postMessage({
+    AP.prototype._handleEvent = function _handleEvent(event) {
+      var sendResponse = function sendResponse() {
+        var args = util.argumentsToArray(arguments);
+        event.source.postMessage({
           eid: this._data.extension_id,
-          type: 'init',
-          targets: targets
-        }, origin || '*');
-      }
-    }, {
-      key: 'sendSubCreate',
-      value: function sendSubCreate(extension_id, options) {
-        options.id = extension_id;
-        this._topHost.postMessage({
-          eid: this._data.extension_id,
-          type: 'sub',
-          ext: options
-        }, this._hostOrigin);
-      }
-    }, {
-      key: 'broadcast',
-      value: function broadcast(event, evnt) {
-        if (!util.isString(event)) {
-          throw new Error("Event type must be string");
+          mid: event.data.mid,
+          type: 'resp',
+          args: args
+        }, this._data.origin);
+      };
+      var data = event.data;
+      sendResponse = util._bind(this, sendResponse);
+      sendResponse._context = {
+        eventName: data.etyp
+      };
+      function toArray$$1(handlers) {
+        if (handlers) {
+          if (!Array.isArray(handlers)) {
+            handlers = [handlers];
+          }
+          return handlers;
         }
+        return [];
+      }
+      var handlers = toArray$$1(this._eventHandlers[data.etyp]);
+      handlers = handlers.concat(toArray$$1(this._eventHandlers._any));
+      handlers.forEach(function (handler) {
+        try {
+          handler(data.evnt, sendResponse);
+        } catch (e) {
+          util.error('exception thrown in event callback for:' + data.etyp);
+        }
+      }, this);
+      if (data.mid) {
+        sendResponse();
+      }
+    };
 
+    AP.prototype._handleKeyDownDomEvent = function _handleKeyDownDomEvent(event) {
+      var modifiers = [];
+      POSSIBLE_MODIFIER_KEYS.forEach(function (modifierKey) {
+        if (event[modifierKey + 'Key']) {
+          modifiers.push(modifierKey);
+        }
+      }, this);
+      var keyListenerId = this._keyListenerId(event.keyCode, modifiers);
+      var requestedKey = this._keyListeners.indexOf(keyListenerId);
+      if (requestedKey >= 0) {
         this._host.postMessage({
           eid: this._data.extension_id,
-          type: 'broadcast',
-          etyp: event,
-          evnt: evnt
+          keycode: event.keyCode,
+          modifiers: modifiers,
+          type: 'key_triggered'
         }, this._data.origin);
       }
-    }, {
-      key: 'require',
-      value: function require(modules, callback) {
-        var _this6 = this;
+    };
 
-        var requiredModules = Array.isArray(modules) ? modules : [modules],
-            args = requiredModules.map(function (module) {
-          return _this6._hostModules[module] || _this6._hostModules._globals[module];
-        });
-        callback.apply(window, args);
-      }
-    }, {
-      key: 'register',
-      value: function register(handlers) {
-        if ((typeof handlers === 'undefined' ? 'undefined' : _typeof(handlers)) === "object") {
-          this._eventHandlers = _extends({}, this._eventHandlers, handlers) || {};
-          this._host.postMessage({
-            eid: this._data.extension_id,
-            type: 'event_query',
-            args: Object.getOwnPropertyNames(handlers)
-          }, this._data.origin);
+    AP.prototype._keyListenerId = function _keyListenerId(keycode, modifiers) {
+      var keyListenerId = keycode;
+      if (modifiers) {
+        if (typeof modifiers === "string") {
+          modifiers = [modifiers];
         }
+        modifiers.sort();
+        modifiers.forEach(function (modifier) {
+          keyListenerId += '$$' + modifier;
+        }, this);
       }
-    }, {
-      key: 'registerAny',
-      value: function registerAny(handlers) {
-        this.register({ '_any': handlers });
+      return keyListenerId;
+    };
+
+    AP.prototype._handleKeyListen = function _handleKeyListen(postMessageEvent) {
+      var keyListenerId = this._keyListenerId(postMessageEvent.data.keycode, postMessageEvent.data.modifiers);
+      if (postMessageEvent.data.action === "remove") {
+        var index = this._keyListeners.indexOf(keyListenerId);
+        this._keyListeners.splice(index, 1);
+      } else if (postMessageEvent.data.action === "add") {
+        // only bind onKeyDown once a key is registered.
+        this._bindKeyDown();
+        this._keyListeners.push(keyListenerId);
       }
-    }, {
-      key: '_initResize',
-      value: function _initResize() {
-        this.resize();
-        var autoresize = new AutoResizeAction(this.resize);
-        resizeListener.add(util._bind(autoresize, autoresize.triggered));
+    };
+
+    AP.prototype._checkOrigin = function _checkOrigin(event) {
+      var no_source_types = ['api_tamper'];
+      if (event.data && no_source_types.indexOf(event.data.type) > -1) {
+        return true;
       }
-    }]);
+
+      if (this._isSubIframe && event.source === this._topHost) {
+        return true;
+      }
+
+      return event.origin === this._data.origin && event.source === this._host;
+    };
+
+    AP.prototype._sendInit = function _sendInit(frame, origin) {
+      var targets;
+      if (frame === this._topHost && this._topHost !== window.parent) {
+        targets = ConfigurationOptions$1.get('targets');
+      }
+
+      frame.postMessage({
+        eid: this._data.extension_id,
+        type: 'init',
+        targets: targets
+      }, origin || '*');
+    };
+
+    AP.prototype.sendSubCreate = function sendSubCreate(extension_id, options) {
+      options.id = extension_id;
+      this._topHost.postMessage({
+        eid: this._data.extension_id,
+        type: 'sub',
+        ext: options
+      }, this._hostOrigin);
+    };
+
+    AP.prototype.broadcast = function broadcast(event, evnt) {
+      if (!util.isString(event)) {
+        throw new Error("Event type must be string");
+      }
+
+      this._host.postMessage({
+        eid: this._data.extension_id,
+        type: 'broadcast',
+        etyp: event,
+        evnt: evnt
+      }, this._data.origin);
+    };
+
+    AP.prototype.require = function require(modules, callback) {
+      var _this6 = this;
+
+      var requiredModules = Array.isArray(modules) ? modules : [modules],
+          args = requiredModules.map(function (module) {
+        return _this6._hostModules[module] || _this6._hostModules._globals[module];
+      });
+      callback.apply(window, args);
+    };
+
+    AP.prototype.register = function register(handlers) {
+      if ((typeof handlers === 'undefined' ? 'undefined' : _typeof(handlers)) === "object") {
+        this._eventHandlers = _extends({}, this._eventHandlers, handlers) || {};
+        this._host.postMessage({
+          eid: this._data.extension_id,
+          type: 'event_query',
+          args: Object.getOwnPropertyNames(handlers)
+        }, this._data.origin);
+      }
+    };
+
+    AP.prototype.registerAny = function registerAny(handlers) {
+      this.register({ '_any': handlers });
+    };
+
+    AP.prototype._initResize = function _initResize() {
+      this.resize();
+      var autoresize = new AutoResizeAction(this.resize);
+      resizeListener.add(util._bind(autoresize, autoresize.triggered));
+    };
+
     return AP;
   }(PostMessage);
 
@@ -2007,7 +1893,7 @@ var AP = (function () {
     function Combined() {
       classCallCheck(this, Combined);
 
-      var _this = possibleConstructorReturn(this, (Combined.__proto__ || Object.getPrototypeOf(Combined)).call(this));
+      var _this = possibleConstructorReturn(this, _Host.call(this));
 
       _this.parentTargets = { _globals: {} };
       var plugin = new AP$3();
@@ -2306,216 +2192,208 @@ var AP = (function () {
       this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
     }
 
-    createClass(Events, [{
-      key: '_anyListener',
-      value: function _anyListener(data, callback) {
-        var eventName = callback._context.eventName;
-        var any = this._events[this.ANY_PREFIX] || [];
-        var byName = this._events[eventName] || [];
+    Events.prototype._anyListener = function _anyListener(data, callback) {
+      var eventName = callback._context.eventName;
+      var any = this._events[this.ANY_PREFIX] || [];
+      var byName = this._events[eventName] || [];
 
-        if (!Array.isArray(data)) {
-          data = [data];
-        }
+      if (!Array.isArray(data)) {
+        data = [data];
+      }
 
-        any.forEach(function (handler) {
-          //clone data before modifying
-          var args = data.slice(0);
-          args.unshift(eventName);
-          args.push({
-            args: data,
-            name: eventName
-          });
-          handler.apply(null, args);
+      any.forEach(function (handler) {
+        //clone data before modifying
+        var args = data.slice(0);
+        args.unshift(eventName);
+        args.push({
+          args: data,
+          name: eventName
         });
+        handler.apply(null, args);
+      });
 
-        byName.forEach(function (handler) {
-          handler.apply(null, data);
-        });
-      }
-    }, {
-      key: 'off',
-      value: function off(name, listener) {
-        if (this._events[name]) {
-          var index = this._events[name].indexOf(listener);
-          if (index > -1) {
-            this._events[name].splice(index, 1);
-          }
-          if (this._events[name].length === 0) {
-            delete this._events[name];
-          }
+      byName.forEach(function (handler) {
+        handler.apply(null, data);
+      });
+    };
+
+    Events.prototype.off = function off(name, listener) {
+      if (this._events[name]) {
+        var index = this._events[name].indexOf(listener);
+        if (index > -1) {
+          this._events[name].splice(index, 1);
+        }
+        if (this._events[name].length === 0) {
+          delete this._events[name];
         }
       }
-    }, {
-      key: 'offAll',
-      value: function offAll(name) {
-        delete this._events[name];
+    };
+
+    Events.prototype.offAll = function offAll(name) {
+      delete this._events[name];
+    };
+
+    Events.prototype.offAny = function offAny(listener) {
+      this.off(this.ANY_PREFIX, listener);
+    };
+
+    Events.prototype.on = function on(name, listener) {
+      if (!this._events[name]) {
+        this._events[name] = [];
       }
-    }, {
-      key: 'offAny',
-      value: function offAny(listener) {
-        this.off(this.ANY_PREFIX, listener);
+      this._events[name].push(listener);
+    };
+
+    Events.prototype.onAny = function onAny(listener) {
+      this.on(this.ANY_PREFIX, listener);
+    };
+
+    Events.prototype.once = function once(name, listener) {
+      var _that = this;
+      function runOnce() {
+        listener.apply(null, arguments);
+        _that.off(name, runOnce);
       }
-    }, {
-      key: 'on',
-      value: function on(name, listener) {
-        if (!this._events[name]) {
-          this._events[name] = [];
-        }
-        this._events[name].push(listener);
-      }
-    }, {
-      key: 'onAny',
-      value: function onAny(listener) {
-        this.on(this.ANY_PREFIX, listener);
-      }
-    }, {
-      key: 'once',
-      value: function once(name, listener) {
-        var _that = this;
-        function runOnce() {
-          listener.apply(null, arguments);
-          _that.off(name, runOnce);
-        }
-        this.on(name, runOnce);
-      }
-      /**
-       * Adds a listener for all occurrences of an event of a particular name.<br>
-       * Listener arguments include any arguments passed to `events.emit`, followed by an object describing the complete event information.
-       * @name on
-       * @method
-       * @memberof module:Events#
-       * @param {String} name The event name to subscribe the listener to
-       * @param {Function} listener A listener callback to subscribe to the event name
-       */
+      this.on(name, runOnce);
+    };
+    /**
+     * Adds a listener for all occurrences of an event of a particular name.<br>
+     * Listener arguments include any arguments passed to `events.emit`, followed by an object describing the complete event information.
+     * @name on
+     * @method
+     * @memberof module:Events#
+     * @param {String} name The event name to subscribe the listener to
+     * @param {Function} listener A listener callback to subscribe to the event name
+     */
 
-      /**
-       * Adds a listener for all occurrences of a public event of a particular name.<br>
-       * Listener arguments include any arguments passed to `events.emitPublic`, followed by an object describing the complete event information.<br>
-       * Event emitter's information will be passed to the first argument of the filter function. The listener callback will only be called when filter function returns `true`.
-       * @name onPublic
-       * @method
-       * @memberof module:Events#
-       * @param {String} name The event name to subscribe the listener to
-       * @param {Function} listener A listener callback to subscribe to the event name
-       * @param {Function} [filter] A filter function to filter the events. Callback will always be called when a matching event occurs if the filter is unspecified
-       */
+    /**
+     * Adds a listener for all occurrences of a public event of a particular name.<br>
+     * Listener arguments include any arguments passed to `events.emitPublic`, followed by an object describing the complete event information.<br>
+     * Event emitter's information will be passed to the first argument of the filter function. The listener callback will only be called when filter function returns `true`.
+     * @name onPublic
+     * @method
+     * @memberof module:Events#
+     * @param {String} name The event name to subscribe the listener to
+     * @param {Function} listener A listener callback to subscribe to the event name
+     * @param {Function} [filter] A filter function to filter the events. Callback will always be called when a matching event occurs if the filter is unspecified
+     */
 
-      /**
-       * Adds a listener for one occurrence of an event of a particular name.<br>
-       * Listener arguments include any argument passed to `events.emit`, followed by an object describing the complete event information.
-       * @name once
-       * @method
-       * @memberof module:Events#
-       * @param {String} name The event name to subscribe the listener to
-       * @param {Function} listener A listener callback to subscribe to the event name
-       */
+    /**
+     * Adds a listener for one occurrence of an event of a particular name.<br>
+     * Listener arguments include any argument passed to `events.emit`, followed by an object describing the complete event information.
+     * @name once
+     * @method
+     * @memberof module:Events#
+     * @param {String} name The event name to subscribe the listener to
+     * @param {Function} listener A listener callback to subscribe to the event name
+     */
 
-      /**
-       * Adds a listener for one occurrence of a public event of a particular name.<br>
-       * Listener arguments include any argument passed to `events.emit`, followed by an object describing the complete event information.<br>
-       * Event emitter's information will be passed to the first argument of the filter function. The listener callback will only be called when filter function returns `true`.
-       * @name oncePublic
-       * @method
-       * @memberof module:Events#
-       * @param {String} name The event name to subscribe the listener to
-       * @param {Function}listener A listener callback to subscribe to the event name
-       * @param {Function} [filter] A filter function to filter the events. Callback will always be called when a matching event occurs if the filter is unspecified
-       */
+    /**
+     * Adds a listener for one occurrence of a public event of a particular name.<br>
+     * Listener arguments include any argument passed to `events.emit`, followed by an object describing the complete event information.<br>
+     * Event emitter's information will be passed to the first argument of the filter function. The listener callback will only be called when filter function returns `true`.
+     * @name oncePublic
+     * @method
+     * @memberof module:Events#
+     * @param {String} name The event name to subscribe the listener to
+     * @param {Function}listener A listener callback to subscribe to the event name
+     * @param {Function} [filter] A filter function to filter the events. Callback will always be called when a matching event occurs if the filter is unspecified
+     */
 
-      /**
-       * Adds a listener for all occurrences of any event, regardless of name.<br>
-       * Listener arguments begin with the event name, followed by any arguments passed to `events.emit`, followed by an object describing the complete event information.
-       * @name onAny
-       * @method
-       * @memberof module:Events#
-       * @param {Function} listener A listener callback to subscribe for any event name
-       */
+    /**
+     * Adds a listener for all occurrences of any event, regardless of name.<br>
+     * Listener arguments begin with the event name, followed by any arguments passed to `events.emit`, followed by an object describing the complete event information.
+     * @name onAny
+     * @method
+     * @memberof module:Events#
+     * @param {Function} listener A listener callback to subscribe for any event name
+     */
 
-      /**
-       * Adds a listener for all occurrences of any event, regardless of name.<br>
-       * Listener arguments begin with the event name, followed by any arguments passed to `events.emit`, followed by an object describing the complete event information.<br>
-       * Event emitter's information will be passed to the first argument of the filter function. The listener callback will only be called when filter function returns `true`.
-       * @name onAnyPublic
-       * @method
-       * @memberof module:Events#
-       * @param {Function} listener A listener callback to subscribe for any event name
-       * @param {Function} [filter] A filter function to filter the events. Callback will always be called when a matching event occurs if the filter is unspecified
-       */
+    /**
+     * Adds a listener for all occurrences of any event, regardless of name.<br>
+     * Listener arguments begin with the event name, followed by any arguments passed to `events.emit`, followed by an object describing the complete event information.<br>
+     * Event emitter's information will be passed to the first argument of the filter function. The listener callback will only be called when filter function returns `true`.
+     * @name onAnyPublic
+     * @method
+     * @memberof module:Events#
+     * @param {Function} listener A listener callback to subscribe for any event name
+     * @param {Function} [filter] A filter function to filter the events. Callback will always be called when a matching event occurs if the filter is unspecified
+     */
 
-      /**
-       * Removes a particular listener for an event.
-       * @name off
-       * @method
-       * @memberof module:Events#
-       * @param {String} name The event name to unsubscribe the listener from
-       * @param {Function} listener The listener callback to unsubscribe from the event name
-       */
+    /**
+     * Removes a particular listener for an event.
+     * @name off
+     * @method
+     * @memberof module:Events#
+     * @param {String} name The event name to unsubscribe the listener from
+     * @param {Function} listener The listener callback to unsubscribe from the event name
+     */
 
-      /**
-       * Removes a particular listener for a public event.
-       * @name offPublic
-       * @method
-       * @memberof module:Events#
-       * @param {String} name The event name to unsubscribe the listener from
-       * @param {Function} listener The listener callback to unsubscribe from the event name
-       */
+    /**
+     * Removes a particular listener for a public event.
+     * @name offPublic
+     * @method
+     * @memberof module:Events#
+     * @param {String} name The event name to unsubscribe the listener from
+     * @param {Function} listener The listener callback to unsubscribe from the event name
+     */
 
-      /**
-       * Removes all listeners from an event name, or unsubscribes all event-name-specific listeners
-       * if no name if given.
-       * @name offAll
-       * @method
-       * @memberof module:Events#
-       * @param {String} [name] The event name to unsubscribe all listeners from
-       */
+    /**
+     * Removes all listeners from an event name, or unsubscribes all event-name-specific listeners
+     * if no name if given.
+     * @name offAll
+     * @method
+     * @memberof module:Events#
+     * @param {String} [name] The event name to unsubscribe all listeners from
+     */
 
-      /**
-       * Removes all listeners from a public event name, or unsubscribes all event-name-specific listeners for public events
-       * if no name if given.
-       * @name offAllPublic
-       * @method
-       * @memberof module:Events#
-       * @param {String} [name] The event name to unsubscribe all listeners from
-       */
+    /**
+     * Removes all listeners from a public event name, or unsubscribes all event-name-specific listeners for public events
+     * if no name if given.
+     * @name offAllPublic
+     * @method
+     * @memberof module:Events#
+     * @param {String} [name] The event name to unsubscribe all listeners from
+     */
 
-      /**
-       * Removes an `any` event listener.
-       * @name offAny
-       * @method
-       * @memberof module:Events#
-       * @param {Function} listener A listener callback to unsubscribe from any event name
-       */
+    /**
+     * Removes an `any` event listener.
+     * @name offAny
+     * @method
+     * @memberof module:Events#
+     * @param {Function} listener A listener callback to unsubscribe from any event name
+     */
 
-      /**
-       * Removes an `anyPublic` event listener.
-       * @name offAnyPublic
-       * @method
-       * @memberof module:Events#
-       * @param {Function} listener A listener callback to unsubscribe from any event name
-       */
+    /**
+     * Removes an `anyPublic` event listener.
+     * @name offAnyPublic
+     * @method
+     * @memberof module:Events#
+     * @param {Function} listener A listener callback to unsubscribe from any event name
+     */
 
-      /**
-       * Emits an event on this bus, firing listeners by name as well as all 'any' listeners.<br>
-       * Arguments following the name parameter are captured and passed to listeners.
-       * @name emit
-       * @method
-       * @memberof module:Events#
-       * @param {String} name The name of event to emit
-       * @param {String[]} args 0 or more additional data arguments to deliver with the event
-       */
+    /**
+     * Emits an event on this bus, firing listeners by name as well as all 'any' listeners.<br>
+     * Arguments following the name parameter are captured and passed to listeners.
+     * @name emit
+     * @method
+     * @memberof module:Events#
+     * @param {String} name The name of event to emit
+     * @param {String[]} args 0 or more additional data arguments to deliver with the event
+     */
 
-      /**
-       * Emits a public event on this bus, firing listeners by name as well as all 'anyPublic' listeners.<br>
-       * The event can be received by any add-on modules that are currently presented on the page.<br>
-       * Arguments following the name parameter are captured and passed to listeners.
-       * @name emitPublic
-       * @method
-       * @memberof module:Events#
-       * @param {String} name The name of event to emit
-       * @param {String[]} args 0 or more additional data arguments to deliver with the event
-       */
+    /**
+     * Emits a public event on this bus, firing listeners by name as well as all 'anyPublic' listeners.<br>
+     * The event can be received by any add-on modules that are currently presented on the page.<br>
+     * Arguments following the name parameter are captured and passed to listeners.
+     * @name emitPublic
+     * @method
+     * @memberof module:Events#
+     * @param {String} name The name of event to emit
+     * @param {String[]} args 0 or more additional data arguments to deliver with the event
+     */
 
-    }]);
+
     return Events;
   }();
 
@@ -2527,80 +2405,73 @@ var AP = (function () {
     function PublicEvents() {
       classCallCheck(this, PublicEvents);
 
-      var _this = possibleConstructorReturn(this, (PublicEvents.__proto__ || Object.getPrototypeOf(PublicEvents)).call(this));
+      var _this = possibleConstructorReturn(this, _Events.call(this));
 
       _this.methods = ['offPublic', 'offAllPublic', 'offAnyPublic', 'onPublic', 'onAnyPublic', 'oncePublic'];
       return _this;
     }
 
-    createClass(PublicEvents, [{
-      key: '_filterEval',
-      value: function _filterEval(filter, toCompare) {
-        var value = true;
-        if (!filter) {
-          return value;
-        }
-        switch (typeof filter === 'undefined' ? 'undefined' : _typeof(filter)) {
-          case 'function':
-            value = Boolean(filter.call(null, toCompare));
-            break;
-          case 'object':
-            value = Object.getOwnPropertyNames(filter).every(function (prop) {
-              return toCompare[prop] === filter[prop];
-            });
-            break;
-        }
+    PublicEvents.prototype._filterEval = function _filterEval(filter, toCompare) {
+      var value = true;
+      if (!filter) {
         return value;
       }
-    }, {
-      key: 'once',
-      value: function once(name, listener, filter) {
-        var that = this;
-        function runOnce(data) {
-          listener.apply(null, data);
-          that.off(name, runOnce);
+      switch (typeof filter === 'undefined' ? 'undefined' : _typeof(filter)) {
+        case 'function':
+          value = Boolean(filter.call(null, toCompare));
+          break;
+        case 'object':
+          value = Object.getOwnPropertyNames(filter).every(function (prop) {
+            return toCompare[prop] === filter[prop];
+          });
+          break;
+      }
+      return value;
+    };
+
+    PublicEvents.prototype.once = function once(name, listener, filter) {
+      var that = this;
+      function runOnce(data) {
+        listener.apply(null, data);
+        that.off(name, runOnce);
+      }
+      this.on(name, runOnce, filter);
+    };
+
+    PublicEvents.prototype.on = function on(name, listener, filter) {
+      listener._wrapped = function (data) {
+        if (this._filterEval(filter, data.sender)) {
+          listener.apply(null, data.event);
         }
-        this.on(name, runOnce, filter);
+      }.bind(this);
+      _Events.prototype.on.call(this, name, listener._wrapped);
+    };
+
+    PublicEvents.prototype.off = function off(name, listener) {
+      if (listener._wrapped) {
+        _Events.prototype.off.call(this, name, listener._wrapped);
+      } else {
+        _Events.prototype.off.call(this, name, listener);
       }
-    }, {
-      key: 'on',
-      value: function on(name, listener, filter) {
-        listener._wrapped = function (data) {
-          if (this._filterEval(filter, data.sender)) {
-            listener.apply(null, data.event);
-          }
-        }.bind(this);
-        get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'on', this).call(this, name, listener._wrapped);
-      }
-    }, {
-      key: 'off',
-      value: function off(name, listener) {
-        if (listener._wrapped) {
-          get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'off', this).call(this, name, listener._wrapped);
-        } else {
-          get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'off', this).call(this, name, listener);
+    };
+
+    PublicEvents.prototype.onAny = function onAny(listener, filter) {
+      listener._wrapped = function (data) {
+        if (data.sender && this._filterEval(filter, data.sender)) {
+          listener.apply(null, data.event);
         }
+      };
+      _Events.prototype.onAny.call(this, listener._wrapped);
+    };
+
+    PublicEvents.prototype.offAny = function offAny(listener) {
+      if (listener._wrapped) {
+        _Events.prototype.offAny.call(this, name, listener._wrapped);
+      } else {
+        _Events.prototype.offAny.call(this, name, listener);
       }
-    }, {
-      key: 'onAny',
-      value: function onAny(listener, filter) {
-        listener._wrapped = function (data) {
-          if (data.sender && this._filterEval(filter, data.sender)) {
-            listener.apply(null, data.event);
-          }
-        };
-        get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'onAny', this).call(this, listener._wrapped);
-      }
-    }, {
-      key: 'offAny',
-      value: function offAny(listener) {
-        if (listener._wrapped) {
-          get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'offAny', this).call(this, name, listener._wrapped);
-        } else {
-          get$1(PublicEvents.prototype.__proto__ || Object.getPrototypeOf(PublicEvents.prototype), 'offAny', this).call(this, name, listener);
-        }
-      }
-    }]);
+    };
+
     return PublicEvents;
   }(Events);
 

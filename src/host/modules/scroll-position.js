@@ -1,6 +1,5 @@
 import util from '../util';
 import $ from '../dollar';
-import _ from '../underscore';
 
 export default {
   /**
@@ -12,7 +11,7 @@ export default {
    * AP.scrollPosition.getPosition(function(obj) { console.log(obj); });
    */
   getPosition: function (callback) {
-    callback = _.last(arguments);
+    callback = util.last(arguments);
     // scrollPosition.getPosition is only available for general-pages
     if (callback._context.extension.options.isFullPage) {
       var $el = util.getIframeByExtensionId(callback._context.extension_id);
