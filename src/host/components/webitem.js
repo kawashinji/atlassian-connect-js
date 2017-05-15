@@ -2,6 +2,7 @@ import $ from '../dollar';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import WebItemActions from '../actions/webitem_actions';
 import WebItemUtils from '../utils/webitem';
+import Util from '../util';
 
 class WebItem {
 
@@ -16,7 +17,7 @@ class WebItem {
 
   requestContent(extension) {
     if(extension.addon_key && extension.key) {
-      return this._contentResolver.call(null, Object.assign({classifier: 'json'}, extension));
+      return this._contentResolver.call(null, Util.extend({classifier: 'json'}, extension));
     }
   }
   // originally i had this written nicely with Object.values but

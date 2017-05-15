@@ -60,7 +60,7 @@ class Dialog {
     dialogExtension.options.customData = options.customData;
     // terrible idea! - we need to remove this from p2 ASAP!
     var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
-    options = Object.assign({}, dialogModuleOptions || {}, options);
+    options = Util.extend({}, dialogModuleOptions || {}, options);
     options.id = _id;
 
     DialogExtensionActions.open(dialogExtension, options);

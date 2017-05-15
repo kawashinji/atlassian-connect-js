@@ -3,6 +3,7 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
 import WebItemUtils from '../utils/webitem';
 import DialogExtensionActions from '../actions/dialog_extension_actions';
 import $ from '../dollar';
+import Util from '../util';
 
 const ITEM_NAME = 'dialog';
 const SELECTOR = '.ap-dialog';
@@ -26,7 +27,7 @@ class DialogWebItem {
   }
 
   _dialogOptions(options){
-    return Object.assign({}, DEFAULT_WEBITEM_OPTIONS, options || {});
+    return Util.extend({}, DEFAULT_WEBITEM_OPTIONS, options || {});
   }
 
   triggered(data) {

@@ -5,7 +5,7 @@ import dialogUtils from '../utils/dialog';
 import IframeComponent from './iframe';
 import Button from './button';
 import ButtonActions from '../actions/button_actions';
-
+import Util from '../util';
 import $ from '../dollar';
 
 const DLGID_PREFIX = 'ap-dialog-';
@@ -156,7 +156,7 @@ class Dialog {
   }
   **/
   render(options){
-    var originalOptions = Object.assign({}, options);
+    var originalOptions = Util.extend({}, options);
     var sanitizedOptions = dialogUtils.sanitizeOptions(options);
     const $dialog = $('<section />').attr({
       role: 'dialog',

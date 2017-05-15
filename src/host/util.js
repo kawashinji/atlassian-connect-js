@@ -1,4 +1,5 @@
 import $ from './dollar';
+import extend from 'object-assign';
 
 function escapeSelector(s) {
   if (!s) {
@@ -45,7 +46,7 @@ function pick(obj, values) {
   }
   return Object.keys(obj)
     .filter((key) => values.indexOf(key) >= 0)
-    .reduce((newObj, key) => Object.assign(newObj, { [key]: obj[key] }), {});
+    .reduce((newObj, key) => extend(newObj, { [key]: obj[key] }), {});
 }
 
 function debounce (fn, wait) {
@@ -72,5 +73,6 @@ export default {
   first,
   last,
   pick,
-  debounce
+  debounce,
+  extend
 };

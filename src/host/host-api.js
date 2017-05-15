@@ -11,6 +11,7 @@ import IframeActions from './actions/iframe_actions';
 import AnalyticsAction from './actions/analytics_action';
 import WebItemUtils from './utils/webitem';
 import ModuleProviders from './module-providers';
+import Util from './util';
 
 class HostApi {
   constructor(){
@@ -18,7 +19,7 @@ class HostApi {
     this.dialog = {
       create: (extension, dialogOptions) => {
         var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
-        var completeOptions = Object.assign({}, dialogBeanOptions || {}, dialogOptions);
+        var completeOptions = Util.extend({}, dialogBeanOptions || {}, dialogOptions);
         DialogExtensionActions.open(extension, completeOptions);
       },
       close: () => {

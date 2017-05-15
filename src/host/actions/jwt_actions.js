@@ -1,4 +1,5 @@
 import EventDispatcher from '../dispatchers/event_dispatcher';
+import Util from '../util';
 
 export default {
   registerContentResolver: function(data) {
@@ -8,7 +9,7 @@ export default {
     if(!data.resolver) {
       throw Error('ACJS: No content resolver supplied');
     }
-    var promise = data.resolver.call(null, Object.assign({classifier: 'json'}, data.extension));
+    var promise = data.resolver.call(null, Util.extend({classifier: 'json'}, data.extension));
     promise.fail(function(promiseData, error) {
       EventDispatcher.dispatch('jwt-url-refreshed-failed', {
         extension: data.extension,
@@ -28,7 +29,7 @@ export default {
         }
       }
       data.extension.url = newExtensionConfiguration.url;
-      Object.assign(data.extension.options, newExtensionConfiguration.options);
+      Util.extend(data.extension.options, newExtensionConfiguration.options);
       EventDispatcher.dispatch('jwt-url-refreshed', {
         extension: data.extension,
         $container: data.$container,

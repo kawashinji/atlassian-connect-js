@@ -1,4 +1,5 @@
 import qs from 'query-string';
+import Util from '../util';
 
 function sanitizeTriggers(triggers) {
   var onTriggers;
@@ -44,7 +45,7 @@ function getModuleOptionsByAddonAndModuleKey(type, addonKey, moduleKey) {
     && window._AP[moduleType]
     && window._AP[moduleType][addonKey]
     && window._AP[moduleType][addonKey][moduleKey]) {
-    return Object.assign({}, window._AP[moduleType][addonKey][moduleKey].options);
+    return Util.extend({}, window._AP[moduleType][addonKey][moduleKey].options);
   }
 }
 
@@ -61,7 +62,7 @@ function getOptionsForWebItem($target) {
   var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
   var options = getModuleOptionsForWebitem(type, $target);
   if(!options && window._AP && window._AP[type + 'Options']) {
-    options = Object.assign({}, window._AP[type + 'Options'][fullKey]) || {};
+    options = Util.extend({}, window._AP[type + 'Options'][fullKey]) || {};
   }
   if(!options){
     options = {};
@@ -72,7 +73,7 @@ function getOptionsForWebItem($target) {
   var url = $target.attr('href');
   if (url) {
     var query = qs.parse(qs.extract(url));
-    Object.assign(options.productContext, query);
+    Util.extend(options.productContext, query);
   }
 
   return options;

@@ -178,7 +178,7 @@ class DialogUtils {
       && window._AP.dialogModules
       && window._AP.dialogModules[addon_key]
       && window._AP.dialogModules[addon_key][key]) {
-      return Object.assign({}, defaultOptions, window._AP.dialogModules[addon_key][key].options);
+      return util.extend({}, defaultOptions, window._AP.dialogModules[addon_key][key].options);
     }
     return false;
   }
