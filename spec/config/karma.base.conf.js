@@ -60,8 +60,6 @@ module.exports = function(config) {
                       'last 1 Edge versions'
                     ]
                   },
-                  // 'modules': false,
-                  // 'loose': true,
                   'useBuiltIns': true,
                   'include': ['es6.object.assign']
                 }],
