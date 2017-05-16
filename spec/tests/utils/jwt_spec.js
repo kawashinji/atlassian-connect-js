@@ -6,45 +6,39 @@ describe('jwt utils', () => {
   describe('funky characters decoding', () => {
     it('Accented characters', () => {
       const claims = {
-        exp: Math.floor(Date.now() / 1000) - 60,
         user: 'aàáâãäåçèéêëìíîðñòôõööz'
       };
-      const encodedClaims = base64.encode(JSON.stringify(claims));
+      const encodedClaims = "eyJ1c2VyIjoiYcOgw6HDosOjw6TDpcOnw6jDqcOqw6vDrMOtw67DsMOxw7LDtMO1w7bDtnoifQ";
       const jwt = `alsdjfaj123.${encodedClaims}.khsadlj234`;
-      expect(jwtUtils.isJwtExpired(jwt)).toBe(true);
       expect(jwtUtils.parseJwtClaims(jwt)).toEqual(claims);
     });
 
     it('Asian characters', () => {
       const claims = {
-        exp: Math.floor(Date.now() / 1000) - 60,
         user: 'a国際交流基金海外運営専門員z'
       };
-      const encodedClaims = base64.encode(JSON.stringify(claims));
+      const encodedClaims = "eyJ1c2VyIjoiYeWbvemam-S6pOa1geWfuumHkea1t-WklumBi-WWtuWwgumWgOWToXoifQ";
       const jwt = `alsdjfaj123.${encodedClaims}.khsadlj234`;
-      expect(jwtUtils.isJwtExpired(jwt)).toBe(true);
       expect(jwtUtils.parseJwtClaims(jwt)).toEqual(claims);
     });
 
     it('Good international string characters', () => {
       const claims = {
-        exp: Math.floor(Date.now() / 1000) - 60,
         user: 'àáâãäåçèéêëìíîðñòôõöö 国際交流абвгдежзبْجَدِيَّة عَرَبِيَّة‎עִבְרִיתदिंदुसरोवरλληνικ'
       };
-      const encodedClaims = base64.encode(JSON.stringify(claims));
+      const encodedClaims = "eyJ1c2VyIjoiw6DDocOiw6PDpMOlw6fDqMOpw6rDq8Osw63DrsOww7HDssO0w7XDtsO2IOWb" +
+          "vemam-S6pOa1gdCw0LHQstCz0LTQtdC20LfYqNmS2KzZjtiv2ZDZitmO2ZHYqSDYudmO2LHZjtio2ZDZitmO2ZHYqe" +
+          "KAjtei1rTXkdaw16jWtNeZ16rgpKbgpL_gpILgpKbgpYHgpLjgpLDgpYvgpLXgpLDOu867zrfOvc65zroifQ";
       const jwt = `alsdjfaj123.${encodedClaims}.khsadlj234`;
-      expect(jwtUtils.isJwtExpired(jwt)).toBe(true);
       expect(jwtUtils.parseJwtClaims(jwt)).toEqual(claims);
     });
 
     it('Good international string characters', () => {
       const claims = {
-        exp: Math.floor(Date.now() / 1000) - 60,
         user: 'a♬♬♫b'
       };
-      const encodedClaims = base64.encode(JSON.stringify(claims));
+      const encodedClaims = "eyJ1c2VyIjoiYeKZrOKZrOKZq2IifQ";
       const jwt = `alsdjfaj123.${encodedClaims}.khsadlj234`;
-      expect(jwtUtils.isJwtExpired(jwt)).toBe(true);
       expect(jwtUtils.parseJwtClaims(jwt)).toEqual(claims);
     });
 
