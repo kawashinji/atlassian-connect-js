@@ -2216,7 +2216,7 @@
 	var strictUriEncode = index$2;
 	var objectAssign = index;
 
-	function encode$1(value, opts) {
+	function encode(value, opts) {
 		if (opts.encode) {
 			return opts.strict ? strictUriEncode(value) : encodeURIComponent(value);
 		}
@@ -2284,7 +2284,7 @@
 			}
 
 			if (val === null) {
-				return encode$1(key, opts);
+				return encode(key, opts);
 			}
 
 			if (Array.isArray(val)) {
@@ -2296,16 +2296,16 @@
 					}
 
 					if (val2 === null) {
-						result.push(encode$1(key, opts));
+						result.push(encode(key, opts));
 					} else {
-						result.push(encode$1(key, opts) + '=' + encode$1(val2, opts));
+						result.push(encode(key, opts) + '=' + encode(val2, opts));
 					}
 				});
 
 				return result.join('&');
 			}
 
-			return encode$1(key, opts) + '=' + encode$1(val, opts);
+			return encode(key, opts) + '=' + encode(val, opts);
 		}).filter(function (x) {
 			return x.length > 0;
 		}).join('&') : '';
@@ -2318,8 +2318,6 @@
 	};
 
 	var toByteArray_1 = toByteArray;
-	var fromByteArray_1 = fromByteArray;
-
 	var lookup = [];
 	var revLookup = [];
 	var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array;
@@ -2392,39 +2390,6 @@
 	  return output.join('');
 	}
 
-	function fromByteArray(uint8) {
-	  var tmp;
-	  var len = uint8.length;
-	  var extraBytes = len % 3; // if we have 1 byte left, pad 2 bytes
-	  var output = '';
-	  var parts = [];
-	  var maxChunkLength = 16383; // must be multiple of 3
-
-	  // go through the array every three bytes, we'll deal with trailing stuff later
-	  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
-	    parts.push(encodeChunk(uint8, i, i + maxChunkLength > len2 ? len2 : i + maxChunkLength));
-	  }
-
-	  // pad the end with zeros, but make sure to not forget the extra bytes
-	  if (extraBytes === 1) {
-	    tmp = uint8[len - 1];
-	    output += lookup[tmp >> 2];
-	    output += lookup[tmp << 4 & 0x3F];
-	    output += '==';
-	  } else if (extraBytes === 2) {
-	    tmp = (uint8[len - 2] << 8) + uint8[len - 1];
-	    output += lookup[tmp >> 10];
-	    output += lookup[tmp >> 4 & 0x3F];
-	    output += lookup[tmp << 2 & 0x3F];
-	    output += '=';
-	  }
-
-	  parts.push(output);
-
-	  return parts.join('');
-	}
-
-	function TextEncoderLite() {}
 	function TextDecoderLite() {}
 
 	// Taken from https://github.com/feross/buffer/blob/master/index.js
@@ -2525,39 +2490,21 @@
 	  }
 	}
 
-	TextEncoderLite.prototype.encode = function (str) {
-	  var result;
-
-	  if ('undefined' === typeof Uint8Array) {
-	    result = utf8ToBytes(str);
-	  } else {
-	    result = new Uint8Array(utf8ToBytes(str));
-	  }
-
-	  return result;
-	};
-
 	TextDecoderLite.prototype.decode = function (bytes) {
 	  return utf8Slice(bytes, 0, bytes.length);
 	};
 
-	var TextEncoderLite_1 = TextEncoderLite;
 	var TextDecoderLite_1 = TextDecoderLite;
 
-	var base64 = {
-	  encode: function encode(string) {
-	    return fromByteArray_1(TextEncoderLite_1.prototype.encode(string));
-	  },
-	  decode: function decode(string) {
-	    var padding = 4 - string.length % 4;
-	    if (padding === 1) {
-	      string += '=';
-	    } else if (padding === 2) {
-	      string += '==';
-	    }
-	    return TextDecoderLite_1.prototype.decode(toByteArray_1(string));
+	function decode(string) {
+	  var padding = 4 - string.length % 4;
+	  if (padding === 1) {
+	    string += '=';
+	  } else if (padding === 2) {
+	    string += '==';
 	  }
-	};
+	  return TextDecoderLite_1.prototype.decode(toByteArray_1(string));
+	}
 
 	var JWT_SKEW = 60; // in seconds.
 
@@ -2584,7 +2531,7 @@
 	    throw 'Invalid JWT: encoded claims must be neither null nor empty-string.';
 	  }
 
-	  var claimsString = base64.decode.call(window, encodedClaims);
+	  var claimsString = decode.call(window, encodedClaims);
 	  return JSON.parse(claimsString);
 	}
 

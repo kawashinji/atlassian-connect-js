@@ -1,4 +1,4 @@
-import base64 from './base64';
+import { decode } from './base64';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 var JWT_SKEW = 60; // in seconds.
 
@@ -25,7 +25,7 @@ function parseJwtClaims(jwt) {
     throw('Invalid JWT: encoded claims must be neither null nor empty-string.');
   }
 
-  var claimsString = base64.decode.call(window, encodedClaims);
+  var claimsString = decode.call(window, encodedClaims);
   return JSON.parse(claimsString);
 }
 
