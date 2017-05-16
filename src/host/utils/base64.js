@@ -1,9 +1,9 @@
 import {toByteArray, fromByteArray} from 'base64-js';
-import {TextEncoder, TextDecoder} from 'text-encoding-utf-8';
+import {TextEncoderLite, TextDecoderLite} from 'text-encoder-lite-module';
 
 export default {
   encode: function (string) {
-    return fromByteArray(TextEncoder('utf-8').encode(string));
+    return fromByteArray(TextEncoderLite.prototype.encode(string));
   },
   decode: function (string) {
     var padding = 4 - string.length % 4;
@@ -12,6 +12,6 @@ export default {
     } else if (padding === 2) {
       string += '==';
     }
-    return TextDecoder('utf-8').decode(toByteArray(string));
+    return TextDecoderLite.prototype.decode(toByteArray(string));
   }
 };
