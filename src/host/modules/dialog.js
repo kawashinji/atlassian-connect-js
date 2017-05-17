@@ -6,6 +6,7 @@ import DialogExtensionComponent from '../components/dialog_extension';
 import ButtonComponent from '../components/button';
 import DialogUtils from '../utils/dialog';
 import Util from '../util';
+import ModuleProviders from '../module-providers';
 
 const _dialogs = {};
 
@@ -45,6 +46,11 @@ EventDispatcher.register('dialog-button-click', (data) => {
  */
 class Dialog {
   constructor(options, callback) {
+    this.dialogProvider = ModuleProviders.getProvider('dialog');
+    if(this.dialogProvider) {
+      this.dialogProvider.create(options, callback._context.extension);
+      return;
+    }
     callback = Util.last(arguments);
     const _id = callback._id;
     const extension = callback._context.extension;

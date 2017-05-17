@@ -3353,6 +3353,22 @@
 	  DialogExtensionComponent.render(data.extension, data.options);
 	});
 
+	var ModuleProviders = function ModuleProviders() {
+	  var _this = this;
+
+	  classCallCheck(this, ModuleProviders);
+
+	  this._providers = {};
+	  this.registerProvider = function (name, provider) {
+	    _this._providers[name] = provider;
+	  };
+	  this.getProvider = function (name) {
+	    return _this._providers[name];
+	  };
+	};
+
+	var ModuleProviders$1 = new ModuleProviders();
+
 	var _dialogs = {};
 
 	EventDispatcher$1.register('dialog-close', function (data) {
@@ -3393,6 +3409,11 @@
 	var Dialog = function Dialog(options, callback) {
 	  classCallCheck(this, Dialog);
 
+	  this.dialogProvider = ModuleProviders$1.getProvider('dialog');
+	  if (this.dialogProvider) {
+	    this.dialogProvider.create(options, callback._context.extension);
+	    return;
+	  }
 	  callback = Util$1.last(arguments);
 	  var _id = callback._id;
 	  var extension = callback._context.extension;
@@ -3789,22 +3810,6 @@
 	    });
 	  }
 	};
-
-	var ModuleProviders = function ModuleProviders() {
-	  var _this = this;
-
-	  classCallCheck(this, ModuleProviders);
-
-	  this._providers = {};
-	  this.registerProvider = function (name, provider) {
-	    _this._providers[name] = provider;
-	  };
-	  this.getProvider = function (name) {
-	    return _this._providers[name];
-	  };
-	};
-
-	var ModuleProviders$1 = new ModuleProviders();
 
 	var debounce$2 = Util$1.debounce;
 	var resizeFuncHolder = {};
