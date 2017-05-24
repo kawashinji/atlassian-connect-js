@@ -5,6 +5,7 @@ import EventActions from '../actions/event_actions';
 import DialogExtensionComponent from '../components/dialog_extension';
 import ButtonComponent from '../components/button';
 import DialogUtils from '../utils/dialog';
+import HostApi from '../host-api';
 import Util from '../util';
 
 const _dialogs = {};
@@ -49,23 +50,54 @@ class Dialog {
     const _id = callback._id;
     const extension = callback._context.extension;
 
-    var dialogExtension = {
-      addon_key: extension.addon_key,
-      key: options.key,
-      options: Util.pick(callback._context.extension.options, ['customData', 'productContext'])
-    };
+    let dialogProvider = HostApi.getProvider('dialog');
+    if (dialogProvider) {
+      let buttons = [
+        ...(options.buttons || []),
+        {
+          id: 'submit',
+          text: options.submitText || 'Submit',
+          appearance: 'primary'
+        },
+        {
+          id: 'cancel',
+          text: options.cancelText || 'Cancel',
+          appearance: 'subtle-link'
+        }
+      ].map(button => {
+        button.onClick = () => {
+          // Todo: this needs to be hooked up with the appropriate action
+          // Currently the dialog actions are to intertwined with component DOM
+          console.log(button.id, _id);
+        };
+        return button;
+      });
+      let dialogOptions = {
+        id: _id,
+        header: options.header,
+        buttons: buttons,
+        onClose: DialogActions.close
+      };
+      dialogProvider.create(dialogOptions);
+    } else {
+      var dialogExtension = {
+        addon_key: extension.addon_key,
+        key: options.key,
+        options: Util.pick(callback._context.extension.options, ['customData', 'productContext'])
+      };
 
-    // ACJS-185: the following is a really bad idea but we need it
-    // for compat until AP.dialog.customData has been deprecated
-    dialogExtension.options.customData = options.customData;
-    // terrible idea! - we need to remove this from p2 ASAP!
-    var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
-    options = Util.extend({}, dialogModuleOptions || {}, options);
-    options.id = _id;
+      // ACJS-185: the following is a really bad idea but we need it
+      // for compat until AP.dialog.customData has been deprecated
+      dialogExtension.options.customData = options.customData;
+      // terrible idea! - we need to remove this from p2 ASAP!
+      var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
+      options = Util.extend({}, dialogModuleOptions || {}, options);
+      options.id = _id;
 
-    DialogExtensionActions.open(dialogExtension, options);
-    this.customData = options.customData;
-    _dialogs[_id] = this;
+      DialogExtensionActions.open(dialogExtension, options);
+      this.customData = options.customData;
+      _dialogs[_id] = this;
+    }
   }
 }
 
@@ -302,18 +334,24 @@ export default {
    */
   close: function (data, callback) {
     callback = Util.last(arguments);
-    var dialogToClose;
-    if(callback._context.extension.options.isDialog){
-      dialogToClose = DialogExtensionComponent.getByExtension(callback._context.extension.id)[0];
-    } else {
-      dialogToClose = DialogExtensionComponent.getActiveDialog();
-    }
 
-    DialogActions.close({
-      customData: data,
-      dialog: dialogToClose,
-      extension: callback._context.extension
-    });
+    let dialogProvider = HostApi.getProvider('dialog');
+    if (dialogProvider) {
+      dialogProvider.close();
+    } else {
+      var dialogToClose;
+      if(callback._context.extension.options.isDialog){
+        dialogToClose = DialogExtensionComponent.getByExtension(callback._context.extension.id)[0];
+      } else {
+        dialogToClose = DialogExtensionComponent.getActiveDialog();
+      }
+
+      DialogActions.close({
+        customData: data,
+        dialog: dialogToClose,
+        extension: callback._context.extension
+      });
+    }
   },
   /**
    * Passes the custom data Object to the specified callback function.

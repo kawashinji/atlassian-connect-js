@@ -62,7 +62,6 @@ class Flag {
       let type = options.type || 'info';
       let flagOptions = {
         id: flagId,
-        key: flagId,
         title: options.title,
         description: options.body,
         actions: actions,
