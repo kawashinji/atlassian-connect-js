@@ -45,30 +45,7 @@ var AP = (function () {
     return target;
   };
 
-  var get$1 = function get$1(object, property, receiver) {
-    if (object === null) object = Function.prototype;
-    var desc = Object.getOwnPropertyDescriptor(object, property);
 
-    if (desc === undefined) {
-      var parent = Object.getPrototypeOf(object);
-
-      if (parent === null) {
-        return undefined;
-      } else {
-        return get$1(parent, property, receiver);
-      }
-    } else if ("value" in desc) {
-      return desc.value;
-    } else {
-      var getter = desc.get;
-
-      if (getter === undefined) {
-        return undefined;
-      }
-
-      return getter.call(receiver);
-    }
-  };
 
   var inherits = function (subClass, superClass) {
     if (typeof superClass !== "function" && superClass !== null) {
@@ -102,30 +79,6 @@ var AP = (function () {
     }
 
     return call && (typeof call === "object" || typeof call === "function") ? call : self;
-  };
-
-
-
-  var set$1 = function set$1(object, property, value, receiver) {
-    var desc = Object.getOwnPropertyDescriptor(object, property);
-
-    if (desc === undefined) {
-      var parent = Object.getPrototypeOf(object);
-
-      if (parent !== null) {
-        set$1(parent, property, value, receiver);
-      }
-    } else if ("value" in desc && desc.writable) {
-      desc.value = value;
-    } else {
-      var setter = desc.set;
-
-      if (setter !== undefined) {
-        setter.call(receiver, value);
-      }
-    }
-
-    return value;
   };
 
   var LOG_PREFIX = "[Simple-XDM] ";
@@ -1130,11 +1083,11 @@ var AP = (function () {
       this.options = {};
     };
 
-    ConfigurationOptions.prototype.get = function get(item) {
+    ConfigurationOptions.prototype.get = function get$$1(item) {
       return item ? this.options[item] : this.options;
     };
 
-    ConfigurationOptions.prototype.set = function set(data, value) {
+    ConfigurationOptions.prototype.set = function set$$1(data, value) {
       var _this = this;
 
       if (!data) {
@@ -1405,7 +1358,7 @@ var AP = (function () {
       delete this._options;
     };
 
-    ConsumerOptions.prototype.get = function get(key) {
+    ConsumerOptions.prototype.get = function get$$1(key) {
       if (!this._options) {
         this._options = this._getConsumerOptions();
       }
@@ -1969,7 +1922,7 @@ var AP = (function () {
   };
 
   // universal iterator utility
-  function each$1(o, it) {
+  function each(o, it) {
     var l;
     var k;
     if (o) {
@@ -2025,7 +1978,7 @@ var AP = (function () {
   }
 
   var util$1 = {
-    each: each$1,
+    each: each,
     log: log,
     decodeQueryComponent: decodeQueryComponent,
     bind: binder$1('add', 'attach'),
@@ -2034,8 +1987,8 @@ var AP = (function () {
     extend: function extend(dest) {
       var args = arguments;
       var srcs = [].slice.call(args, 1, args.length);
-      each$1(srcs, function (i, src) {
-        each$1(src, function (k, v) {
+      each(srcs, function (i, src) {
+        each(src, function (k, v) {
           dest[k] = v;
         });
       });
@@ -2074,7 +2027,7 @@ var AP = (function () {
   };
 
   var _each$1 = util$1.each;
-  var extend$1 = util$1.extend;
+  var extend = util$1.extend;
   var document$2 = window.document;
 
   function $$2(sel, context) {
@@ -2095,7 +2048,7 @@ var AP = (function () {
       }
     }
 
-    extend$1(els, {
+    extend(els, {
       each: function each(it) {
         _each$1(this, it);
         return this;
@@ -2148,7 +2101,7 @@ var AP = (function () {
     return els;
   }
 
-  var $$3 = extend$1($$2, util$1);
+  var $$3 = extend($$2, util$1);
 
   /**
    * The Events module provides a mechanism for emitting and receiving events.<br>

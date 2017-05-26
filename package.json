@@ -57,7 +57,7 @@
     "merge-stream": "1.0.0",
     "node-libs-browser": "1.0.0",
     "qunitjs": "2.0.1",
-    "rollup": "0.36.4",
+    "rollup": "0.41.6",
     "rollup-plugin-babel": "2.7.1",
     "rollup-plugin-commonjs": "5.0.5",
     "rollup-plugin-node-builtins": "2.0.0",
