@@ -457,30 +457,7 @@
 
 
 
-	var get = function get(object, property, receiver) {
-	  if (object === null) object = Function.prototype;
-	  var desc = Object.getOwnPropertyDescriptor(object, property);
 
-	  if (desc === undefined) {
-	    var parent = Object.getPrototypeOf(object);
-
-	    if (parent === null) {
-	      return undefined;
-	    } else {
-	      return get(parent, property, receiver);
-	    }
-	  } else if ("value" in desc) {
-	    return desc.value;
-	  } else {
-	    var getter = desc.get;
-
-	    if (getter === undefined) {
-	      return undefined;
-	    }
-
-	    return getter.call(receiver);
-	  }
-	};
 
 	var inherits = function (subClass, superClass) {
 	  if (typeof superClass !== "function" && superClass !== null) {
@@ -514,30 +491,6 @@
 	  }
 
 	  return call && (typeof call === "object" || typeof call === "function") ? call : self;
-	};
-
-
-
-	var set = function set(object, property, value, receiver) {
-	  var desc = Object.getOwnPropertyDescriptor(object, property);
-
-	  if (desc === undefined) {
-	    var parent = Object.getPrototypeOf(object);
-
-	    if (parent !== null) {
-	      set(parent, property, value, receiver);
-	    }
-	  } else if ("value" in desc && desc.writable) {
-	    desc.value = value;
-	  } else {
-	    var setter = desc.set;
-
-	    if (setter !== undefined) {
-	      setter.call(receiver, value);
-	    }
-	  }
-
-	  return value;
 	};
 
 	/**
@@ -2376,93 +2329,7 @@
 	  return arr;
 	}
 
-	function tripletToBase64(num) {
-	  return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F];
-	}
-
-	function encodeChunk(uint8, start, end) {
-	  var tmp;
-	  var output = [];
-	  for (var i = start; i < end; i += 3) {
-	    tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + uint8[i + 2];
-	    output.push(tripletToBase64(tmp));
-	  }
-	  return output.join('');
-	}
-
 	function TextDecoderLite() {}
-
-	// Taken from https://github.com/feross/buffer/blob/master/index.js
-	// Thanks Feross et al! :-)
-
-	function utf8ToBytes(string, units) {
-	  units = units || Infinity;
-	  var codePoint;
-	  var length = string.length;
-	  var leadSurrogate = null;
-	  var bytes = [];
-	  var i = 0;
-
-	  for (; i < length; i++) {
-	    codePoint = string.charCodeAt(i);
-
-	    // is surrogate component
-	    if (codePoint > 0xD7FF && codePoint < 0xE000) {
-	      // last char was a lead
-	      if (leadSurrogate) {
-	        // 2 leads in a row
-	        if (codePoint < 0xDC00) {
-	          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-	          leadSurrogate = codePoint;
-	          continue;
-	        } else {
-	          // valid surrogate pair
-	          codePoint = leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00 | 0x10000;
-	          leadSurrogate = null;
-	        }
-	      } else {
-	        // no lead yet
-
-	        if (codePoint > 0xDBFF) {
-	          // unexpected trail
-	          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-	          continue;
-	        } else if (i + 1 === length) {
-	          // unpaired lead
-	          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-	          continue;
-	        } else {
-	          // valid lead
-	          leadSurrogate = codePoint;
-	          continue;
-	        }
-	      }
-	    } else if (leadSurrogate) {
-	      // valid bmp char, but last char was a lead
-	      if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-	      leadSurrogate = null;
-	    }
-
-	    // encode utf8
-	    if (codePoint < 0x80) {
-	      if ((units -= 1) < 0) break;
-	      bytes.push(codePoint);
-	    } else if (codePoint < 0x800) {
-	      if ((units -= 2) < 0) break;
-	      bytes.push(codePoint >> 0x6 | 0xC0, codePoint & 0x3F | 0x80);
-	    } else if (codePoint < 0x10000) {
-	      if ((units -= 3) < 0) break;
-	      bytes.push(codePoint >> 0xC | 0xE0, codePoint >> 0x6 & 0x3F | 0x80, codePoint & 0x3F | 0x80);
-	    } else if (codePoint < 0x200000) {
-	      if ((units -= 4) < 0) break;
-	      bytes.push(codePoint >> 0x12 | 0xF0, codePoint >> 0xC & 0x3F | 0x80, codePoint >> 0x6 & 0x3F | 0x80, codePoint & 0x3F | 0x80);
-	    } else {
-	      throw new Error('Invalid code point');
-	    }
-	  }
-
-	  return bytes;
-	}
 
 	function utf8Slice(buf, start, end) {
 	  var res = '';
@@ -2895,7 +2762,7 @@
 
 	var debounce$1 = AJS.debounce || $.debounce;
 
-	function getActiveDialog$1() {
+	function getActiveDialog() {
 	  var $el = AJS.LayerManager.global.getTopLayer();
 	  if ($el && DLGID_REGEXP.test($el.attr('id'))) {
 	    var dialog = AJS.dialog2($el);
@@ -3098,11 +2965,11 @@
 	  };
 
 	  Dialog.prototype.getActive = function getActive() {
-	    return getActiveDialog$1();
+	    return getActiveDialog();
 	  };
 
 	  Dialog.prototype.buttonIsEnabled = function buttonIsEnabled(identifier) {
-	    var dialog = getActiveDialog$1();
+	    var dialog = getActiveDialog();
 	    if (dialog) {
 	      var $button = getButtonByIdentifier(identifier, dialog.$el);
 	      return ButtonComponent.isEnabled($button);
@@ -3110,7 +2977,7 @@
 	  };
 
 	  Dialog.prototype.buttonIsVisible = function buttonIsVisible(identifier) {
-	    var dialog = getActiveDialog$1();
+	    var dialog = getActiveDialog();
 	    if (dialog) {
 	      var $button = getButtonByIdentifier(identifier, dialog.$el);
 	      return ButtonComponent.isVisible($button);
@@ -3169,7 +3036,7 @@
 	      key: 27,
 	      callback: function callback() {
 	        DialogActions.close({
-	          dialog: getActiveDialog$1(),
+	          dialog: getActiveDialog(),
 	          extension: data.extension
 	        });
 	      }
@@ -3185,7 +3052,7 @@
 	});
 
 	EventDispatcher$1.register('dialog-close-active', function (data) {
-	  var activeDialog = getActiveDialog$1();
+	  var activeDialog = getActiveDialog();
 	  if (activeDialog) {
 	    DialogActions.close({
 	      customData: data.customData,
@@ -3200,7 +3067,7 @@
 	});
 
 	EventDispatcher$1.register('dialog-button-toggle', function (data) {
-	  var dialog = getActiveDialog$1();
+	  var dialog = getActiveDialog();
 	  if (dialog) {
 	    var $button = getButtonByIdentifier(data.identifier, dialog.$el);
 	    ButtonActions.toggle($button, !data.enabled);
@@ -3208,7 +3075,7 @@
 	});
 
 	EventDispatcher$1.register('dialog-button-toggle-visibility', function (data) {
-	  var dialog = getActiveDialog$1();
+	  var dialog = getActiveDialog();
 	  if (dialog) {
 	    var $button = getButtonByIdentifier(data.identifier, dialog.$el);
 	    ButtonActions.toggleVisibility($button, data.hidden);
@@ -3224,7 +3091,7 @@
 	      DialogActions.clickButton(ButtonComponent.getIdentifier($button), $button, $dialog.data('extension'));
 	    } else {
 	      DialogActions.close({
-	        dialog: getActiveDialog$1(),
+	        dialog: getActiveDialog(),
 	        extension: $button.extension
 	      });
 	    }
@@ -4562,7 +4429,7 @@
 	  }
 	};
 
-	function create$1(extension) {
+	function create(extension) {
 	  var simpleXdmExtension = {
 	    addon_key: extension.addon_key,
 	    key: extension.key,
@@ -4673,9 +4540,9 @@
 	  function HostApi() {
 	    classCallCheck(this, HostApi);
 
-	    this.create = create$1;
+	    this.create = create;
 	    this.dialog = {
-	      create: function create(extension, dialogOptions) {
+	      create: function create$$1(extension, dialogOptions) {
 	        var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
 	        var completeOptions = Util$1.extend({}, dialogBeanOptions || {}, dialogOptions);
 	        DialogExtensionActions.open(extension, completeOptions);
@@ -5079,7 +4946,7 @@
 	  };
 
 	  InlineDialogWebItem.prototype.addExtension = function addExtension(data) {
-	    var addon = create$1(data.extension);
+	    var addon = create(data.extension);
 	    data.$el.empty().append(addon);
 	  };
 
@@ -5183,7 +5050,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.3';
+	  window._AP.version = '5.0.4';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
