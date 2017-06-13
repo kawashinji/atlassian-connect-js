@@ -4429,6 +4429,113 @@
 	  }
 	};
 
+	var DropdownActions = {
+	  // called on action click
+	  itemSelected: function itemSelected(dropdown_id, item, extension) {
+	    EventDispatcher$1.dispatch('dropdown-item-selected', {
+	      id: dropdown_id,
+	      item: item,
+	      extension: extension
+	    });
+	  }
+	};
+
+	/**
+	* @module Dropdown
+	*/
+	var dropdownProvider;
+
+	function listItemToAK(listItem) {
+	  if (typeof listItem === 'string') {
+	    return { content: listItem };
+	  }
+	  if (listItem.text) {
+	    return {
+	      content: listItem.text
+	    };
+	  }
+	}
+
+	function listToAK(list) {
+	  return list.map(function (item) {
+	    // it's a section
+	    if (item.list) {
+	      var returnval = {
+	        heading: item.heading
+	      };
+	      if (item.list) {
+	        returnval.items = item.list.map(function (listitem) {
+	          return listItemToAK(listitem);
+	        });
+	      }
+	      return returnval;
+	    }
+	    return {
+	      items: [listItemToAK(item)]
+	    };
+	  });
+	}
+	var dropdown = {
+	  create: function create(options, callback) {
+	    callback = Util$1.last(arguments);
+	    if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
+	      return;
+	    }
+	    // const flagId = callback._id;
+	    dropdownProvider = ModuleProviders$1.getProvider('dropdown');
+	    if (dropdownProvider) {
+	      dropdownProvider.registerItemNotifier(function (data) {
+	        DropdownActions.itemSelected(data.dropdown_id, data.item, callback._context.extension);
+	      });
+	      options.list = listToAK(options.list);
+	      dropdownProvider.create(options, callback._context);
+	    }
+	  },
+	  showAt: function showAt(dropdown_id, x, y, width) {
+	    var callback = Util$1.last(arguments);
+	    var rect = document.getElementById(callback._context.extension_id).getBoundingClientRect();
+
+	    if (dropdownProvider) {
+	      dropdownProvider.showAt({
+	        dropdown_id: dropdown_id,
+	        x: x,
+	        y: y,
+	        width: width
+	      }, {
+	        iframeDimensions: rect,
+	        onItemSelection: function onItemSelection(dropdown_id, item) {
+	          DropdownActions.itemSelected(dropdown_id, item, callback._context.extension);
+	        }
+	      });
+	    }
+	  },
+	  hide: function hide(id) {
+	    if (dropdownProvider) {
+	      dropdownProvider.hide(id);
+	    }
+	  },
+	  itemEnable: function itemEnable(id) {
+	    if (dropdownProvider) {
+	      dropdownProvider.itemEnable(id);
+	    }
+	  },
+	  itemDisable: function itemDisable(id) {
+	    if (dropdownProvider) {
+	      dropdownProvider.itemDisable(id);
+	    }
+	  }
+	};
+
+	EventDispatcher$1.register('dropdown-item-selected', function (data) {
+	  EventActions.broadcast('dropdown-item-selected', {
+	    addon_key: data.extension.addon_key,
+	    key: data.extension.key
+	  }, {
+	    dropdown_id: data.id,
+	    item: data.item
+	  });
+	});
+
 	function create(extension) {
 	  var simpleXdmExtension = {
 	    addon_key: extension.addon_key,
@@ -5061,6 +5168,7 @@
 	simpleXDM$1.defineModule('events', events);
 	simpleXDM$1.defineModule('_analytics', analytics$1);
 	simpleXDM$1.defineModule('scrollPosition', scrollPosition);
+	simpleXDM$1.defineModule('dropdown', dropdown);
 
 	EventDispatcher$1.register('module-define-custom', function (data) {
 	  simpleXDM$1.defineModule(data.name, data.methods);
