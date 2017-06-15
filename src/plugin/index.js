@@ -63,6 +63,7 @@ if(AP.defineModule) {
     var iframe = document.getElementById(callback._context.extension_id);
     iframe.style.width = w + (typeof w === 'number' ? 'px' : '');
     iframe.style.height = h + (typeof h === 'number' ? 'px' : '');
+    AP.resize();
   }});
 }
 
