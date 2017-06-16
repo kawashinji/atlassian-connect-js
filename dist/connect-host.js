@@ -783,9 +783,9 @@
 	    return Array.prototype.slice.call(arrayLike);
 	  },
 	  argumentNames: function argumentNames(fn) {
-	    return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
-	    .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
-	    .match(/([^\s,]+)/g) || [];
+	    return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '' // strip comments
+	    ).replace(/[^(]+\(([^)]*)[^]+/, '$1' // get signature
+	    ).match(/([^\s,]+)/g) || [];
 	  },
 	  hasCallback: function hasCallback(args) {
 	    var length = args.length;
@@ -2353,7 +2353,8 @@
 	  try {
 	    return decodeURIComponent(str);
 	  } catch (err) {
-	    return String.fromCharCode(0xFFFD); // UTF 8 invalid char
+	    return String.fromCharCode(0xFFFD // UTF 8 invalid char
+	    );
 	  }
 	}
 
@@ -4481,7 +4482,6 @@
 	    if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
 	      return;
 	    }
-	    // const flagId = callback._id;
 	    dropdownProvider = ModuleProviders$1.getProvider('dropdown');
 	    if (dropdownProvider) {
 	      dropdownProvider.registerItemNotifier(function (data) {
@@ -5157,7 +5157,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.4';
+	  window._AP.version = '5.0.5';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

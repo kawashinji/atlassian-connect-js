@@ -45,7 +45,6 @@ export default {
     if(typeof options !== 'object') {
       return;
     }
-    // const flagId = callback._id;
     dropdownProvider = ModuleProviders.getProvider('dropdown');
     if (dropdownProvider) {
       dropdownProvider.registerItemNotifier((data) => {
