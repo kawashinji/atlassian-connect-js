@@ -1663,7 +1663,8 @@
 	    simpleXDM$1.dispatch(type, {}, {
 	      sender: {
 	        addonKey: sender.addon_key,
-	        key: sender.key
+	        key: sender.key,
+	        options: sender.options
 	      },
 	      event: event
 	    });
@@ -5050,7 +5051,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.4';
+	  window._AP.version = '5.0.5';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
