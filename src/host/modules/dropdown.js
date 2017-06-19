@@ -9,40 +9,42 @@ import DropdownActions from '../actions/dropdown_actions';
 
 var dropdownProvider;
 
-function listItemToAK(listItem) {
-  if(typeof listItem === 'string') {
-    return {content: listItem};
+function buildListItem(listItem) {
+  if (typeof listItem === 'string') {
+    return {
+      content: listItem
+    };
   }
-  if(listItem.text) {
+  if (listItem.text && typeof listItem.text === 'string') {
     return {
       content: listItem.text
     }
   }
+  throw new Error('Unknown dropdown list item format.');
 }
 
-function listToAK(list) {
+function moduleListToApiList(list) {
   return list.map((item) => {
-    // it's a section
-    if(item.list) {
+    const isSection = item.list && Array.isArray(item.list);
+    if (isSection) {
       let returnval = {
         heading: item.heading
       }
-      if(item.list) {
-        returnval.items = item.list.map((listitem) => {
-          return listItemToAK(listitem);
-        });
-      }
+      returnval.items = item.list.map((listitem) => {
+        return buildListItem(listitem);
+      });
       return returnval;
-    }
-    return {
-      items: [listItemToAK(item)]
+    } else {
+      return {
+        items: [buildListItem(item)]
+      }
     }
   });
 }
 export default {
   create(options, callback) {
     callback = util.last(arguments);
-    if(typeof options !== 'object') {
+    if (typeof options !== 'object') {
       return;
     }
     dropdownProvider = ModuleProviders.getProvider('dropdown');
@@ -50,8 +52,10 @@ export default {
       dropdownProvider.registerItemNotifier((data) => {
         DropdownActions.itemSelected(data.dropdown_id, data.item, callback._context.extension);
       });
-      options.list = listToAK(options.list);
+      options.list = moduleListToApiList(options.list);
       dropdownProvider.create(options, callback._context);
+      // return for testing
+      return options;
     }
   },
 

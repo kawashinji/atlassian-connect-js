@@ -4446,34 +4446,36 @@
 	*/
 	var dropdownProvider;
 
-	function listItemToAK(listItem) {
+	function buildListItem(listItem) {
 	  if (typeof listItem === 'string') {
-	    return { content: listItem };
+	    return {
+	      content: listItem
+	    };
 	  }
-	  if (listItem.text) {
+	  if (listItem.text && typeof listItem.text === 'string') {
 	    return {
 	      content: listItem.text
 	    };
 	  }
+	  throw new Error('Unknown dropdown list item format.');
 	}
 
-	function listToAK(list) {
+	function moduleListToApiList(list) {
 	  return list.map(function (item) {
-	    // it's a section
-	    if (item.list) {
+	    var isSection = item.list && Array.isArray(item.list);
+	    if (isSection) {
 	      var returnval = {
 	        heading: item.heading
 	      };
-	      if (item.list) {
-	        returnval.items = item.list.map(function (listitem) {
-	          return listItemToAK(listitem);
-	        });
-	      }
+	      returnval.items = item.list.map(function (listitem) {
+	        return buildListItem(listitem);
+	      });
 	      return returnval;
+	    } else {
+	      return {
+	        items: [buildListItem(item)]
+	      };
 	    }
-	    return {
-	      items: [listItemToAK(item)]
-	    };
 	  });
 	}
 	var dropdown = {
@@ -4487,8 +4489,10 @@
 	      dropdownProvider.registerItemNotifier(function (data) {
 	        DropdownActions.itemSelected(data.dropdown_id, data.item, callback._context.extension);
 	      });
-	      options.list = listToAK(options.list);
+	      options.list = moduleListToApiList(options.list);
 	      dropdownProvider.create(options, callback._context);
+	      // return for testing
+	      return options;
 	    }
 	  },
 	  showAt: function showAt(dropdown_id, x, y, width) {
