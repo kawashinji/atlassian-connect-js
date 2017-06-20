@@ -3,6 +3,8 @@ import DropdownModule from 'src/host/modules/dropdown';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import EventActions from 'src/host/actions/event_actions';
 import ModuleProviders from 'src/host/module-providers';
+import extend from 'object-assign';
+
 describe('dropdown api module', () => {
   const fakeCallback = function(){};
   fakeCallback._context = {
@@ -50,7 +52,7 @@ describe('dropdown api module', () => {
           ]
         }]
       };
-      let formattedOptions = DropdownModule.create(Object.assign({}, options), fakeCallback);
+      let formattedOptions = DropdownModule.create(extend({}, options), fakeCallback);
 
       expect(formattedOptions).toEqual({
         dropdown_id: options.dropdown_id,
@@ -73,7 +75,7 @@ describe('dropdown api module', () => {
         dropdown_id: 'some-dropdown-id',
         list: ['one', 'two']
       };
-      let formattedOptions = DropdownModule.create(Object.assign({}, options), fakeCallback);
+      let formattedOptions = DropdownModule.create(extend({}, options), fakeCallback);
 
       expect(formattedOptions).toEqual({
         dropdown_id: options.dropdown_id,
