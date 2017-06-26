@@ -4645,7 +4645,6 @@
           var type = options.type || 'info';
           var flagOptions = {
             id: flagId,
-            key: flagId,
             title: options.title,
             description: options.body,
             actions: actions,
