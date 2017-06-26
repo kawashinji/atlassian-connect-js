@@ -1,4 +1,3 @@
-/* global sinon */
 import DropdownModule from 'src/host/modules/dropdown';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import EventActions from 'src/host/actions/event_actions';
@@ -12,14 +11,7 @@ describe('dropdown api module', () => {
       extension_id: 'some-extension-id'
     }
   };
-  // const provider = jasmine.createSpyObj('moduleProvider', [{
-  //   registerItemNotifier: jasmine.createSpyObj.stub(),
-  //   create: sinon.stub(),
-  //   hide: sinon.stub(),
-  //   showAt: sinon.stub(),
-  //   itemActivated: sinon.stub(),
-  //   itemDisabled: sinon.stub()
-  // };
+
   const providerSpy = jasmine.createSpyObj('moduleProvider', [
     'registerItemNotifier',
     'create',
@@ -67,27 +59,6 @@ describe('dropdown api module', () => {
 
     });
 
-
-
-
-    it('formats items without sections', () => {
-      let options = {
-        dropdown_id: 'some-dropdown-id',
-        list: ['one', 'two']
-      };
-      let formattedOptions = DropdownModule.create(extend({}, options), fakeCallback);
-
-      expect(formattedOptions).toEqual({
-        dropdown_id: options.dropdown_id,
-        list: [
-          {items: [{content: options.list[0]}]},
-          {items: [{content: options.list[1]}]}
-        ]
-      });
-    });
-
-
   });
-
 
 });

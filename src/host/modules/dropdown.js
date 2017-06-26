@@ -27,8 +27,7 @@ function buildListItem(listItem) {
 
 function moduleListToApiList(list) {
   return list.map((item) => {
-    const isSection = item.list && Array.isArray(item.list);
-    if (isSection) {
+    if (item.list && Array.isArray(item.list)) {
       let returnval = {
         heading: item.heading
       }
@@ -36,10 +35,6 @@ function moduleListToApiList(list) {
         return buildListItem(listitem);
       });
       return returnval;
-    } else {
-      return {
-        items: [buildListItem(item)]
-      }
     }
   });
 }
@@ -130,8 +125,8 @@ export default {
   * // create a dropdown menu with 1 section and 2 items
   * var mydropdown = {
   *   dropdown_id: 'my-dropdown',
-  *   list: [
-  *     'one', 'two'
+  *   list: [{
+  *     list:['one', 'two']
   *   }]
   * };
   *
