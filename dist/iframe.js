@@ -101,9 +101,9 @@ var AP = (function () {
       return Array.prototype.slice.call(arrayLike);
     },
     argumentNames: function argumentNames(fn) {
-      return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '' // strip comments
-      ).replace(/[^(]+\(([^)]*)[^]+/, '$1' // get signature
-      ).match(/([^\s,]+)/g) || [];
+      return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
+      .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
+      .match(/([^\s,]+)/g) || [];
     },
     hasCallback: function hasCallback(args) {
       var length = args.length;
@@ -1399,7 +1399,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.0.5";
+      _this._version = "5.1.0";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];

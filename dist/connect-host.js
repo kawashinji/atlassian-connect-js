@@ -783,9 +783,9 @@
 	    return Array.prototype.slice.call(arrayLike);
 	  },
 	  argumentNames: function argumentNames(fn) {
-	    return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '' // strip comments
-	    ).replace(/[^(]+\(([^)]*)[^]+/, '$1' // get signature
-	    ).match(/([^\s,]+)/g) || [];
+	    return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
+	    .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
+	    .match(/([^\s,]+)/g) || [];
 	  },
 	  hasCallback: function hasCallback(args) {
 	    var length = args.length;
@@ -2354,8 +2354,7 @@
 	  try {
 	    return decodeURIComponent(str);
 	  } catch (err) {
-	    return String.fromCharCode(0xFFFD // UTF 8 invalid char
-	    );
+	    return String.fromCharCode(0xFFFD); // UTF 8 invalid char
 	  }
 	}
 
@@ -5274,7 +5273,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.5';
+	  window._AP.version = '5.1.0';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
