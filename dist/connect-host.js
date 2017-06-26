@@ -1663,7 +1663,8 @@
 	    simpleXDM$1.dispatch(type, {}, {
 	      sender: {
 	        addonKey: sender.addon_key,
-	        key: sender.key
+	        key: sender.key,
+	        options: sender.options
 	      },
 	      event: event
 	    });
