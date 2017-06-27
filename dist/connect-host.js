@@ -4430,6 +4430,228 @@
 	  }
 	};
 
+	var DropdownActions = {
+	  // called on action click
+	  itemSelected: function itemSelected(dropdown_id, item, extension) {
+	    EventDispatcher$1.dispatch('dropdown-item-selected', {
+	      id: dropdown_id,
+	      item: item,
+	      extension: extension
+	    });
+	  }
+	};
+
+	/**
+	* DO NOT INCLUDE ME IN THE PUBLIC DOCUMENTATION
+	* there is no AUI implementation of this
+	*/
+
+	var dropdownProvider;
+
+	function buildListItem(listItem) {
+	  if (typeof listItem === 'string') {
+	    return {
+	      content: listItem
+	    };
+	  }
+	  if (listItem.text && typeof listItem.text === 'string') {
+	    return {
+	      content: listItem.text
+	    };
+	  }
+	  throw new Error('Unknown dropdown list item format.');
+	}
+
+	function moduleListToApiList(list) {
+	  return list.map(function (item) {
+	    if (item.list && Array.isArray(item.list)) {
+	      var returnval = {
+	        heading: item.heading
+	      };
+	      returnval.items = item.list.map(function (listitem) {
+	        return buildListItem(listitem);
+	      });
+	      return returnval;
+	    }
+	  });
+	}
+
+	/**
+	* @class DropdownItem
+	* A single item in a dropdown menu can be a string or an object
+	* @param {String} item_id The id of a single dropdown item
+	* @param {String} text    The text to display in the dropdown item
+	*/
+
+	/**
+	* @module Dropdown
+	* @description Dropdown menu that can go outside the iframe bounds.
+	* @example
+	* // create a dropdown menu with 1 section and 2 items
+	* var mydropdown = {
+	*   dropdown_id: 'my-dropdown',
+	*   list: [{
+	*     heading: 'section heading',
+	*     list: [
+	*       {text: 'one'},
+	*       {text: 'two'}
+	*     ]
+	*   }]
+	* };
+	*
+	* AP.events.on('dropdown-item-selected', (data) =>{
+	*   console.log('dropdown item selected', data.dropdown_id, data.item);
+	* });
+	*
+	* AP.dropdown.create(mydropdown);
+	* // button is an element in our document that triggered the dropdown
+	* let rect = document.querySelector('button').getBoundingClientRect();
+	* AP.dropdown.showAt('my-dropdown', rect.left, rect.top, rect.width);
+	*
+	*/
+
+	var dropdown = {
+	  /**
+	  * @name create
+	  * @method
+	  * @description Creates a new dropdown.
+	  * @param {Object} options             Options of the dropdown.
+	  * @param {String} options.dropdown_id A unique identifier for the dropdown that will be referenced in events.
+	  * @param {String} options.list        An array containing dropdown items {Dropdown~DropdownItem}
+	  * @example
+	  * // create a dropdown menu with 1 section and 2 items
+	  * var mydropdown = {
+	  *   dropdown_id: 'my-dropdown',
+	  *   list: [{
+	  *     heading: 'section heading',
+	  *     list: [
+	  *       {text: 'one'},
+	  *       {text: 'two'}
+	  *     ]
+	  *   }]
+	  * };
+	  *
+	  * AP.dropdown.create(mydropdown);
+	  */
+	  create: function create(options, callback) {
+	    callback = Util$1.last(arguments);
+	    if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
+	      return;
+	    }
+	    dropdownProvider = ModuleProviders$1.getProvider('dropdown');
+	    if (dropdownProvider) {
+	      dropdownProvider.registerItemNotifier(function (data) {
+	        DropdownActions.itemSelected(data.dropdown_id, data.item, callback._context.extension);
+	      });
+	      options.list = moduleListToApiList(options.list);
+	      dropdownProvider.create(options, callback._context);
+	      // return for testing
+	      return options;
+	    }
+	  },
+
+
+	  /**
+	  * @name showAt
+	  * @method
+	  * @description Displays a created dropdown menu.
+	  * @param {String} dropdown_id   Id used when creating the dropdown
+	  * @param {String} x             x position from the edge of your iframe to display
+	  * @param {String} y             y position from the edge of your iframe to display
+	  * @param {String} width         Optionally enforce a width for the dropdown menu
+	  * @example
+	  * // create a dropdown menu with 1 section and 2 items
+	  * var mydropdown = {
+	  *   dropdown_id: 'my-dropdown',
+	  *   list: [{
+	  *     list:['one', 'two']
+	  *   }]
+	  * };
+	  *
+	  * AP.dropdown.create(mydropdown);
+	  * // Get the button that activated the dropdown
+	  * let rect = document.querySelector('button').getBoundingClientRect();
+	  * AP.dropdown.showAt('my-dropdown', rect.left, rect.top, rect.width);
+	  */
+	  showAt: function showAt(dropdown_id, x, y, width) {
+	    var callback = Util$1.last(arguments);
+	    var rect = document.getElementById(callback._context.extension_id).getBoundingClientRect();
+
+	    if (dropdownProvider) {
+	      dropdownProvider.showAt({
+	        dropdown_id: dropdown_id,
+	        x: x,
+	        y: y,
+	        width: width
+	      }, {
+	        iframeDimensions: rect,
+	        onItemSelection: function onItemSelection(dropdown_id, item) {
+	          DropdownActions.itemSelected(dropdown_id, item, callback._context.extension);
+	        }
+	      });
+	    }
+	  },
+
+	  /**
+	  * @name hide
+	  * @method
+	  * @description Hide a dropdown menu
+	  * @param {String} dropdown_id The id of the dropdown to hide
+	  * @example
+	  * AP.dropdown.create('my-dropdown');
+	  * AP.dropdown.hide('my-dropdown');
+	  */
+	  hide: function hide(id) {
+	    if (dropdownProvider) {
+	      dropdownProvider.hide(id);
+	    }
+	  },
+
+
+	  /**
+	  * @name itemDisable
+	  * @method
+	  * @description Disable an item in the dropdown menu
+	  * @param {String} dropdown_id The id of the dropdown
+	  * @param {String} item_id     The dropdown item to disable
+	  * @example
+	  * AP.dropdown.create('my-dropdown');
+	  * AP.dropdown.itemDisable('my-dropdown', 'item-id');
+	  */
+	  itemDisable: function itemDisable(dropdown_id, item_id) {
+	    if (dropdownProvider) {
+	      dropdownProvider.itemDisable(dropdown_id, item_id);
+	    }
+	  },
+
+
+	  /**
+	  * @name itemEnable
+	  * @method
+	  * @description Hide a dropdown menu
+	  * @param {String} dropdown_id The id of the dropdown
+	  * @param {String} item_id The id of the dropdown item to enable
+	  * @example
+	  * AP.dropdown.create('my-dropdown');
+	  * AP.dropdown.itemEnable('my-dropdown', 'item-id');
+	  */
+	  itemEnable: function itemEnable(dropdown_id, item_id) {
+	    if (dropdownProvider) {
+	      dropdownProvider.itemEnable(dropdown_id, item_id);
+	    }
+	  }
+	};
+
+	EventDispatcher$1.register('dropdown-item-selected', function (data) {
+	  EventActions.broadcast('dropdown-item-selected', {
+	    addon_key: data.extension.addon_key,
+	    key: data.extension.key
+	  }, {
+	    dropdown_id: data.id,
+	    item: data.item
+	  });
+	});
+
 	function create(extension) {
 	  var simpleXdmExtension = {
 	    addon_key: extension.addon_key,
@@ -5051,7 +5273,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.0.5';
+	  window._AP.version = '5.1.0';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
@@ -5062,6 +5284,7 @@
 	simpleXDM$1.defineModule('events', events);
 	simpleXDM$1.defineModule('_analytics', analytics$1);
 	simpleXDM$1.defineModule('scrollPosition', scrollPosition);
+	simpleXDM$1.defineModule('dropdown', dropdown);
 
 	EventDispatcher$1.register('module-define-custom', function (data) {
 	  simpleXDM$1.defineModule(data.name, data.methods);
