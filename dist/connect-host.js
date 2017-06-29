@@ -3519,7 +3519,7 @@
 	      appearance: 'subtle-link'
 	    }]).map(function (button) {
 	      button.onClick = function () {
-	        // Todo: this needs to be hooked up with the appropriate action
+	        // Todo: ACJS-667 - this needs to be hooked up with the appropriate action
 	        // Currently the dialog actions are to intertwined with component DOM
 	        console.log(button.id, _id);
 	      };
