@@ -3785,335 +3785,6 @@
       }
     });
 
-    var InlineDialogActions = {
-      hide: function hide($el) {
-        EventDispatcher$1.dispatch('inline-dialog-hide', {
-          $el: $el
-        });
-      },
-      refresh: function refresh($el) {
-        EventDispatcher$1.dispatch('inline-dialog-refresh', { $el: $el });
-      },
-      hideTriggered: function hideTriggered(extension_id, $el) {
-        EventDispatcher$1.dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
-      },
-      close: function close() {
-        EventDispatcher$1.dispatch('inline-dialog-close', {});
-      },
-      created: function created(data) {
-        EventDispatcher$1.dispatch('inline-dialog-opened', {
-          $el: data.$el,
-          trigger: data.trigger,
-          extension: data.extension
-        });
-      }
-    };
-
-    /**
-     * The inline dialog is a wrapper for secondary content/controls to be displayed on user request. Consider this component as displayed in context to the triggering control with the dialog overlaying the page content.
-     * A inline dialog should be preferred over a modal dialog when a connection between the action has a clear benefit versus having a lower user focus.
-     *
-     * Inline dialogs can be shown via a [web item target](../modules/common/web-item.html#target).
-     *
-     * For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inline-dialog.html).
-     * @module inline-dialog
-     */
-
-    var inlineDialog = {
-      /**
-       * Hide the inline dialog that contains the iframe where this method is called from.
-       * @memberOf module:inline-dialog
-       * @method hide
-       * @noDemo
-       * @example
-       * AP.inlineDialog.hide();
-       */
-      hide: function hide(callback) {
-        callback = Util$1.last(arguments);
-        var inlineDialogProvider = ModuleProviders$1.getProvider('inlineDialog');
-        if (inlineDialogProvider) {
-          inlineDialogProvider.hide(callback._context);
-        } else {
-          InlineDialogActions.close();
-        }
-      }
-    };
-
-    var AnalyticsAction = {
-      trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, extension) {
-        EventDispatcher$1.dispatch('analytics-deprecated-method-used', { methodUsed: methodUsed, extension: extension });
-      }
-    };
-
-    /**
-    * Messages are the primary method for providing system feedback in the product user interface.
-    * Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
-    * For visual examples of each kind please see the [Design guide](https://developer.atlassian.com/design/latest/communicators/messages/).
-    * ### Example ###
-    * ```
-    * //create a message
-    * var message = AP.messages.info('plain text title', 'plain text body');
-    * ```
-    * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
-    * @name messages
-    * @module
-    */
-
-    var MESSAGE_BAR_ID = 'ac-message-container';
-    var MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
-    var MSGID_PREFIX = 'ap-message-';
-    var MSGID_REGEXP = new RegExp('^' + MSGID_PREFIX + '[0-9A-fa-f]+$');
-    var _messages = {};
-
-    function validateMessageId(msgId) {
-      return MSGID_REGEXP.test(msgId);
-    }
-
-    function getMessageBar() {
-      var $msgBar = $('#' + MESSAGE_BAR_ID);
-
-      if ($msgBar.length < 1) {
-        $msgBar = $('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
-      }
-      return $msgBar;
-    }
-
-    function filterMessageOptions(options) {
-      var copy = {};
-      var allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
-      if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object') {
-        allowed.forEach(function (key) {
-          if (key in options) {
-            copy[key] = options[key];
-          }
-        });
-      }
-      return copy;
-    }
-
-    function showMessage(name, title, body, options) {
-      var $msgBar = getMessageBar();
-      options = filterMessageOptions(options);
-      $.extend(options, {
-        title: title,
-        body: AJS.escapeHtml(body)
-      });
-
-      if (MESSAGE_TYPES.indexOf(name) < 0) {
-        throw 'Invalid message type. Must be: ' + MESSAGE_TYPES.join(', ');
-      }
-      if (validateMessageId(options.id)) {
-        AJS.messages[name]($msgBar, options);
-        // Calculate the left offset based on the content width.
-        // This ensures the message always stays in the centre of the window.
-        $msgBar.css('margin-left', '-' + $msgBar.innerWidth() / 2 + 'px');
-      }
-    }
-
-    function deprecatedShowMessage(name, title, body, options, callback) {
-      var methodUsed = 'AP.messages.' + name;
-      console.warn('DEPRECATED API - AP.messages.' + name + ' has been deprecated since ACJS 5.0 and will be removed in a future release. Use AP.flag.create instead.');
-      AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
-      showMessage(name, title, body, options);
-    }
-
-    $(document).on('aui-message-close', function (e, $msg) {
-      var _id = $msg.attr('id').replace(MSGID_PREFIX, '');
-      if (_messages[_id]) {
-        if ($.isFunction(_messages[_id].onCloseTrigger)) {
-          _messages[_id].onCloseTrigger();
-        }
-        _messages[_id]._destroy();
-      }
-    });
-
-    function messageModule(messageType) {
-      return {
-        constructor: function constructor(title, body, options, callback) {
-          callback = Util$1.last(arguments);
-          var _id = callback._id;
-          if (typeof title !== 'string') {
-            title = '';
-          }
-          if (typeof body !== 'string') {
-            body = '';
-          }
-          if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
-            options = {};
-          }
-          options.id = MSGID_PREFIX + _id;
-          deprecatedShowMessage(messageType, title, body, options, callback);
-          _messages[_id] = this;
-        }
-      };
-    }
-
-    var messages = {
-      /**
-      * Close a message
-      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
-      * @name clear
-      * @method
-      * @memberof module:messages#
-      * @param    {String}    id  The id that was returned when the message was created.
-      * @example
-      * //create a message
-      * var message = AP.messages.info('title', 'body');
-      * setTimeout(function(){
-      *   AP.messages.clear(message);
-      * }, 2000);
-      */
-      clear: function clear(msg) {
-        var id = MSGID_PREFIX + msg._id;
-        if (validateMessageId(id)) {
-          $('#' + id).closeMessage();
-        }
-      },
-
-      /**
-      * Trigger an event when a message is closed
-      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
-      * @name onClose
-      * @method
-      * @memberof module:messages#
-      * @param    {String}    id  The id that was returned when the message was created.
-      * @param    {Function}  callback  The function that is run when the event is triggered
-      * @example
-      * //create a message
-      * var message = AP.messages.info('title', 'body');
-      * AP.messages.onClose(message, function() {
-      *   console.log(message, ' has been closed!');
-      * });
-      */
-      onClose: function onClose(msg, callback) {
-        callback = Util$1.last(arguments);
-        var id = msg._id;
-        if (_messages[id]) {
-          _messages[id].onCloseTrigger = callback;
-        }
-      },
-
-      /**
-      * Show a generic message
-      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
-      * @name generic
-      * @method
-      * @memberof module:messages#
-      * @param    {String}            title       Sets the title text of the message.
-      * @param    {String}            body        The main content of the message.
-      * @param    {Object}            options             Message Options
-      * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-      * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-      * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-      * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-      * @returns  {String}    The id to be used when clearing the message
-      * @example
-      * //create a message
-      * var message = AP.messages.generic('title', 'generic message example');
-      */
-      generic: messageModule('generic'),
-
-      /**
-      * Show an error message
-      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
-      * @name error
-      * @method
-      * @memberof module:messages#
-      * @param    {String}            title       Sets the title text of the message.
-      * @param    {String}            body        The main content of the message.
-      * @param    {Object}            options             Message Options
-      * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-      * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-      * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-      * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-      * @returns  {String}    The id to be used when clearing the message
-      * @example
-      * //create a message
-      * var message = AP.messages.error('title', 'error message example');
-      */
-      error: messageModule('error'),
-
-      /**
-      * Show a warning message
-      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
-      * @name warning
-      * @method
-      * @memberof module:messages#
-      * @param    {String}            title       Sets the title text of the message.
-      * @param    {String}            body        The main content of the message.
-      * @param    {Object}            options             Message Options
-      * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-      * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-      * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-      * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-      * @returns  {String}    The id to be used when clearing the message
-      * @example
-      * //create a message
-      * var message = AP.messages.warning('title', 'warning message example');
-      */
-      warning: messageModule('warning'),
-
-      /**
-      * Show a success message
-      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
-      * @name success
-      * @method
-      * @memberof module:messages#
-      * @param    {String}            title       Sets the title text of the message.
-      * @param    {String}            body        The main content of the message.
-      * @param    {Object}            options             Message Options
-      * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-      * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-      * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-      * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-      * @returns  {String}    The id to be used when clearing the message
-      * @example
-      * //create a message
-      * var message = AP.messages.success('title', 'success message example');
-      */
-      success: messageModule('success'),
-
-      /**
-      * Show an info message
-      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
-      * @name info
-      * @method
-      * @memberof module:messages#
-      * @param    {String}            title       Sets the title text of the message.
-      * @param    {String}            body        The main content of the message.
-      * @param    {Object}            options             Message Options
-      * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-      * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-      * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-      * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-      * @returns  {String}    The id to be used when clearing the message
-      * @example
-      * //create a message
-      * var message = AP.messages.info('title', 'info message example');
-      */
-      info: messageModule('info'),
-
-      /**
-      * Show a hint message
-      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
-      * @name hint
-      * @method
-      * @memberof module:messages#
-      * @param    {String}            title               Sets the title text of the message.
-      * @param    {String}            body                The main content of the message.
-      * @param    {Object}            options             Message Options
-      * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
-      * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
-      * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
-      * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
-      * @returns  {String}    The id to be used when clearing the message
-      * @example
-      * //create a message
-      * var message = AP.messages.hint('title', 'hint message example');
-      */
-      hint: messageModule('hint')
-    };
-
     function unwrapExports (x) {
     	return x && x.__esModule ? x['default'] : x;
     }
@@ -4472,6 +4143,334 @@
     });
 
     var ACJSAdaptor = unwrapExports(ACJSAdaptor_1);
+
+    var InlineDialogActions = {
+      hide: function hide($el) {
+        EventDispatcher$1.dispatch('inline-dialog-hide', {
+          $el: $el
+        });
+      },
+      refresh: function refresh($el) {
+        EventDispatcher$1.dispatch('inline-dialog-refresh', { $el: $el });
+      },
+      hideTriggered: function hideTriggered(extension_id, $el) {
+        EventDispatcher$1.dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
+      },
+      close: function close() {
+        EventDispatcher$1.dispatch('inline-dialog-close', {});
+      },
+      created: function created(data) {
+        EventDispatcher$1.dispatch('inline-dialog-opened', {
+          $el: data.$el,
+          trigger: data.trigger,
+          extension: data.extension
+        });
+      }
+    };
+
+    /**
+     * The inline dialog is a wrapper for secondary content/controls to be displayed on user request. Consider this component as displayed in context to the triggering control with the dialog overlaying the page content.
+     * An inline dialog should be preferred over a modal dialog when a connection between the action has a clear benefit versus having a lower user focus.
+     *
+     * Inline dialogs can be shown via a [web item target](../modules/common/web-item.html#target).
+     *
+     * For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inline-dialog.html).
+     * @module inline-dialog
+     */
+    var inlineDialog = {
+      /**
+       * Hide the inline dialog that contains the iframe where this method is called from.
+       * @memberOf module:inline-dialog
+       * @method hide
+       * @noDemo
+       * @example
+       * AP.inlineDialog.hide();
+       */
+      hide: function hide(callback) {
+        callback = Util$1.last(arguments);
+        var inlineDialogProvider = ACJSAdaptor.getProviderByModuleName('inlineDialog');
+        if (inlineDialogProvider) {
+          inlineDialogProvider.hide(callback._context);
+        } else {
+          InlineDialogActions.close();
+        }
+      }
+    };
+
+    var AnalyticsAction = {
+      trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, extension) {
+        EventDispatcher$1.dispatch('analytics-deprecated-method-used', { methodUsed: methodUsed, extension: extension });
+      }
+    };
+
+    /**
+    * Messages are the primary method for providing system feedback in the product user interface.
+    * Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
+    * For visual examples of each kind please see the [Design guide](https://developer.atlassian.com/design/latest/communicators/messages/).
+    * ### Example ###
+    * ```
+    * //create a message
+    * var message = AP.messages.info('plain text title', 'plain text body');
+    * ```
+    * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+    * @name messages
+    * @module
+    */
+
+    var MESSAGE_BAR_ID = 'ac-message-container';
+    var MESSAGE_TYPES = ['generic', 'error', 'warning', 'success', 'info', 'hint'];
+    var MSGID_PREFIX = 'ap-message-';
+    var MSGID_REGEXP = new RegExp('^' + MSGID_PREFIX + '[0-9A-fa-f]+$');
+    var _messages = {};
+
+    function validateMessageId(msgId) {
+      return MSGID_REGEXP.test(msgId);
+    }
+
+    function getMessageBar() {
+      var $msgBar = $('#' + MESSAGE_BAR_ID);
+
+      if ($msgBar.length < 1) {
+        $msgBar = $('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
+      }
+      return $msgBar;
+    }
+
+    function filterMessageOptions(options) {
+      var copy = {};
+      var allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
+      if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object') {
+        allowed.forEach(function (key) {
+          if (key in options) {
+            copy[key] = options[key];
+          }
+        });
+      }
+      return copy;
+    }
+
+    function showMessage(name, title, body, options) {
+      var $msgBar = getMessageBar();
+      options = filterMessageOptions(options);
+      $.extend(options, {
+        title: title,
+        body: AJS.escapeHtml(body)
+      });
+
+      if (MESSAGE_TYPES.indexOf(name) < 0) {
+        throw 'Invalid message type. Must be: ' + MESSAGE_TYPES.join(', ');
+      }
+      if (validateMessageId(options.id)) {
+        AJS.messages[name]($msgBar, options);
+        // Calculate the left offset based on the content width.
+        // This ensures the message always stays in the centre of the window.
+        $msgBar.css('margin-left', '-' + $msgBar.innerWidth() / 2 + 'px');
+      }
+    }
+
+    function deprecatedShowMessage(name, title, body, options, callback) {
+      var methodUsed = 'AP.messages.' + name;
+      console.warn('DEPRECATED API - AP.messages.' + name + ' has been deprecated since ACJS 5.0 and will be removed in a future release. Use AP.flag.create instead.');
+      AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
+      showMessage(name, title, body, options);
+    }
+
+    $(document).on('aui-message-close', function (e, $msg) {
+      var _id = $msg.attr('id').replace(MSGID_PREFIX, '');
+      if (_messages[_id]) {
+        if ($.isFunction(_messages[_id].onCloseTrigger)) {
+          _messages[_id].onCloseTrigger();
+        }
+        _messages[_id]._destroy();
+      }
+    });
+
+    function messageModule(messageType) {
+      return {
+        constructor: function constructor(title, body, options, callback) {
+          callback = Util$1.last(arguments);
+          var _id = callback._id;
+          if (typeof title !== 'string') {
+            title = '';
+          }
+          if (typeof body !== 'string') {
+            body = '';
+          }
+          if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
+            options = {};
+          }
+          options.id = MSGID_PREFIX + _id;
+          deprecatedShowMessage(messageType, title, body, options, callback);
+          _messages[_id] = this;
+        }
+      };
+    }
+
+    var messages = {
+      /**
+      * Close a message
+      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+      * @name clear
+      * @method
+      * @memberof module:messages#
+      * @param    {String}    id  The id that was returned when the message was created.
+      * @example
+      * //create a message
+      * var message = AP.messages.info('title', 'body');
+      * setTimeout(function(){
+      *   AP.messages.clear(message);
+      * }, 2000);
+      */
+      clear: function clear(msg) {
+        var id = MSGID_PREFIX + msg._id;
+        if (validateMessageId(id)) {
+          $('#' + id).closeMessage();
+        }
+      },
+
+      /**
+      * Trigger an event when a message is closed
+      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+      * @name onClose
+      * @method
+      * @memberof module:messages#
+      * @param    {String}    id  The id that was returned when the message was created.
+      * @param    {Function}  callback  The function that is run when the event is triggered
+      * @example
+      * //create a message
+      * var message = AP.messages.info('title', 'body');
+      * AP.messages.onClose(message, function() {
+      *   console.log(message, ' has been closed!');
+      * });
+      */
+      onClose: function onClose(msg, callback) {
+        callback = Util$1.last(arguments);
+        var id = msg._id;
+        if (_messages[id]) {
+          _messages[id].onCloseTrigger = callback;
+        }
+      },
+
+      /**
+      * Show a generic message
+      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+      * @name generic
+      * @method
+      * @memberof module:messages#
+      * @param    {String}            title       Sets the title text of the message.
+      * @param    {String}            body        The main content of the message.
+      * @param    {Object}            options             Message Options
+      * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+      * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+      * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+      * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+      * @returns  {String}    The id to be used when clearing the message
+      * @example
+      * //create a message
+      * var message = AP.messages.generic('title', 'generic message example');
+      */
+      generic: messageModule('generic'),
+
+      /**
+      * Show an error message
+      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+      * @name error
+      * @method
+      * @memberof module:messages#
+      * @param    {String}            title       Sets the title text of the message.
+      * @param    {String}            body        The main content of the message.
+      * @param    {Object}            options             Message Options
+      * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+      * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+      * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+      * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+      * @returns  {String}    The id to be used when clearing the message
+      * @example
+      * //create a message
+      * var message = AP.messages.error('title', 'error message example');
+      */
+      error: messageModule('error'),
+
+      /**
+      * Show a warning message
+      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+      * @name warning
+      * @method
+      * @memberof module:messages#
+      * @param    {String}            title       Sets the title text of the message.
+      * @param    {String}            body        The main content of the message.
+      * @param    {Object}            options             Message Options
+      * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+      * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+      * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+      * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+      * @returns  {String}    The id to be used when clearing the message
+      * @example
+      * //create a message
+      * var message = AP.messages.warning('title', 'warning message example');
+      */
+      warning: messageModule('warning'),
+
+      /**
+      * Show a success message
+      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+      * @name success
+      * @method
+      * @memberof module:messages#
+      * @param    {String}            title       Sets the title text of the message.
+      * @param    {String}            body        The main content of the message.
+      * @param    {Object}            options             Message Options
+      * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+      * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+      * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+      * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+      * @returns  {String}    The id to be used when clearing the message
+      * @example
+      * //create a message
+      * var message = AP.messages.success('title', 'success message example');
+      */
+      success: messageModule('success'),
+
+      /**
+      * Show an info message
+      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+      * @name info
+      * @method
+      * @memberof module:messages#
+      * @param    {String}            title       Sets the title text of the message.
+      * @param    {String}            body        The main content of the message.
+      * @param    {Object}            options             Message Options
+      * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+      * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+      * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+      * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+      * @returns  {String}    The id to be used when clearing the message
+      * @example
+      * //create a message
+      * var message = AP.messages.info('title', 'info message example');
+      */
+      info: messageModule('info'),
+
+      /**
+      * Show a hint message
+      * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+      * @name hint
+      * @method
+      * @memberof module:messages#
+      * @param    {String}            title               Sets the title text of the message.
+      * @param    {String}            body                The main content of the message.
+      * @param    {Object}            options             Message Options
+      * @param    {Boolean}           options.closeable   Adds a control allowing the user to close the message, removing it from the page.
+      * @param    {Boolean}           options.fadeout     Toggles the fade away on the message
+      * @param    {Number}            options.delay       Time to wait (in ms) before starting fadeout animation (ignored if fadeout==false)
+      * @param    {Number}            options.duration    Fadeout animation duration in milliseconds (ignored if fadeout==false)
+      * @returns  {String}    The id to be used when clearing the message
+      * @example
+      * //create a message
+      * var message = AP.messages.hint('title', 'hint message example');
+      */
+      hint: messageModule('hint')
+    };
 
     var FlagActions = {
       // called on action click
