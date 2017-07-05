@@ -3064,7 +3064,9 @@
     });
 
     EventDispatcher$1.register('dialog-close', function (data) {
-      data.dialog.hide();
+      if (data.dialog) {
+        data.dialog.hide();
+      }
     });
 
     EventDispatcher$1.register('dialog-button-toggle', function (data) {
@@ -3221,441 +3223,117 @@
       DialogExtensionComponent.render(data.extension, data.options);
     });
 
-    var _dialogs = {};
-
-    EventDispatcher$1.register('dialog-close', function (data) {
-      var dialog = data.dialog;
-      if (dialog && data.extension) {
-        EventActions.broadcast('dialog.close', {
-          addon_key: data.extension.addon_key
-        }, data.customData);
-      }
-    });
-
-    EventDispatcher$1.register('dialog-button-click', function (data) {
-      var eventData = {
-        button: {
-          name: ButtonComponent.getName(data.$el),
-          identifier: ButtonComponent.getIdentifier(data.$el),
-          text: ButtonComponent.getText(data.$el)
-        }
-      };
-      var eventName = 'dialog.button.click';
-
-      // Old buttons, (submit and cancel) use old events
-      if (!data.$el.hasClass('ap-dialog-custom-button')) {
-        eventName = 'dialog.' + eventData.button.name;
-      }
-
-      EventActions.broadcast(eventName, {
-        addon_key: data.extension.addon_key,
-        key: data.extension.key
-      }, eventData);
-    });
-
-    /**
-     * @class Dialog~Dialog
-     * @description A dialog object that is returned when a dialog is created using the [dialog module](module-Dialog.html).
-     */
-
-    var Dialog = function Dialog(options, callback) {
-      classCallCheck(this, Dialog);
-
-      callback = Util$1.last(arguments);
-      var _id = callback._id;
-      var extension = callback._context.extension;
-
-      var dialogExtension = {
+    function create(extension) {
+      var simpleXdmExtension = {
         addon_key: extension.addon_key,
-        key: options.key,
-        options: Util$1.pick(callback._context.extension.options, ['customData', 'productContext'])
+        key: extension.key,
+        url: extension.url,
+        options: extension.options
       };
-
-      // ACJS-185: the following is a really bad idea but we need it
-      // for compat until AP.dialog.customData has been deprecated
-      dialogExtension.options.customData = options.customData;
-      // terrible idea! - we need to remove this from p2 ASAP!
-      var dialogModuleOptions = dialogUtilsInstance.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
-      options = Util$1.extend({}, dialogModuleOptions || {}, options);
-      options.id = _id;
-
-      DialogExtensionActions.open(dialogExtension, options);
-      this.customData = options.customData;
-      _dialogs[_id] = this;
-    };
-
-    /**
-     * @class Dialog~DialogButton
-     * @description A dialog button that can be controlled with JavaScript
-     */
-
-
-    var Button = function () {
-      function Button(identifier) {
-        classCallCheck(this, Button);
-
-        if (!DialogExtensionComponent.getActiveDialog()) {
-          throw new Error('Failed to find an active dialog.');
-        }
-        this.name = identifier;
-        this.identifier = identifier;
-        this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
-        this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
-      }
-      /**
-       * Sets the button state to enabled
-       * @method enable
-       * @memberOf Dialog~DialogButton
-       * @noDemo
-       * @example
-       * AP.dialog.getButton('submit').enable();
-       */
-
-
-      Button.prototype.enable = function enable() {
-        this.setState({
-          enabled: true
-        });
-      };
-      /**
-       * Sets the button state to disabled. A disabled button cannot be clicked and emits no events.
-       * @method disable
-       * @memberOf Dialog~DialogButton
-       * @noDemo
-       * @example
-       * AP.dialog.getButton('submit').disable();
-       */
-
-
-      Button.prototype.disable = function disable() {
-        this.setState({
-          enabled: false
-        });
-      };
-      /**
-       * Query a button for its current state.
-       * @method isEnabled
-       * @memberOf Dialog~DialogButton
-       * @param {Function} callback function to receive the button state.
-       * @noDemo
-       * @example
-       * AP.dialog.getButton('submit').isEnabled(function(enabled){
-       *   if(enabled){
-       *     //button is enabled
-       *   }
-       * });
-       */
-
-
-      Button.prototype.isEnabled = function isEnabled(callback) {
-        callback = Util$1.last(arguments);
-        callback(this.enabled);
-      };
-      /**
-       * Toggle the button state between enabled and disabled.
-       * @method toggle
-       * @memberOf Dialog~DialogButton
-       * @noDemo
-       * @example
-       * AP.dialog.getButton('submit').toggle();
-       */
-
-
-      Button.prototype.toggle = function toggle() {
-        this.setState({
-          enabled: !this.enabled
-        });
-      };
-
-      Button.prototype.setState = function setState(state) {
-        this.enabled = state.enabled;
-        DialogActions.toggleButton({
-          identifier: this.identifier,
-          enabled: this.enabled
-        });
-      };
-      /**
-       * Trigger a callback bound to a button.
-       * @method trigger
-       * @memberOf Dialog~DialogButton
-       * @noDemo
-       * @example
-       * AP.dialog.getButton('submit').bind(function(){
-       *   alert('clicked!');
-       * });
-       * AP.dialog.getButton('submit').trigger();
-       */
-
-
-      Button.prototype.trigger = function trigger(callback) {
-        callback = Util$1.last(arguments);
-        if (this.enabled) {
-          DialogActions.dialogMessage({
-            name: this.name,
-            extension: callback._context.extension
-          });
-        }
-      };
-
-      /**
-       * Query a button for its current hidden/visible state.
-       * @method isHidden
-       * @memberOf Dialog~DialogButton
-       * @param {Function} callback function to receive the button state.
-       * @noDemo
-       * @example
-       * AP.dialog.getButton('submit').isHidden(function(hidden){
-       *   if(hidden){
-       *     //button is hidden
-       *   }
-       * });
-       */
-
-
-      Button.prototype.isHidden = function isHidden(callback) {
-        callback = Util$1.last(arguments);
-        callback(this.hidden);
-      };
-      /**
-       * Sets the button state to hidden
-       * @method hide
-       * @memberOf Dialog~DialogButton
-       * @noDemo
-       * @example
-       * AP.dialog.getButton('submit').hide();
-       */
-
-
-      Button.prototype.hide = function hide() {
-        this.setHidden(true);
-      };
-      /**
-       * Sets the button state to visible
-       * @method show
-       * @memberOf Dialog~DialogButton
-       * @noDemo
-       * @example
-       * AP.dialog.getButton('submit').show();
-       */
-
-
-      Button.prototype.show = function show() {
-        this.setHidden(false);
-      };
-
-      Button.prototype.setHidden = function setHidden(hidden) {
-        this.hidden = hidden;
-        DialogActions.toggleButtonVisibility({
-          identifier: this.identifier,
-          hidden: this.hidden
-        });
-      };
-
-      return Button;
-    }();
-
-    function getDialogFromContext(context) {
-      return _dialogs[context.extension.options.dialogId];
+      return IframeContainerComponent.createExtension(simpleXdmExtension);
     }
 
-    var CreateButton = function CreateButton(options, callback) {
-      classCallCheck(this, CreateButton);
-
-      callback = Util$1.last(arguments);
-      DialogExtensionActions.addUserButton({
-        identifier: options.identifier,
-        text: options.text
-      }, callback._context.extension);
-    };
-
-    /**
-     * The Dialog module provides a mechanism for launching an add-on's modules as modal dialogs from within an add-on's iframe.
-     *
-     * A modal dialog displays information without requiring the user to leave the current page.
-     *
-     * The dialog is opened over the entire window, rather than within the iframe itself.
-     *
-     * <h3>Styling your dialog to look like a standard Atlassian dialog</h3>
-     *
-     * By default the dialog iframe is undecorated. It's up to you to style the dialog.
-     * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
-     *
-     * In order to maintain a consistent look and feel between the host application and the add-on, we encourage you to style your dialogs to match Atlassian's Design Guidelines for modal dialogs.
-     *
-     * To do that, you'll need to add the AUI styles to your dialog.
-     *
-     * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog.html).
-     * @exports Dialog
-     */
-
-
-    var dialog = {
-      /**
-       * @class Dialog~DialogOptions
-       * @description The options supplied to a [dialog.create()](module-Dialog.html) call.
-       *
-       * @property {String}        key         The module key of a dialog, or the key of a page or web-item that you want to open as a dialog.
-       * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or fullscreen (with chrome).
-       * @property {Number|String} width       if size is not set, define the width as a percentage (append a % to the number) or pixels.
-       * @property {Number|String} height      if size is not set, define the height as a percentage (append a % to the number) or pixels.
-       * @property {Boolean}       chrome      (optional) opens the dialog with heading and buttons.
-       * @property {String}        header      (optional) text to display in the header if opening a dialog with chrome.
-       * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
-       * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
-       * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
-       * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC will close the dialog (default is true).
-       * @property {Array}         buttons     (optional) an array of custom buttons to be added to the dialog if opening a dialog with chrome.
-       */
-
-      /**
-       * Creates a dialog for a common dialog, page or web-item module key.
-       * @param {Dialog~DialogOptions} options configuration object of dialog options.
-       * @method create
-       * @noDemo
-       * @example
-       * AP.dialog.create({
-       *   key: 'my-module-key',
-       *   width: '500px',
-       *   height: '200px',
-       *   chrome: true,
-       *   buttons: [
-       *     {
-       *       text: 'my button',
-       *       identifier: 'my_unique_identifier'
-       *     }
-       *   ]
-       * }).on("close", callbackFunc);
-       *
-       * @return {Dialog~Dialog} Dialog object allowing for callback registrations
-       */
-      create: {
-        constructor: Dialog
-      },
-      /**
-       * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.
-       * This will only close a dialog that has been opened by your add-on.
-       * You can register for close events using the `dialog.close` event and the [events module](module-Events.html).
-       * @param {Object} data An object to be emitted on dialog close.
-       * @noDemo
-       * @example
-       * AP.dialog.close({foo: 'bar'});
-       */
-      close: function close(data, callback) {
-        callback = Util$1.last(arguments);
-        var dialogToClose;
-        if (callback._context.extension.options.isDialog) {
-          dialogToClose = DialogExtensionComponent.getByExtension(callback._context.extension.id)[0];
+    var ModuleActions = {
+      defineCustomModule: function defineCustomModule(name, methods) {
+        var data = {};
+        if (!methods) {
+          data.methods = name;
         } else {
-          dialogToClose = DialogExtensionComponent.getActiveDialog();
+          data.methods = methods;
+          data.name = name;
         }
-
-        DialogActions.close({
-          customData: data,
-          dialog: dialogToClose,
-          extension: callback._context.extension
-        });
-      },
-      /**
-       * Passes the custom data Object to the specified callback function.
-       * @noDemo
-       * @name getCustomData
-       * @method
-       * @param {Function} callback - Callback method to be executed with the custom data.
-       * @example
-       * AP.dialog.getCustomData(function (customData) {
-       *   console.log(customData);
-       * });
-       *
-       */
-      getCustomData: function getCustomData(callback) {
-        callback = Util$1.last(arguments);
-        var dialog = getDialogFromContext(callback._context);
-        if (dialog) {
-          callback(dialog.customData);
-        } else {
-          callback(undefined);
-        }
-      },
-      /**
-       * Returns the button that was requested (either cancel or submit). If the requested button does not exist, an empty Object will be returned instead.
-       * @method getButton
-       * @returns {Dialog~DialogButton}
-       * @noDemo
-       * @example
-       * AP.dialog.getButton('submit');
-       */
-      getButton: {
-        constructor: Button,
-        enable: Button.prototype.enable,
-        disable: Button.prototype.disable,
-        toggle: Button.prototype.toggle,
-        isEnabled: Button.prototype.isEnabled,
-        trigger: Button.prototype.trigger,
-        hide: Button.prototype.hide,
-        show: Button.prototype.show,
-        isHidden: Button.prototype.isHidden
-      },
-      /**
-       * Creates a dialog button that can be controlled with javascript
-       * @method createButton
-       * @returns {Dialog~DialogButton}
-       * @noDemo
-       * @example
-       * AP.dialog.createButton({
-       *   text: 'button text',
-       *   identifier: 'button.1'
-       * }).bind(function mycallback(){});
-       */
-      createButton: {
-        constructor: CreateButton
+        EventDispatcher$1.dispatch('module-define-custom', data);
       }
     };
 
-    EventDispatcher$1.register('iframe-resize', function (data) {
-      IframeComponent.resize(data.width, data.height, data.$el);
-    });
+    var AnalyticsAction = {
+      trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, extension) {
+        EventDispatcher$1.dispatch('analytics-deprecated-method-used', { methodUsed: methodUsed, extension: extension });
+      }
+    };
 
-    EventDispatcher$1.register('iframe-size-to-parent', function (data) {
-      var height;
-      var $el = Util$1.getIframeByExtensionId(data.extensionId);
-      if (data.hideFooter) {
-        $el.addClass('full-size-general-page-no-footer');
-        $('#footer').css({ display: 'none' });
-        height = $(window).height() - $('#header > nav').outerHeight();
-      } else {
-        height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
-        $el.removeClass('full-size-general-page-no-footer');
-        $('#footer').css({ display: 'block' });
+    function sanitizeTriggers(triggers) {
+      var onTriggers;
+      if (Array.isArray(triggers)) {
+        onTriggers = triggers.join(' ');
+      } else if (typeof triggers === 'string') {
+        onTriggers = triggers.trim();
+      }
+      return onTriggers;
+    }
+
+    function uniqueId() {
+      return 'webitem-' + Math.floor(Math.random() * 1000000000).toString(16);
+    }
+
+    // LEGACY: get addon key by webitem for p2
+    function getExtensionKey($target) {
+      var cssClass = $target.attr('class');
+      var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
+      return Array.isArray(m) ? m[1] : false;
+    }
+
+    // LEGACY: get module key by webitem for p2
+    function getKey($target) {
+      var cssClass = $target.attr('class');
+      var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
+      return Array.isArray(m) ? m[1] : false;
+    }
+
+    function getTargetKey($target) {
+      var cssClass = $target.attr('class');
+      var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
+      return Array.isArray(m) ? m[1] : false;
+    }
+
+    function getFullKey($target) {
+      return getExtensionKey($target) + '__' + getKey($target);
+    }
+
+    function getModuleOptionsByAddonAndModuleKey(type, addonKey, moduleKey) {
+      var moduleType = type + 'Modules';
+      if (window._AP && window._AP[moduleType] && window._AP[moduleType][addonKey] && window._AP[moduleType][addonKey][moduleKey]) {
+        return Util$1.extend({}, window._AP[moduleType][addonKey][moduleKey].options);
+      }
+    }
+
+    function getModuleOptionsForWebitem(type, $target) {
+      var addon_key = getExtensionKey($target);
+      var targetKey = getTargetKey($target);
+      return getModuleOptionsByAddonAndModuleKey(type, addon_key, targetKey);
+    }
+
+    // LEGACY - method for handling webitem options for p2
+    function getOptionsForWebItem($target) {
+      var fullKey = getFullKey($target);
+
+      var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
+      var options = getModuleOptionsForWebitem(type, $target);
+      if (!options && window._AP && window._AP[type + 'Options']) {
+        options = Util$1.extend({}, window._AP[type + 'Options'][fullKey]) || {};
+      }
+      if (!options) {
+        options = {};
+        console.warn('no webitem ' + type + 'Options for ' + fullKey);
+      }
+      options.productContext = options.productContext || {};
+      // create product context from url params
+      var url = $target.attr('href');
+      if (url) {
+        var query = index$1.parse(index$1.extract(url));
+        Util$1.extend(options.productContext, query);
       }
 
-      EventDispatcher$1.dispatch('iframe-resize', {
-        width: '100%',
-        height: height + 'px',
-        $el: $el
-      });
-    });
+      return options;
+    }
 
-    AJS.$(window).on('resize', function (e) {
-      EventDispatcher$1.dispatch('host-window-resize', e);
-    });
-
-    var EnvActions = {
-      iframeResize: function iframeResize(width, height, context) {
-        var $el;
-        if (context.extension_id) {
-          $el = Util$1.getIframeByExtensionId(context.extension_id);
-        } else {
-          $el = context;
-        }
-
-        EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
-      },
-      sizeToParent: function sizeToParent(extensionId, hideFooter) {
-        EventDispatcher$1.dispatch('iframe-size-to-parent', {
-          hideFooter: hideFooter,
-          extensionId: extensionId
-        });
-      }
+    var WebItemUtils = {
+      sanitizeTriggers: sanitizeTriggers,
+      uniqueId: uniqueId,
+      getExtensionKey: getExtensionKey,
+      getKey: getKey,
+      getOptionsForWebItem: getOptionsForWebItem,
+      getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey
     };
 
     var ModuleProviders = function ModuleProviders() {
@@ -3673,117 +3351,6 @@
     };
 
     var ModuleProviders$1 = new ModuleProviders();
-
-    var debounce$2 = Util$1.debounce;
-    var resizeFuncHolder = {};
-    // ignore resize events for iframes that use sizeToParent
-    var ignoreResizeForExtension = [];
-    var sizeToParentExtension = {};
-
-    /**
-     * Utility methods that are available without requiring additional modules.
-     * @exports AP
-     */
-    var env = {
-      /**
-       * Get the location of the current page of the host product.
-       *
-       * @param {Function} callback function (location) {...}
-       * @example
-       * AP.getLocation(function(location){
-       *   alert(location);
-       * });
-       */
-      getLocation: function getLocation(callback) {
-        callback = Util$1.last(arguments);
-        callback(window.location.href);
-      },
-      /**
-       * Resize the iframe to a specified width and height.
-       *
-       * Only content within an element with the class `ac-content` will be resized automatically.
-       * Content without this identifier is sized according to the `body` element, and will dynamically grow, but not shrink.
-       * ```
-       * <div class="ac-content">
-         * <p>Hello World</p>
-       * </div>
-       * ```
-       * Note that this method cannot be used in dialogs.
-       *
-       * @method
-       * @param {String} width   the desired width
-       * @param {String} height  the desired height
-       */
-      resize: function resize(width, height, callback) {
-        callback = Util$1.last(arguments);
-        var addon = ModuleProviders$1.getProvider('addon');
-        if (addon) {
-          addon.resize(width, height, callback._context);
-        } else {
-          var iframeId = callback._context.extension.id;
-          var options = callback._context.extension.options;
-          if (ignoreResizeForExtension.indexOf(iframeId) !== -1 || options && options.isDialog) {
-            return false;
-          }
-
-          if (!resizeFuncHolder[iframeId]) {
-            resizeFuncHolder[iframeId] = debounce$2(function (dwidth, dheight, dcallback) {
-              EnvActions.iframeResize(dwidth, dheight, dcallback._context);
-            }, 50);
-          }
-
-          resizeFuncHolder[iframeId](width, height, callback);
-        }
-        return true;
-      },
-      /**
-       * Resize the iframe, so that it takes the entire page. Add-on may define to hide the footer using data-options.
-       *
-       * Note that this method is only available for general page modules.
-       *
-       * @method
-       * @param {boolean} hideFooter true if the footer is supposed to be hidden
-       */
-      sizeToParent: debounce$2(function (hideFooter, callback) {
-        callback = Util$1.last(arguments);
-        var addon = ModuleProviders$1.getProvider('addon');
-        if (addon) {
-          addon.sizeToParent(hideFooter, callback._context);
-        } else {
-          // sizeToParent is only available for general-pages
-          if (callback._context.extension.options.isFullPage) {
-            // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
-            Util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
-            EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
-            sizeToParentExtension[callback._context.extension_id] = { hideFooter: hideFooter };
-          } else {
-            // This is only here to support integration testing
-            // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-            Util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
-          }
-        }
-      })
-    };
-
-    EventDispatcher$1.register('host-window-resize', function (data) {
-      Object.getOwnPropertyNames(sizeToParentExtension).forEach(function (extensionId) {
-        EnvActions.sizeToParent(extensionId, sizeToParentExtension[extensionId].hideFooter);
-      });
-    });
-
-    EventDispatcher$1.register('after:iframe-unload', function (data) {
-      delete resizeFuncHolder[data.extension.id];
-      delete sizeToParentExtension[data.extension.id];
-      if (ignoreResizeForExtension.indexOf(data.extension.id) !== -1) {
-        ignoreResizeForExtension.splice(ignoreResizeForExtension.indexOf(data.extension.id), 1);
-      }
-    });
-
-    EventDispatcher$1.register('before:iframe-size-to-parent', function (data) {
-      if (ignoreResizeForExtension.indexOf(data.extensionId) === -1) {
-        ignoreResizeForExtension.push(data.extensionId);
-      }
-    });
 
     function unwrapExports (x) {
     	return x && x.__esModule ? x['default'] : x;
@@ -4144,6 +3711,701 @@
 
     var ACJSAdaptor = unwrapExports(ACJSAdaptor_1);
 
+    var HostApi$1 = function () {
+      function HostApi() {
+        classCallCheck(this, HostApi);
+
+        this.create = create;
+        this.dialog = {
+          create: function create$$1(extension, dialogOptions) {
+            var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
+            var completeOptions = Util$1.extend({}, dialogBeanOptions || {}, dialogOptions);
+            DialogExtensionActions.open(extension, completeOptions);
+          },
+          close: function close() {
+            DialogExtensionActions.close();
+          }
+        };
+        this.registerContentResolver = {
+          resolveByExtension: function resolveByExtension(callback) {
+            jwtActions.registerContentResolver({ callback: callback });
+          }
+        };
+        this.registerProvider = function (componentName, component) {
+          ModuleProviders$1.registerProvider(componentName, component);
+        };
+        this.getProvider = function (componentName) {
+          return ModuleProviders$1.getProvider(componentName);
+        };
+        // We are attaching an instance of ACJSAdaptor to the host so that products are able
+        // to retrieve the identical instance of ACJSAdaptor that ACJS is using. 
+        this.acjsAdaptor = ACJSAdaptor;
+      }
+
+      HostApi.prototype._cleanExtension = function _cleanExtension(extension) {
+        return Util$1.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
+      };
+
+      HostApi.prototype.onIframeEstablished = function onIframeEstablished(callback) {
+        var _this = this;
+
+        EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
+          callback.call({}, {
+            $el: data.$el,
+            extension: _this._cleanExtension(data.extension)
+          });
+        });
+      };
+
+      HostApi.prototype.onIframeUnload = function onIframeUnload(callback) {
+        var _this2 = this;
+
+        EventDispatcher$1.register('after:iframe-unload', function (data) {
+          callback.call({}, {
+            $el: data.$el,
+            extension: _this2._cleanExtension(data.extension)
+          });
+        });
+      };
+
+      HostApi.prototype.onPublicEventDispatched = function onPublicEventDispatched(callback) {
+        var wrapper = function wrapper(data) {
+          callback.call({}, {
+            type: data.type,
+            event: data.event,
+            extension: this._cleanExtension(data.sender)
+          });
+        };
+        callback._wrapper = wrapper.bind(this);
+        EventDispatcher$1.register('after:event-public-dispatch', callback._wrapper);
+      };
+
+      HostApi.prototype.offPublicEventDispatched = function offPublicEventDispatched(callback) {
+        if (callback._wrapper) {
+          EventDispatcher$1.unregister('after:event-public-dispatch', callback._wrapper);
+        } else {
+          throw new Error('cannot unregister event dispatch listener without _wrapper reference');
+        }
+      };
+
+      HostApi.prototype.onKeyEvent = function onKeyEvent(extension_id, key, modifiers, callback) {
+        DomEventActions.registerKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
+      };
+
+      HostApi.prototype.offKeyEvent = function offKeyEvent(extension_id, key, modifiers, callback) {
+        DomEventActions.unregisterKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
+      };
+
+      HostApi.prototype.destroy = function destroy(extension_id) {
+        IframeActions.notifyIframeDestroyed({ extension_id: extension_id });
+      };
+
+      HostApi.prototype.defineModule = function defineModule(name, methods) {
+        ModuleActions.defineCustomModule(name, methods);
+      };
+
+      HostApi.prototype.broadcastEvent = function broadcastEvent(type, targetSpec, event) {
+        EventActions.broadcast(type, targetSpec, event);
+      };
+
+      HostApi.prototype.getExtensions = function getExtensions(filter) {
+        return simpleXDM$1.getExtensions(filter);
+      };
+
+      HostApi.prototype.trackDeprecatedMethodUsed = function trackDeprecatedMethodUsed(methodUsed, extension) {
+        AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
+      };
+
+      HostApi.prototype.setJwtClockSkew = function setJwtClockSkew(skew) {
+        jwtActions.setClockSkew(skew);
+      };
+
+      return HostApi;
+    }();
+
+    var HostApi$2 = new HostApi$1();
+
+    var _dialogs = {};
+
+    EventDispatcher$1.register('dialog-close', function (data) {
+      var dialog = data.dialog;
+      if (dialog && data.extension) {
+        EventActions.broadcast('dialog.close', {
+          addon_key: data.extension.addon_key
+        }, data.customData);
+      }
+    });
+
+    EventDispatcher$1.register('dialog-button-click', function (data) {
+      var eventData = {
+        button: {
+          name: ButtonComponent.getName(data.$el),
+          identifier: ButtonComponent.getIdentifier(data.$el),
+          text: ButtonComponent.getText(data.$el)
+        }
+      };
+      var eventName = 'dialog.button.click';
+
+      // Old buttons, (submit and cancel) use old events
+      if (!data.$el.hasClass('ap-dialog-custom-button')) {
+        eventName = 'dialog.' + eventData.button.name;
+      }
+
+      EventActions.broadcast(eventName, {
+        addon_key: data.extension.addon_key,
+        key: data.extension.key
+      }, eventData);
+    });
+
+    /**
+     * @class Dialog~Dialog
+     * @description A dialog object that is returned when a dialog is created using the [dialog module](module-Dialog.html).
+     */
+
+    var Dialog = function Dialog(options, callback) {
+      classCallCheck(this, Dialog);
+
+      callback = Util$1.last(arguments);
+      var _id = callback._id;
+      var extension = callback._context.extension;
+
+      var dialogProvider = HostApi$2.getProvider('dialog');
+      if (dialogProvider) {
+        var buttons = [].concat(options.buttons || [], [{
+          id: 'submit',
+          text: options.submitText || 'Submit',
+          appearance: 'primary'
+        }, {
+          id: 'cancel',
+          text: options.cancelText || 'Cancel',
+          appearance: 'subtle-link'
+        }]).map(function (button) {
+          button.onClick = function () {
+            // Todo: ACJS-667 - this needs to be hooked up with the appropriate action
+            // Currently the dialog actions are to intertwined with component DOM
+            console.log(button.id, _id);
+          };
+          return button;
+        });
+        var dialogOptions = {
+          id: _id,
+          header: options.header,
+          buttons: buttons,
+          onClose: DialogActions.close
+        };
+        dialogProvider.create(dialogOptions);
+      } else {
+        var dialogExtension = {
+          addon_key: extension.addon_key,
+          key: options.key,
+          options: Util$1.pick(callback._context.extension.options, ['customData', 'productContext'])
+        };
+
+        // ACJS-185: the following is a really bad idea but we need it
+        // for compat until AP.dialog.customData has been deprecated
+        dialogExtension.options.customData = options.customData;
+        // terrible idea! - we need to remove this from p2 ASAP!
+        var dialogModuleOptions = dialogUtilsInstance.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
+        options = Util$1.extend({}, dialogModuleOptions || {}, options);
+        options.id = _id;
+
+        DialogExtensionActions.open(dialogExtension, options);
+        this.customData = options.customData;
+        _dialogs[_id] = this;
+      }
+    };
+
+    /**
+     * @class Dialog~DialogButton
+     * @description A dialog button that can be controlled with JavaScript
+     */
+
+
+    var Button = function () {
+      function Button(identifier) {
+        classCallCheck(this, Button);
+
+        if (!DialogExtensionComponent.getActiveDialog()) {
+          throw new Error('Failed to find an active dialog.');
+        }
+        this.name = identifier;
+        this.identifier = identifier;
+        this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
+        this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
+      }
+      /**
+       * Sets the button state to enabled
+       * @method enable
+       * @memberOf Dialog~DialogButton
+       * @noDemo
+       * @example
+       * AP.dialog.getButton('submit').enable();
+       */
+
+
+      Button.prototype.enable = function enable() {
+        this.setState({
+          enabled: true
+        });
+      };
+      /**
+       * Sets the button state to disabled. A disabled button cannot be clicked and emits no events.
+       * @method disable
+       * @memberOf Dialog~DialogButton
+       * @noDemo
+       * @example
+       * AP.dialog.getButton('submit').disable();
+       */
+
+
+      Button.prototype.disable = function disable() {
+        this.setState({
+          enabled: false
+        });
+      };
+      /**
+       * Query a button for its current state.
+       * @method isEnabled
+       * @memberOf Dialog~DialogButton
+       * @param {Function} callback function to receive the button state.
+       * @noDemo
+       * @example
+       * AP.dialog.getButton('submit').isEnabled(function(enabled){
+       *   if(enabled){
+       *     //button is enabled
+       *   }
+       * });
+       */
+
+
+      Button.prototype.isEnabled = function isEnabled(callback) {
+        callback = Util$1.last(arguments);
+        callback(this.enabled);
+      };
+      /**
+       * Toggle the button state between enabled and disabled.
+       * @method toggle
+       * @memberOf Dialog~DialogButton
+       * @noDemo
+       * @example
+       * AP.dialog.getButton('submit').toggle();
+       */
+
+
+      Button.prototype.toggle = function toggle() {
+        this.setState({
+          enabled: !this.enabled
+        });
+      };
+
+      Button.prototype.setState = function setState(state) {
+        this.enabled = state.enabled;
+        DialogActions.toggleButton({
+          identifier: this.identifier,
+          enabled: this.enabled
+        });
+      };
+      /**
+       * Trigger a callback bound to a button.
+       * @method trigger
+       * @memberOf Dialog~DialogButton
+       * @noDemo
+       * @example
+       * AP.dialog.getButton('submit').bind(function(){
+       *   alert('clicked!');
+       * });
+       * AP.dialog.getButton('submit').trigger();
+       */
+
+
+      Button.prototype.trigger = function trigger(callback) {
+        callback = Util$1.last(arguments);
+        if (this.enabled) {
+          DialogActions.dialogMessage({
+            name: this.name,
+            extension: callback._context.extension
+          });
+        }
+      };
+
+      /**
+       * Query a button for its current hidden/visible state.
+       * @method isHidden
+       * @memberOf Dialog~DialogButton
+       * @param {Function} callback function to receive the button state.
+       * @noDemo
+       * @example
+       * AP.dialog.getButton('submit').isHidden(function(hidden){
+       *   if(hidden){
+       *     //button is hidden
+       *   }
+       * });
+       */
+
+
+      Button.prototype.isHidden = function isHidden(callback) {
+        callback = Util$1.last(arguments);
+        callback(this.hidden);
+      };
+      /**
+       * Sets the button state to hidden
+       * @method hide
+       * @memberOf Dialog~DialogButton
+       * @noDemo
+       * @example
+       * AP.dialog.getButton('submit').hide();
+       */
+
+
+      Button.prototype.hide = function hide() {
+        this.setHidden(true);
+      };
+      /**
+       * Sets the button state to visible
+       * @method show
+       * @memberOf Dialog~DialogButton
+       * @noDemo
+       * @example
+       * AP.dialog.getButton('submit').show();
+       */
+
+
+      Button.prototype.show = function show() {
+        this.setHidden(false);
+      };
+
+      Button.prototype.setHidden = function setHidden(hidden) {
+        this.hidden = hidden;
+        DialogActions.toggleButtonVisibility({
+          identifier: this.identifier,
+          hidden: this.hidden
+        });
+      };
+
+      return Button;
+    }();
+
+    function getDialogFromContext(context) {
+      return _dialogs[context.extension.options.dialogId];
+    }
+
+    var CreateButton = function CreateButton(options, callback) {
+      classCallCheck(this, CreateButton);
+
+      callback = Util$1.last(arguments);
+      DialogExtensionActions.addUserButton({
+        identifier: options.identifier,
+        text: options.text
+      }, callback._context.extension);
+    };
+
+    /**
+     * The Dialog module provides a mechanism for launching an add-on's modules as modal dialogs from within an add-on's iframe.
+     *
+     * A modal dialog displays information without requiring the user to leave the current page.
+     *
+     * The dialog is opened over the entire window, rather than within the iframe itself.
+     *
+     * <h3>Styling your dialog to look like a standard Atlassian dialog</h3>
+     *
+     * By default the dialog iframe is undecorated. It's up to you to style the dialog.
+     * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
+     *
+     * In order to maintain a consistent look and feel between the host application and the add-on, we encourage you to style your dialogs to match Atlassian's Design Guidelines for modal dialogs.
+     *
+     * To do that, you'll need to add the AUI styles to your dialog.
+     *
+     * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog.html).
+     * @exports Dialog
+     */
+
+
+    var dialog = {
+      /**
+       * @class Dialog~DialogOptions
+       * @description The options supplied to a [dialog.create()](module-Dialog.html) call.
+       *
+       * @property {String}        key         The module key of a dialog, or the key of a page or web-item that you want to open as a dialog.
+       * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or fullscreen (with chrome).
+       * @property {Number|String} width       if size is not set, define the width as a percentage (append a % to the number) or pixels.
+       * @property {Number|String} height      if size is not set, define the height as a percentage (append a % to the number) or pixels.
+       * @property {Boolean}       chrome      (optional) opens the dialog with heading and buttons.
+       * @property {String}        header      (optional) text to display in the header if opening a dialog with chrome.
+       * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
+       * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
+       * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
+       * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC will close the dialog (default is true).
+       * @property {Array}         buttons     (optional) an array of custom buttons to be added to the dialog if opening a dialog with chrome.
+       */
+
+      /**
+       * Creates a dialog for a common dialog, page or web-item module key.
+       * @param {Dialog~DialogOptions} options configuration object of dialog options.
+       * @method create
+       * @noDemo
+       * @example
+       * AP.dialog.create({
+       *   key: 'my-module-key',
+       *   width: '500px',
+       *   height: '200px',
+       *   chrome: true,
+       *   buttons: [
+       *     {
+       *       text: 'my button',
+       *       identifier: 'my_unique_identifier'
+       *     }
+       *   ]
+       * }).on("close", callbackFunc);
+       *
+       * @return {Dialog~Dialog} Dialog object allowing for callback registrations
+       */
+      create: {
+        constructor: Dialog
+      },
+      /**
+       * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.
+       * This will only close a dialog that has been opened by your add-on.
+       * You can register for close events using the `dialog.close` event and the [events module](module-Events.html).
+       * @param {Object} data An object to be emitted on dialog close.
+       * @noDemo
+       * @example
+       * AP.dialog.close({foo: 'bar'});
+       */
+      close: function close(data, callback) {
+        callback = Util$1.last(arguments);
+
+        var dialogProvider = HostApi$2.getProvider('dialog');
+        if (dialogProvider) {
+          dialogProvider.close();
+        } else {
+          var dialogToClose;
+          if (callback._context.extension.options.isDialog) {
+            dialogToClose = DialogExtensionComponent.getByExtension(callback._context.extension.id)[0];
+          } else {
+            dialogToClose = DialogExtensionComponent.getActiveDialog();
+          }
+
+          DialogActions.close({
+            customData: data,
+            dialog: dialogToClose,
+            extension: callback._context.extension
+          });
+        }
+      },
+      /**
+       * Passes the custom data Object to the specified callback function.
+       * @noDemo
+       * @name getCustomData
+       * @method
+       * @param {Function} callback - Callback method to be executed with the custom data.
+       * @example
+       * AP.dialog.getCustomData(function (customData) {
+       *   console.log(customData);
+       * });
+       *
+       */
+      getCustomData: function getCustomData(callback) {
+        callback = Util$1.last(arguments);
+        var dialog = getDialogFromContext(callback._context);
+        if (dialog) {
+          callback(dialog.customData);
+        } else {
+          callback(undefined);
+        }
+      },
+      /**
+       * Returns the button that was requested (either cancel or submit). If the requested button does not exist, an empty Object will be returned instead.
+       * @method getButton
+       * @returns {Dialog~DialogButton}
+       * @noDemo
+       * @example
+       * AP.dialog.getButton('submit');
+       */
+      getButton: {
+        constructor: Button,
+        enable: Button.prototype.enable,
+        disable: Button.prototype.disable,
+        toggle: Button.prototype.toggle,
+        isEnabled: Button.prototype.isEnabled,
+        trigger: Button.prototype.trigger,
+        hide: Button.prototype.hide,
+        show: Button.prototype.show,
+        isHidden: Button.prototype.isHidden
+      },
+      /**
+       * Creates a dialog button that can be controlled with javascript
+       * @method createButton
+       * @returns {Dialog~DialogButton}
+       * @noDemo
+       * @example
+       * AP.dialog.createButton({
+       *   text: 'button text',
+       *   identifier: 'button.1'
+       * }).bind(function mycallback(){});
+       */
+      createButton: {
+        constructor: CreateButton
+      }
+    };
+
+    EventDispatcher$1.register('iframe-resize', function (data) {
+      IframeComponent.resize(data.width, data.height, data.$el);
+    });
+
+    EventDispatcher$1.register('iframe-size-to-parent', function (data) {
+      var height;
+      var $el = Util$1.getIframeByExtensionId(data.extensionId);
+      if (data.hideFooter) {
+        $el.addClass('full-size-general-page-no-footer');
+        $('#footer').css({ display: 'none' });
+        height = $(window).height() - $('#header > nav').outerHeight();
+      } else {
+        height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+        $el.removeClass('full-size-general-page-no-footer');
+        $('#footer').css({ display: 'block' });
+      }
+
+      EventDispatcher$1.dispatch('iframe-resize', {
+        width: '100%',
+        height: height + 'px',
+        $el: $el
+      });
+    });
+
+    AJS.$(window).on('resize', function (e) {
+      EventDispatcher$1.dispatch('host-window-resize', e);
+    });
+
+    var EnvActions = {
+      iframeResize: function iframeResize(width, height, context) {
+        var $el;
+        if (context.extension_id) {
+          $el = Util$1.getIframeByExtensionId(context.extension_id);
+        } else {
+          $el = context;
+        }
+
+        EventDispatcher$1.dispatch('iframe-resize', { width: width, height: height, $el: $el, extension: context.extension });
+      },
+      sizeToParent: function sizeToParent(extensionId, hideFooter) {
+        EventDispatcher$1.dispatch('iframe-size-to-parent', {
+          hideFooter: hideFooter,
+          extensionId: extensionId
+        });
+      }
+    };
+
+    var debounce$2 = Util$1.debounce;
+    var resizeFuncHolder = {};
+    // ignore resize events for iframes that use sizeToParent
+    var ignoreResizeForExtension = [];
+    var sizeToParentExtension = {};
+
+    /**
+     * Utility methods that are available without requiring additional modules.
+     * @exports AP
+     */
+    var env = {
+      /**
+       * Get the location of the current page of the host product.
+       *
+       * @param {Function} callback function (location) {...}
+       * @example
+       * AP.getLocation(function(location){
+       *   alert(location);
+       * });
+       */
+      getLocation: function getLocation(callback) {
+        callback = Util$1.last(arguments);
+        callback(window.location.href);
+      },
+      /**
+       * Resize the iframe to a specified width and height.
+       *
+       * Only content within an element with the class `ac-content` will be resized automatically.
+       * Content without this identifier is sized according to the `body` element, and will dynamically grow, but not shrink.
+       * ```
+       * <div class="ac-content">
+         * <p>Hello World</p>
+       * </div>
+       * ```
+       * Note that this method cannot be used in dialogs.
+       *
+       * @method
+       * @param {String} width   the desired width
+       * @param {String} height  the desired height
+       */
+      resize: function resize(width, height, callback) {
+        callback = Util$1.last(arguments);
+        var addon = ModuleProviders$1.getProvider('addon');
+        if (addon) {
+          addon.resize(width, height, callback._context);
+        } else {
+          var iframeId = callback._context.extension.id;
+          var options = callback._context.extension.options;
+          if (ignoreResizeForExtension.indexOf(iframeId) !== -1 || options && options.isDialog) {
+            return false;
+          }
+
+          if (!resizeFuncHolder[iframeId]) {
+            resizeFuncHolder[iframeId] = debounce$2(function (dwidth, dheight, dcallback) {
+              EnvActions.iframeResize(dwidth, dheight, dcallback._context);
+            }, 50);
+          }
+
+          resizeFuncHolder[iframeId](width, height, callback);
+        }
+        return true;
+      },
+      /**
+       * Resize the iframe, so that it takes the entire page. Add-on may define to hide the footer using data-options.
+       *
+       * Note that this method is only available for general page modules.
+       *
+       * @method
+       * @param {boolean} hideFooter true if the footer is supposed to be hidden
+       */
+      sizeToParent: debounce$2(function (hideFooter, callback) {
+        callback = Util$1.last(arguments);
+        var addon = ModuleProviders$1.getProvider('addon');
+        if (addon) {
+          addon.sizeToParent(hideFooter, callback._context);
+        } else {
+          // sizeToParent is only available for general-pages
+          if (callback._context.extension.options.isFullPage) {
+            // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
+            Util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
+            EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
+            sizeToParentExtension[callback._context.extension_id] = { hideFooter: hideFooter };
+          } else {
+            // This is only here to support integration testing
+            // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
+            Util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
+          }
+        }
+      })
+    };
+
+    EventDispatcher$1.register('host-window-resize', function (data) {
+      Object.getOwnPropertyNames(sizeToParentExtension).forEach(function (extensionId) {
+        EnvActions.sizeToParent(extensionId, sizeToParentExtension[extensionId].hideFooter);
+      });
+    });
+
+    EventDispatcher$1.register('after:iframe-unload', function (data) {
+      delete resizeFuncHolder[data.extension.id];
+      delete sizeToParentExtension[data.extension.id];
+      if (ignoreResizeForExtension.indexOf(data.extension.id) !== -1) {
+        ignoreResizeForExtension.splice(ignoreResizeForExtension.indexOf(data.extension.id), 1);
+      }
+    });
+
+    EventDispatcher$1.register('before:iframe-size-to-parent', function (data) {
+      if (ignoreResizeForExtension.indexOf(data.extensionId) === -1) {
+        ignoreResizeForExtension.push(data.extensionId);
+      }
+    });
+
     var InlineDialogActions = {
       hide: function hide($el) {
         EventDispatcher$1.dispatch('inline-dialog-hide', {
@@ -4194,12 +4456,6 @@
         } else {
           InlineDialogActions.close();
         }
-      }
-    };
-
-    var AnalyticsAction = {
-      trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, extension) {
-        EventDispatcher$1.dispatch('analytics-deprecated-method-used', { methodUsed: methodUsed, extension: extension });
       }
     };
 
@@ -4787,226 +5043,227 @@
       }
     };
 
-    function create(extension) {
-      var simpleXdmExtension = {
-        addon_key: extension.addon_key,
-        key: extension.key,
-        url: extension.url,
-        options: extension.options
-      };
-      return IframeContainerComponent.createExtension(simpleXdmExtension);
-    }
-
-    var ModuleActions = {
-      defineCustomModule: function defineCustomModule(name, methods) {
-        var data = {};
-        if (!methods) {
-          data.methods = name;
-        } else {
-          data.methods = methods;
-          data.name = name;
-        }
-        EventDispatcher$1.dispatch('module-define-custom', data);
+    var DropdownActions = {
+      // called on action click
+      itemSelected: function itemSelected(dropdown_id, item, extension) {
+        EventDispatcher$1.dispatch('dropdown-item-selected', {
+          id: dropdown_id,
+          item: item,
+          extension: extension
+        });
       }
     };
 
-    function sanitizeTriggers(triggers) {
-      var onTriggers;
-      if (Array.isArray(triggers)) {
-        onTriggers = triggers.join(' ');
-      } else if (typeof triggers === 'string') {
-        onTriggers = triggers.trim();
+    /**
+    * DO NOT INCLUDE ME IN THE PUBLIC DOCUMENTATION
+    * there is no AUI implementation of this
+    */
+
+    var dropdownProvider;
+
+    function buildListItem(listItem) {
+      if (typeof listItem === 'string') {
+        return {
+          content: listItem
+        };
       }
-      return onTriggers;
-    }
-
-    function uniqueId() {
-      return 'webitem-' + Math.floor(Math.random() * 1000000000).toString(16);
-    }
-
-    // LEGACY: get addon key by webitem for p2
-    function getExtensionKey($target) {
-      var cssClass = $target.attr('class');
-      var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
-      return Array.isArray(m) ? m[1] : false;
-    }
-
-    // LEGACY: get module key by webitem for p2
-    function getKey($target) {
-      var cssClass = $target.attr('class');
-      var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
-      return Array.isArray(m) ? m[1] : false;
-    }
-
-    function getTargetKey($target) {
-      var cssClass = $target.attr('class');
-      var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
-      return Array.isArray(m) ? m[1] : false;
-    }
-
-    function getFullKey($target) {
-      return getExtensionKey($target) + '__' + getKey($target);
-    }
-
-    function getModuleOptionsByAddonAndModuleKey(type, addonKey, moduleKey) {
-      var moduleType = type + 'Modules';
-      if (window._AP && window._AP[moduleType] && window._AP[moduleType][addonKey] && window._AP[moduleType][addonKey][moduleKey]) {
-        return Util$1.extend({}, window._AP[moduleType][addonKey][moduleKey].options);
+      if (listItem.text && typeof listItem.text === 'string') {
+        return {
+          content: listItem.text
+        };
       }
+      throw new Error('Unknown dropdown list item format.');
     }
 
-    function getModuleOptionsForWebitem(type, $target) {
-      var addon_key = getExtensionKey($target);
-      var targetKey = getTargetKey($target);
-      return getModuleOptionsByAddonAndModuleKey(type, addon_key, targetKey);
+    function moduleListToApiList(list) {
+      return list.map(function (item) {
+        if (item.list && Array.isArray(item.list)) {
+          var returnval = {
+            heading: item.heading
+          };
+          returnval.items = item.list.map(function (listitem) {
+            return buildListItem(listitem);
+          });
+          return returnval;
+        }
+      });
     }
 
-    // LEGACY - method for handling webitem options for p2
-    function getOptionsForWebItem($target) {
-      var fullKey = getFullKey($target);
+    /**
+    * @class DropdownItem
+    * A single item in a dropdown menu can be a string or an object
+    * @param {String} item_id The id of a single dropdown item
+    * @param {String} text    The text to display in the dropdown item
+    */
 
-      var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-      var options = getModuleOptionsForWebitem(type, $target);
-      if (!options && window._AP && window._AP[type + 'Options']) {
-        options = Util$1.extend({}, window._AP[type + 'Options'][fullKey]) || {};
-      }
-      if (!options) {
-        options = {};
-        console.warn('no webitem ' + type + 'Options for ' + fullKey);
-      }
-      options.productContext = options.productContext || {};
-      // create product context from url params
-      var url = $target.attr('href');
-      if (url) {
-        var query = index$1.parse(index$1.extract(url));
-        Util$1.extend(options.productContext, query);
-      }
+    /**
+    * @module Dropdown
+    * @description Dropdown menu that can go outside the iframe bounds.
+    * @example
+    * // create a dropdown menu with 1 section and 2 items
+    * var mydropdown = {
+    *   dropdown_id: 'my-dropdown',
+    *   list: [{
+    *     heading: 'section heading',
+    *     list: [
+    *       {text: 'one'},
+    *       {text: 'two'}
+    *     ]
+    *   }]
+    * };
+    *
+    * AP.events.on('dropdown-item-selected', (data) =>{
+    *   console.log('dropdown item selected', data.dropdown_id, data.item);
+    * });
+    *
+    * AP.dropdown.create(mydropdown);
+    * // button is an element in our document that triggered the dropdown
+    * let rect = document.querySelector('button').getBoundingClientRect();
+    * AP.dropdown.showAt('my-dropdown', rect.left, rect.top, rect.width);
+    *
+    */
 
-      return options;
-    }
+    var dropdown = {
+      /**
+      * @name create
+      * @method
+      * @description Creates a new dropdown.
+      * @param {Object} options             Options of the dropdown.
+      * @param {String} options.dropdown_id A unique identifier for the dropdown that will be referenced in events.
+      * @param {String} options.list        An array containing dropdown items {Dropdown~DropdownItem}
+      * @example
+      * // create a dropdown menu with 1 section and 2 items
+      * var mydropdown = {
+      *   dropdown_id: 'my-dropdown',
+      *   list: [{
+      *     heading: 'section heading',
+      *     list: [
+      *       {text: 'one'},
+      *       {text: 'two'}
+      *     ]
+      *   }]
+      * };
+      *
+      * AP.dropdown.create(mydropdown);
+      */
+      create: function create(options, callback) {
+        callback = Util$1.last(arguments);
+        if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
+          return;
+        }
+        dropdownProvider = ModuleProviders$1.getProvider('dropdown');
+        if (dropdownProvider) {
+          dropdownProvider.registerItemNotifier(function (data) {
+            DropdownActions.itemSelected(data.dropdown_id, data.item, callback._context.extension);
+          });
+          options.list = moduleListToApiList(options.list);
+          dropdownProvider.create(options, callback._context);
+          // return for testing
+          return options;
+        }
+      },
 
-    var WebItemUtils = {
-      sanitizeTriggers: sanitizeTriggers,
-      uniqueId: uniqueId,
-      getExtensionKey: getExtensionKey,
-      getKey: getKey,
-      getOptionsForWebItem: getOptionsForWebItem,
-      getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey
+
+      /**
+      * @name showAt
+      * @method
+      * @description Displays a created dropdown menu.
+      * @param {String} dropdown_id   Id used when creating the dropdown
+      * @param {String} x             x position from the edge of your iframe to display
+      * @param {String} y             y position from the edge of your iframe to display
+      * @param {String} width         Optionally enforce a width for the dropdown menu
+      * @example
+      * // create a dropdown menu with 1 section and 2 items
+      * var mydropdown = {
+      *   dropdown_id: 'my-dropdown',
+      *   list: [{
+      *     list:['one', 'two']
+      *   }]
+      * };
+      *
+      * AP.dropdown.create(mydropdown);
+      * // Get the button that activated the dropdown
+      * let rect = document.querySelector('button').getBoundingClientRect();
+      * AP.dropdown.showAt('my-dropdown', rect.left, rect.top, rect.width);
+      */
+      showAt: function showAt(dropdown_id, x, y, width) {
+        var callback = Util$1.last(arguments);
+        var rect = document.getElementById(callback._context.extension_id).getBoundingClientRect();
+
+        if (dropdownProvider) {
+          dropdownProvider.showAt({
+            dropdown_id: dropdown_id,
+            x: x,
+            y: y,
+            width: width
+          }, {
+            iframeDimensions: rect,
+            onItemSelection: function onItemSelection(dropdown_id, item) {
+              DropdownActions.itemSelected(dropdown_id, item, callback._context.extension);
+            }
+          });
+        }
+      },
+
+      /**
+      * @name hide
+      * @method
+      * @description Hide a dropdown menu
+      * @param {String} dropdown_id The id of the dropdown to hide
+      * @example
+      * AP.dropdown.create('my-dropdown');
+      * AP.dropdown.hide('my-dropdown');
+      */
+      hide: function hide(id) {
+        if (dropdownProvider) {
+          dropdownProvider.hide(id);
+        }
+      },
+
+
+      /**
+      * @name itemDisable
+      * @method
+      * @description Disable an item in the dropdown menu
+      * @param {String} dropdown_id The id of the dropdown
+      * @param {String} item_id     The dropdown item to disable
+      * @example
+      * AP.dropdown.create('my-dropdown');
+      * AP.dropdown.itemDisable('my-dropdown', 'item-id');
+      */
+      itemDisable: function itemDisable(dropdown_id, item_id) {
+        if (dropdownProvider) {
+          dropdownProvider.itemDisable(dropdown_id, item_id);
+        }
+      },
+
+
+      /**
+      * @name itemEnable
+      * @method
+      * @description Hide a dropdown menu
+      * @param {String} dropdown_id The id of the dropdown
+      * @param {String} item_id The id of the dropdown item to enable
+      * @example
+      * AP.dropdown.create('my-dropdown');
+      * AP.dropdown.itemEnable('my-dropdown', 'item-id');
+      */
+      itemEnable: function itemEnable(dropdown_id, item_id) {
+        if (dropdownProvider) {
+          dropdownProvider.itemEnable(dropdown_id, item_id);
+        }
+      }
     };
 
-    var HostApi$1 = function () {
-      function HostApi() {
-        classCallCheck(this, HostApi);
-
-        this.create = create;
-        this.dialog = {
-          create: function create$$1(extension, dialogOptions) {
-            var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
-            var completeOptions = Util$1.extend({}, dialogBeanOptions || {}, dialogOptions);
-            DialogExtensionActions.open(extension, completeOptions);
-          },
-          close: function close() {
-            DialogExtensionActions.close();
-          }
-        };
-        this.registerContentResolver = {
-          resolveByExtension: function resolveByExtension(callback) {
-            jwtActions.registerContentResolver({ callback: callback });
-          }
-        };
-        this.registerProvider = function (componentName, component) {
-          ModuleProviders$1.registerProvider(componentName, component);
-        };
-        this.getProvider = function (componentName) {
-          return ModuleProviders$1.getProvider(componentName);
-        };
-        // We are attaching an instance of ACJSAdaptor to the host so that products are able
-        // to retrieve the identical instance of ACJSAdaptor that ACJS is using. 
-        this.acjsAdaptor = ACJSAdaptor;
-      }
-
-      HostApi.prototype._cleanExtension = function _cleanExtension(extension) {
-        return Util$1.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
-      };
-
-      HostApi.prototype.onIframeEstablished = function onIframeEstablished(callback) {
-        var _this = this;
-
-        EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
-          callback.call({}, {
-            $el: data.$el,
-            extension: _this._cleanExtension(data.extension)
-          });
-        });
-      };
-
-      HostApi.prototype.onIframeUnload = function onIframeUnload(callback) {
-        var _this2 = this;
-
-        EventDispatcher$1.register('after:iframe-unload', function (data) {
-          callback.call({}, {
-            $el: data.$el,
-            extension: _this2._cleanExtension(data.extension)
-          });
-        });
-      };
-
-      HostApi.prototype.onPublicEventDispatched = function onPublicEventDispatched(callback) {
-        var wrapper = function wrapper(data) {
-          callback.call({}, {
-            type: data.type,
-            event: data.event,
-            extension: this._cleanExtension(data.sender)
-          });
-        };
-        callback._wrapper = wrapper.bind(this);
-        EventDispatcher$1.register('after:event-public-dispatch', callback._wrapper);
-      };
-
-      HostApi.prototype.offPublicEventDispatched = function offPublicEventDispatched(callback) {
-        if (callback._wrapper) {
-          EventDispatcher$1.unregister('after:event-public-dispatch', callback._wrapper);
-        } else {
-          throw new Error('cannot unregister event dispatch listener without _wrapper reference');
-        }
-      };
-
-      HostApi.prototype.onKeyEvent = function onKeyEvent(extension_id, key, modifiers, callback) {
-        DomEventActions.registerKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
-      };
-
-      HostApi.prototype.offKeyEvent = function offKeyEvent(extension_id, key, modifiers, callback) {
-        DomEventActions.unregisterKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
-      };
-
-      HostApi.prototype.destroy = function destroy(extension_id) {
-        IframeActions.notifyIframeDestroyed({ extension_id: extension_id });
-      };
-
-      HostApi.prototype.defineModule = function defineModule(name, methods) {
-        ModuleActions.defineCustomModule(name, methods);
-      };
-
-      HostApi.prototype.broadcastEvent = function broadcastEvent(type, targetSpec, event) {
-        EventActions.broadcast(type, targetSpec, event);
-      };
-
-      HostApi.prototype.getExtensions = function getExtensions(filter) {
-        return simpleXDM$1.getExtensions(filter);
-      };
-
-      HostApi.prototype.trackDeprecatedMethodUsed = function trackDeprecatedMethodUsed(methodUsed, extension) {
-        AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
-      };
-
-      HostApi.prototype.setJwtClockSkew = function setJwtClockSkew(skew) {
-        jwtActions.setClockSkew(skew);
-      };
-
-      return HostApi;
-    }();
-
-    var HostApi$2 = new HostApi$1();
+    EventDispatcher$1.register('dropdown-item-selected', function (data) {
+      EventActions.broadcast('dropdown-item-selected', {
+        addon_key: data.extension.addon_key,
+        key: data.extension.key
+      }, {
+        dropdown_id: data.id,
+        item: data.item
+      });
+    });
 
     var WebItem = function () {
       function WebItem() {
@@ -5411,7 +5668,7 @@
      * Add version
      */
     if (!window._AP.version) {
-      window._AP.version = '5.0.5';
+      window._AP.version = '5.1.2';
     }
 
     simpleXDM$1.defineModule('messages', messages);
@@ -5422,6 +5679,7 @@
     simpleXDM$1.defineModule('events', events);
     simpleXDM$1.defineModule('_analytics', analytics$1);
     simpleXDM$1.defineModule('scrollPosition', scrollPosition);
+    simpleXDM$1.defineModule('dropdown', dropdown);
 
     EventDispatcher$1.register('module-define-custom', function (data) {
       simpleXDM$1.defineModule(data.name, data.methods);

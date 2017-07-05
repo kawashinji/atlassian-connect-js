@@ -310,7 +310,9 @@ EventDispatcher.register('dialog-close-active', (data) => {
 });
 
 EventDispatcher.register('dialog-close', (data) => {
-  data.dialog.hide();
+  if (data.dialog) {
+    data.dialog.hide();
+  }
 });
 
 EventDispatcher.register('dialog-button-toggle', (data) => {
