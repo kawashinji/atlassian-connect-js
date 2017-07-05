@@ -3064,7 +3064,9 @@
 	});
 
 	EventDispatcher$1.register('dialog-close', function (data) {
-	  data.dialog.hide();
+	  if (data.dialog) {
+	    data.dialog.hide();
+	  }
 	});
 
 	EventDispatcher$1.register('dialog-button-toggle', function (data) {
@@ -3221,6 +3223,246 @@
 	  DialogExtensionComponent.render(data.extension, data.options);
 	});
 
+	function create(extension) {
+	  var simpleXdmExtension = {
+	    addon_key: extension.addon_key,
+	    key: extension.key,
+	    url: extension.url,
+	    options: extension.options
+	  };
+	  return IframeContainerComponent.createExtension(simpleXdmExtension);
+	}
+
+	var ModuleActions = {
+	  defineCustomModule: function defineCustomModule(name, methods) {
+	    var data = {};
+	    if (!methods) {
+	      data.methods = name;
+	    } else {
+	      data.methods = methods;
+	      data.name = name;
+	    }
+	    EventDispatcher$1.dispatch('module-define-custom', data);
+	  }
+	};
+
+	var AnalyticsAction = {
+	  trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, extension) {
+	    EventDispatcher$1.dispatch('analytics-deprecated-method-used', { methodUsed: methodUsed, extension: extension });
+	  }
+	};
+
+	function sanitizeTriggers(triggers) {
+	  var onTriggers;
+	  if (Array.isArray(triggers)) {
+	    onTriggers = triggers.join(' ');
+	  } else if (typeof triggers === 'string') {
+	    onTriggers = triggers.trim();
+	  }
+	  return onTriggers;
+	}
+
+	function uniqueId() {
+	  return 'webitem-' + Math.floor(Math.random() * 1000000000).toString(16);
+	}
+
+	// LEGACY: get addon key by webitem for p2
+	function getExtensionKey($target) {
+	  var cssClass = $target.attr('class');
+	  var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
+	  return Array.isArray(m) ? m[1] : false;
+	}
+
+	// LEGACY: get module key by webitem for p2
+	function getKey($target) {
+	  var cssClass = $target.attr('class');
+	  var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
+	  return Array.isArray(m) ? m[1] : false;
+	}
+
+	function getTargetKey($target) {
+	  var cssClass = $target.attr('class');
+	  var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
+	  return Array.isArray(m) ? m[1] : false;
+	}
+
+	function getFullKey($target) {
+	  return getExtensionKey($target) + '__' + getKey($target);
+	}
+
+	function getModuleOptionsByAddonAndModuleKey(type, addonKey, moduleKey) {
+	  var moduleType = type + 'Modules';
+	  if (window._AP && window._AP[moduleType] && window._AP[moduleType][addonKey] && window._AP[moduleType][addonKey][moduleKey]) {
+	    return Util$1.extend({}, window._AP[moduleType][addonKey][moduleKey].options);
+	  }
+	}
+
+	function getModuleOptionsForWebitem(type, $target) {
+	  var addon_key = getExtensionKey($target);
+	  var targetKey = getTargetKey($target);
+	  return getModuleOptionsByAddonAndModuleKey(type, addon_key, targetKey);
+	}
+
+	// LEGACY - method for handling webitem options for p2
+	function getOptionsForWebItem($target) {
+	  var fullKey = getFullKey($target);
+
+	  var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
+	  var options = getModuleOptionsForWebitem(type, $target);
+	  if (!options && window._AP && window._AP[type + 'Options']) {
+	    options = Util$1.extend({}, window._AP[type + 'Options'][fullKey]) || {};
+	  }
+	  if (!options) {
+	    options = {};
+	    console.warn('no webitem ' + type + 'Options for ' + fullKey);
+	  }
+	  options.productContext = options.productContext || {};
+	  // create product context from url params
+	  var url = $target.attr('href');
+	  if (url) {
+	    var query = index$1.parse(index$1.extract(url));
+	    Util$1.extend(options.productContext, query);
+	  }
+
+	  return options;
+	}
+
+	var WebItemUtils = {
+	  sanitizeTriggers: sanitizeTriggers,
+	  uniqueId: uniqueId,
+	  getExtensionKey: getExtensionKey,
+	  getKey: getKey,
+	  getOptionsForWebItem: getOptionsForWebItem,
+	  getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey
+	};
+
+	var ModuleProviders = function ModuleProviders() {
+	  var _this = this;
+
+	  classCallCheck(this, ModuleProviders);
+
+	  this._providers = {};
+	  this.registerProvider = function (name, provider) {
+	    _this._providers[name] = provider;
+	  };
+	  this.getProvider = function (name) {
+	    return _this._providers[name];
+	  };
+	};
+
+	var ModuleProviders$1 = new ModuleProviders();
+
+	var HostApi$1 = function () {
+	  function HostApi() {
+	    classCallCheck(this, HostApi);
+
+	    this.create = create;
+	    this.dialog = {
+	      create: function create$$1(extension, dialogOptions) {
+	        var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
+	        var completeOptions = Util$1.extend({}, dialogBeanOptions || {}, dialogOptions);
+	        DialogExtensionActions.open(extension, completeOptions);
+	      },
+	      close: function close() {
+	        DialogExtensionActions.close();
+	      }
+	    };
+	    this.registerContentResolver = {
+	      resolveByExtension: function resolveByExtension(callback) {
+	        jwtActions.registerContentResolver({ callback: callback });
+	      }
+	    };
+	    this.registerProvider = function (componentName, component) {
+	      ModuleProviders$1.registerProvider(componentName, component);
+	    };
+	    this.getProvider = function (componentName) {
+	      return ModuleProviders$1.getProvider(componentName);
+	    };
+	  }
+
+	  HostApi.prototype._cleanExtension = function _cleanExtension(extension) {
+	    return Util$1.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
+	  };
+
+	  HostApi.prototype.onIframeEstablished = function onIframeEstablished(callback) {
+	    var _this = this;
+
+	    EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
+	      callback.call({}, {
+	        $el: data.$el,
+	        extension: _this._cleanExtension(data.extension)
+	      });
+	    });
+	  };
+
+	  HostApi.prototype.onIframeUnload = function onIframeUnload(callback) {
+	    var _this2 = this;
+
+	    EventDispatcher$1.register('after:iframe-unload', function (data) {
+	      callback.call({}, {
+	        $el: data.$el,
+	        extension: _this2._cleanExtension(data.extension)
+	      });
+	    });
+	  };
+
+	  HostApi.prototype.onPublicEventDispatched = function onPublicEventDispatched(callback) {
+	    var wrapper = function wrapper(data) {
+	      callback.call({}, {
+	        type: data.type,
+	        event: data.event,
+	        extension: this._cleanExtension(data.sender)
+	      });
+	    };
+	    callback._wrapper = wrapper.bind(this);
+	    EventDispatcher$1.register('after:event-public-dispatch', callback._wrapper);
+	  };
+
+	  HostApi.prototype.offPublicEventDispatched = function offPublicEventDispatched(callback) {
+	    if (callback._wrapper) {
+	      EventDispatcher$1.unregister('after:event-public-dispatch', callback._wrapper);
+	    } else {
+	      throw new Error('cannot unregister event dispatch listener without _wrapper reference');
+	    }
+	  };
+
+	  HostApi.prototype.onKeyEvent = function onKeyEvent(extension_id, key, modifiers, callback) {
+	    DomEventActions.registerKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
+	  };
+
+	  HostApi.prototype.offKeyEvent = function offKeyEvent(extension_id, key, modifiers, callback) {
+	    DomEventActions.unregisterKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
+	  };
+
+	  HostApi.prototype.destroy = function destroy(extension_id) {
+	    IframeActions.notifyIframeDestroyed({ extension_id: extension_id });
+	  };
+
+	  HostApi.prototype.defineModule = function defineModule(name, methods) {
+	    ModuleActions.defineCustomModule(name, methods);
+	  };
+
+	  HostApi.prototype.broadcastEvent = function broadcastEvent(type, targetSpec, event) {
+	    EventActions.broadcast(type, targetSpec, event);
+	  };
+
+	  HostApi.prototype.getExtensions = function getExtensions(filter) {
+	    return simpleXDM$1.getExtensions(filter);
+	  };
+
+	  HostApi.prototype.trackDeprecatedMethodUsed = function trackDeprecatedMethodUsed(methodUsed, extension) {
+	    AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
+	  };
+
+	  HostApi.prototype.setJwtClockSkew = function setJwtClockSkew(skew) {
+	    jwtActions.setClockSkew(skew);
+	  };
+
+	  return HostApi;
+	}();
+
+	var HostApi$2 = new HostApi$1();
+
 	var _dialogs = {};
 
 	EventDispatcher$1.register('dialog-close', function (data) {
@@ -3265,23 +3507,50 @@
 	  var _id = callback._id;
 	  var extension = callback._context.extension;
 
-	  var dialogExtension = {
-	    addon_key: extension.addon_key,
-	    key: options.key,
-	    options: Util$1.pick(callback._context.extension.options, ['customData', 'productContext'])
-	  };
+	  var dialogProvider = HostApi$2.getProvider('dialog');
+	  if (dialogProvider) {
+	    var buttons = [].concat(options.buttons || [], [{
+	      id: 'submit',
+	      text: options.submitText || 'Submit',
+	      appearance: 'primary'
+	    }, {
+	      id: 'cancel',
+	      text: options.cancelText || 'Cancel',
+	      appearance: 'subtle-link'
+	    }]).map(function (button) {
+	      button.onClick = function () {
+	        // Todo: ACJS-667 - this needs to be hooked up with the appropriate action
+	        // Currently the dialog actions are to intertwined with component DOM
+	        console.log(button.id, _id);
+	      };
+	      return button;
+	    });
+	    var dialogOptions = {
+	      id: _id,
+	      header: options.header,
+	      buttons: buttons,
+	      onClose: DialogActions.close
+	    };
+	    dialogProvider.create(dialogOptions);
+	  } else {
+	    var dialogExtension = {
+	      addon_key: extension.addon_key,
+	      key: options.key,
+	      options: Util$1.pick(callback._context.extension.options, ['customData', 'productContext'])
+	    };
 
-	  // ACJS-185: the following is a really bad idea but we need it
-	  // for compat until AP.dialog.customData has been deprecated
-	  dialogExtension.options.customData = options.customData;
-	  // terrible idea! - we need to remove this from p2 ASAP!
-	  var dialogModuleOptions = dialogUtilsInstance.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
-	  options = Util$1.extend({}, dialogModuleOptions || {}, options);
-	  options.id = _id;
+	    // ACJS-185: the following is a really bad idea but we need it
+	    // for compat until AP.dialog.customData has been deprecated
+	    dialogExtension.options.customData = options.customData;
+	    // terrible idea! - we need to remove this from p2 ASAP!
+	    var dialogModuleOptions = dialogUtilsInstance.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
+	    options = Util$1.extend({}, dialogModuleOptions || {}, options);
+	    options.id = _id;
 
-	  DialogExtensionActions.open(dialogExtension, options);
-	  this.customData = options.customData;
-	  _dialogs[_id] = this;
+	    DialogExtensionActions.open(dialogExtension, options);
+	    this.customData = options.customData;
+	    _dialogs[_id] = this;
+	  }
 	};
 
 	/**
@@ -3542,18 +3811,24 @@
 	   */
 	  close: function close(data, callback) {
 	    callback = Util$1.last(arguments);
-	    var dialogToClose;
-	    if (callback._context.extension.options.isDialog) {
-	      dialogToClose = DialogExtensionComponent.getByExtension(callback._context.extension.id)[0];
-	    } else {
-	      dialogToClose = DialogExtensionComponent.getActiveDialog();
-	    }
 
-	    DialogActions.close({
-	      customData: data,
-	      dialog: dialogToClose,
-	      extension: callback._context.extension
-	    });
+	    var dialogProvider = HostApi$2.getProvider('dialog');
+	    if (dialogProvider) {
+	      dialogProvider.close();
+	    } else {
+	      var dialogToClose;
+	      if (callback._context.extension.options.isDialog) {
+	        dialogToClose = DialogExtensionComponent.getByExtension(callback._context.extension.id)[0];
+	      } else {
+	        dialogToClose = DialogExtensionComponent.getActiveDialog();
+	      }
+
+	      DialogActions.close({
+	        customData: data,
+	        dialog: dialogToClose,
+	        extension: callback._context.extension
+	      });
+	    }
 	  },
 	  /**
 	   * Passes the custom data Object to the specified callback function.
@@ -3657,22 +3932,6 @@
 	    });
 	  }
 	};
-
-	var ModuleProviders = function ModuleProviders() {
-	  var _this = this;
-
-	  classCallCheck(this, ModuleProviders);
-
-	  this._providers = {};
-	  this.registerProvider = function (name, provider) {
-	    _this._providers[name] = provider;
-	  };
-	  this.getProvider = function (name) {
-	    return _this._providers[name];
-	  };
-	};
-
-	var ModuleProviders$1 = new ModuleProviders();
 
 	var debounce$2 = Util$1.debounce;
 	var resizeFuncHolder = {};
@@ -3836,12 +4095,6 @@
 	    } else {
 	      InlineDialogActions.close();
 	    }
-	  }
-	};
-
-	var AnalyticsAction = {
-	  trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, extension) {
-	    EventDispatcher$1.dispatch('analytics-deprecated-method-used', { methodUsed: methodUsed, extension: extension });
 	  }
 	};
 
@@ -4286,7 +4539,6 @@
 	      var type = options.type || 'info';
 	      var flagOptions = {
 	        id: flagId,
-	        key: flagId,
 	        title: options.title,
 	        description: options.body,
 	        actions: actions,
@@ -4651,224 +4903,6 @@
 	    item: data.item
 	  });
 	});
-
-	function create(extension) {
-	  var simpleXdmExtension = {
-	    addon_key: extension.addon_key,
-	    key: extension.key,
-	    url: extension.url,
-	    options: extension.options
-	  };
-	  return IframeContainerComponent.createExtension(simpleXdmExtension);
-	}
-
-	var ModuleActions = {
-	  defineCustomModule: function defineCustomModule(name, methods) {
-	    var data = {};
-	    if (!methods) {
-	      data.methods = name;
-	    } else {
-	      data.methods = methods;
-	      data.name = name;
-	    }
-	    EventDispatcher$1.dispatch('module-define-custom', data);
-	  }
-	};
-
-	function sanitizeTriggers(triggers) {
-	  var onTriggers;
-	  if (Array.isArray(triggers)) {
-	    onTriggers = triggers.join(' ');
-	  } else if (typeof triggers === 'string') {
-	    onTriggers = triggers.trim();
-	  }
-	  return onTriggers;
-	}
-
-	function uniqueId() {
-	  return 'webitem-' + Math.floor(Math.random() * 1000000000).toString(16);
-	}
-
-	// LEGACY: get addon key by webitem for p2
-	function getExtensionKey($target) {
-	  var cssClass = $target.attr('class');
-	  var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
-	  return Array.isArray(m) ? m[1] : false;
-	}
-
-	// LEGACY: get module key by webitem for p2
-	function getKey($target) {
-	  var cssClass = $target.attr('class');
-	  var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
-	  return Array.isArray(m) ? m[1] : false;
-	}
-
-	function getTargetKey($target) {
-	  var cssClass = $target.attr('class');
-	  var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
-	  return Array.isArray(m) ? m[1] : false;
-	}
-
-	function getFullKey($target) {
-	  return getExtensionKey($target) + '__' + getKey($target);
-	}
-
-	function getModuleOptionsByAddonAndModuleKey(type, addonKey, moduleKey) {
-	  var moduleType = type + 'Modules';
-	  if (window._AP && window._AP[moduleType] && window._AP[moduleType][addonKey] && window._AP[moduleType][addonKey][moduleKey]) {
-	    return Util$1.extend({}, window._AP[moduleType][addonKey][moduleKey].options);
-	  }
-	}
-
-	function getModuleOptionsForWebitem(type, $target) {
-	  var addon_key = getExtensionKey($target);
-	  var targetKey = getTargetKey($target);
-	  return getModuleOptionsByAddonAndModuleKey(type, addon_key, targetKey);
-	}
-
-	// LEGACY - method for handling webitem options for p2
-	function getOptionsForWebItem($target) {
-	  var fullKey = getFullKey($target);
-
-	  var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-	  var options = getModuleOptionsForWebitem(type, $target);
-	  if (!options && window._AP && window._AP[type + 'Options']) {
-	    options = Util$1.extend({}, window._AP[type + 'Options'][fullKey]) || {};
-	  }
-	  if (!options) {
-	    options = {};
-	    console.warn('no webitem ' + type + 'Options for ' + fullKey);
-	  }
-	  options.productContext = options.productContext || {};
-	  // create product context from url params
-	  var url = $target.attr('href');
-	  if (url) {
-	    var query = index$1.parse(index$1.extract(url));
-	    Util$1.extend(options.productContext, query);
-	  }
-
-	  return options;
-	}
-
-	var WebItemUtils = {
-	  sanitizeTriggers: sanitizeTriggers,
-	  uniqueId: uniqueId,
-	  getExtensionKey: getExtensionKey,
-	  getKey: getKey,
-	  getOptionsForWebItem: getOptionsForWebItem,
-	  getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey
-	};
-
-	var HostApi$1 = function () {
-	  function HostApi() {
-	    classCallCheck(this, HostApi);
-
-	    this.create = create;
-	    this.dialog = {
-	      create: function create$$1(extension, dialogOptions) {
-	        var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
-	        var completeOptions = Util$1.extend({}, dialogBeanOptions || {}, dialogOptions);
-	        DialogExtensionActions.open(extension, completeOptions);
-	      },
-	      close: function close() {
-	        DialogExtensionActions.close();
-	      }
-	    };
-	    this.registerContentResolver = {
-	      resolveByExtension: function resolveByExtension(callback) {
-	        jwtActions.registerContentResolver({ callback: callback });
-	      }
-	    };
-	    this.registerProvider = function (componentName, component) {
-	      ModuleProviders$1.registerProvider(componentName, component);
-	    };
-	    this.getProvider = function (componentName) {
-	      return ModuleProviders$1.getProvider(componentName);
-	    };
-	  }
-
-	  HostApi.prototype._cleanExtension = function _cleanExtension(extension) {
-	    return Util$1.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
-	  };
-
-	  HostApi.prototype.onIframeEstablished = function onIframeEstablished(callback) {
-	    var _this = this;
-
-	    EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
-	      callback.call({}, {
-	        $el: data.$el,
-	        extension: _this._cleanExtension(data.extension)
-	      });
-	    });
-	  };
-
-	  HostApi.prototype.onIframeUnload = function onIframeUnload(callback) {
-	    var _this2 = this;
-
-	    EventDispatcher$1.register('after:iframe-unload', function (data) {
-	      callback.call({}, {
-	        $el: data.$el,
-	        extension: _this2._cleanExtension(data.extension)
-	      });
-	    });
-	  };
-
-	  HostApi.prototype.onPublicEventDispatched = function onPublicEventDispatched(callback) {
-	    var wrapper = function wrapper(data) {
-	      callback.call({}, {
-	        type: data.type,
-	        event: data.event,
-	        extension: this._cleanExtension(data.sender)
-	      });
-	    };
-	    callback._wrapper = wrapper.bind(this);
-	    EventDispatcher$1.register('after:event-public-dispatch', callback._wrapper);
-	  };
-
-	  HostApi.prototype.offPublicEventDispatched = function offPublicEventDispatched(callback) {
-	    if (callback._wrapper) {
-	      EventDispatcher$1.unregister('after:event-public-dispatch', callback._wrapper);
-	    } else {
-	      throw new Error('cannot unregister event dispatch listener without _wrapper reference');
-	    }
-	  };
-
-	  HostApi.prototype.onKeyEvent = function onKeyEvent(extension_id, key, modifiers, callback) {
-	    DomEventActions.registerKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
-	  };
-
-	  HostApi.prototype.offKeyEvent = function offKeyEvent(extension_id, key, modifiers, callback) {
-	    DomEventActions.unregisterKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
-	  };
-
-	  HostApi.prototype.destroy = function destroy(extension_id) {
-	    IframeActions.notifyIframeDestroyed({ extension_id: extension_id });
-	  };
-
-	  HostApi.prototype.defineModule = function defineModule(name, methods) {
-	    ModuleActions.defineCustomModule(name, methods);
-	  };
-
-	  HostApi.prototype.broadcastEvent = function broadcastEvent(type, targetSpec, event) {
-	    EventActions.broadcast(type, targetSpec, event);
-	  };
-
-	  HostApi.prototype.getExtensions = function getExtensions(filter) {
-	    return simpleXDM$1.getExtensions(filter);
-	  };
-
-	  HostApi.prototype.trackDeprecatedMethodUsed = function trackDeprecatedMethodUsed(methodUsed, extension) {
-	    AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
-	  };
-
-	  HostApi.prototype.setJwtClockSkew = function setJwtClockSkew(skew) {
-	    jwtActions.setClockSkew(skew);
-	  };
-
-	  return HostApi;
-	}();
-
-	var HostApi$2 = new HostApi$1();
 
 	var WebItem = function () {
 	  function WebItem() {
@@ -5273,7 +5307,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.0';
+	  window._AP.version = '5.1.1';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
