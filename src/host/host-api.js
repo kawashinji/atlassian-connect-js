@@ -39,7 +39,7 @@ class HostApi {
       return ModuleProviders.getProvider(componentName);
     };
     // We are attaching an instance of ACJSAdaptor to the host so that products are able
-    // to retrieve the identical instance of ACJSAdaptor that ACJS is using. 
+    // to retrieve the identical instance of ACJSAdaptor that ACJS is using.
     this.acjsAdaptor = ACJSAdaptor;
   }
 
