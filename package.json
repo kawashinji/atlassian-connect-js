@@ -79,7 +79,8 @@
     "object-assign": "4.1.1",
     "query-string": "4.2.3",
     "simple-xdm": "0.9.5",
-    "text-encoder-lite-module": "git+https://github.com/hbenl/TextEncoderLiteModule.git#d6b82fb27f0251b336d61dfb16ec8f9e4eb40b9c"
+    "text-encoder-lite-module": "git+https://github.com/hbenl/TextEncoderLiteModule.git#d6b82fb27f0251b336d61dfb16ec8f9e4eb40b9c",
+    "tslib": "^1.7.1"
   },
   "browserify": {
     "transform": [
