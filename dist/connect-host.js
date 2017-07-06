@@ -3486,7 +3486,10 @@
 
 	  // Old buttons, (submit and cancel) use old events
 	  if (!data.$el.hasClass('ap-dialog-custom-button')) {
-	    eventName = 'dialog.' + eventData.button.name;
+	    EventActions.broadcast('dialog.' + eventData.button.name, {
+	      addon_key: data.extension.addon_key,
+	      key: data.extension.key
+	    }, eventData);
 	  }
 
 	  EventActions.broadcast(eventName, {
