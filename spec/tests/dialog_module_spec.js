@@ -187,8 +187,6 @@ describe('Dialog module', () => {
     $dialogExtension.find('iframe').load(function(){
       $dialogExtension.find('button').first().click();
       expect(EventActions.broadcast.calls.count()).toEqual(2);
-      console.log("FIRST", EventActions.broadcast.calls.first());
-      console.log("SECOND", EventActions.broadcast.calls.all()[1]);
       expect(EventActions.broadcast.calls.first().args).toEqual([
         'dialog.submit',
         {
