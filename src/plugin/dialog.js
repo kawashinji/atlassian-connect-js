@@ -67,6 +67,11 @@ function submitOrCancelEvent(name, args) {
     context = AP.dialog.getButton(args.button.name);
   }
 
+  // if the submit button has been set to not close on click
+  if(name === 'submit' && AP.dialog._disableCloseOnSubmit) {
+    shouldClose = false;
+  }
+
   try {
     if (handlers) {
       shouldClose = handlers.reduce((result, cb) => cb.call(context, args) && result, shouldClose);
@@ -109,6 +114,11 @@ AP.dialog.create = AP._hostModules.dialog.create = (...args) => {
     'AP.dialog.on("close", callback)', 'AP.events.on("dialog.close", callback)', '5.0');
   return dialog;
 };
+
+AP.dialog._disableCloseOnSubmit = false;
+AP.dialog.disableCloseOnSubmit = function(){
+  AP.dialog._disableCloseOnSubmit = true;
+}
 
 let original_dialogGetButton = AP.dialog.getButton.prototype.constructor.bind({});
 

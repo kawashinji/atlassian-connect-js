@@ -2495,6 +2495,11 @@ var AP = (function () {
       context = AP$2.dialog.getButton(args.button.name);
     }
 
+    // if the submit button has been set to not close on click
+    if (name === 'submit' && AP$2.dialog._disableCloseOnSubmit) {
+      shouldClose = false;
+    }
+
     try {
       if (handlers) {
         shouldClose = handlers.reduce(function (result, cb) {
@@ -2537,6 +2542,11 @@ var AP = (function () {
      */
     dialog.on = deprecate(registerHandler, 'AP.dialog.on("close", callback)', 'AP.events.on("dialog.close", callback)', '5.0');
     return dialog;
+  };
+
+  AP$2.dialog._disableCloseOnSubmit = false;
+  AP$2.dialog.disableCloseOnSubmit = function () {
+    AP$2.dialog._disableCloseOnSubmit = true;
   };
 
   var original_dialogGetButton = AP$2.dialog.getButton.prototype.constructor.bind({});
