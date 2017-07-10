@@ -380,8 +380,16 @@ export default {
   /**
   * Stop the dialog from closing when the submit button is clicked
   * @method disableCloseOnSubmit
+  * @noDemo
   * @example
+  * AP.dialog.disableCloseOnSubmit();
+  * AP.events.on('dialog.button.click', function(data){
+  *   if(data.button.name === 'submit') {
+  *     console.log('submit button pressed');
+  *   }
+  * }
   */
+
   /**
    * Returns the button that was requested (either cancel or submit). If the requested button does not exist, an empty Object will be returned instead.
    * @method getButton
