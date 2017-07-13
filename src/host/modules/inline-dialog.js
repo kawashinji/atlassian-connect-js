@@ -7,7 +7,7 @@
  * For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inline-dialog.html).
  * @module inline-dialog
  */
-import ACJSAdaptor from '@atlassian/connect-module-core/lib/adaptors/ACJSAdaptor';
+import { acjsFrameworkAdaptor } from '@atlassian/connect-module-core/lib/adaptors/framework/ACJSFrameworkAdaptor';
 import InlineDialogActions from '../actions/inline_dialog_actions';
 import util from '../util';
 
@@ -22,7 +22,7 @@ export default {
    */
   hide: function(callback) {
     callback = util.last(arguments);
-    const inlineDialogProvider = ACJSAdaptor.getProviderByModuleName('inlineDialog');
+    const inlineDialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('inlineDialog');
     if (inlineDialogProvider) {
       inlineDialogProvider.hide(callback._context);
     } else {

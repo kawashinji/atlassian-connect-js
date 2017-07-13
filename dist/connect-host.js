@@ -3352,10 +3352,6 @@
 
     var ModuleProviders$1 = new ModuleProviders();
 
-    function unwrapExports (x) {
-    	return x && x.__esModule ? x['default'] : x;
-    }
-
     function createCommonjsModule(fn, module) {
     	return module = { exports: {} }, fn(module, module.exports), module.exports;
     }
@@ -3640,7 +3636,7 @@
     	__asyncValues: __asyncValues
     });
 
-    var BaseAdaptor_1 = createCommonjsModule(function (module, exports) {
+    var BaseFrameworkAdaptor_1 = createCommonjsModule(function (module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -3649,21 +3645,21 @@
      * particular Connect client framework. This is necessary for an interim period during which
      * we have multiple Connect client frameworks that we need to support: ACJS and CaaS Client.
      */
-    var BaseAdaptor = function () {
-        function BaseAdaptor() {
+    var BaseFrameworkAdaptor = function () {
+        function BaseFrameworkAdaptor() {
             this.moduleNamesToModules = new Map();
         }
         /**
          * This method registers a module with the Connect client framework relating to this adaptor instance.
          * @param moduleDefinition the definition of the module.
          */
-        BaseAdaptor.prototype.registerModule = function (module, props) {
+        BaseFrameworkAdaptor.prototype.registerModule = function (module, props) {
             var moduleRegistrationName = module.getModuleRegistrationName();
             this.moduleNamesToModules.set(moduleRegistrationName, module);
             var simpleXdmDefinition = module.getSimpleXdmDefinition(props);
             this.registerModuleWithHost(moduleRegistrationName, simpleXdmDefinition);
         };
-        BaseAdaptor.prototype.getProviderByModuleName = function (moduleName) {
+        BaseFrameworkAdaptor.prototype.getProviderByModuleName = function (moduleName) {
             var module = this.moduleNamesToModules.get(moduleName);
             if (module) {
                 return module.getProvider();
@@ -3671,45 +3667,44 @@
                 return undefined;
             }
         };
-        return BaseAdaptor;
+        return BaseFrameworkAdaptor;
     }();
-    exports.BaseAdaptor = BaseAdaptor;
+    exports.BaseFrameworkAdaptor = BaseFrameworkAdaptor;
 
     });
 
     var require$$1$1 = ( tslib_es6 && undefined ) || tslib_es6;
 
-    var ACJSAdaptor_1 = createCommonjsModule(function (module, exports) {
+    var ACJSFrameworkAdaptor_1 = createCommonjsModule(function (module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", { value: true });
     var tslib_1 = require$$1$1;
-    var BaseAdaptor_1$$1 = BaseAdaptor_1;
+    var BaseFrameworkAdaptor_1$$1 = BaseFrameworkAdaptor_1;
     /**
      * This class provides the Adaptor implementation for ACJS
      */
-    var ACJSAdaptor = function (_super) {
-        tslib_1.__extends(ACJSAdaptor, _super);
-        function ACJSAdaptor() {
+    var ACJSFrameworkAdaptor = function (_super) {
+        tslib_1.__extends(ACJSFrameworkAdaptor, _super);
+        function ACJSFrameworkAdaptor() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
-        ACJSAdaptor.prototype.registerModuleWithHost = function (moduleName, simpleXdmDefinition) {
+        ACJSFrameworkAdaptor.prototype.registerModuleWithHost = function (moduleName, simpleXdmDefinition) {
             // Do nothing - ACJS is already registering all core modules.
         };
-        ACJSAdaptor.prototype.getProviderByModuleName = function (moduleName) {
+        ACJSFrameworkAdaptor.prototype.getProviderByModuleName = function (moduleName) {
             return _super.prototype.getProviderByModuleName.call(this, moduleName);
         };
-        return ACJSAdaptor;
-    }(BaseAdaptor_1$$1.BaseAdaptor);
-    exports.ACJSAdaptor = ACJSAdaptor;
+        return ACJSFrameworkAdaptor;
+    }(BaseFrameworkAdaptor_1$$1.BaseFrameworkAdaptor);
     /**
-     * Use only this instance of ACJSAdaptor.
+     * Use only this instance of ACJSFrameworkAdaptor.
      */
-    exports.default = new ACJSAdaptor();
+    exports.acjsFrameworkAdaptor = new ACJSFrameworkAdaptor();
 
     });
 
-    var ACJSAdaptor = unwrapExports(ACJSAdaptor_1);
+    var acjsFrameworkAdaptor = ACJSFrameworkAdaptor_1.acjsFrameworkAdaptor;
 
     var HostApi$1 = function () {
       function HostApi() {
@@ -3738,8 +3733,8 @@
           return ModuleProviders$1.getProvider(componentName);
         };
         // We are attaching an instance of ACJSAdaptor to the host so that products are able
-        // to retrieve the identical instance of ACJSAdaptor that ACJS is using. 
-        this.acjsAdaptor = ACJSAdaptor;
+        // to retrieve the identical instance of ACJSAdaptor that ACJS is using.
+        this.acjsAdaptor = acjsFrameworkAdaptor;
       }
 
       HostApi.prototype._cleanExtension = function _cleanExtension(extension) {
@@ -4450,7 +4445,7 @@
        */
       hide: function hide(callback) {
         callback = Util$1.last(arguments);
-        var inlineDialogProvider = ACJSAdaptor.getProviderByModuleName('inlineDialog');
+        var inlineDialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('inlineDialog');
         if (inlineDialogProvider) {
           inlineDialogProvider.hide(callback._context);
         } else {
@@ -4886,7 +4881,7 @@
           return;
         }
         var flagId = callback._id;
-        this.flagProvider = ACJSAdaptor.getProviderByModuleName('flag');
+        this.flagProvider = acjsFrameworkAdaptor.getProviderByModuleName('flag');
         if (this.flagProvider) {
           var actions = [];
           if (_typeof(options.actions) === 'object') {
@@ -5668,7 +5663,7 @@
      * Add version
      */
     if (!window._AP.version) {
-      window._AP.version = '5.1.2';
+      window._AP.version = '5.1.3';
     }
 
     simpleXDM$1.defineModule('messages', messages);

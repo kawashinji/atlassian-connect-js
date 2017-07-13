@@ -11,7 +11,7 @@ import IframeActions from './actions/iframe_actions';
 import AnalyticsAction from './actions/analytics_action';
 import WebItemUtils from './utils/webitem';
 import ModuleProviders from './module-providers';
-import ACJSAdaptor from '@atlassian/connect-module-core/lib/adaptors/ACJSAdaptor';
+import { acjsFrameworkAdaptor } from '@atlassian/connect-module-core/lib/adaptors/framework/ACJSFrameworkAdaptor';
 import Util from './util';
 
 class HostApi {
@@ -40,7 +40,7 @@ class HostApi {
     };
     // We are attaching an instance of ACJSAdaptor to the host so that products are able
     // to retrieve the identical instance of ACJSAdaptor that ACJS is using.
-    this.acjsAdaptor = ACJSAdaptor;
+    this.acjsAdaptor = acjsFrameworkAdaptor;
   }
 
   _cleanExtension(extension){
