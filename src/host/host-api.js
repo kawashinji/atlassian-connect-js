@@ -11,7 +11,7 @@ import IframeActions from './actions/iframe_actions';
 import AnalyticsAction from './actions/analytics_action';
 import WebItemUtils from './utils/webitem';
 import ModuleProviders from './module-providers';
-import { acjsFrameworkAdaptor } from '@atlassian/connect-module-core/lib/adaptors/framework/ACJSFrameworkAdaptor';
+import { acjsFrameworkAdaptor } from './ACJSFrameworkAdaptor';
 import Util from './util';
 
 class HostApi {

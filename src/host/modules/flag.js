@@ -3,7 +3,7 @@
 * @module Flag
 */
 
-import { acjsFrameworkAdaptor } from '@atlassian/connect-module-core/lib/adaptors/framework/ACJSFrameworkAdaptor';
+import { acjsFrameworkAdaptor } from '../ACJSFrameworkAdaptor';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import FlagActions from '../actions/flag_actions';
 import FlagComponent from '../components/flag';

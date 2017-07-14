@@ -7,7 +7,7 @@
  * For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inline-dialog.html).
  * @module inline-dialog
  */
-import { acjsFrameworkAdaptor } from '@atlassian/connect-module-core/lib/adaptors/framework/ACJSFrameworkAdaptor';
+import { acjsFrameworkAdaptor } from '../ACJSFrameworkAdaptor';
 import InlineDialogActions from '../actions/inline_dialog_actions';
 import util from '../util';
 
