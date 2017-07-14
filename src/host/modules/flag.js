@@ -3,7 +3,7 @@
 * @module Flag
 */
 
-import ACJSAdaptor from '@atlassian/connect-module-core/lib/adaptors/ACJSAdaptor';
+import { acjsFrameworkAdaptor } from '../ACJSFrameworkAdaptor';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import FlagActions from '../actions/flag_actions';
 import FlagComponent from '../components/flag';
@@ -48,7 +48,7 @@ class Flag {
       return;
     }
     const flagId = callback._id;
-    this.flagProvider = ACJSAdaptor.getProviderByModuleName('flag');
+    this.flagProvider = acjsFrameworkAdaptor.getProviderByModuleName('flag');
     if (this.flagProvider) {
       let actions = [];
       if (typeof options.actions === 'object') {
