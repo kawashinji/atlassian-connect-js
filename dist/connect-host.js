@@ -3352,17 +3352,9 @@
 
 	var ModuleProviders$1 = new ModuleProviders();
 
-	function createCommonjsModule(fn, module) {
-		return module = { exports: {} }, fn(module, module.exports), module.exports;
-	}
-
-	var ACJSFrameworkAdaptor_1 = createCommonjsModule(function (module, exports) {
 	// This is essentially a copy of the ACJSFrameworkAdaptor/BaseFrameworkAdaptor implementation generated
 	// by compiling the connect-module-core typescript implementations of the equivalent classes.
 
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", { value: true });
 	/**
 	 * This class provides common behaviour relating to the adaption of functionality to a
 	 * particular Connect client framework. This is necessary for an interim period during which
@@ -3397,10 +3389,8 @@
 	  };
 	  return ACJSFrameworkAdaptor;
 	}();
-	exports.acjsFrameworkAdaptor = new ACJSFrameworkAdaptor();
-	});
 
-	var acjsFrameworkAdaptor = ACJSFrameworkAdaptor_1.acjsFrameworkAdaptor;
+	var acjsFrameworkAdaptor = new ACJSFrameworkAdaptor();
 
 	var HostApi$1 = function () {
 	  function HostApi() {

@@ -2,8 +2,6 @@
 // This is essentially a copy of the ACJSFrameworkAdaptor/BaseFrameworkAdaptor implementation generated
 // by compiling the connect-module-core typescript implementations of the equivalent classes.
 
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * This class provides common behaviour relating to the adaption of functionality to a
  * particular Connect client framework. This is necessary for an interim period during which
@@ -32,11 +30,11 @@ var ACJSFrameworkAdaptor = (function () {
     var module = this.moduleNamesToModules.get(moduleName);
     if (module) {
       return module.getProvider();
-    }
-    else {
+    } else {
       return undefined;
     }
   };
   return ACJSFrameworkAdaptor;
 }());
-exports.acjsFrameworkAdaptor = new ACJSFrameworkAdaptor();
+
+export const acjsFrameworkAdaptor = new ACJSFrameworkAdaptor();
