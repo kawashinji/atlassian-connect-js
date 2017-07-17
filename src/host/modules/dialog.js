@@ -50,34 +50,66 @@ class Dialog {
     const _id = callback._id;
     const extension = callback._context.extension;
 
-    let dialogProvider = HostApi.getProvider('dialog');
+    const dialogProvider = HostApi.getProvider('dialog');
     if (dialogProvider) {
-      let buttons = [
-        ...(options.buttons || []),
-        {
-          id: 'submit',
-          text: options.submitText || 'Submit',
-          appearance: 'primary'
-        },
-        {
-          id: 'cancel',
-          text: options.cancelText || 'Cancel',
-          appearance: 'subtle-link'
-        }
-      ].map(button => {
-        button.onClick = () => {
-          // Todo: ACJS-667 - this needs to be hooked up with the appropriate action
-          // Currently the dialog actions are to intertwined with component DOM
-          console.log(button.id, _id);
+      const getOnClickFunction = button => {
+        return () => {
+          const eventData = {
+            button: {
+              identifier: button.id ,
+              text: button.text
+            }
+          };
+          var eventName = 'dialog.button.click';
+          if (button.id === 'submit') {
+            eventName = `dialog.${button.id}`;
+            dialogProvider.onSubmit();
+          } else if (button.id === 'cancel') {
+            eventName = `dialog.${button.id}`;
+            dialogProvider.onCancel();
+          }
+          EventActions.broadcast(eventName, {
+            addon_key: callback._context.extension.addon_key,
+            key: callback._context.extension.key
+          }, eventData);
         };
-        return button;
-      });
-      let dialogOptions = {
-        id: _id,
-        header: options.header,
-        buttons: buttons,
-        onClose: DialogActions.close
       };
+      let header = null;
+      let buttons = [];
+      if (options.chrome) {
+        header = options.header;
+        buttons = [...(options.buttons || []),
+          {
+            id: 'submit',
+            key: 'submit',
+            text: options.submitText || 'Submit'
+          },
+          {
+            id: 'cancel',
+            key: 'cancel',
+            text: options.cancelText || 'Cancel'
+          }
+        ].map(button => {
+          if (typeof button.disabled === 'undefined') {
+            button.disabled = false;
+          }
+          button.hidden = false;
+          button.onClick = getOnClickFunction(button);
+          return button;
+        });
+      }
+      const dialogOptions = {
+        id: _id,
+        width: options.size || options.width || '50%',
+        height: options.size || options.height || '50%',
+        header,
+        buttons,
+        customData: options.customData,
+        closeOnEscape: options.closeOnEscape
+      };
+      this.customData = options.customData;
+      this.closeOnEscape = options.closeOnEscape;
+      _dialogs[_id] = this;
       dialogProvider.create(dialogOptions);
     } else {
       var dialogExtension = {
@@ -107,13 +139,20 @@ class Dialog {
  */
 class Button {
   constructor(identifier) {
-    if (!DialogExtensionComponent.getActiveDialog()) {
-      throw new Error('Failed to find an active dialog.');
+    const dialogProvider = HostApi.getProvider('dialog');
+    if (dialogProvider) {
+      //TODO check for active dialog
+      this.name = identifier;
+      this.identifier = identifier;
+    } else {
+      if (!DialogExtensionComponent.getActiveDialog()) {
+        throw new Error('Failed to find an active dialog.');
+      }
+      this.name = identifier;
+      this.identifier = identifier;
+      this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
+      this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
     }
-    this.name = identifier;
-    this.identifier = identifier;
-    this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
-    this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
   }
   /**
    * Sets the button state to enabled
@@ -156,7 +195,12 @@ class Button {
    */
   isEnabled(callback) {
     callback = Util.last(arguments);
-    callback(this.enabled);
+    const dialogProvider = HostApi.getProvider('dialog');
+    if (dialogProvider) {
+      callback(!dialogProvider.isButtonDisabled(this.identifier));
+    } else {
+      callback(this.enabled);
+    }
   }
   /**
    * Toggle the button state between enabled and disabled.
@@ -167,16 +211,26 @@ class Button {
    * AP.dialog.getButton('submit').toggle();
    */
   toggle() {
-    this.setState({
-      enabled: !this.enabled
-    });
+    const dialogProvider = HostApi.getProvider('dialog');
+    if (dialogProvider) {
+      dialogProvider.toggleButton(this.identifier);
+    } else {
+      this.setState({
+        enabled: !this.enabled
+      });
+    }
   }
   setState(state) {
-    this.enabled = state.enabled;
-    DialogActions.toggleButton({
-      identifier: this.identifier,
-      enabled: this.enabled
-    });
+    const dialogProvider = HostApi.getProvider('dialog');
+    if (dialogProvider) {
+      dialogProvider.setButtonDisabled(this.identifier, !state.enabled);
+    } else {
+      this.enabled = state.enabled;
+      DialogActions.toggleButton({
+        identifier: this.identifier,
+        enabled: this.enabled
+      });
+    }
   }
   /**
    * Trigger a callback bound to a button.
@@ -214,7 +268,12 @@ class Button {
    */
   isHidden(callback) {
     callback = Util.last(arguments);
-    callback(this.hidden);
+    const dialogProvider = HostApi.getProvider('dialog');
+    if (dialogProvider) {
+      callback(dialogProvider.isButtonHidden(this.identifier));
+    } else {
+      callback(this.hidden);
+    }
   }
   /**
    * Sets the button state to hidden
@@ -240,11 +299,16 @@ class Button {
   }
 
   setHidden(hidden) {
-    this.hidden = hidden;
-    DialogActions.toggleButtonVisibility({
-      identifier: this.identifier,
-      hidden: this.hidden
-    });
+    const dialogProvider = HostApi.getProvider('dialog');
+    if (dialogProvider) {
+      dialogProvider.setButtonHidden(this.identifier, hidden);
+    } else {
+      this.hidden = hidden;
+      DialogActions.toggleButtonVisibility({
+        identifier: this.identifier,
+        hidden: this.hidden
+      });
+    }
   }
 }
 
@@ -255,10 +319,32 @@ function getDialogFromContext(context) {
 class CreateButton {
   constructor(options, callback) {
     callback = Util.last(arguments);
-    DialogExtensionActions.addUserButton({
-      identifier: options.identifier,
-      text: options.text
-    }, callback._context.extension);
+    const dialogProvider = HostApi.getProvider('dialog');
+    if (dialogProvider) {
+      dialogProvider.createButton({
+        id: options.identifier,
+        key: options.identifier,
+        text: options.text,
+        hidden: false,
+        disabled: options.disabled || false,
+        onClick: () => {
+          EventActions.broadcast('dialog.button.click', {
+            addon_key: callback._context.extension.addon_key,
+            key: callback._context.extension.key
+          }, {
+            button: {
+              identifier: options.identifier,
+              text: options.text
+            }
+          });
+        }
+      });
+    } else {
+      DialogExtensionActions.addUserButton({
+        identifier: options.identifier,
+        text: options.text
+      }, callback._context.extension);
+    }
   }
 }
 
@@ -272,7 +358,7 @@ class CreateButton {
  * <h3>Styling your dialog to look like a standard Atlassian dialog</h3>
  *
  * By default the dialog iframe is undecorated. It's up to you to style the dialog.
- * <img src="/cloud/connect/images/connectdialogchromelessexample.jpeg" width="100%" />
+ * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
  *
  * In order to maintain a consistent look and feel between the host application and the add-on, we encourage you to style your dialogs to match Atlassian's Design Guidelines for modal dialogs.
  *
@@ -334,9 +420,11 @@ export default {
    */
   close: function (data, callback) {
     callback = Util.last(arguments);
-
-    let dialogProvider = HostApi.getProvider('dialog');
+    const dialogProvider = HostApi.getProvider('dialog');
     if (dialogProvider) {
+      EventActions.broadcast('dialog.close', {
+        addon_key: callback._context.extension.addon_key
+      }, data);
       dialogProvider.close();
     } else {
       var dialogToClose;
