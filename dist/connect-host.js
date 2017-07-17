@@ -3352,6 +3352,46 @@
 
 	var ModuleProviders$1 = new ModuleProviders();
 
+	// This is essentially a copy of the ACJSFrameworkAdaptor/BaseFrameworkAdaptor implementation generated
+	// by compiling the connect-module-core typescript implementations of the equivalent classes.
+
+	/**
+	 * This class provides common behaviour relating to the adaption of functionality to a
+	 * particular Connect client framework. This is necessary for an interim period during which
+	 * we have multiple Connect client frameworks that we need to support: ACJS and CaaS Client.
+	 */
+	var ACJSFrameworkAdaptor = function () {
+	  function ACJSFrameworkAdaptor() {
+	    this.moduleNamesToModules = new Map();
+	  }
+	  /**
+	   * This method registers a module with the Connect client framework relating to this adaptor instance.
+	   * @param moduleDefinition the definition of the module.
+	   */
+	  ACJSFrameworkAdaptor.prototype.registerModule = function (module, props) {
+	    var moduleRegistrationName = module.getModuleRegistrationName();
+	    this.moduleNamesToModules.set(moduleRegistrationName, module);
+
+	    // This adaptor implementation doesn't need to register the SimpleXDM definition so the following is
+	    // commented out.
+	    //
+	    // var simpleXdmDefinition = module.getSimpleXdmDefinition(props);
+	    // this.registerModuleWithHost(moduleRegistrationName, simpleXdmDefinition);
+	  };
+
+	  ACJSFrameworkAdaptor.prototype.getProviderByModuleName = function (moduleName) {
+	    var module = this.moduleNamesToModules.get(moduleName);
+	    if (module) {
+	      return module.getProvider();
+	    } else {
+	      return undefined;
+	    }
+	  };
+	  return ACJSFrameworkAdaptor;
+	}();
+
+	var acjsFrameworkAdaptor = new ACJSFrameworkAdaptor();
+
 	var HostApi$1 = function () {
 	  function HostApi() {
 	    classCallCheck(this, HostApi);
@@ -3378,6 +3418,9 @@
 	    this.getProvider = function (componentName) {
 	      return ModuleProviders$1.getProvider(componentName);
 	    };
+	    // We are attaching an instance of ACJSAdaptor to the host so that products are able
+	    // to retrieve the identical instance of ACJSAdaptor that ACJS is using.
+	    this.acjsAdaptor = acjsFrameworkAdaptor;
 	  }
 
 	  HostApi.prototype._cleanExtension = function _cleanExtension(extension) {
@@ -4069,14 +4112,13 @@
 
 	/**
 	 * The inline dialog is a wrapper for secondary content/controls to be displayed on user request. Consider this component as displayed in context to the triggering control with the dialog overlaying the page content.
-	 * A inline dialog should be preferred over a modal dialog when a connection between the action has a clear benefit versus having a lower user focus.
+	 * An inline dialog should be preferred over a modal dialog when a connection between the action has a clear benefit versus having a lower user focus.
 	 *
 	 * Inline dialogs can be shown via a [web item target](../modules/common/web-item.html#target).
 	 *
 	 * For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inline-dialog.html).
 	 * @module inline-dialog
 	 */
-
 	var inlineDialog = {
 	  /**
 	   * Hide the inline dialog that contains the iframe where this method is called from.
@@ -4088,7 +4130,7 @@
 	   */
 	  hide: function hide(callback) {
 	    callback = Util$1.last(arguments);
-	    var inlineDialogProvider = ModuleProviders$1.getProvider('inlineDialog');
+	    var inlineDialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('inlineDialog');
 	    if (inlineDialogProvider) {
 	      inlineDialogProvider.hide(callback._context);
 	    } else {
@@ -4524,7 +4566,7 @@
 	      return;
 	    }
 	    var flagId = callback._id;
-	    this.flagProvider = ModuleProviders$1.getProvider('flag');
+	    this.flagProvider = acjsFrameworkAdaptor.getProviderByModuleName('flag');
 	    if (this.flagProvider) {
 	      var actions = [];
 	      if (_typeof(options.actions) === 'object') {
