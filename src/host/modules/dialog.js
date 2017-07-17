@@ -52,6 +52,19 @@ class Dialog {
     callback = Util.last(arguments);
     const _id = callback._id;
     const extension = callback._context.extension;
+    let dialogExtension = {
+      addon_key: extension.addon_key,
+      key: options.key,
+      options: Util.pick(extension.options, ['customData', 'productContext'])
+    };
+
+    // ACJS-185: the following is a really bad idea but we need it
+    // for compat until AP.dialog.customData has been deprecated
+    dialogExtension.options.customData = options.customData;
+    // terrible idea! - we need to remove this from p2 ASAP!
+    var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
+    options = Util.extend({}, dialogModuleOptions || {}, options);
+    options.id = _id;
 
     let dialogProvider = HostApi.getProvider('dialog');
     if (dialogProvider) {
@@ -81,22 +94,8 @@ class Dialog {
         buttons: buttons,
         onClose: DialogActions.close
       };
-      dialogProvider.create(dialogOptions);
+      dialogProvider.create(dialogOptions, dialogExtension);
     } else {
-      var dialogExtension = {
-        addon_key: extension.addon_key,
-        key: options.key,
-        options: Util.pick(callback._context.extension.options, ['customData', 'productContext'])
-      };
-
-      // ACJS-185: the following is a really bad idea but we need it
-      // for compat until AP.dialog.customData has been deprecated
-      dialogExtension.options.customData = options.customData;
-      // terrible idea! - we need to remove this from p2 ASAP!
-      var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
-      options = Util.extend({}, dialogModuleOptions || {}, options);
-      options.id = _id;
-
       DialogExtensionActions.open(dialogExtension, options);
       this.customData = options.customData;
       _dialogs[_id] = this;
@@ -275,7 +274,7 @@ class CreateButton {
  * <h3>Styling your dialog to look like a standard Atlassian dialog</h3>
  *
  * By default the dialog iframe is undecorated. It's up to you to style the dialog.
- * <img src="../assets/images/connectdialogchromelessexample.jpeg" width="100%" />
+ * <img src="/cloud/connect/images/connectdialogchromelessexample.jpeg" width="100%" />
  *
  * In order to maintain a consistent look and feel between the host application and the add-on, we encourage you to style your dialogs to match Atlassian's Design Guidelines for modal dialogs.
  *
