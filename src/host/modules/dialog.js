@@ -31,7 +31,10 @@ EventDispatcher.register('dialog-button-click', (data) => {
 
   // Old buttons, (submit and cancel) use old events
   if(!data.$el.hasClass('ap-dialog-custom-button')) {
-    eventName = `dialog.${eventData.button.name}`;
+    EventActions.broadcast(`dialog.${eventData.button.name}`, {
+      addon_key: data.extension.addon_key,
+      key: data.extension.key
+    }, eventData);
   }
 
   EventActions.broadcast(eventName, {
@@ -373,6 +376,19 @@ export default {
       callback(undefined);
     }
   },
+  /**
+  * Stop the dialog from closing when the submit button is clicked
+  * @method disableCloseOnSubmit
+  * @noDemo
+  * @example
+  * AP.dialog.disableCloseOnSubmit();
+  * AP.events.on('dialog.button.click', function(data){
+  *   if(data.button.name === 'submit') {
+  *     console.log('submit button pressed');
+  *   }
+  * }
+  */
+
   /**
    * Returns the button that was requested (either cancel or submit). If the requested button does not exist, an empty Object will be returned instead.
    * @method getButton
