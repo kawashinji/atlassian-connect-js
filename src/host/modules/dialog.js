@@ -5,7 +5,7 @@ import EventActions from '../actions/event_actions';
 import DialogExtensionComponent from '../components/dialog_extension';
 import ButtonComponent from '../components/button';
 import DialogUtils from '../utils/dialog';
-import HostApi from '../host-api';
+import { acjsFrameworkAdaptor } from '../ACJSFrameworkAdaptor';
 import Util from '../util';
 
 const _dialogs = {};
@@ -49,9 +49,8 @@ class Dialog {
     callback = Util.last(arguments);
     const _id = callback._id;
     const extension = callback._context.extension;
-
-    const dialogProvider = HostApi.getProvider('dialog');
-    if (dialogProvider) {
+    this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+    if (this.dialogProvider) {
       const getOnClickFunction = button => {
         return () => {
           const eventData = {
@@ -63,10 +62,10 @@ class Dialog {
           var eventName = 'dialog.button.click';
           if (button.id === 'submit') {
             eventName = `dialog.${button.id}`;
-            dialogProvider.onSubmit();
+            this.dialogProvider.onSubmit();
           } else if (button.id === 'cancel') {
             eventName = `dialog.${button.id}`;
-            dialogProvider.onCancel();
+            this.dialogProvider.onCancel();
           }
           EventActions.broadcast(eventName, {
             addon_key: callback._context.extension.addon_key,
@@ -110,7 +109,7 @@ class Dialog {
       this.customData = options.customData;
       this.closeOnEscape = options.closeOnEscape;
       _dialogs[_id] = this;
-      dialogProvider.create(dialogOptions);
+      this.dialogProvider.create(dialogOptions);
     } else {
       var dialogExtension = {
         addon_key: extension.addon_key,
@@ -139,8 +138,8 @@ class Dialog {
  */
 class Button {
   constructor(identifier) {
-    const dialogProvider = HostApi.getProvider('dialog');
-    if (dialogProvider) {
+    this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+    if (this.dialogProvider) {
       //TODO check for active dialog
       this.name = identifier;
       this.identifier = identifier;
@@ -195,9 +194,8 @@ class Button {
    */
   isEnabled(callback) {
     callback = Util.last(arguments);
-    const dialogProvider = HostApi.getProvider('dialog');
-    if (dialogProvider) {
-      callback(!dialogProvider.isButtonDisabled(this.identifier));
+    if (this.dialogProvider) {
+      callback(!this.dialogProvider.isButtonDisabled(this.identifier));
     } else {
       callback(this.enabled);
     }
@@ -211,9 +209,8 @@ class Button {
    * AP.dialog.getButton('submit').toggle();
    */
   toggle() {
-    const dialogProvider = HostApi.getProvider('dialog');
-    if (dialogProvider) {
-      dialogProvider.toggleButton(this.identifier);
+    if (this.dialogProvider) {
+      this.dialogProvider.toggleButton(this.identifier);
     } else {
       this.setState({
         enabled: !this.enabled
@@ -221,9 +218,8 @@ class Button {
     }
   }
   setState(state) {
-    const dialogProvider = HostApi.getProvider('dialog');
-    if (dialogProvider) {
-      dialogProvider.setButtonDisabled(this.identifier, !state.enabled);
+    if (this.dialogProvider) {
+      this.dialogProvider.setButtonDisabled(this.identifier, !state.enabled);
     } else {
       this.enabled = state.enabled;
       DialogActions.toggleButton({
@@ -268,9 +264,8 @@ class Button {
    */
   isHidden(callback) {
     callback = Util.last(arguments);
-    const dialogProvider = HostApi.getProvider('dialog');
-    if (dialogProvider) {
-      callback(dialogProvider.isButtonHidden(this.identifier));
+    if (this.dialogProvider) {
+      callback(this.dialogProvider.isButtonHidden(this.identifier));
     } else {
       callback(this.hidden);
     }
@@ -299,9 +294,8 @@ class Button {
   }
 
   setHidden(hidden) {
-    const dialogProvider = HostApi.getProvider('dialog');
-    if (dialogProvider) {
-      dialogProvider.setButtonHidden(this.identifier, hidden);
+    if (this.dialogProvider) {
+      this.dialogProvider.setButtonHidden(this.identifier, hidden);
     } else {
       this.hidden = hidden;
       DialogActions.toggleButtonVisibility({
@@ -319,9 +313,9 @@ function getDialogFromContext(context) {
 class CreateButton {
   constructor(options, callback) {
     callback = Util.last(arguments);
-    const dialogProvider = HostApi.getProvider('dialog');
-    if (dialogProvider) {
-      dialogProvider.createButton({
+    this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+    if (this.dialogProvider) {
+      this.dialogProvider.createButton({
         id: options.identifier,
         key: options.identifier,
         text: options.text,
@@ -420,12 +414,11 @@ export default {
    */
   close: function (data, callback) {
     callback = Util.last(arguments);
-    const dialogProvider = HostApi.getProvider('dialog');
-    if (dialogProvider) {
+    if (this.dialogProvider) {
       EventActions.broadcast('dialog.close', {
         addon_key: callback._context.extension.addon_key
       }, data);
-      dialogProvider.close();
+      this.dialogProvider.close();
     } else {
       var dialogToClose;
       if(callback._context.extension.options.isDialog){
