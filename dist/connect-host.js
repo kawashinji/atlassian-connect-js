@@ -4164,7 +4164,7 @@
 	* //create a message
 	* var message = AP.messages.info('plain text title', 'plain text body');
 	* ```
-	* @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+	* @deprecated after August 2017 | Please use the Flag module instead.
 	* @name messages
 	* @module
 	*/
@@ -4261,7 +4261,7 @@
 	var messages = {
 	  /**
 	  * Close a message
-	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name clear
 	  * @method
 	  * @memberof module:messages#
@@ -4282,7 +4282,7 @@
 
 	  /**
 	  * Trigger an event when a message is closed
-	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name onClose
 	  * @method
 	  * @memberof module:messages#
@@ -4305,7 +4305,7 @@
 
 	  /**
 	  * Show a generic message
-	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name generic
 	  * @method
 	  * @memberof module:messages#
@@ -4325,7 +4325,7 @@
 
 	  /**
 	  * Show an error message
-	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name error
 	  * @method
 	  * @memberof module:messages#
@@ -4345,7 +4345,7 @@
 
 	  /**
 	  * Show a warning message
-	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name warning
 	  * @method
 	  * @memberof module:messages#
@@ -4365,7 +4365,7 @@
 
 	  /**
 	  * Show a success message
-	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name success
 	  * @method
 	  * @memberof module:messages#
@@ -4385,7 +4385,7 @@
 
 	  /**
 	  * Show an info message
-	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name info
 	  * @method
 	  * @memberof module:messages#
@@ -4405,7 +4405,7 @@
 
 	  /**
 	  * Show a hint message
-	  * @deprecated after August 2017 | Please use the [Flag module](module-Flag.html) instead.
+	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name hint
 	  * @method
 	  * @memberof module:messages#
