@@ -31,7 +31,10 @@ EventDispatcher.register('dialog-button-click', (data) => {
 
   // Old buttons, (submit and cancel) use old events
   if(!data.$el.hasClass('ap-dialog-custom-button')) {
-    eventName = `dialog.${eventData.button.name}`;
+    EventActions.broadcast(`dialog.${eventData.button.name}`, {
+      addon_key: data.extension.addon_key,
+      key: data.extension.key
+    }, eventData);
   }
 
   EventActions.broadcast(eventName, {
@@ -49,6 +52,19 @@ class Dialog {
     callback = Util.last(arguments);
     const _id = callback._id;
     const extension = callback._context.extension;
+    let dialogExtension = {
+      addon_key: extension.addon_key,
+      key: options.key,
+      options: Util.pick(extension.options, ['customData', 'productContext'])
+    };
+
+    // ACJS-185: the following is a really bad idea but we need it
+    // for compat until AP.dialog.customData has been deprecated
+    dialogExtension.options.customData = options.customData;
+    // terrible idea! - we need to remove this from p2 ASAP!
+    var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
+    options = Util.extend({}, dialogModuleOptions || {}, options);
+    options.id = _id;
 
     let dialogProvider = HostApi.getProvider('dialog');
     if (dialogProvider) {
@@ -78,22 +94,8 @@ class Dialog {
         buttons: buttons,
         onClose: DialogActions.close
       };
-      dialogProvider.create(dialogOptions);
+      dialogProvider.create(dialogOptions, dialogExtension);
     } else {
-      var dialogExtension = {
-        addon_key: extension.addon_key,
-        key: options.key,
-        options: Util.pick(callback._context.extension.options, ['customData', 'productContext'])
-      };
-
-      // ACJS-185: the following is a really bad idea but we need it
-      // for compat until AP.dialog.customData has been deprecated
-      dialogExtension.options.customData = options.customData;
-      // terrible idea! - we need to remove this from p2 ASAP!
-      var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
-      options = Util.extend({}, dialogModuleOptions || {}, options);
-      options.id = _id;
-
       DialogExtensionActions.open(dialogExtension, options);
       this.customData = options.customData;
       _dialogs[_id] = this;
@@ -374,6 +376,19 @@ export default {
       callback(undefined);
     }
   },
+  /**
+  * Stop the dialog from closing when the submit button is clicked
+  * @method disableCloseOnSubmit
+  * @noDemo
+  * @example
+  * AP.dialog.disableCloseOnSubmit();
+  * AP.events.on('dialog.button.click', function(data){
+  *   if(data.button.name === 'submit') {
+  *     console.log('submit button pressed');
+  *   }
+  * }
+  */
+
   /**
    * Returns the button that was requested (either cancel or submit). If the requested button does not exist, an empty Object will be returned instead.
    * @method getButton
