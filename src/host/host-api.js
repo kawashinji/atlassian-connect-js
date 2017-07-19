@@ -48,12 +48,22 @@ class HostApi {
   }
 
   onIframeEstablished (callback) {
-    EventDispatcher.register('after:iframe-bridge-established', (data) => {
+    var wrapper = function(data){
       callback.call({}, {
         $el: data.$el,
         extension: this._cleanExtension(data.extension)
       });
-    });
+    };
+    callback._wrapper = wrapper.bind(this);
+    EventDispatcher.register('after:iframe-bridge-established', callback._wrapper);
+  }
+
+  offIframeEstablished (callback) {
+    if(callback._wrapper){
+      EventDispatcher.unregister('after:iframe-bridge-established', callback._wrapper);
+    } else {
+      throw new Error('cannot unregister event dispatch listener without _wrapper reference');
+    }
   }
 
   onIframeUnload(callback){
