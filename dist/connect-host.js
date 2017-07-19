@@ -3428,23 +3428,31 @@
 	  };
 
 	  HostApi.prototype.onIframeEstablished = function onIframeEstablished(callback) {
-	    var _this = this;
-
-	    EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
+	    var wrapper = function wrapper(data) {
 	      callback.call({}, {
 	        $el: data.$el,
-	        extension: _this._cleanExtension(data.extension)
+	        extension: this._cleanExtension(data.extension)
 	      });
-	    });
+	    };
+	    callback._wrapper = wrapper.bind(this);
+	    EventDispatcher$1.register('after:iframe-bridge-established', callback._wrapper);
+	  };
+
+	  HostApi.prototype.offIframeEstablished = function offIframeEstablished(callback) {
+	    if (callback._wrapper) {
+	      EventDispatcher$1.unregister('after:iframe-bridge-established', callback._wrapper);
+	    } else {
+	      throw new Error('cannot unregister event dispatch listener without _wrapper reference');
+	    }
 	  };
 
 	  HostApi.prototype.onIframeUnload = function onIframeUnload(callback) {
-	    var _this2 = this;
+	    var _this = this;
 
 	    EventDispatcher$1.register('after:iframe-unload', function (data) {
 	      callback.call({}, {
 	        $el: data.$el,
-	        extension: _this2._cleanExtension(data.extension)
+	        extension: _this._cleanExtension(data.extension)
 	      });
 	    });
 	  };
