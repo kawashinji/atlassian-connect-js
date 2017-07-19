@@ -26,6 +26,14 @@ var ACJSFrameworkAdaptor = (function () {
     // this.registerModuleWithHost(moduleRegistrationName, simpleXdmDefinition);
   };
 
+  /**
+   * This method unregisters a module with the Connect client framework relating to this adaptor instance.
+   * @param name the name of the module
+   */
+  ACJSFrameworkAdaptor.prototype.unregisterModule = function (name) {
+    this.moduleNamesToModules.set(name, undefined);
+  };
+
   ACJSFrameworkAdaptor.prototype.getProviderByModuleName = function (moduleName) {
     var module = this.moduleNamesToModules.get(moduleName);
     if (module) {
