@@ -120,7 +120,7 @@ class Dialog {
         header,
         buttons,
         customData: options.customData,
-        closeOnEscape: options.closeOnEscape
+        closeOnEscape: options.closeOnEscape || false
       };
       this.dialogProvider.create(dialogOptions, dialogExtension);
       this.closeOnEscape = options.closeOnEscape;
