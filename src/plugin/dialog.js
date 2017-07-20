@@ -11,7 +11,7 @@ const getCustomData = deprecate(() => {
 /**
  * Returns the custom data Object passed to the dialog at creation.
  * @noDemo
- * @deprecated after August 2017 | Please use the `dialog.getCustomData(callback)` instead.
+ * @deprecated after August 2017 | Please use <code>dialog.getCustomData(callback)</code> instead.
  * @name customData
  * @memberOf module:Dialog
  * @example
@@ -101,7 +101,7 @@ AP.dialog.create = AP._hostModules.dialog.create = (...args) => {
   const dialog = original_dialogCreate(...args);
   /**
    * Allows the add-on to register a callback function for the given event. The listener is only called once and must be re-registered if needed.
-   * @deprecated after August 2017 | Please use `AP.events.on("dialog.close", callback)` instead.
+   * @deprecated after August 2017 | Please use <code>AP.events.on("dialog.close", callback)</code> instead.
    * @memberOf Dialog~Dialog
    * @method on
    * @param {String} event name of the event to listen for, such as 'close'.
@@ -127,7 +127,7 @@ AP.dialog.getButton = AP._hostModules.dialog.getButton = function(name) {
     const button = original_dialogGetButton(name);
     /**
      * Registers a function to be called when the button is clicked.
-     * @deprecated after August 2017 | Please use `AP.events.on("dialog.message", callback)` instead.
+     * @deprecated after August 2017 | Please use <code>AP.events.on("dialog.message", callback)</code> instead.
      * @method bind
      * @memberOf Dialog~DialogButton
      * @param {Function} callback function to be triggered on click or programatically.
@@ -165,7 +165,7 @@ AP.dialog.createButton = AP._hostModules.dialog.createButton = function(options)
 
 /**
  * Register callbacks responding to messages from the host dialog, such as "submit" or "cancel"
- * @deprecated after August 2017 | Please use `AP.events.on("dialog.message", callback)` instead.
+ * @deprecated after August 2017 | Please use <code>AP.events.on("dialog.message", callback)</code> instead.
  * @memberOf module:Dialog
  * @method onDialogMessage
  * @param {String} buttonName - button either "cancel" or "submit"
