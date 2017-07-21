@@ -327,7 +327,7 @@ describe('AP.dialog', () => {
     });
 
     it('provides setButtonDisabled for a user button', () => {
-      new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: {identifier: 'user', text: 'user'}}, callback);
+      new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: [{identifier: 'user', text: 'user'}]}, callback);
       new DialogModule.getButton.constructor('user').disable();
       expect(providerSpy.setButtonDisabled).toHaveBeenCalledWith('user', true);
       new DialogModule.getButton.constructor('user').enable();
@@ -335,13 +335,13 @@ describe('AP.dialog', () => {
     });
 
     it('provides toggleButton for a user button', () => {
-      new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: {identifier: 'user', text: 'user'}}, callback);
+      new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: [{identifier: 'user', text: 'user'}]}, callback);
       new DialogModule.getButton.constructor('user').toggle();
       expect(providerSpy.toggleButton).toHaveBeenCalledWith('user');
     });
 
     it('provides isButtonDisabled for a user button', () => {
-      new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: {identifier: 'user', text: 'user'}}, callback);
+      new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: [{identifier: 'user', text: 'user'}]}, callback);
       new DialogModule.getButton.constructor('user').isEnabled(val => {});
       expect(providerSpy.isButtonDisabled).toHaveBeenCalledWith('user');
     });
@@ -375,7 +375,7 @@ describe('AP.dialog', () => {
     });
 
     it('provides setButtonHidden for a user button', () => {
-      new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: {identifier: 'user', text: 'user'}}, callback);
+      new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: [{identifier: 'user', text: 'user'}]}, callback);
       new DialogModule.getButton.constructor('user').hide();
       expect(providerSpy.setButtonHidden).toHaveBeenCalledWith('user', true);
       new DialogModule.getButton.constructor('user').enable();
@@ -383,7 +383,7 @@ describe('AP.dialog', () => {
     });
 
     it('provides isButtonHidden for the user button', () => {
-      new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: {identifier: 'user', text: 'user'}}, callback);
+      new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: [{identifier: 'user', text: 'user'}]}, callback);
       new DialogModule.getButton.constructor('user').isHidden(val => {});
       expect(providerSpy.isButtonHidden).toHaveBeenCalledWith('user');
     });
