@@ -106,7 +106,7 @@ describe('AP.dialog', () => {
       },
       {
         it: 'provides custom height and widths over default',
-        javaScriptAPIOptions: Object.assign({}, minOptions, {
+        javaScriptAPIOptions: extend({}, minOptions, {
           height: 'some-height',
           width: 'some-width'
         }),
@@ -125,7 +125,7 @@ describe('AP.dialog', () => {
       },
       {
         it: 'provides empty header and footer when chrome is undefined',
-        javaScriptAPIOptions: Object.assign({}, maxOptions, {
+        javaScriptAPIOptions: extend({}, maxOptions, {
           chrome: undefined
         }),
         dialogProviderOptions: {
@@ -135,7 +135,7 @@ describe('AP.dialog', () => {
       },
       {
         it: 'provides empty header and footer when chrome is false',
-        javaScriptAPIOptions: Object.assign({}, maxOptions, {
+        javaScriptAPIOptions: extend({}, maxOptions, {
           chrome: false
         }),
         dialogProviderOptions: {
@@ -168,7 +168,7 @@ describe('AP.dialog', () => {
       },
       {
         it: 'provides custom value for close on escape',
-        javaScriptAPIOptions: Object.assign({}, maxOptions, {
+        javaScriptAPIOptions: extend({}, maxOptions, {
           closeOnEscape: false
         }),
         dialogProviderOptions: {
@@ -177,7 +177,7 @@ describe('AP.dialog', () => {
       },
       {
         it: 'provides multiple user buttons',
-        javaScriptAPIOptions: Object.assign({}, maxOptions, {
+        javaScriptAPIOptions: extend({}, maxOptions, {
           buttons: [
             {
               identifier: 'button1-id',
