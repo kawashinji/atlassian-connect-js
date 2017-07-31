@@ -7,6 +7,7 @@ import ButtonComponent from '../components/button';
 import DialogUtils from '../utils/dialog';
 import { acjsFrameworkAdaptor } from '../ACJSFrameworkAdaptor';
 import Util from '../util';
+import dialogUtils from '../utils/dialog';
 
 const _dialogs = {};
 
@@ -67,70 +68,32 @@ class Dialog {
     options.id = _id;
     this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
     if (this.dialogProvider) {
-      const getOnClickFunction = button => {
-        return () => {
-          const eventData = {
-            button: {
-              identifier: button.id ,
-              text: button.text
-            }
-          };
-          var eventName = 'dialog.button.click';
-          if (button.id === 'submit') {
-            eventName = `dialog.${button.id}`;
-          } else if (button.id === 'cancel') {
-            eventName = `dialog.${button.id}`;
+      const getOnClickFunction = action => {
+        let eventName = 'dialog.button.click';
+        if (['submit', 'cancel'].includes(action.identifier)) {
+          eventName = `dialog.${action.identifier}`;
+        }
+        const eventData = {
+          button: {
+            identifier: action.identifier,
+            text: action.text
           }
-          EventActions.broadcast(eventName, {
-            addon_key: callback._context.extension.addon_key,
-            key: callback._context.extension.key
-          }, eventData);
         };
+        EventActions.broadcast(eventName, {
+          addon_key: callback._context.extension.addon_key,
+          key: callback._context.extension.key
+        }, eventData);
       };
-      let header = null;
-      let buttons = [];
-      if (options.chrome) {
-        header = options.header;
-        buttons = [...(options.buttons || []),
-          {
-            id: 'submit',
-            key: 'submit',
-            name: 'submit',
-            text: options.submitText || 'Submit'
-          },
-          {
-            id: 'cancel',
-            key: 'cancel',
-            name: 'cancel',
-            text: options.cancelText || 'Cancel'
-          }
-        ].map(button => {
-          if (typeof button.disabled === 'undefined') {
-            button.disabled = false;
-          }
-          button.hidden = false;
-          button.onClick = getOnClickFunction(button);
-          return button;
-        });
-      }
-      const dialogOptions = {
-        id: _id,
-        width: options.size || options.width || '50%',
-        height: options.size || options.height || '50%',
-        header,
-        buttons,
-        customData: options.customData,
-        closeOnEscape: options.closeOnEscape || false
-      };
+
+      let dialogOptions = dialogUtils.sanitizeOptions(options);
+      dialogOptions.actions.map(action => action.onClick = getOnClickFunction.bind(null, action));
       this.dialogProvider.create(dialogOptions, dialogExtension);
       this.closeOnEscape = options.closeOnEscape;
-      this.customData = options.customData;
-      _dialogs[_id] = this;
     } else {
       DialogExtensionActions.open(dialogExtension, options);
-      this.customData = options.customData;
-      _dialogs[_id] = this;
     }
+    this.customData = options.customData;
+    _dialogs[_id] = this;
   }
 }
 
@@ -318,8 +281,7 @@ class CreateButton {
     this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
     if (this.dialogProvider) {
       this.dialogProvider.createButton({
-        id: options.identifier,
-        key: options.identifier,
+        identifier: options.identifier,
         text: options.text,
         hidden: false,
         disabled: options.disabled || false,

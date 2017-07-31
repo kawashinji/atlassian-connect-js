@@ -53,7 +53,7 @@ describe('AP.dialog', () => {
     submitText: 'some-submit-text',
     cancelText: 'some-cancel-text',
     customData: {someCustomKey: 'someCustomData'},
-    closeOnEscape: true,
+    closeOnEscape: false,
     buttons: [{identifier: 'someButtonIdentifier', text: 'someButtonText'}]
   };
 
@@ -81,66 +81,40 @@ describe('AP.dialog', () => {
           id: 'some-extension-id',
           width: '50%',
           height: '50%',
-          header: undefined,
-          buttons: [
+          header: '',
+          actions: [
             jasmine.objectContaining({
-              id: 'submit',
-              key: 'submit',
+              identifier: 'submit',
               name: 'submit',
-              text: 'Submit',
-              disabled: false,
-              hidden: false
+              text: 'Submit'
             }),
             jasmine.objectContaining({
-              id: 'cancel',
-              key: 'cancel',
+              identifier: 'cancel',
               name: 'cancel',
-              text: 'Cancel',
-              disabled: false,
-              hidden: false
+              text: 'Cancel'
             })
           ],
-          customData: undefined,
-          closeOnEscape: false
+          closeOnEscape: true
         }
       },
       {
         it: 'provides custom height and widths over default',
         javaScriptAPIOptions: extend({}, minOptions, {
-          height: 'some-height',
-          width: 'some-width'
+          height: '111px',
+          width: '222px'
         }),
         dialogProviderOptions: {
-          height: 'some-height',
-          width: 'some-width'
+          height: '111px',
+          width: '222px'
         }
       },
       {
         it: 'provides size over custom height and widths',
         javaScriptAPIOptions: maxOptions,
         dialogProviderOptions: {
-          height: 'xlarge',
-          width: 'xlarge'
-        }
-      },
-      {
-        it: 'provides empty header and footer when chrome is undefined',
-        javaScriptAPIOptions: extend({}, maxOptions, {
-          chrome: undefined
-        }),
-        dialogProviderOptions: {
-          header: null,
-          buttons: []
-        }
-      },
-      {
-        it: 'provides empty header and footer when chrome is false',
-        javaScriptAPIOptions: extend({}, maxOptions, {
-          chrome: false
-        }),
-        dialogProviderOptions: {
-          header: null,
-          buttons: []
+          size: 'xlarge',
+          height: undefined,
+          width: undefined
         }
       },
       {
@@ -154,14 +128,13 @@ describe('AP.dialog', () => {
         it: 'provides custom submit button text',
         javaScriptAPIOptions: maxOptions,
         dialogProviderOptions: {
-          buttons: [
-            jasmine.anything(),
+          actions: [
             jasmine.objectContaining({
-              id: 'submit',
-              key: 'submit',
+              identifier: 'submit',
               name: 'submit',
               text: 'some-submit-text'
             }),
+            jasmine.anything(),
             jasmine.anything()
           ]
         }
@@ -194,27 +167,21 @@ describe('AP.dialog', () => {
           ]
         }),
         dialogProviderOptions: {
-          buttons: [
+          actions: [
+            jasmine.anything(),
+            jasmine.anything(),
             jasmine.objectContaining({
               identifier: 'button1-id',
-              text: 'button1-text',
-              disabled: false,
-              hidden: false
+              text: 'button1-text'
             }),
             jasmine.objectContaining({
               identifier: 'button2-id',
-              text: 'button2-text',
-              disabled: false,
-              hidden: false
+              text: 'button2-text'
             }),
             jasmine.objectContaining({
               identifier: 'button3-id',
-              text: 'button3-text',
-              disabled: false,
-              hidden: false
-            }),
-            jasmine.anything(),
-            jasmine.anything()
+              text: 'button3-text'
+            })
           ]
         }
       }
@@ -261,11 +228,8 @@ describe('AP.dialog', () => {
       expect(providerSpy.createButton).toHaveBeenCalledWith(
         jasmine.objectContaining(
           {
-            id: 'some-button-identifier',
-            key: 'some-button-identifier',
-            text: 'some-button-text',
-            hidden: false,
-            disabled: false
+            identifier: 'some-button-identifier',
+            text: 'some-button-text'
           }
         )
       );
