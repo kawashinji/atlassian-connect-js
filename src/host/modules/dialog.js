@@ -86,9 +86,9 @@ class Dialog {
       };
 
       let dialogOptions = dialogUtils.sanitizeOptions(options);
+      dialogExtension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
       dialogOptions.actions.map(action => action.onClick = getOnClickFunction.bind(null, action));
       this.dialogProvider.create(dialogOptions, dialogExtension);
-      this.closeOnEscape = options.closeOnEscape;
     } else {
       DialogExtensionActions.open(dialogExtension, options);
     }
