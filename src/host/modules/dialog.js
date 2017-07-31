@@ -105,7 +105,7 @@ class Button {
   constructor(identifier) {
     this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
     if (this.dialogProvider) {
-      //TODO check for active dialog
+      //TODO check for active dialog like in V5? (ACJS-698)
       this.name = identifier;
       this.identifier = identifier;
     } else {
