@@ -69,20 +69,18 @@ class Dialog {
     this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
     if (this.dialogProvider) {
       const getOnClickFunction = action => {
-        let eventName = 'dialog.button.click';
-        if (['submit', 'cancel'].includes(action.identifier)) {
-          eventName = `dialog.${action.identifier}`;
-        }
+        const key = callback._context.extension.key;
+        const addon_key = callback._context.extension.addon_key;
         const eventData = {
           button: {
             identifier: action.identifier,
             text: action.text
           }
         };
-        EventActions.broadcast(eventName, {
-          addon_key: callback._context.extension.addon_key,
-          key: callback._context.extension.key
-        }, eventData);
+        if (['submit', 'cancel'].includes(action.identifier)) {
+          EventActions.broadcast(`dialog.${action.identifier}`, {addon_key, key}, eventData);
+        }
+        EventActions.broadcast('dialog.button.click', {addon_key, key}, eventData);
       };
 
       let dialogOptions = dialogUtils.sanitizeOptions(options);
