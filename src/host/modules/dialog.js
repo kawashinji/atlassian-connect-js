@@ -74,6 +74,7 @@ class Dialog {
         const eventData = {
           button: {
             identifier: action.identifier,
+            name: action.identifier,
             text: action.text
           }
         };

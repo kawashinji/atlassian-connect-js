@@ -13,6 +13,7 @@ callback._context = {
   }
 };
 
+
 const providerSpy = jasmine.createSpyObj('moduleProvider', [
   'create',
   'close',
@@ -196,6 +197,102 @@ describe('AP.dialog', () => {
         );
       });
     });
+  });
+
+  describe('.create()', () => {
+
+    it('triggers correct AP.events when submit is clicked', () => {
+      new DialogModule.create.constructor(maxOptions, callback);
+      spyOn(EventActions, 'broadcast');
+      providerSpy.create.calls.argsFor(0)[0].actions[0].onClick();
+      expect(EventActions.broadcast.calls.count()).toEqual(2);
+      expect(EventActions.broadcast.calls.first().args).toEqual([
+        'dialog.submit',
+        jasmine.objectContaining({
+          addon_key: callback._context.extension.addon_key,
+          key: callback._context.extension.key
+        }),
+        jasmine.objectContaining({
+          button: {
+            name: 'submit',
+            identifier: 'submit',
+            text: 'some-submit-text'
+          }
+        })
+      ]);
+      expect(EventActions.broadcast.calls.all()[1].args).toEqual([
+        'dialog.button.click',
+        jasmine.objectContaining({
+          addon_key: callback._context.extension.addon_key,
+          key: callback._context.extension.key
+        }),
+        jasmine.objectContaining({
+          button: {
+            name: 'submit',
+            identifier: 'submit',
+            text: 'some-submit-text'
+          }
+        })
+      ]);
+
+      it('triggers correct AP.events when cancel is clicked', () => {
+        new DialogModule.create.constructor(maxOptions, callback);
+        spyOn(EventActions, 'broadcast');
+        providerSpy.create.calls.argsFor(0)[0].actions[0].onClick();
+        expect(EventActions.broadcast.calls.count()).toEqual(2);
+        expect(EventActions.broadcast.calls.first().args).toEqual([
+          'dialog.cancel',
+          jasmine.objectContaining({
+            addon_key: callback._context.extension.addon_key,
+            key: callback._context.extension.key
+          }),
+          jasmine.objectContaining({
+            button: {
+              name: 'cancel',
+              identifier: 'cancel',
+              text: 'some-cancel-text'
+            }
+          })
+        ]);
+        expect(EventActions.broadcast.calls.all()[1].args).toEqual([
+          'dialog.button.click',
+          jasmine.objectContaining({
+            addon_key: callback._context.extension.addon_key,
+            key: callback._context.extension.key
+          }),
+          jasmine.objectContaining({
+            button: {
+              name: 'cancel',
+              identifier: 'cancel',
+              text: 'some-cancel-text'
+            }
+          })
+        ]);
+      });
+
+      it('triggers correct AP.events when user button is clicked', () => {
+        new DialogModule.create.constructor(maxOptions, callback);
+        spyOn(EventActions, 'broadcast');
+        providerSpy.create.calls.argsFor(0)[0].actions[0].onClick();
+        expect(EventActions.broadcast.calls.count()).toEqual(1);
+        expect(EventActions.broadcast.calls.first().args).toEqual([
+          'dialog.button.click',
+          jasmine.objectContaining({
+            addon_key: callback._context.extension.addon_key,
+            key: callback._context.extension.key
+          }),
+          jasmine.objectContaining({
+            button: {
+              name: 'someButtonIdentifiersomeButtonIdentifier',
+              identifier: 'someButtonIdentifier',
+              text: 'someButtonText'
+            }
+          })
+        ]);
+      });
+
+    });
+
   });
 
   describe('.close()', () => {
