@@ -74,8 +74,8 @@ module.exports = function(config) {
     },
 
     // test results reporter to use
-    // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-    reporters: ['progress', 'dots'],
+    // possible values: 'jasmine-diff', 'dots', 'progress', 'junit', 'growl', 'coverage'
+    reporters: ['jasmine-diff', 'progress', 'dots'],
     junitReporter: {
       outputFile: 'test/test-reports/karma-results.xml',
       useBrowserName: false,
@@ -85,13 +85,34 @@ module.exports = function(config) {
       reporters: [
       ]
     },
+    jasmineDiffReporter: {
+      color: {
+        expectedBg: 'bgRed',
+        expectedWhitespaceBg: 'bgRed',
+        expectedFg: 'white',
+        actualBg: 'bgGreen',
+        actualWhitespaceBg: 'bgGreen',
+        actualFg: 'white',
+        warningBg: 'bgYellow',
+        warningWhitespaceBg: 'bgYellow',
+        warningFg: 'white',
+        defaultBg: '',
+        defaultFg: ''
+      },
+      pretty: true,
+      multiline: true,
+      verbose: true,
+      legacy: false,
+      matchers: {}
+    },
 
     plugins: [
       'karma-jasmine',
       'karma-webpack',
       'karma-chrome-launcher',
       'karma-firefox-launcher',
-      'karma-nyan-reporter'
+      'karma-nyan-reporter',
+      'karma-jasmine-diff-reporter'
     ],
     frameworks: ['jasmine'],
 

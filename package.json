@@ -46,6 +46,7 @@
     "karma-html2js-preprocessor": "1.1",
     "karma-jasmine": "1.0.2",
     "karma-jasmine-ajax": "0.1.13",
+    "karma-jasmine-diff-reporter": "^1.1.0",
     "karma-nyan-reporter": "0.2.4",
     "karma-phantomjs-launcher": "1.0.2",
     "karma-safari-launcher": "1.0.0",
