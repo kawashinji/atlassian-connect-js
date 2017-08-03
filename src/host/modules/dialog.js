@@ -5,8 +5,9 @@ import EventActions from '../actions/event_actions';
 import DialogExtensionComponent from '../components/dialog_extension';
 import ButtonComponent from '../components/button';
 import DialogUtils from '../utils/dialog';
-import HostApi from '../host-api';
+import { acjsFrameworkAdaptor } from '../ACJSFrameworkAdaptor';
 import Util from '../util';
+import dialogUtils from '../utils/dialog';
 
 const _dialogs = {};
 
@@ -65,41 +66,33 @@ class Dialog {
     var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
     options = Util.extend({}, dialogModuleOptions || {}, options);
     options.id = _id;
-
-    let dialogProvider = HostApi.getProvider('dialog');
-    if (dialogProvider) {
-      let buttons = [
-        ...(options.buttons || []),
-        {
-          id: 'submit',
-          text: options.submitText || 'Submit',
-          appearance: 'primary'
-        },
-        {
-          id: 'cancel',
-          text: options.cancelText || 'Cancel',
-          appearance: 'subtle-link'
-        }
-      ].map(button => {
-        button.onClick = () => {
-          // Todo: ACJS-667 - this needs to be hooked up with the appropriate action
-          // Currently the dialog actions are to intertwined with component DOM
-          console.log(button.id, _id);
+    this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+    if (this.dialogProvider) {
+      const getOnClickFunction = action => {
+        const key = callback._context.extension.key;
+        const addon_key = callback._context.extension.addon_key;
+        const eventData = {
+          button: {
+            identifier: action.identifier,
+            name: action.identifier,
+            text: action.text
+          }
         };
-        return button;
-      });
-      let dialogOptions = {
-        id: _id,
-        header: options.header,
-        buttons: buttons,
-        onClose: DialogActions.close
+        if (['submit', 'cancel'].indexOf(action.identifier) >= 0) {
+          EventActions.broadcast(`dialog.${action.identifier}`, {addon_key, key}, eventData);
+        }
+        EventActions.broadcast('dialog.button.click', {addon_key, key}, eventData);
       };
-      dialogProvider.create(dialogOptions, dialogExtension);
+
+      let dialogOptions = dialogUtils.sanitizeOptions(options);
+      dialogExtension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
+      dialogOptions.actions.map(action => action.onClick = getOnClickFunction.bind(null, action));
+      this.dialogProvider.create(dialogOptions, dialogExtension);
     } else {
       DialogExtensionActions.open(dialogExtension, options);
-      this.customData = options.customData;
-      _dialogs[_id] = this;
     }
+    this.customData = options.customData;
+    _dialogs[_id] = this;
   }
 }
 
@@ -109,13 +102,20 @@ class Dialog {
  */
 class Button {
   constructor(identifier) {
-    if (!DialogExtensionComponent.getActiveDialog()) {
-      throw new Error('Failed to find an active dialog.');
+    this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+    if (this.dialogProvider) {
+      //TODO check for active dialog like in V5? (ACJS-698)
+      this.name = identifier;
+      this.identifier = identifier;
+    } else {
+      if (!DialogExtensionComponent.getActiveDialog()) {
+        throw new Error('Failed to find an active dialog.');
+      }
+      this.name = identifier;
+      this.identifier = identifier;
+      this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
+      this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
     }
-    this.name = identifier;
-    this.identifier = identifier;
-    this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
-    this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
   }
   /**
    * Sets the button state to enabled
@@ -158,7 +158,11 @@ class Button {
    */
   isEnabled(callback) {
     callback = Util.last(arguments);
-    callback(this.enabled);
+    if (this.dialogProvider) {
+      callback(!this.dialogProvider.isButtonDisabled(this.identifier));
+    } else {
+      callback(this.enabled);
+    }
   }
   /**
    * Toggle the button state between enabled and disabled.
@@ -169,16 +173,24 @@ class Button {
    * AP.dialog.getButton('submit').toggle();
    */
   toggle() {
-    this.setState({
-      enabled: !this.enabled
-    });
+    if (this.dialogProvider) {
+      this.dialogProvider.toggleButton(this.identifier);
+    } else {
+      this.setState({
+        enabled: !this.enabled
+      });
+    }
   }
   setState(state) {
-    this.enabled = state.enabled;
-    DialogActions.toggleButton({
-      identifier: this.identifier,
-      enabled: this.enabled
-    });
+    if (this.dialogProvider) {
+      this.dialogProvider.setButtonDisabled(this.identifier, !state.enabled);
+    } else {
+      this.enabled = state.enabled;
+      DialogActions.toggleButton({
+        identifier: this.identifier,
+        enabled: this.enabled
+      });
+    }
   }
   /**
    * Trigger a callback bound to a button.
@@ -216,7 +228,11 @@ class Button {
    */
   isHidden(callback) {
     callback = Util.last(arguments);
-    callback(this.hidden);
+    if (this.dialogProvider) {
+      callback(this.dialogProvider.isButtonHidden(this.identifier));
+    } else {
+      callback(this.hidden);
+    }
   }
   /**
    * Sets the button state to hidden
@@ -242,11 +258,15 @@ class Button {
   }
 
   setHidden(hidden) {
-    this.hidden = hidden;
-    DialogActions.toggleButtonVisibility({
-      identifier: this.identifier,
-      hidden: this.hidden
-    });
+    if (this.dialogProvider) {
+      this.dialogProvider.setButtonHidden(this.identifier, hidden);
+    } else {
+      this.hidden = hidden;
+      DialogActions.toggleButtonVisibility({
+        identifier: this.identifier,
+        hidden: this.hidden
+      });
+    }
   }
 }
 
@@ -257,10 +277,31 @@ function getDialogFromContext(context) {
 class CreateButton {
   constructor(options, callback) {
     callback = Util.last(arguments);
-    DialogExtensionActions.addUserButton({
-      identifier: options.identifier,
-      text: options.text
-    }, callback._context.extension);
+    this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+    if (this.dialogProvider) {
+      this.dialogProvider.createButton({
+        identifier: options.identifier,
+        text: options.text,
+        hidden: false,
+        disabled: options.disabled || false,
+        onClick: () => {
+          EventActions.broadcast('dialog.button.click', {
+            addon_key: callback._context.extension.addon_key,
+            key: callback._context.extension.key
+          }, {
+            button: {
+              identifier: options.identifier,
+              text: options.text
+            }
+          });
+        }
+      });
+    } else {
+      DialogExtensionActions.addUserButton({
+        identifier: options.identifier,
+        text: options.text
+      }, callback._context.extension);
+    }
   }
 }
 
@@ -336,9 +377,11 @@ export default {
    */
   close: function (data, callback) {
     callback = Util.last(arguments);
-
-    let dialogProvider = HostApi.getProvider('dialog');
+    const dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
     if (dialogProvider) {
+      EventActions.broadcast('dialog.close', {
+        addon_key: callback._context.extension.addon_key
+      }, data);
       dialogProvider.close();
     } else {
       var dialogToClose;

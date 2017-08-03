@@ -7,6 +7,7 @@ import Button from './button';
 import ButtonActions from '../actions/button_actions';
 import Util from '../util';
 import $ from '../dollar';
+import { acjsFrameworkAdaptor } from '../ACJSFrameworkAdaptor';
 
 const DLGID_PREFIX = 'ap-dialog-';
 const DIALOG_CLASS = 'ap-aui-dialog2';
@@ -278,15 +279,22 @@ const DialogComponent = new Dialog();
 
 EventDispatcher.register('iframe-bridge-established', (data) => {
   if(data.extension.options.isDialog && !data.extension.options.preventDialogCloseOnEscape){
-    DomEventActions.registerKeyEvent({
-      extension_id: data.extension.id,
-      key: 27,
-      callback: () => {
+    let callback;
+    const dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+    if (dialogProvider) {
+      callback = dialogProvider.close;
+    } else {
+      callback = () => {
         DialogActions.close({
           dialog: getActiveDialog(),
           extension: data.extension
         });
       }
+    }
+    DomEventActions.registerKeyEvent({
+      extension_id: data.extension.id,
+      key: 27,
+      callback
     });
 
     EventDispatcher.registerOnce('dialog-close', (d) => {

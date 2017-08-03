@@ -15,6 +15,14 @@ class DialogUtils {
     return parsed;
   }
 
+  _closeOnEscape (options){
+    if (options.closeOnEscape === false) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   _size (options){
     var size = options.size;
     if (options.size === 'x-large') {
@@ -162,7 +170,8 @@ class DialogUtils {
       extension: options.extension,
       actions: this._actions(options),
       id: this._id(options.id),
-      size: options.size
+      size: options.size,
+      closeOnEscape: this._closeOnEscape(options)
     };
     sanitized.size = this._size(sanitized);
 
