@@ -78,7 +78,7 @@ class Dialog {
             text: action.text
           }
         };
-        if (['submit', 'cancel'].includes(action.identifier)) {
+        if (['submit', 'cancel'].indexOf(action.identifier) >= 0) {
           EventActions.broadcast(`dialog.${action.identifier}`, {addon_key, key}, eventData);
         }
         EventActions.broadcast('dialog.button.click', {addon_key, key}, eventData);

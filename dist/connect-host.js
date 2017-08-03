@@ -1966,6 +1966,14 @@
 	    return parsed;
 	  };
 
+	  DialogUtils.prototype._closeOnEscape = function _closeOnEscape(options) {
+	    if (options.closeOnEscape === false) {
+	      return false;
+	    } else {
+	      return true;
+	    }
+	  };
+
 	  DialogUtils.prototype._size = function _size(options) {
 	    var size = options.size;
 	    if (options.size === 'x-large') {
@@ -2111,7 +2119,8 @@
 	      extension: options.extension,
 	      actions: this._actions(options),
 	      id: this._id(options.id),
-	      size: options.size
+	      size: options.size,
+	      closeOnEscape: this._closeOnEscape(options)
 	    };
 	    sanitized.size = this._size(sanitized);
 
@@ -2751,6 +2760,54 @@
 	  ButtonComponent.setHidden(data.$el, data.hidden);
 	});
 
+	// This is essentially a copy of the ACJSFrameworkAdaptor/BaseFrameworkAdaptor implementation generated
+	// by compiling the connect-module-core typescript implementations of the equivalent classes.
+
+	/**
+	 * This class provides common behaviour relating to the adaption of functionality to a
+	 * particular Connect client framework. This is necessary for an interim period during which
+	 * we have multiple Connect client frameworks that we need to support: ACJS and CaaS Client.
+	 */
+	var ACJSFrameworkAdaptor = function () {
+	  function ACJSFrameworkAdaptor() {
+	    this.moduleNamesToModules = new Map();
+	  }
+	  /**
+	   * This method registers a module with the Connect client framework relating to this adaptor instance.
+	   * @param moduleDefinition the definition of the module.
+	   */
+	  ACJSFrameworkAdaptor.prototype.registerModule = function (module, props) {
+	    var moduleRegistrationName = module.getModuleRegistrationName();
+	    this.moduleNamesToModules.set(moduleRegistrationName, module);
+
+	    // This adaptor implementation doesn't need to register the SimpleXDM definition so the following is
+	    // commented out.
+	    //
+	    // var simpleXdmDefinition = module.getSimpleXdmDefinition(props);
+	    // this.registerModuleWithHost(moduleRegistrationName, simpleXdmDefinition);
+	  };
+
+	  /**
+	   * This method unregisters a module with the Connect client framework relating to this adaptor instance.
+	   * @param name the name of the module
+	   */
+	  ACJSFrameworkAdaptor.prototype.unregisterModule = function (name) {
+	    this.moduleNamesToModules.set(name, undefined);
+	  };
+
+	  ACJSFrameworkAdaptor.prototype.getProviderByModuleName = function (moduleName) {
+	    var module = this.moduleNamesToModules.get(moduleName);
+	    if (module) {
+	      return module.getProvider();
+	    } else {
+	      return undefined;
+	    }
+	  };
+	  return ACJSFrameworkAdaptor;
+	}();
+
+	var acjsFrameworkAdaptor = new ACJSFrameworkAdaptor();
+
 	var DLGID_PREFIX = 'ap-dialog-';
 	var DIALOG_CLASS = 'ap-aui-dialog2';
 	var DLGID_REGEXP = new RegExp('^' + DLGID_PREFIX + '[0-9A-Za-z]+$');
@@ -3032,15 +3089,22 @@
 
 	EventDispatcher$1.register('iframe-bridge-established', function (data) {
 	  if (data.extension.options.isDialog && !data.extension.options.preventDialogCloseOnEscape) {
-	    DomEventActions.registerKeyEvent({
-	      extension_id: data.extension.id,
-	      key: 27,
-	      callback: function callback() {
+	    var callback = void 0;
+	    var dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+	    if (dialogProvider) {
+	      callback = dialogProvider.close;
+	    } else {
+	      callback = function callback() {
 	        DialogActions.close({
 	          dialog: getActiveDialog(),
 	          extension: data.extension
 	        });
-	      }
+	      };
+	    }
+	    DomEventActions.registerKeyEvent({
+	      extension_id: data.extension.id,
+	      key: 27,
+	      callback: callback
 	    });
 
 	    EventDispatcher$1.registerOnce('dialog-close', function (d) {
@@ -3223,297 +3287,6 @@
 	  DialogExtensionComponent.render(data.extension, data.options);
 	});
 
-	function create(extension) {
-	  var simpleXdmExtension = {
-	    addon_key: extension.addon_key,
-	    key: extension.key,
-	    url: extension.url,
-	    options: extension.options
-	  };
-	  return IframeContainerComponent.createExtension(simpleXdmExtension);
-	}
-
-	var ModuleActions = {
-	  defineCustomModule: function defineCustomModule(name, methods) {
-	    var data = {};
-	    if (!methods) {
-	      data.methods = name;
-	    } else {
-	      data.methods = methods;
-	      data.name = name;
-	    }
-	    EventDispatcher$1.dispatch('module-define-custom', data);
-	  }
-	};
-
-	var AnalyticsAction = {
-	  trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, extension) {
-	    EventDispatcher$1.dispatch('analytics-deprecated-method-used', { methodUsed: methodUsed, extension: extension });
-	  }
-	};
-
-	function sanitizeTriggers(triggers) {
-	  var onTriggers;
-	  if (Array.isArray(triggers)) {
-	    onTriggers = triggers.join(' ');
-	  } else if (typeof triggers === 'string') {
-	    onTriggers = triggers.trim();
-	  }
-	  return onTriggers;
-	}
-
-	function uniqueId() {
-	  return 'webitem-' + Math.floor(Math.random() * 1000000000).toString(16);
-	}
-
-	// LEGACY: get addon key by webitem for p2
-	function getExtensionKey($target) {
-	  var cssClass = $target.attr('class');
-	  var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
-	  return Array.isArray(m) ? m[1] : false;
-	}
-
-	// LEGACY: get module key by webitem for p2
-	function getKey($target) {
-	  var cssClass = $target.attr('class');
-	  var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
-	  return Array.isArray(m) ? m[1] : false;
-	}
-
-	function getTargetKey($target) {
-	  var cssClass = $target.attr('class');
-	  var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
-	  return Array.isArray(m) ? m[1] : false;
-	}
-
-	function getFullKey($target) {
-	  return getExtensionKey($target) + '__' + getKey($target);
-	}
-
-	function getModuleOptionsByAddonAndModuleKey(type, addonKey, moduleKey) {
-	  var moduleType = type + 'Modules';
-	  if (window._AP && window._AP[moduleType] && window._AP[moduleType][addonKey] && window._AP[moduleType][addonKey][moduleKey]) {
-	    return Util$1.extend({}, window._AP[moduleType][addonKey][moduleKey].options);
-	  }
-	}
-
-	function getModuleOptionsForWebitem(type, $target) {
-	  var addon_key = getExtensionKey($target);
-	  var targetKey = getTargetKey($target);
-	  return getModuleOptionsByAddonAndModuleKey(type, addon_key, targetKey);
-	}
-
-	// LEGACY - method for handling webitem options for p2
-	function getOptionsForWebItem($target) {
-	  var fullKey = getFullKey($target);
-
-	  var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
-	  var options = getModuleOptionsForWebitem(type, $target);
-	  if (!options && window._AP && window._AP[type + 'Options']) {
-	    options = Util$1.extend({}, window._AP[type + 'Options'][fullKey]) || {};
-	  }
-	  if (!options) {
-	    options = {};
-	    console.warn('no webitem ' + type + 'Options for ' + fullKey);
-	  }
-	  options.productContext = options.productContext || {};
-	  // create product context from url params
-	  var url = $target.attr('href');
-	  if (url) {
-	    var query = index$1.parse(index$1.extract(url));
-	    Util$1.extend(options.productContext, query);
-	  }
-
-	  return options;
-	}
-
-	var WebItemUtils = {
-	  sanitizeTriggers: sanitizeTriggers,
-	  uniqueId: uniqueId,
-	  getExtensionKey: getExtensionKey,
-	  getKey: getKey,
-	  getOptionsForWebItem: getOptionsForWebItem,
-	  getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey
-	};
-
-	var ModuleProviders = function ModuleProviders() {
-	  var _this = this;
-
-	  classCallCheck(this, ModuleProviders);
-
-	  this._providers = {};
-	  this.registerProvider = function (name, provider) {
-	    _this._providers[name] = provider;
-	  };
-	  this.getProvider = function (name) {
-	    return _this._providers[name];
-	  };
-	};
-
-	var ModuleProviders$1 = new ModuleProviders();
-
-	// This is essentially a copy of the ACJSFrameworkAdaptor/BaseFrameworkAdaptor implementation generated
-	// by compiling the connect-module-core typescript implementations of the equivalent classes.
-
-	/**
-	 * This class provides common behaviour relating to the adaption of functionality to a
-	 * particular Connect client framework. This is necessary for an interim period during which
-	 * we have multiple Connect client frameworks that we need to support: ACJS and CaaS Client.
-	 */
-	var ACJSFrameworkAdaptor = function () {
-	  function ACJSFrameworkAdaptor() {
-	    this.moduleNamesToModules = new Map();
-	  }
-	  /**
-	   * This method registers a module with the Connect client framework relating to this adaptor instance.
-	   * @param moduleDefinition the definition of the module.
-	   */
-	  ACJSFrameworkAdaptor.prototype.registerModule = function (module, props) {
-	    var moduleRegistrationName = module.getModuleRegistrationName();
-	    this.moduleNamesToModules.set(moduleRegistrationName, module);
-
-	    // This adaptor implementation doesn't need to register the SimpleXDM definition so the following is
-	    // commented out.
-	    //
-	    // var simpleXdmDefinition = module.getSimpleXdmDefinition(props);
-	    // this.registerModuleWithHost(moduleRegistrationName, simpleXdmDefinition);
-	  };
-
-	  ACJSFrameworkAdaptor.prototype.getProviderByModuleName = function (moduleName) {
-	    var module = this.moduleNamesToModules.get(moduleName);
-	    if (module) {
-	      return module.getProvider();
-	    } else {
-	      return undefined;
-	    }
-	  };
-	  return ACJSFrameworkAdaptor;
-	}();
-
-	var acjsFrameworkAdaptor = new ACJSFrameworkAdaptor();
-
-	var HostApi$1 = function () {
-	  function HostApi() {
-	    classCallCheck(this, HostApi);
-
-	    this.create = create;
-	    this.dialog = {
-	      create: function create$$1(extension, dialogOptions) {
-	        var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
-	        var completeOptions = Util$1.extend({}, dialogBeanOptions || {}, dialogOptions);
-	        DialogExtensionActions.open(extension, completeOptions);
-	      },
-	      close: function close() {
-	        DialogExtensionActions.close();
-	      }
-	    };
-	    this.registerContentResolver = {
-	      resolveByExtension: function resolveByExtension(callback) {
-	        jwtActions.registerContentResolver({ callback: callback });
-	      }
-	    };
-	    this.registerProvider = function (componentName, component) {
-	      ModuleProviders$1.registerProvider(componentName, component);
-	    };
-	    this.getProvider = function (componentName) {
-	      return ModuleProviders$1.getProvider(componentName);
-	    };
-	    // We are attaching an instance of ACJSAdaptor to the host so that products are able
-	    // to retrieve the identical instance of ACJSAdaptor that ACJS is using.
-	    this.acjsAdaptor = acjsFrameworkAdaptor;
-	  }
-
-	  HostApi.prototype._cleanExtension = function _cleanExtension(extension) {
-	    return Util$1.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
-	  };
-
-	  HostApi.prototype.onIframeEstablished = function onIframeEstablished(callback) {
-	    var wrapper = function wrapper(data) {
-	      callback.call({}, {
-	        $el: data.$el,
-	        extension: this._cleanExtension(data.extension)
-	      });
-	    };
-	    callback._wrapper = wrapper.bind(this);
-	    EventDispatcher$1.register('after:iframe-bridge-established', callback._wrapper);
-	  };
-
-	  HostApi.prototype.offIframeEstablished = function offIframeEstablished(callback) {
-	    if (callback._wrapper) {
-	      EventDispatcher$1.unregister('after:iframe-bridge-established', callback._wrapper);
-	    } else {
-	      throw new Error('cannot unregister event dispatch listener without _wrapper reference');
-	    }
-	  };
-
-	  HostApi.prototype.onIframeUnload = function onIframeUnload(callback) {
-	    var _this = this;
-
-	    EventDispatcher$1.register('after:iframe-unload', function (data) {
-	      callback.call({}, {
-	        $el: data.$el,
-	        extension: _this._cleanExtension(data.extension)
-	      });
-	    });
-	  };
-
-	  HostApi.prototype.onPublicEventDispatched = function onPublicEventDispatched(callback) {
-	    var wrapper = function wrapper(data) {
-	      callback.call({}, {
-	        type: data.type,
-	        event: data.event,
-	        extension: this._cleanExtension(data.sender)
-	      });
-	    };
-	    callback._wrapper = wrapper.bind(this);
-	    EventDispatcher$1.register('after:event-public-dispatch', callback._wrapper);
-	  };
-
-	  HostApi.prototype.offPublicEventDispatched = function offPublicEventDispatched(callback) {
-	    if (callback._wrapper) {
-	      EventDispatcher$1.unregister('after:event-public-dispatch', callback._wrapper);
-	    } else {
-	      throw new Error('cannot unregister event dispatch listener without _wrapper reference');
-	    }
-	  };
-
-	  HostApi.prototype.onKeyEvent = function onKeyEvent(extension_id, key, modifiers, callback) {
-	    DomEventActions.registerKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
-	  };
-
-	  HostApi.prototype.offKeyEvent = function offKeyEvent(extension_id, key, modifiers, callback) {
-	    DomEventActions.unregisterKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
-	  };
-
-	  HostApi.prototype.destroy = function destroy(extension_id) {
-	    IframeActions.notifyIframeDestroyed({ extension_id: extension_id });
-	  };
-
-	  HostApi.prototype.defineModule = function defineModule(name, methods) {
-	    ModuleActions.defineCustomModule(name, methods);
-	  };
-
-	  HostApi.prototype.broadcastEvent = function broadcastEvent(type, targetSpec, event) {
-	    EventActions.broadcast(type, targetSpec, event);
-	  };
-
-	  HostApi.prototype.getExtensions = function getExtensions(filter) {
-	    return simpleXDM$1.getExtensions(filter);
-	  };
-
-	  HostApi.prototype.trackDeprecatedMethodUsed = function trackDeprecatedMethodUsed(methodUsed, extension) {
-	    AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
-	  };
-
-	  HostApi.prototype.setJwtClockSkew = function setJwtClockSkew(skew) {
-	    jwtActions.setClockSkew(skew);
-	  };
-
-	  return HostApi;
-	}();
-
-	var HostApi$2 = new HostApi$1();
-
 	var _dialogs = {};
 
 	EventDispatcher$1.register('dialog-close', function (data) {
@@ -3573,37 +3346,35 @@
 	  var dialogModuleOptions = dialogUtilsInstance.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
 	  options = Util$1.extend({}, dialogModuleOptions || {}, options);
 	  options.id = _id;
-
-	  var dialogProvider = HostApi$2.getProvider('dialog');
-	  if (dialogProvider) {
-	    var buttons = [].concat(options.buttons || [], [{
-	      id: 'submit',
-	      text: options.submitText || 'Submit',
-	      appearance: 'primary'
-	    }, {
-	      id: 'cancel',
-	      text: options.cancelText || 'Cancel',
-	      appearance: 'subtle-link'
-	    }]).map(function (button) {
-	      button.onClick = function () {
-	        // Todo: ACJS-667 - this needs to be hooked up with the appropriate action
-	        // Currently the dialog actions are to intertwined with component DOM
-	        console.log(button.id, _id);
+	  this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+	  if (this.dialogProvider) {
+	    var getOnClickFunction = function getOnClickFunction(action) {
+	      var key = callback._context.extension.key;
+	      var addon_key = callback._context.extension.addon_key;
+	      var eventData = {
+	        button: {
+	          identifier: action.identifier,
+	          name: action.identifier,
+	          text: action.text
+	        }
 	      };
-	      return button;
-	    });
-	    var dialogOptions = {
-	      id: _id,
-	      header: options.header,
-	      buttons: buttons,
-	      onClose: DialogActions.close
+	      if (['submit', 'cancel'].indexOf(action.identifier) >= 0) {
+	        EventActions.broadcast('dialog.' + action.identifier, { addon_key: addon_key, key: key }, eventData);
+	      }
+	      EventActions.broadcast('dialog.button.click', { addon_key: addon_key, key: key }, eventData);
 	    };
-	    dialogProvider.create(dialogOptions, dialogExtension);
+
+	    var dialogOptions = dialogUtilsInstance.sanitizeOptions(options);
+	    dialogExtension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
+	    dialogOptions.actions.map(function (action) {
+	      return action.onClick = getOnClickFunction.bind(null, action);
+	    });
+	    this.dialogProvider.create(dialogOptions, dialogExtension);
 	  } else {
 	    DialogExtensionActions.open(dialogExtension, options);
-	    this.customData = options.customData;
-	    _dialogs[_id] = this;
 	  }
+	  this.customData = options.customData;
+	  _dialogs[_id] = this;
 	};
 
 	/**
@@ -3616,13 +3387,20 @@
 	  function Button(identifier) {
 	    classCallCheck(this, Button);
 
-	    if (!DialogExtensionComponent.getActiveDialog()) {
-	      throw new Error('Failed to find an active dialog.');
+	    this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+	    if (this.dialogProvider) {
+	      //TODO check for active dialog like in V5? (ACJS-698)
+	      this.name = identifier;
+	      this.identifier = identifier;
+	    } else {
+	      if (!DialogExtensionComponent.getActiveDialog()) {
+	        throw new Error('Failed to find an active dialog.');
+	      }
+	      this.name = identifier;
+	      this.identifier = identifier;
+	      this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
+	      this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
 	    }
-	    this.name = identifier;
-	    this.identifier = identifier;
-	    this.enabled = DialogExtensionComponent.buttonIsEnabled(identifier);
-	    this.hidden = !DialogExtensionComponent.buttonIsVisible(identifier);
 	  }
 	  /**
 	   * Sets the button state to enabled
@@ -3671,7 +3449,11 @@
 
 	  Button.prototype.isEnabled = function isEnabled(callback) {
 	    callback = Util$1.last(arguments);
-	    callback(this.enabled);
+	    if (this.dialogProvider) {
+	      callback(!this.dialogProvider.isButtonDisabled(this.identifier));
+	    } else {
+	      callback(this.enabled);
+	    }
 	  };
 	  /**
 	   * Toggle the button state between enabled and disabled.
@@ -3684,17 +3466,25 @@
 
 
 	  Button.prototype.toggle = function toggle() {
-	    this.setState({
-	      enabled: !this.enabled
-	    });
+	    if (this.dialogProvider) {
+	      this.dialogProvider.toggleButton(this.identifier);
+	    } else {
+	      this.setState({
+	        enabled: !this.enabled
+	      });
+	    }
 	  };
 
 	  Button.prototype.setState = function setState(state) {
-	    this.enabled = state.enabled;
-	    DialogActions.toggleButton({
-	      identifier: this.identifier,
-	      enabled: this.enabled
-	    });
+	    if (this.dialogProvider) {
+	      this.dialogProvider.setButtonDisabled(this.identifier, !state.enabled);
+	    } else {
+	      this.enabled = state.enabled;
+	      DialogActions.toggleButton({
+	        identifier: this.identifier,
+	        enabled: this.enabled
+	      });
+	    }
 	  };
 	  /**
 	   * Trigger a callback bound to a button.
@@ -3736,7 +3526,11 @@
 
 	  Button.prototype.isHidden = function isHidden(callback) {
 	    callback = Util$1.last(arguments);
-	    callback(this.hidden);
+	    if (this.dialogProvider) {
+	      callback(this.dialogProvider.isButtonHidden(this.identifier));
+	    } else {
+	      callback(this.hidden);
+	    }
 	  };
 	  /**
 	   * Sets the button state to hidden
@@ -3766,11 +3560,15 @@
 	  };
 
 	  Button.prototype.setHidden = function setHidden(hidden) {
-	    this.hidden = hidden;
-	    DialogActions.toggleButtonVisibility({
-	      identifier: this.identifier,
-	      hidden: this.hidden
-	    });
+	    if (this.dialogProvider) {
+	      this.dialogProvider.setButtonHidden(this.identifier, hidden);
+	    } else {
+	      this.hidden = hidden;
+	      DialogActions.toggleButtonVisibility({
+	        identifier: this.identifier,
+	        hidden: this.hidden
+	      });
+	    }
 	  };
 
 	  return Button;
@@ -3784,10 +3582,31 @@
 	  classCallCheck(this, CreateButton);
 
 	  callback = Util$1.last(arguments);
-	  DialogExtensionActions.addUserButton({
-	    identifier: options.identifier,
-	    text: options.text
-	  }, callback._context.extension);
+	  this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+	  if (this.dialogProvider) {
+	    this.dialogProvider.createButton({
+	      identifier: options.identifier,
+	      text: options.text,
+	      hidden: false,
+	      disabled: options.disabled || false,
+	      onClick: function onClick() {
+	        EventActions.broadcast('dialog.button.click', {
+	          addon_key: callback._context.extension.addon_key,
+	          key: callback._context.extension.key
+	        }, {
+	          button: {
+	            identifier: options.identifier,
+	            text: options.text
+	          }
+	        });
+	      }
+	    });
+	  } else {
+	    DialogExtensionActions.addUserButton({
+	      identifier: options.identifier,
+	      text: options.text
+	    }, callback._context.extension);
+	  }
 	};
 
 	/**
@@ -3864,9 +3683,11 @@
 	   */
 	  close: function close(data, callback) {
 	    callback = Util$1.last(arguments);
-
-	    var dialogProvider = HostApi$2.getProvider('dialog');
+	    var dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
 	    if (dialogProvider) {
+	      EventActions.broadcast('dialog.close', {
+	        addon_key: callback._context.extension.addon_key
+	      }, data);
 	      dialogProvider.close();
 	    } else {
 	      var dialogToClose;
@@ -3998,6 +3819,22 @@
 	    });
 	  }
 	};
+
+	var ModuleProviders = function ModuleProviders() {
+	  var _this = this;
+
+	  classCallCheck(this, ModuleProviders);
+
+	  this._providers = {};
+	  this.registerProvider = function (name, provider) {
+	    _this._providers[name] = provider;
+	  };
+	  this.getProvider = function (name) {
+	    return _this._providers[name];
+	  };
+	};
+
+	var ModuleProviders$1 = new ModuleProviders();
 
 	var debounce$2 = Util$1.debounce;
 	var resizeFuncHolder = {};
@@ -4160,6 +3997,12 @@
 	    } else {
 	      InlineDialogActions.close();
 	    }
+	  }
+	};
+
+	var AnalyticsAction = {
+	  trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, extension) {
+	    EventDispatcher$1.dispatch('analytics-deprecated-method-used', { methodUsed: methodUsed, extension: extension });
 	  }
 	};
 
@@ -4969,6 +4812,235 @@
 	  });
 	});
 
+	function create(extension) {
+	  var simpleXdmExtension = {
+	    addon_key: extension.addon_key,
+	    key: extension.key,
+	    url: extension.url,
+	    options: extension.options
+	  };
+	  return IframeContainerComponent.createExtension(simpleXdmExtension);
+	}
+
+	var ModuleActions = {
+	  defineCustomModule: function defineCustomModule(name, methods) {
+	    var data = {};
+	    if (!methods) {
+	      data.methods = name;
+	    } else {
+	      data.methods = methods;
+	      data.name = name;
+	    }
+	    EventDispatcher$1.dispatch('module-define-custom', data);
+	  }
+	};
+
+	function sanitizeTriggers(triggers) {
+	  var onTriggers;
+	  if (Array.isArray(triggers)) {
+	    onTriggers = triggers.join(' ');
+	  } else if (typeof triggers === 'string') {
+	    onTriggers = triggers.trim();
+	  }
+	  return onTriggers;
+	}
+
+	function uniqueId() {
+	  return 'webitem-' + Math.floor(Math.random() * 1000000000).toString(16);
+	}
+
+	// LEGACY: get addon key by webitem for p2
+	function getExtensionKey($target) {
+	  var cssClass = $target.attr('class');
+	  var m = cssClass ? cssClass.match(/ap-plugin-key-([^\s]*)/) : null;
+	  return Array.isArray(m) ? m[1] : false;
+	}
+
+	// LEGACY: get module key by webitem for p2
+	function getKey($target) {
+	  var cssClass = $target.attr('class');
+	  var m = cssClass ? cssClass.match(/ap-module-key-([^\s]*)/) : null;
+	  return Array.isArray(m) ? m[1] : false;
+	}
+
+	function getTargetKey($target) {
+	  var cssClass = $target.attr('class');
+	  var m = cssClass ? cssClass.match(/ap-target-key-([^\s]*)/) : null;
+	  return Array.isArray(m) ? m[1] : false;
+	}
+
+	function getFullKey($target) {
+	  return getExtensionKey($target) + '__' + getKey($target);
+	}
+
+	function getModuleOptionsByAddonAndModuleKey(type, addonKey, moduleKey) {
+	  var moduleType = type + 'Modules';
+	  if (window._AP && window._AP[moduleType] && window._AP[moduleType][addonKey] && window._AP[moduleType][addonKey][moduleKey]) {
+	    return Util$1.extend({}, window._AP[moduleType][addonKey][moduleKey].options);
+	  }
+	}
+
+	function getModuleOptionsForWebitem(type, $target) {
+	  var addon_key = getExtensionKey($target);
+	  var targetKey = getTargetKey($target);
+	  return getModuleOptionsByAddonAndModuleKey(type, addon_key, targetKey);
+	}
+
+	// LEGACY - method for handling webitem options for p2
+	function getOptionsForWebItem($target) {
+	  var fullKey = getFullKey($target);
+
+	  var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
+	  var options = getModuleOptionsForWebitem(type, $target);
+	  if (!options && window._AP && window._AP[type + 'Options']) {
+	    options = Util$1.extend({}, window._AP[type + 'Options'][fullKey]) || {};
+	  }
+	  if (!options) {
+	    options = {};
+	    console.warn('no webitem ' + type + 'Options for ' + fullKey);
+	  }
+	  options.productContext = options.productContext || {};
+	  // create product context from url params
+	  var url = $target.attr('href');
+	  if (url) {
+	    var query = index$1.parse(index$1.extract(url));
+	    Util$1.extend(options.productContext, query);
+	  }
+
+	  return options;
+	}
+
+	var WebItemUtils = {
+	  sanitizeTriggers: sanitizeTriggers,
+	  uniqueId: uniqueId,
+	  getExtensionKey: getExtensionKey,
+	  getKey: getKey,
+	  getOptionsForWebItem: getOptionsForWebItem,
+	  getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey
+	};
+
+	var HostApi$1 = function () {
+	  function HostApi() {
+	    classCallCheck(this, HostApi);
+
+	    this.create = create;
+	    this.dialog = {
+	      create: function create$$1(extension, dialogOptions) {
+	        var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
+	        var completeOptions = Util$1.extend({}, dialogBeanOptions || {}, dialogOptions);
+	        DialogExtensionActions.open(extension, completeOptions);
+	      },
+	      close: function close() {
+	        DialogExtensionActions.close();
+	      }
+	    };
+	    this.registerContentResolver = {
+	      resolveByExtension: function resolveByExtension(callback) {
+	        jwtActions.registerContentResolver({ callback: callback });
+	      }
+	    };
+	    this.registerProvider = function (componentName, component) {
+	      ModuleProviders$1.registerProvider(componentName, component);
+	    };
+	    this.getProvider = function (componentName) {
+	      return ModuleProviders$1.getProvider(componentName);
+	    };
+	    // We are attaching an instance of ACJSAdaptor to the host so that products are able
+	    // to retrieve the identical instance of ACJSAdaptor that ACJS is using.
+	    this.acjsAdaptor = acjsFrameworkAdaptor;
+	  }
+
+	  HostApi.prototype._cleanExtension = function _cleanExtension(extension) {
+	    return Util$1.pick(extension, ['id', 'addon_key', 'key', 'options', 'url']);
+	  };
+
+	  HostApi.prototype.onIframeEstablished = function onIframeEstablished(callback) {
+	    var wrapper = function wrapper(data) {
+	      callback.call({}, {
+	        $el: data.$el,
+	        extension: this._cleanExtension(data.extension)
+	      });
+	    };
+	    callback._wrapper = wrapper.bind(this);
+	    EventDispatcher$1.register('after:iframe-bridge-established', callback._wrapper);
+	  };
+
+	  HostApi.prototype.offIframeEstablished = function offIframeEstablished(callback) {
+	    if (callback._wrapper) {
+	      EventDispatcher$1.unregister('after:iframe-bridge-established', callback._wrapper);
+	    } else {
+	      throw new Error('cannot unregister event dispatch listener without _wrapper reference');
+	    }
+	  };
+
+	  HostApi.prototype.onIframeUnload = function onIframeUnload(callback) {
+	    var _this = this;
+
+	    EventDispatcher$1.register('after:iframe-unload', function (data) {
+	      callback.call({}, {
+	        $el: data.$el,
+	        extension: _this._cleanExtension(data.extension)
+	      });
+	    });
+	  };
+
+	  HostApi.prototype.onPublicEventDispatched = function onPublicEventDispatched(callback) {
+	    var wrapper = function wrapper(data) {
+	      callback.call({}, {
+	        type: data.type,
+	        event: data.event,
+	        extension: this._cleanExtension(data.sender)
+	      });
+	    };
+	    callback._wrapper = wrapper.bind(this);
+	    EventDispatcher$1.register('after:event-public-dispatch', callback._wrapper);
+	  };
+
+	  HostApi.prototype.offPublicEventDispatched = function offPublicEventDispatched(callback) {
+	    if (callback._wrapper) {
+	      EventDispatcher$1.unregister('after:event-public-dispatch', callback._wrapper);
+	    } else {
+	      throw new Error('cannot unregister event dispatch listener without _wrapper reference');
+	    }
+	  };
+
+	  HostApi.prototype.onKeyEvent = function onKeyEvent(extension_id, key, modifiers, callback) {
+	    DomEventActions.registerKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
+	  };
+
+	  HostApi.prototype.offKeyEvent = function offKeyEvent(extension_id, key, modifiers, callback) {
+	    DomEventActions.unregisterKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
+	  };
+
+	  HostApi.prototype.destroy = function destroy(extension_id) {
+	    IframeActions.notifyIframeDestroyed({ extension_id: extension_id });
+	  };
+
+	  HostApi.prototype.defineModule = function defineModule(name, methods) {
+	    ModuleActions.defineCustomModule(name, methods);
+	  };
+
+	  HostApi.prototype.broadcastEvent = function broadcastEvent(type, targetSpec, event) {
+	    EventActions.broadcast(type, targetSpec, event);
+	  };
+
+	  HostApi.prototype.getExtensions = function getExtensions(filter) {
+	    return simpleXDM$1.getExtensions(filter);
+	  };
+
+	  HostApi.prototype.trackDeprecatedMethodUsed = function trackDeprecatedMethodUsed(methodUsed, extension) {
+	    AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
+	  };
+
+	  HostApi.prototype.setJwtClockSkew = function setJwtClockSkew(skew) {
+	    jwtActions.setClockSkew(skew);
+	  };
+
+	  return HostApi;
+	}();
+
+	var HostApi$2 = new HostApi$1();
+
 	var WebItem = function () {
 	  function WebItem() {
 	    classCallCheck(this, WebItem);
@@ -5372,7 +5444,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.5';
+	  window._AP.version = '5.1.9';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
