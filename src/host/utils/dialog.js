@@ -1,6 +1,7 @@
 import util from '../util';
 import buttonUtils from './button';
 import $ from '../dollar';
+import AnalyticsDispatcher from '../dispatchers/analytics_dispatcher';
 
 class DialogUtils {
   _maxDimension(val, maxPxVal){
@@ -190,6 +191,53 @@ class DialogUtils {
       return util.extend({}, defaultOptions, window._AP.dialogModules[addon_key][key].options);
     }
     return false;
+  }
+
+  // analytics util method to categorize a dialog
+  _getDialogTypeByEl($el){
+    // connect dialog
+    if($el.attr('id') === 'macro-browser-dialog') {
+      return 'confluence-macro-browser';
+    };
+    if($el.hasClass('aui-dialog2-fullscreen')) {
+      return 'connect-aui-dialog2-fullscreen';
+    }
+    if($el.hasClass('ap-aui-dialog2')) {
+      return 'connect-aui-dialog2';
+    }
+    // jira issue create dialog
+    if($el.attr('id') === 'create-issue-dialog') {
+      return 'jira-create-issue-dialog';
+    }
+    // generic jira dialog
+    if($el.hasClass('jira-dialog')) {
+      return 'jira-dialog';
+    }
+    // aui dialog1
+    if($el.hasClass('aui-dialog')) {
+      return 'aui-dialog1';
+    }
+    // aui dialog2
+    if($el.hasClass('aui-dialog2')) {
+      return 'aui-dialog2';
+    }
+  }
+
+  // determins information about dialogs that are about to open and are already open
+  trackMultipleDialogOpening(dialogExtension, options) {
+    // check for dialogs that are already open
+    // works for jira dialogs, dialog1 and dialog2 dialogs
+    let openDialogs = [];
+    $('.jira-dialog-open, .aui-dialog, .aui-dialog2').each(function(){
+      let $dialogElement = $(this);
+      if(!$dialogElement.is(':visible')) {
+        return;
+      }
+      openDialogs.push({type: this._getDialogTypeByEl($dialogElement)});
+    });
+    if(openDialogs.length > 0) {
+      AnalyticsDispatcher.trackMultipleDialogOpening(openDialogs, dialogExtension);
+    }
   }
 
 }

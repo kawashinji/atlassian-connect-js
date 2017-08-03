@@ -90,6 +90,7 @@ class Dialog {
       this.dialogProvider.create(dialogOptions, dialogExtension);
     } else {
       DialogExtensionActions.open(dialogExtension, options);
+      dialogUtils.trackMultipleDialogOpening(dialogExtension, options);
     }
     this.customData = options.customData;
     _dialogs[_id] = this;

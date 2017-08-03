@@ -635,6 +635,15 @@
 	    });
 	  };
 
+	  AnalyticsDispatcher.prototype.trackMultipleDialogOpening = function trackMultipleDialogOpening(dialogs, extension) {
+	    console.log('TRACKING MULTIPLE DIALOGS', dialogs, extension);
+	    this._track('jsapi.dialog.multiple', {
+	      addonKey: extension.addon_key,
+	      moduleKey: extension.key,
+	      openDialogs: dialogs
+	    });
+	  };
+
 	  AnalyticsDispatcher.prototype.dispatch = function dispatch(name, data) {
 	    this._track(name, data);
 	  };
@@ -889,13 +898,6 @@
 	      if (value && (typeof value === "undefined" ? "undefined" : _typeof(value)) === 'object' && whiteList.every(function (t) {
 	        return !(value instanceof t);
 	      })) {
-	        if (visitedObjects.indexOf(value) > -1) {
-	          warn("A circular reference was detected and removed from the message.");
-	          return null;
-	        }
-
-	        visitedObjects.push(value);
-
 	        var newValue = void 0;
 
 	        if (Array.isArray(value)) {
@@ -903,7 +905,15 @@
 	            return _clone(element);
 	          });
 	        } else {
+	          if (visitedObjects.indexOf(value) > -1) {
+	            warn("A circular reference was detected and removed from the message.");
+	            return null;
+	          }
+
+	          visitedObjects.push(value);
+
 	          newValue = {};
+
 	          for (var name in value) {
 	            if (value.hasOwnProperty(name)) {
 	              var clonedValue = _clone(value[name]);
@@ -912,6 +922,8 @@
 	              }
 	            }
 	          }
+
+	          visitedObjects.pop();
 	        }
 	        return newValue;
 	      }
@@ -1188,7 +1200,20 @@
 	        sendResponse._context = extension;
 	        methodArgs = this._padUndefinedArguments(methodArgs, padLength);
 	        methodArgs.push(sendResponse);
-	        method.apply(module, methodArgs);
+	        var promiseResult = method.apply(module, methodArgs);
+
+	        if (method.returnsPromise) {
+	          if (!promiseResult || !(promiseResult instanceof Promise)) {
+	            sendResponse('Defined module method did not return a promise.');
+	          } else {
+	            promiseResult.then(function (result) {
+	              sendResponse(undefined, result);
+	            }).catch(function (err) {
+	              err = err instanceof Error ? err.message : err;
+	              sendResponse(err);
+	            });
+	          }
+	        }
 
 	        if (this._registeredRequestNotifier) {
 	          this._registeredRequestNotifier.call(null, {
@@ -1438,7 +1463,8 @@
 	          switch (typeof member === 'undefined' ? 'undefined' : _typeof(member)) {
 	            case 'function':
 	              accumulator[memberName] = {
-	                args: util.argumentNames(member)
+	                args: util.argumentNames(member),
+	                returnsPromise: member.returnsPromise || false
 	              };
 	              break;
 	            case 'object':
@@ -1636,6 +1662,10 @@
 
 	  Connect.prototype.unregisterExtension = function unregisterExtension(filter) {
 	    return this._xdm.unregisterExtension(filter);
+	  };
+
+	  Connect.prototype.returnsPromise = function returnsPromise(wrappedMethod) {
+	    wrappedMethod.returnsPromise = true;
 	  };
 
 	  return Connect;
@@ -2140,6 +2170,57 @@
 	    return false;
 	  };
 
+	  // analytics util method to categorize a dialog
+
+
+	  DialogUtils.prototype._getDialogTypeByEl = function _getDialogTypeByEl($el) {
+	    // connect dialog
+	    if ($el.attr('id') === 'macro-browser-dialog') {
+	      return 'confluence-macro-browser';
+	    }
+	    if ($el.hasClass('aui-dialog2-fullscreen')) {
+	      return 'connect-aui-dialog2-fullscreen';
+	    }
+	    if ($el.hasClass('ap-aui-dialog2')) {
+	      return 'connect-aui-dialog2';
+	    }
+	    // jira issue create dialog
+	    if ($el.attr('id') === 'create-issue-dialog') {
+	      return 'jira-create-issue-dialog';
+	    }
+	    // generic jira dialog
+	    if ($el.hasClass('jira-dialog')) {
+	      return 'jira-dialog';
+	    }
+	    // aui dialog1
+	    if ($el.hasClass('aui-dialog')) {
+	      return 'aui-dialog1';
+	    }
+	    // aui dialog2
+	    if ($el.hasClass('aui-dialog2')) {
+	      return 'aui-dialog2';
+	    }
+	  };
+
+	  // determins information about dialogs that are about to open and are already open
+
+
+	  DialogUtils.prototype.trackMultipleDialogOpening = function trackMultipleDialogOpening(dialogExtension, options) {
+	    // check for dialogs that are already open
+	    // works for jira dialogs, dialog1 and dialog2 dialogs
+	    var openDialogs = [];
+	    $('.jira-dialog-open, .aui-dialog, .aui-dialog2').each(function () {
+	      var $dialogElement = $(this);
+	      if (!$dialogElement.is(':visible')) {
+	        return;
+	      }
+	      openDialogs.push({ type: this._getDialogTypeByEl($dialogElement) });
+	    });
+	    if (openDialogs.length > 0) {
+	      analytics.trackMultipleDialogOpening(openDialogs, dialogExtension);
+	    }
+	  };
+
 	  return DialogUtils;
 	}();
 
@@ -2176,12 +2257,9 @@
 		});
 	};
 
-	var strictUriEncode = index$2;
-	var objectAssign = index;
-
 	function encode(value, opts) {
 		if (opts.encode) {
-			return opts.strict ? strictUriEncode(value) : encodeURIComponent(value);
+			return opts.strict ? index$2(value) : encodeURIComponent(value);
 		}
 
 		return value;
@@ -2237,7 +2315,7 @@
 			strict: true
 		};
 
-		opts = objectAssign(defaults, opts);
+		opts = index(defaults, opts);
 
 		return obj ? Object.keys(obj).sort().map(function (key) {
 			var val = obj[key];
@@ -3372,6 +3450,7 @@
 	    this.dialogProvider.create(dialogOptions, dialogExtension);
 	  } else {
 	    DialogExtensionActions.open(dialogExtension, options);
+	    dialogUtilsInstance.trackMultipleDialogOpening(dialogExtension, options);
 	  }
 	  this.customData = options.customData;
 	  _dialogs[_id] = this;

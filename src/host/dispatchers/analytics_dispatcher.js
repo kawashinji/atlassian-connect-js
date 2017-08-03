@@ -86,6 +86,15 @@ class AnalyticsDispatcher {
     });
   }
 
+  trackMultipleDialogOpening(dialogs, extension) {
+    console.log('TRACKING MULTIPLE DIALOGS', dialogs, extension);
+    this._track('jsapi.dialog.multiple', {
+      addonKey: extension.addon_key,
+      moduleKey: extension.key,
+      openDialogs: dialogs
+    });
+  }
+
   dispatch(name, data) {
     this._track(name, data);
   }
