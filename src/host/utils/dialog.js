@@ -228,12 +228,13 @@ class DialogUtils {
     // check for dialogs that are already open
     // works for jira dialogs, dialog1 and dialog2 dialogs
     let openDialogs = [];
+    let that = this;
     $('.jira-dialog-open, .aui-dialog, .aui-dialog2').each(function(){
       let $dialogElement = $(this);
       if(!$dialogElement.is(':visible')) {
         return;
       }
-      openDialogs.push({type: this._getDialogTypeByEl($dialogElement)});
+      openDialogs.push({type: that._getDialogTypeByEl($dialogElement)});
     });
     if(openDialogs.length > 0) {
       AnalyticsDispatcher.trackMultipleDialogOpening(openDialogs, dialogExtension);

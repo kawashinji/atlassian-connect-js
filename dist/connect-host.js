@@ -576,9 +576,9 @@
 	    var w = window;
 	    var prefixedName = EVENT_NAME_PREFIX + name;
 	    data = data || {};
-	    data.version = w._AP.version;
+	    data.version = w._AP && w._AP.version ? w._AP.version : undefined;
 	    data.userAgent = w.navigator.userAgent;
-
+	    console.log("_TRACK", prefixedName, data);
 	    if (w.AJS.Analytics) {
 	      w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
 	    } else if (w.AJS.trigger) {
@@ -2209,12 +2209,13 @@
 	    // check for dialogs that are already open
 	    // works for jira dialogs, dialog1 and dialog2 dialogs
 	    var openDialogs = [];
+	    var that = this;
 	    $('.jira-dialog-open, .aui-dialog, .aui-dialog2').each(function () {
 	      var $dialogElement = $(this);
 	      if (!$dialogElement.is(':visible')) {
 	        return;
 	      }
-	      openDialogs.push({ type: this._getDialogTypeByEl($dialogElement) });
+	      openDialogs.push({ type: that._getDialogTypeByEl($dialogElement) });
 	    });
 	    if (openDialogs.length > 0) {
 	      analytics.trackMultipleDialogOpening(openDialogs, dialogExtension);
