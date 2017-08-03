@@ -26,6 +26,11 @@ describe('flag api module', () => {
 
       var flagCallback = function(){};
       flagCallback._id = 'abc123';
+      flagCallback._context = {
+        extension: {
+          extension_id: 'an-extension-id'
+        }
+      };
       new FlagModule.create.constructor({
         type: 'success',
         title: 'some title',
