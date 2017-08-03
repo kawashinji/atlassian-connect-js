@@ -26,6 +26,7 @@ function build(entryModule, distModule, options) {
     entry: entryModule,
     plugins: [
       babel({
+        exclude: 'node_modules/promise-polyfill/**',
         plugins: ['external-helpers'],
         presets: [
           ['env', {
@@ -54,7 +55,8 @@ function build(entryModule, distModule, options) {
         preferBuiltins: false
       }),
       commonjs({
-        ignoreGlobal: true
+        // ignoreGlobal: true,
+        include: 'node_modules/**'
       }),
       replace({
         delimiters: [ '%%', '%%' ],
