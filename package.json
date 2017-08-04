@@ -9,6 +9,7 @@
     "url": "ssh://git@bitbucket.org:atlassian/atlassian-connect-js.git"
   },
   "scripts": {
+    "release": "rm -rf node_modules; npm install; npm publish",
     "prepublish": "gulp",
     "test": "gulp test-ci"
   },
