@@ -195,7 +195,13 @@ class DialogUtils {
 
   // analytics util method to categorize a dialog
   _getDialogTypeByEl($el){
-    // connect dialog
+    // multiple connect dialogs
+    if($el.hasClass('ap-aui-dialog2') && $('.ap-aui-dialog2[aria-hidden=false]').length > 1) {
+      if($('#macro-browser-dialog').length) {
+        return 'connect-aui-dialog2-multiple-macro';
+      }
+      return 'connect-aui-dialog2-multiple';
+    }
     if($el.attr('id') === 'macro-browser-dialog') {
       return 'confluence-macro-browser';
     };
@@ -204,10 +210,6 @@ class DialogUtils {
     }
     if($el.hasClass('ap-aui-dialog2')) {
       return 'connect-aui-dialog2';
-    }
-    // jira issue create dialog
-    if($el.attr('id') === 'create-issue-dialog') {
-      return 'jira-create-issue-dialog';
     }
     // generic jira dialog
     if($el.hasClass('jira-dialog')) {
@@ -221,6 +223,8 @@ class DialogUtils {
     if($el.hasClass('aui-dialog2')) {
       return 'aui-dialog2';
     }
+
+    return 'unknown-dialog';
   }
 
   // determins information about dialogs that are about to open and are already open
@@ -237,6 +241,7 @@ class DialogUtils {
       openDialogs.push({type: that._getDialogTypeByEl($dialogElement)});
     });
     if(openDialogs.length > 0) {
+      console.log('TRACKING DIALOGS', openDialogs);
       AnalyticsDispatcher.trackMultipleDialogOpening(openDialogs, dialogExtension);
     }
   }

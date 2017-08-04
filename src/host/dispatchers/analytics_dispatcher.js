@@ -29,7 +29,7 @@ class AnalyticsDispatcher {
     data = data || {};
     data.version = (w._AP && w._AP.version) ? w._AP.version : undefined;
     data.userAgent = w.navigator.userAgent;
-    console.log("_TRACK", prefixedName, data);
+    console.log('_TRACK', prefixedName, data);
     if(w.AJS.Analytics){
       w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
     } else if(w.AJS.trigger) {
@@ -87,7 +87,6 @@ class AnalyticsDispatcher {
   }
 
   trackMultipleDialogOpening(dialogs, extension) {
-    console.log('TRACKING MULTIPLE DIALOGS', dialogs, extension);
     this._track('jsapi.dialog.multiple', {
       addonKey: extension.addon_key,
       moduleKey: extension.key,

@@ -578,7 +578,7 @@
 	    data = data || {};
 	    data.version = w._AP && w._AP.version ? w._AP.version : undefined;
 	    data.userAgent = w.navigator.userAgent;
-	    console.log("_TRACK", prefixedName, data);
+	    console.log('_TRACK', prefixedName, data);
 	    if (w.AJS.Analytics) {
 	      w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
 	    } else if (w.AJS.trigger) {
@@ -636,7 +636,6 @@
 	  };
 
 	  AnalyticsDispatcher.prototype.trackMultipleDialogOpening = function trackMultipleDialogOpening(dialogs, extension) {
-	    console.log('TRACKING MULTIPLE DIALOGS', dialogs, extension);
 	    this._track('jsapi.dialog.multiple', {
 	      addonKey: extension.addon_key,
 	      moduleKey: extension.key,
@@ -2174,7 +2173,13 @@
 
 
 	  DialogUtils.prototype._getDialogTypeByEl = function _getDialogTypeByEl($el) {
-	    // connect dialog
+	    // multiple connect dialogs
+	    if ($el.hasClass('ap-aui-dialog2') && $('.ap-aui-dialog2[aria-hidden=false]').length > 1) {
+	      if ($('#macro-browser-dialog').length) {
+	        return 'connect-aui-dialog2-multiple-macro';
+	      }
+	      return 'connect-aui-dialog2-multiple';
+	    }
 	    if ($el.attr('id') === 'macro-browser-dialog') {
 	      return 'confluence-macro-browser';
 	    }
@@ -2183,10 +2188,6 @@
 	    }
 	    if ($el.hasClass('ap-aui-dialog2')) {
 	      return 'connect-aui-dialog2';
-	    }
-	    // jira issue create dialog
-	    if ($el.attr('id') === 'create-issue-dialog') {
-	      return 'jira-create-issue-dialog';
 	    }
 	    // generic jira dialog
 	    if ($el.hasClass('jira-dialog')) {
@@ -2200,6 +2201,8 @@
 	    if ($el.hasClass('aui-dialog2')) {
 	      return 'aui-dialog2';
 	    }
+
+	    return 'unknown-dialog';
 	  };
 
 	  // determins information about dialogs that are about to open and are already open
@@ -2218,6 +2221,7 @@
 	      openDialogs.push({ type: that._getDialogTypeByEl($dialogElement) });
 	    });
 	    if (openDialogs.length > 0) {
+	      console.log('TRACKING DIALOGS', openDialogs);
 	      analytics.trackMultipleDialogOpening(openDialogs, dialogExtension);
 	    }
 	  };
