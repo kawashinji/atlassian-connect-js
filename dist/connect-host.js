@@ -889,13 +889,6 @@
 	      if (value && (typeof value === "undefined" ? "undefined" : _typeof(value)) === 'object' && whiteList.every(function (t) {
 	        return !(value instanceof t);
 	      })) {
-	        if (visitedObjects.indexOf(value) > -1) {
-	          warn("A circular reference was detected and removed from the message.");
-	          return null;
-	        }
-
-	        visitedObjects.push(value);
-
 	        var newValue = void 0;
 
 	        if (Array.isArray(value)) {
@@ -903,7 +896,15 @@
 	            return _clone(element);
 	          });
 	        } else {
+	          if (visitedObjects.indexOf(value) > -1) {
+	            warn("A circular reference was detected and removed from the message.");
+	            return null;
+	          }
+
+	          visitedObjects.push(value);
+
 	          newValue = {};
+
 	          for (var name in value) {
 	            if (value.hasOwnProperty(name)) {
 	              var clonedValue = _clone(value[name]);
@@ -912,6 +913,8 @@
 	              }
 	            }
 	          }
+
+	          visitedObjects.pop();
 	        }
 	        return newValue;
 	      }
@@ -1188,7 +1191,20 @@
 	        sendResponse._context = extension;
 	        methodArgs = this._padUndefinedArguments(methodArgs, padLength);
 	        methodArgs.push(sendResponse);
-	        method.apply(module, methodArgs);
+	        var promiseResult = method.apply(module, methodArgs);
+
+	        if (method.returnsPromise) {
+	          if (!promiseResult || !(promiseResult instanceof Promise)) {
+	            sendResponse('Defined module method did not return a promise.');
+	          } else {
+	            promiseResult.then(function (result) {
+	              sendResponse(undefined, result);
+	            }).catch(function (err) {
+	              err = err instanceof Error ? err.message : err;
+	              sendResponse(err);
+	            });
+	          }
+	        }
 
 	        if (this._registeredRequestNotifier) {
 	          this._registeredRequestNotifier.call(null, {
@@ -1438,7 +1454,8 @@
 	          switch (typeof member === 'undefined' ? 'undefined' : _typeof(member)) {
 	            case 'function':
 	              accumulator[memberName] = {
-	                args: util.argumentNames(member)
+	                args: util.argumentNames(member),
+	                returnsPromise: member.returnsPromise || false
 	              };
 	              break;
 	            case 'object':
@@ -1636,6 +1653,10 @@
 
 	  Connect.prototype.unregisterExtension = function unregisterExtension(filter) {
 	    return this._xdm.unregisterExtension(filter);
+	  };
+
+	  Connect.prototype.returnsPromise = function returnsPromise(wrappedMethod) {
+	    wrappedMethod.returnsPromise = true;
 	  };
 
 	  return Connect;
@@ -2176,12 +2197,9 @@
 		});
 	};
 
-	var strictUriEncode = index$2;
-	var objectAssign = index;
-
 	function encode(value, opts) {
 		if (opts.encode) {
-			return opts.strict ? strictUriEncode(value) : encodeURIComponent(value);
+			return opts.strict ? index$2(value) : encodeURIComponent(value);
 		}
 
 		return value;
@@ -2237,7 +2255,7 @@
 			strict: true
 		};
 
-		opts = objectAssign(defaults, opts);
+		opts = index(defaults, opts);
 
 		return obj ? Object.keys(obj).sort().map(function (key) {
 			var val = obj[key];
@@ -5444,7 +5462,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.9';
+	  window._AP.version = '5.1.10';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
