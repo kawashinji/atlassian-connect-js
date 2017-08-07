@@ -193,56 +193,24 @@ class DialogUtils {
     return false;
   }
 
-  // analytics util method to categorize a dialog
-  _getDialogTypeByEl($el){
-    // multiple connect dialogs
-    if($el.hasClass('ap-aui-dialog2') && $('.ap-aui-dialog2[aria-hidden=false]').length > 1) {
-      if($('#macro-browser-dialog').length) {
-        return 'connect-aui-dialog2-multiple-macro';
-      }
-      return 'connect-aui-dialog2-multiple';
-    }
-    if($el.attr('id') === 'macro-browser-dialog') {
-      return 'confluence-macro-browser';
-    };
-    if($el.hasClass('aui-dialog2-fullscreen')) {
-      return 'connect-aui-dialog2-fullscreen';
-    }
-    if($el.hasClass('ap-aui-dialog2')) {
-      return 'connect-aui-dialog2';
-    }
-    // generic jira dialog
-    if($el.hasClass('jira-dialog')) {
-      return 'jira-dialog';
-    }
-    // aui dialog1
-    if($el.hasClass('aui-dialog')) {
-      return 'aui-dialog1';
-    }
-    // aui dialog2
-    if($el.hasClass('aui-dialog2')) {
-      return 'aui-dialog2';
-    }
-
-    return 'unknown-dialog';
-  }
-
   // determins information about dialogs that are about to open and are already open
   trackMultipleDialogOpening(dialogExtension, options) {
     // check for dialogs that are already open
     // works for jira dialogs, dialog1 and dialog2 dialogs
     let openDialogs = [];
     let that = this;
-    $('.jira-dialog-open, .aui-dialog, .aui-dialog2').each(function(){
-      let $dialogElement = $(this);
-      if(!$dialogElement.is(':visible')) {
-        return;
+    let trackingDescription;
+    let size = this._size(options);
+    if($('.ap-aui-dialog2:visible').length) {
+      if($('#macro-browser-dialog').length) {
+        if(size === 'fullscreen') {
+          trackingDescription = 'connect-macro-multiple-fullscreen';
+        }
+        trackingDescription = 'connect-macro-multiple';
+      } else {
+        trackingDescription = 'connect-multiple';
       }
-      openDialogs.push({type: that._getDialogTypeByEl($dialogElement)});
-    });
-    if(openDialogs.length > 0) {
-      console.log('TRACKING DIALOGS', openDialogs);
-      AnalyticsDispatcher.trackMultipleDialogOpening(openDialogs, dialogExtension);
+      AnalyticsDispatcher.trackMultipleDialogOpening(trackingDescription, dialogExtension);
     }
   }
 

@@ -86,11 +86,11 @@ class AnalyticsDispatcher {
     });
   }
 
-  trackMultipleDialogOpening(dialogs, extension) {
+  trackMultipleDialogOpening(dialogType, extension) {
     this._track('jsapi.dialog.multiple', {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
-      openDialogs: dialogs
+      dialogType: dialogType
     });
   }
 

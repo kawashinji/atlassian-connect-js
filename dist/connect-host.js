@@ -635,11 +635,11 @@
 	    });
 	  };
 
-	  AnalyticsDispatcher.prototype.trackMultipleDialogOpening = function trackMultipleDialogOpening(dialogs, extension) {
+	  AnalyticsDispatcher.prototype.trackMultipleDialogOpening = function trackMultipleDialogOpening(dialogType, extension) {
 	    this._track('jsapi.dialog.multiple', {
 	      addonKey: extension.addon_key,
 	      moduleKey: extension.key,
-	      openDialogs: dialogs
+	      dialogType: dialogType
 	    });
 	  };
 
@@ -2169,42 +2169,6 @@
 	    return false;
 	  };
 
-	  // analytics util method to categorize a dialog
-
-
-	  DialogUtils.prototype._getDialogTypeByEl = function _getDialogTypeByEl($el) {
-	    // multiple connect dialogs
-	    if ($el.hasClass('ap-aui-dialog2') && $('.ap-aui-dialog2[aria-hidden=false]').length > 1) {
-	      if ($('#macro-browser-dialog').length) {
-	        return 'connect-aui-dialog2-multiple-macro';
-	      }
-	      return 'connect-aui-dialog2-multiple';
-	    }
-	    if ($el.attr('id') === 'macro-browser-dialog') {
-	      return 'confluence-macro-browser';
-	    }
-	    if ($el.hasClass('aui-dialog2-fullscreen')) {
-	      return 'connect-aui-dialog2-fullscreen';
-	    }
-	    if ($el.hasClass('ap-aui-dialog2')) {
-	      return 'connect-aui-dialog2';
-	    }
-	    // generic jira dialog
-	    if ($el.hasClass('jira-dialog')) {
-	      return 'jira-dialog';
-	    }
-	    // aui dialog1
-	    if ($el.hasClass('aui-dialog')) {
-	      return 'aui-dialog1';
-	    }
-	    // aui dialog2
-	    if ($el.hasClass('aui-dialog2')) {
-	      return 'aui-dialog2';
-	    }
-
-	    return 'unknown-dialog';
-	  };
-
 	  // determins information about dialogs that are about to open and are already open
 
 
@@ -2213,16 +2177,18 @@
 	    // works for jira dialogs, dialog1 and dialog2 dialogs
 	    var openDialogs = [];
 	    var that = this;
-	    $('.jira-dialog-open, .aui-dialog, .aui-dialog2').each(function () {
-	      var $dialogElement = $(this);
-	      if (!$dialogElement.is(':visible')) {
-	        return;
+	    var trackingDescription = void 0;
+	    var size = this._size(options);
+	    if ($('.ap-aui-dialog2:visible').length) {
+	      if ($('#macro-browser-dialog').length) {
+	        if (size === 'fullscreen') {
+	          trackingDescription = 'connect-macro-multiple-fullscreen';
+	        }
+	        trackingDescription = 'connect-macro-multiple';
+	      } else {
+	        trackingDescription = 'connect-multiple';
 	      }
-	      openDialogs.push({ type: that._getDialogTypeByEl($dialogElement) });
-	    });
-	    if (openDialogs.length > 0) {
-	      console.log('TRACKING DIALOGS', openDialogs);
-	      analytics.trackMultipleDialogOpening(openDialogs, dialogExtension);
+	      analytics.trackMultipleDialogOpening(trackingDescription, dialogExtension);
 	    }
 	  };
 
