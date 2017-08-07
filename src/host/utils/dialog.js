@@ -199,7 +199,8 @@ class DialogUtils {
     let trackingDescription;
     let size = this._size(options);
     if($('.ap-aui-dialog2:visible').length) {
-      if($('#macro-browser-dialog').length) {
+      // am i in the confluence editor? first check for macro dialogs opened through macro browser, second is editing an existing macro
+      if($('#macro-browser-dialog').length || (AJS.Confluence && AJS.Confluence.Editor && AJS.Confluence.Editor.currentEditMode)) {
         trackingDescription = 'connect-macro-multiple';
         if(size === 'fullscreen') {
           trackingDescription = 'connect-macro-multiple-fullscreen';
