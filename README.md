@@ -236,6 +236,13 @@ set the `maven.parameters` bamboo variable to `-Datlassian.connect-js.version=yo
 
 Releasing a new version
 ------------------------
+Please ensure you have the latest master, then use:
+
+    npm run release
+
+To ensure that the local node_modules are cleaned before releasing
+
+
 If you're an Atlassian developer and you wish to release a new version of Atlassian Connect JS for Atlassian products to use,
 follow [this HOWTO](https://extranet.atlassian.com/display/ECO/HOW-TO%3A+Release+ACJS+for+products+to+use).
 

@@ -1,6 +1,6 @@
 {
   "name": "atlassian-connect-js",
-  "version": "5.1.9",
+  "version": "5.1.11",
   "license": "Apache-2.0",
   "description": "Atlassian Connect JavaScript bridge",
   "main": "dist/connect-host.js",
@@ -9,6 +9,7 @@
     "url": "ssh://git@bitbucket.org:atlassian/atlassian-connect-js.git"
   },
   "scripts": {
+    "release": "rm -rf node_modules; npm install; npm publish",
     "prepublish": "gulp",
     "test": "gulp test-ci"
   },
