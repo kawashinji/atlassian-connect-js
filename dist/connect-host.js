@@ -2174,17 +2174,14 @@
 
 	  DialogUtils.prototype.trackMultipleDialogOpening = function trackMultipleDialogOpening(dialogExtension, options) {
 	    // check for dialogs that are already open
-	    // works for jira dialogs, dialog1 and dialog2 dialogs
-	    var openDialogs = [];
-	    var that = this;
 	    var trackingDescription = void 0;
 	    var size = this._size(options);
 	    if ($('.ap-aui-dialog2:visible').length) {
 	      if ($('#macro-browser-dialog').length) {
+	        trackingDescription = 'connect-macro-multiple';
 	        if (size === 'fullscreen') {
 	          trackingDescription = 'connect-macro-multiple-fullscreen';
 	        }
-	        trackingDescription = 'connect-macro-multiple';
 	      } else {
 	        trackingDescription = 'connect-multiple';
 	      }

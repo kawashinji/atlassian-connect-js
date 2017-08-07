@@ -196,17 +196,14 @@ class DialogUtils {
   // determins information about dialogs that are about to open and are already open
   trackMultipleDialogOpening(dialogExtension, options) {
     // check for dialogs that are already open
-    // works for jira dialogs, dialog1 and dialog2 dialogs
-    let openDialogs = [];
-    let that = this;
     let trackingDescription;
     let size = this._size(options);
     if($('.ap-aui-dialog2:visible').length) {
       if($('#macro-browser-dialog').length) {
+        trackingDescription = 'connect-macro-multiple';
         if(size === 'fullscreen') {
           trackingDescription = 'connect-macro-multiple-fullscreen';
         }
-        trackingDescription = 'connect-macro-multiple';
       } else {
         trackingDescription = 'connect-multiple';
       }
