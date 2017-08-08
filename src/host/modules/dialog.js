@@ -89,8 +89,8 @@ class Dialog {
       dialogOptions.actions.map(action => action.onClick = getOnClickFunction.bind(null, action));
       this.dialogProvider.create(dialogOptions, dialogExtension);
     } else {
-      DialogExtensionActions.open(dialogExtension, options);
       dialogUtils.trackMultipleDialogOpening(dialogExtension, options);
+      DialogExtensionActions.open(dialogExtension, options);
     }
     this.customData = options.customData;
     _dialogs[_id] = this;

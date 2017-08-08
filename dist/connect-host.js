@@ -2168,7 +2168,7 @@
 	    return false;
 	  };
 
-	  // determins information about dialogs that are about to open and are already open
+	  // determines information about dialogs that are about to open and are already open
 
 
 	  DialogUtils.prototype.trackMultipleDialogOpening = function trackMultipleDialogOpening(dialogExtension, options) {
@@ -2178,9 +2178,10 @@
 	    if ($('.ap-aui-dialog2:visible').length) {
 	      // am i in the confluence editor? first check for macro dialogs opened through macro browser, second is editing an existing macro
 	      if ($('#macro-browser-dialog').length || AJS.Confluence && AJS.Confluence.Editor && AJS.Confluence.Editor.currentEditMode) {
-	        trackingDescription = 'connect-macro-multiple';
 	        if (size === 'fullscreen') {
 	          trackingDescription = 'connect-macro-multiple-fullscreen';
+	        } else {
+	          trackingDescription = 'connect-macro-multiple';
 	        }
 	      } else {
 	        trackingDescription = 'connect-multiple';
@@ -3417,8 +3418,8 @@
 	    });
 	    this.dialogProvider.create(dialogOptions, dialogExtension);
 	  } else {
-	    DialogExtensionActions.open(dialogExtension, options);
 	    dialogUtilsInstance.trackMultipleDialogOpening(dialogExtension, options);
+	    DialogExtensionActions.open(dialogExtension, options);
 	  }
 	  this.customData = options.customData;
 	  _dialogs[_id] = this;
