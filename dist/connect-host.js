@@ -4093,7 +4093,25 @@
 	  var methodUsed = 'AP.messages.' + name;
 	  console.warn('DEPRECATED API - AP.messages.' + name + ' has been deprecated since ACJS 5.0 and will be removed in a future release. Use AP.flag.create instead.');
 	  AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
-	  showMessage(name, title, body, options);
+	  var messageProvider = acjsFrameworkAdaptor.getProviderByModuleName('messages');
+	  if (messageProvider) {
+	    var messageType = name;
+	    if (messageType === 'hint') {
+	      messageProvider.hint(title, body, options);
+	    } else if (messageType === 'info') {
+	      messageProvider.info(title, body, options);
+	    } else if (messageType === 'success') {
+	      messageProvider.success(title, body, options);
+	    } else if (messageType === 'warning') {
+	      messageProvider.warning(title, body, options);
+	    } else if (messageType === 'error') {
+	      messageProvider.error(title, body, options);
+	    } else {
+	      messageProvider.generic(title, body, options);
+	    }
+	  } else {
+	    showMessage(name, title, body, options);
+	  }
 	}
 
 	$(document).on('aui-message-close', function (e, $msg) {
@@ -4145,7 +4163,12 @@
 	  clear: function clear(msg) {
 	    var id = MSGID_PREFIX + msg._id;
 	    if (validateMessageId(id)) {
-	      $('#' + id).closeMessage();
+	      var messageProvider = acjsFrameworkAdaptor.getProviderByModuleName('messages');
+	      if (messageProvider) {
+	        messageProvider.clear(id);
+	      } else {
+	        $('#' + id).closeMessage();
+	      }
 	    }
 	  },
 
@@ -4167,8 +4190,14 @@
 	  onClose: function onClose(msg, callback) {
 	    callback = Util$1.last(arguments);
 	    var id = msg._id;
-	    if (_messages[id]) {
-	      _messages[id].onCloseTrigger = callback;
+	    var messageProvider = acjsFrameworkAdaptor.getProviderByModuleName('messages');
+	    if (messageProvider) {
+	      var fullId = MSGID_PREFIX + msg._id;
+	      messageProvider.onClose(fullId, callback);
+	    } else {
+	      if (_messages[id]) {
+	        _messages[id].onCloseTrigger = callback;
+	      }
 	    }
 	  },
 
@@ -5462,7 +5491,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.10';
+	  window._AP.version = '5.1.11';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

@@ -13,6 +13,7 @@
 */
 
 import $ from '../dollar';
+import { acjsFrameworkAdaptor } from '../ACJSFrameworkAdaptor';
 import util from '../util';
 import AnalyticsAction from '../actions/analytics_action';
 
@@ -71,7 +72,25 @@ function deprecatedShowMessage(name, title, body, options, callback) {
   const methodUsed = `AP.messages.${name}`;
   console.warn(`DEPRECATED API - AP.messages.${name} has been deprecated since ACJS 5.0 and will be removed in a future release. Use AP.flag.create instead.`);
   AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
-  showMessage(name, title, body, options);
+  const messageProvider = acjsFrameworkAdaptor.getProviderByModuleName('messages');
+  if (messageProvider) {
+    const messageType = name;
+    if (messageType === 'hint') {
+      messageProvider.hint(title, body, options);
+    } else if (messageType === 'info') {
+      messageProvider.info(title, body, options);
+    } else if (messageType === 'success') {
+      messageProvider.success(title, body, options);
+    } else if (messageType === 'warning') {
+      messageProvider.warning(title, body, options);
+    } else if (messageType === 'error') {
+      messageProvider.error(title, body, options);
+    } else {
+      messageProvider.generic(title, body, options);
+    }
+  } else {
+    showMessage(name, title, body, options);
+  }
 }
 
 $(document).on('aui-message-close', function (e, $msg) {
@@ -89,13 +108,13 @@ function messageModule(messageType) {
     constructor: function(title, body, options, callback) {
       callback = util.last(arguments);
       const _id = callback._id;
-      if(typeof title !== 'string') {
+      if (typeof title !== 'string') {
         title = '';
       }
-      if(typeof body !== 'string') {
+      if (typeof body !== 'string') {
         body = '';
       }
-      if(typeof options !== 'object') {
+      if (typeof options !== 'object') {
         options = {};
       }
       options.id = MSGID_PREFIX + _id;
@@ -123,7 +142,12 @@ export default {
   clear: function (msg) {
     const id = MSGID_PREFIX + msg._id;
     if (validateMessageId(id)) {
-      $('#' + id).closeMessage();
+      const messageProvider = acjsFrameworkAdaptor.getProviderByModuleName('messages');
+      if (messageProvider) {
+        messageProvider.clear(id);
+      } else {
+        $('#' + id).closeMessage();
+      }
     }
   },
 
@@ -145,8 +169,14 @@ export default {
   onClose: function (msg, callback) {
     callback = util.last(arguments);
     const id = msg._id;
-    if (_messages[id]) {
-      _messages[id].onCloseTrigger = callback;
+    const messageProvider = acjsFrameworkAdaptor.getProviderByModuleName('messages');
+    if (messageProvider) {
+      const fullId = MSGID_PREFIX + msg._id;
+      messageProvider.onClose(fullId, callback);
+    } else {
+      if (_messages[id]) {
+        _messages[id].onCloseTrigger = callback;
+      }
     }
   },
 
