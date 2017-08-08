@@ -4096,19 +4096,11 @@
 	  var messageProvider = acjsFrameworkAdaptor.getProviderByModuleName('messages');
 	  if (messageProvider) {
 	    var messageType = name;
-	    if (messageType === 'hint') {
-	      messageProvider.hint(title, body, options);
-	    } else if (messageType === 'info') {
-	      messageProvider.info(title, body, options);
-	    } else if (messageType === 'success') {
-	      messageProvider.success(title, body, options);
-	    } else if (messageType === 'warning') {
-	      messageProvider.warning(title, body, options);
-	    } else if (messageType === 'error') {
-	      messageProvider.error(title, body, options);
-	    } else {
-	      messageProvider.generic(title, body, options);
+	    var createMessage = messageProvider[messageType];
+	    if (!createMessage) {
+	      messageProvider[messageType] = messageProvider.generic;
 	    }
+	    createMessage(title, body, options);
 	  } else {
 	    showMessage(name, title, body, options);
 	  }
