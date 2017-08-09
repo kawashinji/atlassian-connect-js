@@ -71,6 +71,10 @@ function getOptionsForWebItem($target) {
   options.productContext = options.productContext || {};
   // create product context from url params
   var url = $target.attr('href');
+
+  if (!url) {
+    url = $target.find("a").attr("href");
+  }
   if (url) {
     var query = qs.parse(qs.extract(url));
     Util.extend(options.productContext, query);
