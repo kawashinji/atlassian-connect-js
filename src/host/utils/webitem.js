@@ -73,7 +73,7 @@ function getOptionsForWebItem($target) {
   var url = $target.attr('href');
 
   if (!url) {
-    url = $target.find("a").attr("href");
+    url = $target.find('a').attr('href');
   }
   if (url) {
     var query = qs.parse(qs.extract(url));
