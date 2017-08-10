@@ -71,7 +71,7 @@ function getOptionsForWebItem($target) {
   options.productContext = options.productContext || {};
   // create product context from url params
   var url = $target.attr('href');
-
+  // adg3 has classes outside of a tag so look for href inside the a
   if (!url) {
     url = $target.find('a').attr('href');
   }

@@ -4971,6 +4971,10 @@
 	  options.productContext = options.productContext || {};
 	  // create product context from url params
 	  var url = $target.attr('href');
+	  // adg3 has classes outside of a tag so look for href inside the a
+	  if (!url) {
+	    url = $target.find('a').attr('href');
+	  }
 	  if (url) {
 	    var query = index$1.parse(index$1.extract(url));
 	    Util$1.extend(options.productContext, query);
@@ -5513,7 +5517,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.12';
+	  window._AP.version = '5.1.13';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
