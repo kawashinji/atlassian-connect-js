@@ -100,7 +100,8 @@ class DialogUtils {
           name: 'submit',
           identifier: 'submit',
           text: options.submitText || 'Submit',
-          type: 'primary'
+          type: 'primary',
+          disabled: true
         },
         {
           name: 'cancel',

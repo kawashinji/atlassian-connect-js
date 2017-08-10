@@ -283,7 +283,12 @@ EventDispatcher.register('iframe-bridge-established', (data) => {
     const dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
     if (dialogProvider) {
       callback = dialogProvider.close;
+      dialogProvider.setButtonDisabled('submit', false);
     } else {
+      DialogActions.toggleButton({
+        identifier: 'submit',
+        enabled: true
+      });
       callback = () => {
         DialogActions.close({
           dialog: getActiveDialog(),

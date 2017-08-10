@@ -2071,7 +2071,8 @@
 	        name: 'submit',
 	        identifier: 'submit',
 	        text: options.submitText || 'Submit',
-	        type: 'primary'
+	        type: 'primary',
+	        disabled: true
 	      }, {
 	        name: 'cancel',
 	        identifier: 'cancel',
@@ -3111,7 +3112,12 @@
 	    var dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
 	    if (dialogProvider) {
 	      callback = dialogProvider.close;
+	      dialogProvider.setButtonDisabled('submit', false);
 	    } else {
+	      DialogActions.toggleButton({
+	        identifier: 'submit',
+	        enabled: true
+	      });
 	      callback = function callback() {
 	        DialogActions.close({
 	          dialog: getActiveDialog(),
