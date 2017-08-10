@@ -1,6 +1,7 @@
 import util from '../util';
 import buttonUtils from './button';
 import $ from '../dollar';
+import AnalyticsDispatcher from '../dispatchers/analytics_dispatcher';
 
 class DialogUtils {
   _maxDimension(val, maxPxVal){
@@ -190,6 +191,26 @@ class DialogUtils {
       return util.extend({}, defaultOptions, window._AP.dialogModules[addon_key][key].options);
     }
     return false;
+  }
+
+  // determines information about dialogs that are about to open and are already open
+  trackMultipleDialogOpening(dialogExtension, options) {
+    // check for dialogs that are already open
+    let trackingDescription;
+    let size = this._size(options);
+    if($('.ap-aui-dialog2:visible').length) {
+      // am i in the confluence editor? first check for macro dialogs opened through macro browser, second is editing an existing macro
+      if($('#macro-browser-dialog').length || (AJS.Confluence && AJS.Confluence.Editor && AJS.Confluence.Editor.currentEditMode)) {
+        if (size === 'fullscreen') {
+          trackingDescription = 'connect-macro-multiple-fullscreen';
+        } else {
+          trackingDescription = 'connect-macro-multiple';
+        }
+      } else {
+        trackingDescription = 'connect-multiple';
+      }
+      AnalyticsDispatcher.trackMultipleDialogOpening(trackingDescription, dialogExtension);
+    }
   }
 
 }

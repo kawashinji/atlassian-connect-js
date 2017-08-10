@@ -27,9 +27,8 @@ class AnalyticsDispatcher {
     var w = window;
     var prefixedName = EVENT_NAME_PREFIX + name;
     data = data || {};
-    data.version = w._AP.version;
+    data.version = (w._AP && w._AP.version) ? w._AP.version : undefined;
     data.userAgent = w.navigator.userAgent;
-
     if(w.AJS.Analytics){
       w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
     } else if(w.AJS.trigger) {
@@ -83,6 +82,14 @@ class AnalyticsDispatcher {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
       methodUsed: methodUsed
+    });
+  }
+
+  trackMultipleDialogOpening(dialogType, extension) {
+    this._track('jsapi.dialog.multiple', {
+      addonKey: extension.addon_key,
+      moduleKey: extension.key,
+      dialogType: dialogType
     });
   }
 
