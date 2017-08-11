@@ -576,9 +576,8 @@
 	    var w = window;
 	    var prefixedName = EVENT_NAME_PREFIX + name;
 	    data = data || {};
-	    data.version = w._AP.version;
+	    data.version = w._AP && w._AP.version ? w._AP.version : undefined;
 	    data.userAgent = w.navigator.userAgent;
-
 	    if (w.AJS.Analytics) {
 	      w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
 	    } else if (w.AJS.trigger) {
@@ -632,6 +631,14 @@
 	      addonKey: extension.addon_key,
 	      moduleKey: extension.key,
 	      methodUsed: methodUsed
+	    });
+	  };
+
+	  AnalyticsDispatcher.prototype.trackMultipleDialogOpening = function trackMultipleDialogOpening(dialogType, extension) {
+	    this._track('jsapi.dialog.multiple', {
+	      addonKey: extension.addon_key,
+	      moduleKey: extension.key,
+	      dialogType: dialogType
 	    });
 	  };
 
@@ -2162,6 +2169,28 @@
 	    return false;
 	  };
 
+	  // determines information about dialogs that are about to open and are already open
+
+
+	  DialogUtils.prototype.trackMultipleDialogOpening = function trackMultipleDialogOpening(dialogExtension, options) {
+	    // check for dialogs that are already open
+	    var trackingDescription = void 0;
+	    var size = this._size(options);
+	    if ($('.ap-aui-dialog2:visible').length) {
+	      // am i in the confluence editor? first check for macro dialogs opened through macro browser, second is editing an existing macro
+	      if ($('#macro-browser-dialog').length || AJS.Confluence && AJS.Confluence.Editor && AJS.Confluence.Editor.currentEditMode) {
+	        if (size === 'fullscreen') {
+	          trackingDescription = 'connect-macro-multiple-fullscreen';
+	        } else {
+	          trackingDescription = 'connect-macro-multiple';
+	        }
+	      } else {
+	        trackingDescription = 'connect-multiple';
+	      }
+	      analytics.trackMultipleDialogOpening(trackingDescription, dialogExtension);
+	    }
+	  };
+
 	  return DialogUtils;
 	}();
 
@@ -3396,6 +3425,7 @@
 	    });
 	    this.dialogProvider.create(dialogOptions, dialogExtension);
 	  } else {
+	    dialogUtilsInstance.trackMultipleDialogOpening(dialogExtension, options);
 	    DialogExtensionActions.open(dialogExtension, options);
 	  }
 	  this.customData = options.customData;
@@ -4948,6 +4978,10 @@
 	  options.productContext = options.productContext || {};
 	  // create product context from url params
 	  var url = $target.attr('href');
+	  // adg3 has classes outside of a tag so look for href inside the a
+	  if (!url) {
+	    url = $target.find('a').attr('href');
+	  }
 	  if (url) {
 	    var query = index$1.parse(index$1.extract(url));
 	    Util$1.extend(options.productContext, query);
@@ -5490,7 +5524,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.11';
+	  window._AP.version = '5.1.14';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
