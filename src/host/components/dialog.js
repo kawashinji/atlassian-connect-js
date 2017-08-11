@@ -120,7 +120,8 @@ class Dialog {
           additionalClasses: action.additionalClasses,
           custom: action.custom || false,
           identifier: action.identifier,
-          immutable: action.immutable
+          immutable: action.immutable,
+          disabled: action.disabled || false
         }, extension)
       );
     });
