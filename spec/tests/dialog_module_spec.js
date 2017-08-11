@@ -185,7 +185,7 @@ describe('Dialog module', () => {
     $dialogExtension.find('iframe')[0].bridgeEstablished = true;
     spyOn(EventActions, 'broadcast');
     $dialogExtension.find('iframe').load(function(){
-      $dialogExtension.find('button')[1]  .click();
+      $dialogExtension.find('button')[1].click();
       expect(EventActions.broadcast.calls.count()).toEqual(2);
       expect(EventActions.broadcast.calls.first().args).toEqual([
         'dialog.cancel',
