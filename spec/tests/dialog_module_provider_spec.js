@@ -12,18 +12,19 @@ callback._context = {
     options: jasmine.objectContaining({})
   }
 };
+const otherAddonCallback = Object.assign({}, callback, {_context: {extension: {addon_key: 'some-other-addon-key'}}});
 
-
-const providerSpy = jasmine.createSpyObj('moduleProvider', [
-  'create',
-  'close',
-  'createButton',
-  'setButtonDisabled',
-  'isButtonDisabled',
-  'toggleButton',
-  'setButtonHidden',
-  'isButtonHidden'
-]);
+const providerSpy = {
+  create: jasmine.createSpy('create'),
+  close: jasmine.createSpy('close'),
+  createButton: jasmine.createSpy('createButton'),
+  setButtonDisabled: jasmine.createSpy('setButtonDisabled'),
+  isButtonDisabled: jasmine.createSpy('isButtonDisabled'),
+  toggleButton: jasmine.createSpy('toggleButton'),
+  setButtonHidden: jasmine.createSpy('setButtonHidden'),
+  isButtonHidden: jasmine.createSpy('isButtonHidden'),
+  isActiveDialog: jasmine.createSpy('isActiveDialog').and.callFake(function(addon_key){return addon_key === 'some-addon-key'})
+};
 
 class DialogModuleSpy {
   constructor() {
@@ -33,8 +34,8 @@ class DialogModuleSpy {
     return 'dialog';
   }
   getProvider() {
-    return this.providerSpy
-  };
+    return this.providerSpy;
+  }
 };
 
 acjsFrameworkAdaptor.registerModule(new DialogModuleSpy(providerSpy));
@@ -67,6 +68,7 @@ describe('AP.dialog', () => {
     providerSpy.toggleButton.calls.reset();
     providerSpy.setButtonHidden.calls.reset();
     providerSpy.isButtonHidden.calls.reset();
+    providerSpy.isActiveDialog.calls.reset();
   });
 
   describe('.create()', () => {
@@ -298,11 +300,19 @@ describe('AP.dialog', () => {
   describe('.close()', () => {
 
     it('provides close function', () => {
+      new DialogModule.create.constructor(minOptions, callback);
       DialogModule.close(callback);
       expect(providerSpy.close).toHaveBeenCalled();
     });
 
+    it('does not provide close function for other addons', () => {
+      new DialogModule.create.constructor(minOptions, callback);
+      expect(function(){DialogModule.close(otherAddonCallback)}).toThrow(new Error('Failed to find an active dialog.'));
+      expect(providerSpy.close).not.toHaveBeenCalled();
+    });
+
     it('provides dialog.close event and data', () => {
+      new DialogModule.create.constructor(minOptions, callback);
       let data = {someKey: 'someValue'};
       spyOn(EventActions, 'broadcast');
       DialogModule.close(data, callback);
@@ -313,6 +323,7 @@ describe('AP.dialog', () => {
       );
     });
 
+
   });
 
   describe('.createButton()', () => {
@@ -321,7 +332,7 @@ describe('AP.dialog', () => {
       new DialogModule.createButton.constructor({
         identifier: 'some-button-identifier',
         text: 'some-button-text'
-      });
+      }, callback);
       expect(providerSpy.createButton).toHaveBeenCalledWith(
         jasmine.objectContaining(
           {
@@ -332,12 +343,23 @@ describe('AP.dialog', () => {
       );
     });
 
+    it('does not provide a new button for other addons', () => {
+      expect(function(){new DialogModule.createButton.constructor(
+        {
+          identifier: 'some-button-identifier',
+          text: 'some-button-text'
+        },
+        otherAddonCallback
+      )}).toThrow(new Error('Failed to find an active dialog.'));
+      expect(providerSpy.createButton).not.toHaveBeenCalled();
+    });
+
     it('provides a new button with custom disabled value', () => {
       new DialogModule.createButton.constructor({
         identifier: 'some-button-identifier',
         text: 'some-button-text',
         disabled: true
-      });
+      }, callback);
       expect(providerSpy.createButton).toHaveBeenCalledWith(
         jasmine.objectContaining({disabled: true})
       );
@@ -347,105 +369,110 @@ describe('AP.dialog', () => {
 
   describe('.getButton()', () => {
 
+    it('does not provide a button for other addons', () => {
+      new DialogModule.create.constructor({key: 'some-module-key', chrome:true}, callback);
+      expect(function(){new DialogModule.getButton.constructor('submit', otherAddonCallback)}).toThrow(new Error('Failed to find an active dialog.'));
+    });
+
     it('provides setButtonDisabled for the submit button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true}, callback);
-      new DialogModule.getButton.constructor('submit').disable();
+      new DialogModule.getButton.constructor('submit', callback).disable();
       expect(providerSpy.setButtonDisabled).toHaveBeenCalledWith('submit', true);
-      new DialogModule.getButton.constructor('submit').enable();
+      new DialogModule.getButton.constructor('submit', callback).enable();
       expect(providerSpy.setButtonDisabled).toHaveBeenCalledWith('submit', false);
     });
 
     it('provides toggleButton for the submit button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true}, callback);
-      new DialogModule.getButton.constructor('submit').toggle();
+      new DialogModule.getButton.constructor('submit', callback).toggle();
       expect(providerSpy.toggleButton).toHaveBeenCalledWith('submit');
     });
 
     it('provides isButtonDisabled for the submit button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true}, callback);
-      new DialogModule.getButton.constructor('submit').isEnabled(val => {});
+      new DialogModule.getButton.constructor('submit', callback).isEnabled(val => {});
       expect(providerSpy.isButtonDisabled).toHaveBeenCalledWith('submit');
     });
 
     it('provides setButtonDisabled for the cancel button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true}, callback);
-      new DialogModule.getButton.constructor('cancel').disable();
+      new DialogModule.getButton.constructor('cancel', callback).disable();
       expect(providerSpy.setButtonDisabled).toHaveBeenCalledWith('cancel', true);
-      new DialogModule.getButton.constructor('cancel').enable();
+      new DialogModule.getButton.constructor('cancel', callback).enable();
       expect(providerSpy.setButtonDisabled).toHaveBeenCalledWith('cancel', false);
     });
 
     it('provides toggleButton for the cancel button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true}, callback);
-      new DialogModule.getButton.constructor('cancel').toggle();
+      new DialogModule.getButton.constructor('cancel', callback).toggle();
       expect(providerSpy.toggleButton).toHaveBeenCalledWith('cancel');
     });
 
     it('provides isButtonDisabled for the cancel button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true}, callback);
-      new DialogModule.getButton.constructor('cancel').isEnabled(val => {});
+      new DialogModule.getButton.constructor('cancel', callback).isEnabled(val => {});
       expect(providerSpy.isButtonDisabled).toHaveBeenCalledWith('cancel');
     });
 
     it('provides setButtonDisabled for a user button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: [{identifier: 'user', text: 'user'}]}, callback);
-      new DialogModule.getButton.constructor('user').disable();
+      new DialogModule.getButton.constructor('user', callback).disable();
       expect(providerSpy.setButtonDisabled).toHaveBeenCalledWith('user', true);
-      new DialogModule.getButton.constructor('user').enable();
+      new DialogModule.getButton.constructor('user', callback).enable();
       expect(providerSpy.setButtonDisabled).toHaveBeenCalledWith('user', false);
     });
 
     it('provides toggleButton for a user button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: [{identifier: 'user', text: 'user'}]}, callback);
-      new DialogModule.getButton.constructor('user').toggle();
+      new DialogModule.getButton.constructor('user', callback).toggle();
       expect(providerSpy.toggleButton).toHaveBeenCalledWith('user');
     });
 
     it('provides isButtonDisabled for a user button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: [{identifier: 'user', text: 'user'}]}, callback);
-      new DialogModule.getButton.constructor('user').isEnabled(val => {});
+      new DialogModule.getButton.constructor('user', callback).isEnabled(val => {});
       expect(providerSpy.isButtonDisabled).toHaveBeenCalledWith('user');
     });
 
     it('provides setButtonHidden for the submit button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true}, callback);
-      new DialogModule.getButton.constructor('submit').hide();
+      new DialogModule.getButton.constructor('submit', callback).hide();
       expect(providerSpy.setButtonHidden).toHaveBeenCalledWith('submit', true);
-      new DialogModule.getButton.constructor('submit').enable();
+      new DialogModule.getButton.constructor('submit', callback).enable();
       expect(providerSpy.setButtonDisabled).toHaveBeenCalledWith('submit', false);
     });
 
     it('provides isButtonHidden for the submit button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true}, callback);
-      new DialogModule.getButton.constructor('submit').isHidden(val => {});
+      new DialogModule.getButton.constructor('submit', callback).isHidden(val => {});
       expect(providerSpy.isButtonHidden).toHaveBeenCalledWith('submit');
     });
 
     it('provides setButtonHidden for the cancel button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true}, callback);
-      new DialogModule.getButton.constructor('cancel').hide();
+      new DialogModule.getButton.constructor('cancel', callback).hide();
       expect(providerSpy.setButtonHidden).toHaveBeenCalledWith('cancel', true);
-      new DialogModule.getButton.constructor('cancel').enable();
+      new DialogModule.getButton.constructor('cancel', callback).enable();
       expect(providerSpy.setButtonDisabled).toHaveBeenCalledWith('cancel', false);
     });
 
     it('provides isButtonHidden for the cancel button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true}, callback);
-      new DialogModule.getButton.constructor('cancel').isHidden(val => {});
+      new DialogModule.getButton.constructor('cancel', callback).isHidden(val => {});
       expect(providerSpy.isButtonHidden).toHaveBeenCalledWith('cancel');
     });
 
     it('provides setButtonHidden for a user button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: [{identifier: 'user', text: 'user'}]}, callback);
-      new DialogModule.getButton.constructor('user').hide();
+      new DialogModule.getButton.constructor('user', callback).hide();
       expect(providerSpy.setButtonHidden).toHaveBeenCalledWith('user', true);
-      new DialogModule.getButton.constructor('user').enable();
+      new DialogModule.getButton.constructor('user', callback).enable();
       expect(providerSpy.setButtonDisabled).toHaveBeenCalledWith('user', false);
     });
 
     it('provides isButtonHidden for the user button', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true, buttons: [{identifier: 'user', text: 'user'}]}, callback);
-      new DialogModule.getButton.constructor('user').isHidden(val => {});
+      new DialogModule.getButton.constructor('user', callback).isHidden(val => {});
       expect(providerSpy.isButtonHidden).toHaveBeenCalledWith('user');
     });
 
