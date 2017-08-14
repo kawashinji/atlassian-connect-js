@@ -55,7 +55,8 @@ describe('AP.dialog', () => {
     cancelText: 'some-cancel-text',
     customData: {someCustomKey: 'someCustomData'},
     closeOnEscape: false,
-    buttons: [{identifier: 'someButtonIdentifier', text: 'someButtonText'}]
+    buttons: [{identifier: 'someButtonIdentifier', text: 'someButtonText'}],
+    hint: 'some-hint-text'
   };
 
   beforeEach(() => {
@@ -184,6 +185,13 @@ describe('AP.dialog', () => {
               text: 'button3-text'
             })
           ]
+        }
+      },
+      {
+        it: 'provides hint text',
+        javaScriptAPIOptions: maxOptions,
+        dialogProviderOptions: {
+          hint: 'some-hint-text'
         }
       }
     ];
