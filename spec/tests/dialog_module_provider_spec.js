@@ -23,7 +23,9 @@ const providerSpy = {
   toggleButton: jasmine.createSpy('toggleButton'),
   setButtonHidden: jasmine.createSpy('setButtonHidden'),
   isButtonHidden: jasmine.createSpy('isButtonHidden'),
-  isActiveDialog: jasmine.createSpy('isActiveDialog').and.callFake(function(addon_key){return addon_key === 'some-addon-key'})
+  isActiveDialog: jasmine.createSpy('isActiveDialog').and.callFake(function(addon_key){
+    return addon_key === 'some-addon-key'
+  })
 };
 
 class DialogModuleSpy {
@@ -307,7 +309,9 @@ describe('AP.dialog', () => {
 
     it('does not provide close function for other addons', () => {
       new DialogModule.create.constructor(minOptions, callback);
-      expect(function(){DialogModule.close(otherAddonCallback)}).toThrow(new Error('Failed to find an active dialog.'));
+      expect(function(){
+        DialogModule.close(otherAddonCallback)
+      }).toThrow(new Error('Failed to find an active dialog.'));
       expect(providerSpy.close).not.toHaveBeenCalled();
     });
 
@@ -344,13 +348,15 @@ describe('AP.dialog', () => {
     });
 
     it('does not provide a new button for other addons', () => {
-      expect(function(){new DialogModule.createButton.constructor(
-        {
-          identifier: 'some-button-identifier',
-          text: 'some-button-text'
-        },
-        otherAddonCallback
-      )}).toThrow(new Error('Failed to find an active dialog.'));
+      expect(function(){
+        new DialogModule.createButton.constructor(
+          {
+            identifier: 'some-button-identifier',
+            text: 'some-button-text'
+          },
+          otherAddonCallback
+        )
+      }).toThrow(new Error('Failed to find an active dialog.'));
       expect(providerSpy.createButton).not.toHaveBeenCalled();
     });
 
@@ -371,7 +377,9 @@ describe('AP.dialog', () => {
 
     it('does not provide a button for other addons', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true}, callback);
-      expect(function(){new DialogModule.getButton.constructor('submit', otherAddonCallback)}).toThrow(new Error('Failed to find an active dialog.'));
+      expect(function(){
+        new DialogModule.getButton.constructor('submit', otherAddonCallback)
+      }).toThrow(new Error('Failed to find an active dialog.'));
     });
 
     it('provides setButtonDisabled for the submit button', () => {
