@@ -12,7 +12,7 @@ callback._context = {
     options: jasmine.objectContaining({})
   }
 };
-const otherAddonCallback = Object.assign({}, callback, {_context: {extension: {addon_key: 'some-other-addon-key'}}});
+const otherAddonCallback = extend({}, callback, {_context: {extension: {addon_key: 'some-other-addon-key'}}});
 
 const providerSpy = {
   create: jasmine.createSpy('create'),
