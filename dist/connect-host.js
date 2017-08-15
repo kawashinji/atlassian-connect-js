@@ -3701,6 +3701,7 @@
 	   * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
 	   * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC will close the dialog (default is true).
 	   * @property {Array}         buttons     (optional) an array of custom buttons to be added to the dialog if opening a dialog with chrome.
+	   * @property {String}        hint        (optional) Suggested actions or helpful info that will be added to the dialog if opening with chrome.
 	   */
 
 	  /**
