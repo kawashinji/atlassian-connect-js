@@ -185,19 +185,20 @@ describe('Dialog module', () => {
     $dialogExtension.find('iframe')[0].bridgeEstablished = true;
     spyOn(EventActions, 'broadcast');
     $dialogExtension.find('iframe').load(function(){
-      $dialogExtension.find('button').first().click();
+      let cancelButton = $dialogExtension.find('button')[1];
+      cancelButton.click();
       expect(EventActions.broadcast.calls.count()).toEqual(2);
       expect(EventActions.broadcast.calls.first().args).toEqual([
-        'dialog.submit',
+        'dialog.cancel',
         {
           addon_key: extension.addon_key,
           key: extension.key
         },
         {
           button: {
-            name: 'submit',
-            identifier: 'submit',
-            text: 'my submit text'
+            name: 'cancel',
+            identifier: 'cancel',
+            text: 'some cancel text'
           }
         }
       ]);
@@ -209,9 +210,9 @@ describe('Dialog module', () => {
         },
         {
           button: {
-            name: 'submit',
-            identifier: 'submit',
-            text: 'my submit text'
+            name: 'cancel',
+            identifier: 'cancel',
+            text: 'some cancel text'
           }
         }
       ]);

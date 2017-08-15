@@ -120,7 +120,8 @@ class Dialog {
           additionalClasses: action.additionalClasses,
           custom: action.custom || false,
           identifier: action.identifier,
-          immutable: action.immutable
+          immutable: action.immutable,
+          disabled: action.disabled || false
         }, extension)
       );
     });
@@ -283,7 +284,12 @@ EventDispatcher.register('iframe-bridge-established', (data) => {
     const dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
     if (dialogProvider) {
       callback = dialogProvider.close;
+      dialogProvider.setButtonDisabled('submit', false);
     } else {
+      DialogActions.toggleButton({
+        identifier: 'submit',
+        enabled: true
+      });
       callback = () => {
         DialogActions.close({
           dialog: getActiveDialog(),

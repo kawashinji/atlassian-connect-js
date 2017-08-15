@@ -2078,7 +2078,8 @@
 	        name: 'submit',
 	        identifier: 'submit',
 	        text: options.submitText || 'Submit',
-	        type: 'primary'
+	        type: 'primary',
+	        disabled: true // disable submit button by default (until the dialog has loaded).
 	      }, {
 	        name: 'cancel',
 	        identifier: 'cancel',
@@ -2970,7 +2971,8 @@
 	        additionalClasses: action.additionalClasses,
 	        custom: action.custom || false,
 	        identifier: action.identifier,
-	        immutable: action.immutable
+	        immutable: action.immutable,
+	        disabled: action.disabled || false
 	      }, extension));
 	    });
 	    return actionButtons;
@@ -3140,7 +3142,12 @@
 	    var dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
 	    if (dialogProvider) {
 	      callback = dialogProvider.close;
+	      dialogProvider.setButtonDisabled('submit', false);
 	    } else {
+	      DialogActions.toggleButton({
+	        identifier: 'submit',
+	        enabled: true
+	      });
 	      callback = function callback() {
 	        DialogActions.close({
 	          dialog: getActiveDialog(),
@@ -5517,7 +5524,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.13';
+	  window._AP.version = '5.1.14';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

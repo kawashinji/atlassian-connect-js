@@ -139,7 +139,7 @@ describe('dialog component', () => {
 
           it('gets the button state', () => {
             renderDialogWithChrome();
-            expect(DialogComponent.buttonIsEnabled('submit')).toBe(true);
+            expect(DialogComponent.buttonIsEnabled('submit')).toBe(false);
             expect(DialogComponent.buttonIsEnabled('cancel')).toBe(true);
           });
 
