@@ -2079,7 +2079,7 @@
 	        identifier: 'submit',
 	        text: options.submitText || 'Submit',
 	        type: 'primary',
-	        disabled: true
+	        disabled: true // disable submit button by default (until the dialog has loaded).
 	      }, {
 	        name: 'cancel',
 	        identifier: 'cancel',
