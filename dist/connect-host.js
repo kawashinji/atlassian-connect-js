@@ -5454,7 +5454,7 @@
 	    }
 	    var $target = $(data.event.currentTarget);
 	    var webitemId = $target.data(WEBITEM_UID_KEY);
-
+	    console.log('triggered', $target, webitemId, data);
 	    var $inlineDialog = this._createInlineDialog({
 	      id: webitemId,
 	      extension: data.extension,

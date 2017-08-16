@@ -40,6 +40,8 @@ class InlineDialogWebItem {
     return $inlineDialog;
   }
 
+
+  // todo, don't trigger if already open
   triggered(data) {
     // don't trigger on hover, when hover is not specified.
     if(data.event.type !== 'click' && !data.extension.options.onHover){
@@ -47,7 +49,7 @@ class InlineDialogWebItem {
     }
     var $target = $(data.event.currentTarget);
     var webitemId = $target.data(WEBITEM_UID_KEY);
-
+    console.log('triggered', $target, webitemId, data);
     var $inlineDialog = this._createInlineDialog({
       id: webitemId,
       extension: data.extension,
