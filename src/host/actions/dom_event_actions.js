@@ -18,10 +18,12 @@ export default {
       }
     });
   },
-  registerClickHandler: function(callback) {
+  registerClickHandler: function(handleIframeClick) {
     SimpleXDM.registerClickHandler(function(data) {
       var iframe = util.getIframeByExtensionId(data.extension_id)[0];
-      callback(iframe);
+      if (iframe) {
+        handleIframeClick(iframe);
+      }
     });
   },
   unregisterClickHandler: function() {

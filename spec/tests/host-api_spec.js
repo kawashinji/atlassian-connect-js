@@ -1,6 +1,7 @@
 import HostApi from 'src/host/host-api';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import eventActions from 'src/host/actions/event_actions';
+import simpleXDM from 'simple-xdm/host';
 
 describe('Host API', function() {
 
@@ -89,4 +90,23 @@ describe('Host API', function() {
     HostApi.dialog.create(extension, dialogOptions);
   });
 
+  it('Registered click handler gets called with reference to iframe', () => {
+    const target_spec = {
+      addon_key: 'some-key',
+      key: 'module-key'
+    };
+    const reg = {
+      extension: target_spec,
+      extension_id: `${target_spec.addon_key}__${target_spec.key}`
+    };
+    const iframe = document.createElement('iframe');
+    const callback = jasmine.createSpy('callback');
+
+    iframe.id = reg.extension_id;
+    document.body.appendChild(iframe);
+    HostApi.onFrameClick(callback);
+    simpleXDM._xdm._handleAddonClick(null, reg);
+    expect(callback).toHaveBeenCalled();
+    expect(callback.calls.mostRecent().args[0]).toEqual(iframe);
+  });
 });

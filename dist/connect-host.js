@@ -1993,10 +1993,12 @@
 	      }
 	    });
 	  },
-	  registerClickHandler: function registerClickHandler(callback) {
+	  registerClickHandler: function registerClickHandler(handleIframeClick) {
 	    simpleXDM$1.registerClickHandler(function (data) {
 	      var iframe = Util$1.getIframeByExtensionId(data.extension_id)[0];
-	      callback(iframe);
+	      if (iframe) {
+	        handleIframeClick(iframe);
+	      }
 	    });
 	  },
 	  unregisterClickHandler: function unregisterClickHandler() {
@@ -5145,8 +5147,11 @@
 	    DomEventActions.unregisterKeyEvent({ extension_id: extension_id, key: key, modifiers: modifiers, callback: callback });
 	  };
 
-	  HostApi.prototype.onFrameClick = function onFrameClick(callback) {
-	    DomEventActions.registerClickHandler(callback);
+	  HostApi.prototype.onFrameClick = function onFrameClick(handleIframeClick) {
+	    if (typeof handleIframeClick !== 'function') {
+	      throw new Error('handleIframeClick must be a function');
+	    }
+	    DomEventActions.registerClickHandler(handleIframeClick);
 	  };
 
 	  HostApi.prototype.offFrameClick = function offFrameClick() {

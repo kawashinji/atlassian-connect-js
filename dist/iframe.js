@@ -1746,7 +1746,7 @@ var AP = (function () {
 	      _this._host.postMessage({
 	        eid: _this._data.extension_id,
 	        type: 'addon_clicked'
-	      }, _this._data.origin);
+	      }, _this._hostOrigin);
 	    });
 	    return _this;
 	  }
