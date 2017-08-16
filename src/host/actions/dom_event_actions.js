@@ -1,5 +1,6 @@
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import SimpleXDM from 'simple-xdm/host';
+import util from '../util';
 
 export default {
   registerKeyEvent: function(data){
@@ -16,5 +17,16 @@ export default {
         data.callback();
       }
     });
+  },
+  registerClickHandler: function(handleIframeClick) {
+    SimpleXDM.registerClickHandler(function(data) {
+      var iframe = util.getIframeByExtensionId(data.extension_id)[0];
+      if (iframe) {
+        handleIframeClick(iframe);
+      }
+    });
+  },
+  unregisterClickHandler: function() {
+    SimpleXDM.unregisterClickHandler();
   }
 };

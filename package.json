@@ -1,6 +1,6 @@
 {
   "name": "atlassian-connect-js",
-  "version": "5.1.15",
+  "version": "5.1.16",
   "license": "Apache-2.0",
   "description": "Atlassian Connect JavaScript bridge",
   "main": "dist/connect-host.js",
@@ -79,7 +79,7 @@
     "events": "1.1.1",
     "object-assign": "4.1.1",
     "query-string": "4.2.3",
-    "simple-xdm": "1.0.2",
+    "simple-xdm": "1.0.4",
     "text-encoder-lite-module": "git+https://github.com/hbenl/TextEncoderLiteModule.git#d6b82fb27f0251b336d61dfb16ec8f9e4eb40b9c"
   },
   "browserify": {

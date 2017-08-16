@@ -103,6 +103,17 @@ class HostApi {
     DomEventActions.unregisterKeyEvent({extension_id, key, modifiers, callback});
   }
 
+  onFrameClick (handleIframeClick) {
+    if (typeof handleIframeClick !== 'function') {
+      throw new Error('handleIframeClick must be a function');
+    }
+    DomEventActions.registerClickHandler(handleIframeClick);
+  }
+
+  offFrameClick () {
+    DomEventActions.unregisterClickHandler();
+  }
+
   destroy (extension_id){
     IframeActions.notifyIframeDestroyed({extension_id: extension_id});
   }

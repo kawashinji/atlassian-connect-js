@@ -339,14 +339,16 @@ var AP = (function () {
 	    _this._registeredAPIModules._globals = {};
 	    _this._pendingCallbacks = {};
 	    _this._keycodeCallbacks = {};
+	    _this._clickHandler = null;
 	    _this._pendingEvents = {};
 	    _this._messageHandlers = {
 	      init: _this._handleInit,
 	      req: _this._handleRequest,
 	      resp: _this._handleResponse,
-	      event_query: _this._handleEventQuery,
 	      broadcast: _this._handleBroadcast,
+	      event_query: _this._handleEventQuery,
 	      key_triggered: _this._handleKeyTriggered,
+	      addon_clicked: _this._handleAddonClick,
 	      get_host_offset: _this._getHostOffset,
 	      unload: _this._handleUnload,
 	      sub: _this._handleSubInit
@@ -759,6 +761,30 @@ var AP = (function () {
 	    }
 	  };
 
+	  XDMRPC.prototype.registerClickHandler = function registerClickHandler(callback) {
+	    if (typeof callback !== 'function') {
+	      throw new Error('callback must be a function');
+	    }
+	    if (this._clickHandler !== null) {
+	      throw new Error('ClickHandler already registered');
+	    }
+	    this._clickHandler = callback;
+	  };
+
+	  XDMRPC.prototype._handleAddonClick = function _handleAddonClick(event, reg) {
+	    if (typeof this._clickHandler === 'function') {
+	      this._clickHandler({
+	        addon_key: reg.extension.addon_key,
+	        key: reg.extension.key,
+	        extension_id: reg.extension_id
+	      });
+	    }
+	  };
+
+	  XDMRPC.prototype.unregisterClickHandler = function unregisterClickHandler() {
+	    this._clickHandler = null;
+	  };
+
 	  XDMRPC.prototype.getApiSpec = function getApiSpec() {
 	    var that = this;
 	    function createModule(moduleName) {
@@ -955,6 +981,14 @@ var AP = (function () {
 
 	  Connect.prototype.unregisterKeyListener = function unregisterKeyListener(extension_id, key, modifiers, callback) {
 	    this._xdm.unregisterKeyListener(extension_id, key, modifiers, callback);
+	  };
+
+	  Connect.prototype.registerClickHandler = function registerClickHandler(callback) {
+	    this._xdm.registerClickHandler(callback);
+	  };
+
+	  Connect.prototype.unregisterClickHandler = function unregisterClickHandler() {
+	    this._xdm.unregisterClickHandler();
 	  };
 
 	  Connect.prototype.defineModule = function defineModule(moduleName, module, options) {
@@ -1666,7 +1700,7 @@ var AP = (function () {
 	    _this._eventHandlers = {};
 	    _this._pendingCallbacks = {};
 	    _this._keyListeners = [];
-	    _this._version = "5.1.15";
+	    _this._version = "5.1.16";
 	    _this._apiTampered = undefined;
 	    _this._isSubIframe = _this._topHost !== window.parent;
 	    _this._onConfirmedFns = [];
@@ -1708,6 +1742,12 @@ var AP = (function () {
 	    $(util._bind(_this, _this._autoResizer));
 	    _this.container = getContainer;
 	    _this.size = size;
+	    window.addEventListener('click', function (e) {
+	      _this._host.postMessage({
+	        eid: _this._data.extension_id,
+	        type: 'addon_clicked'
+	      }, _this._hostOrigin);
+	    });
 	    return _this;
 	  }
 
