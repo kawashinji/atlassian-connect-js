@@ -3439,12 +3439,15 @@
 
 
 	var Button = function () {
-	  function Button(identifier) {
+	  function Button(identifier, callback) {
 	    classCallCheck(this, Button);
 
+	    callback = Util$1.last(arguments);
 	    this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
 	    if (this.dialogProvider) {
-	      //TODO check for active dialog like in V5? (ACJS-698)
+	      if (!this.dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
+	        throw new Error('Failed to find an active dialog.');
+	      }
 	      this.name = identifier;
 	      this.identifier = identifier;
 	    } else {
@@ -3639,6 +3642,9 @@
 	  callback = Util$1.last(arguments);
 	  this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
 	  if (this.dialogProvider) {
+	    if (!this.dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
+	      throw new Error('Failed to find an active dialog.');
+	    }
 	    this.dialogProvider.createButton({
 	      identifier: options.identifier,
 	      text: options.text,
@@ -3741,6 +3747,9 @@
 	    callback = Util$1.last(arguments);
 	    var dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
 	    if (dialogProvider) {
+	      if (!dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
+	        throw new Error('Failed to find an active dialog.');
+	      }
 	      EventActions.broadcast('dialog.close', {
 	        addon_key: callback._context.extension.addon_key
 	      }, data);
@@ -5525,7 +5534,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.14';
+	  window._AP.version = '5.1.15';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
