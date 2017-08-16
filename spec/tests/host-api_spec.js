@@ -108,5 +108,6 @@ describe('Host API', function() {
     simpleXDM._xdm._handleAddonClick(null, reg);
     expect(callback).toHaveBeenCalled();
     expect(callback.calls.mostRecent().args[0]).toEqual(iframe);
+    document.body.removeChild(iframe);
   });
 });
