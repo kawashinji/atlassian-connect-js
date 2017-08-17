@@ -67,7 +67,7 @@ class InlineDialogWebItem {
     if($existingFrame && $existingFrame.length === 1){
       var src = $existingFrame.attr('src');
       // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
-      if(src.length > 0 && (!urlUtils.hasJWT(src) || (urlUtils.hasJwt(src) && !urlUtils.isJwtExpired(src)))) {
+      if(src.length > 0 && (!urlUtils.hasJwt(src) || (urlUtils.hasJwt(src) && !urlUtils.isJwtExpired(src)))) {
         return;
       }
     }
