@@ -8,6 +8,7 @@ import IframeContainer from './iframe_container';
 import $ from '../dollar';
 import IframeCreate from '../iframe-create';
 import Util from '../util';
+import urlUtils from '../utils/url';
 
 const ITEM_NAME = 'inline-dialog';
 const SELECTOR = '.ap-inline-dialog';
@@ -62,7 +63,14 @@ class InlineDialogWebItem {
 
   opened(data){
     console.log('opened', data);
-    return;
+    var $existingFrame = data.$el.find('iframe');
+    if($existingFrame && $existingFrame.length === 1){
+      var src = $existingFrame.attr('src');
+      // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
+      if(src.length > 0 && (!urlUtils.hasJWT(src) || (urlUtils.hasJWT(src) && !urlUtils.isJwtExpired(src)))) {
+        return;
+      }
+    }
     var contentRequest = WebitemComponent.requestContent(data.extension);
     if(!contentRequest){
       console.warn('no content resolver found');

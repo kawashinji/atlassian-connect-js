@@ -2548,7 +2548,7 @@
 	  return jwt && _getJwt(url).length !== 0;
 	}
 
-	var urlUtil = {
+	var urlUtils = {
 	  hasJwt: hasJwt,
 	  isJwtExpired: isJwtExpired
 	};
@@ -2638,7 +2638,7 @@
 	  };
 
 	  Iframe.prototype.simpleXdmExtension = function simpleXdmExtension(extension, $container) {
-	    if (!extension.url || urlUtil.hasJwt(extension.url) && urlUtil.isJwtExpired(extension.url)) {
+	    if (!extension.url || urlUtils.hasJwt(extension.url) && urlUtils.isJwtExpired(extension.url)) {
 	      if (this._contentResolver) {
 	        jwtActions.requestRefreshUrl({
 	          extension: extension,
@@ -5470,7 +5470,14 @@
 
 	  InlineDialogWebItem.prototype.opened = function opened(data) {
 	    console.log('opened', data);
-	    return;
+	    var $existingFrame = data.$el.find('iframe');
+	    if ($existingFrame && $existingFrame.length === 1) {
+	      var src = $existingFrame.attr('src');
+	      // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
+	      if (src.length > 0 && (!urlUtils.hasJWT(src) || urlUtils.hasJWT(src) && !urlUtils.isJwtExpired(src))) {
+	        return;
+	      }
+	    }
 	    var contentRequest = webItemInstance.requestContent(data.extension);
 	    if (!contentRequest) {
 	      console.warn('no content resolver found');
