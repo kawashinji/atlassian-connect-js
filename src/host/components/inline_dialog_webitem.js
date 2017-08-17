@@ -62,6 +62,7 @@ class InlineDialogWebItem {
 
   opened(data){
     console.log('opened', data);
+    return;
     var contentRequest = WebitemComponent.requestContent(data.extension);
     if(!contentRequest){
       console.warn('no content resolver found');
