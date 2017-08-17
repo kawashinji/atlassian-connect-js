@@ -61,6 +61,7 @@ class InlineDialogWebItem {
   }
 
   opened(data){
+    console.log('opened', data);
     var contentRequest = WebitemComponent.requestContent(data.extension);
     if(!contentRequest){
       console.warn('no content resolver found');
@@ -81,11 +82,13 @@ class InlineDialogWebItem {
   }
 
   addExtension(data){
+    console.log('add extension', data);
     var addon = IframeCreate(data.extension);
     data.$el.empty().append(addon);
   }
 
   createIfNotExists(data) {
+    console.log('creatifnotexist', data);
     var $target = $(data.event.currentTarget);
     var uid = $target.data(WEBITEM_UID_KEY);
 

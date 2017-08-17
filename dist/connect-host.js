@@ -5447,6 +5447,9 @@
 	    return $inlineDialog;
 	  };
 
+	  // todo, don't trigger if already open
+
+
 	  InlineDialogWebItem.prototype.triggered = function triggered(data) {
 	    // don't trigger on hover, when hover is not specified.
 	    if (data.event.type !== 'click' && !data.extension.options.onHover) {
@@ -5466,6 +5469,7 @@
 	  };
 
 	  InlineDialogWebItem.prototype.opened = function opened(data) {
+	    console.log('opened', data);
 	    var contentRequest = webItemInstance.requestContent(data.extension);
 	    if (!contentRequest) {
 	      console.warn('no content resolver found');
@@ -5486,11 +5490,13 @@
 	  };
 
 	  InlineDialogWebItem.prototype.addExtension = function addExtension(data) {
+	    console.log('add extension', data);
 	    var addon = create(data.extension);
 	    data.$el.empty().append(addon);
 	  };
 
 	  InlineDialogWebItem.prototype.createIfNotExists = function createIfNotExists(data) {
+	    console.log('creatifnotexist', data);
 	    var $target = $(data.event.currentTarget);
 	    var uid = $target.data(WEBITEM_UID_KEY);
 
