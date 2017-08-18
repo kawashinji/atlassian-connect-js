@@ -40,7 +40,20 @@ class HostApi {
     };
     // We are attaching an instance of ACJSAdaptor to the host so that products are able
     // to retrieve the identical instance of ACJSAdaptor that ACJS is using.
-    this.acjsAdaptor = acjsFrameworkAdaptor;
+    // The product can override the framework adaptor by calling setFrameworkAdaptor().
+    this.frameworkAdaptor = acjsFrameworkAdaptor;
+  }
+
+  /**
+   * The product is responsible for setting the framework adaptor.
+   * @param frameworkAdaptor the framework adaptor to use.
+   */
+  setFrameworkAdaptor(frameworkAdaptor) {
+    this.frameworkAdaptor = frameworkAdaptor;
+  }
+
+  getFrameworkAdaptor() {
+    return this.frameworkAdaptor;
   }
 
   _cleanExtension(extension){

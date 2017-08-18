@@ -5,7 +5,7 @@ import EventActions from '../actions/event_actions';
 import DialogExtensionComponent from '../components/dialog_extension';
 import ButtonComponent from '../components/button';
 import DialogUtils from '../utils/dialog';
-import { acjsFrameworkAdaptor } from '../ACJSFrameworkAdaptor';
+import HostApi from '../host-api';
 import Util from '../util';
 import dialogUtils from '../utils/dialog';
 
@@ -66,7 +66,8 @@ class Dialog {
     var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
     options = Util.extend({}, dialogModuleOptions || {}, options);
     options.id = _id;
-    this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    this.dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
     if (this.dialogProvider) {
       const getOnClickFunction = action => {
         const key = callback._context.extension.key;
@@ -104,7 +105,8 @@ class Dialog {
 class Button {
   constructor(identifier, callback) {
     callback = Util.last(arguments);
-    this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    this.dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
     if (this.dialogProvider) {
       if (!this.dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
         throw new Error('Failed to find an active dialog.');
@@ -281,7 +283,8 @@ function getDialogFromContext(context) {
 class CreateButton {
   constructor(options, callback) {
     callback = Util.last(arguments);
-    this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    this.dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
     if (this.dialogProvider) {
       if (!this.dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
         throw new Error('Failed to find an active dialog.');
@@ -385,7 +388,8 @@ export default {
    */
   close: function (data, callback) {
     callback = Util.last(arguments);
-    const dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
     if (dialogProvider) {
       if (!dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
         throw new Error('Failed to find an active dialog.');

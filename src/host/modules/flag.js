@@ -3,7 +3,7 @@
 * @module Flag
 */
 
-import { acjsFrameworkAdaptor } from '../ACJSFrameworkAdaptor';
+import HostApi from '../host-api';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import FlagActions from '../actions/flag_actions';
 import FlagComponent from '../components/flag';
@@ -48,7 +48,8 @@ class Flag {
       return;
     }
     const flagId = callback._id;
-    this.flagProvider = acjsFrameworkAdaptor.getProviderByModuleName('flag');
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    this.flagProvider = frameworkAdaptor.getProviderByModuleName('flag');
     if (this.flagProvider) {
       let actions = [];
       if (typeof options.actions === 'object') {
@@ -63,7 +64,7 @@ class Flag {
       let flagOptions = {
         id: flagId,
         title: options.title,
-        description: options.body,
+        body: options.body,
         actions: actions,
         onClose: FlagActions.closed,
         type: type.toLowerCase()
