@@ -62,13 +62,12 @@ class InlineDialogWebItem {
   }
 
   opened(data){
-    console.log('opened', data);
     var $existingFrame = data.$el.find('iframe');
     if($existingFrame && $existingFrame.length === 1){
       var src = $existingFrame.attr('src');
       // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
       if(src.length > 0 && (!urlUtils.hasJwt(src) || (urlUtils.hasJwt(src) && !urlUtils.isJwtExpired(src)))) {
-        return;
+        return false;
       }
     }
     var contentRequest = WebitemComponent.requestContent(data.extension);
@@ -88,6 +87,7 @@ class InlineDialogWebItem {
         extension: content
       });
     });
+    return true;
   }
 
   addExtension(data){
