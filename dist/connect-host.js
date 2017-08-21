@@ -5469,13 +5469,12 @@
 	  };
 
 	  InlineDialogWebItem.prototype.opened = function opened(data) {
-	    console.log('opened', data);
 	    var $existingFrame = data.$el.find('iframe');
 	    if ($existingFrame && $existingFrame.length === 1) {
 	      var src = $existingFrame.attr('src');
 	      // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
 	      if (src.length > 0 && (!urlUtils.hasJwt(src) || urlUtils.hasJwt(src) && !urlUtils.isJwtExpired(src))) {
-	        return;
+	        return false;
 	      }
 	    }
 	    var contentRequest = webItemInstance.requestContent(data.extension);
@@ -5495,6 +5494,7 @@
 	        extension: content
 	      });
 	    });
+	    return true;
 	  };
 
 	  InlineDialogWebItem.prototype.addExtension = function addExtension(data) {
@@ -5604,7 +5604,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.16';
+	  window._AP.version = '5.1.17';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
