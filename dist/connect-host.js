@@ -3032,6 +3032,7 @@
 	 */
 	var ACJSFrameworkAdaptor = function () {
 	  function ACJSFrameworkAdaptor() {
+	    this.enabled = true;
 	    this.moduleNamesToModules = new Map();
 	  }
 	  /**
@@ -3049,17 +3050,14 @@
 	    // this.registerModuleWithHost(moduleRegistrationName, simpleXdmDefinition);
 	  };
 
-	  /**
-	   * This method unregisters a module with the Connect client framework relating to this adaptor instance.
-	   * @param name the name of the module
-	   */
-	  ACJSFrameworkAdaptor.prototype.unregisterModule = function (name) {
-	    this.moduleNamesToModules.set(name, undefined);
+	  ACJSFrameworkAdaptor.prototype.getModuleByName = function (moduleName) {
+	    var module = this.moduleNamesToModules.get(moduleName);
+	    return module;
 	  };
 
 	  ACJSFrameworkAdaptor.prototype.getProviderByModuleName = function (moduleName) {
 	    var module = this.moduleNamesToModules.get(moduleName);
-	    if (module) {
+	    if (module && module.isEnabled()) {
 	      return module.getProvider();
 	    } else {
 	      return undefined;
@@ -4833,8 +4831,8 @@
 	    }
 	    var flagId = callback._id;
 	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
-	    this.flagProvider = frameworkAdaptor.getProviderByModuleName('flag');
-	    if (this.flagProvider) {
+	    var flagProvider = frameworkAdaptor.getProviderByModuleName('flag');
+	    if (flagProvider) {
 	      var actions = [];
 	      if (_typeof(options.actions) === 'object') {
 	        actions = Object.getOwnPropertyNames(options.actions).map(function (key) {
@@ -4853,7 +4851,7 @@
 	        onClose: FlagActions.closed,
 	        type: type.toLowerCase()
 	      };
-	      this.flagProvider.create(flagOptions);
+	      flagProvider.create(flagOptions);
 	    } else {
 	      this.flag = FlagComponent.render({
 	        type: options.type,
@@ -4895,8 +4893,10 @@
 	  Flag.prototype.close = function close() {
 	    var callback = Util$1.last(arguments);
 	    var flagId = callback._id;
-	    if (this.flagProvider) {
-	      this.flagProvider.close(flagId);
+	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
+	    var flagProvider = frameworkAdaptor.getProviderByModuleName('flag');
+	    if (flagProvider) {
+	      flagProvider.close(flagId);
 	    } else {
 	      this.flag.close();
 	    }

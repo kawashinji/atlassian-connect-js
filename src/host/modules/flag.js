@@ -49,8 +49,8 @@ class Flag {
     }
     const flagId = callback._id;
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
-    this.flagProvider = frameworkAdaptor.getProviderByModuleName('flag');
-    if (this.flagProvider) {
+    const flagProvider = frameworkAdaptor.getProviderByModuleName('flag');
+    if (flagProvider) {
       let actions = [];
       if (typeof options.actions === 'object') {
         actions = Object.getOwnPropertyNames(options.actions).map(key => {
@@ -69,7 +69,7 @@ class Flag {
         onClose: FlagActions.closed,
         type: type.toLowerCase()
       };
-      this.flagProvider.create(flagOptions);
+      flagProvider.create(flagOptions);
     } else {
       this.flag = FlagComponent.render({
         type: options.type,
@@ -109,8 +109,10 @@ class Flag {
   close() {
     const callback = util.last(arguments);
     const flagId = callback._id;
-    if (this.flagProvider) {
-      this.flagProvider.close(flagId);
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const flagProvider = frameworkAdaptor.getProviderByModuleName('flag');
+    if (flagProvider) {
+      flagProvider.close(flagId);
     } else {
       this.flag.close();
     }
