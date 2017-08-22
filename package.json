@@ -1,6 +1,6 @@
 {
   "name": "atlassian-connect-js",
-  "version": "5.1.16",
+  "version": "5.1.17",
   "license": "Apache-2.0",
   "description": "Atlassian Connect JavaScript bridge",
   "main": "dist/connect-host.js",
@@ -11,7 +11,8 @@
   "scripts": {
     "release": "rm -rf node_modules; npm install; npm publish",
     "prepublish": "gulp",
-    "test": "gulp test-ci"
+    "test": "gulp test-ci",
+    "tag": "PACKAGE_VERSION=$(node -p \"require('./package.json').version\") && git tag $PACKAGE_VERSION && git push --tags"
   },
   "devDependencies": {
     "@atlassian/eslint-config-atlassian-fecq": "2.0.3",

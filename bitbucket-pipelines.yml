@@ -1,6 +1,29 @@
 image: node:boron
 
 pipelines:
+    branches:
+      master:
+        - step:
+            script:
+              - mkdir /temp
+              - cd /temp
+              - npm install npm@5
+              - rm -rf /usr/local/lib/node_modules
+              - mv node_modules /usr/local/lib/
+              - cd $BITBUCKET_CLONE_DIR
+              - npm -v
+              - node -v
+              - TOKEN=`curl -s -S -f -X POST -u "${KEY}:${SECRET}" https://bitbucket.org/site/oauth2/access_token -d grant_type=client_credentials | python -c "import sys, json; print json.load(sys.stdin)['access_token']"`
+              - git remote set-url origin https://x-token-auth:${TOKEN}@bitbucket.org/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}.git
+              - git config user.email "cwhittington@atlassian.com"
+              - git config user.name "Build bot"
+              - npm set spin false
+              - npm run release
+              - node node_modules/gulp/bin/gulp.js
+              - PACKAGE_VERSION=$(node -p "require('./package.json').version") && git add . && git commit -m "$PACKAGE_VERSION release [skip ci]"
+              - git push origin master
+              - npm run tag
+
     default:
         - step:
             script:
