@@ -10,6 +10,14 @@ import base64 from 'src/host/utils/base64';
 describe('Inline Dialog Webitem', () => {
   var webitemButton;
 
+  function buildJWT(exp){
+    const claim = {
+      exp: Math.floor(Date.now() / 1000) + exp
+    };
+    const encodedClaim = base64.encode(JSON.stringify(claim));
+    return `alsdjfaj123.${encodedClaim}.khsadlj234`;
+  }
+
   beforeEach(() => {
     $('.aui-inline-dialog').remove();
     webitemButton = $('<a />').attr('href', 'https://www.example.com?b.c=d');
@@ -187,11 +195,7 @@ describe('Inline Dialog Webitem', () => {
     });
 
     it('reuses iframe if JWT has not timed out', () => {
-      const claim = {
-        exp: Math.floor(Date.now() / 1000) + 100
-      };
-      const encodedClaim = base64.encode(JSON.stringify(claim));
-      const jwt = `alsdjfaj123.${encodedClaim}.khsadlj234`;
+      const jwt = buildJWT(100);
 
       jwtActions.registerContentResolver({callback: function(data){
         return jQuery.Deferred(function(defer){
@@ -221,12 +225,7 @@ describe('Inline Dialog Webitem', () => {
 
     it('gets new JWT if expired', () => {
       jasmine.clock().install();
-      const claim = {
-        exp: Math.floor(Date.now() / 1000)
-      };
-      const encodedClaim = base64.encode(JSON.stringify(claim));
-      const jwt = `alsdjfaj123.${encodedClaim}.khsadlj234`;
-
+      const jwt = buildJWT(0);
       jwtActions.registerContentResolver({callback: function(data){
         return jQuery.Deferred(function(defer){
           defer.resolve({

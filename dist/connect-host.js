@@ -5467,11 +5467,17 @@
 
 	  InlineDialogWebItem.prototype.opened = function opened(data) {
 	    var $existingFrame = data.$el.find('iframe');
-	    if ($existingFrame && $existingFrame.length === 1) {
+	    var isExistingFrame = $existingFrame && $existingFrame.length === 1;
+	    // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
+	    if (isExistingFrame) {
 	      var src = $existingFrame.attr('src');
-	      // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
-	      if (src.length > 0 && (!urlUtils.hasJwt(src) || urlUtils.hasJwt(src) && !urlUtils.isJwtExpired(src))) {
-	        return false;
+	      var srcPresent = src.length > 0;
+	      if (srcPresent) {
+	        var srcHasJWT = urlUtils.hasJwt(src);
+	        var srcHasValidJWT = srcHasJWT && !urlUtils.isJwtExpired(src);
+	        if (srcHasValidJWT || !srcHasJWT) {
+	          return false;
+	        }
 	      }
 	    }
 	    var contentRequest = webItemInstance.requestContent(data.extension);

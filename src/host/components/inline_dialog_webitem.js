@@ -62,11 +62,17 @@ class InlineDialogWebItem {
 
   opened(data){
     var $existingFrame = data.$el.find('iframe');
-    if($existingFrame && $existingFrame.length === 1){
-      var src = $existingFrame.attr('src');
-      // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
-      if(src.length > 0 && (!urlUtils.hasJwt(src) || (urlUtils.hasJwt(src) && !urlUtils.isJwtExpired(src)))) {
-        return false;
+    var isExistingFrame = ($existingFrame && $existingFrame.length === 1);
+    // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
+    if(isExistingFrame){
+      const src = $existingFrame.attr('src');
+      const srcPresent = (src.length > 0);
+      if(srcPresent) {
+        const srcHasJWT = urlUtils.hasJwt(src);
+        const srcHasValidJWT = srcHasJWT && !urlUtils.isJwtExpired(src);
+        if(srcHasValidJWT || !srcHasJWT) {
+          return false;
+        }
       }
     }
     var contentRequest = WebitemComponent.requestContent(data.extension);
