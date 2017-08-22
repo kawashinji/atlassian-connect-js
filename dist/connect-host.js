@@ -3032,7 +3032,6 @@
 	 */
 	var ACJSFrameworkAdaptor = function () {
 	  function ACJSFrameworkAdaptor() {
-	    this.enabled = true;
 	    this.moduleNamesToModules = new Map();
 	  }
 	  /**
@@ -3051,8 +3050,7 @@
 	  };
 
 	  ACJSFrameworkAdaptor.prototype.getModuleByName = function (moduleName) {
-	    var module = this.moduleNamesToModules.get(moduleName);
-	    return module;
+	    return this.moduleNamesToModules.get(moduleName);
 	  };
 
 	  ACJSFrameworkAdaptor.prototype.getProviderByModuleName = function (moduleName) {
@@ -3726,8 +3724,8 @@
 	  options = Util$1.extend({}, dialogModuleOptions || {}, options);
 	  options.id = _id;
 	  var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
-	  this.dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
-	  if (this.dialogProvider) {
+	  var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+	  if (dialogProvider) {
 	    var getOnClickFunction = function getOnClickFunction(action) {
 	      var key = callback._context.extension.key;
 	      var addon_key = callback._context.extension.addon_key;
@@ -3749,7 +3747,7 @@
 	    dialogOptions.actions.map(function (action) {
 	      return action.onClick = getOnClickFunction.bind(null, action);
 	    });
-	    this.dialogProvider.create(dialogOptions, dialogExtension);
+	    dialogProvider.create(dialogOptions, dialogExtension);
 	  } else {
 	    dialogUtilsInstance.trackMultipleDialogOpening(dialogExtension, options);
 	    DialogExtensionActions.open(dialogExtension, options);
@@ -3770,9 +3768,9 @@
 
 	    callback = Util$1.last(arguments);
 	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
-	    this.dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
-	    if (this.dialogProvider) {
-	      if (!this.dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
+	    var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+	    if (dialogProvider) {
+	      if (!dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
 	        throw new Error('Failed to find an active dialog.');
 	      }
 	      this.name = identifier;
@@ -3834,8 +3832,10 @@
 
 	  Button.prototype.isEnabled = function isEnabled(callback) {
 	    callback = Util$1.last(arguments);
-	    if (this.dialogProvider) {
-	      callback(!this.dialogProvider.isButtonDisabled(this.identifier));
+	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
+	    var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+	    if (dialogProvider) {
+	      callback(!dialogProvider.isButtonDisabled(this.identifier));
 	    } else {
 	      callback(this.enabled);
 	    }
@@ -3851,8 +3851,10 @@
 
 
 	  Button.prototype.toggle = function toggle() {
-	    if (this.dialogProvider) {
-	      this.dialogProvider.toggleButton(this.identifier);
+	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
+	    var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+	    if (dialogProvider) {
+	      dialogProvider.toggleButton(this.identifier);
 	    } else {
 	      this.setState({
 	        enabled: !this.enabled
@@ -3861,8 +3863,10 @@
 	  };
 
 	  Button.prototype.setState = function setState(state) {
-	    if (this.dialogProvider) {
-	      this.dialogProvider.setButtonDisabled(this.identifier, !state.enabled);
+	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
+	    var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+	    if (dialogProvider) {
+	      dialogProvider.setButtonDisabled(this.identifier, !state.enabled);
 	    } else {
 	      this.enabled = state.enabled;
 	      DialogActions.toggleButton({
@@ -3911,8 +3915,10 @@
 
 	  Button.prototype.isHidden = function isHidden(callback) {
 	    callback = Util$1.last(arguments);
-	    if (this.dialogProvider) {
-	      callback(this.dialogProvider.isButtonHidden(this.identifier));
+	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
+	    var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+	    if (dialogProvider) {
+	      callback(dialogProvider.isButtonHidden(this.identifier));
 	    } else {
 	      callback(this.hidden);
 	    }
@@ -3945,8 +3951,10 @@
 	  };
 
 	  Button.prototype.setHidden = function setHidden(hidden) {
-	    if (this.dialogProvider) {
-	      this.dialogProvider.setButtonHidden(this.identifier, hidden);
+	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
+	    var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+	    if (dialogProvider) {
+	      dialogProvider.setButtonHidden(this.identifier, hidden);
 	    } else {
 	      this.hidden = hidden;
 	      DialogActions.toggleButtonVisibility({
@@ -3968,12 +3976,12 @@
 
 	  callback = Util$1.last(arguments);
 	  var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
-	  this.dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
-	  if (this.dialogProvider) {
-	    if (!this.dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
+	  var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+	  if (dialogProvider) {
+	    if (!dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
 	      throw new Error('Failed to find an active dialog.');
 	    }
-	    this.dialogProvider.createButton({
+	    dialogProvider.createButton({
 	      identifier: options.identifier,
 	      text: options.text,
 	      hidden: false,

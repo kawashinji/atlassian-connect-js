@@ -9,7 +9,6 @@
  */
 var ACJSFrameworkAdaptor = (function () {
   function ACJSFrameworkAdaptor() {
-    this.enabled = true;
     this.moduleNamesToModules = new Map();
   }
   /**
@@ -28,8 +27,7 @@ var ACJSFrameworkAdaptor = (function () {
   };
 
   ACJSFrameworkAdaptor.prototype.getModuleByName = function (moduleName) {
-    var module = this.moduleNamesToModules.get(moduleName);
-    return module;
+    return this.moduleNamesToModules.get(moduleName);
   }
 
   ACJSFrameworkAdaptor.prototype.getProviderByModuleName = function (moduleName) {
