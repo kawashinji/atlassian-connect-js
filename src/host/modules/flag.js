@@ -55,8 +55,9 @@ class Flag {
       if (typeof options.actions === 'object') {
         actions = Object.getOwnPropertyNames(options.actions).map(key => {
           return {
-            content: options.actions[key],
-            onClick: FlagActions.actionInvoked.bind(null, key, flagId)
+            actionKey: key,
+            actionText: options.actions[key],
+            executeAction: FlagActions.actionInvoked.bind(null, key, flagId)
           };
         });
       }
@@ -69,7 +70,7 @@ class Flag {
         onClose: FlagActions.closed,
         type: type.toLowerCase()
       };
-      flagProvider.create(flagOptions);
+      this.flag = flagProvider.create(flagOptions);
     } else {
       this.flag = FlagComponent.render({
         type: options.type,
@@ -107,15 +108,7 @@ class Flag {
   *
   */
   close() {
-    const callback = util.last(arguments);
-    const flagId = callback._id;
-    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
-    const flagProvider = frameworkAdaptor.getProviderByModuleName('flag');
-    if (flagProvider) {
-      flagProvider.close(flagId);
-    } else {
-      this.flag.close();
-    }
+    this.flag.close();
   }
 }
 
