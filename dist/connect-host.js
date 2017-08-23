@@ -2548,7 +2548,7 @@
 	  return jwt && _getJwt(url).length !== 0;
 	}
 
-	var urlUtil = {
+	var urlUtils = {
 	  hasJwt: hasJwt,
 	  isJwtExpired: isJwtExpired
 	};
@@ -2638,7 +2638,7 @@
 	  };
 
 	  Iframe.prototype.simpleXdmExtension = function simpleXdmExtension(extension, $container) {
-	    if (!extension.url || urlUtil.hasJwt(extension.url) && urlUtil.isJwtExpired(extension.url)) {
+	    if (!extension.url || urlUtils.hasJwt(extension.url) && urlUtils.isJwtExpired(extension.url)) {
 	      if (this._contentResolver) {
 	        jwtActions.requestRefreshUrl({
 	          extension: extension,
@@ -5499,6 +5499,20 @@
 	  };
 
 	  InlineDialogWebItem.prototype.opened = function opened(data) {
+	    var $existingFrame = data.$el.find('iframe');
+	    var isExistingFrame = $existingFrame && $existingFrame.length === 1;
+	    // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
+	    if (isExistingFrame) {
+	      var src = $existingFrame.attr('src');
+	      var srcPresent = src.length > 0;
+	      if (srcPresent) {
+	        var srcHasJWT = urlUtils.hasJwt(src);
+	        var srcHasValidJWT = srcHasJWT && !urlUtils.isJwtExpired(src);
+	        if (srcHasValidJWT || !srcHasJWT) {
+	          return false;
+	        }
+	      }
+	    }
 	    var contentRequest = webItemInstance.requestContent(data.extension);
 	    if (!contentRequest) {
 	      console.warn('no content resolver found');
@@ -5516,6 +5530,7 @@
 	        extension: content
 	      });
 	    });
+	    return true;
 	  };
 
 	  InlineDialogWebItem.prototype.addExtension = function addExtension(data) {

@@ -8,6 +8,7 @@ import IframeContainer from './iframe_container';
 import $ from '../dollar';
 import IframeCreate from '../iframe-create';
 import Util from '../util';
+import urlUtils from '../utils/url';
 
 const ITEM_NAME = 'inline-dialog';
 const SELECTOR = '.ap-inline-dialog';
@@ -40,6 +41,7 @@ class InlineDialogWebItem {
     return $inlineDialog;
   }
 
+
   triggered(data) {
     // don't trigger on hover, when hover is not specified.
     if(data.event.type !== 'click' && !data.extension.options.onHover){
@@ -59,6 +61,20 @@ class InlineDialogWebItem {
   }
 
   opened(data){
+    var $existingFrame = data.$el.find('iframe');
+    var isExistingFrame = ($existingFrame && $existingFrame.length === 1);
+    // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
+    if(isExistingFrame){
+      const src = $existingFrame.attr('src');
+      const srcPresent = (src.length > 0);
+      if(srcPresent) {
+        const srcHasJWT = urlUtils.hasJwt(src);
+        const srcHasValidJWT = srcHasJWT && !urlUtils.isJwtExpired(src);
+        if(srcHasValidJWT || !srcHasJWT) {
+          return false;
+        }
+      }
+    }
     var contentRequest = WebitemComponent.requestContent(data.extension);
     if(!contentRequest){
       console.warn('no content resolver found');
@@ -76,6 +92,7 @@ class InlineDialogWebItem {
         extension: content
       });
     });
+    return true;
   }
 
   addExtension(data){

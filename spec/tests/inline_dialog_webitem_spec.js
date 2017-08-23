@@ -5,9 +5,18 @@ import WebItemActions from 'src/host/actions/webitem_actions';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import IframeContainer from 'src/host/components/iframe_container';
 import jwtActions from 'src/host/actions/jwt_actions';
+import base64 from 'src/host/utils/base64';
 
 describe('Inline Dialog Webitem', () => {
   var webitemButton;
+
+  function buildJWT(exp){
+    const claim = {
+      exp: Math.floor(Date.now() / 1000) + exp
+    };
+    const encodedClaim = base64.encode(JSON.stringify(claim));
+    return `alsdjfaj123.${encodedClaim}.khsadlj234`;
+  }
 
   beforeEach(() => {
     $('.aui-inline-dialog').remove();
@@ -18,6 +27,7 @@ describe('Inline Dialog Webitem', () => {
   });
 
   afterEach(() => {
+    jasmine.clock().uninstall();
     webitemButton.remove();
     delete window._AP.inlineDialogModules;
   });
@@ -184,6 +194,93 @@ describe('Inline Dialog Webitem', () => {
       });
     });
 
+    it('reuses iframe if JWT has not timed out', () => {
+      const jwt = buildJWT(100);
+
+      jwtActions.registerContentResolver({callback: function(data){
+        return jQuery.Deferred(function(defer){
+          defer.resolve({
+            url: 'http://www.example.com?jwt=' + jwt,
+            addon_key: data.addon_key,
+            key: data.key,
+            options: {
+              productContext: {
+                a: 'b'
+              }
+            }
+          });
+        }).promise();
+      }});
+
+      let data = {
+        $el: $('<div />'),
+        extension: {
+          addon_key: 'a-key',
+          key: 'key'
+        }
+      };
+      expect(InlineDialogWebitem.opened(data)).toEqual(true);
+      expect(InlineDialogWebitem.opened(data)).toEqual(false);
+    });
+
+    it('gets new JWT if expired', () => {
+      jasmine.clock().install();
+      const jwt = buildJWT(0);
+      jwtActions.registerContentResolver({callback: function(data){
+        return jQuery.Deferred(function(defer){
+          defer.resolve({
+            url: 'http://www.example.com?jwt=' + jwt,
+            addon_key: data.addon_key,
+            key: data.key,
+            options: {
+              productContext: {
+                a: 'b'
+              }
+            }
+          });
+        }).promise();
+      }});
+
+      let data = {
+        $el: $('<div />'),
+        extension: {
+          addon_key: 'a-key',
+          key: 'key'
+        }
+      };
+      expect(InlineDialogWebitem.opened(data)).toEqual(true);
+      jasmine.clock().tick(10000000);
+      expect(InlineDialogWebitem.opened(data)).toEqual(true);
+      jasmine.clock().uninstall();
+    });
+
+    it('reuses iframe if url is known and no jwt', () => {
+      jwtActions.registerContentResolver({callback: function(data){
+        return jQuery.Deferred(function(defer){
+          defer.resolve({
+            url: 'http://www.example.com',
+            addon_key: data.addon_key,
+            key: data.key,
+            options: {
+              productContext: {
+                a: 'b'
+              }
+            }
+          });
+        }).promise();
+      }});
+
+      let data = {
+        $el: $('<div />'),
+        extension: {
+          addon_key: 'a-key',
+          key: 'key',
+          url: 'http://www.example.com'
+        }
+      };
+      expect(InlineDialogWebitem.opened(data)).toEqual(true);
+      expect(InlineDialogWebitem.opened(data)).toEqual(false);
+    });
   });
 
 });
