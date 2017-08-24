@@ -5,7 +5,7 @@ import EventActions from '../actions/event_actions';
 import DialogExtensionComponent from '../components/dialog_extension';
 import ButtonComponent from '../components/button';
 import DialogUtils from '../utils/dialog';
-import { acjsFrameworkAdaptor } from '../ACJSFrameworkAdaptor';
+import HostApi from '../host-api';
 import Util from '../util';
 import dialogUtils from '../utils/dialog';
 
@@ -66,8 +66,9 @@ class Dialog {
     var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
     options = Util.extend({}, dialogModuleOptions || {}, options);
     options.id = _id;
-    this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
-    if (this.dialogProvider) {
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+    if (dialogProvider) {
       const getOnClickFunction = action => {
         const key = callback._context.extension.key;
         const addon_key = callback._context.extension.addon_key;
@@ -87,7 +88,7 @@ class Dialog {
       let dialogOptions = dialogUtils.sanitizeOptions(options);
       dialogExtension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
       dialogOptions.actions.map(action => action.onClick = getOnClickFunction.bind(null, action));
-      this.dialogProvider.create(dialogOptions, dialogExtension);
+      dialogProvider.create(dialogOptions, dialogExtension);
     } else {
       dialogUtils.trackMultipleDialogOpening(dialogExtension, options);
       DialogExtensionActions.open(dialogExtension, options);
@@ -104,9 +105,10 @@ class Dialog {
 class Button {
   constructor(identifier, callback) {
     callback = Util.last(arguments);
-    this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
-    if (this.dialogProvider) {
-      if (!this.dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+    if (dialogProvider) {
+      if (!dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
         throw new Error('Failed to find an active dialog.');
       }
       this.name = identifier;
@@ -162,8 +164,10 @@ class Button {
    */
   isEnabled(callback) {
     callback = Util.last(arguments);
-    if (this.dialogProvider) {
-      callback(!this.dialogProvider.isButtonDisabled(this.identifier));
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+    if (dialogProvider) {
+      callback(!dialogProvider.isButtonDisabled(this.identifier));
     } else {
       callback(this.enabled);
     }
@@ -177,8 +181,10 @@ class Button {
    * AP.dialog.getButton('submit').toggle();
    */
   toggle() {
-    if (this.dialogProvider) {
-      this.dialogProvider.toggleButton(this.identifier);
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+    if (dialogProvider) {
+      dialogProvider.toggleButton(this.identifier);
     } else {
       this.setState({
         enabled: !this.enabled
@@ -186,8 +192,10 @@ class Button {
     }
   }
   setState(state) {
-    if (this.dialogProvider) {
-      this.dialogProvider.setButtonDisabled(this.identifier, !state.enabled);
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+    if (dialogProvider) {
+      dialogProvider.setButtonDisabled(this.identifier, !state.enabled);
     } else {
       this.enabled = state.enabled;
       DialogActions.toggleButton({
@@ -232,8 +240,10 @@ class Button {
    */
   isHidden(callback) {
     callback = Util.last(arguments);
-    if (this.dialogProvider) {
-      callback(this.dialogProvider.isButtonHidden(this.identifier));
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+    if (dialogProvider) {
+      callback(dialogProvider.isButtonHidden(this.identifier));
     } else {
       callback(this.hidden);
     }
@@ -262,8 +272,10 @@ class Button {
   }
 
   setHidden(hidden) {
-    if (this.dialogProvider) {
-      this.dialogProvider.setButtonHidden(this.identifier, hidden);
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+    if (dialogProvider) {
+      dialogProvider.setButtonHidden(this.identifier, hidden);
     } else {
       this.hidden = hidden;
       DialogActions.toggleButtonVisibility({
@@ -281,12 +293,13 @@ function getDialogFromContext(context) {
 class CreateButton {
   constructor(options, callback) {
     callback = Util.last(arguments);
-    this.dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
-    if (this.dialogProvider) {
-      if (!this.dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+    if (dialogProvider) {
+      if (!dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
         throw new Error('Failed to find an active dialog.');
       }
-      this.dialogProvider.createButton({
+      dialogProvider.createButton({
         identifier: options.identifier,
         text: options.text,
         hidden: false,
@@ -385,7 +398,8 @@ export default {
    */
   close: function (data, callback) {
     callback = Util.last(arguments);
-    const dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
     if (dialogProvider) {
       if (!dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
         throw new Error('Failed to find an active dialog.');

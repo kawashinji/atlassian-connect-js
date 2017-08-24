@@ -3,7 +3,7 @@
 * @module Flag
 */
 
-import { acjsFrameworkAdaptor } from '../ACJSFrameworkAdaptor';
+import HostApi from '../host-api';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import FlagActions from '../actions/flag_actions';
 import FlagComponent from '../components/flag';
@@ -48,8 +48,9 @@ class Flag {
       return;
     }
     const flagId = callback._id;
-    this.flagProvider = acjsFrameworkAdaptor.getProviderByModuleName('flag');
-    if (this.flagProvider) {
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const flagProvider = frameworkAdaptor.getProviderByModuleName('flag');
+    if (flagProvider) {
       let actions = [];
       if (typeof options.actions === 'object') {
         actions = Object.getOwnPropertyNames(options.actions).map(key => {
@@ -63,12 +64,12 @@ class Flag {
       let flagOptions = {
         id: flagId,
         title: options.title,
-        description: options.body,
+        body: options.body,
         actions: actions,
         onClose: FlagActions.closed,
         type: type.toLowerCase()
       };
-      this.flagProvider.create(flagOptions);
+      flagProvider.create(flagOptions);
     } else {
       this.flag = FlagComponent.render({
         type: options.type,
@@ -108,8 +109,10 @@ class Flag {
   close() {
     const callback = util.last(arguments);
     const flagId = callback._id;
-    if (this.flagProvider) {
-      this.flagProvider.close(flagId);
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const flagProvider = frameworkAdaptor.getProviderByModuleName('flag');
+    if (flagProvider) {
+      flagProvider.close(flagId);
     } else {
       this.flag.close();
     }

@@ -32,6 +32,9 @@ class DialogModuleSpy {
   constructor() {
     this.providerSpy = providerSpy;
   }
+  isEnabled() {
+    return true;
+  }
   getModuleRegistrationName() {
     return 'dialog';
   }
