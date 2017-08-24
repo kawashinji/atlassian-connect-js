@@ -7,7 +7,7 @@ import Button from './button';
 import ButtonActions from '../actions/button_actions';
 import Util from '../util';
 import $ from '../dollar';
-import { acjsFrameworkAdaptor } from '../ACJSFrameworkAdaptor';
+import HostApi from '../host-api';
 
 const DLGID_PREFIX = 'ap-dialog-';
 const DIALOG_CLASS = 'ap-aui-dialog2';
@@ -281,7 +281,8 @@ const DialogComponent = new Dialog();
 EventDispatcher.register('iframe-bridge-established', (data) => {
   if(data.extension.options.isDialog && !data.extension.options.preventDialogCloseOnEscape){
     let callback;
-    const dialogProvider = acjsFrameworkAdaptor.getProviderByModuleName('dialog');
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
     if (dialogProvider) {
       callback = dialogProvider.close;
       dialogProvider.setButtonDisabled('submit', false);

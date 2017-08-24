@@ -13,7 +13,7 @@
 */
 
 import $ from '../dollar';
-import { acjsFrameworkAdaptor } from '../ACJSFrameworkAdaptor';
+import HostApi from '../host-api';
 import util from '../util';
 import AnalyticsAction from '../actions/analytics_action';
 
@@ -72,7 +72,8 @@ function deprecatedShowMessage(name, title, body, options, callback) {
   const methodUsed = `AP.messages.${name}`;
   console.warn(`DEPRECATED API - AP.messages.${name} has been deprecated since ACJS 5.0 and will be removed in a future release. Use AP.flag.create instead.`);
   AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
-  const messageProvider = acjsFrameworkAdaptor.getProviderByModuleName('messages');
+  const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+  const messageProvider = frameworkAdaptor.getProviderByModuleName('messages');
   if (messageProvider) {
     const messageType = name;
     let createMessage = messageProvider[messageType];
@@ -134,7 +135,8 @@ export default {
   clear: function (msg) {
     const id = MSGID_PREFIX + msg._id;
     if (validateMessageId(id)) {
-      const messageProvider = acjsFrameworkAdaptor.getProviderByModuleName('messages');
+      const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+      const messageProvider = frameworkAdaptor.getProviderByModuleName('messages');
       if (messageProvider) {
         messageProvider.clear(id);
       } else {
@@ -161,7 +163,8 @@ export default {
   onClose: function (msg, callback) {
     callback = util.last(arguments);
     const id = msg._id;
-    const messageProvider = acjsFrameworkAdaptor.getProviderByModuleName('messages');
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const messageProvider = frameworkAdaptor.getProviderByModuleName('messages');
     if (messageProvider) {
       const fullId = MSGID_PREFIX + msg._id;
       messageProvider.onClose(fullId, callback);
