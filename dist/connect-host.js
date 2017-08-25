@@ -4845,8 +4845,9 @@
 	      if (_typeof(options.actions) === 'object') {
 	        actions = Object.getOwnPropertyNames(options.actions).map(function (key) {
 	          return {
-	            content: options.actions[key],
-	            onClick: FlagActions.actionInvoked.bind(null, key, flagId)
+	            actionKey: key,
+	            actionText: options.actions[key],
+	            executeAction: FlagActions.actionInvoked.bind(null, key, flagId)
 	          };
 	        });
 	      }
@@ -4859,7 +4860,7 @@
 	        onClose: FlagActions.closed,
 	        type: type.toLowerCase()
 	      };
-	      flagProvider.create(flagOptions);
+	      this.flag = flagProvider.create(flagOptions);
 	    } else {
 	      this.flag = FlagComponent.render({
 	        type: options.type,
@@ -4899,15 +4900,7 @@
 
 
 	  Flag.prototype.close = function close() {
-	    var callback = Util$1.last(arguments);
-	    var flagId = callback._id;
-	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
-	    var flagProvider = frameworkAdaptor.getProviderByModuleName('flag');
-	    if (flagProvider) {
-	      flagProvider.close(flagId);
-	    } else {
-	      this.flag.close();
-	    }
+	    this.flag.close();
 	  };
 
 	  return Flag;
