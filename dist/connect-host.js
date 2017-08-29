@@ -2654,10 +2654,10 @@
 	  };
 
 	  Iframe.prototype._simpleXdmCreate = function _simpleXdmCreate(extension) {
+	    if (!extension.options) {
+	      extension.options = {};
+	    }
 	    var iframeAttributes = simpleXDM$1.create(extension, function () {
-	      if (!extension.options) {
-	        extension.options = {};
-	      }
 	      IframeActions.notifyBridgeEstablished(extension.$el, extension);
 	    }, function () {
 	      IframeActions.notifyUnloaded(extension.$el, extension);
@@ -2672,6 +2672,11 @@
 	    var existingFrame = $container.find('iframe');
 	    if (existingFrame.length > 0) {
 	      existingFrame.destroy();
+	    }
+	    if (extension.options.hideIframeUntilLoad) {
+	      extension.$el.css({ visibility: 'hidden' }).load(function () {
+	        extension.$el.css({ visibility: '' });
+	      });
 	    }
 	    $container.prepend(extension.$el);
 	    IframeActions.notifyIframeCreated(extension.$el, extension);
@@ -3618,6 +3623,7 @@
 	    extension.options.isDialog = true;
 	    extension.options.dialogId = dialogOptions.id;
 	    extension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
+	    extension.options.hideIframeUntilLoad = true;
 	    var $iframeContainer = IframeContainerComponent.createExtension(extension);
 	    var $dialog = DialogComponent.render({
 	      extension: extension,

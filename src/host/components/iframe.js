@@ -46,10 +46,10 @@ class Iframe {
   }
 
   _simpleXdmCreate(extension){
+    if(!extension.options){
+      extension.options = {};
+    }
     var iframeAttributes = simpleXDM.create(extension, () => {
-      if(!extension.options){
-        extension.options = {};
-      }
       IframeActions.notifyBridgeEstablished(extension.$el, extension);
     }, () => {
       IframeActions.notifyUnloaded(extension.$el, extension);
@@ -64,6 +64,14 @@ class Iframe {
     var existingFrame = $container.find('iframe');
     if(existingFrame.length > 0) {
       existingFrame.destroy();
+    }
+    if (extension.options.hideIframeUntilLoad) {
+      extension.$el
+        .css({visibility: 'hidden'})
+        .load(() => {
+          extension.$el
+            .css({visibility: ''});
+        });
     }
     $container.prepend(extension.$el);
     IframeActions.notifyIframeCreated(extension.$el, extension);
