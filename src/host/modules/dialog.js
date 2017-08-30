@@ -390,7 +390,7 @@ export default {
   /**
    * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.
    * This will only close a dialog that has been opened by your add-on.
-   * You can register for close events using the `dialog.close` event and the [events module](module-Events.html).
+   * You can register for close events using the `dialog.close` event and the [events module](../events/).
    * @param {Object} data An object to be emitted on dialog close.
    * @noDemo
    * @example
