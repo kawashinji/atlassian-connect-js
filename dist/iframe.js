@@ -3148,6 +3148,10 @@ var AP = (function () {
 	  });
 	}
 
+	if (!AP$2._data || !AP$2._data.api) {
+	  console.error('Error: You are not in a connect iframe. Atlassian connect API\'s will not function');
+	}
+
 	return AP$2;
 
 }());
