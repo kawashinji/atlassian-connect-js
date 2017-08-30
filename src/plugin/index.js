@@ -79,8 +79,4 @@ if(AP._data && AP._data.origin) {
   });
 }
 
-if(!AP._data || !AP._data.api) {
-  console.error('Error: You are not in a connect iframe. Atlassian connect API\'s will not function');
-}
-
 export default AP;
