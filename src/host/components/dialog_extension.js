@@ -10,6 +10,7 @@ class DialogExtension {
     extension.options.isDialog = true;
     extension.options.dialogId = dialogOptions.id;
     extension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
+    extension.options.hideIframeUntilLoad = true;
     var $iframeContainer = IframeContainerComponent.createExtension(extension);
     var $dialog = DialogComponent.render({
       extension:  extension,
