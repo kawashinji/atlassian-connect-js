@@ -3091,8 +3091,10 @@ var AP = (function () {
 	}
 
 	$$3.each(EventsInstance.methods, function (i, method) {
-	  AP$2._hostModules.events[method] = AP$2.events[method] = EventsInstance[method].bind(EventsInstance);
-	  AP$2._hostModules.events[method + 'Public'] = AP$2.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
+	  if (AP$2._hostModules && AP$2._hostModules.events) {
+	    AP$2._hostModules.events[method] = AP$2.events[method] = EventsInstance[method].bind(EventsInstance);
+	    AP$2._hostModules.events[method + 'Public'] = AP$2.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
+	  }
 	});
 
 	AP$2.define = deprecate(function () {
