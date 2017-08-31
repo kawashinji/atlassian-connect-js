@@ -2236,6 +2236,15 @@
 	    }
 	  };
 
+	  // abstracts and handles a failure to find active dialog
+
+
+	  DialogUtils.prototype.assertActiveDialogOrThrow = function assertActiveDialogOrThrow(dialogProvider, addon_key) {
+	    if (!dialogProvider.isActiveDialog(addon_key)) {
+	      throw new Error('Failed to find an active dialog for: ' + addon_key);
+	    }
+	  };
+
 	  return DialogUtils;
 	}();
 
@@ -3776,9 +3785,7 @@
 	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
 	    var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
 	    if (dialogProvider) {
-	      if (!dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
-	        throw new Error('Failed to find an active dialog.');
-	      }
+	      dialogUtilsInstance.assertActiveDialogOrThrow(dialogProvider, callback._context.extension.addon_key);
 	      this.name = identifier;
 	      this.identifier = identifier;
 	    } else {
@@ -3984,9 +3991,7 @@
 	  var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
 	  var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
 	  if (dialogProvider) {
-	    if (!dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
-	      throw new Error('Failed to find an active dialog.');
-	    }
+	    dialogUtilsInstance.assertActiveDialogOrThrow(dialogProvider, callback._context.extension.addon_key);
 	    dialogProvider.createButton({
 	      identifier: options.identifier,
 	      text: options.text,
@@ -4090,9 +4095,7 @@
 	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
 	    var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
 	    if (dialogProvider) {
-	      if (!dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
-	        throw new Error('Failed to find an active dialog.');
-	      }
+	      dialogUtilsInstance.assertActiveDialogOrThrow(dialogProvider, callback._context.extension.addon_key);
 	      EventActions.broadcast('dialog.close', {
 	        addon_key: callback._context.extension.addon_key
 	      }, data);
@@ -5637,7 +5640,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.22';
+	  window._AP.version = '5.1.23';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
