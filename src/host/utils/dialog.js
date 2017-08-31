@@ -215,7 +215,7 @@ class DialogUtils {
   }
 
   // abstracts and handles a failure to find active dialog
-  isActiveDialogOrThrow(dialogProvider, addon_key) {
+  assertActiveDialogOrThrow(dialogProvider, addon_key) {
     if (!dialogProvider.isActiveDialog(addon_key)) {
       throw new Error('Failed to find an active dialog for: ' + addon_key);
     }

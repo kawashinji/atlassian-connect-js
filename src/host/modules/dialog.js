@@ -108,7 +108,7 @@ class Button {
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
     const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
     if (dialogProvider) {
-      dialogUtils.isActiveDialogOrThrow(dialogProvider, callback._context.extension.addon_key);
+      dialogUtils.assertActiveDialogOrThrow(dialogProvider, callback._context.extension.addon_key);
       this.name = identifier;
       this.identifier = identifier;
     } else {
@@ -294,7 +294,7 @@ class CreateButton {
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
     const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
     if (dialogProvider) {
-      dialogUtils.isActiveDialogOrThrow(dialogProvider, callback._context.extension.addon_key);
+      dialogUtils.assertActiveDialogOrThrow(dialogProvider, callback._context.extension.addon_key);
       dialogProvider.createButton({
         identifier: options.identifier,
         text: options.text,
@@ -397,7 +397,7 @@ export default {
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
     const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
     if (dialogProvider) {
-      dialogUtils.isActiveDialogOrThrow(dialogProvider, callback._context.extension.addon_key);
+      dialogUtils.assertActiveDialogOrThrow(dialogProvider, callback._context.extension.addon_key);
       EventActions.broadcast('dialog.close', {
         addon_key: callback._context.extension.addon_key
       }, data);
