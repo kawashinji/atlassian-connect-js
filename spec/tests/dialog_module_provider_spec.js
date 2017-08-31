@@ -322,7 +322,7 @@ describe('AP.dialog', () => {
       new DialogModule.create.constructor(minOptions, callback);
       expect(function(){
         DialogModule.close(otherAddonCallback)
-      }).toThrow(new Error('Failed to find an active dialog.'));
+      }).toThrow(new Error('Failed to find an active dialog for: ' + otherAddonCallback._context.extension.addon_key));
       expect(providerSpy.close).not.toHaveBeenCalled();
     });
 
@@ -367,7 +367,7 @@ describe('AP.dialog', () => {
           },
           otherAddonCallback
         )
-      }).toThrow(new Error('Failed to find an active dialog.'));
+      }).toThrow(new Error('Failed to find an active dialog for: ' + otherAddonCallback._context.extension.addon_key));
       expect(providerSpy.createButton).not.toHaveBeenCalled();
     });
 
@@ -390,7 +390,7 @@ describe('AP.dialog', () => {
       new DialogModule.create.constructor({key: 'some-module-key', chrome:true}, callback);
       expect(function(){
         new DialogModule.getButton.constructor('submit', otherAddonCallback)
-      }).toThrow(new Error('Failed to find an active dialog.'));
+      }).toThrow(new Error('Failed to find an active dialog for: ' + otherAddonCallback._context.extension.addon_key));
     });
 
     it('provides setButtonDisabled for the submit button', () => {
