@@ -4079,7 +4079,7 @@
 	  /**
 	   * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.
 	   * This will only close a dialog that has been opened by your add-on.
-	   * You can register for close events using the `dialog.close` event and the [events module](module-Events.html).
+	   * You can register for close events using the `dialog.close` event and the [events module](../events/).
 	   * @param {Object} data An object to be emitted on dialog close.
 	   * @noDemo
 	   * @example
@@ -4367,7 +4367,7 @@
 	 * The inline dialog is a wrapper for secondary content/controls to be displayed on user request. Consider this component as displayed in context to the triggering control with the dialog overlaying the page content.
 	 * An inline dialog should be preferred over a modal dialog when a connection between the action has a clear benefit versus having a lower user focus.
 	 *
-	 * Inline dialogs can be shown via a [web item target](../modules/common/web-item.html#target).
+	 * Inline dialogs can be shown via a [web item target](../../modules/web-item/#target).
 	 *
 	 * For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inline-dialog.html).
 	 * @module inline-dialog
@@ -4396,7 +4396,7 @@
 	/**
 	* Messages are the primary method for providing system feedback in the product user interface.
 	* Messages include notifications of various kinds: alerts, confirmations, notices, warnings, info and errors.
-	* For visual examples of each kind please see the [Design guide](https://developer.atlassian.com/design/latest/communicators/messages/).
+	* For visual examples of each kind please see the [Design guide](https://docs.atlassian.com/aui/latest/docs/messages.html).
 	* ### Example ###
 	* ```
 	* //create a message
@@ -5637,7 +5637,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.21';
+	  window._AP.version = '5.1.22';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
