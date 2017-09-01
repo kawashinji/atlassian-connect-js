@@ -108,9 +108,7 @@ class Button {
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
     const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
     if (dialogProvider) {
-      if (!dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
-        throw new Error('Failed to find an active dialog.');
-      }
+      dialogUtils.assertActiveDialogOrThrow(dialogProvider, callback._context.extension.addon_key);
       this.name = identifier;
       this.identifier = identifier;
     } else {
@@ -296,9 +294,7 @@ class CreateButton {
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
     const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
     if (dialogProvider) {
-      if (!dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
-        throw new Error('Failed to find an active dialog.');
-      }
+      dialogUtils.assertActiveDialogOrThrow(dialogProvider, callback._context.extension.addon_key);
       dialogProvider.createButton({
         identifier: options.identifier,
         text: options.text,
@@ -390,7 +386,7 @@ export default {
   /**
    * Closes the currently open dialog. Optionally pass data to listeners of the `dialog.close` event.
    * This will only close a dialog that has been opened by your add-on.
-   * You can register for close events using the `dialog.close` event and the [events module](module-Events.html).
+   * You can register for close events using the `dialog.close` event and the [events module](../events/).
    * @param {Object} data An object to be emitted on dialog close.
    * @noDemo
    * @example
@@ -401,9 +397,7 @@ export default {
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
     const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
     if (dialogProvider) {
-      if (!dialogProvider.isActiveDialog(callback._context.extension.addon_key)) {
-        throw new Error('Failed to find an active dialog.');
-      }
+      dialogUtils.assertActiveDialogOrThrow(dialogProvider, callback._context.extension.addon_key);
       EventActions.broadcast('dialog.close', {
         addon_key: callback._context.extension.addon_key
       }, data);
