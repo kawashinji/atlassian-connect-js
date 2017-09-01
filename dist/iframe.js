@@ -2942,7 +2942,7 @@ var AP = (function () {
 	 * @param {String} buttonName - button either "cancel" or "submit"
 	 * @param {Function} listener - callback function invoked when the requested button is pressed
 	 */
-	if (AP$2.dialog && AP$2.dialog.onDialogMessage) {
+	if (AP$2.dialog) {
 	  AP$2.dialog.onDialogMessage = AP$2._hostModules.dialog.onDialogMessage = deprecate(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');
 	}
 
