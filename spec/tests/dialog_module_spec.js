@@ -221,6 +221,30 @@ describe('Dialog module', () => {
     });
   });
 
+  it('closeOnEscape false button click dispatches an event', (done) => {
+    var extension = {
+      addon_key: 'some-key',
+      key: 'module-key',
+      url: 'http://www.example.com',
+      options: {
+        preventDialogCloseOnEscape: true
+      }
+    };
+
+    var options = baseDialogComponentTests.getChromeOptions();
+    options.closeOnEscape = false;
+    var $dialogExtension = DialogExtensionComponent.render(extension, options);
+    expect($dialogExtension.find('button.aui-button-primary')[0].getAttribute('aria-disabled')).toEqual('true');
+    EventDispatcher.registerOnce('after:iframe-bridge-established', (data) => {
+      expect($dialogExtension.find('button.aui-button-primary')[0].getAttribute('aria-disabled')).toEqual('false');
+      done();
+    });
+    EventDispatcher.dispatch('iframe-bridge-established', {
+      extension: extension,
+      $el: $dialogExtension.find('iframe')
+    });
+  });
+
   it('creates a custom button', () => {
     var extension = {
       addon_key: 'some-key',
