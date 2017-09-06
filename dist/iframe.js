@@ -1700,7 +1700,7 @@ var AP = (function () {
 	    _this._eventHandlers = {};
 	    _this._pendingCallbacks = {};
 	    _this._keyListeners = [];
-	    _this._version = "5.1.23";
+	    _this._version = "5.1.24";
 	    _this._apiTampered = undefined;
 	    _this._isSubIframe = _this._topHost !== window.parent;
 	    _this._onConfirmedFns = [];
@@ -2246,7 +2246,9 @@ var AP = (function () {
 	    if (!called && typeof console !== 'undefined' && console.warn) {
 	      called = true;
 	      console.warn('DEPRECATED API - ' + name + ' has been deprecated since ACJS ' + sinceVersion + (' and will be removed in a future release. ' + (alternate ? 'Use ' + alternate + ' instead.' : 'No alternative will be provided.')));
-	      AP$2._analytics.trackDeprecatedMethodUsed(name);
+	      if (AP$2._analytics) {
+	        AP$2._analytics.trackDeprecatedMethodUsed(name);
+	      }
 	    }
 	    return fn.apply(undefined, arguments);
 	  };
@@ -2767,23 +2769,30 @@ var AP = (function () {
 	  return AP$2._data.options.customData;
 	}, 'AP.dialog.customData', 'AP.dialog.getCustomData()', '5.0');
 
-	/**
-	 * Returns the custom data Object passed to the dialog at creation.
-	 * @noDemo
-	 * @deprecated after August 2017 | Please use <code>dialog.getCustomData(callback)</code> instead.
-	 * @name customData
-	 * @memberOf module:Dialog
-	 * @example
-	 * var myDataVariable = AP.dialog.customData.myDataVariable;
-	 *
-	 * @return {Object} Data Object passed to the dialog on creation.
-	 */
-	Object.defineProperty(AP$2._hostModules.dialog, 'customData', {
-	  get: getCustomData
-	});
-	Object.defineProperty(AP$2.dialog, 'customData', {
-	  get: getCustomData
-	});
+	if (AP$2._hostModules && AP$2._hostModules.dialog) {
+	  /**
+	   * Returns the custom data Object passed to the dialog at creation.
+	   * @noDemo
+	   * @deprecated after August 2017 | Please use <code>dialog.getCustomData(callback)</code> instead.
+	   * @name customData
+	   * @memberOf module:Dialog
+	   * @example
+	   * var myDataVariable = AP.dialog.customData.myDataVariable;
+	   *
+	   * @return {Object} Data Object passed to the dialog on creation.
+	   */
+	  Object.defineProperty(AP$2._hostModules.dialog, 'customData', {
+	    get: getCustomData
+	  });
+	  Object.defineProperty(AP$2.dialog, 'customData', {
+	    get: getCustomData
+	  });
+
+	  AP$2.dialog._disableCloseOnSubmit = false;
+	  AP$2.dialog.disableCloseOnSubmit = function () {
+	    AP$2.dialog._disableCloseOnSubmit = true;
+	  };
+	}
 
 	var dialogHandlers = {};
 
@@ -2856,73 +2865,74 @@ var AP = (function () {
 	  }
 	}
 
-	var original_dialogCreate = AP$2.dialog.create.prototype.constructor.bind({});
+	if (AP$2.dialog && AP$2.dialog.create) {
+	  var original_dialogCreate = AP$2.dialog.create.prototype.constructor.bind({});
 
-	AP$2.dialog.create = AP$2._hostModules.dialog.create = function () {
-	  var dialog = original_dialogCreate.apply(undefined, arguments);
-	  /**
-	   * Allows the add-on to register a callback function for the given event. The listener is only called once and must be re-registered if needed.
-	   * @deprecated after August 2017 | Please use <code>AP.events.on("dialog.close", callback)</code> instead.
-	   * @memberOf Dialog~Dialog
-	   * @method on
-	   * @param {String} event name of the event to listen for, such as 'close'.
-	   * @param {Function} callback function to receive the event callback.
-	   * @noDemo
-	   * @example
-	   * AP.dialog.create(opts).on("close", callbackFunc);
-	   */
-	  dialog.on = deprecate(registerHandler, 'AP.dialog.on("close", callback)', 'AP.events.on("dialog.close", callback)', '5.0');
-	  return dialog;
-	};
-
-	AP$2.dialog._disableCloseOnSubmit = false;
-	AP$2.dialog.disableCloseOnSubmit = function () {
-	  AP$2.dialog._disableCloseOnSubmit = true;
-	};
-
-	var original_dialogGetButton = AP$2.dialog.getButton.prototype.constructor.bind({});
-
-	AP$2.dialog.getButton = AP$2._hostModules.dialog.getButton = function (name) {
-	  try {
-	    var button = original_dialogGetButton(name);
+	  AP$2.dialog.create = AP$2._hostModules.dialog.create = function () {
+	    var dialog = original_dialogCreate.apply(undefined, arguments);
 	    /**
-	     * Registers a function to be called when the button is clicked.
-	     * @deprecated after August 2017 | Please use <code>AP.events.on("dialog.message", callback)</code> instead.
-	     * @method bind
-	     * @memberOf Dialog~DialogButton
-	     * @param {Function} callback function to be triggered on click or programatically.
+	     * Allows the add-on to register a callback function for the given event. The listener is only called once and must be re-registered if needed.
+	     * @deprecated after August 2017 | Please use <code>AP.events.on("dialog.close", callback)</code> instead.
+	     * @memberOf Dialog~Dialog
+	     * @method on
+	     * @param {String} event name of the event to listen for, such as 'close'.
+	     * @param {Function} callback function to receive the event callback.
 	     * @noDemo
 	     * @example
-	     * AP.dialog.getButton('submit').bind(function(){
-	     *   alert('clicked!');
-	     * });
+	     * AP.dialog.create(opts).on("close", callbackFunc);
 	     */
-	    button.bind = deprecate(function (callback) {
-	      return registerHandler(name, callback);
-	    }, 'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
+	    dialog.on = deprecate(registerHandler, 'AP.dialog.on("close", callback)', 'AP.events.on("dialog.close", callback)', '5.0');
+	    return dialog;
+	  };
+	}
 
-	    return button;
-	  } catch (e) {
-	    return {};
-	  }
-	};
+	if (AP$2.dialog && AP$2.dialog.getButton) {
+	  var original_dialogGetButton = AP$2.dialog.getButton.prototype.constructor.bind({});
 
-	var original_dialogCreateButton = AP$2.dialog.createButton.prototype.constructor.bind({});
+	  AP$2.dialog.getButton = AP$2._hostModules.dialog.getButton = function (name) {
+	    try {
+	      var button = original_dialogGetButton(name);
+	      /**
+	       * Registers a function to be called when the button is clicked.
+	       * @deprecated after August 2017 | Please use <code>AP.events.on("dialog.message", callback)</code> instead.
+	       * @method bind
+	       * @memberOf Dialog~DialogButton
+	       * @param {Function} callback function to be triggered on click or programatically.
+	       * @noDemo
+	       * @example
+	       * AP.dialog.getButton('submit').bind(function(){
+	       *   alert('clicked!');
+	       * });
+	       */
+	      button.bind = deprecate(function (callback) {
+	        return registerHandler(name, callback);
+	      }, 'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
 
-	AP$2.dialog.createButton = AP$2._hostModules.dialog.createButton = function (options) {
-	  var buttonProperties = {};
-	  if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
-	    buttonProperties.text = options;
-	    buttonProperties.identifier = options;
-	  } else {
-	    buttonProperties = options;
-	  }
-	  if (!buttonProperties.identifier) {
-	    buttonProperties.identifier = 'user.button.' + customButtonIncrement++;
-	  }
-	  var createButton = original_dialogCreateButton(buttonProperties);
-	  return AP$2.dialog.getButton(buttonProperties.identifier);
-	};
+	      return button;
+	    } catch (e) {
+	      return {};
+	    }
+	  };
+	}
+
+	if (AP$2.dialog && AP$2.dialog.createButton) {
+	  var original_dialogCreateButton = AP$2.dialog.createButton.prototype.constructor.bind({});
+
+	  AP$2.dialog.createButton = AP$2._hostModules.dialog.createButton = function (options) {
+	    var buttonProperties = {};
+	    if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
+	      buttonProperties.text = options;
+	      buttonProperties.identifier = options;
+	    } else {
+	      buttonProperties = options;
+	    }
+	    if (!buttonProperties.identifier) {
+	      buttonProperties.identifier = 'user.button.' + customButtonIncrement++;
+	    }
+	    var createButton = original_dialogCreateButton(buttonProperties);
+	    return AP$2.dialog.getButton(buttonProperties.identifier);
+	  };
+	}
 
 	/**
 	 * Register callbacks responding to messages from the host dialog, such as "submit" or "cancel"
@@ -2932,7 +2942,9 @@ var AP = (function () {
 	 * @param {String} buttonName - button either "cancel" or "submit"
 	 * @param {Function} listener - callback function invoked when the requested button is pressed
 	 */
-	AP$2.dialog.onDialogMessage = AP$2._hostModules.dialog.onDialogMessage = deprecate(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');
+	if (AP$2.dialog) {
+	  AP$2.dialog.onDialogMessage = AP$2._hostModules.dialog.onDialogMessage = deprecate(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');
+	}
 
 	if (!AP$2.Dialog) {
 	  AP$2.Dialog = AP$2._hostModules.Dialog = AP$2.dialog;
@@ -3079,8 +3091,10 @@ var AP = (function () {
 	}
 
 	$$3.each(EventsInstance.methods, function (i, method) {
-	  AP$2._hostModules.events[method] = AP$2.events[method] = EventsInstance[method].bind(EventsInstance);
-	  AP$2._hostModules.events[method + 'Public'] = AP$2.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
+	  if (AP$2._hostModules && AP$2._hostModules.events) {
+	    AP$2._hostModules.events[method] = AP$2.events[method] = EventsInstance[method].bind(EventsInstance);
+	    AP$2._hostModules.events[method + 'Public'] = AP$2.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
+	  }
 	});
 
 	AP$2.define = deprecate(function () {

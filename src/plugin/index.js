@@ -24,8 +24,10 @@ if(consumerOptions.get('base') === true) {
 
 
 $.each(EventsInstance.methods, (i, method) => {
-  AP._hostModules.events[method] = AP.events[method] = EventsInstance[method].bind(EventsInstance);
-  AP._hostModules.events[method + 'Public'] = AP.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
+  if(AP._hostModules && AP._hostModules.events) {
+    AP._hostModules.events[method] = AP.events[method] = EventsInstance[method].bind(EventsInstance);
+    AP._hostModules.events[method + 'Public'] = AP.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
+  }
 });
 
 AP.define = deprecate((...args) => AMD.define(...args),
