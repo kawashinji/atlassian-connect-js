@@ -2832,7 +2832,12 @@ var AP = (function () {
 	    return;
 	  }
 	  if (args && args.button && args.button.name) {
-	    context = AP$2.dialog.getButton(args.button.name);
+	    try {
+	      context = AP$2.dialog.getButton(args.button.name);
+	    } catch (e) {
+	      console.log('EXECPTION', e);
+	      return;
+	    }
 	  }
 
 	  // if the submit button has been set to not close on click

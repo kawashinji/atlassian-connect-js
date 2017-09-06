@@ -9,6 +9,11 @@ import HostApi from '../host-api';
 import Util from '../util';
 import dialogUtils from '../utils/dialog';
 
+function NoActiveDialogException(message){
+  this.message = message;
+  this.name = 'NoActiveDialogException';
+}
+
 const _dialogs = {};
 
 EventDispatcher.register('dialog-close', function (data) {
@@ -113,7 +118,7 @@ class Button {
       this.identifier = identifier;
     } else {
       if (!DialogExtensionComponent.getActiveDialog()) {
-        throw new Error('Failed to find an active dialog.');
+        throw new NoActiveDialogException('Failed to find an active dialog.');
       }
       this.name = identifier;
       this.identifier = identifier;
