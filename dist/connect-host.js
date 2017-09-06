@@ -3509,7 +3509,7 @@
 	var DialogComponent = new Dialog$1();
 
 	EventDispatcher$1.register('iframe-bridge-established', function (data) {
-	  if (data.extension.options.isDialog && !data.extension.options.preventDialogCloseOnEscape) {
+	  if (data.extension.options.isDialog) {
 	    var callback = void 0;
 	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
 	    var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
@@ -3528,18 +3528,21 @@
 	        });
 	      };
 	    }
-	    DomEventActions.registerKeyEvent({
-	      extension_id: data.extension.id,
-	      key: 27,
-	      callback: callback
-	    });
 
-	    EventDispatcher$1.registerOnce('dialog-close', function (d) {
-	      DomEventActions.unregisterKeyEvent({
+	    if (!data.extension.options.preventDialogCloseOnEscape) {
+	      DomEventActions.registerKeyEvent({
 	        extension_id: data.extension.id,
-	        key: 27
+	        key: 27,
+	        callback: callback
 	      });
-	    });
+
+	      EventDispatcher$1.registerOnce('dialog-close', function (d) {
+	        DomEventActions.unregisterKeyEvent({
+	          extension_id: data.extension.id,
+	          key: 27
+	        });
+	      });
+	    }
 	  }
 	});
 

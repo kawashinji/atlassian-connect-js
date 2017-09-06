@@ -279,7 +279,7 @@ class Dialog {
 const DialogComponent = new Dialog();
 
 EventDispatcher.register('iframe-bridge-established', (data) => {
-  if(data.extension.options.isDialog && !data.extension.options.preventDialogCloseOnEscape){
+  if(data.extension.options.isDialog){
     let callback;
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
     const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
@@ -298,18 +298,21 @@ EventDispatcher.register('iframe-bridge-established', (data) => {
         });
       }
     }
-    DomEventActions.registerKeyEvent({
-      extension_id: data.extension.id,
-      key: 27,
-      callback
-    });
 
-    EventDispatcher.registerOnce('dialog-close', (d) => {
-      DomEventActions.unregisterKeyEvent({
+    if(!data.extension.options.preventDialogCloseOnEscape){
+      DomEventActions.registerKeyEvent({
         extension_id: data.extension.id,
-        key: 27
+        key: 27,
+        callback
       });
-    });
+
+      EventDispatcher.registerOnce('dialog-close', (d) => {
+        DomEventActions.unregisterKeyEvent({
+          extension_id: data.extension.id,
+          key: 27
+        });
+      });
+    }
   }
 });
 
