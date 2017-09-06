@@ -3682,11 +3682,6 @@
 	  DialogExtensionComponent.render(data.extension, data.options);
 	});
 
-	function NoActiveDialogException(message) {
-	  this.message = message;
-	  this.name = 'NoActiveDialogException';
-	}
-
 	var _dialogs = {};
 
 	EventDispatcher$1.register('dialog-close', function (data) {
@@ -3798,7 +3793,7 @@
 	      this.identifier = identifier;
 	    } else {
 	      if (!DialogExtensionComponent.getActiveDialog()) {
-	        throw new NoActiveDialogException('Failed to find an active dialog.');
+	        throw new Error('Failed to find an active dialog.');
 	      }
 	      this.name = identifier;
 	      this.identifier = identifier;

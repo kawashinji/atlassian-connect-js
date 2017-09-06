@@ -71,14 +71,6 @@ function submitOrCancelEvent(name, args) {
   if (shouldClose && typeof args.button === 'undefined') {
     return;
   }
-  if(args && args.button && args.button.name) {
-    try {
-      context = AP.dialog.getButton(args.button.name);
-    } catch (e) {
-      console.log('EXECPTION', e);
-      return;
-    }
-  }
 
   // if the submit button has been set to not close on click
   if(name === 'submit' && AP.dialog._disableCloseOnSubmit) {
@@ -87,6 +79,9 @@ function submitOrCancelEvent(name, args) {
 
   try {
     if (handlers) {
+      if(args && args.button && args.button.name) {
+        context = AP.dialog.getButton(args.button.name);
+      }
       shouldClose = handlers.reduce((result, cb) => cb.call(context, args) && result, shouldClose);
     }
   } catch (err) {
