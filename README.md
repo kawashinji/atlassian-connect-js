@@ -195,6 +195,19 @@ ACJS follows the Atlassian [Front-End Code Quality](https://extranet.atlassian.c
 
 Point IntelliJ / Sublime / your editor of choice at the .eslintrc for linting as you edit.
 
+Code Coverage
+-------------
+
+We use [Istanbul](http://gotwarlost.github.io/istanbul/) for code coverage statistics.
+
+To run tests and generate coverage results:
+
+    COVERAGE=true gulp karma-ci
+
+Then point your browser at:
+
+    file:///<path to atlassian-connect-js>/coverage/index.html
+
 Commands
 --------
 
