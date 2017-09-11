@@ -2831,9 +2831,6 @@ var AP = (function () {
 	  if (shouldClose && typeof args.button === 'undefined') {
 	    return;
 	  }
-	  if (args && args.button && args.button.name) {
-	    context = AP$2.dialog.getButton(args.button.name);
-	  }
 
 	  // if the submit button has been set to not close on click
 	  if (name === 'submit' && AP$2.dialog._disableCloseOnSubmit) {
@@ -2842,6 +2839,9 @@ var AP = (function () {
 
 	  try {
 	    if (handlers) {
+	      if (args && args.button && args.button.name) {
+	        context = AP$2.dialog.getButton(args.button.name);
+	      }
 	      shouldClose = handlers.reduce(function (result, cb) {
 	        return cb.call(context, args) && result;
 	      }, shouldClose);
