@@ -817,6 +817,11 @@
 	      console.warn(LOG_PREFIX + msg);
 	    }
 	  },
+	  log: function log(msg) {
+	    if (window.console) {
+	      window.console.log(LOG_PREFIX + msg);
+	    }
+	  },
 	  _bind: function _bind(thisp, fn) {
 	    if (nativeBind && fn.bind === nativeBind) {
 	      return fn.bind(thisp);
@@ -1530,7 +1535,7 @@
 	    }
 
 	    if (!isValidOrigin) {
-	      util.warn("Failed to validate origin: " + event.origin);
+	      util.log("Failed to validate origin: " + event.origin);
 	    }
 	    return isValidOrigin;
 	  };
@@ -5643,7 +5648,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.29';
+	  window._AP.version = '5.1.30';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

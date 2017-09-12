@@ -128,6 +128,11 @@ var AP = (function () {
 	      console.warn(LOG_PREFIX + msg);
 	    }
 	  },
+	  log: function log(msg) {
+	    if (window.console) {
+	      window.console.log(LOG_PREFIX + msg);
+	    }
+	  },
 	  _bind: function _bind(thisp, fn) {
 	    if (nativeBind && fn.bind === nativeBind) {
 	      return fn.bind(thisp);
@@ -841,7 +846,7 @@ var AP = (function () {
 	    }
 
 	    if (!isValidOrigin) {
-	      util.warn("Failed to validate origin: " + event.origin);
+	      util.log("Failed to validate origin: " + event.origin);
 	    }
 	    return isValidOrigin;
 	  };
@@ -1700,7 +1705,7 @@ var AP = (function () {
 	    _this._eventHandlers = {};
 	    _this._pendingCallbacks = {};
 	    _this._keyListeners = [];
-	    _this._version = "5.1.29";
+	    _this._version = "5.1.30";
 	    _this._apiTampered = undefined;
 	    _this._isSubIframe = _this._topHost !== window.parent;
 	    _this._onConfirmedFns = [];
