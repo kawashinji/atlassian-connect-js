@@ -68,6 +68,7 @@ class Flag {
         body: options.body,
         actions: actions,
         onClose: FlagActions.closed,
+        close: options.close,
         type: type.toLowerCase()
       };
       this.flag = flagProvider.create(flagOptions);
