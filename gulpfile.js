@@ -26,7 +26,7 @@ function build(entryModule, distModule, options) {
     entry: entryModule,
     plugins: [
       babel({
-        exclude: 'node_modules/promise-polyfill/**',
+        exclude: 'node_modules/simple-xdm/node_modules/promise-polyfill/**',
         plugins: ['external-helpers'],
         presets: [
           ['env', {

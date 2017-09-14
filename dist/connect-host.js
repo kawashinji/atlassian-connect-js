@@ -2078,6 +2078,21 @@
 	    return headerText;
 	  };
 
+	  DialogUtils.prototype._content = function _content(content) {
+	    var contentText = '';
+	    switch (typeof content === 'undefined' ? 'undefined' : _typeof(content)) {
+	      case 'string':
+	        contentText = content;
+	        break;
+
+	      case 'object':
+	        contentText = content.value;
+	        break;
+	    }
+
+	    return contentText;
+	  };
+
 	  DialogUtils.prototype._hint = function _hint(text) {
 	    if (typeof text === 'string') {
 	      return text;
@@ -2194,7 +2209,7 @@
 	      hint: this._hint(options.hint),
 	      width: this._width(options),
 	      height: this._height(options),
-	      $content: options.$content,
+	      content: this._content(options.content),
 	      extension: options.extension,
 	      actions: this._actions(options),
 	      id: this._id(options.id),
