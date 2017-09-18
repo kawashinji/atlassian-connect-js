@@ -2250,6 +2250,12 @@
 	    }
 	  };
 
+	  DialogUtils.prototype.dialogUrl = function dialogUrl(dialogExtension, dialogOptions) {
+	    if (dialogOptions.src && dialogExtension.options.origin && dialogExtension.options.origin.length !== 0) {
+	      return dialogExtension.options.origin + '/' + dialogOptions.src;
+	    }
+	  };
+
 	  return DialogUtils;
 	}();
 
@@ -3737,9 +3743,13 @@
 	  var dialogExtension = {
 	    addon_key: extension.addon_key,
 	    key: options.key,
-	    url: options.src,
 	    options: Util$1.pick(extension.options, ['customData', 'productContext'])
 	  };
+
+	  if (options.src && extension.options.origin) {
+	    dialogExtension.url = dialogUtilsInstance.dialogUrl(extension, options);
+	    dialogExtension.key = options.key || _id;
+	  }
 
 	  // ACJS-185: the following is a really bad idea but we need it
 	  // for compat until AP.dialog.customData has been deprecated

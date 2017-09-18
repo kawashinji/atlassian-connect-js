@@ -221,6 +221,12 @@ class DialogUtils {
     }
   }
 
+  dialogUrl(dialogExtension, dialogOptions) {
+    if(dialogOptions.src && (dialogExtension.options.origin && dialogExtension.options.origin.length !== 0)) {
+      return dialogExtension.options.origin + '/' + dialogOptions.src;
+    }
+  }
+
 }
 
 var dialogUtilsInstance = new DialogUtils();

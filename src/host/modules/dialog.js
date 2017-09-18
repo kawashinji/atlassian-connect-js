@@ -57,9 +57,14 @@ class Dialog {
     let dialogExtension = {
       addon_key: extension.addon_key,
       key: options.key,
-      url: options.src,
       options: Util.pick(extension.options, ['customData', 'productContext'])
     };
+
+    if(options.src && extension.options.origin) {
+      dialogExtension.url = DialogUtils.dialogUrl(extension, options);
+      dialogExtension.key = options.key || _id;
+    }
+
 
     // ACJS-185: the following is a really bad idea but we need it
     // for compat until AP.dialog.customData has been deprecated
