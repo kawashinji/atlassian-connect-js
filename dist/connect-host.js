@@ -3733,9 +3733,11 @@
 	  callback = Util$1.last(arguments);
 	  var _id = callback._id;
 	  var extension = callback._context.extension;
+	  console.log('context?', callback._context);
 	  var dialogExtension = {
 	    addon_key: extension.addon_key,
 	    key: options.key,
+	    url: options.src,
 	    options: Util$1.pick(extension.options, ['customData', 'productContext'])
 	  };
 

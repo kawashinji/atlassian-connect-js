@@ -53,9 +53,11 @@ class Dialog {
     callback = Util.last(arguments);
     const _id = callback._id;
     const extension = callback._context.extension;
+    console.log('context?', callback._context);
     let dialogExtension = {
       addon_key: extension.addon_key,
       key: options.key,
+      url: options.src,
       options: Util.pick(extension.options, ['customData', 'productContext'])
     };
 
