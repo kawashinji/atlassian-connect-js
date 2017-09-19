@@ -53,7 +53,6 @@ class Dialog {
     callback = Util.last(arguments);
     const _id = callback._id;
     const extension = callback._context.extension;
-    console.log('context?', callback._context);
     let dialogExtension = {
       addon_key: extension.addon_key,
       key: options.key,
@@ -64,7 +63,6 @@ class Dialog {
       dialogExtension.key = options.key || extension.addon_key + 'dialog';
       dialogExtension.url = DialogUtils.dialogUrl(extension, options);
     }
-
 
     // ACJS-185: the following is a really bad idea but we need it
     // for compat until AP.dialog.customData has been deprecated
