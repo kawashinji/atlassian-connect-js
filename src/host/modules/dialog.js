@@ -61,8 +61,8 @@ class Dialog {
     };
 
     if(options.src && extension.options.origin) {
+      dialogExtension.key = options.key || extension.addon_key + 'dialog';
       dialogExtension.url = DialogUtils.dialogUrl(extension, options);
-      dialogExtension.key = options.key || _id;
     }
 
 

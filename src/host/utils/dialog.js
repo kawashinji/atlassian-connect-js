@@ -2,6 +2,7 @@ import util from '../util';
 import buttonUtils from './button';
 import $ from '../dollar';
 import AnalyticsDispatcher from '../dispatchers/analytics_dispatcher';
+import qs from 'query-string';
 
 class DialogUtils {
   _maxDimension(val, maxPxVal){
@@ -221,9 +222,22 @@ class DialogUtils {
     }
   }
 
+  // construct the dialog URL, prepend the add-on origin and append the xdm_e and cp query params.
   dialogUrl(dialogExtension, dialogOptions) {
     if(dialogOptions.src && (dialogExtension.options.origin && dialogExtension.options.origin.length !== 0)) {
-      return dialogExtension.options.origin + '/' + dialogOptions.src;
+      let fullUrl = dialogExtension.options.origin + '/' + dialogOptions.src;
+      let extractedQueryString = qs.extract(fullUrl);
+
+      let fullUrlWithoutQueryString = fullUrl;
+      if(fullUrl.indexOf('?') > 0) {
+        fullUrlWithoutQueryString = fullUrl.slice(0, fullUrl.indexOf('?'));
+      }
+      let parsedQueryString = qs.parse(extractedQueryString);
+      parsedQueryString.cp = dialogExtension.options.contextPath;
+      parsedQueryString.xdm_e = dialogExtension.options.hostOrigin;
+
+      return fullUrlWithoutQueryString + '?' + qs.stringify(parsedQueryString);
+
     }
   }
 

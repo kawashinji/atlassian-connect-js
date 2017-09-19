@@ -2026,6 +2026,113 @@
 
 	var buttonUtilsInstance = new ButtonUtils();
 
+	var index$2 = function (str) {
+		return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
+			return '%' + c.charCodeAt(0).toString(16).toUpperCase();
+		});
+	};
+
+	function encode(value, opts) {
+		if (opts.encode) {
+			return opts.strict ? index$2(value) : encodeURIComponent(value);
+		}
+
+		return value;
+	}
+
+	var extract = function (str) {
+		return str.split('?')[1] || '';
+	};
+
+	var parse = function (str) {
+		// Create an object with no prototype
+		// https://github.com/sindresorhus/query-string/issues/47
+		var ret = Object.create(null);
+
+		if (typeof str !== 'string') {
+			return ret;
+		}
+
+		str = str.trim().replace(/^(\?|#|&)/, '');
+
+		if (!str) {
+			return ret;
+		}
+
+		str.split('&').forEach(function (param) {
+			var parts = param.replace(/\+/g, ' ').split('=');
+			// Firefox (pre 40) decodes `%3D` to `=`
+			// https://github.com/sindresorhus/query-string/pull/37
+			var key = parts.shift();
+			var val = parts.length > 0 ? parts.join('=') : undefined;
+
+			key = decodeURIComponent(key);
+
+			// missing `=` should be `null`:
+			// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
+			val = val === undefined ? null : decodeURIComponent(val);
+
+			if (ret[key] === undefined) {
+				ret[key] = val;
+			} else if (Array.isArray(ret[key])) {
+				ret[key].push(val);
+			} else {
+				ret[key] = [ret[key], val];
+			}
+		});
+
+		return ret;
+	};
+
+	var stringify = function (obj, opts) {
+		var defaults = {
+			encode: true,
+			strict: true
+		};
+
+		opts = index(defaults, opts);
+
+		return obj ? Object.keys(obj).sort().map(function (key) {
+			var val = obj[key];
+
+			if (val === undefined) {
+				return '';
+			}
+
+			if (val === null) {
+				return encode(key, opts);
+			}
+
+			if (Array.isArray(val)) {
+				var result = [];
+
+				val.slice().forEach(function (val2) {
+					if (val2 === undefined) {
+						return;
+					}
+
+					if (val2 === null) {
+						result.push(encode(key, opts));
+					} else {
+						result.push(encode(key, opts) + '=' + encode(val2, opts));
+					}
+				});
+
+				return result.join('&');
+			}
+
+			return encode(key, opts) + '=' + encode(val, opts);
+		}).filter(function (x) {
+			return x.length > 0;
+		}).join('&') : '';
+	};
+
+	var index$1 = {
+		extract: extract,
+		parse: parse,
+		stringify: stringify
+	};
+
 	var DialogUtils = function () {
 	  function DialogUtils() {
 	    classCallCheck(this, DialogUtils);
@@ -2250,9 +2357,23 @@
 	    }
 	  };
 
+	  // construct the dialog URL, prepend the add-on origin and append the xdm_e and cp query params.
+
+
 	  DialogUtils.prototype.dialogUrl = function dialogUrl(dialogExtension, dialogOptions) {
 	    if (dialogOptions.src && dialogExtension.options.origin && dialogExtension.options.origin.length !== 0) {
-	      return dialogExtension.options.origin + '/' + dialogOptions.src;
+	      var fullUrl = dialogExtension.options.origin + '/' + dialogOptions.src;
+	      var extractedQueryString = index$1.extract(fullUrl);
+
+	      var fullUrlWithoutQueryString = fullUrl;
+	      if (fullUrl.indexOf('?') > 0) {
+	        fullUrlWithoutQueryString = fullUrl.slice(0, fullUrl.indexOf('?'));
+	      }
+	      var parsedQueryString = index$1.parse(extractedQueryString);
+	      parsedQueryString.cp = dialogExtension.options.contextPath;
+	      parsedQueryString.xdm_e = dialogExtension.options.hostOrigin;
+
+	      return fullUrlWithoutQueryString + '?' + index$1.stringify(parsedQueryString);
 	    }
 	  };
 
@@ -2284,113 +2405,6 @@
 	  notifyUnloaded: function notifyUnloaded($el, extension) {
 	    EventDispatcher$1.dispatch('iframe-unload', { $el: $el, extension: extension });
 	  }
-	};
-
-	var index$2 = function (str) {
-		return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
-			return '%' + c.charCodeAt(0).toString(16).toUpperCase();
-		});
-	};
-
-	function encode(value, opts) {
-		if (opts.encode) {
-			return opts.strict ? index$2(value) : encodeURIComponent(value);
-		}
-
-		return value;
-	}
-
-	var extract = function (str) {
-		return str.split('?')[1] || '';
-	};
-
-	var parse = function (str) {
-		// Create an object with no prototype
-		// https://github.com/sindresorhus/query-string/issues/47
-		var ret = Object.create(null);
-
-		if (typeof str !== 'string') {
-			return ret;
-		}
-
-		str = str.trim().replace(/^(\?|#|&)/, '');
-
-		if (!str) {
-			return ret;
-		}
-
-		str.split('&').forEach(function (param) {
-			var parts = param.replace(/\+/g, ' ').split('=');
-			// Firefox (pre 40) decodes `%3D` to `=`
-			// https://github.com/sindresorhus/query-string/pull/37
-			var key = parts.shift();
-			var val = parts.length > 0 ? parts.join('=') : undefined;
-
-			key = decodeURIComponent(key);
-
-			// missing `=` should be `null`:
-			// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
-			val = val === undefined ? null : decodeURIComponent(val);
-
-			if (ret[key] === undefined) {
-				ret[key] = val;
-			} else if (Array.isArray(ret[key])) {
-				ret[key].push(val);
-			} else {
-				ret[key] = [ret[key], val];
-			}
-		});
-
-		return ret;
-	};
-
-	var stringify = function (obj, opts) {
-		var defaults = {
-			encode: true,
-			strict: true
-		};
-
-		opts = index(defaults, opts);
-
-		return obj ? Object.keys(obj).sort().map(function (key) {
-			var val = obj[key];
-
-			if (val === undefined) {
-				return '';
-			}
-
-			if (val === null) {
-				return encode(key, opts);
-			}
-
-			if (Array.isArray(val)) {
-				var result = [];
-
-				val.slice().forEach(function (val2) {
-					if (val2 === undefined) {
-						return;
-					}
-
-					if (val2 === null) {
-						result.push(encode(key, opts));
-					} else {
-						result.push(encode(key, opts) + '=' + encode(val2, opts));
-					}
-				});
-
-				return result.join('&');
-			}
-
-			return encode(key, opts) + '=' + encode(val, opts);
-		}).filter(function (x) {
-			return x.length > 0;
-		}).join('&') : '';
-	};
-
-	var index$1 = {
-		extract: extract,
-		parse: parse,
-		stringify: stringify
 	};
 
 	var toByteArray_1 = toByteArray;
@@ -3747,8 +3761,8 @@
 	  };
 
 	  if (options.src && extension.options.origin) {
+	    dialogExtension.key = options.key || extension.addon_key + 'dialog';
 	    dialogExtension.url = dialogUtilsInstance.dialogUrl(extension, options);
-	    dialogExtension.key = options.key || _id;
 	  }
 
 	  // ACJS-185: the following is a really bad idea but we need it
