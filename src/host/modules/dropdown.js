@@ -3,8 +3,8 @@
 * there is no AUI implementation of this
 */
 
+import HostApi from '../host-api';
 import util from '../util';
-import ModuleProviders from '../module-providers';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import EventActions from '../actions/event_actions';
 import DropdownActions from '../actions/dropdown_actions';
@@ -101,13 +101,22 @@ export default {
     if (typeof options !== 'object') {
       return;
     }
-    dropdownProvider = ModuleProviders.getProvider('dropdown');
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
     if (dropdownProvider) {
       dropdownProvider.registerItemNotifier((data) => {
         DropdownActions.itemSelected(data.dropdown_id, data.item, callback._context.extension);
       });
-      options.list = moduleListToApiList(options.list);
-      dropdownProvider.create(options, callback._context);
+      // options.list = moduleListToApiList(options.list);
+      // const dropdownGroup = {
+      //   items: options.list
+      // };
+      const dropdownGroups = moduleListToApiList(options.list);
+      const dropdownProviderOptions = {
+        dropdownId: options.dropdown_id,
+        dropdownGroups: dropdownGroups
+      };
+      dropdownProvider.create(dropdownProviderOptions, callback._context);
       // return for testing
       return options;
     }
@@ -139,13 +148,16 @@ export default {
     let callback = util.last(arguments);
     let rect = document.getElementById(callback._context.extension_id).getBoundingClientRect();
 
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
     if (dropdownProvider) {
-      dropdownProvider.showAt({
-        dropdown_id,
-        x,
-        y,
-        width
-      }, {
+      const dropdownProviderArgs = {
+          dropdownId: dropdown_id,
+          x: x,
+          y: y,
+          width: width
+      };
+      dropdownProvider.showAt(dropdownProviderArgs, {
         iframeDimensions: rect,
         onItemSelection: (dropdown_id, item) => {
           DropdownActions.itemSelected(dropdown_id, item, callback._context.extension);
@@ -163,6 +175,8 @@ export default {
   * AP.dropdown.hide('my-dropdown');
   */
   hide(id) {
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
     if (dropdownProvider) {
       dropdownProvider.hide(id);
     }
@@ -179,6 +193,8 @@ export default {
   * AP.dropdown.itemDisable('my-dropdown', 'item-id');
   */
   itemDisable(dropdown_id, item_id) {
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
     if (dropdownProvider) {
       dropdownProvider.itemDisable(dropdown_id, item_id);
     }
@@ -195,6 +211,8 @@ export default {
   * AP.dropdown.itemEnable('my-dropdown', 'item-id');
   */
   itemEnable(dropdown_id, item_id) {
+    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+    const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
     if (dropdownProvider) {
       dropdownProvider.itemEnable(dropdown_id, item_id);
     }
