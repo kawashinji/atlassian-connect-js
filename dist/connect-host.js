@@ -2093,6 +2093,11 @@
 	    return contentText;
 	  };
 
+	  DialogUtils.prototype._adf = function _adf(adf) {
+
+	    return adf;
+	  };
+
 	  DialogUtils.prototype._hint = function _hint(text) {
 	    if (typeof text === 'string') {
 	      return text;
@@ -2210,6 +2215,7 @@
 	      width: this._width(options),
 	      height: this._height(options),
 	      content: this._content(options.content),
+	      adf: this._adf(options.adf),
 	      extension: options.extension,
 	      actions: this._actions(options),
 	      id: this._id(options.id),

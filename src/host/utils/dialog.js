@@ -65,6 +65,11 @@ class DialogUtils {
     return contentText;
   }
 
+  _adf(adf) {
+
+    return adf;
+  }
+
   _hint(text){
     if(typeof text === 'string'){
       return text;
@@ -184,6 +189,7 @@ class DialogUtils {
       width: this._width(options),
       height: this._height(options),
       content: this._content(options.content),
+      adf: this._adf(options.adf),
       extension: options.extension,
       actions: this._actions(options),
       id: this._id(options.id),
