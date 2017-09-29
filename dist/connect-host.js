@@ -5410,11 +5410,26 @@
 	  InlineDialog.prototype.render = function render(data) {
 	    var _this = this;
 
-	    var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
+	    // var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
 
-	    if ($inlineDialog.length !== 0) {
-	      $inlineDialog.remove();
-	    }
+	    // if ($inlineDialog.length !== 0) {
+	    //   $inlineDialog.remove();
+	    // }
+
+	    var $el = $('<aui-inline-dialog />').attr({
+	      id: data.id,
+	      open: true
+	    });
+	    console.log('el?', $el);
+
+	    console.log('EVERYTHING IN RENDER', data);
+	    // this._displayInlineDialog({
+	    //   extension: data.extension,
+	    //   $el: 
+	    //   trigger: 
+	    // });
+
+	    return;
 
 	    var $el = AJS.InlineDialog(data.bindTo,
 	    //assign unique id to inline Dialog

@@ -1709,7 +1709,6 @@ var AP = (function () {
 	    _this._apiTampered = undefined;
 	    _this._isSubIframe = _this._topHost !== window.parent;
 	    _this._onConfirmedFns = [];
-	    _this._promise = promise;
 	    if (_this._data.api) {
 	      _this._setupAPI(_this._data.api);
 	      _this._setupAPIWithoutRequire(_this._data.api);
