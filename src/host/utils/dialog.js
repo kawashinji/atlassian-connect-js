@@ -188,6 +188,7 @@ class DialogUtils {
       hint: this._hint(options.hint),
       width: this._width(options),
       height: this._height(options),
+      $content: options.$content,
       content: this._content(options.content),
       adf: this._adf(options.adf),
       extension: options.extension,
