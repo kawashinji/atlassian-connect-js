@@ -4216,6 +4216,12 @@
 	  });
 	});
 
+	EventDispatcher$1.register('hide-footer', function (hideFooter) {
+	  if (hideFooter) {
+	    $('#footer').css({ display: 'none' });
+	  }
+	});
+
 	AJS.$(window).on('resize', function (e) {
 	  EventDispatcher$1.dispatch('host-window-resize', e);
 	});
@@ -4236,6 +4242,9 @@
 	      hideFooter: hideFooter,
 	      extensionId: extensionId
 	    });
+	  },
+	  hideFooter: function hideFooter(_hideFooter) {
+	    EventDispatcher$1.dispatch('hide-footer', _hideFooter);
 	  }
 	};
 
@@ -4327,7 +4336,12 @@
 	        Util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
 	      }
 	    }
-	  })
+	  }),
+	  hideFooter: function hideFooter(_hideFooter) {
+	    if (_hideFooter) {
+	      EnvActions.hideFooter(_hideFooter);
+	    }
+	  }
 	};
 
 	EventDispatcher$1.register('host-window-resize', function (data) {

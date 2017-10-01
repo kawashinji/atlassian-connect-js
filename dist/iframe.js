@@ -3090,6 +3090,10 @@ var AP = (function () {
 	  AP$2.env.sizeToParent(ConsumerOptions$1.get('hideFooter') === true);
 	}
 
+	if (ConsumerOptions$1.get('hideFooter') === true) {
+	  AP$2.env.hideFooter(true);
+	}
+
 	if (ConsumerOptions$1.get('base') === true) {
 	  AP$2.env.getLocation(function (loc) {
 	    $$3('head').append({ tag: 'base', href: loc, target: '_parent' });
@@ -3136,11 +3140,13 @@ var AP = (function () {
 	};
 
 	if (AP$2.defineModule) {
-	  AP$2.defineModule('env', { resize: function resize(w, h, callback) {
+	  AP$2.defineModule('env', {
+	    resize: function resize(w, h, callback) {
 	      var iframe = document.getElementById(callback._context.extension_id);
 	      iframe.style.width = w + (typeof w === 'number' ? 'px' : '');
 	      iframe.style.height = h + (typeof h === 'number' ? 'px' : '');
-	    } });
+	    }
+	  });
 	}
 
 	if (AP$2._data && AP$2._data.origin) {

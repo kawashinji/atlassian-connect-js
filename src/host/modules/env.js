@@ -23,7 +23,7 @@ export default {
    *   alert(location);
    * });
    */
-  getLocation: function (callback) {
+  getLocation: function(callback) {
     callback = util.last(arguments);
     callback(window.location.href);
   },
@@ -51,12 +51,12 @@ export default {
     } else {
       var iframeId = callback._context.extension.id;
       var options = callback._context.extension.options;
-      if(ignoreResizeForExtension.indexOf(iframeId) !== -1 || (options && options.isDialog)) {
+      if (ignoreResizeForExtension.indexOf(iframeId) !== -1 || (options && options.isDialog)) {
         return false;
       }
 
-      if(!resizeFuncHolder[iframeId]){
-        resizeFuncHolder[iframeId] = debounce(function(dwidth, dheight, dcallback){
+      if (!resizeFuncHolder[iframeId]) {
+        resizeFuncHolder[iframeId] = debounce(function(dwidth, dheight, dcallback) {
           EnvActions.iframeResize(dwidth, dheight, dcallback._context);
         }, 50);
       }
@@ -73,7 +73,7 @@ export default {
    * @method
    * @param {boolean} hideFooter true if the footer is supposed to be hidden
    */
-  sizeToParent: debounce(function (hideFooter, callback) {
+  sizeToParent: debounce(function(hideFooter, callback) {
     callback = util.last(arguments);
     let addon = ModuleProviders.getProvider('addon');
     if (addon) {
@@ -84,33 +84,37 @@ export default {
         // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
         util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
         EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
-        sizeToParentExtension[callback._context.extension_id] = {hideFooter: hideFooter};
+        sizeToParentExtension[callback._context.extension_id] = { hideFooter: hideFooter };
       } else {
         // This is only here to support integration testing
         // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
         util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
       }
     }
-  })
+  }),
+  hideFooter: function(hideFooter) {
+    if (hideFooter) {
+      EnvActions.hideFooter(hideFooter);
+    }
+  }
 };
 
-EventDispatcher.register('host-window-resize', (data) => {
-  Object.getOwnPropertyNames(sizeToParentExtension).forEach((extensionId) => {
+EventDispatcher.register('host-window-resize', data => {
+  Object.getOwnPropertyNames(sizeToParentExtension).forEach(extensionId => {
     EnvActions.sizeToParent(extensionId, sizeToParentExtension[extensionId].hideFooter);
   });
 });
 
-EventDispatcher.register('after:iframe-unload', function(data){
+EventDispatcher.register('after:iframe-unload', function(data) {
   delete resizeFuncHolder[data.extension.id];
   delete sizeToParentExtension[data.extension.id];
-  if(ignoreResizeForExtension.indexOf(data.extension.id) !== -1) {
+  if (ignoreResizeForExtension.indexOf(data.extension.id) !== -1) {
     ignoreResizeForExtension.splice(ignoreResizeForExtension.indexOf(data.extension.id), 1);
   }
 });
 
-EventDispatcher.register('before:iframe-size-to-parent', function(data){
-  if(ignoreResizeForExtension.indexOf(data.extensionId) === -1) {
+EventDispatcher.register('before:iframe-size-to-parent', function(data) {
+  if (ignoreResizeForExtension.indexOf(data.extensionId) === -1) {
     ignoreResizeForExtension.push(data.extensionId);
   }
 });
-
