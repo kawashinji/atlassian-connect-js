@@ -92,6 +92,12 @@ export default {
       }
     }
   }),
+   /**
+   * Hide footer..
+   *
+   * @method
+   * @param {boolean} hideFooter true if the footer is supposed to be hidden
+   */
   hideFooter: function(hideFooter) {
     if (hideFooter) {
       EnvActions.hideFooter(hideFooter);

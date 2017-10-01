@@ -3088,10 +3088,8 @@ var AP = (function () {
 
 	if (ConsumerOptions$1.get('sizeToParent') === true) {
 	  AP$2.env.sizeToParent(ConsumerOptions$1.get('hideFooter') === true);
-	}
-
-	if (ConsumerOptions$1.get('hideFooter') === true) {
-	  AP$2.env.hideFooter(true);
+	} else {
+	  AP$2.env.hideFooter(ConsumerOptions$1.get('hideFooter') === true);
 	}
 
 	if (ConsumerOptions$1.get('base') === true) {

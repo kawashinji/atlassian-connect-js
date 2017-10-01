@@ -12,12 +12,12 @@ EventDispatcher.register('iframe-size-to-parent', function(data) {
   var $el = util.getIframeByExtensionId(data.extensionId);
   if (data.hideFooter) {
     $el.addClass('full-size-general-page-no-footer');
-    $('#footer').css({ display: 'none' });
+    $('footer').css({ display: 'none' });
     height = $(window).height() - $('#header > nav').outerHeight();
   } else {
-    height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+    height = $(window).height() - $('#header > nav').outerHeight() - $('footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
     $el.removeClass('full-size-general-page-no-footer');
-    $('#footer').css({ display: 'block' });
+    $('footer').css({ display: 'block' });
   }
 
   EventDispatcher.dispatch('iframe-resize', {
@@ -29,7 +29,7 @@ EventDispatcher.register('iframe-size-to-parent', function(data) {
 
 EventDispatcher.register('hide-footer', function(hideFooter) {
   if (hideFooter) {
-    $('#footer').css({ display: 'none' });
+    $('footer').css({ display: 'none' });
   }
 });
 

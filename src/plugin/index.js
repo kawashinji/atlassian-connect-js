@@ -14,10 +14,8 @@ AP._hostModules['inline-dialog'] = AP._hostModules.inlineDialog;
 
 if (consumerOptions.get('sizeToParent') === true) {
   AP.env.sizeToParent(consumerOptions.get('hideFooter') === true);
-}
-
-if (consumerOptions.get('hideFooter') === true) {
-  AP.env.hideFooter(true);
+} else {
+  AP.env.hideFooter(consumerOptions.get('hideFooter') === true);
 }
 
 if (consumerOptions.get('base') === true) {
