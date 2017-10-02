@@ -183,4 +183,32 @@ describe('env module', () => {
 
 
   });
+
+  describe('hideFooter', () => {
+
+    afterEach(function () {
+      $('.ac-content-page').remove();
+      $('#footer').remove();
+    });
+
+    it('hides the footer', (done) => {
+      var $contentPage = $('<div class="ac-content-page" />');
+      var $footer = $('<div id="footer" />');
+      $contentPage.append($footer);
+      $('body').append($contentPage);
+
+      var hideFooter = true;
+      function spy (hideFooter){
+        if(hideFooter) {
+          expect($('#footer').css('display')).toEqual('none');
+          EventDispatcher.register('hideFooter', spy);
+          done();
+        }
+      }
+
+      EventDispatcher.register('hide-footer', spy);
+      envModule.hideFooter(hideFooter);
+    });
+  });
+
 });
