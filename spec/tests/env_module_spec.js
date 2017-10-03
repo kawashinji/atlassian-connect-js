@@ -201,7 +201,7 @@ describe('env module', () => {
       function spy (hideFooter){
         if(hideFooter) {
           expect($('#footer').css('display')).toEqual('none');
-          EventDispatcher.register('hideFooter', spy);
+          EventDispatcher.unregister('hideFooter', spy);
           done();
         }
       }
