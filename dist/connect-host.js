@@ -4381,12 +4381,12 @@
 	 * Inline dialogs can be shown via a [web item target](../../modules/web-item/#target).
 	 *
 	 * For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inline-dialog.html).
-	 * @module inline-dialog
+	 * @module Inline-dialog
 	 */
 	var inlineDialog = {
 	  /**
 	   * Hide the inline dialog that contains the iframe where this method is called from.
-	   * @memberOf module:inline-dialog
+	   * @memberOf module:Inline-dialog
 	   * @method hide
 	   * @noDemo
 	   * @example
@@ -4414,7 +4414,7 @@
 	* var message = AP.messages.info('plain text title', 'plain text body');
 	* ```
 	* @deprecated after August 2017 | Please use the Flag module instead.
-	* @name messages
+	* @name Messages
 	* @module
 	*/
 
@@ -4524,7 +4524,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name clear
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}    id  The id that was returned when the message was created.
 	  * @example
 	  * //create a message
@@ -4551,7 +4551,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name onClose
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}    id  The id that was returned when the message was created.
 	  * @param    {Function}  callback  The function that is run when the event is triggered
 	  * @example
@@ -4581,7 +4581,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name generic
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}            title       Sets the title text of the message.
 	  * @param    {String}            body        The main content of the message.
 	  * @param    {Object}            options             Message Options
@@ -4601,7 +4601,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name error
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}            title       Sets the title text of the message.
 	  * @param    {String}            body        The main content of the message.
 	  * @param    {Object}            options             Message Options
@@ -4621,7 +4621,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name warning
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}            title       Sets the title text of the message.
 	  * @param    {String}            body        The main content of the message.
 	  * @param    {Object}            options             Message Options
@@ -4641,7 +4641,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name success
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}            title       Sets the title text of the message.
 	  * @param    {String}            body        The main content of the message.
 	  * @param    {Object}            options             Message Options
@@ -4661,7 +4661,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name info
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}            title       Sets the title text of the message.
 	  * @param    {String}            body        The main content of the message.
 	  * @param    {Object}            options             Message Options
@@ -4681,7 +4681,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name hint
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}            title               Sets the title text of the message.
 	  * @param    {String}            body                The main content of the message.
 	  * @param    {Object}            options             Message Options
@@ -5649,7 +5649,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.32';
+	  window._AP.version = '5.1.33';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
