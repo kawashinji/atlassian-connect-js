@@ -12,17 +12,21 @@ import DropdownActions from '../actions/dropdown_actions';
 var dropdownProvider;
 
 function buildListItem(listItem) {
+  let finishedListItem = {};
   if (typeof listItem === 'string') {
-    return {
-      content: listItem
-    };
-  }
-  if (listItem.text && typeof listItem.text === 'string') {
-    return {
-      content: listItem.text
+    finishedListItem.content = listItem;
+  } else if (listItem.text && typeof listItem.text === 'string') {
+    finishedListItem.content = listItem.text;
+    if(typeof listItem.disabled === 'boolean') {
+      finishedListItem.disabled = listItem.disabled;
     }
+    if(typeof listItem.item_id !== 'undefined') {
+      finishedListItem.item_id = listItem.item_id;
+    }
+  } else {
+    throw new Error('Unknown dropdown list item format.');
   }
-  throw new Error('Unknown dropdown list item format.');
+  return finishedListItem;
 }
 
 function moduleListToApiList(list) {
@@ -104,21 +108,16 @@ export default {
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
     const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
     if (dropdownProvider) {
-      dropdownProvider.registerItemNotifier((data) => {
-        DropdownActions.itemSelected(data.dropdown_id, data.item, callback._context.extension);
-      });
-      // options.list = moduleListToApiList(options.list);
-      // const dropdownGroup = {
-      //   items: options.list
-      // };
       const dropdownGroups = moduleListToApiList(options.list);
       const dropdownProviderOptions = {
         dropdownId: options.dropdown_id,
-        dropdownGroups: dropdownGroups
+        dropdownGroups: dropdownGroups,
+        dropdownItemNotifier: (data) => {
+          DropdownActions.itemSelected(data.dropdown_id, data.item, callback._context.extension);
+        }
       };
       dropdownProvider.create(dropdownProviderOptions, callback._context);
-      // return for testing
-      return options;
+      return dropdownProviderOptions;
     }
   },
 
@@ -152,10 +151,10 @@ export default {
     const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
     if (dropdownProvider) {
       const dropdownProviderArgs = {
-          dropdownId: dropdown_id,
-          x: x,
-          y: y,
-          width: width
+        dropdownId: dropdown_id,
+        x: x,
+        y: y,
+        width: width
       };
       dropdownProvider.showAt(dropdownProviderArgs, {
         iframeDimensions: rect,
