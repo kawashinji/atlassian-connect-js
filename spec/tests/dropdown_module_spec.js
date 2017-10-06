@@ -49,7 +49,7 @@ describe('dropdown api module', () => {
 
     it('formats sections', () => {
       let options = {
-        dropdown_id: 'some-dropdown-id',
+        dropdownId: 'some-dropdown-id',
         list: [{
           heading: 'section heading',
           list: [
@@ -60,7 +60,7 @@ describe('dropdown api module', () => {
       };
       let formattedOptions = DropdownModule.create(extend({}, options), fakeCallback);
       expect(formattedOptions).toEqual({
-        dropdownId: options.dropdown_id,
+        dropdownId: options.dropdownId,
         dropdownGroups: [{
           heading: options.list[0].heading,
           items: [

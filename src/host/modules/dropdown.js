@@ -20,8 +20,8 @@ function buildListItem(listItem) {
     if(typeof listItem.disabled === 'boolean') {
       finishedListItem.disabled = listItem.disabled;
     }
-    if(typeof listItem.item_id !== 'undefined') {
-      finishedListItem.item_id = listItem.item_id;
+    if(typeof listItem.itemId !== 'undefined') {
+      finishedListItem.itemId = listItem.itemId;
     }
   } else {
     throw new Error('Unknown dropdown list item format.');
@@ -46,7 +46,7 @@ function moduleListToApiList(list) {
 /**
 * @class DropdownItem
 * A single item in a dropdown menu can be a string or an object
-* @param {String} item_id The id of a single dropdown item
+* @param {String} itemId The id of a single dropdown item
 * @param {String} text    The text to display in the dropdown item
 */
 
@@ -56,7 +56,7 @@ function moduleListToApiList(list) {
 * @example
 * // create a dropdown menu with 1 section and 2 items
 * var mydropdown = {
-*   dropdown_id: 'my-dropdown',
+*   dropdownId: 'my-dropdown',
 *   list: [{
 *     heading: 'section heading',
 *     list: [
@@ -67,7 +67,7 @@ function moduleListToApiList(list) {
 * };
 *
 * AP.events.on('dropdown-item-selected', (data) =>{
-*   console.log('dropdown item selected', data.dropdown_id, data.item);
+*   console.log('dropdown item selected', data.dropdownId, data.item);
 * });
 *
 * AP.dropdown.create(mydropdown);
@@ -83,12 +83,12 @@ export default {
   * @method
   * @description Creates a new dropdown.
   * @param {Object} options             Options of the dropdown.
-  * @param {String} options.dropdown_id A unique identifier for the dropdown that will be referenced in events.
+  * @param {String} options.dropdownId A unique identifier for the dropdown that will be referenced in events.
   * @param {String} options.list        An array containing dropdown items {Dropdown~DropdownItem}
   * @example
   * // create a dropdown menu with 1 section and 2 items
   * var mydropdown = {
-  *   dropdown_id: 'my-dropdown',
+  *   dropdownId: 'my-dropdown',
   *   list: [{
   *     heading: 'section heading',
   *     list: [
@@ -110,10 +110,10 @@ export default {
     if (dropdownProvider) {
       const dropdownGroups = moduleListToApiList(options.list);
       const dropdownProviderOptions = {
-        dropdownId: options.dropdown_id,
+        dropdownId: options.dropdownId,
         dropdownGroups: dropdownGroups,
         dropdownItemNotifier: (data) => {
-          DropdownActions.itemSelected(data.dropdown_id, data.item, callback._context.extension);
+          DropdownActions.itemSelected(data.dropdownId, data.item, callback._context.extension);
         }
       };
       dropdownProvider.create(dropdownProviderOptions, callback._context);
@@ -125,14 +125,14 @@ export default {
   * @name showAt
   * @method
   * @description Displays a created dropdown menu.
-  * @param {String} dropdown_id   Id used when creating the dropdown
+  * @param {String} dropdownId   Id used when creating the dropdown
   * @param {String} x             x position from the edge of your iframe to display
   * @param {String} y             y position from the edge of your iframe to display
   * @param {String} width         Optionally enforce a width for the dropdown menu
   * @example
   * // create a dropdown menu with 1 section and 2 items
   * var mydropdown = {
-  *   dropdown_id: 'my-dropdown',
+  *   dropdownId: 'my-dropdown',
   *   list: [{
   *     list:['one', 'two']
   *   }]
@@ -143,7 +143,7 @@ export default {
   * let rect = document.querySelector('button').getBoundingClientRect();
   * AP.dropdown.showAt('my-dropdown', rect.left, rect.top, rect.width);
   */
-  showAt(dropdown_id, x, y, width) {
+  showAt(dropdownId, x, y, width) {
     let callback = util.last(arguments);
     let rect = document.getElementById(callback._context.extension_id).getBoundingClientRect();
 
@@ -151,15 +151,15 @@ export default {
     const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
     if (dropdownProvider) {
       const dropdownProviderArgs = {
-        dropdownId: dropdown_id,
+        dropdownId: dropdownId,
         x: x,
         y: y,
         width: width
       };
       dropdownProvider.showAt(dropdownProviderArgs, {
         iframeDimensions: rect,
-        onItemSelection: (dropdown_id, item) => {
-          DropdownActions.itemSelected(dropdown_id, item, callback._context.extension);
+        onItemSelection: (dropdownId, item) => {
+          DropdownActions.itemSelected(dropdownId, item, callback._context.extension);
         }
       });
     }
@@ -168,7 +168,7 @@ export default {
   * @name hide
   * @method
   * @description Hide a dropdown menu
-  * @param {String} dropdown_id The id of the dropdown to hide
+  * @param {String} dropdownId The id of the dropdown to hide
   * @example
   * AP.dropdown.create('my-dropdown');
   * AP.dropdown.hide('my-dropdown');
@@ -185,17 +185,17 @@ export default {
   * @name itemDisable
   * @method
   * @description Disable an item in the dropdown menu
-  * @param {String} dropdown_id The id of the dropdown
-  * @param {String} item_id     The dropdown item to disable
+  * @param {String} dropdownId The id of the dropdown
+  * @param {String} itemId     The dropdown item to disable
   * @example
   * AP.dropdown.create('my-dropdown');
   * AP.dropdown.itemDisable('my-dropdown', 'item-id');
   */
-  itemDisable(dropdown_id, item_id) {
+  itemDisable(dropdownId, itemId) {
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
     const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
     if (dropdownProvider) {
-      dropdownProvider.itemDisable(dropdown_id, item_id);
+      dropdownProvider.itemDisable(dropdownId, itemId);
     }
   },
 
@@ -203,17 +203,17 @@ export default {
   * @name itemEnable
   * @method
   * @description Hide a dropdown menu
-  * @param {String} dropdown_id The id of the dropdown
-  * @param {String} item_id The id of the dropdown item to enable
+  * @param {String} dropdownId The id of the dropdown
+  * @param {String} itemId The id of the dropdown item to enable
   * @example
   * AP.dropdown.create('my-dropdown');
   * AP.dropdown.itemEnable('my-dropdown', 'item-id');
   */
-  itemEnable(dropdown_id, item_id) {
+  itemEnable(dropdownId, itemId) {
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
     const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
     if (dropdownProvider) {
-      dropdownProvider.itemEnable(dropdown_id, item_id);
+      dropdownProvider.itemEnable(dropdownId, itemId);
     }
   }
 
@@ -225,7 +225,7 @@ EventDispatcher.register('dropdown-item-selected', (data) => {
     addon_key: data.extension.addon_key,
     key: data.extension.key
   }, {
-    dropdown_id: data.id,
+    dropdownId: data.id,
     item: data.item
   });
 });
