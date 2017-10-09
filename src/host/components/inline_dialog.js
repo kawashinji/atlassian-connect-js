@@ -53,8 +53,8 @@ class InlineDialog {
     inlineDialogEl = document.createElement('aui-inline-dialog');
     inlineDialogEl.id = inlineDialogId;
     inlineDialogEl.classList.add('ac-inline-dialog');
-    inlineDialogEl.open = true;
     inlineDialogEl.addEventListener('aui-show', function(e){
+      console.log("AUI SHOW", e, data);
       InlineDialogActions.opened({
         el: e.target,
         trigger: data.bindTo,
@@ -62,33 +62,8 @@ class InlineDialog {
       });
     });
 
-    // FF doesn't dispatch the event so we call it manually.
-    InlineDialogActions.opened({
-      el: inlineDialogEl,
-      trigger: data.bindTo,
-      extension: data.extension
-    });
-
     return inlineDialogEl;
     //responds-to="hover"
-
-
-  //   var $el = AJS.InlineDialog(
-  //     data.bindTo,
-  //     //assign unique id to inline Dialog
-  //     data.id,
-  //     ($placeholder, trigger, showInlineDialog) => {
-  //       $placeholder.append(data.$content);
-  //       this._displayInlineDialog({
-  //         extension: data.extension,
-  //         $el: $placeholder,
-  //         trigger: trigger
-  //       });
-  //       showInlineDialog();
-  //     },
-  //     data.inlineDialogOptions
-  //   );
-  //   return $el;
   }
 
 }

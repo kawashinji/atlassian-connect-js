@@ -30,12 +30,17 @@ class InlineDialogWebItem {
   }
 
   _createInlineDialog(data){
-    return InlineDialogComponent.render({
+    let inlineDialog = InlineDialogComponent.render({
       extension: data.extension,
       id: data.id,
       bindTo: data.$target[0],
       // inlineDialogOptions: data.extension.options // no idea what this does.
     });
+    document.body.appendChild(inlineDialog);
+    let insertedInlineDialog = document.getElementById(inlineDialog.id);
+    insertedInlineDialog.setAttribute('open', '');
+    return insertedInlineDialog;
+    // inlineDialog.open = true;
   }
 
 
@@ -56,7 +61,6 @@ class InlineDialogWebItem {
   }
 
   opened(data){
-    console.log("OPENED!!!!", data);
     var existingFrame = data.el.getElementsByTagName('iframe')[0];
     // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
     if(existingFrame){

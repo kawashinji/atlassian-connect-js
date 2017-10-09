@@ -5413,8 +5413,8 @@
 	    inlineDialogEl = document.createElement('aui-inline-dialog');
 	    inlineDialogEl.id = inlineDialogId;
 	    inlineDialogEl.classList.add('ac-inline-dialog');
-	    inlineDialogEl.open = true;
 	    inlineDialogEl.addEventListener('aui-show', function (e) {
+	      console.log("AUI SHOW", e, data);
 	      InlineDialogActions.opened({
 	        el: e.target,
 	        trigger: data.bindTo,
@@ -5422,33 +5422,8 @@
 	      });
 	    });
 
-	    // FF doesn't dispatch the event so we call it manually.
-	    InlineDialogActions.opened({
-	      el: inlineDialogEl,
-	      trigger: data.bindTo,
-	      extension: data.extension
-	    });
-
 	    return inlineDialogEl;
 	    //responds-to="hover"
-
-
-	    //   var $el = AJS.InlineDialog(
-	    //     data.bindTo,
-	    //     //assign unique id to inline Dialog
-	    //     data.id,
-	    //     ($placeholder, trigger, showInlineDialog) => {
-	    //       $placeholder.append(data.$content);
-	    //       this._displayInlineDialog({
-	    //         extension: data.extension,
-	    //         $el: $placeholder,
-	    //         trigger: trigger
-	    //       });
-	    //       showInlineDialog();
-	    //     },
-	    //     data.inlineDialogOptions
-	    //   );
-	    //   return $el;
 	  };
 
 	  return InlineDialog;
@@ -5501,12 +5476,17 @@
 	  };
 
 	  InlineDialogWebItem.prototype._createInlineDialog = function _createInlineDialog(data) {
-	    return InlineDialogComponent.render({
+	    var inlineDialog = InlineDialogComponent.render({
 	      extension: data.extension,
 	      id: data.id,
 	      bindTo: data.$target[0]
 	      // inlineDialogOptions: data.extension.options // no idea what this does.
 	    });
+	    document.body.appendChild(inlineDialog);
+	    var insertedInlineDialog = document.getElementById(inlineDialog.id);
+	    insertedInlineDialog.setAttribute('open', '');
+	    return insertedInlineDialog;
+	    // inlineDialog.open = true;
 	  };
 
 	  InlineDialogWebItem.prototype.triggered = function triggered(data) {
@@ -5526,7 +5506,6 @@
 	  };
 
 	  InlineDialogWebItem.prototype.opened = function opened(data) {
-	    console.log("OPENED!!!!", data);
 	    var existingFrame = data.el.getElementsByTagName('iframe')[0];
 	    // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
 	    if (existingFrame) {

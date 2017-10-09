@@ -20,15 +20,6 @@ describe('Inline Dialog Component', () => {
       expect(inlineDialog.nodeName.toLowerCase()).toEqual('aui-inline-dialog');
       expect(inlineDialog.id).toEqual('inline-dialog-some-id');
     });
-
-    // it('contains the inline dialog content', () => {
-    //   var inlineDialog = InlineDialogComponent.render({
-    //     id: 'some-id',
-    //     bindTo: document.body
-    //   });
-    //   console.log('inlineDialog?', inlineDialog);
-    //   expect($(inlineDialog).find('.aui-inline-dialog-contents').length).toEqual(1);
-    // });
   });
 
 });

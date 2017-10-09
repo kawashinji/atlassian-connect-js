@@ -43,25 +43,28 @@ describe('Inline Dialog Webitem', () => {
 
   describe('rendering', () => {
 
-    // it('renders an inline dialog', (done) => {
-    //   EventDispatcher.registerOnce('after:webitem-invoked:inline-dialog', function(){
-    //     expect($('aui-inline-dialog').length).toBe(1);
-    //     done();
-    //   });
-    //   $(function(){
-    //     $('.ap-inline-dialog').click();
-    //   });
-    // });
+    it('renders an inline dialog', (done) => {
+      EventDispatcher.registerOnce('after:webitem-invoked:inline-dialog', function(){
+        setTimeout(function(){
+          expect($('aui-inline-dialog').length).toBe(1);
+          done();
 
-    // it('does not render multiple times for the same extension', (done) => {
-    //   $(function(){
-    //     $('.ap-inline-dialog').click();
-    //     expect($('aui-inline-dialog').length).toBe(1);
-    //     $('.ap-inline-dialog').click();
-    //     expect($('aui-inline-dialog').length).toBe(1);
-    //     done();
-    //   });
-    // });
+        }, 1000);
+      });
+      $(function(){
+        $('.ap-inline-dialog').click();
+      });
+    });
+
+    it('does not render multiple times for the same extension', (done) => {
+      $(function(){
+        $('.ap-inline-dialog').click();
+        expect($('aui-inline-dialog').length).toBe(1);
+        $('.ap-inline-dialog').click();
+        expect($('aui-inline-dialog').length).toBe(1);
+        done();
+      });
+    });
 
 
     it('passes inline dialog options to component', (done) => {
@@ -168,7 +171,6 @@ describe('Inline Dialog Webitem', () => {
 
     it('only calls the content resolver once per add-on', (done) => {
       var spy = jasmine.createSpy('spy');
-
       jwtActions.registerContentResolver({callback: function(data){
         spy();
         // if you don't return a promise this regression test will always pass
