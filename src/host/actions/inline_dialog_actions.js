@@ -16,9 +16,9 @@ export default {
     EventDispatcher.dispatch('inline-dialog-close', {
     });
   },
-  created: function(data) {
+  opened: function(data) {
     EventDispatcher.dispatch('inline-dialog-opened', {
-      $el: data.$el,
+      el: data.el,
       trigger: data.trigger,
       extension: data.extension
     });

@@ -6,36 +6,29 @@ import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 describe('Inline Dialog Component', () => {
 
   beforeEach(() => {
-    $('.aui-inline-dialog').remove();
+    $('aui-inline-dialog').remove();
   });
 
   afterEach(() => {
   });
 
   describe('rendering', () => {
-    var $content = $('<div />').attr('id', 'inline-dialog-content');
-
     it('renders an inline dialog', () => {
-      var $inlineDialog = InlineDialogComponent.render({
-        id: 'some-id',
-        $content: $content
+      var inlineDialog = InlineDialogComponent.render({
+        id: 'some-id'
       });
-      expect($inlineDialog.hasClass('aui-inline-dialog')).toBe(true);
-      expect($inlineDialog.attr('id')).toEqual('inline-dialog-some-id');
-      expect($inlineDialog.hide).toEqual(jasmine.any(Function));
-      expect($inlineDialog.show).toEqual(jasmine.any(Function));
-      expect($inlineDialog.refresh).toEqual(jasmine.any(Function));
+      expect(inlineDialog.nodeName.toLowerCase()).toEqual('aui-inline-dialog');
+      expect(inlineDialog.id).toEqual('inline-dialog-some-id');
     });
 
-    it('contains the inline dialog content', () => {
-      var $inlineDialog = InlineDialogComponent.render({
-        id: 'some-id',
-        bindTo: $('body'),
-        $content: $content
-      });
-      $inlineDialog.show();
-      expect($inlineDialog.find('#inline-dialog-content').length).toEqual(1);
-    });
+    // it('contains the inline dialog content', () => {
+    //   var inlineDialog = InlineDialogComponent.render({
+    //     id: 'some-id',
+    //     bindTo: document.body
+    //   });
+    //   console.log('inlineDialog?', inlineDialog);
+    //   expect($(inlineDialog).find('.aui-inline-dialog-contents').length).toEqual(1);
+    // });
   });
 
 });

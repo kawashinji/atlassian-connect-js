@@ -8,7 +8,7 @@ class InlineDialog {
   resize(data){
     var width = util.stringToDimension(data.width);
     var height = util.stringToDimension(data.height);
-    var $content = data.$el.find('.contents');
+    var $content = data.$el.find('.aui-inline-dialog-contents');
     if($content.length === 1){
       $content.css({
         width: width,
@@ -28,62 +28,67 @@ class InlineDialog {
   _renderContainer(){
     return $('<div />').addClass('aui-inline-dialog-contents');
   }
-  _displayInlineDialog(data){
-    InlineDialogActions.created({
-      $el: data.$el,
-      trigger: data.trigger,
-      extension: data.extension
-    });
-  }
-  hideInlineDialog($el){
-    $el.hide();
+
+  hideInlineDialog(el){
+    el.open = false;
   }
 
   closeInlineDialog(){
-    $('.aui-inline-dialog').filter(function(){
-      return $(this).find('.ap-iframe-container').length > 0;
-    }).hide();
+    document.querySelectorAll('.ac-inline-dialog').forEach((el) => {
+      el.open = false;
+    });
   }
 
   render(data){
-    // var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
+    const inlineDialogId = 'inline-dialog-' + data.id;
+    var inlineDialogEl = document.getElementById(inlineDialogId);
 
-    // if ($inlineDialog.length !== 0) {
-    //   $inlineDialog.remove();
-    // }
-
-    var $el = $('<aui-inline-dialog />').attr({
-      id: data.id,
-      open: true
+    if (inlineDialogEl) {
+      return inlineDialogEl;
+    }
+    if(data.bindTo){
+      data.bindTo.dataset.auiTrigger = true;
+      data.bindTo.setAttribute('aria-controls', inlineDialogId);
+    }
+    inlineDialogEl = document.createElement('aui-inline-dialog');
+    inlineDialogEl.id = inlineDialogId;
+    inlineDialogEl.classList.add('ac-inline-dialog');
+    inlineDialogEl.open = true;
+    inlineDialogEl.addEventListener('aui-show', function(e){
+      InlineDialogActions.opened({
+        el: e.target,
+        trigger: data.bindTo,
+        extension: data.extension
+      });
     });
-    console.log('el?', $el);
 
-    console.log('EVERYTHING IN RENDER', data);
-    // this._displayInlineDialog({
-    //   extension: data.extension,
-    //   $el: 
-    //   trigger: 
-    // });
+    // FF doesn't dispatch the event so we call it manually.
+    InlineDialogActions.opened({
+      el: inlineDialogEl,
+      trigger: data.bindTo,
+      extension: data.extension
+    });
 
-    return;
+    return inlineDialogEl;
+    //responds-to="hover"
 
 
-    var $el = AJS.InlineDialog(
-      data.bindTo,
-      //assign unique id to inline Dialog
-      data.id,
-      ($placeholder, trigger, showInlineDialog) => {
-        $placeholder.append(data.$content);
-        this._displayInlineDialog({
-          extension: data.extension,
-          $el: $placeholder,
-          trigger: trigger
-        });
-        showInlineDialog();
-      },
-      data.inlineDialogOptions
-    );
-    return $el;
+  //   var $el = AJS.InlineDialog(
+  //     data.bindTo,
+  //     //assign unique id to inline Dialog
+  //     data.id,
+  //     ($placeholder, trigger, showInlineDialog) => {
+  //       $placeholder.append(data.$content);
+  //       this._displayInlineDialog({
+  //         extension: data.extension,
+  //         $el: $placeholder,
+  //         trigger: trigger
+  //       });
+  //       showInlineDialog();
+  //     },
+  //     data.inlineDialogOptions
+  //   );
+  //   return $el;
   }
 
 }

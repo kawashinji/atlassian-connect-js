@@ -4365,9 +4365,9 @@
 	  close: function close() {
 	    EventDispatcher$1.dispatch('inline-dialog-close', {});
 	  },
-	  created: function created(data) {
+	  opened: function opened(data) {
 	    EventDispatcher$1.dispatch('inline-dialog-opened', {
-	      $el: data.$el,
+	      el: data.el,
 	      trigger: data.trigger,
 	      extension: data.extension
 	    });
@@ -5353,7 +5353,7 @@
 	var InlineDialogWebItemActions = {
 	  addExtension: function addExtension(data) {
 	    EventDispatcher$1.dispatch('inline-dialog-extension', {
-	      $el: data.$el,
+	      el: data.el,
 	      extension: data.extension
 	    });
 	  }
@@ -5367,7 +5367,7 @@
 	  InlineDialog.prototype.resize = function resize(data) {
 	    var width = Util$1.stringToDimension(data.width);
 	    var height = Util$1.stringToDimension(data.height);
-	    var $content = data.$el.find('.contents');
+	    var $content = data.$el.find('.aui-inline-dialog-contents');
 	    if ($content.length === 1) {
 	      $content.css({
 	        width: width,
@@ -5389,60 +5389,66 @@
 	    return $('<div />').addClass('aui-inline-dialog-contents');
 	  };
 
-	  InlineDialog.prototype._displayInlineDialog = function _displayInlineDialog(data) {
-	    InlineDialogActions.created({
-	      $el: data.$el,
-	      trigger: data.trigger,
-	      extension: data.extension
-	    });
-	  };
-
-	  InlineDialog.prototype.hideInlineDialog = function hideInlineDialog($el) {
-	    $el.hide();
+	  InlineDialog.prototype.hideInlineDialog = function hideInlineDialog(el) {
+	    el.open = false;
 	  };
 
 	  InlineDialog.prototype.closeInlineDialog = function closeInlineDialog() {
-	    $('.aui-inline-dialog').filter(function () {
-	      return $(this).find('.ap-iframe-container').length > 0;
-	    }).hide();
+	    document.querySelectorAll('.ac-inline-dialog').forEach(function (el) {
+	      el.open = false;
+	    });
 	  };
 
 	  InlineDialog.prototype.render = function render(data) {
-	    var _this = this;
+	    var inlineDialogId = 'inline-dialog-' + data.id;
+	    var inlineDialogEl = document.getElementById(inlineDialogId);
 
-	    // var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
-
-	    // if ($inlineDialog.length !== 0) {
-	    //   $inlineDialog.remove();
-	    // }
-
-	    var $el = $('<aui-inline-dialog />').attr({
-	      id: data.id,
-	      open: true
-	    });
-	    console.log('el?', $el);
-
-	    console.log('EVERYTHING IN RENDER', data);
-	    // this._displayInlineDialog({
-	    //   extension: data.extension,
-	    //   $el: 
-	    //   trigger: 
-	    // });
-
-	    return;
-
-	    var $el = AJS.InlineDialog(data.bindTo,
-	    //assign unique id to inline Dialog
-	    data.id, function ($placeholder, trigger, showInlineDialog) {
-	      $placeholder.append(data.$content);
-	      _this._displayInlineDialog({
-	        extension: data.extension,
-	        $el: $placeholder,
-	        trigger: trigger
+	    if (inlineDialogEl) {
+	      return inlineDialogEl;
+	    }
+	    if (data.bindTo) {
+	      data.bindTo.dataset.auiTrigger = true;
+	      data.bindTo.setAttribute('aria-controls', inlineDialogId);
+	    }
+	    inlineDialogEl = document.createElement('aui-inline-dialog');
+	    inlineDialogEl.id = inlineDialogId;
+	    inlineDialogEl.classList.add('ac-inline-dialog');
+	    inlineDialogEl.open = true;
+	    inlineDialogEl.addEventListener('aui-show', function (e) {
+	      InlineDialogActions.opened({
+	        el: e.target,
+	        trigger: data.bindTo,
+	        extension: data.extension
 	      });
-	      showInlineDialog();
-	    }, data.inlineDialogOptions);
-	    return $el;
+	    });
+
+	    // FF doesn't dispatch the event so we call it manually.
+	    InlineDialogActions.opened({
+	      el: inlineDialogEl,
+	      trigger: data.bindTo,
+	      extension: data.extension
+	    });
+
+	    return inlineDialogEl;
+	    //responds-to="hover"
+
+
+	    //   var $el = AJS.InlineDialog(
+	    //     data.bindTo,
+	    //     //assign unique id to inline Dialog
+	    //     data.id,
+	    //     ($placeholder, trigger, showInlineDialog) => {
+	    //       $placeholder.append(data.$content);
+	    //       this._displayInlineDialog({
+	    //         extension: data.extension,
+	    //         $el: $placeholder,
+	    //         trigger: trigger
+	    //       });
+	    //       showInlineDialog();
+	    //     },
+	    //     data.inlineDialogOptions
+	    //   );
+	    //   return $el;
 	  };
 
 	  return InlineDialog;
@@ -5495,15 +5501,12 @@
 	  };
 
 	  InlineDialogWebItem.prototype._createInlineDialog = function _createInlineDialog(data) {
-	    var $inlineDialog = InlineDialogComponent.render({
+	    return InlineDialogComponent.render({
 	      extension: data.extension,
 	      id: data.id,
-	      bindTo: data.$target,
-	      $content: $('<div />'),
-	      inlineDialogOptions: data.extension.options
+	      bindTo: data.$target[0]
+	      // inlineDialogOptions: data.extension.options // no idea what this does.
 	    });
-
-	    return $inlineDialog;
 	  };
 
 	  InlineDialogWebItem.prototype.triggered = function triggered(data) {
@@ -5514,22 +5517,20 @@
 	    var $target = $(data.event.currentTarget);
 	    var webitemId = $target.data(WEBITEM_UID_KEY);
 
-	    var $inlineDialog = this._createInlineDialog({
+	    this._createInlineDialog({
 	      id: webitemId,
 	      extension: data.extension,
 	      $target: $target,
 	      options: data.extension.options || {}
 	    });
-
-	    $inlineDialog.show();
 	  };
 
 	  InlineDialogWebItem.prototype.opened = function opened(data) {
-	    var $existingFrame = data.$el.find('iframe');
-	    var isExistingFrame = $existingFrame && $existingFrame.length === 1;
+	    console.log("OPENED!!!!", data);
+	    var existingFrame = data.el.getElementsByTagName('iframe')[0];
 	    // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
-	    if (isExistingFrame) {
-	      var src = $existingFrame.attr('src');
+	    if (existingFrame) {
+	      var src = existingFrame.src;
 	      var srcPresent = src.length > 0;
 	      if (srcPresent) {
 	        var srcHasJWT = urlUtils.hasJwt(src);
@@ -5552,7 +5553,7 @@
 	      });
 
 	      InlineDialogWebItemActions.addExtension({
-	        $el: data.$el,
+	        el: data.el,
 	        extension: content
 	      });
 	    });
@@ -5560,8 +5561,11 @@
 	  };
 
 	  InlineDialogWebItem.prototype.addExtension = function addExtension(data) {
-	    var addon = create(data.extension);
-	    data.$el.empty().append(addon);
+	    var $addon = create(data.extension);
+	    while (data.el.firstChild) {
+	      data.el.removeChild(data.el.firstChild);
+	    }
+	    $addon.appendTo(data.el);
 	  };
 
 	  InlineDialogWebItem.prototype.createIfNotExists = function createIfNotExists(data) {

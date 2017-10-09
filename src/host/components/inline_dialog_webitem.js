@@ -30,15 +30,12 @@ class InlineDialogWebItem {
   }
 
   _createInlineDialog(data){
-    var $inlineDialog = InlineDialogComponent.render({
+    return InlineDialogComponent.render({
       extension: data.extension,
       id: data.id,
-      bindTo: data.$target,
-      $content: $('<div />'),
-      inlineDialogOptions: data.extension.options
+      bindTo: data.$target[0],
+      // inlineDialogOptions: data.extension.options // no idea what this does.
     });
-
-    return $inlineDialog;
   }
 
 
@@ -50,22 +47,20 @@ class InlineDialogWebItem {
     var $target = $(data.event.currentTarget);
     var webitemId = $target.data(WEBITEM_UID_KEY);
 
-    var $inlineDialog = this._createInlineDialog({
+    this._createInlineDialog({
       id: webitemId,
       extension: data.extension,
       $target: $target,
       options: data.extension.options || {}
     });
-
-    $inlineDialog.show();
   }
 
   opened(data){
-    var $existingFrame = data.$el.find('iframe');
-    var isExistingFrame = ($existingFrame && $existingFrame.length === 1);
+    console.log("OPENED!!!!", data);
+    var existingFrame = data.el.getElementsByTagName('iframe')[0];
     // existing iframe is already present and src is still valid (either no jwt or jwt has not expired).
-    if(isExistingFrame){
-      const src = $existingFrame.attr('src');
+    if(existingFrame){
+      const src = existingFrame.src;
       const srcPresent = (src.length > 0);
       if(srcPresent) {
         const srcHasJWT = urlUtils.hasJwt(src);
@@ -88,7 +83,7 @@ class InlineDialogWebItem {
       });
 
       InlineDialogWebItemActions.addExtension({
-        $el: data.$el,
+        el: data.el,
         extension: content
       });
     });
@@ -96,8 +91,11 @@ class InlineDialogWebItem {
   }
 
   addExtension(data){
-    var addon = IframeCreate(data.extension);
-    data.$el.empty().append(addon);
+    let $addon = IframeCreate(data.extension);
+    while (data.el.firstChild) {
+      data.el.removeChild(data.el.firstChild);
+    }
+    $addon.appendTo(data.el);
   }
 
   createIfNotExists(data) {
