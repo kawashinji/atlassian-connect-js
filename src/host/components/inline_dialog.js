@@ -1,9 +1,15 @@
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import InlineDialogActions from '../actions/inline_dialog_actions';
+import IframeActions from '../actions/iframe_actions';
 import $ from '../dollar';
 import util from '../util';
 
+const DESTROY_AFTER = 5000; // time after an inline dialog hides before it is destroyed (set to zero for instant).
 class InlineDialog {
+
+  destroy($el) {
+    $el.remove();
+  }
 
   resize(data){
     var width = util.stringToDimension(data.width);
@@ -97,5 +103,21 @@ EventDispatcher.register('inline-dialog-close', function(data) {
   InlineDialogComponent.closeInlineDialog();
 });
 
+EventDispatcher.register('inline-dialog-hidden', function(data){
+  setTimeout(function(){
+    if(!data.$el.is(':visible')) {
+      InlineDialogComponent.destroy(data.$el);
+      IframeActions.notifyIframeDestroyed(data.extension_id);
+    }
+  }, DESTROY_AFTER);
+});
+
+$(document).on('hideLayer', function (event, type, data) {
+  // ensure it's a connect inline dialog
+  if(type === 'inlineDialog' && data.popup.find('.ap-iframe')) {
+    let extensionId = data.popup.find('.ap-iframe').attr('id');
+    InlineDialogActions.hideTriggered(extensionId, data.popup)
+  }
+});
 
 export default InlineDialogComponent;

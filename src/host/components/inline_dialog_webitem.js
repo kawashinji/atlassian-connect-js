@@ -43,6 +43,7 @@ class InlineDialogWebItem {
 
 
   triggered(data) {
+    console.log('inline dialog triggered', data);
     // don't trigger on hover, when hover is not specified.
     if(data.event.type !== 'click' && !data.extension.options.onHover){
       return;

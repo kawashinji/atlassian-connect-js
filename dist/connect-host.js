@@ -5374,10 +5374,16 @@
 	  }
 	};
 
+	var DESTROY_AFTER = 5000; // time after an inline dialog hides before it is destroyed (set to zero for instant).
+
 	var InlineDialog = function () {
 	  function InlineDialog() {
 	    classCallCheck(this, InlineDialog);
 	  }
+
+	  InlineDialog.prototype.destroy = function destroy($el) {
+	    $el.remove();
+	  };
 
 	  InlineDialog.prototype.resize = function resize(data) {
 	    var width = Util$1.stringToDimension(data.width);
@@ -5473,6 +5479,23 @@
 	  InlineDialogComponent.closeInlineDialog();
 	});
 
+	EventDispatcher$1.register('inline-dialog-hidden', function (data) {
+	  setTimeout(function () {
+	    if (!data.$el.is(':visible')) {
+	      InlineDialogComponent.destroy(data.$el);
+	      IframeActions.notifyIframeDestroyed(data.extension_id);
+	    }
+	  }, DESTROY_AFTER);
+	});
+
+	$(document).on('hideLayer', function (event, type, data) {
+	  // ensure it's a connect inline dialog
+	  if (type === 'inlineDialog' && data.popup.find('.ap-iframe')) {
+	    var extensionId = data.popup.find('.ap-iframe').attr('id');
+	    InlineDialogActions.hideTriggered(extensionId, data.popup);
+	  }
+	});
+
 	var ITEM_NAME = 'inline-dialog';
 	var SELECTOR = '.ap-inline-dialog';
 	var TRIGGERS = ['mouseover', 'click'];
@@ -5507,6 +5530,7 @@
 	  };
 
 	  InlineDialogWebItem.prototype.triggered = function triggered(data) {
+	    console.log('inline dialog triggered', data);
 	    // don't trigger on hover, when hover is not specified.
 	    if (data.event.type !== 'click' && !data.extension.options.onHover) {
 	      return;
