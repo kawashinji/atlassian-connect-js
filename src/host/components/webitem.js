@@ -9,6 +9,7 @@ class WebItem {
   constructor() {
     this._webitems = {};
     this._contentResolver = function noop(){};
+    this._observerStore = {};
   }
 
   setContentResolver(resolver) {
@@ -62,7 +63,7 @@ class WebItem {
       var extension = {
         addon_key: WebItemUtils.getExtensionKey($target),
         key: WebItemUtils.getKey($target),
-        options: WebItemUtils.getOptionsForWebItem($target)
+        options: WebItemUtils.getOptionsForWebItem($target),
       };
 
       WebItemActions.webitemInvoked(webitem, event, extension);
@@ -71,6 +72,30 @@ class WebItem {
       $('body').on(onTriggers, webitem.selector, webitem._on);
     });
   }
+  // takes a webitem link and removes it's mutation observer
+  _cleanUpObserver(id){
+    this._observerStore[id].disconnect();
+    delete this._observerStore[id];
+    console.log('AFTER DESTRUCTION OBSERVER LENGTH', id, this._observerStore);
+  }
+  // method to clean up webitems when their trigger has been modified
+  // eg: a byline inline dialog for the confluence SPA
+  _destroyOnMutation(name, $target, extension){
+    // select the target node
+    // create an observer instance
+    var observer = new MutationObserver(function(mutations) {
+      WebItemActions.webitemDestroy(name, $target, extension);
+      mutations.forEach(function(mutation) {
+        console.log('MUTATION OBSERVRED', mutation);
+      });
+    });
+    // looking for a change in href
+    observer.observe($target[0], {
+      attributes: true
+    });
+    this._observerStore[$target.attr('id')] = observer;
+  }
+
 
 }
 
@@ -82,6 +107,16 @@ EventDispatcher.register('webitem-added', (data) => {
 
 EventDispatcher.register('content-resolver-register-by-extension', function(data){
   webItemInstance.setContentResolver(data.callback);
+});
+
+EventDispatcher.register('webitem-invoked', function(data){
+  var $target = $(data.event.target).closest(data.webitem.selector);
+  this._destroyOnMutation(webitem.name, $target, data.extension);
+});
+
+EventDispatcher.register('webitem-destroy', function(data){
+  var $target = $(data.event.target).closest(data.webitem.selector);
+  webItemInstance._cleanUpObserver($target.attr('id'));
 });
 
 document.addEventListener('aui-responsive-menu-item-created', (e) => {

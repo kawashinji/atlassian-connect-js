@@ -5252,6 +5252,7 @@
 
 	    this._webitems = {};
 	    this._contentResolver = function noop() {};
+	    this._observerStore = {};
 	  }
 
 	  WebItem.prototype.setContentResolver = function setContentResolver(resolver) {
@@ -5319,6 +5320,33 @@
 	      $('body').on(onTriggers, webitem.selector, webitem._on);
 	    });
 	  };
+	  // takes a webitem link and removes it's mutation observer
+
+
+	  WebItem.prototype._cleanUpObserver = function _cleanUpObserver(id) {
+	    this._observerStore[id].disconnect();
+	    delete this._observerStore[id];
+	    console.log('AFTER DESTRUCTION OBSERVER LENGTH', id, this._observerStore);
+	  };
+	  // method to clean up webitems when their trigger has been modified
+	  // eg: a byline inline dialog for the confluence SPA
+
+
+	  WebItem.prototype._destroyOnMutation = function _destroyOnMutation(name, $target, extension) {
+	    // select the target node
+	    // create an observer instance
+	    var observer = new MutationObserver(function (mutations) {
+	      WebItemActions.webitemDestroy(name, $target, extension);
+	      mutations.forEach(function (mutation) {
+	        console.log('MUTATION OBSERVRED', mutation);
+	      });
+	    });
+	    // looking for a change in href
+	    observer.observe($target[0], {
+	      attributes: true
+	    });
+	    this._observerStore[$target.attr('id')] = observer;
+	  };
 
 	  return WebItem;
 	}();
@@ -5331,6 +5359,16 @@
 
 	EventDispatcher$1.register('content-resolver-register-by-extension', function (data) {
 	  webItemInstance.setContentResolver(data.callback);
+	});
+
+	EventDispatcher$1.register('webitem-invoked', function (data) {
+	  var $target = $(data.event.target).closest(data.webitem.selector);
+	  this._destroyOnMutation(webitem.name, $target, data.extension);
+	});
+
+	EventDispatcher$1.register('webitem-destroy', function (data) {
+	  var $target = $(data.event.target).closest(data.webitem.selector);
+	  webItemInstance._cleanUpObserver($target.attr('id'));
 	});
 
 	document.addEventListener('aui-responsive-menu-item-created', function (e) {
@@ -5360,9 +5398,14 @@
 	  },
 
 	  webitemInvoked: function webitemInvoked(webitem, event, extension) {
+	    EventDispatcher$1.dispatch('webitem-invoked', { webitem: webitem, event: event, extension: extension });
 	    EventDispatcher$1.dispatch('webitem-invoked:' + webitem.name, { webitem: webitem, event: event, extension: extension });
-	  }
+	  },
 
+	  webitemDestroy: function webitemDestroy(name, $target, extension) {
+	    EventDispatcher$1.dispatch('webitem-destroy', { $target: $target, extension: extension });
+	    EventDispatcher$1.dispatch('webitem-destroy:' + name, { $target: $target, extension: extension });
+	  }
 	};
 
 	var InlineDialogWebItemActions = {
@@ -5373,8 +5416,6 @@
 	    });
 	  }
 	};
-
-	var DESTROY_AFTER = 1000; // time after an inline dialog hides before it is destroyed (set to zero for instant).
 
 	var InlineDialog = function () {
 	  function InlineDialog() {
@@ -5479,24 +5520,6 @@
 	  InlineDialogComponent.closeInlineDialog();
 	});
 
-	EventDispatcher$1.register('inline-dialog-hidden', function (data) {
-	  setTimeout(function () {
-	    if (!data.$el.is(':visible')) {
-	      InlineDialogComponent.destroy(data.$el);
-	      IframeActions.notifyIframeDestroyed(data.extension_id);
-	    }
-	  }, DESTROY_AFTER);
-	});
-
-	$(document).on('hideLayer', function (event, type, data) {
-	  // ensure it's a connect inline dialog
-	  if (type === 'inlineDialog' && data.popup.find('.ap-iframe')) {
-	    var extensionId = data.popup.find('.ap-iframe').attr('id');
-	    console.log("I WOULD REMOVE", extensionId, data.popup, arguments);
-	    // InlineDialogActions.hideTriggered(extensionId, data.popup)
-	  }
-	});
-
 	var ITEM_NAME = 'inline-dialog';
 	var SELECTOR = '.ap-inline-dialog';
 	var TRIGGERS = ['mouseover', 'click'];
@@ -5599,15 +5622,20 @@
 	    }
 	  };
 
+	  InlineDialogWebItem.prototype.destroy = function destroy($target) {
+	    var webitemId = $target.data(WEBITEM_UID_KEY);
+	    InlineDialogComponent.destroy($(document.getElementById(webitemId)));
+	  };
+
 	  return InlineDialogWebItem;
 	}();
 
 	var inlineDialogInstance = new InlineDialogWebItem();
-	var webitem = inlineDialogInstance.getWebItem();
-	EventDispatcher$1.register('before:webitem-invoked:' + webitem.name, function (data) {
+	var webitem$1 = inlineDialogInstance.getWebItem();
+	EventDispatcher$1.register('before:webitem-invoked:' + webitem$1.name, function (data) {
 	  inlineDialogInstance.createIfNotExists(data);
 	});
-	EventDispatcher$1.register('webitem-invoked:' + webitem.name, function (data) {
+	EventDispatcher$1.register('webitem-invoked:' + webitem$1.name, function (data) {
 	  inlineDialogInstance.triggered(data);
 	});
 	EventDispatcher$1.register('inline-dialog-opened', function (data) {
@@ -5616,7 +5644,11 @@
 	EventDispatcher$1.register('inline-dialog-extension', function (data) {
 	  inlineDialogInstance.addExtension(data);
 	});
-	WebItemActions.addWebItem(webitem);
+	EventDispatcher$1.register('webitem-destroy:' + webitem$1.name, function (data) {
+	  inlineDialogInstance.destroy(data.$target, data.extension);
+	});
+
+	WebItemActions.addWebItem(webitem$1);
 
 	var ITEM_NAME$1 = 'dialog';
 	var SELECTOR$1 = '.ap-dialog';
@@ -5667,13 +5699,13 @@
 	}();
 
 	var dialogInstance = new DialogWebItem();
-	var webitem$1 = dialogInstance.getWebItem();
-	EventDispatcher$1.register('webitem-invoked:' + webitem$1.name, function (data) {
+	var webitem$2 = dialogInstance.getWebItem();
+	EventDispatcher$1.register('webitem-invoked:' + webitem$2.name, function (data) {
 	  dialogInstance.triggered(data);
 	});
-	EventDispatcher$1.register('before:webitem-invoked:' + webitem$1.name, dialogInstance.createIfNotExists);
+	EventDispatcher$1.register('before:webitem-invoked:' + webitem$2.name, dialogInstance.createIfNotExists);
 
-	WebItemActions.addWebItem(webitem$1);
+	WebItemActions.addWebItem(webitem$2);
 
 	/**
 	 * Private namespace for host-side code.

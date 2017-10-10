@@ -103,22 +103,22 @@ EventDispatcher.register('inline-dialog-close', function(data) {
   InlineDialogComponent.closeInlineDialog();
 });
 
-EventDispatcher.register('inline-dialog-hidden', function(data){
-  setTimeout(function(){
-    if(!data.$el.is(':visible')) {
-      InlineDialogComponent.destroy(data.$el);
-      IframeActions.notifyIframeDestroyed(data.extension_id);
-    }
-  }, DESTROY_AFTER);
-});
+// EventDispatcher.register('inline-dialog-hidden', function(data){
+//   setTimeout(function(){
+//     if(!data.$el.is(':visible')) {
+//       InlineDialogComponent.destroy(data.$el);
+//       IframeActions.notifyIframeDestroyed(data.extension_id);
+//     }
+//   }, DESTROY_AFTER);
+// });
 
-$(document).on('hideLayer', function (event, type, data) {
-  // ensure it's a connect inline dialog
-  if(type === 'inlineDialog' && data.popup.find('.ap-iframe')) {
-    let extensionId = data.popup.find('.ap-iframe').attr('id');
-    console.log("I WOULD REMOVE", extensionId, data.popup, arguments);
-    // InlineDialogActions.hideTriggered(extensionId, data.popup)
-  }
-});
+// $(document).on('hideLayer', function (event, type, data) {
+//   // ensure it's a connect inline dialog
+//   if(type === 'inlineDialog' && data.popup.find('.ap-iframe')) {
+//     let extensionId = data.popup.find('.ap-iframe').attr('id');
+//     console.log("I WOULD REMOVE", extensionId, data.popup, arguments);
+//     InlineDialogActions.hideTriggered(extensionId, data.popup)
+//   }
+// });
 
 export default InlineDialogComponent;

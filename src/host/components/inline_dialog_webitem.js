@@ -41,7 +41,6 @@ class InlineDialogWebItem {
     return $inlineDialog;
   }
 
-
   triggered(data) {
     console.log('inline dialog triggered', data);
     // don't trigger on hover, when hover is not specified.
@@ -111,6 +110,11 @@ class InlineDialogWebItem {
     }
   }
 
+  destroy($target) {
+    var webitemId = $target.data(WEBITEM_UID_KEY);
+    InlineDialogComponent.destroy($(document.getElementById(webitemId)));
+  }
+
 }
 
 let inlineDialogInstance = new InlineDialogWebItem();
@@ -127,6 +131,10 @@ EventDispatcher.register('inline-dialog-opened', function(data){
 EventDispatcher.register('inline-dialog-extension', function(data){
   inlineDialogInstance.addExtension(data);
 });
+EventDispatcher.register('webitem-destroy:' + webitem.name, function(data){
+  inlineDialogInstance.destroy(data.$target, data.extension);
+});
+
 WebItemActions.addWebItem(webitem);
 
 export default inlineDialogInstance;

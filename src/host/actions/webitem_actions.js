@@ -16,7 +16,12 @@ export default {
   },
 
   webitemInvoked: (webitem, event, extension) => {
+    EventDispatcher.dispatch('webitem-invoked', {webitem, event, extension});
     EventDispatcher.dispatch('webitem-invoked:' + webitem.name, {webitem, event, extension});
-  }
+  },
 
+  webitemDestroy: (name, $target, extension) => {
+    EventDispatcher.dispatch('webitem-destroy', {$target, extension});
+    EventDispatcher.dispatch('webitem-destroy:' + name, {$target, extension});
+  }
 };
