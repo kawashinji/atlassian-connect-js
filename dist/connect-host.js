@@ -5374,7 +5374,7 @@
 	  }
 	};
 
-	var DESTROY_AFTER = 5000; // time after an inline dialog hides before it is destroyed (set to zero for instant).
+	var DESTROY_AFTER = 1000; // time after an inline dialog hides before it is destroyed (set to zero for instant).
 
 	var InlineDialog = function () {
 	  function InlineDialog() {
@@ -5492,7 +5492,8 @@
 	  // ensure it's a connect inline dialog
 	  if (type === 'inlineDialog' && data.popup.find('.ap-iframe')) {
 	    var extensionId = data.popup.find('.ap-iframe').attr('id');
-	    InlineDialogActions.hideTriggered(extensionId, data.popup);
+	    console.log("I WOULD REMOVE", extensionId, data.popup, arguments);
+	    // InlineDialogActions.hideTriggered(extensionId, data.popup)
 	  }
 	});
 

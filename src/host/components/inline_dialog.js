@@ -4,7 +4,7 @@ import IframeActions from '../actions/iframe_actions';
 import $ from '../dollar';
 import util from '../util';
 
-const DESTROY_AFTER = 5000; // time after an inline dialog hides before it is destroyed (set to zero for instant).
+const DESTROY_AFTER = 1000; // time after an inline dialog hides before it is destroyed (set to zero for instant).
 class InlineDialog {
 
   destroy($el) {
@@ -116,7 +116,8 @@ $(document).on('hideLayer', function (event, type, data) {
   // ensure it's a connect inline dialog
   if(type === 'inlineDialog' && data.popup.find('.ap-iframe')) {
     let extensionId = data.popup.find('.ap-iframe').attr('id');
-    InlineDialogActions.hideTriggered(extensionId, data.popup)
+    console.log("I WOULD REMOVE", extensionId, data.popup, arguments);
+    // InlineDialogActions.hideTriggered(extensionId, data.popup)
   }
 });
 
