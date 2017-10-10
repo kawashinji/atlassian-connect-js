@@ -35,7 +35,7 @@ class InlineDialogWebItem {
       extension: data.extension,
       id: data.id,
       bindTo: data.$target[0],
-      // inlineDialogOptions: data.extension.options // no idea what this does.
+      inlineDialogOptions: data.extension.options
     });
     document.body.appendChild(inlineDialog);
     let insertedInlineDialog = document.getElementById(inlineDialog.id);
@@ -59,11 +59,6 @@ class InlineDialogWebItem {
       $target: $target,
       options: data.extension.options || {}
     });
-    // FF bug fix, the container doesn't render automagically for the inline dialog
-    // if(!inlineDialog.firstChild) {
-    //   inlineDialog.appendChild(InlineDialogComponent.renderContainer());
-    // }
-
   }
 
   opened(data){
@@ -106,10 +101,13 @@ class InlineDialogWebItem {
     if(!data.el.classList.contains(CONTAINER_CLASS)) {
       container = data.el.querySelector('.' + CONTAINER_CLASS);
     }
-    while (container.firstChild) {
-      container.removeChild(container.firstChild);
+    if(container) {
+      while (container.firstChild) {
+        container.removeChild(container.firstChild);
+      }
+      console.log('data?', data);
+      $addon.appendTo(container);
     }
-    $addon.appendTo(container);
   }
 
   createIfNotExists(data) {

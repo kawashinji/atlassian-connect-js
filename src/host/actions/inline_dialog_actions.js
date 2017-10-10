@@ -9,8 +9,8 @@ export default {
   refresh: function($el){
     EventDispatcher.dispatch('inline-dialog-refresh', {$el});
   },
-  hideTriggered: function(extension_id, $el){
-    EventDispatcher.dispatch('inline-dialog-hidden', {extension_id, $el});
+  hideTriggered: function(extension, el){
+    EventDispatcher.dispatch('inline-dialog-hidden', {extension, el});
   },
   close: function(){
     EventDispatcher.dispatch('inline-dialog-close', {

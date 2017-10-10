@@ -4359,8 +4359,8 @@
 	  refresh: function refresh($el) {
 	    EventDispatcher$1.dispatch('inline-dialog-refresh', { $el: $el });
 	  },
-	  hideTriggered: function hideTriggered(extension_id, $el) {
-	    EventDispatcher$1.dispatch('inline-dialog-hidden', { extension_id: extension_id, $el: $el });
+	  hideTriggered: function hideTriggered(extension, el) {
+	    EventDispatcher$1.dispatch('inline-dialog-hidden', { extension: extension, el: el });
 	  },
 	  close: function close() {
 	    EventDispatcher$1.dispatch('inline-dialog-close', {});
@@ -5373,12 +5373,7 @@
 	        width: width,
 	        height: height
 	      });
-	      InlineDialogActions.refresh(data.$el);
 	    }
-	  };
-
-	  InlineDialog.prototype.refresh = function refresh($el) {
-	    // $el[0].popup.reset();
 	  };
 
 	  InlineDialog.prototype.renderContainer = function renderContainer() {
@@ -5418,6 +5413,12 @@
 	        extension: data.extension
 	      });
 	    });
+	    inlineDialogEl.addEventListener('aui-hide', function (e) {
+	      InlineDialogActions.hideTriggered(data.extension, e.target);
+	    });
+	    if (data.inlineDialogOptions.persistent) {
+	      inlineDialogEl.setAttribute('persistent', '');
+	    }
 	    return inlineDialogEl;
 	    //responds-to="hover"
 	  };
@@ -5476,8 +5477,8 @@
 	    var inlineDialog = InlineDialogComponent.render({
 	      extension: data.extension,
 	      id: data.id,
-	      bindTo: data.$target[0]
-	      // inlineDialogOptions: data.extension.options // no idea what this does.
+	      bindTo: data.$target[0],
+	      inlineDialogOptions: data.extension.options
 	    });
 	    document.body.appendChild(inlineDialog);
 	    var insertedInlineDialog = document.getElementById(inlineDialog.id);
@@ -5500,10 +5501,6 @@
 	      $target: $target,
 	      options: data.extension.options || {}
 	    });
-	    // FF bug fix, the container doesn't render automagically for the inline dialog
-	    // if(!inlineDialog.firstChild) {
-	    //   inlineDialog.appendChild(InlineDialogComponent.renderContainer());
-	    // }
 	  };
 
 	  InlineDialogWebItem.prototype.opened = function opened(data) {
@@ -5546,10 +5543,13 @@
 	    if (!data.el.classList.contains(CONTAINER_CLASS)) {
 	      container = data.el.querySelector('.' + CONTAINER_CLASS);
 	    }
-	    while (container.firstChild) {
-	      container.removeChild(container.firstChild);
+	    if (container) {
+	      while (container.firstChild) {
+	        container.removeChild(container.firstChild);
+	      }
+	      console.log('data?', data);
+	      $addon.appendTo(container);
 	    }
-	    $addon.appendTo(container);
 	  };
 
 	  InlineDialogWebItem.prototype.createIfNotExists = function createIfNotExists(data) {

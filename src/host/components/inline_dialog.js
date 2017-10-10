@@ -14,12 +14,7 @@ class InlineDialog {
         width: width,
         height: height
       });
-      InlineDialogActions.refresh(data.$el);
     }
-  }
-
-  refresh($el){
-    // $el[0].popup.reset();
   }
 
   renderContainer(){
@@ -59,6 +54,12 @@ class InlineDialog {
         extension: data.extension
       });
     });
+    inlineDialogEl.addEventListener('aui-hide', function(e){
+      InlineDialogActions.hideTriggered(data.extension, e.target);
+    });
+    if(data.inlineDialogOptions.persistent) {
+      inlineDialogEl.setAttribute('persistent', '');
+    }
     return inlineDialogEl;
     //responds-to="hover"
   }

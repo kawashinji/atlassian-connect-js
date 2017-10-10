@@ -125,6 +125,25 @@ describe('Inline Dialog Webitem', () => {
       });
     });
 
+    it('triggers an event on close', (done) => {
+      EventDispatcher.registerOnce('inline-dialog-hidden', function(data){
+        expect(data.el.nodeName.toLowerCase()).toEqual('aui-inline-dialog');
+        expect(data.extension.addon_key).toEqual('my-plugin');
+        done();
+      });
+      EventDispatcher.registerOnce('after:webitem-invoked:inline-dialog', function(){
+        let inlineDialogs = Array.prototype.slice.call(document.getElementsByTagName('aui-inline-dialog'));
+        inlineDialogs.forEach(inlineDialog => {
+          inlineDialog.setAttribute('open', false);
+        });
+      });
+
+      $(function(){
+        $('.ap-inline-dialog').click();
+      });
+
+    });
+
 
     it('opens with product context', (done) => {
       EventDispatcher.register('inline-dialog-extension', function(data){
