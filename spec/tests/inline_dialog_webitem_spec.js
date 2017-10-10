@@ -150,7 +150,9 @@ describe('Inline Dialog Webitem', () => {
       }});
 
       InlineDialogWebitem.opened({
-        el: document.createElement('div'),
+        el: InlineDialogComponent.render({
+          id: 'some-id'
+        }),
         extension: {
           addon_key: 'a-key',
           key: 'key'
@@ -215,7 +217,9 @@ describe('Inline Dialog Webitem', () => {
       }});
 
       let data = {
-        el: document.createElement('div'),
+        el: InlineDialogComponent.render({
+          id: 'some-id'
+        }),
         extension: {
           addon_key: 'a-key',
           key: 'key'
@@ -244,7 +248,9 @@ describe('Inline Dialog Webitem', () => {
       }});
 
       let data = {
-        el: document.createElement('div'),
+        el: InlineDialogComponent.render({
+          id: 'some-id'
+        }),
         extension: {
           addon_key: 'a-key',
           key: 'key'
@@ -273,7 +279,9 @@ describe('Inline Dialog Webitem', () => {
       }});
 
       let data = {
-        el: document.createElement('div'),
+        el: InlineDialogComponent.render({
+          id: 'some-id'
+        }),
         extension: {
           addon_key: 'a-key',
           key: 'key',

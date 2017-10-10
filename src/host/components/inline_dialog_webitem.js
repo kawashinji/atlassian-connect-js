@@ -14,6 +14,7 @@ const ITEM_NAME = 'inline-dialog';
 const SELECTOR = '.ap-inline-dialog';
 const TRIGGERS = ['mouseover', 'click'];
 const WEBITEM_UID_KEY = 'inline-dialog-target-uid';
+const CONTAINER_CLASS = 'aui-inline-dialog-contents';
 
 class InlineDialogWebItem {
   constructor(){
@@ -52,12 +53,17 @@ class InlineDialogWebItem {
     var $target = $(data.event.currentTarget);
     var webitemId = $target.data(WEBITEM_UID_KEY);
 
-    this._createInlineDialog({
+    let inlineDialog = this._createInlineDialog({
       id: webitemId,
       extension: data.extension,
       $target: $target,
       options: data.extension.options || {}
     });
+    // FF bug fix, the container doesn't render automagically for the inline dialog
+    // if(!inlineDialog.firstChild) {
+    //   inlineDialog.appendChild(InlineDialogComponent.renderContainer());
+    // }
+
   }
 
   opened(data){
@@ -96,10 +102,14 @@ class InlineDialogWebItem {
 
   addExtension(data){
     let $addon = IframeCreate(data.extension);
-    while (data.el.firstChild) {
-      data.el.removeChild(data.el.firstChild);
+    let container = data.el;
+    if(!data.el.classList.contains(CONTAINER_CLASS)) {
+      container = data.el.querySelector('.' + CONTAINER_CLASS);
     }
-    $addon.appendTo(data.el);
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+    $addon.appendTo(container);
   }
 
   createIfNotExists(data) {

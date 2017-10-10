@@ -5378,15 +5378,13 @@
 	  };
 
 	  InlineDialog.prototype.refresh = function refresh($el) {
-	    $el[0].popup.reset();
+	    // $el[0].popup.reset();
 	  };
 
-	  InlineDialog.prototype._getInlineDialog = function _getInlineDialog($el) {
-	    return AJS.InlineDialog($el);
-	  };
-
-	  InlineDialog.prototype._renderContainer = function _renderContainer() {
-	    return $('<div />').addClass('aui-inline-dialog-contents');
+	  InlineDialog.prototype.renderContainer = function renderContainer() {
+	    var inlineDialogContentEl = document.createElement('div');
+	    inlineDialogContentEl.classList.add('aui-inline-dialog-contents');
+	    return inlineDialogContentEl;
 	  };
 
 	  InlineDialog.prototype.hideInlineDialog = function hideInlineDialog(el) {
@@ -5414,14 +5412,12 @@
 	    inlineDialogEl.id = inlineDialogId;
 	    inlineDialogEl.classList.add('ac-inline-dialog');
 	    inlineDialogEl.addEventListener('aui-show', function (e) {
-	      console.log("AUI SHOW", e, data);
 	      InlineDialogActions.opened({
 	        el: e.target,
 	        trigger: data.bindTo,
 	        extension: data.extension
 	      });
 	    });
-
 	    return inlineDialogEl;
 	    //responds-to="hover"
 	  };
@@ -5432,7 +5428,7 @@
 	var InlineDialogComponent = new InlineDialog();
 
 	EventDispatcher$1.register('iframe-resize', function (data) {
-	  var container = data.$el.parents('.aui-inline-dialog');
+	  var container = data.$el.parents('aui-inline-dialog');
 	  if (container.length === 1) {
 	    InlineDialogComponent.resize({
 	      width: data.width,
@@ -5458,6 +5454,7 @@
 	var SELECTOR = '.ap-inline-dialog';
 	var TRIGGERS = ['mouseover', 'click'];
 	var WEBITEM_UID_KEY = 'inline-dialog-target-uid';
+	var CONTAINER_CLASS = 'aui-inline-dialog-contents';
 
 	var InlineDialogWebItem = function () {
 	  function InlineDialogWebItem() {
@@ -5497,12 +5494,16 @@
 	    var $target = $(data.event.currentTarget);
 	    var webitemId = $target.data(WEBITEM_UID_KEY);
 
-	    this._createInlineDialog({
+	    var inlineDialog = this._createInlineDialog({
 	      id: webitemId,
 	      extension: data.extension,
 	      $target: $target,
 	      options: data.extension.options || {}
 	    });
+	    // FF bug fix, the container doesn't render automagically for the inline dialog
+	    // if(!inlineDialog.firstChild) {
+	    //   inlineDialog.appendChild(InlineDialogComponent.renderContainer());
+	    // }
 	  };
 
 	  InlineDialogWebItem.prototype.opened = function opened(data) {
@@ -5541,10 +5542,14 @@
 
 	  InlineDialogWebItem.prototype.addExtension = function addExtension(data) {
 	    var $addon = create(data.extension);
-	    while (data.el.firstChild) {
-	      data.el.removeChild(data.el.firstChild);
+	    var container = data.el;
+	    if (!data.el.classList.contains(CONTAINER_CLASS)) {
+	      container = data.el.querySelector('.' + CONTAINER_CLASS);
 	    }
-	    $addon.appendTo(data.el);
+	    while (container.firstChild) {
+	      container.removeChild(container.firstChild);
+	    }
+	    $addon.appendTo(container);
 	  };
 
 	  InlineDialogWebItem.prototype.createIfNotExists = function createIfNotExists(data) {

@@ -19,14 +19,13 @@ class InlineDialog {
   }
 
   refresh($el){
-    $el[0].popup.reset();
+    // $el[0].popup.reset();
   }
 
-  _getInlineDialog($el){
-    return AJS.InlineDialog($el);
-  }
-  _renderContainer(){
-    return $('<div />').addClass('aui-inline-dialog-contents');
+  renderContainer(){
+    let inlineDialogContentEl = document.createElement('div');
+    inlineDialogContentEl.classList.add('aui-inline-dialog-contents');
+    return inlineDialogContentEl;
   }
 
   hideInlineDialog(el){
@@ -41,7 +40,7 @@ class InlineDialog {
 
   render(data){
     const inlineDialogId = 'inline-dialog-' + data.id;
-    var inlineDialogEl = document.getElementById(inlineDialogId);
+    let inlineDialogEl = document.getElementById(inlineDialogId);
 
     if (inlineDialogEl) {
       return inlineDialogEl;
@@ -54,14 +53,12 @@ class InlineDialog {
     inlineDialogEl.id = inlineDialogId;
     inlineDialogEl.classList.add('ac-inline-dialog');
     inlineDialogEl.addEventListener('aui-show', function(e){
-      console.log("AUI SHOW", e, data);
       InlineDialogActions.opened({
         el: e.target,
         trigger: data.bindTo,
         extension: data.extension
       });
     });
-
     return inlineDialogEl;
     //responds-to="hover"
   }
@@ -71,7 +68,7 @@ class InlineDialog {
 var InlineDialogComponent = new InlineDialog();
 
 EventDispatcher.register('iframe-resize', function(data) {
-  var container = data.$el.parents('.aui-inline-dialog');
+  var container = data.$el.parents('aui-inline-dialog');
   if(container.length === 1) {
     InlineDialogComponent.resize({
       width: data.width,
