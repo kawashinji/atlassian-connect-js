@@ -5513,7 +5513,6 @@
 	    }
 	    var $target = $(data.event.currentTarget);
 	    var webitemId = $target.data(WEBITEM_UID_KEY);
-
 	    var $inlineDialog = this._createInlineDialog({
 	      id: webitemId,
 	      extension: data.extension,
@@ -5570,7 +5569,7 @@
 
 	    if (!uid) {
 	      uid = WebItemUtils.uniqueId();
-	      $target.data(WEBITEM_UID_KEY, uid);
+	      $target.data(WEBITEM_UID_KEY, 'abc123');
 	    }
 	  };
 
