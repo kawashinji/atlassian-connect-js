@@ -4201,12 +4201,12 @@
 	  var $el = Util$1.getIframeByExtensionId(data.extensionId);
 	  if (data.hideFooter) {
 	    $el.addClass('full-size-general-page-no-footer');
-	    $('#footer').css({ display: 'none' });
+	    $('footer').css({ display: 'none' });
 	    height = $(window).height() - $('#header > nav').outerHeight();
 	  } else {
-	    height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+	    height = $(window).height() - $('#header > nav').outerHeight() - $('footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
 	    $el.removeClass('full-size-general-page-no-footer');
-	    $('#footer').css({ display: 'block' });
+	    $('footer').css({ display: 'block' });
 	  }
 
 	  EventDispatcher$1.dispatch('iframe-resize', {
@@ -4214,6 +4214,12 @@
 	    height: height + 'px',
 	    $el: $el
 	  });
+	});
+
+	EventDispatcher$1.register('hide-footer', function (hideFooter) {
+	  if (hideFooter) {
+	    $('footer').css({ display: 'none' });
+	  }
 	});
 
 	AJS.$(window).on('resize', function (e) {
@@ -4236,6 +4242,9 @@
 	      hideFooter: hideFooter,
 	      extensionId: extensionId
 	    });
+	  },
+	  hideFooter: function hideFooter(_hideFooter) {
+	    EventDispatcher$1.dispatch('hide-footer', _hideFooter);
 	  }
 	};
 
@@ -4327,7 +4336,18 @@
 	        Util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
 	      }
 	    }
-	  })
+	  }),
+	  /**
+	  * Hide footer..
+	  *
+	  * @method
+	  * @param {boolean} hideFooter true if the footer is supposed to be hidden
+	  */
+	  hideFooter: function hideFooter(_hideFooter) {
+	    if (_hideFooter) {
+	      EnvActions.hideFooter(_hideFooter);
+	    }
+	  }
 	};
 
 	EventDispatcher$1.register('host-window-resize', function (data) {

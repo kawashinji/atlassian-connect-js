@@ -12,33 +12,32 @@ import _util from './util';
 AP._hostModules._dollar = $;
 AP._hostModules['inline-dialog'] = AP._hostModules.inlineDialog;
 
-if(consumerOptions.get('sizeToParent') === true) {
-  AP.env.sizeToParent((consumerOptions.get('hideFooter') === true));
+if (consumerOptions.get('sizeToParent') === true) {
+  AP.env.sizeToParent(consumerOptions.get('hideFooter') === true);
+} else {
+  AP.env.hideFooter(consumerOptions.get('hideFooter') === true);
 }
 
-if(consumerOptions.get('base') === true) {
+if (consumerOptions.get('base') === true) {
   AP.env.getLocation(loc => {
-    $('head').append({tag: 'base', href: loc, target: '_parent'});
+    $('head').append({ tag: 'base', href: loc, target: '_parent' });
   });
 }
 
-
 $.each(EventsInstance.methods, (i, method) => {
-  if(AP._hostModules && AP._hostModules.events) {
+  if (AP._hostModules && AP._hostModules.events) {
     AP._hostModules.events[method] = AP.events[method] = EventsInstance[method].bind(EventsInstance);
     AP._hostModules.events[method + 'Public'] = AP.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
   }
 });
 
-AP.define = deprecate((...args) => AMD.define(...args),
-  'AP.define()', null, '5.0');
+AP.define = deprecate((...args) => AMD.define(...args), 'AP.define()', null, '5.0');
 
-AP.require = deprecate((...args) => AMD.require(...args),
-  'AP.require()', null, '5.0');
+AP.require = deprecate((...args) => AMD.require(...args), 'AP.require()', null, '5.0');
 
-var margin = AP._data.options.isDialog ? '10px 10px 0 10px'  : '0';
+var margin = AP._data.options.isDialog ? '10px 10px 0 10px' : '0';
 if (consumerOptions.get('margin') !== false) {
-  $('head').append({tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}'});
+  $('head').append({ tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}' });
 }
 
 AP.Meta = {
@@ -60,18 +59,20 @@ AP._hostModules._util = AP._util = {
   handleError: _util.handleError
 };
 
-if(AP.defineModule) {
-  AP.defineModule('env', {resize: function(w, h, callback){
-    var iframe = document.getElementById(callback._context.extension_id);
-    iframe.style.width = w + (typeof w === 'number' ? 'px' : '');
-    iframe.style.height = h + (typeof h === 'number' ? 'px' : '');
-  }});
+if (AP.defineModule) {
+  AP.defineModule('env', {
+    resize: function(w, h, callback) {
+      var iframe = document.getElementById(callback._context.extension_id);
+      iframe.style.width = w + (typeof w === 'number' ? 'px' : '');
+      iframe.style.height = h + (typeof h === 'number' ? 'px' : '');
+    }
+  });
 }
 
-if(AP._data && AP._data.origin) {
-  AP.registerAny(function(data, callback){
+if (AP._data && AP._data.origin) {
+  AP.registerAny(function(data, callback) {
     // dialog.close event doesn't have event data
-    if(data && data.event && data.sender){
+    if (data && data.event && data.sender) {
       PublicEventsInstance._anyListener(data, callback);
     } else {
       EventsInstance._anyListener(data, callback);
