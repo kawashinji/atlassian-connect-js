@@ -4201,12 +4201,12 @@
 	  var $el = Util$1.getIframeByExtensionId(data.extensionId);
 	  if (data.hideFooter) {
 	    $el.addClass('full-size-general-page-no-footer');
-	    $('footer').css({ display: 'none' });
+	    $('#footer').css({ display: 'none' });
 	    height = $(window).height() - $('#header > nav').outerHeight();
 	  } else {
-	    height = $(window).height() - $('#header > nav').outerHeight() - $('footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+	    height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
 	    $el.removeClass('full-size-general-page-no-footer');
-	    $('footer').css({ display: 'block' });
+	    $('#footer').css({ display: 'block' });
 	  }
 
 	  EventDispatcher$1.dispatch('iframe-resize', {
@@ -4218,7 +4218,7 @@
 
 	EventDispatcher$1.register('hide-footer', function (hideFooter) {
 	  if (hideFooter) {
-	    $('footer').css({ display: 'none' });
+	    $('#footer').css({ display: 'none' });
 	  }
 	});
 
@@ -5684,7 +5684,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.34';
+	  window._AP.version = '5.1.35';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
