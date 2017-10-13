@@ -10,15 +10,15 @@ export default {
     EventDispatcher.dispatch('iframe-bridge-established', {$el, extension});
   },
 
-  notifyIframeDestroyed: function(extension_id){
-    var extension = simpleXDM.getExtensions({
-      extension_id: extension_id
-    });
-    if(extension.length === 1){
-      extension = extension[0];
+  notifyIframeDestroyed: function(filter){
+    if(typeof filter === 'string') {
+      filter = {id: filter};
     }
-    EventDispatcher.dispatch('iframe-destroyed', {extension});
-    simpleXDM.unregisterExtension({extension_id: extension_id});
+    var extensions = simpleXDM.getExtensions(filter);
+    extensions.forEach((extension) => {
+      EventDispatcher.dispatch('iframe-destroyed', {extension});
+      simpleXDM.unregisterExtension({id: extension.extension_id});
+    }, this);
   },
 
   notifyUnloaded: function($el, extension){

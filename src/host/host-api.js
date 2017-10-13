@@ -128,7 +128,7 @@ class HostApi {
   }
 
   destroy (extension_id){
-    IframeActions.notifyIframeDestroyed({extension_id: extension_id});
+    IframeActions.notifyIframeDestroyed({id: extension_id});
   }
 
   defineModule (name, methods) {

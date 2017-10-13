@@ -110,4 +110,17 @@ describe('Host API', function() {
     expect(callback.calls.mostRecent().args[0]).toEqual(iframe);
     document.body.removeChild(iframe);
   });
+
+  it('destroy removes the extension', () => {
+    const spec = {
+      addon_key: 'my-addon-key',
+      key: 'somekey',
+      url: 'http://www.example.com'
+    };
+    let iframe = HostApi.create(spec);
+    let extensions = HostApi.getExtensions(spec);
+    expect(extensions.length).toEqual(1);
+    HostApi.destroy(extensions[0].extension_id);
+    expect(HostApi.getExtensions(spec).length).toEqual(0);
+  });
 });
