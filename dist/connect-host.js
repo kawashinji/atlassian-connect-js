@@ -2264,15 +2264,15 @@
 	    EventDispatcher$1.dispatch('iframe-bridge-established', { $el: $el, extension: extension });
 	  },
 
-	  notifyIframeDestroyed: function notifyIframeDestroyed(extension_id) {
-	    var extension = simpleXDM$1.getExtensions({
-	      extension_id: extension_id
-	    });
-	    if (extension.length === 1) {
-	      extension = extension[0];
+	  notifyIframeDestroyed: function notifyIframeDestroyed(filter) {
+	    if (typeof filter === 'string') {
+	      filter = { id: filter };
 	    }
-	    EventDispatcher$1.dispatch('iframe-destroyed', { extension: extension });
-	    simpleXDM$1.unregisterExtension({ extension_id: extension_id });
+	    var extensions = simpleXDM$1.getExtensions(filter);
+	    extensions.forEach(function (extension) {
+	      EventDispatcher$1.dispatch('iframe-destroyed', { extension: extension });
+	      simpleXDM$1.unregisterExtension({ id: extension.extension_id });
+	    }, this);
 	  },
 
 	  notifyUnloaded: function notifyUnloaded($el, extension) {
@@ -3205,7 +3205,7 @@
 	  };
 
 	  HostApi.prototype.destroy = function destroy(extension_id) {
-	    IframeActions.notifyIframeDestroyed({ extension_id: extension_id });
+	    IframeActions.notifyIframeDestroyed({ id: extension_id });
 	  };
 
 	  HostApi.prototype.defineModule = function defineModule(name, methods) {
