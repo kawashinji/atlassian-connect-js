@@ -68,8 +68,6 @@ export default {
   /**
    * Resize the iframe, so that it takes the entire page. Add-on may define to hide the footer using data-options.
    *
-   * Note that this method is only available for general page modules.
-   *
    * @method
    * @param {boolean} hideFooter true if the footer is supposed to be hidden
    */
@@ -79,17 +77,9 @@ export default {
     if (addon) {
       addon.sizeToParent(hideFooter, callback._context);
     } else {
-      // sizeToParent is only available for general-pages
-      if (callback._context.extension.options.isFullPage) {
-        // This adds border between the iframe and the page footer as the connect addon has scrolling content and can't do this
-        util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
-        EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
-        sizeToParentExtension[callback._context.extension_id] = { hideFooter: hideFooter };
-      } else {
-        // This is only here to support integration testing
-        // see com.atlassian.plugin.connect.test.pageobjects.RemotePage#isNotFullSize()
-        util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
-      }
+      util.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page');
+      EnvActions.sizeToParent(callback._context.extension_id, hideFooter);
+      sizeToParentExtension[callback._context.extension_id] = { hideFooter: hideFooter };
     }
   }),
    /**
