@@ -2285,15 +2285,15 @@
 	    EventDispatcher$1.dispatch('iframe-bridge-established', { $el: $el, extension: extension });
 	  },
 
-	  notifyIframeDestroyed: function notifyIframeDestroyed(extension_id) {
-	    var extension = simpleXDM$1.getExtensions({
-	      extension_id: extension_id
-	    });
-	    if (extension.length === 1) {
-	      extension = extension[0];
+	  notifyIframeDestroyed: function notifyIframeDestroyed(filter) {
+	    if (typeof filter === 'string') {
+	      filter = { id: filter };
 	    }
-	    EventDispatcher$1.dispatch('iframe-destroyed', { extension: extension });
-	    simpleXDM$1.unregisterExtension({ extension_id: extension_id });
+	    var extensions = simpleXDM$1.getExtensions(filter);
+	    extensions.forEach(function (extension) {
+	      EventDispatcher$1.dispatch('iframe-destroyed', { extension: extension });
+	      simpleXDM$1.unregisterExtension({ id: extension.extension_id });
+	    }, this);
 	  },
 
 	  notifyUnloaded: function notifyUnloaded($el, extension) {
@@ -3226,7 +3226,7 @@
 	  };
 
 	  HostApi.prototype.destroy = function destroy(extension_id) {
-	    IframeActions.notifyIframeDestroyed({ extension_id: extension_id });
+	    IframeActions.notifyIframeDestroyed({ id: extension_id });
 	  };
 
 	  HostApi.prototype.defineModule = function defineModule(name, methods) {
@@ -4237,6 +4237,12 @@
 	  });
 	});
 
+	EventDispatcher$1.register('hide-footer', function (hideFooter) {
+	  if (hideFooter) {
+	    $('#footer').css({ display: 'none' });
+	  }
+	});
+
 	AJS.$(window).on('resize', function (e) {
 	  EventDispatcher$1.dispatch('host-window-resize', e);
 	});
@@ -4257,6 +4263,9 @@
 	      hideFooter: hideFooter,
 	      extensionId: extensionId
 	    });
+	  },
+	  hideFooter: function hideFooter(_hideFooter) {
+	    EventDispatcher$1.dispatch('hide-footer', _hideFooter);
 	  }
 	};
 
@@ -4348,7 +4357,18 @@
 	        Util$1.getIframeByExtensionId(callback._context.extension_id).addClass('full-size-general-page-fail');
 	      }
 	    }
-	  })
+	  }),
+	  /**
+	  * Hide footer..
+	  *
+	  * @method
+	  * @param {boolean} hideFooter true if the footer is supposed to be hidden
+	  */
+	  hideFooter: function hideFooter(_hideFooter) {
+	    if (_hideFooter) {
+	      EnvActions.hideFooter(_hideFooter);
+	    }
+	  }
 	};
 
 	EventDispatcher$1.register('host-window-resize', function (data) {
@@ -4402,12 +4422,12 @@
 	 * Inline dialogs can be shown via a [web item target](../../modules/web-item/#target).
 	 *
 	 * For more information, read about the Atlassian User Interface [inline dialog component](https://docs.atlassian.com/aui/latest/docs/inline-dialog.html).
-	 * @module inline-dialog
+	 * @module Inline-dialog
 	 */
 	var inlineDialog = {
 	  /**
 	   * Hide the inline dialog that contains the iframe where this method is called from.
-	   * @memberOf module:inline-dialog
+	   * @memberOf module:Inline-dialog
 	   * @method hide
 	   * @noDemo
 	   * @example
@@ -4435,7 +4455,7 @@
 	* var message = AP.messages.info('plain text title', 'plain text body');
 	* ```
 	* @deprecated after August 2017 | Please use the Flag module instead.
-	* @name messages
+	* @name Messages
 	* @module
 	*/
 
@@ -4545,7 +4565,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name clear
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}    id  The id that was returned when the message was created.
 	  * @example
 	  * //create a message
@@ -4572,7 +4592,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name onClose
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}    id  The id that was returned when the message was created.
 	  * @param    {Function}  callback  The function that is run when the event is triggered
 	  * @example
@@ -4602,7 +4622,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name generic
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}            title       Sets the title text of the message.
 	  * @param    {String}            body        The main content of the message.
 	  * @param    {Object}            options             Message Options
@@ -4622,7 +4642,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name error
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}            title       Sets the title text of the message.
 	  * @param    {String}            body        The main content of the message.
 	  * @param    {Object}            options             Message Options
@@ -4642,7 +4662,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name warning
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}            title       Sets the title text of the message.
 	  * @param    {String}            body        The main content of the message.
 	  * @param    {Object}            options             Message Options
@@ -4662,7 +4682,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name success
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}            title       Sets the title text of the message.
 	  * @param    {String}            body        The main content of the message.
 	  * @param    {Object}            options             Message Options
@@ -4682,7 +4702,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name info
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}            title       Sets the title text of the message.
 	  * @param    {String}            body        The main content of the message.
 	  * @param    {Object}            options             Message Options
@@ -4702,7 +4722,7 @@
 	  * @deprecated after August 2017 | Please use the Flag module instead.
 	  * @name hint
 	  * @method
-	  * @memberof module:messages#
+	  * @memberof module:Messages#
 	  * @param    {String}            title               Sets the title text of the message.
 	  * @param    {String}            body                The main content of the message.
 	  * @param    {Object}            options             Message Options
@@ -5046,20 +5066,22 @@
 	* there is no AUI implementation of this
 	*/
 
-	var dropdownProvider;
-
 	function buildListItem(listItem) {
+	  var finishedListItem = {};
 	  if (typeof listItem === 'string') {
-	    return {
-	      content: listItem
-	    };
+	    finishedListItem.content = listItem;
+	  } else if (listItem.text && typeof listItem.text === 'string') {
+	    finishedListItem.content = listItem.text;
+	    if (typeof listItem.disabled === 'boolean') {
+	      finishedListItem.disabled = listItem.disabled;
+	    }
+	    if (typeof listItem.itemId !== 'undefined') {
+	      finishedListItem.itemId = listItem.itemId;
+	    }
+	  } else {
+	    throw new Error('Unknown dropdown list item format.');
 	  }
-	  if (listItem.text && typeof listItem.text === 'string') {
-	    return {
-	      content: listItem.text
-	    };
-	  }
-	  throw new Error('Unknown dropdown list item format.');
+	  return finishedListItem;
 	}
 
 	function moduleListToApiList(list) {
@@ -5079,7 +5101,7 @@
 	/**
 	* @class DropdownItem
 	* A single item in a dropdown menu can be a string or an object
-	* @param {String} item_id The id of a single dropdown item
+	* @param {String} itemId The id of a single dropdown item
 	* @param {String} text    The text to display in the dropdown item
 	*/
 
@@ -5089,7 +5111,7 @@
 	* @example
 	* // create a dropdown menu with 1 section and 2 items
 	* var mydropdown = {
-	*   dropdown_id: 'my-dropdown',
+	*   dropdownId: 'my-dropdown',
 	*   list: [{
 	*     heading: 'section heading',
 	*     list: [
@@ -5100,7 +5122,7 @@
 	* };
 	*
 	* AP.events.on('dropdown-item-selected', (data) =>{
-	*   console.log('dropdown item selected', data.dropdown_id, data.item);
+	*   console.log('dropdown item selected', data.dropdownId, data.item);
 	* });
 	*
 	* AP.dropdown.create(mydropdown);
@@ -5116,12 +5138,12 @@
 	  * @method
 	  * @description Creates a new dropdown.
 	  * @param {Object} options             Options of the dropdown.
-	  * @param {String} options.dropdown_id A unique identifier for the dropdown that will be referenced in events.
+	  * @param {String} options.dropdownId A unique identifier for the dropdown that will be referenced in events.
 	  * @param {String} options.list        An array containing dropdown items {Dropdown~DropdownItem}
 	  * @example
 	  * // create a dropdown menu with 1 section and 2 items
 	  * var mydropdown = {
-	  *   dropdown_id: 'my-dropdown',
+	  *   dropdownId: 'my-dropdown',
 	  *   list: [{
 	  *     heading: 'section heading',
 	  *     list: [
@@ -5138,15 +5160,19 @@
 	    if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
 	      return;
 	    }
-	    dropdownProvider = ModuleProviders$1.getProvider('dropdown');
+	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
+	    var dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
 	    if (dropdownProvider) {
-	      dropdownProvider.registerItemNotifier(function (data) {
-	        DropdownActions.itemSelected(data.dropdown_id, data.item, callback._context.extension);
-	      });
-	      options.list = moduleListToApiList(options.list);
-	      dropdownProvider.create(options, callback._context);
-	      // return for testing
-	      return options;
+	      var dropdownGroups = moduleListToApiList(options.list);
+	      var dropdownProviderOptions = {
+	        dropdownId: options.dropdownId,
+	        dropdownGroups: dropdownGroups,
+	        dropdownItemNotifier: function dropdownItemNotifier(data) {
+	          DropdownActions.itemSelected(data.dropdownId, data.item, callback._context.extension);
+	        }
+	      };
+	      dropdownProvider.create(dropdownProviderOptions, callback._context);
+	      return dropdownProviderOptions;
 	    }
 	  },
 
@@ -5155,14 +5181,14 @@
 	  * @name showAt
 	  * @method
 	  * @description Displays a created dropdown menu.
-	  * @param {String} dropdown_id   Id used when creating the dropdown
+	  * @param {String} dropdownId   Id used when creating the dropdown
 	  * @param {String} x             x position from the edge of your iframe to display
 	  * @param {String} y             y position from the edge of your iframe to display
 	  * @param {String} width         Optionally enforce a width for the dropdown menu
 	  * @example
 	  * // create a dropdown menu with 1 section and 2 items
 	  * var mydropdown = {
-	  *   dropdown_id: 'my-dropdown',
+	  *   dropdownId: 'my-dropdown',
 	  *   list: [{
 	  *     list:['one', 'two']
 	  *   }]
@@ -5173,20 +5199,23 @@
 	  * let rect = document.querySelector('button').getBoundingClientRect();
 	  * AP.dropdown.showAt('my-dropdown', rect.left, rect.top, rect.width);
 	  */
-	  showAt: function showAt(dropdown_id, x, y, width) {
+	  showAt: function showAt(dropdownId, x, y, width) {
 	    var callback = Util$1.last(arguments);
 	    var rect = document.getElementById(callback._context.extension_id).getBoundingClientRect();
 
+	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
+	    var dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
 	    if (dropdownProvider) {
-	      dropdownProvider.showAt({
-	        dropdown_id: dropdown_id,
+	      var dropdownProviderArgs = {
+	        dropdownId: dropdownId,
 	        x: x,
 	        y: y,
 	        width: width
-	      }, {
+	      };
+	      dropdownProvider.showAt(dropdownProviderArgs, {
 	        iframeDimensions: rect,
-	        onItemSelection: function onItemSelection(dropdown_id, item) {
-	          DropdownActions.itemSelected(dropdown_id, item, callback._context.extension);
+	        onItemSelection: function onItemSelection(dropdownId, item) {
+	          DropdownActions.itemSelected(dropdownId, item, callback._context.extension);
 	        }
 	      });
 	    }
@@ -5196,12 +5225,14 @@
 	  * @name hide
 	  * @method
 	  * @description Hide a dropdown menu
-	  * @param {String} dropdown_id The id of the dropdown to hide
+	  * @param {String} dropdownId The id of the dropdown to hide
 	  * @example
 	  * AP.dropdown.create('my-dropdown');
 	  * AP.dropdown.hide('my-dropdown');
 	  */
 	  hide: function hide(id) {
+	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
+	    var dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
 	    if (dropdownProvider) {
 	      dropdownProvider.hide(id);
 	    }
@@ -5212,15 +5243,17 @@
 	  * @name itemDisable
 	  * @method
 	  * @description Disable an item in the dropdown menu
-	  * @param {String} dropdown_id The id of the dropdown
-	  * @param {String} item_id     The dropdown item to disable
+	  * @param {String} dropdownId The id of the dropdown
+	  * @param {String} itemId     The dropdown item to disable
 	  * @example
 	  * AP.dropdown.create('my-dropdown');
 	  * AP.dropdown.itemDisable('my-dropdown', 'item-id');
 	  */
-	  itemDisable: function itemDisable(dropdown_id, item_id) {
+	  itemDisable: function itemDisable(dropdownId, itemId) {
+	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
+	    var dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
 	    if (dropdownProvider) {
-	      dropdownProvider.itemDisable(dropdown_id, item_id);
+	      dropdownProvider.itemDisable(dropdownId, itemId);
 	    }
 	  },
 
@@ -5229,15 +5262,17 @@
 	  * @name itemEnable
 	  * @method
 	  * @description Hide a dropdown menu
-	  * @param {String} dropdown_id The id of the dropdown
-	  * @param {String} item_id The id of the dropdown item to enable
+	  * @param {String} dropdownId The id of the dropdown
+	  * @param {String} itemId The id of the dropdown item to enable
 	  * @example
 	  * AP.dropdown.create('my-dropdown');
 	  * AP.dropdown.itemEnable('my-dropdown', 'item-id');
 	  */
-	  itemEnable: function itemEnable(dropdown_id, item_id) {
+	  itemEnable: function itemEnable(dropdownId, itemId) {
+	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
+	    var dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
 	    if (dropdownProvider) {
-	      dropdownProvider.itemEnable(dropdown_id, item_id);
+	      dropdownProvider.itemEnable(dropdownId, itemId);
 	    }
 	  }
 	};
@@ -5247,7 +5282,7 @@
 	    addon_key: data.extension.addon_key,
 	    key: data.extension.key
 	  }, {
-	    dropdown_id: data.id,
+	    dropdownId: data.id,
 	    item: data.item
 	  });
 	});
@@ -5670,7 +5705,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.32';
+	  window._AP.version = '5.1.36';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

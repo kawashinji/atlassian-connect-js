@@ -1,10 +1,12 @@
 import DropdownModule from 'src/host/modules/dropdown';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import EventActions from 'src/host/actions/event_actions';
-import ModuleProviders from 'src/host/module-providers';
+import HostApi from 'src/host/host-api';
 import extend from 'object-assign';
 
 describe('dropdown api module', () => {
+  const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+
   const fakeCallback = function(){};
   fakeCallback._context = {
     extension: {
@@ -21,7 +23,19 @@ describe('dropdown api module', () => {
     'itemDisabled'
   ]);
 
-  ModuleProviders.registerProvider('dropdown', providerSpy);
+  let dropdownProvider = {
+    getModuleRegistrationName: function() {
+      return 'dropdown';
+    },
+    isEnabled: function() {
+      return true;
+    },
+    getProvider: function(){
+      return providerSpy;
+    }
+  };
+  frameworkAdaptor.registerModule(dropdownProvider);
+
   beforeEach(() => {
     providerSpy.registerItemNotifier.calls.reset();
     providerSpy.create.calls.reset();
@@ -35,7 +49,7 @@ describe('dropdown api module', () => {
 
     it('formats sections', () => {
       let options = {
-        dropdown_id: 'some-dropdown-id',
+        dropdownId: 'some-dropdown-id',
         list: [{
           heading: 'section heading',
           list: [
@@ -45,16 +59,16 @@ describe('dropdown api module', () => {
         }]
       };
       let formattedOptions = DropdownModule.create(extend({}, options), fakeCallback);
-
       expect(formattedOptions).toEqual({
-        dropdown_id: options.dropdown_id,
-        list: [{
+        dropdownId: options.dropdownId,
+        dropdownGroups: [{
           heading: options.list[0].heading,
           items: [
             {content: options.list[0].list[0].text},
             {content: options.list[0].list[1].text}
           ]
-        }]
+        }],
+        dropdownItemNotifier: jasmine.any(Function)
       });
 
     });

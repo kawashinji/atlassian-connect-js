@@ -1705,7 +1705,7 @@ var AP = (function () {
 	    _this._eventHandlers = {};
 	    _this._pendingCallbacks = {};
 	    _this._keyListeners = [];
-	    _this._version = "5.1.32";
+	    _this._version = "5.1.36";
 	    _this._apiTampered = undefined;
 	    _this._isSubIframe = _this._topHost !== window.parent;
 	    _this._onConfirmedFns = [];
@@ -3088,6 +3088,8 @@ var AP = (function () {
 
 	if (ConsumerOptions$1.get('sizeToParent') === true) {
 	  AP$2.env.sizeToParent(ConsumerOptions$1.get('hideFooter') === true);
+	} else {
+	  AP$2.env.hideFooter(ConsumerOptions$1.get('hideFooter') === true);
 	}
 
 	if (ConsumerOptions$1.get('base') === true) {
@@ -3136,11 +3138,13 @@ var AP = (function () {
 	};
 
 	if (AP$2.defineModule) {
-	  AP$2.defineModule('env', { resize: function resize(w, h, callback) {
+	  AP$2.defineModule('env', {
+	    resize: function resize(w, h, callback) {
 	      var iframe = document.getElementById(callback._context.extension_id);
 	      iframe.style.width = w + (typeof w === 'number' ? 'px' : '');
 	      iframe.style.height = h + (typeof h === 'number' ? 'px' : '');
-	    } });
+	    }
+	  });
 	}
 
 	if (AP$2._data && AP$2._data.origin) {

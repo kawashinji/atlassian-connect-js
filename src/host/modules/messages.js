@@ -8,7 +8,7 @@
 * var message = AP.messages.info('plain text title', 'plain text body');
 * ```
 * @deprecated after August 2017 | Please use the Flag module instead.
-* @name messages
+* @name Messages
 * @module
 */
 
@@ -39,12 +39,12 @@ function getMessageBar() {
 function filterMessageOptions(options) {
   const copy = {};
   const allowed = ['closeable', 'fadeout', 'delay', 'duration', 'id'];
-  if(typeof options === 'object'){
+  if (typeof options === 'object') {
     allowed.forEach(key => {
       if (key in options) {
         copy[key] = options[key];
       }
-    })
+    });
   }
   return copy;
 }
@@ -86,7 +86,7 @@ function deprecatedShowMessage(name, title, body, options, callback) {
   }
 }
 
-$(document).on('aui-message-close', function (e, $msg) {
+$(document).on('aui-message-close', function(e, $msg) {
   const _id = $msg.attr('id').replace(MSGID_PREFIX, '');
   if (_messages[_id]) {
     if ($.isFunction(_messages[_id].onCloseTrigger)) {
@@ -114,7 +114,7 @@ function messageModule(messageType) {
       deprecatedShowMessage(messageType, title, body, options, callback);
       _messages[_id] = this;
     }
-  }
+  };
 }
 
 export default {
@@ -123,7 +123,7 @@ export default {
   * @deprecated after August 2017 | Please use the Flag module instead.
   * @name clear
   * @method
-  * @memberof module:messages#
+  * @memberof module:Messages#
   * @param    {String}    id  The id that was returned when the message was created.
   * @example
   * //create a message
@@ -132,7 +132,7 @@ export default {
   *   AP.messages.clear(message);
   * }, 2000);
   */
-  clear: function (msg) {
+  clear: function(msg) {
     const id = MSGID_PREFIX + msg._id;
     if (validateMessageId(id)) {
       const frameworkAdaptor = HostApi.getFrameworkAdaptor();
@@ -150,7 +150,7 @@ export default {
   * @deprecated after August 2017 | Please use the Flag module instead.
   * @name onClose
   * @method
-  * @memberof module:messages#
+  * @memberof module:Messages#
   * @param    {String}    id  The id that was returned when the message was created.
   * @param    {Function}  callback  The function that is run when the event is triggered
   * @example
@@ -160,7 +160,7 @@ export default {
   *   console.log(message, ' has been closed!');
   * });
   */
-  onClose: function (msg, callback) {
+  onClose: function(msg, callback) {
     callback = util.last(arguments);
     const id = msg._id;
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
@@ -180,7 +180,7 @@ export default {
   * @deprecated after August 2017 | Please use the Flag module instead.
   * @name generic
   * @method
-  * @memberof module:messages#
+  * @memberof module:Messages#
   * @param    {String}            title       Sets the title text of the message.
   * @param    {String}            body        The main content of the message.
   * @param    {Object}            options             Message Options
@@ -200,7 +200,7 @@ export default {
   * @deprecated after August 2017 | Please use the Flag module instead.
   * @name error
   * @method
-  * @memberof module:messages#
+  * @memberof module:Messages#
   * @param    {String}            title       Sets the title text of the message.
   * @param    {String}            body        The main content of the message.
   * @param    {Object}            options             Message Options
@@ -220,7 +220,7 @@ export default {
   * @deprecated after August 2017 | Please use the Flag module instead.
   * @name warning
   * @method
-  * @memberof module:messages#
+  * @memberof module:Messages#
   * @param    {String}            title       Sets the title text of the message.
   * @param    {String}            body        The main content of the message.
   * @param    {Object}            options             Message Options
@@ -240,7 +240,7 @@ export default {
   * @deprecated after August 2017 | Please use the Flag module instead.
   * @name success
   * @method
-  * @memberof module:messages#
+  * @memberof module:Messages#
   * @param    {String}            title       Sets the title text of the message.
   * @param    {String}            body        The main content of the message.
   * @param    {Object}            options             Message Options
@@ -260,7 +260,7 @@ export default {
   * @deprecated after August 2017 | Please use the Flag module instead.
   * @name info
   * @method
-  * @memberof module:messages#
+  * @memberof module:Messages#
   * @param    {String}            title       Sets the title text of the message.
   * @param    {String}            body        The main content of the message.
   * @param    {Object}            options             Message Options
@@ -280,7 +280,7 @@ export default {
   * @deprecated after August 2017 | Please use the Flag module instead.
   * @name hint
   * @method
-  * @memberof module:messages#
+  * @memberof module:Messages#
   * @param    {String}            title               Sets the title text of the message.
   * @param    {String}            body                The main content of the message.
   * @param    {Object}            options             Message Options
