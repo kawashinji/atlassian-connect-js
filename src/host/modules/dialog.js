@@ -343,11 +343,10 @@ class CreateButton {
 export default {
   /**
    * @class Dialog~DialogOptions
-   * @description The options supplied to a [dialog.create()](module-Dialog.html) call. One of key, content or adf is required to define the content.
+   * @description The options supplied to a [dialog.create()](module-Dialog.html) call. One of key or content is required.
    *
    * @property {String}        key         (optional) The module key of a dialog, or the key of a page or web-item that you want to open as a dialog.
-   * @property {String}        content     (optional) The static text to display in the dialog
-   * @property {Object}        adf         (optional) The static content to display in the dialog ([Atlassian Document Format](https://developer.atlassian.com/cloud/stride/apis/document/structure/))
+   * @property {Object}        content     (optional) The static content to display in the dialog ([Atlassian Document Format](https://developer.atlassian.com/cloud/stride/apis/document/structure/))
    * @property {String}        size        Opens the dialog at a preset size: small, medium, large, x-large or fullscreen (with chrome).
    * @property {Number|String} width       if size is not set, define the width as a percentage (append a % to the number) or pixels.
    * @property {Number|String} height      if size is not set, define the height as a percentage (append a % to the number) or pixels.

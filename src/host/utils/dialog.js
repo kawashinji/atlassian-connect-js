@@ -50,26 +50,6 @@ class DialogUtils {
     return headerText;
   }
 
-  _content(content) {
-    var contentText = '';
-    switch(typeof content) {
-    case 'string':
-      contentText = content;
-      break;
-
-    case 'object':
-      contentText = content.value;
-      break;
-    }
-
-    return contentText;
-  }
-
-  _adf(adf) {
-
-    return adf;
-  }
-
   _hint(text){
     if(typeof text === 'string'){
       return text;
@@ -189,8 +169,7 @@ class DialogUtils {
       width: this._width(options),
       height: this._height(options),
       $content: options.$content,
-      content: this._content(options.content),
-      adf: this._adf(options.adf),
+      content: options.content,
       extension: options.extension,
       actions: this._actions(options),
       id: this._id(options.id),
