@@ -145,7 +145,17 @@ export default {
   */
   showAt(dropdownId, x, y, width) {
     let callback = util.last(arguments);
-    let rect = document.getElementById(callback._context.extension_id).getBoundingClientRect();
+    let iframe = document.getElementById(callback._context.extension_id);
+    // temp fix for not working in nested iframes
+    let rect = {
+      left: 1,
+      top: 1
+    };
+    if(iframe) {
+      rect = iframe.getBoundingClientRect();
+    } else {
+      console.error('no iframe found');
+    }
 
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
     const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
@@ -228,4 +238,8 @@ EventDispatcher.register('dropdown-item-selected', (data) => {
     dropdownId: data.id,
     item: data.item
   });
+});
+
+EventDispatcher.register('iframe-destroyed', (data) => {
+  dropdownProvider.destroyByExtension({extension_id: data.extension.extension_id});
 });

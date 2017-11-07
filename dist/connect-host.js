@@ -5045,6 +5045,8 @@
 	* there is no AUI implementation of this
 	*/
 
+	var dropdownProvider;
+
 	function buildListItem(listItem) {
 	  var finishedListItem = {};
 	  if (typeof listItem === 'string') {
@@ -5180,7 +5182,17 @@
 	  */
 	  showAt: function showAt(dropdownId, x, y, width) {
 	    var callback = Util$1.last(arguments);
-	    var rect = document.getElementById(callback._context.extension_id).getBoundingClientRect();
+	    var iframe = document.getElementById(callback._context.extension_id);
+	    // temp fix for not working in nested iframes
+	    var rect = {
+	      left: 1,
+	      top: 1
+	    };
+	    if (iframe) {
+	      rect = iframe.getBoundingClientRect();
+	    } else {
+	      console.error('no iframe found');
+	    }
 
 	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
 	    var dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
@@ -5264,6 +5276,10 @@
 	    dropdownId: data.id,
 	    item: data.item
 	  });
+	});
+
+	EventDispatcher$1.register('iframe-destroyed', function (data) {
+	  dropdownProvider.destroyByExtension({ extension_id: data.extension.extension_id });
 	});
 
 	var WebItem = function () {
