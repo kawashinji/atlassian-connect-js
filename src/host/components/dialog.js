@@ -8,7 +8,6 @@ import ButtonActions from '../actions/button_actions';
 import Util from '../util';
 import $ from '../dollar';
 import HostApi from '../host-api';
-import { debounce } from '../util';
 
 const DLGID_PREFIX = 'ap-dialog-';
 const DIALOG_CLASS = 'ap-aui-dialog2';
@@ -374,7 +373,7 @@ EventDispatcher.register('dialog-button-add', (data) => {
   DialogComponent.addButton(data.extension, data.button);
 });
 
-EventDispatcher.register('host-window-resize', debounce(() => {
+EventDispatcher.register('host-window-resize', Util.debounce(() => {
   $('.' + DIALOG_CLASS).each((i, dialog) => {
     var $dialog = $(dialog);
     var sanitizedOptions = dialogUtils.sanitizeOptions($dialog.data('originalOptions'));
