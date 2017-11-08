@@ -8,6 +8,7 @@ import ButtonActions from '../actions/button_actions';
 import Util from '../util';
 import $ from '../dollar';
 import HostApi from '../host-api';
+import { debounce } from '../util';
 
 const DLGID_PREFIX = 'ap-dialog-';
 const DIALOG_CLASS = 'ap-aui-dialog2';
@@ -18,8 +19,6 @@ const DIALOG_BUTTON_CUSTOM_CLASS = 'ap-dialog-custom-button';
 const DIALOG_FOOTER_CLASS = 'aui-dialog2-footer';
 const DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
 const DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
-
-var debounce = AJS.debounce || $.debounce;
 
 function getActiveDialog() {
   const $el = AJS.LayerManager.global.getTopLayer();
