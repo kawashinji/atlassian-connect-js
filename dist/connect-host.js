@@ -3243,8 +3243,6 @@
 	var DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
 	var DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
 
-	var debounce$1 = AJS.debounce || $.debounce;
-
 	function getActiveDialog() {
 	  var $el = AJS.LayerManager.global.getTopLayer();
 	  if ($el && DLGID_REGEXP.test($el.attr('id'))) {
@@ -3610,7 +3608,7 @@
 	  DialogComponent.addButton(data.extension, data.button);
 	});
 
-	EventDispatcher$1.register('host-window-resize', debounce$1(function () {
+	EventDispatcher$1.register('host-window-resize', Util$1.debounce(function () {
 	  $('.' + DIALOG_CLASS).each(function (i, dialog) {
 	    var $dialog = $(dialog);
 	    var sanitizedOptions = dialogUtilsInstance.sanitizeOptions($dialog.data('originalOptions'));
@@ -4248,7 +4246,7 @@
 	  }
 	};
 
-	var debounce$2 = Util$1.debounce;
+	var debounce$1 = Util$1.debounce;
 	var resizeFuncHolder = {};
 	// ignore resize events for iframes that use sizeToParent
 	var ignoreResizeForExtension = [];
@@ -4301,7 +4299,7 @@
 	      }
 
 	      if (!resizeFuncHolder[iframeId]) {
-	        resizeFuncHolder[iframeId] = debounce$2(function (dwidth, dheight, dcallback) {
+	        resizeFuncHolder[iframeId] = debounce$1(function (dwidth, dheight, dcallback) {
 	          EnvActions.iframeResize(dwidth, dheight, dcallback._context);
 	        }, 50);
 	      }
@@ -4318,7 +4316,7 @@
 	   * @method
 	   * @param {boolean} hideFooter true if the footer is supposed to be hidden
 	   */
-	  sizeToParent: debounce$2(function (hideFooter, callback) {
+	  sizeToParent: debounce$1(function (hideFooter, callback) {
 	    callback = Util$1.last(arguments);
 	    var addon = ModuleProviders$1.getProvider('addon');
 	    if (addon) {

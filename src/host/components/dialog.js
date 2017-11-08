@@ -19,8 +19,6 @@ const DIALOG_FOOTER_CLASS = 'aui-dialog2-footer';
 const DIALOG_FOOTER_ACTIONS_CLASS = 'aui-dialog2-footer-actions';
 const DIALOG_HEADER_ACTIONS_CLASS = 'header-control-panel';
 
-var debounce = AJS.debounce || $.debounce;
-
 function getActiveDialog() {
   const $el = AJS.LayerManager.global.getTopLayer();
   if ($el && DLGID_REGEXP.test($el.attr('id'))) {
@@ -375,7 +373,7 @@ EventDispatcher.register('dialog-button-add', (data) => {
   DialogComponent.addButton(data.extension, data.button);
 });
 
-EventDispatcher.register('host-window-resize', debounce(() => {
+EventDispatcher.register('host-window-resize', Util.debounce(() => {
   $('.' + DIALOG_CLASS).each((i, dialog) => {
     var $dialog = $(dialog);
     var sanitizedOptions = dialogUtils.sanitizeOptions($dialog.data('originalOptions'));
