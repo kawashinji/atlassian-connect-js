@@ -5,9 +5,9 @@ import $ from '../dollar';
 const LOADING_INDICATOR_CLASS = 'ap-status-indicator';
 
 const LOADING_STATUSES = {
-  loading: '<div class="ap-loading"><div class="small-spinner"></div>Loading add-on...</div>',
-  'load-timeout': '<div class="ap-load-timeout"><div class="small-spinner"></div>Add-on is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?</div>',
-  'load-error': 'Add-on failed to load.'
+  loading: '<div class="ap-loading"><div class="small-spinner"></div>Loading app...</div>',
+  'load-timeout': '<div class="ap-load-timeout"><div class="small-spinner"></div>App is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?</div>',
+  'load-error': 'App failed to load.'
 };
 
 const LOADING_TIMEOUT = 12000;
