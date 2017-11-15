@@ -52,7 +52,7 @@
     "karma-nyan-reporter": "0.2.4",
     "karma-phantomjs-launcher": "1.0.2",
     "karma-safari-launcher": "1.0.0",
-    "karma-sauce-launcher": "1.1.0",
+    "karma-sauce-launcher": "1.2.0",
     "karma-sinon": "1.0.5",
     "karma-sourcemap-loader": "0.3.7",
     "karma-webpack": "1.8.0",

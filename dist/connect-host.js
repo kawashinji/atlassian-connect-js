@@ -5178,7 +5178,13 @@
 	  */
 	  showAt: function showAt(dropdownId, x, y, width) {
 	    var callback = Util$1.last(arguments);
-	    var rect = document.getElementById(callback._context.extension_id).getBoundingClientRect();
+	    var rect = { left: 0, top: 0 };
+	    var iframe = document.getElementById(callback._context.extension_id);
+	    if (iframe) {
+	      rect = iframe.getBoundingClientRect();
+	    } else {
+	      console.error('ACJS: no iframe found for dropdown');
+	    }
 
 	    var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
 	    var dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
@@ -5262,6 +5268,24 @@
 	    dropdownId: data.id,
 	    item: data.item
 	  });
+	});
+
+	// friendly unload with connectHost.destroy
+	EventDispatcher$1.register('iframe-destroyed', function (data) {
+	  var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
+	  var dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
+	  if (dropdownProvider) {
+	    dropdownProvider.destroyByExtension(data.extension.extension_id);
+	  }
+	});
+
+	// unfriendly unload by removing the iframe from the DOM
+	EventDispatcher$1.register('after:iframe-unload', function (data) {
+	  var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
+	  var dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
+	  if (dropdownProvider) {
+	    dropdownProvider.destroyByExtension(data.extension.extension_id);
+	  }
 	});
 
 	var WebItem = function () {

@@ -145,7 +145,13 @@ export default {
   */
   showAt(dropdownId, x, y, width) {
     let callback = util.last(arguments);
-    let rect = document.getElementById(callback._context.extension_id).getBoundingClientRect();
+    let rect = {left: 0, top: 0};
+    let iframe = document.getElementById(callback._context.extension_id);
+    if(iframe) {
+      rect = iframe.getBoundingClientRect();
+    } else {
+      console.error('ACJS: no iframe found for dropdown');
+    }
 
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
     const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
@@ -228,4 +234,22 @@ EventDispatcher.register('dropdown-item-selected', (data) => {
     dropdownId: data.id,
     item: data.item
   });
+});
+
+// friendly unload with connectHost.destroy
+EventDispatcher.register('iframe-destroyed', (data) => {
+  const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+  const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
+  if (dropdownProvider) {
+    dropdownProvider.destroyByExtension(data.extension.extension_id);
+  }
+});
+
+// unfriendly unload by removing the iframe from the DOM
+EventDispatcher.register('after:iframe-unload', (data) => {
+  const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+  const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
+  if (dropdownProvider) {
+    dropdownProvider.destroyByExtension(data.extension.extension_id);
+  }
 });
