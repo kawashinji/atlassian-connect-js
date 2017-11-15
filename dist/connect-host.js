@@ -5275,7 +5275,7 @@
 	  var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
 	  var dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
 	  if (dropdownProvider) {
-	    dropdownProvider.destroyByExtension({ extension_id: data.extension.extension_id });
+	    dropdownProvider.destroyByExtension(data.extension.extension_id);
 	  }
 	});
 
@@ -5284,7 +5284,7 @@
 	  var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
 	  var dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
 	  if (dropdownProvider) {
-	    dropdownProvider.destroyByExtension({ extension_id: data.extension.extension_id });
+	    dropdownProvider.destroyByExtension(data.extension.extension_id);
 	  }
 	});
 

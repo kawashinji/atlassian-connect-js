@@ -241,7 +241,7 @@ EventDispatcher.register('iframe-destroyed', (data) => {
   const frameworkAdaptor = HostApi.getFrameworkAdaptor();
   const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
   if (dropdownProvider) {
-    dropdownProvider.destroyByExtension({extension_id: data.extension.extension_id});
+    dropdownProvider.destroyByExtension(data.extension.extension_id);
   }
 });
 
@@ -250,6 +250,6 @@ EventDispatcher.register('after:iframe-unload', (data) => {
   const frameworkAdaptor = HostApi.getFrameworkAdaptor();
   const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
   if (dropdownProvider) {
-    dropdownProvider.destroyByExtension({extension_id: data.extension.extension_id});
+    dropdownProvider.destroyByExtension(data.extension.extension_id);
   }
 });
