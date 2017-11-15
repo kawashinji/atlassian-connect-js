@@ -145,16 +145,12 @@ export default {
   */
   showAt(dropdownId, x, y, width) {
     let callback = util.last(arguments);
+    let rect = {left: 0, top: 0};
     let iframe = document.getElementById(callback._context.extension_id);
-    // temp fix for not working in nested iframes
-    let rect = {
-      left: 1,
-      top: 1
-    };
     if(iframe) {
       rect = iframe.getBoundingClientRect();
     } else {
-      console.error('no iframe found');
+      console.error('ACJS: no iframe found for dropdown');
     }
 
     const frameworkAdaptor = HostApi.getFrameworkAdaptor();
@@ -240,6 +236,20 @@ EventDispatcher.register('dropdown-item-selected', (data) => {
   });
 });
 
+// friendly unload with connectHost.destroy
 EventDispatcher.register('iframe-destroyed', (data) => {
-  dropdownProvider.destroyByExtension({extension_id: data.extension.extension_id});
+  const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+  const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
+  if (dropdownProvider) {
+    dropdownProvider.destroyByExtension({extension_id: data.extension.extension_id});
+  }
+});
+
+// unfriendly unload by removing the iframe from the DOM
+EventDispatcher.register('after:iframe-unload', (data) => {
+  const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+  const dropdownProvider = frameworkAdaptor.getProviderByModuleName('dropdown');
+  if (dropdownProvider) {
+    dropdownProvider.destroyByExtension({extension_id: data.extension.extension_id});
+  }
 });
