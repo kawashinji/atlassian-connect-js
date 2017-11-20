@@ -934,6 +934,31 @@
 	    }
 
 	    return _clone(object);
+	  },
+	  getOrigin: function getOrigin(url, base) {
+	    // everything except IE11
+	    if (typeof URL === 'function') {
+	      try {
+	        return new URL(url, base).origin;
+	      } catch (e) {}
+	    }
+	    // ie11 + safari 10
+	    var doc = document.implementation.createHTMLDocument('');
+	    if (base) {
+	      var baseElement = doc.createElement('base');
+	      baseElement.href = base;
+	      doc.head.appendChild(baseElement);
+	    }
+	    var anchorElement = doc.createElement('a');
+	    anchorElement.href = url;
+	    doc.body.appendChild(anchorElement);
+
+	    var origin = anchorElement.protocol + '//' + anchorElement.hostname;
+	    //ie11, only include port if referenced in initial URL
+	    if (url.match(/\/\/[^/]+:[0-9]+\//)) {
+	      origin += anchorElement.port ? ':' + anchorElement.port : '';
+	    }
+	    return origin;
 	  }
 	};
 
@@ -1265,11 +1290,13 @@
 	    return this._registeredAPIModules;
 	  };
 
-	  XDMRPC.prototype._fullKey = function _fullKey(targetSpec) {
+	  XDMRPC.prototype._pendingEventKey = function _pendingEventKey(targetSpec, time) {
 	    var key = targetSpec.addon_key || 'global';
 	    if (targetSpec.key) {
 	      key = key + '@@' + targetSpec.key;
 	    }
+
+	    key = key + '@@' + time;
 
 	    return key;
 	  };
@@ -1285,27 +1312,43 @@
 	    if (loaded_frame) {
 	      this.dispatch(type, targetSpec, event, callback);
 	    } else {
-	      this._pendingEvents[this._fullKey(targetSpec)] = {
+	      this._cleanupInvalidEvents();
+	      var time = new Date().getTime();
+	      this._pendingEvents[this._pendingEventKey(targetSpec, time)] = {
 	        type: type,
 	        targetSpec: targetSpec,
 	        event: event,
 	        callback: callback,
-	        time: new Date().getTime(),
+	        time: time,
 	        uid: util.randomString()
 	      };
 	    }
 	  };
 
-	  XDMRPC.prototype._handleEventQuery = function _handleEventQuery(message, extension) {
+	  XDMRPC.prototype._cleanupInvalidEvents = function _cleanupInvalidEvents() {
 	    var _this2 = this;
 
-	    var executed = {};
 	    var now = new Date().getTime();
 	    var keys = Object.keys(this._pendingEvents);
 	    keys.forEach(function (index) {
 	      var element = _this2._pendingEvents[index];
 	      var eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
-	      var isSameTarget = !element.targetSpec || _this2._findRegistrations(element.targetSpec).length !== 0;
+	      if (!eventIsValid) {
+	        delete _this2._pendingEvents[index];
+	      }
+	    });
+	  };
+
+	  XDMRPC.prototype._handleEventQuery = function _handleEventQuery(message, extension) {
+	    var _this3 = this;
+
+	    var executed = {};
+	    var now = new Date().getTime();
+	    var keys = Object.keys(this._pendingEvents);
+	    keys.forEach(function (index) {
+	      var element = _this3._pendingEvents[index];
+	      var eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
+	      var isSameTarget = !element.targetSpec || _this3._findRegistrations(element.targetSpec).length !== 0;
 
 	      if (isSameTarget && element.targetSpec.key) {
 	        isSameTarget = element.targetSpec.addon_key === extension.extension.addon_key && element.targetSpec.key === extension.extension.key;
@@ -1314,9 +1357,9 @@
 	      if (eventIsValid && isSameTarget) {
 	        executed[index] = element;
 	        element.targetSpec = element.targetSpec || {};
-	        _this2.dispatch(element.type, element.targetSpec, element.event, element.callback, message.source);
+	        _this3.dispatch(element.type, element.targetSpec, element.event, element.callback, message.source);
 	      } else if (!eventIsValid) {
-	        delete _this2._pendingEvents[index];
+	        delete _this3._pendingEvents[index];
 	      }
 	    });
 
@@ -1370,7 +1413,7 @@
 	  };
 
 	  XDMRPC.prototype._findRegistrations = function _findRegistrations(targetSpec) {
-	    var _this3 = this;
+	    var _this4 = this;
 
 	    if (this._registeredExtensions.length === 0) {
 	      util.error('no registered extensions', this._registeredExtensions);
@@ -1378,7 +1421,7 @@
 	    }
 	    var keys = Object.getOwnPropertyNames(targetSpec);
 	    var registrations = Object.getOwnPropertyNames(this._registeredExtensions).map(function (key) {
-	      return _this3._registeredExtensions[key];
+	      return _this4._registeredExtensions[key];
 	    });
 
 	    if (targetSpec instanceof Function) {
@@ -1514,6 +1557,19 @@
 	    }, {});
 	  };
 
+	  XDMRPC.prototype._originEqual = function _originEqual(url, origin) {
+	    function strCheck(str) {
+	      return typeof str === 'string' && str.length > 0;
+	    }
+	    var urlOrigin = util.getOrigin(url);
+	    // check strings are strings and they contain something
+	    if (!strCheck(url) || !strCheck(origin) || !strCheck(urlOrigin)) {
+	      return false;
+	    }
+
+	    return origin === urlOrigin;
+	  };
+
 	  // validate origin of postMessage
 
 
@@ -1521,7 +1577,7 @@
 	    var no_source_types = ['init', 'event_query'];
 	    var isNoSourceType = reg && !reg.source && no_source_types.indexOf(event.data.type) > -1;
 	    var sourceTypeMatches = reg && event.source === reg.source;
-	    var hasExtensionUrl = reg && reg.extension.url.indexOf(event.origin) === 0;
+	    var hasExtensionUrl = reg && this._originEqual(reg.extension.url, event.origin);
 	    var isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches);
 
 	    // get_host_offset fires before init
@@ -1551,15 +1607,15 @@
 	    var registrations = this._findRegistrations(filter);
 	    if (registrations.length !== 0) {
 	      registrations.forEach(function (registration) {
-	        var _this4 = this;
+	        var _this5 = this;
 
 	        var keys = Object.keys(this._pendingEvents);
 	        keys.forEach(function (index) {
-	          var element = _this4._pendingEvents[index];
+	          var element = _this5._pendingEvents[index];
 	          var targetSpec = element.targetSpec || {};
 
 	          if (targetSpec.addon_key === registration.extension.addon_key) {
-	            delete _this4._pendingEvents[index];
+	            delete _this5._pendingEvents[index];
 	          }
 	        });
 
