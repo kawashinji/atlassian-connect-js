@@ -1,52 +1,56 @@
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
 import IframeComponent from '../components/iframe';
-import $ from '../dollar';
 
 EventDispatcher.register('iframe-resize', function(data) {
-  IframeComponent.resize(data.width, data.height, data.$el);
+  IframeComponent.resize(data.width, data.height, data.el);
 });
 
 EventDispatcher.register('iframe-size-to-parent', function(data) {
   var height;
-  var $el = util.getIframeByExtensionId(data.extensionId);
+  var el = document.getElementById(data.extensionId);
+  var footer = document.getElementById('footer');
+  var windowHeight = window.outerHeight;
+  var headerHeight = document.querySelectorAll('#header > nav')[0].getBoundingClientRect().height;
   if (data.hideFooter) {
-    $el.addClass('full-size-general-page-no-footer');
-    $('#footer').css({ display: 'none' });
-    height = $(window).height() - $('#header > nav').outerHeight();
+    el.classList.add('full-size-general-page-no-footer');
+    footer.style.display = 'none';
+    height = windowHeight - headerHeight;
   } else {
-    height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
-    $el.removeClass('full-size-general-page-no-footer');
-    $('#footer').css({ display: 'block' });
+    var footerHeight = footer.getBoundingClientRect().height;
+    height = windowHeight - headerHeight - footerHeight - 1; //1px comes from margin given by full-size-general-page
+    el.classList.remove('full-size-general-page-no-footer');
+    footer.style.display = 'block';
   }
 
   EventDispatcher.dispatch('iframe-resize', {
     width: '100%',
     height: height + 'px',
-    $el
+    el
   });
 });
 
 EventDispatcher.register('hide-footer', function(hideFooter) {
   if (hideFooter) {
-    $('#footer').css({ display: 'none' });
+    document.getElementById('footer').style.display = 'none';
   }
 });
 
-AJS.$(window).on('resize', function(e) {
-  EventDispatcher.dispatch('host-window-resize', e);
-});
-
+if(window.AJS && window.AJS.$){
+  AJS.$(window).on('resize', function(e) {
+    EventDispatcher.dispatch('host-window-resize', e);
+  });
+}
 export default {
   iframeResize: function(width, height, context) {
-    var $el;
+    var el;
     if (context.extension_id) {
-      $el = util.getIframeByExtensionId(context.extension_id);
+      el = document.getElementById(context.extension_id);
     } else {
-      $el = context;
+      el = context;
     }
 
-    EventDispatcher.dispatch('iframe-resize', { width, height, $el, extension: context.extension });
+    EventDispatcher.dispatch('iframe-resize', { width, height, el, extension: context.extension });
   },
   sizeToParent: function(extensionId, hideFooter) {
     EventDispatcher.dispatch('iframe-size-to-parent', {

@@ -12,7 +12,6 @@
 * @module
 */
 
-import $ from '../dollar';
 import HostApi from '../host-api';
 import util from '../util';
 import AnalyticsAction from '../actions/analytics_action';
@@ -28,12 +27,14 @@ function validateMessageId(msgId) {
 }
 
 function getMessageBar() {
-  let $msgBar = $('#' + MESSAGE_BAR_ID);
+  let msgBar = document.getElementById(MESSAGE_BAR_ID);
 
-  if ($msgBar.length < 1) {
-    $msgBar = $('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
+  if (!msgBar) {
+    msgBar = document.createElement('div');
+    msgBar.id = MESSAGE_BAR_ID;
+    document.body.appendChild(msgBar);
   }
-  return $msgBar;
+  return msgBar;
 }
 
 function filterMessageOptions(options) {
@@ -50,9 +51,9 @@ function filterMessageOptions(options) {
 }
 
 function showMessage(name, title, body, options) {
-  const $msgBar = getMessageBar();
+  const msgBar = getMessageBar();
   options = filterMessageOptions(options);
-  $.extend(options, {
+  util.extend(options, {
     title: title,
     body: AJS.escapeHtml(body)
   });
@@ -61,10 +62,10 @@ function showMessage(name, title, body, options) {
     throw 'Invalid message type. Must be: ' + MESSAGE_TYPES.join(', ');
   }
   if (validateMessageId(options.id)) {
-    AJS.messages[name]($msgBar, options);
+    AJS.messages[name](msgBar, options);
     // Calculate the left offset based on the content width.
     // This ensures the message always stays in the centre of the window.
-    $msgBar.css('margin-left', '-' + $msgBar.innerWidth() / 2 + 'px');
+    msgBar.style.marginLeft = '-' + (msgBar.clientWidth / 2) + 'px';
   }
 }
 
@@ -86,15 +87,19 @@ function deprecatedShowMessage(name, title, body, options, callback) {
   }
 }
 
-$(document).on('aui-message-close', function(e, $msg) {
-  const _id = $msg.attr('id').replace(MSGID_PREFIX, '');
-  if (_messages[_id]) {
-    if ($.isFunction(_messages[_id].onCloseTrigger)) {
-      _messages[_id].onCloseTrigger();
+const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+const messageProvider = frameworkAdaptor.getProviderByModuleName('messages');
+if (!messageProvider && (window.AJS && window.AJS.$)) {
+  window.AJS.$(document).on('aui-message-close', function(e, $msg) {
+    const _id = $msg.attr('id').replace(MSGID_PREFIX, '');
+    if (_messages[_id]) {
+      if (typeof _messages[_id].onCloseTrigger === 'function') {
+        _messages[_id].onCloseTrigger();
+      }
+      _messages[_id]._destroy();
     }
-    _messages[_id]._destroy();
-  }
-});
+  });
+}
 
 function messageModule(messageType) {
   return {
@@ -139,8 +144,8 @@ export default {
       const messageProvider = frameworkAdaptor.getProviderByModuleName('messages');
       if (messageProvider) {
         messageProvider.clear(id);
-      } else {
-        $('#' + id).closeMessage();
+      } else if(window.AJS && window.AJS.$) {
+        window.AJS.$('#' + id).closeMessage();
       }
     }
   },

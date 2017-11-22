@@ -73,19 +73,20 @@ class Flag {
 }
 
 var FlagComponent = new Flag();
+if($.fn) {
+  $(document).on('aui-flag-close', (e) => {
+    const _id = e.target.id;
+    var cleanFlagId = FlagComponent.cleanKey(_id);
+    FlagActions.closed(cleanFlagId);
+  });
 
-$(document).on('aui-flag-close', (e) => {
-  const _id = e.target.id;
-  var cleanFlagId = FlagComponent.cleanKey(_id);
-  FlagActions.closed(cleanFlagId);
-});
-
-$(document).on('click', '.' + FLAG_ACTION_CLASS, (e) => {
-  var $target = $(e.target);
-  var actionKey = $target.data('key');
-  var flagId = $target.data('flag_id');
-  FlagActions.actionInvoked(actionKey, flagId);
-});
+  $(document).on('click', '.' + FLAG_ACTION_CLASS, (e) => {
+    var $target = $(e.target);
+    var actionKey = $target.data('key');
+    var flagId = $target.data('flag_id');
+    FlagActions.actionInvoked(actionKey, flagId);
+  });
+}
 
 EventDispatcher.register('flag-close', (data) => {
   FlagComponent.close(data.id);

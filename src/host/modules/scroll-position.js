@@ -1,5 +1,4 @@
 import util from '../util';
-import $ from '../dollar';
 
 export default {
   /**
@@ -14,13 +13,18 @@ export default {
     callback = util.last(arguments);
     // scrollPosition.getPosition is only available for general-pages
     if (callback._context.extension.options.isFullPage) {
-      var $el = util.getIframeByExtensionId(callback._context.extension_id);
-      var offset = $el.offset();
-      var $window = $(window);
+      var el = document.getElementById(callback._context.extension_id);
+      var rect = el.getBoundingClientRect();
+      var win = el.ownerDocument.defaultView;
+
+      var offset = {
+        top: rect.top + win.pageYOffset,
+        left: rect.left + win.pageXOffset
+      };
 
       callback({
-        scrollY: $window.scrollTop() - offset.top,
-        scrollX: $window.scrollLeft() - offset.left,
+        scrollY: document.documentElement.scrollTop - offset.top,
+        scrollX: document.documentElement.scrollLeft - offset.left,
         width: window.innerWidth,
         height: window.innerHeight
       });

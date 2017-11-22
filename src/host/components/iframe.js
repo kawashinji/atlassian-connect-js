@@ -6,6 +6,7 @@ import simpleXDM from 'simple-xdm/host';
 import urlUtil from '../utils/url';
 import JwtActions from '../actions/jwt_actions';
 import iframeUtils from '../utils/iframe';
+import HostApi from '../host-api';
 
 const CONTAINER_CLASSES = ['ap-container'];
 
@@ -40,12 +41,12 @@ class Iframe {
       } else {
         console.error('JWT is expired and no content resolver was specified');
       }
-    } else {
+    } else if($.fn) {
       this._appendExtension($container, this._simpleXdmCreate(extension));
     }
   }
 
-  _simpleXdmCreate(extension){
+  _simpleXdmCreate(extension) {
     if(!extension.options){
       extension.options = {};
     }
@@ -55,8 +56,10 @@ class Iframe {
       IframeActions.notifyUnloaded(extension.$el, extension);
     });
     extension.id = iframeAttributes.id;
-    $.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
-    extension.$el = this.render(iframeAttributes);
+    util.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
+    if ($.fn) {
+      extension.$el = this.render(iframeAttributes);
+    }
     return extension;
   }
 

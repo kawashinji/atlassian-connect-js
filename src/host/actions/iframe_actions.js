@@ -2,8 +2,8 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
 import simpleXDM from 'simple-xdm/host';
 
 export default {
-  notifyIframeCreated: function($el, extension) {
-    EventDispatcher.dispatch('iframe-create', {$el, extension});
+  notifyIframeCreated: function(el, extension) {
+    EventDispatcher.dispatch('iframe-create', {el, extension});
   },
 
   notifyBridgeEstablished: function($el, extension){

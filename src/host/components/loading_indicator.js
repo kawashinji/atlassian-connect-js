@@ -17,31 +17,32 @@ class LoadingIndicator {
     this._stateRegistry = {};
   }
 
-  _loadingContainer($iframeContainer){
-    return $iframeContainer.find('.' + LOADING_INDICATOR_CLASS);
+  _loadingContainer(iframeContainer){
+    return iframeContainer.querySelector('.' + LOADING_INDICATOR_CLASS);
   }
 
   render() {
-    var $container = $('<div />').addClass(LOADING_INDICATOR_CLASS);
-    $container.append(LOADING_STATUSES.loading);
-    this._startSpinner($container);
-    return $container;
+    var container = document.createElement('div');
+    container.classList.add(LOADING_INDICATOR_CLASS);
+    container.innerHTML = LOADING_STATUSES.loading;
+    this._startSpinner(container);
+    return container;
   }
 
-  _startSpinner($container) {
+  _startSpinner(container) {
     // TODO: AUI or spin.js broke something. This is bad but ironically matches v3's implementation.
     setTimeout(() => {
-      var spinner = $container.find('.small-spinner');
+      var spinner = container.querySelector('.small-spinner');
       if (spinner.length && spinner.spin) {
         spinner.spin({lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1});
       }
     }, 10);
   }
 
-  hide($iframeContainer, extensionId){
+  hide(iframeContainer, extensionId){
     clearTimeout(this._stateRegistry[extensionId]);
     delete this._stateRegistry[extensionId];
-    this._loadingContainer($iframeContainer).hide();
+    $(this._loadingContainer(iframeContainer)).hide();
   }
 
   cancelled($iframeContainer, extensionId){

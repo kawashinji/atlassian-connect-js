@@ -1,6 +1,6 @@
 import AnalyticsDispatcher from './dispatchers/analytics_dispatcher';
 import EventDispatcher from './dispatchers/event_dispatcher';
-import loadingIndicator from './components/loading_indicator';
+// import loadingIndicator from './components/loading_indicator';
 import events from './modules/events';
 import dialog from './modules/dialog';
 import env from './modules/env';
@@ -11,9 +11,9 @@ import analytics from './modules/analytics';
 import scrollPosition from './modules/scroll-position';
 import dropdown from './modules/dropdown';
 import HostApi from './host-api';
-import InlineDialogWebItemComponent from './components/inline_dialog_webitem';
-import DialogWebItemComponent from './components/dialog_webitem';
-import DialogExtensionComponent from './components/dialog_extension';
+// import InlineDialogWebItemComponent from './components/inline_dialog_webitem';
+// import DialogWebItemComponent from './components/dialog_webitem';
+// import DialogExtensionComponent from './components/dialog_extension';
 import simpleXDM from 'simple-xdm/host';
 /**
  * Private namespace for host-side code.

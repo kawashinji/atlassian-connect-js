@@ -13,10 +13,22 @@ import WebItemUtils from './utils/webitem';
 import ModuleProviders from './module-providers';
 import { acjsFrameworkAdaptor } from './ACJSFrameworkAdaptor';
 import Util from './util';
+import $ from './dollar';
 
 class HostApi {
   constructor(){
-    this.create = IframeCreate;
+    this.create = function(extension){
+      var extensionContainer = IframeCreate(extension);
+      if($.fn) {
+        return $(extensionContainer);
+      } else {
+        return simpleXDM.create(extension, () => {
+          IframeActions.notifyBridgeEstablished(extension.el, extension);
+        }, () => {
+          IframeActions.notifyUnloaded(extension.el, extension);
+        });
+      }
+    },
     this.dialog = {
       create: (extension, dialogOptions) => {
         var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
