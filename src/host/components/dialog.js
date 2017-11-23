@@ -363,24 +363,27 @@ EventDispatcher.register('button-clicked', (data) => {
   }
 });
 
-EventDispatcher.register('iframe-create', (data) => {
-  if(data.extension.options && data.extension.options.isDialog){
-    DialogComponent.setIframeDimensions(data.extension.$el);
-  }
-});
-
-EventDispatcher.register('dialog-button-add', (data) => {
-  DialogComponent.addButton(data.extension, data.button);
-});
-
-EventDispatcher.register('host-window-resize', Util.debounce(() => {
-  $('.' + DIALOG_CLASS).each((i, dialog) => {
-    var $dialog = $(dialog);
-    var sanitizedOptions = dialogUtils.sanitizeOptions($dialog.data('originalOptions'));
-    dialog.style.width = sanitizedOptions.width;
-    dialog.style.height = sanitizedOptions.height;
+if($.fn) {
+  EventDispatcher.register('iframe-create', (data) => {
+    if(data.extension.options && data.extension.options.isDialog){
+      DialogComponent.setIframeDimensions(data.extension.$el);
+    }
   });
-}, 100));
+
+  EventDispatcher.register('dialog-button-add', (data) => {
+    DialogComponent.addButton(data.extension, data.button);
+  });
+
+  EventDispatcher.register('host-window-resize', Util.debounce(() => {
+    $('.' + DIALOG_CLASS).each((i, dialog) => {
+      var $dialog = $(dialog);
+      var sanitizedOptions = dialogUtils.sanitizeOptions($dialog.data('originalOptions'));
+      dialog.style.width = sanitizedOptions.width;
+      dialog.style.height = sanitizedOptions.height;
+    });
+  }, 100));
+}
+
 
 DomEventActions.registerWindowKeyEvent({
   keyCode: 27,

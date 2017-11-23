@@ -33,9 +33,10 @@ EventDispatcher.register('hide-footer', function(hideFooter) {
   }
 });
 
-AJS.$(window).on('resize', function(e) {
+
+window.addEventListener('resize', function(e){
   EventDispatcher.dispatch('host-window-resize', e);
-});
+}, true);
 
 export default {
   iframeResize: function(width, height, context) {

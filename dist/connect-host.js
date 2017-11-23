@@ -578,6 +578,9 @@
 	    data = data || {};
 	    data.version = w._AP && w._AP.version ? w._AP.version : undefined;
 	    data.userAgent = w.navigator.userAgent;
+	    if (!w.AJS) {
+	      return false;
+	    }
 	    if (w.AJS.Analytics) {
 	      w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
 	    } else if (w.AJS.trigger) {
@@ -650,21 +653,23 @@
 	}();
 
 	var analytics = new AnalyticsDispatcher();
-	EventDispatcher$1.register('iframe-create', function (data) {
-	  analytics.trackLoadingStarted(data.extension);
-	});
-	EventDispatcher$1.register('iframe-bridge-established', function (data) {
-	  analytics.trackLoadingEnded(data.extension);
-	});
-	EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
-	  analytics.trackLoadingTimeout(data.extension);
-	});
-	EventDispatcher$1.register('iframe-bridge-cancelled', function (data) {
-	  analytics.trackLoadingCancel(data.extension);
-	});
-	EventDispatcher$1.register('analytics-deprecated-method-used', function (data) {
-	  analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
-	});
+	if (window.AJS && window.AJS.$) {
+	  EventDispatcher$1.register('iframe-create', function (data) {
+	    analytics.trackLoadingStarted(data.extension);
+	  });
+	  EventDispatcher$1.register('iframe-bridge-established', function (data) {
+	    analytics.trackLoadingEnded(data.extension);
+	  });
+	  EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
+	    analytics.trackLoadingTimeout(data.extension);
+	  });
+	  EventDispatcher$1.register('iframe-bridge-cancelled', function (data) {
+	    analytics.trackLoadingCancel(data.extension);
+	  });
+	  EventDispatcher$1.register('analytics-deprecated-method-used', function (data) {
+	    analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
+	  });
+	}
 
 	var LoadingIndicatorActions = {
 	  timeout: function timeout($el, extension) {
@@ -680,7 +685,7 @@
 	 * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
 	 * to code that runs on host and iframe.
 	 */
-	var $ = AJS.$;
+	var $ = window.AJS && window.AJS.$ || function () {};
 
 	var LOADING_INDICATOR_CLASS = 'ap-status-indicator';
 
@@ -755,19 +760,27 @@
 	var LoadingComponent = new LoadingIndicator();
 
 	EventDispatcher$1.register('iframe-create', function (data) {
-	  LoadingComponent._setupTimeout(data.$el.parents('.ap-iframe-container'), data.extension);
+	  if (!data.extension.options.noDom) {
+	    LoadingComponent._setupTimeout(data.$el.parents('.ap-iframe-container'), data.extension);
+	  }
 	});
 
 	EventDispatcher$1.register('iframe-bridge-established', function (data) {
-	  LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
+	  if (!data.extension.options.noDom) {
+	    LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
+	  }
 	});
 
 	EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
-	  LoadingComponent.timeout(data.$el, data.extension.id);
+	  if (!data.extension.options.noDom) {
+	    LoadingComponent.timeout(data.$el, data.extension.id);
+	  }
 	});
 
 	EventDispatcher$1.register('iframe-bridge-cancelled', function (data) {
-	  LoadingComponent.cancelled(data.$el, data.extension.id);
+	  if (!data.extension.options.noDom) {
+	    LoadingComponent.cancelled(data.$el, data.extension.id);
+	  }
 	});
 
 	var LOG_PREFIX = "[Simple-XDM] ";
@@ -2056,7 +2069,7 @@
 	  },
 	  registerClickHandler: function registerClickHandler(handleIframeClick) {
 	    simpleXDM$1.registerClickHandler(function (data) {
-	      var iframe = Util$1.getIframeByExtensionId(data.extension_id)[0];
+	      var iframe = document.getElementById(data.extension_id);
 	      if (iframe) {
 	        handleIframeClick(iframe);
 	      }
@@ -2686,6 +2699,39 @@
 	  }
 	};
 
+	// nowhere better to put this. Wires an extension for oldschool and new enviroments
+	function createSimpleXdmExtension(extension) {
+	  extension = extensionConfigSanitizer(extension);
+	  if (!extension.options) {
+	    extension.options = {};
+	  }
+	  var iframeAttributes = simpleXDM$1.create(extension, function () {
+	    IframeActions.notifyBridgeEstablished(extension.$el || extension.el, extension);
+	  }, function () {
+	    IframeActions.notifyUnloaded(extension.$el || extension.el, extension);
+	  });
+	  extension.id = iframeAttributes.id;
+	  Util$1.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
+	  return {
+	    iframeAttributes: iframeAttributes,
+	    extension: extension
+	  };
+	}
+
+	function extensionConfigSanitizer(extension) {
+	  return {
+	    addon_key: extension.addon_key,
+	    key: extension.key,
+	    url: extension.url,
+	    options: extension.options
+	  };
+	}
+
+	var simpleXdmUtils = {
+	  createSimpleXdmExtension: createSimpleXdmExtension,
+	  extensionConfigSanitizer: extensionConfigSanitizer
+	};
+
 	var Iframe = function () {
 	  function Iframe() {
 	    classCallCheck(this, Iframe);
@@ -2724,18 +2770,10 @@
 	  };
 
 	  Iframe.prototype._simpleXdmCreate = function _simpleXdmCreate(extension) {
-	    if (!extension.options) {
-	      extension.options = {};
-	    }
-	    var iframeAttributes = simpleXDM$1.create(extension, function () {
-	      IframeActions.notifyBridgeEstablished(extension.$el, extension);
-	    }, function () {
-	      IframeActions.notifyUnloaded(extension.$el, extension);
-	    });
-	    extension.id = iframeAttributes.id;
-	    $.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
-	    extension.$el = this.render(iframeAttributes);
-	    return extension;
+	    var simpleXdmAttributes = simpleXdmUtils.createSimpleXdmExtension(extension);
+	    var sanitizedExtension = simpleXdmAttributes.extension;
+	    sanitizedExtension.$el = this.render(simpleXdmAttributes.iframeAttributes);
+	    return sanitizedExtension;
 	  };
 
 	  Iframe.prototype._appendExtension = function _appendExtension($container, extension) {
@@ -2795,7 +2833,11 @@
 	});
 
 	EventDispatcher$1.register('after:iframe-bridge-established', function (data) {
-	  data.$el[0].bridgeEstablished = true;
+	  if (!data.extension.options.noDom) {
+	    data.$el[0].bridgeEstablished = true;
+	  } else {
+	    data.extension.options.bridgeEstablished = true;
+	  }
 	});
 
 	var ButtonActions = {
@@ -2965,13 +3007,7 @@
 	});
 
 	function create(extension) {
-	  var simpleXdmExtension = {
-	    addon_key: extension.addon_key,
-	    key: extension.key,
-	    url: extension.url,
-	    options: extension.options
-	  };
-	  return IframeContainerComponent.createExtension(simpleXdmExtension);
+	  return IframeContainerComponent.createExtension(extension);
 	}
 
 	var ModuleActions = {
@@ -3145,7 +3181,9 @@
 	  function HostApi() {
 	    classCallCheck(this, HostApi);
 
-	    this.create = create;
+	    this.create = function (extension) {
+	      return create(simpleXdmUtils.extensionConfigSanitizer(extension));
+	    };
 	    this.dialog = {
 	      create: function create$$1(extension, dialogOptions) {
 	        var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
@@ -3172,6 +3210,17 @@
 	    // The product can override the framework adaptor by calling setFrameworkAdaptor().
 	    this.frameworkAdaptor = acjsFrameworkAdaptor;
 	  }
+	  /**
+	  * creates an extension
+	  * returns an object with extension and iframe attributes
+	  */
+
+
+	  HostApi.prototype.createExtension = function createExtension(extension) {
+	    extension.options = extension.options || {};
+	    extension.options.noDom = true;
+	    return simpleXdmUtils.createSimpleXdmExtension(extension);
+	  };
 
 	  /**
 	   * The product is responsible for setting the framework adaptor.
@@ -3654,24 +3703,26 @@
 	  }
 	});
 
-	EventDispatcher$1.register('iframe-create', function (data) {
-	  if (data.extension.options && data.extension.options.isDialog) {
-	    DialogComponent.setIframeDimensions(data.extension.$el);
-	  }
-	});
-
-	EventDispatcher$1.register('dialog-button-add', function (data) {
-	  DialogComponent.addButton(data.extension, data.button);
-	});
-
-	EventDispatcher$1.register('host-window-resize', Util$1.debounce(function () {
-	  $('.' + DIALOG_CLASS).each(function (i, dialog) {
-	    var $dialog = $(dialog);
-	    var sanitizedOptions = dialogUtilsInstance.sanitizeOptions($dialog.data('originalOptions'));
-	    dialog.style.width = sanitizedOptions.width;
-	    dialog.style.height = sanitizedOptions.height;
+	if ($.fn) {
+	  EventDispatcher$1.register('iframe-create', function (data) {
+	    if (data.extension.options && data.extension.options.isDialog) {
+	      DialogComponent.setIframeDimensions(data.extension.$el);
+	    }
 	  });
-	}, 100));
+
+	  EventDispatcher$1.register('dialog-button-add', function (data) {
+	    DialogComponent.addButton(data.extension, data.button);
+	  });
+
+	  EventDispatcher$1.register('host-window-resize', Util$1.debounce(function () {
+	    $('.' + DIALOG_CLASS).each(function (i, dialog) {
+	      var $dialog = $(dialog);
+	      var sanitizedOptions = dialogUtilsInstance.sanitizeOptions($dialog.data('originalOptions'));
+	      dialog.style.width = sanitizedOptions.width;
+	      dialog.style.height = sanitizedOptions.height;
+	    });
+	  }, 100));
+	}
 
 	DomEventActions.registerWindowKeyEvent({
 	  keyCode: 27,
@@ -4276,9 +4327,9 @@
 	  }
 	});
 
-	AJS.$(window).on('resize', function (e) {
+	window.addEventListener('resize', function (e) {
 	  EventDispatcher$1.dispatch('host-window-resize', e);
-	});
+	}, true);
 
 	var EnvActions = {
 	  iframeResize: function iframeResize(width, height, context) {
@@ -4524,7 +4575,14 @@
 	  return copy;
 	}
 
+	var messageCloseListenerCreated = false;
+
 	function showMessage(name, title, body, options) {
+	  if (!messageCloseListenerCreated) {
+	    createMessageCloseListener();
+	    messageCloseListenerCreated = true;
+	  }
+
 	  var $msgBar = getMessageBar();
 	  options = filterMessageOptions(options);
 	  $.extend(options, {
@@ -4561,15 +4619,17 @@
 	  }
 	}
 
-	$(document).on('aui-message-close', function (e, $msg) {
-	  var _id = $msg.attr('id').replace(MSGID_PREFIX, '');
-	  if (_messages[_id]) {
-	    if ($.isFunction(_messages[_id].onCloseTrigger)) {
-	      _messages[_id].onCloseTrigger();
+	function createMessageCloseListener() {
+	  $(document).on('aui-message-close', function (e, $msg) {
+	    var _id = $msg.attr('id').replace(MSGID_PREFIX, '');
+	    if (_messages[_id]) {
+	      if ($.isFunction(_messages[_id].onCloseTrigger)) {
+	        _messages[_id].onCloseTrigger();
+	      }
+	      _messages[_id]._destroy();
 	    }
-	    _messages[_id]._destroy();
-	  }
-	});
+	  });
+	}
 
 	function messageModule(messageType) {
 	  return {
@@ -4841,6 +4901,7 @@
 	  };
 
 	  Flag.prototype.render = function render(options) {
+	    bindFlagDomEvents();
 	    var _id = FLAGID_PREFIX + options.id;
 	    var auiFlag = AJS.flag({
 	      type: options.type,
@@ -4865,19 +4926,25 @@
 	}();
 
 	var FlagComponent = new Flag$1();
+	var flagDomEventsBound = false;
+	function bindFlagDomEvents() {
+	  if (flagDomEventsBound) {
+	    return;
+	  }
+	  $(document).on('aui-flag-close', function (e) {
+	    var _id = e.target.id;
+	    var cleanFlagId = FlagComponent.cleanKey(_id);
+	    FlagActions.closed(cleanFlagId);
+	  });
 
-	$(document).on('aui-flag-close', function (e) {
-	  var _id = e.target.id;
-	  var cleanFlagId = FlagComponent.cleanKey(_id);
-	  FlagActions.closed(cleanFlagId);
-	});
-
-	$(document).on('click', '.' + FLAG_ACTION_CLASS, function (e) {
-	  var $target = $(e.target);
-	  var actionKey = $target.data('key');
-	  var flagId = $target.data('flag_id');
-	  FlagActions.actionInvoked(actionKey, flagId);
-	});
+	  $(document).on('click', '.' + FLAG_ACTION_CLASS, function (e) {
+	    var $target = $(e.target);
+	    var actionKey = $target.data('key');
+	    var flagId = $target.data('flag_id');
+	    FlagActions.actionInvoked(actionKey, flagId);
+	  });
+	  flagDomEventsBound = true;
+	}
 
 	EventDispatcher$1.register('flag-close', function (data) {
 	  FlagComponent.close(data.id);

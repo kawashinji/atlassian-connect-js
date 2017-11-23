@@ -20,7 +20,7 @@ export default {
   },
   registerClickHandler: function(handleIframeClick) {
     SimpleXDM.registerClickHandler(function(data) {
-      var iframe = util.getIframeByExtensionId(data.extension_id)[0];
+      var iframe = document.getElementById(data.extension_id);
       if (iframe) {
         handleIframeClick(iframe);
       }

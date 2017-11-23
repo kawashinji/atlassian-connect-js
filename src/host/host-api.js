@@ -13,10 +13,14 @@ import WebItemUtils from './utils/webitem';
 import ModuleProviders from './module-providers';
 import { acjsFrameworkAdaptor } from './ACJSFrameworkAdaptor';
 import Util from './util';
+import $ from './dollar';
+import simpleXdmUtils from './utils/simplexdm';
 
 class HostApi {
   constructor(){
-    this.create = IframeCreate;
+    this.create = (extension) => {
+      return IframeCreate(simpleXdmUtils.extensionConfigSanitizer(extension));
+    }
     this.dialog = {
       create: (extension, dialogOptions) => {
         var dialogBeanOptions = WebItemUtils.getModuleOptionsByAddonAndModuleKey('dialog', extension.addon_key, extension.key);
@@ -42,6 +46,15 @@ class HostApi {
     // to retrieve the identical instance of ACJSAdaptor that ACJS is using.
     // The product can override the framework adaptor by calling setFrameworkAdaptor().
     this.frameworkAdaptor = acjsFrameworkAdaptor;
+  }
+  /**
+  * creates an extension
+  * returns an object with extension and iframe attributes
+  */
+  createExtension(extension) {
+    extension.options = extension.options || {};
+    extension.options.noDom = true;
+    return simpleXdmUtils.createSimpleXdmExtension(extension);
   }
 
   /**
