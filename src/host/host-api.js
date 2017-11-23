@@ -13,7 +13,6 @@ import WebItemUtils from './utils/webitem';
 import ModuleProviders from './module-providers';
 import { acjsFrameworkAdaptor } from './ACJSFrameworkAdaptor';
 import Util from './util';
-import $ from './dollar';
 import simpleXdmUtils from './utils/simplexdm';
 
 class HostApi {
@@ -50,11 +49,14 @@ class HostApi {
   /**
   * creates an extension
   * returns an object with extension and iframe attributes
+  * designed for use with non DOM implementations such as react.
   */
   createExtension(extension) {
     extension.options = extension.options || {};
     extension.options.noDom = true;
-    return simpleXdmUtils.createSimpleXdmExtension(extension);
+    let createdExtension = simpleXdmUtils.createSimpleXdmExtension(extension);
+    AnalyticsAction.trackIframeBridgeStart(createdExtension.extension);
+    return createdExtension;
   }
 
   /**

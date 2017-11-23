@@ -549,6 +549,13 @@
 
 	var EventDispatcher$1 = new EventDispatcher();
 
+	/**
+	 * The iframe-side code exposes a jquery-like implementation via _dollar.
+	 * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
+	 * to code that runs on host and iframe.
+	 */
+	var $ = window.AJS && window.AJS.$ || function () {};
+
 	var EVENT_NAME_PREFIX = 'connect.addon.';
 
 	/**
@@ -653,23 +660,27 @@
 	}();
 
 	var analytics = new AnalyticsDispatcher();
-	if (window.AJS && window.AJS.$) {
+	if ($.fn) {
 	  EventDispatcher$1.register('iframe-create', function (data) {
 	    analytics.trackLoadingStarted(data.extension);
 	  });
-	  EventDispatcher$1.register('iframe-bridge-established', function (data) {
-	    analytics.trackLoadingEnded(data.extension);
-	  });
-	  EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
-	    analytics.trackLoadingTimeout(data.extension);
-	  });
-	  EventDispatcher$1.register('iframe-bridge-cancelled', function (data) {
-	    analytics.trackLoadingCancel(data.extension);
-	  });
-	  EventDispatcher$1.register('analytics-deprecated-method-used', function (data) {
-	    analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
-	  });
 	}
+
+	EventDispatcher$1.register('iframe-bridge-start', function (data) {
+	  analytics.trackLoadingStarted(data.extension);
+	});
+	EventDispatcher$1.register('iframe-bridge-established', function (data) {
+	  analytics.trackLoadingEnded(data.extension);
+	});
+	EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
+	  analytics.trackLoadingTimeout(data.extension);
+	});
+	EventDispatcher$1.register('iframe-bridge-cancelled', function (data) {
+	  analytics.trackLoadingCancel(data.extension);
+	});
+	EventDispatcher$1.register('analytics-deprecated-method-used', function (data) {
+	  analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
+	});
 
 	var LoadingIndicatorActions = {
 	  timeout: function timeout($el, extension) {
@@ -679,13 +690,6 @@
 	    EventDispatcher$1.dispatch('iframe-bridge-cancelled', { $el: $el, extension: extension });
 	  }
 	};
-
-	/**
-	 * The iframe-side code exposes a jquery-like implementation via _dollar.
-	 * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
-	 * to code that runs on host and iframe.
-	 */
-	var $ = window.AJS && window.AJS.$ || function () {};
 
 	var LOADING_INDICATOR_CLASS = 'ap-status-indicator';
 
@@ -3026,6 +3030,9 @@
 	var AnalyticsAction = {
 	  trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, extension) {
 	    EventDispatcher$1.dispatch('analytics-deprecated-method-used', { methodUsed: methodUsed, extension: extension });
+	  },
+	  trackIframeBridgeStart: function trackIframeBridgeStart(extension) {
+	    EventDispatcher$1.dispatch('iframe-bridge-start', { extension: extension });
 	  }
 	};
 
@@ -3213,13 +3220,16 @@
 	  /**
 	  * creates an extension
 	  * returns an object with extension and iframe attributes
+	  * designed for use with non DOM implementations such as react.
 	  */
 
 
 	  HostApi.prototype.createExtension = function createExtension(extension) {
 	    extension.options = extension.options || {};
 	    extension.options.noDom = true;
-	    return simpleXdmUtils.createSimpleXdmExtension(extension);
+	    var createdExtension = simpleXdmUtils.createSimpleXdmExtension(extension);
+	    AnalyticsAction.trackIframeBridgeStart(createdExtension.extension);
+	    return createdExtension;
 	  };
 
 	  /**

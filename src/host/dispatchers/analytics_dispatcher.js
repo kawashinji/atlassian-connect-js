@@ -1,4 +1,5 @@
 import EventDispatcher from './event_dispatcher';
+import $ from '../dollar';
 
 const EVENT_NAME_PREFIX = 'connect.addon.';
 
@@ -102,23 +103,27 @@ class AnalyticsDispatcher {
 }
 
 var analytics = new AnalyticsDispatcher();
-if(window.AJS && window.AJS.$) {
+if($.fn) {
   EventDispatcher.register('iframe-create', function(data) {
     analytics.trackLoadingStarted(data.extension);
   });
-  EventDispatcher.register('iframe-bridge-established', function(data) {
-    analytics.trackLoadingEnded(data.extension);
-  });
-  EventDispatcher.register('iframe-bridge-timeout', function (data) {
-    analytics.trackLoadingTimeout(data.extension);
-  });
-  EventDispatcher.register('iframe-bridge-cancelled', function(data) {
-    analytics.trackLoadingCancel(data.extension);
-  });
-  EventDispatcher.register('analytics-deprecated-method-used', function(data) {
-    analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
-  });
 }
+
+EventDispatcher.register('iframe-bridge-start', function (data){
+  analytics.trackLoadingStarted(data.extension);
+});
+EventDispatcher.register('iframe-bridge-established', function(data) {
+  analytics.trackLoadingEnded(data.extension);
+});
+EventDispatcher.register('iframe-bridge-timeout', function (data) {
+  analytics.trackLoadingTimeout(data.extension);
+});
+EventDispatcher.register('iframe-bridge-cancelled', function(data) {
+  analytics.trackLoadingCancel(data.extension);
+});
+EventDispatcher.register('analytics-deprecated-method-used', function(data) {
+  analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
+});
 
 
 export default analytics;
