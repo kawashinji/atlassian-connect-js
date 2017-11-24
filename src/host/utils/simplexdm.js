@@ -2,6 +2,7 @@ import iframeUtils from './iframe';
 import simpleXDM from 'simple-xdm/host';
 import IframeActions from '../actions/iframe_actions';
 import util from '../util';
+import $ from '../dollar';
 
 // nowhere better to put this. Wires an extension for oldschool and new enviroments
 function createSimpleXdmExtension(extension){
@@ -10,9 +11,12 @@ function createSimpleXdmExtension(extension){
     extension.options = {};
   }
   var iframeAttributes = simpleXDM.create(extension, () => {
-    IframeActions.notifyBridgeEstablished(extension.$el || extension.el, extension);
+    if(!extension.options.noDOM){
+      extension.$el = $(document.getElementById(extension.id));
+    }
+    IframeActions.notifyBridgeEstablished(extension.$el, extension);
   }, () => {
-    IframeActions.notifyUnloaded(extension.$el || extension.el, extension);
+    IframeActions.notifyUnloaded(extension.$el, extension);
   });
   extension.id = iframeAttributes.id;
   util.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));

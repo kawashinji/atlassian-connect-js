@@ -48,9 +48,9 @@ class Iframe {
 
   _simpleXdmCreate(extension){
     var simpleXdmAttributes = simpleXdmUtils.createSimpleXdmExtension(extension);
-    var sanitizedExtension = simpleXdmAttributes.extension;
-    sanitizedExtension.$el = this.render(simpleXdmAttributes.iframeAttributes);
-    return sanitizedExtension;
+    extension.id = simpleXdmAttributes.iframeAttributes.id;
+    extension.$el = this.render(simpleXdmAttributes.iframeAttributes);
+    return extension;
   }
 
   _appendExtension($container, extension){

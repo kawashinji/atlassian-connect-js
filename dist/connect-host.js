@@ -2710,9 +2710,12 @@
 	    extension.options = {};
 	  }
 	  var iframeAttributes = simpleXDM$1.create(extension, function () {
-	    IframeActions.notifyBridgeEstablished(extension.$el || extension.el, extension);
+	    if (!extension.options.noDOM) {
+	      extension.$el = $(document.getElementById(extension.id));
+	    }
+	    IframeActions.notifyBridgeEstablished(extension.$el, extension);
 	  }, function () {
-	    IframeActions.notifyUnloaded(extension.$el || extension.el, extension);
+	    IframeActions.notifyUnloaded(extension.$el, extension);
 	  });
 	  extension.id = iframeAttributes.id;
 	  Util$1.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
@@ -2775,9 +2778,9 @@
 
 	  Iframe.prototype._simpleXdmCreate = function _simpleXdmCreate(extension) {
 	    var simpleXdmAttributes = simpleXdmUtils.createSimpleXdmExtension(extension);
-	    var sanitizedExtension = simpleXdmAttributes.extension;
-	    sanitizedExtension.$el = this.render(simpleXdmAttributes.iframeAttributes);
-	    return sanitizedExtension;
+	    extension.id = simpleXdmAttributes.iframeAttributes.id;
+	    extension.$el = this.render(simpleXdmAttributes.iframeAttributes);
+	    return extension;
 	  };
 
 	  Iframe.prototype._appendExtension = function _appendExtension($container, extension) {
