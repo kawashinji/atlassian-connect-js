@@ -2705,11 +2705,11 @@
 
 	// nowhere better to put this. Wires an extension for oldschool and new enviroments
 	function createSimpleXdmExtension(extension) {
-	  extension = extensionConfigSanitizer(extension);
+	  var extensionConfig = extensionConfigSanitizer(extension);
 	  if (!extension.options) {
 	    extension.options = {};
 	  }
-	  var iframeAttributes = simpleXDM$1.create(extension, function () {
+	  var iframeAttributes = simpleXDM$1.create(extensionConfig, function () {
 	    if (!extension.options.noDOM) {
 	      extension.$el = $(document.getElementById(extension.id));
 	    }

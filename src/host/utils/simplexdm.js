@@ -6,11 +6,11 @@ import $ from '../dollar';
 
 // nowhere better to put this. Wires an extension for oldschool and new enviroments
 function createSimpleXdmExtension(extension){
-  extension = extensionConfigSanitizer(extension);
+  const extensionConfig = extensionConfigSanitizer(extension);
   if(!extension.options){
     extension.options = {};
   }
-  var iframeAttributes = simpleXDM.create(extension, () => {
+  const iframeAttributes = simpleXDM.create(extensionConfig, () => {
     if(!extension.options.noDOM){
       extension.$el = $(document.getElementById(extension.id));
     }
