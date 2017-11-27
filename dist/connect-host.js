@@ -2717,6 +2717,11 @@
 	  }, function () {
 	    IframeActions.notifyUnloaded(extension.$el, extension);
 	  });
+	  // HostApi destroy is relying on previous behaviour of the
+	  // iframe component wherein it would call simpleXDM.create(extension)
+	  // and then mutate the extension object with the id returned from the
+	  // iframeAttributes see changes made in ACJS-760 and ACJS-807
+	  extensionConfig.id = iframeAttributes.id;
 	  extension.id = iframeAttributes.id;
 	  Util$1.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
 	  return {
