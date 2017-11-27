@@ -120,7 +120,6 @@ describe('Host API', function() {
     let iframe = HostApi.create(spec);
     let extensions = HostApi.getExtensions(spec);
     expect(extensions.length).toEqual(1);
-    debugger;
     HostApi.destroy(extensions[0].extension_id);
     expect(HostApi.getExtensions(spec).length).toEqual(0);
   });
