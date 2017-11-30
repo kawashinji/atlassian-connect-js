@@ -1,4 +1,5 @@
 import EventDispatcher from './event_dispatcher';
+import $ from '../dollar';
 
 const EVENT_NAME_PREFIX = 'connect.addon.';
 
@@ -29,6 +30,9 @@ class AnalyticsDispatcher {
     data = data || {};
     data.version = (w._AP && w._AP.version) ? w._AP.version : undefined;
     data.userAgent = w.navigator.userAgent;
+    if(!w.AJS) {
+      return false;
+    }
     if(w.AJS.Analytics){
       w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
     } else if(w.AJS.trigger) {
@@ -99,7 +103,13 @@ class AnalyticsDispatcher {
 }
 
 var analytics = new AnalyticsDispatcher();
-EventDispatcher.register('iframe-create', function(data) {
+if($.fn) {
+  EventDispatcher.register('iframe-create', function(data) {
+    analytics.trackLoadingStarted(data.extension);
+  });
+}
+
+EventDispatcher.register('iframe-bridge-start', function (data){
   analytics.trackLoadingStarted(data.extension);
 });
 EventDispatcher.register('iframe-bridge-established', function(data) {
@@ -114,5 +124,6 @@ EventDispatcher.register('iframe-bridge-cancelled', function(data) {
 EventDispatcher.register('analytics-deprecated-method-used', function(data) {
   analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
 });
+
 
 export default analytics;

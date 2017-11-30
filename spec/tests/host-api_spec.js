@@ -8,7 +8,7 @@ describe('Host API', function() {
   it('onIframeEstablished binds', function() {
     var spy = jasmine.createSpy('spy');
     HostApi.onIframeEstablished(spy);
-    EventDispatcher.dispatch('after:iframe-bridge-established', {$el: AJS.$('<div />'), extension:{}});
+    EventDispatcher.dispatch('after:iframe-bridge-established', {$el: AJS.$('<div />'), extension:{options:{}}});
     expect(spy).toHaveBeenCalled();
   });
 

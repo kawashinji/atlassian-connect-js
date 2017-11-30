@@ -49,7 +49,14 @@ function filterMessageOptions(options) {
   return copy;
 }
 
+var messageCloseListenerCreated = false;
+
 function showMessage(name, title, body, options) {
+  if(!messageCloseListenerCreated) {
+    createMessageCloseListener();
+    messageCloseListenerCreated = true;
+  }
+
   const $msgBar = getMessageBar();
   options = filterMessageOptions(options);
   $.extend(options, {
@@ -86,15 +93,19 @@ function deprecatedShowMessage(name, title, body, options, callback) {
   }
 }
 
-$(document).on('aui-message-close', function(e, $msg) {
-  const _id = $msg.attr('id').replace(MSGID_PREFIX, '');
-  if (_messages[_id]) {
-    if ($.isFunction(_messages[_id].onCloseTrigger)) {
-      _messages[_id].onCloseTrigger();
+function createMessageCloseListener(){
+  $(document).on('aui-message-close', function(e, $msg) {
+    const _id = $msg.attr('id').replace(MSGID_PREFIX, '');
+    if (_messages[_id]) {
+      if ($.isFunction(_messages[_id].onCloseTrigger)) {
+        _messages[_id].onCloseTrigger();
+      }
+      _messages[_id]._destroy();
     }
-    _messages[_id]._destroy();
-  }
-});
+  });
+}
+
+
 
 function messageModule(messageType) {
   return {

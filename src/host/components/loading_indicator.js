@@ -71,19 +71,27 @@ class LoadingIndicator {
 var LoadingComponent = new LoadingIndicator();
 
 EventDispatcher.register('iframe-create', (data) => {
-  LoadingComponent._setupTimeout(data.$el.parents('.ap-iframe-container'), data.extension);
+  if(!data.extension.options.noDom) {
+    LoadingComponent._setupTimeout(data.$el.parents('.ap-iframe-container'), data.extension);
+  }
 });
 
 EventDispatcher.register('iframe-bridge-established', (data) => {
-  LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
+  if(!data.extension.options.noDom) {
+    LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
+  }
 });
 
 EventDispatcher.register('iframe-bridge-timeout', (data) => {
-  LoadingComponent.timeout(data.$el, data.extension.id);
+  if(!data.extension.options.noDom) {
+    LoadingComponent.timeout(data.$el, data.extension.id);
+  }
 });
 
 EventDispatcher.register('iframe-bridge-cancelled', (data) => {
-  LoadingComponent.cancelled(data.$el, data.extension.id);
+  if(!data.extension.options.noDom) {
+    LoadingComponent.cancelled(data.$el, data.extension.id);
+  }
 });
 
 export default LoadingComponent;

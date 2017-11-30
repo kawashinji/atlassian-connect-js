@@ -169,9 +169,11 @@ describe('Iframe component', () => {
       };
       var $container = $('<div />');
 
+      $('body').append($container);
       EventDispatcher.registerOnce('iframe-bridge-established', (data) => {
         expect(data.$el[0].nodeName).toEqual('IFRAME');
         expect(data.extension).toEqual(extension);
+        $container.remove();
         done();
       });
       var spy = spyOn(simpleXDM, 'create').and.returnValue({id: 'abc123'});

@@ -50,6 +50,7 @@ class Flag {
   }
 
   render (options) {
+    bindFlagDomEvents();
     var _id = FLAGID_PREFIX + options.id;
     var auiFlag = AJS.flag({
       type: options.type,
@@ -73,19 +74,26 @@ class Flag {
 }
 
 var FlagComponent = new Flag();
+var flagDomEventsBound = false;
+function bindFlagDomEvents(){
+  if(flagDomEventsBound) {
+    return;
+  }
+  $(document).on('aui-flag-close', (e) => {
+    const _id = e.target.id;
+    var cleanFlagId = FlagComponent.cleanKey(_id);
+    FlagActions.closed(cleanFlagId);
+  });
 
-$(document).on('aui-flag-close', (e) => {
-  const _id = e.target.id;
-  var cleanFlagId = FlagComponent.cleanKey(_id);
-  FlagActions.closed(cleanFlagId);
-});
+  $(document).on('click', '.' + FLAG_ACTION_CLASS, (e) => {
+    var $target = $(e.target);
+    var actionKey = $target.data('key');
+    var flagId = $target.data('flag_id');
+    FlagActions.actionInvoked(actionKey, flagId);
+  });
+  flagDomEventsBound = true;
+}
 
-$(document).on('click', '.' + FLAG_ACTION_CLASS, (e) => {
-  var $target = $(e.target);
-  var actionKey = $target.data('key');
-  var flagId = $target.data('flag_id');
-  FlagActions.actionInvoked(actionKey, flagId);
-});
 
 EventDispatcher.register('flag-close', (data) => {
   FlagComponent.close(data.id);

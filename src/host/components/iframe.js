@@ -6,6 +6,7 @@ import simpleXDM from 'simple-xdm/host';
 import urlUtil from '../utils/url';
 import JwtActions from '../actions/jwt_actions';
 import iframeUtils from '../utils/iframe';
+import simpleXdmUtils from '../utils/simplexdm';
 
 const CONTAINER_CLASSES = ['ap-container'];
 
@@ -46,17 +47,9 @@ class Iframe {
   }
 
   _simpleXdmCreate(extension){
-    if(!extension.options){
-      extension.options = {};
-    }
-    var iframeAttributes = simpleXDM.create(extension, () => {
-      IframeActions.notifyBridgeEstablished(extension.$el, extension);
-    }, () => {
-      IframeActions.notifyUnloaded(extension.$el, extension);
-    });
-    extension.id = iframeAttributes.id;
-    $.extend(iframeAttributes, iframeUtils.optionsToAttributes(extension.options));
-    extension.$el = this.render(iframeAttributes);
+    var simpleXdmAttributes = simpleXdmUtils.createSimpleXdmExtension(extension);
+    extension.id = simpleXdmAttributes.iframeAttributes.id;
+    extension.$el = this.render(simpleXdmAttributes.iframeAttributes);
     return extension;
   }
 
@@ -119,7 +112,11 @@ EventDispatcher.register('jwt-url-refreshed-failed', function(data) {
 
 
 EventDispatcher.register('after:iframe-bridge-established', function(data) {
-  data.$el[0].bridgeEstablished = true;
+  if(!data.extension.options.noDom){
+    data.$el[0].bridgeEstablished = true;
+  } else {
+    data.extension.options.bridgeEstablished = true;
+  }
 });
 
 export default IframeComponent;
