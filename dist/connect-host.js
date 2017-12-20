@@ -5114,7 +5114,7 @@
 	  * @param {String} options.title     The title text of the flag.
 	  * @param {String} options.body      The body text of the flag.
 	  * @param {String} options.type=info Sets the type of the message. Valid options are "info", "success", "warning" and "error".
-	  * @param {String} options.close     The closing behaviour that this flag has. Valid options are "manual", "auto" and "never".
+	  * @param {String} options.close     The closing behaviour that this flag has. Valid options are "manual", and "auto".
 	  * @param {Object} options.actions   Map of {actionIdentifier: 'Action link text'} to add to the flag. The actionIdentifier will be passed to a 'flag.action' event if the link is clicked.
 	  * @returns {Flag~Flag}
 	  * @example
@@ -5847,7 +5847,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.41';
+	  window._AP.version = '5.1.42';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
