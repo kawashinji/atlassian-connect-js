@@ -88,6 +88,8 @@ class Iframe {
   }
 
   render(attributes){
+    attributes = attributes || {};
+    attributes.referrerpolicy = 'no-referrer';
     return $('<iframe />').attr(attributes).addClass('ap-iframe');
   }
 }
