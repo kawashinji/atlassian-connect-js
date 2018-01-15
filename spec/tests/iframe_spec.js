@@ -216,7 +216,7 @@ describe('Iframe component', () => {
     expect($iframe[0].nodeName).toEqual('IFRAME');
   });
 
-  it('renders an iframe with the referer set to no-referrer', () => {
+  it('renders an iframe with the referrer set to no-referrer', () => {
     var $iframe = IframeComponent.render();
     expect($iframe.attr('referrerpolicy')).toEqual('no-referrer');
   });
