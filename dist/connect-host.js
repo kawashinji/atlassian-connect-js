@@ -2820,6 +2820,8 @@
 	  };
 
 	  Iframe.prototype.render = function render(attributes) {
+	    attributes = attributes || {};
+	    attributes.referrerpolicy = 'no-referrer';
 	    return $('<iframe />').attr(attributes).addClass('ap-iframe');
 	  };
 
@@ -5847,7 +5849,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.42';
+	  window._AP.version = '5.1.43';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
