@@ -4561,6 +4561,7 @@
 	* @deprecated after August 2017 | Please use the Flag module instead.
 	* @name Messages
 	* @module
+	* @ignore
 	*/
 
 	var MESSAGE_BAR_ID = 'ac-message-container';
@@ -5849,7 +5850,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.43';
+	  window._AP.version = '5.1.44';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
