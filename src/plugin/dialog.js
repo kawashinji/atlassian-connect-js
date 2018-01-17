@@ -15,6 +15,7 @@ if(AP._hostModules && AP._hostModules.dialog) {
    * @deprecated after August 2017 | Please use <code>dialog.getCustomData(callback)</code> instead.
    * @name customData
    * @memberOf module:Dialog
+   * @ignore
    * @example
    * var myDataVariable = AP.dialog.customData.myDataVariable;
    *
@@ -113,6 +114,7 @@ if(AP.dialog && AP.dialog.create) {
      * @deprecated after August 2017 | Please use <code>AP.events.on("dialog.close", callback)</code> instead.
      * @memberOf Dialog~Dialog
      * @method on
+     * @ignore
      * @param {String} event name of the event to listen for, such as 'close'.
      * @param {Function} callback function to receive the event callback.
      * @noDemo
@@ -136,6 +138,7 @@ if(AP.dialog && AP.dialog.getButton) {
        * @deprecated after August 2017 | Please use <code>AP.events.on("dialog.message", callback)</code> instead.
        * @method bind
        * @memberOf Dialog~DialogButton
+       * @ignore
        * @param {Function} callback function to be triggered on click or programatically.
        * @noDemo
        * @example
@@ -177,6 +180,7 @@ if(AP.dialog && AP.dialog.createButton) {
  * @deprecated after August 2017 | Please use <code>AP.events.on("dialog.message", callback)</code> instead.
  * @memberOf module:Dialog
  * @method onDialogMessage
+ * @ignore
  * @param {String} buttonName - button either "cancel" or "submit"
  * @param {Function} listener - callback function invoked when the requested button is pressed
  */

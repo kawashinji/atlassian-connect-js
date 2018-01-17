@@ -10,6 +10,7 @@
 * @deprecated after August 2017 | Please use the Flag module instead.
 * @name Messages
 * @module
+* @ignore
 */
 
 import $ from '../dollar';
