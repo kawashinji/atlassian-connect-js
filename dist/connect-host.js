@@ -1359,6 +1359,7 @@
 	  XDMRPC.prototype._handleEventQuery = function _handleEventQuery(message, extension) {
 	    var _this3 = this;
 
+	    console.log('_handleEventQuery', this._registeredExtensions, this._registeredExtensions[extension.extension_id], message, extension);
 	    var executed = {};
 	    var now = new Date().getTime();
 	    var keys = Object.keys(this._pendingEvents);
