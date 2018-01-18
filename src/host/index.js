@@ -55,4 +55,6 @@ simpleXDM.registerRequestNotifier(function(data){
   });
 });
 
+HostApi.broadcastEvent('a', {'addon_key': 'macro-editor-test'}, 'b');
+
 export default HostApi;

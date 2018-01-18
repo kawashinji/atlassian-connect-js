@@ -886,7 +886,7 @@ var AP = (function () {
 
 
 	  XDMRPC.prototype._checkOrigin = function _checkOrigin(event, reg) {
-	    var no_source_types = ['init', 'event_query'];
+	    var no_source_types = ['init'];
 	    var isNoSourceType = reg && !reg.source && no_source_types.indexOf(event.data.type) > -1;
 	    var sourceTypeMatches = reg && event.source === reg.source;
 	    var hasExtensionUrl = reg && this._originEqual(reg.extension.url, event.origin);
