@@ -1591,7 +1591,7 @@
 
 
 	  XDMRPC.prototype._checkOrigin = function _checkOrigin(event, reg) {
-	    var no_source_types = ['init', 'event_query'];
+	    var no_source_types = ['init'];
 	    var isNoSourceType = reg && !reg.source && no_source_types.indexOf(event.data.type) > -1;
 	    var sourceTypeMatches = reg && event.source === reg.source;
 	    var hasExtensionUrl = reg && this._originEqual(reg.extension.url, event.origin);
@@ -5850,7 +5850,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.44';
+	  window._AP.version = '5.1.46';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);

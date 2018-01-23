@@ -885,7 +885,7 @@ var AP = (function () {
 
 
 	  XDMRPC.prototype._checkOrigin = function _checkOrigin(event, reg) {
-	    var no_source_types = ['init', 'event_query'];
+	    var no_source_types = ['init'];
 	    var isNoSourceType = reg && !reg.source && no_source_types.indexOf(event.data.type) > -1;
 	    var sourceTypeMatches = reg && event.source === reg.source;
 	    var hasExtensionUrl = reg && this._originEqual(reg.extension.url, event.origin);
@@ -1473,6 +1473,23 @@ var AP = (function () {
 	var ConfigurationOptions$1 = new ConfigurationOptions();
 
 	var size = function size(width, height, container) {
+
+	  var verticalScrollbarWidth = function verticalScrollbarWidth() {
+	    var sbWidth = window.innerWidth - container.clientWidth;
+	    // sanity check only
+	    sbWidth = sbWidth < 0 ? 0 : sbWidth;
+	    sbWidth = sbWidth > 50 ? 50 : sbWidth;
+	    return sbWidth;
+	  };
+
+	  var horizontalScrollbarHeight = function horizontalScrollbarHeight() {
+	    var sbHeight = window.innerHeight - Math.min(container.clientHeight, document.documentElement.clientHeight);
+	    // sanity check only
+	    sbHeight = sbHeight < 0 ? 0 : sbHeight;
+	    sbHeight = sbHeight > 50 ? 50 : sbHeight;
+	    return sbHeight;
+	  };
+
 	  var w = width == null ? '100%' : width,
 	      h,
 	      docHeight;
@@ -1507,6 +1524,11 @@ var AP = (function () {
 	      }
 	    }
 	  }
+
+	  // Include iframe scroll bars if visible and using exact dimensions
+	  w = typeof w === 'number' && Math.min(container.scrollHeight, document.documentElement.scrollHeight) > Math.min(container.clientHeight, document.documentElement.clientHeight) ? w + verticalScrollbarWidth() : w;
+	  h = typeof h === 'number' && container.scrollWidth > container.clientWidth ? h + horizontalScrollbarHeight() : h;
+
 	  return { w: w, h: h };
 	};
 
@@ -1761,7 +1783,7 @@ var AP = (function () {
 	    _this._eventHandlers = {};
 	    _this._pendingCallbacks = {};
 	    _this._keyListeners = [];
-	    _this._version = "5.1.44";
+	    _this._version = "5.1.46";
 	    _this._apiTampered = undefined;
 	    _this._isSubIframe = _this._topHost !== window.parent;
 	    _this._onConfirmedFns = [];
