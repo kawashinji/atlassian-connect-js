@@ -10,7 +10,7 @@
   },
   "scripts": {
     "release": "rm -rf node_modules; npm install; npm publish",
-    "prepublish": "gulp",
+    "prepublish": "node_modules/gulp/bin/gulp.js",
     "test": "gulp test-ci",
     "tag": "PACKAGE_VERSION=$(node -p \"require('./package.json').version\") && git tag $PACKAGE_VERSION && git push --tags"
   },
