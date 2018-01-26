@@ -125,5 +125,9 @@ EventDispatcher.register('analytics-deprecated-method-used', function(data) {
   analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
 });
 
+EventDispatcher.register('iframe-destroyed', function(data) {
+  delete analytics._addons[data.extension.extension_id];
+});
+
 
 export default analytics;
