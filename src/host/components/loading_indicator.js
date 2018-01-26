@@ -41,7 +41,7 @@ class LoadingIndicator {
   hide($iframeContainer, extensionId){
     clearTimeout(this._stateRegistry[extensionId]);
     delete this._stateRegistry[extensionId];
-    this._loadingContainer($iframeContainer).hide();
+    this._loadingContainer($iframeContainer)[0].style.display = 'none';
   }
 
   cancelled($iframeContainer, extensionId){
