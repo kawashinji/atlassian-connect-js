@@ -682,6 +682,10 @@
 	  analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
 	});
 
+	EventDispatcher$1.register('iframe-destroyed', function (data) {
+	  delete analytics._addons[data.extension.extension_id];
+	});
+
 	var LoadingIndicatorActions = {
 	  timeout: function timeout($el, extension) {
 	    EventDispatcher$1.dispatch('iframe-bridge-timeout', { $el: $el, extension: extension });
@@ -713,8 +717,10 @@
 	  };
 
 	  LoadingIndicator.prototype.render = function render() {
-	    var $container = $('<div />').addClass(LOADING_INDICATOR_CLASS);
-	    $container.append(LOADING_STATUSES.loading);
+	    var container = document.createElement('div');
+	    container.classList.add(LOADING_INDICATOR_CLASS);
+	    container.innerHTML = LOADING_STATUSES.loading;
+	    var $container = $(container);
 	    this._startSpinner($container);
 	    return $container;
 	  };
@@ -732,7 +738,7 @@
 	  LoadingIndicator.prototype.hide = function hide($iframeContainer, extensionId) {
 	    clearTimeout(this._stateRegistry[extensionId]);
 	    delete this._stateRegistry[extensionId];
-	    this._loadingContainer($iframeContainer).hide();
+	    this._loadingContainer($iframeContainer)[0].style.display = 'none';
 	  };
 
 	  LoadingIndicator.prototype.cancelled = function cancelled($iframeContainer, extensionId) {
