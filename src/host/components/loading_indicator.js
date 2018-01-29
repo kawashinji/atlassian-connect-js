@@ -22,8 +22,10 @@ class LoadingIndicator {
   }
 
   render() {
-    var $container = $('<div />').addClass(LOADING_INDICATOR_CLASS);
-    $container.append(LOADING_STATUSES.loading);
+    var container = document.createElement('div');
+    container.classList.add(LOADING_INDICATOR_CLASS);
+    container.innerHTML = LOADING_STATUSES.loading;
+    var $container = $(container);
     this._startSpinner($container);
     return $container;
   }
