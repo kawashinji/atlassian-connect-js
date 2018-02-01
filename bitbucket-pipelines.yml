@@ -34,4 +34,4 @@ pipelines:
                 - npm set @atlassian:registry "https://npm-private-proxy.atlassian.io/"
                 - npm set //npm-private-proxy.atlassian.io/:_authToken=$NPM_TOKEN
                 - npm install
-                - SAUCE_LABS=true SAUCE_USERNAME=$SAUCE_USERNAME SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY npm test
+                - npm run test-sl

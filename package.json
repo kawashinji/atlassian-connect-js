@@ -9,7 +9,8 @@
     "url": "ssh://git@bitbucket.org:atlassian/atlassian-connect-js.git"
   },
   "scripts": {
-    "release": "rm -rf node_modules; npm install --unsafe-perm; npm publish",
+    "release": "rm -rf node_modules; npm install --unsafe-perm; npm run test-sl; npm publish",
+    "test-sl": "SAUCE_LABS=true SAUCE_USERNAME=$SAUCE_USERNAME SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY npm test",
     "prepublish": "node_modules/gulp/bin/gulp.js",
     "test": "gulp test-ci",
     "tag": "PACKAGE_VERSION=$(node -p \"require('./package.json').version\") && git tag $PACKAGE_VERSION && git push --tags"
