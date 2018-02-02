@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <title></title>
+    <script src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script>
+      window.AJS = {
+        $: window.$
+      };
+    </script>
+    <script src="connect-host.js"></script>
+  </head>
+  <body>
+    <script>
+      connectHost.onIframeEstablished(function (data) {
+        setTimeout(function () {
+          data.$el.closest('.ap-iframe-container').remove();
+        }, 0);
+      });
+      connectHost.onIframeUnload(function (data) {
+        connectHost.destroy(data.extension.id);
+      });
+      function loadAndRemoveAppIframe() {
+        $('body').append(connectHost.create({
+          addon_key: 'test',
+          key: 'test',
+          url: window.origin + '/app.html'
+        }));
+      }
+    </script>
+  </body>
+</html>

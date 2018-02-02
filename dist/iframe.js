@@ -1004,8 +1004,8 @@ var AP = (function () {
 	  **/
 
 
-	  Connect.prototype.create = function create(extension, initCallback) {
-	    var extension_id = this.registerExtension(extension, initCallback);
+	  Connect.prototype.create = function create(extension, initCallback, unloadCallback) {
+	    var extension_id = this.registerExtension(extension, initCallback, unloadCallback);
 	    var options = extension.options || {};
 
 	    var data = {
@@ -1886,7 +1886,9 @@ var AP = (function () {
 	  AP.prototype._registerOnUnload = function _registerOnUnload() {
 	    $.bind(window, 'unload', util._bind(this, function () {
 	      this._sendUnload(this._host, this._data.origin);
-	      this._sendUnload(this._topHost, this._hostOrigin);
+	      if (this._isSubIframe) {
+	        this._sendUnload(this._topHost, this._hostOrigin);
+	      }
 	    }));
 	  };
 

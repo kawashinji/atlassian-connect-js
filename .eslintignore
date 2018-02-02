@@ -8,3 +8,5 @@
 build/**
 dist/**
 test/**
+memleak-check/connect-host.js
+memleak-check/iframe.js
