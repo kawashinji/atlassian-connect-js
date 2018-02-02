@@ -74,7 +74,7 @@ class Flag {
       };
       this.flag = flagProvider.create(flagOptions);
       let addon = ModuleProviders.getProvider('addon');
-      if (addon) {
+      if (addon && addon.registerUnmountCallback) {
         addon.registerUnmountCallback(this.close.bind(this), callback._context);
       }
     } else {
