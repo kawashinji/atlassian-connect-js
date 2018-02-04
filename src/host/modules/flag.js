@@ -73,9 +73,9 @@ class Flag {
         type: type.toLowerCase()
       };
       this.flag = flagProvider.create(flagOptions);
-      let addon = ModuleProviders.getProvider('addon');
-      if (addon && addon.registerUnmountCallback) {
-        addon.registerUnmountCallback(this.close.bind(this), callback._context);
+      let addonProvider = ModuleProviders.getProvider('addon');
+      if (addonProvider && addonProvider.registerUnmountCallback) {
+        addonProvider.registerUnmountCallback(this.close.bind(this), callback._context);
       }
     } else {
       this.flag = FlagComponent.render({
