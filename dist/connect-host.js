@@ -5047,6 +5047,10 @@
 	        type: type.toLowerCase()
 	      };
 	      this.flag = flagProvider.create(flagOptions);
+	      var addonProvider = ModuleProviders$1.getProvider('addon');
+	      if (addonProvider && addonProvider.registerUnmountCallback) {
+	        addonProvider.registerUnmountCallback(this.close.bind(this), callback._context);
+	      }
 	    } else {
 	      this.flag = FlagComponent.render({
 	        type: options.type,
@@ -5856,7 +5860,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.52';
+	  window._AP.version = '5.1.53';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
