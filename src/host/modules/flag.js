@@ -9,6 +9,7 @@ import FlagActions from '../actions/flag_actions';
 import FlagComponent from '../components/flag';
 import util from '../util';
 import EventActions from '../actions/event_actions';
+import ModuleProviders from '../module-providers';
 
 const _flags = {};
 
@@ -72,6 +73,10 @@ class Flag {
         type: type.toLowerCase()
       };
       this.flag = flagProvider.create(flagOptions);
+      let addonProvider = ModuleProviders.getProvider('addon');
+      if (addonProvider && addonProvider.registerUnmountCallback) {
+        addonProvider.registerUnmountCallback(this.close.bind(this), callback._context);
+      }
     } else {
       this.flag = FlagComponent.render({
         type: options.type,
