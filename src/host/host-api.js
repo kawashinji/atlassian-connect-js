@@ -33,7 +33,6 @@ class HostApi {
     }
     this.registerContentResolver = {
       resolveByExtension: (callback) => {
-        this._contentResolver = callback;
         jwtActions.registerContentResolver({callback: callback});
       }
     }
