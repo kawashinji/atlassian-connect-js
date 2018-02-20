@@ -14,6 +14,7 @@ import ModuleProviders from './module-providers';
 import { acjsFrameworkAdaptor } from './ACJSFrameworkAdaptor';
 import Util from './util';
 import simpleXdmUtils from './utils/simplexdm';
+import IframeNoDOMComponent from './components/iframe_nodom';
 
 class HostApi {
   constructor(){
@@ -32,6 +33,7 @@ class HostApi {
     }
     this.registerContentResolver = {
       resolveByExtension: (callback) => {
+        this._contentResolver = callback;
         jwtActions.registerContentResolver({callback: callback});
       }
     }
@@ -51,12 +53,15 @@ class HostApi {
   * returns an object with extension and iframe attributes
   * designed for use with non DOM implementations such as react.
   */
-  createExtension(extension) {
+  createExtension(extension, callback) {
     extension.options = extension.options || {};
     extension.options.noDom = true;
-    let createdExtension = simpleXdmUtils.createSimpleXdmExtension(extension);
-    AnalyticsAction.trackIframeBridgeStart(createdExtension.extension);
-    return createdExtension;
+    IframeNoDOMComponent.applyContentResolver(extension)
+      .then(function(newExtension) {
+        let createdExtension = simpleXdmUtils.createSimpleXdmExtension(newExtension);
+        AnalyticsAction.trackIframeBridgeStart(createdExtension.extension);
+        callback(createdExtension);
+      });
   }
 
   /**
