@@ -14,6 +14,7 @@ import ModuleProviders from './module-providers';
 import { acjsFrameworkAdaptor } from './ACJSFrameworkAdaptor';
 import Util from './util';
 import simpleXdmUtils from './utils/simplexdm';
+import UrlUtils from './utils/url';
 
 class HostApi {
   constructor(){
@@ -32,7 +33,11 @@ class HostApi {
     }
     this.registerContentResolver = {
       resolveByExtension: (callback) => {
+        this._contentResolver = callback;
         jwtActions.registerContentResolver({callback: callback});
+      },
+      getContentResolver: () => {
+        return this._contentResolver;
       }
     }
     this.registerProvider = (componentName, component) => {
@@ -164,6 +169,14 @@ class HostApi {
 
   setJwtClockSkew(skew) {
     jwtActions.setClockSkew(skew);
+  }
+
+  isJwtExpired(jwtString) {
+    return UrlUtils.isJwtExpired(jwtString);
+  }
+
+  hasJwt(url) {
+    return UrlUtils.hasJwt(url);
   }
 }
 
