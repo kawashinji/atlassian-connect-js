@@ -35,11 +35,11 @@ class HostApi {
       resolveByExtension: (callback) => {
         this._contentResolver = callback;
         jwtActions.registerContentResolver({callback: callback});
-      },
-      getContentResolver: () => {
-        return this._contentResolver;
       }
     }
+    this.getContentResolver = () => {
+      return this._contentResolver;
+    };
     this.registerProvider = (componentName, component) => {
       ModuleProviders.registerProvider(componentName, component);
     };

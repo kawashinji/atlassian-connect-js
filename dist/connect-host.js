@@ -3202,6 +3202,8 @@
 
 	var HostApi$1 = function () {
 	  function HostApi() {
+	    var _this = this;
+
 	    classCallCheck(this, HostApi);
 
 	    this.create = function (extension) {
@@ -3219,8 +3221,12 @@
 	    };
 	    this.registerContentResolver = {
 	      resolveByExtension: function resolveByExtension(callback) {
+	        _this._contentResolver = callback;
 	        jwtActions.registerContentResolver({ callback: callback });
 	      }
+	    };
+	    this.getContentResolver = function () {
+	      return _this._contentResolver;
 	    };
 	    this.registerProvider = function (componentName, component) {
 	      ModuleProviders$1.registerProvider(componentName, component);
@@ -3286,12 +3292,12 @@
 	  };
 
 	  HostApi.prototype.onIframeUnload = function onIframeUnload(callback) {
-	    var _this = this;
+	    var _this2 = this;
 
 	    EventDispatcher$1.register('after:iframe-unload', function (data) {
 	      callback.call({}, {
 	        $el: data.$el,
-	        extension: _this._cleanExtension(data.extension)
+	        extension: _this2._cleanExtension(data.extension)
 	      });
 	    });
 	  };
@@ -3357,6 +3363,14 @@
 
 	  HostApi.prototype.setJwtClockSkew = function setJwtClockSkew(skew) {
 	    jwtActions.setClockSkew(skew);
+	  };
+
+	  HostApi.prototype.isJwtExpired = function isJwtExpired(jwtString) {
+	    return urlUtils.isJwtExpired(jwtString);
+	  };
+
+	  HostApi.prototype.hasJwt = function hasJwt(url) {
+	    return urlUtils.hasJwt(url);
 	  };
 
 	  return HostApi;
