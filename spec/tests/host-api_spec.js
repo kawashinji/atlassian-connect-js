@@ -50,6 +50,12 @@ describe('Host API', function() {
     HostApi.setJwtClockSkew(skew);
   });
 
+  it('getContentResolver gets the content resolver', function(){
+    var testContentResolver = function(params){};
+    HostApi.registerContentResolver.resolveByExtension(testContentResolver);
+    expect(HostApi.getContentResolver()).toEqual(testContentResolver);
+  });
+
   it('dialog.create uses dialog module options', function(done){
     var extension = {
       addon_key: 'abc',
