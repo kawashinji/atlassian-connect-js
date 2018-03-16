@@ -29,7 +29,6 @@ pipelines:
     default:
         - step:
             script:
-                - npm set loglevel silent
                 - npm set spin false
                 - npm set @atlassian:registry "https://npm-private-proxy.atlassian.io/"
                 - npm set //npm-private-proxy.atlassian.io/:_authToken=$NPM_TOKEN
