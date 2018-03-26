@@ -11,7 +11,6 @@ pipelines:
               - rm -rf /usr/local/lib/node_modules
               - mv node_modules /usr/local/lib/
               - cd $BITBUCKET_CLONE_DIR
-              - npm set @atlassian:registry "https://npm-private-proxy.atlassian.io/"
               - npm set //npm-private-proxy.atlassian.io/:_authToken=$NPM_TOKEN
               - npm set //registry.npmjs.org/:_authToken=$NPM_PUBLISH_TOKEN
               - npm set loglevel silent
@@ -31,7 +30,6 @@ pipelines:
             script:
                 - npm set loglevel silent
                 - npm set spin false
-                - npm set @atlassian:registry "https://npm-private-proxy.atlassian.io/"
-                - npm set //npm-private-proxy.atlassian.io/:_authToken=$NPM_TOKEN
+                - npm set //packages.atlassian.com/:_authToken=$NPM_TOKEN
                 - npm install
                 - npm run test-sl
