@@ -5204,14 +5204,15 @@
 	  setPosition: function setPosition(x, y, callback) {
 	    callback = Util$1.last(arguments);
 	    if (callback._context.extension.options.isFullPage) {
-	      var $el = Util$1.getIframeByExtensionId(callback._context.extension_id);
-	      if (Number.isInteger(x)) {
-	        window.scrollTo(x, 0);
+	      // var $el = util.getIframeByExtensionId(callback._context.extension_id);
+	      if (!Number.isInteger(x)) {
+	        x = document.documentElement.scrollLeft;
 	      }
-	      if (Number.isInteger(y)) {
-	        $el.scrollTop(y);
+	      if (!Number.isInteger(y)) {
+	        y = document.documentElement.scrollTop;
 	      }
-	      console.log('scrolling', x, y, $el);
+	      window.scrollTo(x, y);
+	      console.log('scrolling', x, y);
 	    }
 	  }
 	};
