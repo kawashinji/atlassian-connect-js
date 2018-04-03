@@ -25,5 +25,18 @@ export default {
         height: window.innerHeight
       });
     }
+  },
+  setPosition: function(x, y, callback) {
+    callback = util.last(arguments);
+    if (callback._context.extension.options.isFullPage) {
+      var $el = util.getIframeByExtensionId(callback._context.extension_id);
+      if(Number.isInteger(x)) {
+        window.scrollTo(x, 0);
+      }
+      if(Number.isInteger(y)) {
+        $el.scrollTop(y);
+      }
+      console.log('scrolling', x, y, $el);
+    }
   }
 };
