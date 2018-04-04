@@ -34,7 +34,7 @@ export default {
       if(!Number.isInteger(y)) {
         return;
       }
-      document.documentElement.scrollLeft = offset.top + y;
+      document.documentElement.scrollTop = offset.top + y;
     }
   }
 };
