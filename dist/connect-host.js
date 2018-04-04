@@ -5201,18 +5201,15 @@
 	      });
 	    }
 	  },
-	  setPosition: function setPosition(x, y, callback) {
+	  setVerticalPosition: function setVerticalPosition(y, callback) {
 	    callback = Util$1.last(arguments);
 	    if (callback._context.extension.options.isFullPage) {
-	      // var $el = util.getIframeByExtensionId(callback._context.extension_id);
-	      if (!Number.isInteger(x)) {
-	        x = document.documentElement.scrollLeft;
-	      }
+	      var $el = Util$1.getIframeByExtensionId(callback._context.extension_id);
+	      var offset = $el.offset();
 	      if (!Number.isInteger(y)) {
-	        y = document.documentElement.scrollTop;
+	        return;
 	      }
-	      window.scrollTo(x, y);
-	      console.log('scrolling', x, y);
+	      document.documentElement.scrollLeft = offset.top + y;
 	    }
 	  }
 	};
