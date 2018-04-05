@@ -1,6 +1,7 @@
 import ScrollPosition from 'src/host/modules/scroll-position';
 beforeEach(() => {
   window.document.body.style.overflow = 'visible';
+  $('iframe').remove();
 });
 describe('scroll position', () => {
   it('gets the scroll position of parent page', (done) => {
@@ -33,7 +34,7 @@ describe('scroll position', () => {
 
   it('sets the scroll position of the page', (done) => {
     var elementId = Math.random().toString(36).substring(2, 8);
-    var scrollPosition = 200;
+    var scrollPosition = 10;
     var callback = function (position) {
       expect(position.scrollY).toEqual(scrollPosition);
       done();
