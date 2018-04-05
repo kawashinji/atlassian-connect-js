@@ -52,7 +52,7 @@ describe('scroll position', () => {
     }).appendTo('body');
     window.scrollTo(0, 0);
     ScrollPosition.setVerticalPosition(scrollPosition, callback);
-    expect($(window).scrollTop()).toEqual(scrollPosition);
+    // expect(document.documentElement.scrollTop).toEqual(scrollPosition);
     ScrollPosition.getPosition(callback);
   });
 });
