@@ -41,7 +41,7 @@ describe('scroll position', () => {
     var elementId = Math.random().toString(36).substring(2, 8);
     var scrollPosition = 10;
     var callback = function (position) {
-      expect(position.scrollY).toEqual(scrollPosition);
+      expect(position.scrollY).toEqual(scrollPosition + $(document.getElementById(elementId)).offset().top);
       done();
     };
     callback._context = {
@@ -58,10 +58,7 @@ describe('scroll position', () => {
     }).appendTo('body');
     window.scrollTo(0, 0);
     ScrollPosition.setVerticalPosition(scrollPosition, callback);
-    // expect(document.documentElement.scrollTop).toEqual(scrollPosition);
-    setTimeout(function(){
-      ScrollPosition.getPosition(callback);
-    }, 1000);
-
+    expect(document.documentElement.scrollTop).toEqual(scrollPosition + $(document.getElementById(elementId)).offset().top);
+    ScrollPosition.getPosition(callback);
   });
 });
