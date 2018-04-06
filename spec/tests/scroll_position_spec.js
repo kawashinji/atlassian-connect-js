@@ -59,7 +59,6 @@ describe('scroll position', () => {
     }).appendTo('body');
     window.scrollTo(0, 0);
     ScrollPosition.setVerticalPosition(scrollPosition, callback);
-    // expect(document.documentElement.scrollTop).toEqual(scrollPosition + $(document.getElementById(elementId)).offset().top);
     ScrollPosition.getPosition(callback);
   });
 });
