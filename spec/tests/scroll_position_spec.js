@@ -39,9 +39,10 @@ describe('scroll position', () => {
 
   it('sets the scroll position of the page', (done) => {
     var elementId = Math.random().toString(36).substring(2, 8);
+    var $window = $(window);
     var scrollPosition = 10;
     var callback = function (position) {
-      expect(position.scrollY).toEqual(scrollPosition + $(document.getElementById(elementId)).offset().top);
+      expect(position.scrollY).toEqual($window.scrollTop() - $(document.getElementById(elementId)).offset().top);
       done();
     };
     callback._context = {
