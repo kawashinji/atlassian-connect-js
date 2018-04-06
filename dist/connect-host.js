@@ -5203,13 +5203,12 @@
 	  },
 	  setVerticalPosition: function setVerticalPosition(y, callback) {
 	    callback = Util$1.last(arguments);
-	    if (callback._context.extension.options.isFullPage) {
+	    if (callback._context.extension.options && callback._context.extension.options.isFullPage) {
 	      var $el = Util$1.getIframeByExtensionId(callback._context.extension_id);
 	      var offset = $el.offset();
-	      if (!Number.isInteger(y)) {
-	        return;
+	      if (typeof y === 'number') {
+	        document.documentElement.scrollTop = offset.top + y;
 	      }
-	      document.documentElement.scrollTop = offset.top + y;
 	    }
 	  }
 	};
