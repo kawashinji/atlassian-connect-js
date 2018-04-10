@@ -5179,10 +5179,10 @@
 	var TRIGGER_PERCENTAGE = 10; //% before scroll events are fired
 	var activeGeneralPageAddon = void 0;
 
-	EventDispatcher$1.register('iframe-bridge-established', function (extension) {
-	  if (extension.options.isFullPage) {
+	EventDispatcher$1.register('iframe-bridge-established', function (data) {
+	  if (data.extension.extension.options.isFullPage) {
 	    window.addEventListener('scroll', scrollEventHandler);
-	    activeGeneralPageAddon = extension.extension_id;
+	    activeGeneralPageAddon = data.extension.id;
 	  }
 	});
 
@@ -5213,7 +5213,7 @@
 	}
 
 	function triggerEvent(type) {
-	  EventActions.broadcast('scroll.' + type, { extension_id: activeGeneralPageAddon }, {});
+	  EventActions.broadcast('scroll.' + type, { id: activeGeneralPageAddon }, {});
 	}
 
 	var scrollPosition = {
