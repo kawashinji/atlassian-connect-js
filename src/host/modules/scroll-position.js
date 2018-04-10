@@ -7,7 +7,7 @@ const TRIGGER_PERCENTAGE = 10; //% before scroll events are fired
 let activeGeneralPageAddon;
 
 EventDispatcher.register('iframe-bridge-established', function(data) {
-  if(data.extension.extension.options.isFullPage) {
+  if(data.extension.options.isFullPage) {
     window.addEventListener('scroll', scrollEventHandler);
     activeGeneralPageAddon = data.extension.id;
   }

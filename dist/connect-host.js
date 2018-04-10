@@ -5180,7 +5180,7 @@
 	var activeGeneralPageAddon = void 0;
 
 	EventDispatcher$1.register('iframe-bridge-established', function (data) {
-	  if (data.extension.extension.options.isFullPage) {
+	  if (data.extension.options.isFullPage) {
 	    window.addEventListener('scroll', scrollEventHandler);
 	    activeGeneralPageAddon = data.extension.id;
 	  }
