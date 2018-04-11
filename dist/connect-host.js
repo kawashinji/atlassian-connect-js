@@ -3235,15 +3235,6 @@
 	      },
 	      close: function close() {
 	        DialogExtensionActions.close();
-	      },
-	      on: function on(name, callback) {
-	        var nameMap = {
-	          'close': 'dialog-close'
-	        };
-	        var resolvedEventName = nameMap[name];
-	        if (resolvedEventName) {
-	          EventDispatcher$1.registerOnce(resolvedEventName, callback);
-	        }
 	      }
 	    };
 	    this.registerContentResolver = {
