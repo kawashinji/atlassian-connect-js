@@ -5201,14 +5201,6 @@
 	      });
 	    }
 	  },
-	  /**
-	   * Sets the vertical scroll position relative to the add-on
-	   *
-	   * @param y {Number} The new vertical scroll position in pixels
-	   * @noDemo
-	   * @example
-	   * AP.scrollPosition.setVerticalPosition(200);
-	   */
 	  setVerticalPosition: function setVerticalPosition(y, callback) {
 	    callback = Util$1.last(arguments);
 	    if (callback._context.extension.options && callback._context.extension.options.isFullPage) {
