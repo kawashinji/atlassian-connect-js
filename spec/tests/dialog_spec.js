@@ -25,6 +25,28 @@ describe('dialog component', () => {
     $('.aui-dialog2').remove();
     $('.aui-blanket').remove();
   });
+
+  describe('sanitize', () => {
+
+    it('extracts onHide if it is a function', () => {
+      var onHideSpy = jasmine.createSpy('onHide');
+      var raw = {
+        onHide: onHideSpy
+      };
+      var sanitizedOptions = dialogUtils.sanitizeOptions(raw);
+      expect(sanitizedOptions.onHide).toEqual(onHideSpy);
+    });
+
+    it('extracts noop function for onHide if it is not a function', () => {
+      var raw = {
+        onHide: 1
+      };
+      var sanitizedOptions = dialogUtils.sanitizeOptions(raw);
+      expect(typeof sanitizedOptions.onHide).toEqual('function');
+    });
+
+  });
+
   describe('render', () => {
 
     it('renders a dialog', () => {
@@ -47,6 +69,15 @@ describe('dialog component', () => {
       var $dialog = DialogComponent.render();
       expect($dialog[0].style.height).toEqual('50%');
       expect($dialog[0].style.width).toEqual('50%');
+    });
+
+    it('calls onHide handler when dialog is closed', () => {
+      var onHideSpy = jasmine.createSpy('onHide');
+      var $dialog = DialogComponent.render({
+        onHide: onHideSpy
+      });
+      DialogActions.closeActive({});
+      expect(onHideSpy.calls.count()).toEqual(1);
     });
 
     describe('chrome', () => {

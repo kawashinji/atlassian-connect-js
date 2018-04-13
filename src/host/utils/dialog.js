@@ -160,6 +160,15 @@ class DialogUtils {
     return buttons;
   }
 
+  _onHide(options) {
+    var noop = function () {};
+    if (typeof options.onHide === 'function') {
+      return options.onHide;
+    } else {
+      return noop;
+    }
+  }
+
   sanitizeOptions(options){
     options = options || {};
     var sanitized = {
@@ -173,7 +182,8 @@ class DialogUtils {
       actions: this._actions(options),
       id: this._id(options.id),
       size: options.size,
-      closeOnEscape: this._closeOnEscape(options)
+      closeOnEscape: this._closeOnEscape(options),
+      onHide: this._onHide(options),
     };
     sanitized.size = this._size(sanitized);
 

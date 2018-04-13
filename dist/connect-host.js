@@ -2273,6 +2273,15 @@
 	    return buttons;
 	  };
 
+	  DialogUtils.prototype._onHide = function _onHide(options) {
+	    var noop = function noop() {};
+	    if (typeof options.onHide === 'function') {
+	      return options.onHide;
+	    } else {
+	      return noop;
+	    }
+	  };
+
 	  DialogUtils.prototype.sanitizeOptions = function sanitizeOptions(options) {
 	    options = options || {};
 	    var sanitized = {
@@ -2286,7 +2295,8 @@
 	      actions: this._actions(options),
 	      id: this._id(options.id),
 	      size: options.size,
-	      closeOnEscape: this._closeOnEscape(options)
+	      closeOnEscape: this._closeOnEscape(options),
+	      onHide: this._onHide(options)
 	    };
 	    sanitized.size = this._size(sanitized);
 
@@ -3589,6 +3599,9 @@
 	    if (!sanitizedOptions.size || sanitizedOptions.size === 'fullscreen') {
 	      AJS.layer($dialog).changeSize(sanitizedOptions.width, sanitizedOptions.height);
 	    }
+	    if (sanitizedOptions.onHide) {
+	      dialog.on('hide', sanitizedOptions.onHide);
+	    }
 	    dialog.show();
 	    dialog.$el.data('extension', sanitizedOptions.extension);
 	    dialog.$el.data('originalOptions', originalOptions);
@@ -3806,7 +3819,8 @@
 	      hint: dialogOptions.hint,
 	      submitText: dialogOptions.submitText,
 	      cancelText: dialogOptions.cancelText,
-	      buttons: dialogOptions.buttons
+	      buttons: dialogOptions.buttons,
+	      onHide: dialogOptions.onHide
 	    });
 	    return $dialog;
 	  };
