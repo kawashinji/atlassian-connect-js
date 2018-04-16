@@ -23,7 +23,8 @@ class DialogExtension {
       hint:       dialogOptions.hint,
       submitText: dialogOptions.submitText,
       cancelText: dialogOptions.cancelText,
-      buttons:    dialogOptions.buttons
+      buttons:    dialogOptions.buttons,
+      onHide:     dialogOptions.onHide
     });
     return $dialog;
   }

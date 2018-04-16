@@ -67,5 +67,15 @@ export default {
         height: window.innerHeight
       });
     }
+  },
+  setVerticalPosition: function(y, callback) {
+    callback = util.last(arguments);
+    if (callback._context.extension.options && callback._context.extension.options.isFullPage) {
+      var $el = util.getIframeByExtensionId(callback._context.extension_id);
+      var offset = $el.offset();
+      if(typeof y === 'number') {
+        document.documentElement.scrollTop = offset.top + y;
+      }
+    }
   }
 };

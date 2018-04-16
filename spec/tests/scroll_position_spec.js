@@ -1,6 +1,14 @@
 import ScrollPosition from 'src/host/modules/scroll-position';
 
 describe('scroll position', () => {
+  beforeEach(() => {
+    window.document.body.style.overflow = 'visible';
+    $('iframe').remove();
+  });
+  afterEach(() => {
+    $('iframe').remove();
+  });
+
   it('gets the scroll position of parent page', (done) => {
     var elementId = Math.random().toString(36).substring(2, 8);
     var callback = function (position) {
@@ -26,6 +34,31 @@ describe('scroll position', () => {
       margin: 100
     });
     window.scrollTo(0, 1000);
+    ScrollPosition.getPosition(callback);
+  });
+
+  it('sets the scroll position of the page', (done) => {
+    var elementId = Math.random().toString(36).substring(2, 8);
+    var $window = $(window);
+    var scrollPosition = 10;
+    var callback = function (position) {
+      expect(position.scrollY).toEqual($window.scrollTop() - $(document.getElementById(elementId)).offset().top);
+      done();
+    };
+    callback._context = {
+      extension: {
+        options: {
+          isFullPage: true
+        }
+      },
+      extension_id: elementId
+    };
+    $('<iframe>').attr({id: elementId}).css({
+      width: '300px',
+      height: '2000px'
+    }).appendTo('body');
+    window.scrollTo(0, 0);
+    ScrollPosition.setVerticalPosition(scrollPosition, callback);
     ScrollPosition.getPosition(callback);
   });
 });
