@@ -5,6 +5,7 @@ import EventActions from '../actions/event_actions';
 
 const TRIGGER_PERCENTAGE = 10; //% before scroll events are fired
 let activeGeneralPageAddon;
+let lastScrollEventTriggered; //top or bottom
 
 EventDispatcher.register('iframe-bridge-established', function(data) {
   if(data.extension.options.isFullPage) {
@@ -24,6 +25,7 @@ EventDispatcher.register('iframe-unload', function(extension) {
 function removeScrollEvent(){
   window.removeEventListener('scroll', scrollEventHandler);
   activeGeneralPageAddon = undefined;
+  lastScrollEventTriggered = undefined;
 }
 
 function scrollEventHandler(){
@@ -33,14 +35,19 @@ function scrollEventHandler(){
   var boundary = documentHeight * (TRIGGER_PERCENTAGE/100);
   if(window.scrollY <= boundary) {
     triggerEvent('nearTop');
-  }
-  if((windowHeight + window.scrollY + boundary) >= documentHeight) {
+  } else if((windowHeight + window.scrollY + boundary) >= documentHeight) {
     triggerEvent('nearBottom');
+  } else {
+    lastScrollEventTriggered = undefined;
   }
 }
 
 function triggerEvent(type) {
+  if(lastScrollEventTriggered === type) {
+    return; // only once per scroll.
+  }
   EventActions.broadcast('scroll.' + type, {id: activeGeneralPageAddon}, {});
+  lastScrollEventTriggered = type;
 }
 
 export default {

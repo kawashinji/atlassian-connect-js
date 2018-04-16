@@ -5192,6 +5192,7 @@
 
 	var TRIGGER_PERCENTAGE = 10; //% before scroll events are fired
 	var activeGeneralPageAddon = void 0;
+	var lastScrollEventTriggered = void 0; //top or bottom
 
 	EventDispatcher$1.register('iframe-bridge-established', function (data) {
 	  if (data.extension.options.isFullPage) {
@@ -5211,6 +5212,7 @@
 	function removeScrollEvent() {
 	  window.removeEventListener('scroll', scrollEventHandler);
 	  activeGeneralPageAddon = undefined;
+	  lastScrollEventTriggered = undefined;
 	}
 
 	function scrollEventHandler() {
@@ -5220,14 +5222,19 @@
 	  var boundary = documentHeight * (TRIGGER_PERCENTAGE / 100);
 	  if (window.scrollY <= boundary) {
 	    triggerEvent('nearTop');
-	  }
-	  if (windowHeight + window.scrollY + boundary >= documentHeight) {
+	  } else if (windowHeight + window.scrollY + boundary >= documentHeight) {
 	    triggerEvent('nearBottom');
+	  } else {
+	    lastScrollEventTriggered = undefined;
 	  }
 	}
 
 	function triggerEvent(type) {
+	  if (lastScrollEventTriggered === type) {
+	    return; // only once per scroll.
+	  }
 	  EventActions.broadcast('scroll.' + type, { id: activeGeneralPageAddon }, {});
+	  lastScrollEventTriggered = type;
 	}
 
 	var scrollPosition = {
