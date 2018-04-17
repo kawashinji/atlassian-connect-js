@@ -5220,9 +5220,9 @@
 	  var windowHeight = window.innerHeight;
 
 	  var boundary = documentHeight * (TRIGGER_PERCENTAGE / 100);
-	  if (window.scrollY <= boundary) {
+	  if (window.pageYOffset <= boundary) {
 	    triggerEvent('nearTop');
-	  } else if (windowHeight + window.scrollY + boundary >= documentHeight) {
+	  } else if (windowHeight + window.pageYOffset + boundary >= documentHeight) {
 	    triggerEvent('nearBottom');
 	  } else {
 	    lastScrollEventTriggered = undefined;
