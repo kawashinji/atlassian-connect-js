@@ -1,4 +1,5 @@
 import ScrollPosition from 'src/host/modules/scroll-position';
+import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 
 describe('scroll position', () => {
   beforeEach(() => {
@@ -61,4 +62,48 @@ describe('scroll position', () => {
     ScrollPosition.setVerticalPosition(scrollPosition, callback);
     ScrollPosition.getPosition(callback);
   });
+
+  it('scroll.nearTop is triggered when scrolling near the top', (done) => {
+    var extension = {
+      options: {isFullPage: true},
+      id: 'abc123',
+      addon_key: 'some-addon-key',
+      key: 'some-module-key'
+    };
+
+    EventDispatcher.registerOnce('event-dispatch', (data) => {
+      expect(data.type).toEqual('scroll.nearTop');
+      expect(data.targetSpec).toEqual({id: extension.id});
+      expect(data.event).toEqual({});
+      done();
+    });
+    EventDispatcher.dispatch('iframe-bridge-established', {
+      extension: extension
+    });
+    window.scrollTo(0,2);
+  });
+
+  it('scroll.nearBottom is triggered when scrolling near the bottom', (done) => {
+    var extension = {
+      options: {isFullPage: true},
+      id: 'abc123',
+      addon_key: 'some-addon-key',
+      key: 'some-module-key'
+    };
+    EventDispatcher.dispatch('iframe-bridge-established', {
+      extension: extension
+    });
+    window.scrollTo(0,2);
+    EventDispatcher.registerOnce('event-dispatch', (data) => {
+      expect(data.type).toEqual('scroll.nearBottom');
+      expect(data.targetSpec).toEqual({id: extension.id});
+      expect(data.event).toEqual({});
+      done();
+    });
+    window.scrollTo(0,100000);
+  });
+
+
+
+
 });
