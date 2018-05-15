@@ -56,7 +56,7 @@ class Dialog {
     let dialogExtension = {
       addon_key: extension.addon_key,
       key: options.key,
-      options: Util.pick(extension.options, ['customData', 'productContext'])
+      options: Util.pick(extension.options, ['customData', 'productContext', 'crev'])
     };
 
     // ACJS-185: the following is a really bad idea but we need it
