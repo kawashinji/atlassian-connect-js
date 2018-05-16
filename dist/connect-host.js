@@ -2727,12 +2727,39 @@
 	  }
 	};
 
+	var ExtensionConfigurationOptionsStore = function () {
+	  function ExtensionConfigurationOptionsStore() {
+	    classCallCheck(this, ExtensionConfigurationOptionsStore);
+
+	    this.store = {};
+	  }
+
+	  ExtensionConfigurationOptionsStore.prototype.set = function set$$1(obj, val) {
+	    if (val) {
+	      obj = { obj: val };
+	    }
+
+	    Util$1(this.store, obj);
+	  };
+
+	  ExtensionConfigurationOptionsStore.prototype.get = function get$$1(key) {
+	    if (key) {
+	      return this.store[key];
+	    }
+	    return Util$1({}, this.store); //clone
+	  };
+
+	  return ExtensionConfigurationOptionsStore;
+	}();
+
+	var ExtensionConfigurationOptionsStore$1 = new ExtensionConfigurationOptionsStore();
+
 	// nowhere better to put this. Wires an extension for oldschool and new enviroments
 	function createSimpleXdmExtension(extension) {
 	  var extensionConfig = extensionConfigSanitizer(extension);
-	  if (!extension.options) {
-	    extension.options = {};
-	  }
+	  var systemExtensionConfigOptions = ExtensionConfigurationOptionsStore$1.get();
+	  extension.options = Util$1.extend({}, systemExtensionConfigOptions, extension.options || {});
+
 	  var iframeAttributes = simpleXDM$1.create(extensionConfig, function () {
 	    if (!extension.options.noDOM) {
 	      extension.$el = $(document.getElementById(extension.id));
@@ -3390,6 +3417,17 @@
 	  HostApi.prototype.hasJwt = function hasJwt(url) {
 	    return urlUtils.hasJwt(url);
 	  };
+	  // set configuration option system wide for all extensions
+	  // can be either key,value or an object
+
+
+	  HostApi.prototype.addExtensionConfigurationOptions = function addExtensionConfigurationOptions(obj, value) {
+	    ExtensionConfigurationOptionsStore$1.set(obj, value);
+	  };
+
+	  HostApi.prototype.getExtensionConfigurationOption = function getExtensionConfigurationOption(val) {
+	    return ExtensionConfigurationOptionsStore$1.get(val);
+	  };
 
 	  return HostApi;
 	}();
@@ -3903,7 +3941,7 @@
 	  var dialogExtension = {
 	    addon_key: extension.addon_key,
 	    key: options.key,
-	    options: Util$1.pick(extension.options, ['customData', 'productContext', 'crev'])
+	    options: Util$1.pick(extension.options, ['customData', 'productContext'])
 	  };
 
 	  // ACJS-185: the following is a really bad idea but we need it

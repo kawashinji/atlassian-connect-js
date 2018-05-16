@@ -15,6 +15,7 @@ import { acjsFrameworkAdaptor } from './ACJSFrameworkAdaptor';
 import Util from './util';
 import simpleXdmUtils from './utils/simplexdm';
 import UrlUtils from './utils/url';
+import ExtensionConfigurationOptionsStore from './stores/extension_configuration_options_store';
 
 class HostApi {
   constructor(){
@@ -177,6 +178,15 @@ class HostApi {
 
   hasJwt(url) {
     return UrlUtils.hasJwt(url);
+  }
+  // set configuration option system wide for all extensions
+  // can be either key,value or an object
+  addExtensionConfigurationOptions(obj, value) {
+    ExtensionConfigurationOptionsStore.set(obj, value);
+  }
+
+  getExtensionConfigurationOption(val) {
+    return ExtensionConfigurationOptionsStore.get(val);
   }
 }
 

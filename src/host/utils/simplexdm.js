@@ -3,13 +3,14 @@ import simpleXDM from 'simple-xdm/host';
 import IframeActions from '../actions/iframe_actions';
 import util from '../util';
 import $ from '../dollar';
+import ExtensionConfigurationOptionStore from '../stores/extension_configuration_options_store';
 
 // nowhere better to put this. Wires an extension for oldschool and new enviroments
 function createSimpleXdmExtension(extension){
   const extensionConfig = extensionConfigSanitizer(extension);
-  if(!extension.options){
-    extension.options = {};
-  }
+  const systemExtensionConfigOptions = ExtensionConfigurationOptionStore.get();
+  extension.options = util.extend({}, systemExtensionConfigOptions, extension.options || {});
+
   const iframeAttributes = simpleXDM.create(extensionConfig, () => {
     if(!extension.options.noDOM){
       extension.$el = $(document.getElementById(extension.id));
