@@ -9,6 +9,7 @@ import ExtensionConfigurationOptionStore from '../stores/extension_configuration
 function createSimpleXdmExtension(extension){
   const extensionConfig = extensionConfigSanitizer(extension);
   const systemExtensionConfigOptions = ExtensionConfigurationOptionStore.get();
+  console.log('system extension config', systemExtensionConfigOptions);
   extension.options = util.extend({}, systemExtensionConfigOptions, extension.options || {});
 
   const iframeAttributes = simpleXDM.create(extensionConfig, () => {

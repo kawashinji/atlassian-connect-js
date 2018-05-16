@@ -2760,6 +2760,7 @@
 	function createSimpleXdmExtension(extension) {
 	  var extensionConfig = extensionConfigSanitizer(extension);
 	  var systemExtensionConfigOptions = ExtensionConfigurationOptionsStore$1.get();
+	  console.log('system extension config', systemExtensionConfigOptions);
 	  extension.options = Util$1.extend({}, systemExtensionConfigOptions, extension.options || {});
 
 	  var iframeAttributes = simpleXDM$1.create(extensionConfig, function () {
