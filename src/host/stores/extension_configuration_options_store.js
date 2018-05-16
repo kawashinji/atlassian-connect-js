@@ -1,4 +1,4 @@
-import extend from '../util';
+import util from '../util';
 
 class ExtensionConfigurationOptionsStore {
   constructor() {
@@ -9,13 +9,13 @@ class ExtensionConfigurationOptionsStore {
       obj = {obj: val};
     }
 
-    extend(this.store, obj);
+    util.extend(this.store, obj);
   }
   get(key) {
     if(key) {
       return this.store[key];
     }
-    return extend({}, this.store); //clone
+    return util.extend({}, this.store); //clone
   }
 }
 

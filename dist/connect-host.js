@@ -2739,14 +2739,14 @@
 	      obj = { obj: val };
 	    }
 
-	    Util$1(this.store, obj);
+	    Util$1.extend(this.store, obj);
 	  };
 
 	  ExtensionConfigurationOptionsStore.prototype.get = function get$$1(key) {
 	    if (key) {
 	      return this.store[key];
 	    }
-	    return Util$1({}, this.store); //clone
+	    return Util$1.extend({}, this.store); //clone
 	  };
 
 	  return ExtensionConfigurationOptionsStore;
