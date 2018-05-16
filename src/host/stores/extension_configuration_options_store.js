@@ -11,7 +11,7 @@ class ExtensionConfigurationOptionsStore {
     } else {
       toSet = obj;
     }
-    util.extend(this.store, obj);
+    util.extend(this.store, toSet);
   }
   get(key) {
     if(key) {

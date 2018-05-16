@@ -2741,7 +2741,7 @@
 	    } else {
 	      toSet = obj;
 	    }
-	    Util$1.extend(this.store, obj);
+	    Util$1.extend(this.store, toSet);
 	  };
 
 	  ExtensionConfigurationOptionsStore.prototype.get = function get$$1(key) {
