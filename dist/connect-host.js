@@ -2736,9 +2736,11 @@
 
 	  ExtensionConfigurationOptionsStore.prototype.set = function set$$1(obj, val) {
 	    if (val) {
-	      obj = { obj: val };
+	      var toSet = {};
+	      toSet[obj] = val;
+	    } else {
+	      toSet = obj;
 	    }
-
 	    Util$1.extend(this.store, obj);
 	  };
 

@@ -6,9 +6,11 @@ class ExtensionConfigurationOptionsStore {
   }
   set(obj, val) {
     if(val) {
-      obj = {obj: val};
+      var toSet = {};
+      toSet[obj] = val;
+    } else {
+      toSet = obj;
     }
-
     util.extend(this.store, obj);
   }
   get(key) {
