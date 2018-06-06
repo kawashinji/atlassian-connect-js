@@ -40,7 +40,7 @@ function build(entryModule, distModule, options) {
               ]
             },
             'modules': false,
-            'useBuiltIns': true,
+            'useBuiltIns': false,
             'loose': true,
             'debug': true
           }],

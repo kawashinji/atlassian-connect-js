@@ -145,7 +145,7 @@ connectHost.registerContentResolver.resolveByExtension(contentResolver);
 Requirements
 ------------
 
-- Node LTS (currently v6.x)
+- Node LTS (currently v8.x)
 - NPM
 
 Installation
@@ -267,4 +267,4 @@ Atlassian Connect supports the following browsers:
 - Chrome latest stable
 - Firefox latest stable
 - Safari latest stable (on OS X only)
-- IE 10+
+- IE 11+
