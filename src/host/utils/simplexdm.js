@@ -10,7 +10,6 @@ function createSimpleXdmExtension(extension){
   const extensionConfig = extensionConfigSanitizer(extension);
   const systemExtensionConfigOptions = ExtensionConfigurationOptionStore.get();
   extensionConfig.options = util.extend({}, systemExtensionConfigOptions, extensionConfig.options);
-  console.log('system extension config', systemExtensionConfigOptions);
 
   const iframeAttributes = simpleXDM.create(extensionConfig, () => {
     if(!extension.options.noDOM){

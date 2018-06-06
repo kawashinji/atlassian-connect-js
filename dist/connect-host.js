@@ -2777,7 +2777,6 @@
 	  var extensionConfig = extensionConfigSanitizer(extension);
 	  var systemExtensionConfigOptions = ExtensionConfigurationOptionsStore$1.get();
 	  extensionConfig.options = Util$1.extend({}, systemExtensionConfigOptions, extensionConfig.options);
-	  console.log('system extension config', systemExtensionConfigOptions);
 
 	  var iframeAttributes = simpleXDM$1.create(extensionConfig, function () {
 	    if (!extension.options.noDOM) {
