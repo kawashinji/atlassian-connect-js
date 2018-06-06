@@ -2776,8 +2776,7 @@
 	function createSimpleXdmExtension(extension) {
 	  var extensionConfig = extensionConfigSanitizer(extension);
 	  var systemExtensionConfigOptions = ExtensionConfigurationOptionsStore$1.get();
-	  extensionConfig.options = Util$1.extend({}, systemExtensionConfigOptions, extensionConfig.options);
-
+	  extension.options = extensionConfig.options = Util$1.extend({}, systemExtensionConfigOptions, extensionConfig.options);
 	  var iframeAttributes = simpleXDM$1.create(extensionConfig, function () {
 	    if (!extension.options.noDOM) {
 	      extension.$el = $(document.getElementById(extension.id));

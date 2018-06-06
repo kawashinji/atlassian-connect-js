@@ -8,14 +8,8 @@ import ExtensionConfigurationOptionStore from '../stores/extension_configuration
 // nowhere better to put this. Wires an extension for oldschool and new enviroments
 function createSimpleXdmExtension(extension){
   const extensionConfig = extensionConfigSanitizer(extension);
-
-  if(!extension.options){
-    extension.options = {};
-  }
-
   const systemExtensionConfigOptions = ExtensionConfigurationOptionStore.get();
-  extensionConfig.options = util.extend({}, systemExtensionConfigOptions, extensionConfig.options);
-
+  extension.options = extensionConfig.options = util.extend({}, systemExtensionConfigOptions, extensionConfig.options);
   const iframeAttributes = simpleXDM.create(extensionConfig, () => {
     if(!extension.options.noDOM){
       extension.$el = $(document.getElementById(extension.id));
