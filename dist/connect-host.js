@@ -2743,12 +2743,40 @@
 	  }
 	};
 
+	var ExtensionConfigurationOptionsStore = function () {
+	  function ExtensionConfigurationOptionsStore() {
+	    classCallCheck(this, ExtensionConfigurationOptionsStore);
+
+	    this.store = {};
+	  }
+
+	  ExtensionConfigurationOptionsStore.prototype.set = function set$$1(obj, val) {
+	    if (val) {
+	      var toSet = {};
+	      toSet[obj] = val;
+	    } else {
+	      toSet = obj;
+	    }
+	    Util$1.extend(this.store, toSet);
+	  };
+
+	  ExtensionConfigurationOptionsStore.prototype.get = function get$$1(key) {
+	    if (key) {
+	      return this.store[key];
+	    }
+	    return Util$1.extend({}, this.store); //clone
+	  };
+
+	  return ExtensionConfigurationOptionsStore;
+	}();
+
+	var ExtensionConfigurationOptionsStore$1 = new ExtensionConfigurationOptionsStore();
+
 	// nowhere better to put this. Wires an extension for oldschool and new enviroments
 	function createSimpleXdmExtension(extension) {
 	  var extensionConfig = extensionConfigSanitizer(extension);
-	  if (!extension.options) {
-	    extension.options = {};
-	  }
+	  var systemExtensionConfigOptions = ExtensionConfigurationOptionsStore$1.get();
+	  extension.options = extensionConfig.options = Util$1.extend({}, systemExtensionConfigOptions, extensionConfig.options);
 	  var iframeAttributes = simpleXDM$1.create(extensionConfig, function () {
 	    if (!extension.options.noDOM) {
 	      extension.$el = $(document.getElementById(extension.id));
@@ -3405,6 +3433,17 @@
 
 	  HostApi.prototype.hasJwt = function hasJwt(url) {
 	    return urlUtils.hasJwt(url);
+	  };
+	  // set configuration option system wide for all extensions
+	  // can be either key,value or an object
+
+
+	  HostApi.prototype.setExtensionConfigurationOptions = function setExtensionConfigurationOptions(obj, value) {
+	    ExtensionConfigurationOptionsStore$1.set(obj, value);
+	  };
+
+	  HostApi.prototype.getExtensionConfigurationOption = function getExtensionConfigurationOption(val) {
+	    return ExtensionConfigurationOptionsStore$1.get(val);
 	  };
 
 	  return HostApi;
