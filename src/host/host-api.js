@@ -181,7 +181,7 @@ class HostApi {
   }
   // set configuration option system wide for all extensions
   // can be either key,value or an object
-  addExtensionConfigurationOptions(obj, value) {
+  setExtensionConfigurationOptions(obj, value) {
     ExtensionConfigurationOptionsStore.set(obj, value);
   }
 

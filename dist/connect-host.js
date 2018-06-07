@@ -3438,7 +3438,7 @@
 	  // can be either key,value or an object
 
 
-	  HostApi.prototype.addExtensionConfigurationOptions = function addExtensionConfigurationOptions(obj, value) {
+	  HostApi.prototype.setExtensionConfigurationOptions = function setExtensionConfigurationOptions(obj, value) {
 	    ExtensionConfigurationOptionsStore$1.set(obj, value);
 	  };
 
