@@ -8,6 +8,7 @@ import DialogCompat from './dialog';
 import AMD from './amd';
 import Meta from './meta';
 import _util from './util';
+import ExtensionConfigurationOptionsStore from './extension_configuration_options_store';
 
 AP._hostModules._dollar = $;
 AP._hostModules['inline-dialog'] = AP._hostModules.inlineDialog;
@@ -79,5 +80,8 @@ if (AP._data && AP._data.origin) {
     }
   });
 }
+
+// gets the global options from the parent iframe (if present) so they can propagate to future sub-iframes.
+ExtensionConfigurationOptionsStore.set(AP._data.options.globalOptions);
 
 export default AP;

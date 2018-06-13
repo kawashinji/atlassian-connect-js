@@ -3167,6 +3167,38 @@ var AP = (function () {
 	  }
 	};
 
+	// duplicated from ./host/stores/extension_configuration_options_store
+	// due to a huge build size difference
+
+	var ExtensionConfigurationOptionsStore = function () {
+	  function ExtensionConfigurationOptionsStore() {
+	    classCallCheck(this, ExtensionConfigurationOptionsStore);
+
+	    this.store = {};
+	  }
+
+	  ExtensionConfigurationOptionsStore.prototype.set = function set$$1(obj, val) {
+	    if (val) {
+	      var toSet = {};
+	      toSet[obj] = val;
+	    } else {
+	      toSet = obj;
+	    }
+	    util$1.extend(this.store, toSet);
+	  };
+
+	  ExtensionConfigurationOptionsStore.prototype.get = function get$$1(key) {
+	    if (key) {
+	      return this.store[key];
+	    }
+	    return util$1.extend({}, this.store); //clone
+	  };
+
+	  return ExtensionConfigurationOptionsStore;
+	}();
+
+	var ExtensionConfigurationOptionsStore$1 = new ExtensionConfigurationOptionsStore();
+
 	AP$2._hostModules._dollar = $$3;
 	AP$2._hostModules['inline-dialog'] = AP$2._hostModules.inlineDialog;
 
@@ -3241,6 +3273,9 @@ var AP = (function () {
 	    }
 	  });
 	}
+
+	// gets the global options from the parent iframe (if present) so they can propagate to future sub-iframes.
+	ExtensionConfigurationOptionsStore$1.set(AP$2._data.options.globalOptions);
 
 	return AP$2;
 
