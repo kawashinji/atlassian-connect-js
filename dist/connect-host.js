@@ -3189,9 +3189,9 @@
 	  if (url) {
 	    var hash = url.substring(url.indexOf('#') + 1);
 	    console.log('hash?', hash);
-	    var decodedHash = decodeURI(hash);
-	    console.log('decodedhash?', decodedHash);
-	    var query = index$1.parse(decodedHash);
+	    // var decodedHash = decodeURI(hash);
+	    // console.log('decodedhash?', decodedHash);
+	    var query = index$1.parse(hash);
 	    var convertedOptions = window._AP._convertConnectOptions(query);
 
 	    console.log('query parse?', query);

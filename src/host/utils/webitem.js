@@ -78,9 +78,9 @@ function getOptionsForWebItem($target) {
   if (url) {
     var hash = url.substring(url.indexOf('#')+1);
     console.log('hash?', hash);
-    var decodedHash = decodeURI(hash);
-    console.log('decodedhash?', decodedHash);
-    var query = qs.parse(decodedHash);
+    // var decodedHash = decodeURI(hash);
+    // console.log('decodedhash?', decodedHash);
+    var query = qs.parse(hash);
     var convertedOptions = window._AP._convertConnectOptions(query);
 
     console.log('query parse?', query);
