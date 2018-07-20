@@ -17,12 +17,19 @@ EventDispatcher.register('dialog-close', function (data) {
     EventActions.broadcast('dialog.close', {
       addon_key: data.extension.addon_key
     }, data.customData);
-    EventActions.broadcastPublic('dialog.close');
+    EventActions.broadcastPublic('dialog.close', {}, {
+      addon_key: data.extension.addon_key
+    });
   }
 });
 
-EventDispatcher.register('dialog-extension-open', function () {
-  EventActions.broadcastPublic('dialog.open');
+EventDispatcher.register('dialog-extension-open', function (data) {
+  const dialog = data.dialog;
+  if (dialog && data.extension) {
+    EventActions.broadcastPublic('dialog.open', {}, {
+      addon_key: data.extension.addon_key,
+    });
+  }
 });
 
 EventDispatcher.register('dialog-button-click', (data) => {
