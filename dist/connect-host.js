@@ -3166,6 +3166,22 @@
 	  return getModuleOptionsByAddonAndModuleKey(type, addon_key, targetKey);
 	}
 
+	//gets the connect config from the encoded webitem target (via the url)
+	function getConfigFromTarget($target) {
+	  var url = $target.attr('href');
+	  var convertedOptions = {};
+	  // adg3 has classes outside of a tag so look for href inside the a
+	  if (!url) {
+	    url = $target.find('a').attr('href');
+	  }
+	  if (url) {
+	    var hash = url.substring(url.indexOf('#') + 1);
+	    var query = index$1.parse(hash);
+	    convertedOptions = window._AP._convertConnectOptions(query);
+	  }
+	  return convertedOptions;
+	}
+
 	// LEGACY - method for handling webitem options for p2
 	function getOptionsForWebItem($target) {
 	  var fullKey = getFullKey($target);
@@ -3180,26 +3196,19 @@
 	    console.warn('no webitem ' + type + 'Options for ' + fullKey);
 	  }
 	  options.productContext = options.productContext || {};
+	  options.structuredContext = options.structuredContext || {};
+	  options.structuredContext = options.structuredContext || {};
 	  // create product context from url params
-	  var url = $target.attr('href');
-	  // adg3 has classes outside of a tag so look for href inside the a
-	  if (!url) {
-	    url = $target.find('a').attr('href');
-	  }
-	  if (url) {
-	    var hash = url.substring(url.indexOf('#') + 1);
-	    console.log('hash?', hash);
-	    // var decodedHash = decodeURI(hash);
-	    // console.log('decodedhash?', decodedHash);
-	    var query = index$1.parse(hash);
-	    var convertedOptions = window._AP._convertConnectOptions(query);
 
-	    console.log('query parse?', query);
-	    console.log('converted options?', convertedOptions);
-	    Util$1.extend(options.productContext, convertedOptions.options.productContext);
-	    Util$1.extend(options.structuredContext, convertedOptions.options.structuredContext);
+	  var convertedConfig = getConfigFromTarget($target);
+
+	  if (convertedConfig && convertedConfig.options) {
+	    Util$1.extend(options.productContext, convertedConfig.options.productContext);
+	    Util$1.extend(options.structuredContext, convertedConfig.options.structuredContext);
+	    Util$1.extend(options.structuredContext, convertedConfig.options.structuredContext);
+	    options.contextJwt = convertedConfig.options.contextJwt;
 	  }
-	  console.log('OPTIONS TO RETURN', options);
+
 	  return options;
 	}
 
@@ -3209,7 +3218,8 @@
 	  getExtensionKey: getExtensionKey,
 	  getKey: getKey,
 	  getOptionsForWebItem: getOptionsForWebItem,
-	  getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey
+	  getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey,
+	  getConfigFromTarget: getConfigFromTarget
 	};
 
 	var ModuleProviders = function ModuleProviders() {
@@ -5664,7 +5674,8 @@
 	      var extension = {
 	        addon_key: WebItemUtils.getExtensionKey($target),
 	        key: WebItemUtils.getKey($target),
-	        options: WebItemUtils.getOptionsForWebItem($target)
+	        options: WebItemUtils.getOptionsForWebItem($target),
+	        url: WebItemUtils.getConfigFromTarget($target).url
 	      };
 
 	      WebItemActions.webitemInvoked(webitem, event, extension);
