@@ -76,10 +76,19 @@ function getOptionsForWebItem($target) {
     url = $target.find('a').attr('href');
   }
   if (url) {
-    var query = qs.parse(qs.extract(url));
-    Util.extend(options.productContext, query);
-  }
+    var hash = url.substring(url.indexOf('#')+1);
+    console.log('hash?', hash);
+    var decodedHash = decodeURI(hash);
+    console.log('decodedhash?', decodedHash);
+    var query = qs.parse(decodedHash);
+    var convertedOptions = window._AP._convertConnectOptions(query);
 
+    console.log('query parse?', query);
+    console.log('converted options?', convertedOptions);
+    Util.extend(options.productContext, convertedOptions.options.productContext);
+    Util.extend(options.structuredContext, convertedOptions.options.structuredContext);
+  }
+  console.log('OPTIONS TO RETURN', options);
   return options;
 }
 

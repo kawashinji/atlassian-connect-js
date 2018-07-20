@@ -3187,10 +3187,19 @@
 	    url = $target.find('a').attr('href');
 	  }
 	  if (url) {
-	    var query = index$1.parse(index$1.extract(url));
-	    Util$1.extend(options.productContext, query);
-	  }
+	    var hash = url.substring(url.indexOf('#') + 1);
+	    console.log('hash?', hash);
+	    var decodedHash = decodeURI(hash);
+	    console.log('decodedhash?', decodedHash);
+	    var query = index$1.parse(decodedHash);
+	    var convertedOptions = window._AP._convertConnectOptions(query);
 
+	    console.log('query parse?', query);
+	    console.log('converted options?', convertedOptions);
+	    Util$1.extend(options.productContext, convertedOptions.options.productContext);
+	    Util$1.extend(options.structuredContext, convertedOptions.options.structuredContext);
+	  }
+	  console.log('OPTIONS TO RETURN', options);
 	  return options;
 	}
 
