@@ -17,7 +17,12 @@ EventDispatcher.register('dialog-close', function (data) {
     EventActions.broadcast('dialog.close', {
       addon_key: data.extension.addon_key
     }, data.customData);
+    EventActions.broadcastPublic('dialog.close');
   }
+});
+
+EventDispatcher.register('dialog-extension-open', function () {
+  EventActions.broadcastPublic('dialog.open');
 });
 
 EventDispatcher.register('dialog-button-click', (data) => {
