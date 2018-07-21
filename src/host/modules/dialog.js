@@ -24,8 +24,7 @@ EventDispatcher.register('dialog-close', function (data) {
 });
 
 EventDispatcher.register('dialog-extension-open', function (data) {
-  const dialog = data.dialog;
-  if (dialog && data.extension) {
+  if (data.extension) {
     EventActions.broadcastPublic('dialog.open', {}, {
       addon_key: data.extension.addon_key,
     });
