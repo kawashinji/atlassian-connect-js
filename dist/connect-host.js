@@ -3918,17 +3918,6 @@
 	    EventActions.broadcast('dialog.close', {
 	      addon_key: data.extension.addon_key
 	    }, data.customData);
-	    EventActions.broadcastPublic('dialog.close', {}, {
-	      addon_key: data.extension.addon_key
-	    });
-	  }
-	});
-
-	EventDispatcher$1.register('dialog-extension-open', function (data) {
-	  if (data.extension) {
-	    EventActions.broadcastPublic('dialog.open', {}, {
-	      addon_key: data.extension.addon_key
-	    });
 	  }
 	});
 
