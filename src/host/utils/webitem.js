@@ -66,7 +66,11 @@ function getConfigFromTarget($target){
   if (url) {
     var hash = url.substring(url.indexOf('#')+1);
     var query = qs.parse(hash);
-    convertedOptions = window._AP._convertConnectOptions(query);
+    if(query && window._AP && window._AP._convertConnectOptions) {
+      convertedOptions = window._AP._convertConnectOptions(query);
+    } else {
+      console.error('ACJS: cannot convert webitem url to connect iframe options');
+    }
   }
   return convertedOptions;
 }
@@ -86,14 +90,12 @@ function getOptionsForWebItem($target) {
   }
   options.productContext = options.productContext || {};
   options.structuredContext = options.structuredContext || {};
-  options.structuredContext = options.structuredContext || {};
   // create product context from url params
 
   var convertedConfig = getConfigFromTarget($target);
 
   if(convertedConfig && convertedConfig.options) {
     Util.extend(options.productContext, convertedConfig.options.productContext);
-    Util.extend(options.structuredContext, convertedConfig.options.structuredContext);
     Util.extend(options.structuredContext, convertedConfig.options.structuredContext);
     options.contextJwt = convertedConfig.options.contextJwt;
   }
