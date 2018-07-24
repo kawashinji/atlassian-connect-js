@@ -17,6 +17,17 @@ EventDispatcher.register('dialog-close', function (data) {
     EventActions.broadcast('dialog.close', {
       addon_key: data.extension.addon_key
     }, data.customData);
+    EventActions.broadcastPublic('ac.dialog.close', {}, {
+      addon_key: data.extension.addon_key,
+    })
+  }
+});
+
+EventDispatcher.register('dialog-extension-open', function (data) {
+  if (data.extension) {
+    EventActions.broadcastPublic('ac.dialog.open', {}, {
+      addon_key: data.extension.addon_key,
+    });
   }
 });
 
