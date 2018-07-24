@@ -3176,9 +3176,9 @@
 	  }
 	  if (url) {
 	    var hash = url.substring(url.indexOf('#') + 1);
-	    var query = index$1.parse(hash);
-	    if (query && window._AP && window._AP._convertConnectOptions) {
-	      convertedOptions = window._AP._convertConnectOptions(query);
+	    var queryStringAsObject = index$1.parse(hash);
+	    if (queryStringAsObject && window._AP && window._AP._convertConnectOptions) {
+	      convertedOptions = window._AP._convertConnectOptions(queryStringAsObject);
 	    } else {
 	      console.error('ACJS: cannot convert webitem url to connect iframe options');
 	    }
