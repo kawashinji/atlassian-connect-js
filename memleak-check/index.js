@@ -6,7 +6,7 @@ const server = httpServer.createServer();
 const driver = drool.start({
   chromeOptions: ['no-sandbox', 'headless']
 });
-const MAX_LEAK = 614400;
+const MAX_LEAK = 750000;
 
 server.listen(8080);
 drool.flow({
