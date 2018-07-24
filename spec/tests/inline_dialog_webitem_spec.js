@@ -20,7 +20,7 @@ describe('Inline Dialog Webitem', () => {
 
   beforeEach(() => {
     $('.aui-inline-dialog').remove();
-    webitemButton = $('<a />').attr('href', 'https://www.example.com?b.c=d');
+    webitemButton = $('<a />').attr('href', 'https://www.example.com?b.c=d#productCtx=%7B%22b.c%22:%22d%22%7D');
     webitemButton.text('i am a webitem');
     webitemButton.addClass('ap-inline-dialog ap-plugin-key-my-plugin ap-module-key-key ap-target-key-key');
     webitemButton.appendTo('body');
@@ -98,6 +98,22 @@ describe('Inline Dialog Webitem', () => {
   });
 
   describe('triggers', () => {
+    beforeEach(() => {
+      window._AP = {
+        _convertConnectOptions: function(data){
+          return {
+            options: {
+              productContext: JSON.parse(data.productCtx)
+            }
+          };
+        }
+      }
+    });
+
+    afterEach(() => {
+      delete window._AP._convertConnectOptions;
+    });
+
     it('is set to be triggered by hover and click', () => {
       expect(InlineDialogWebitem.getWebItem().triggers).toEqual(['mouseover', 'click']);
     });
