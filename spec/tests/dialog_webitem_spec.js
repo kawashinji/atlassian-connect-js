@@ -19,7 +19,7 @@ describe('Dialog Webitem', () => {
     };
 
     $('.aui-dialog2').remove();
-    webitemButton = $('<a />').attr('href', 'https://www.example.com?a.x=b#productCtx=%7B%22a.x%22:%22b%22%7D');
+    webitemButton = $('<a />').attr('href', 'https://www.example.com?a.x=b#' + encodeURI(JSON.stringify({productCtx:'{"a.x":"b"}'})));
     webitemButton.text('i am a webitem');
     webitemButton.addClass('ap-dialog ap-plugin-key-my-plugin ap-module-key-key');
     webitemButton.appendTo('body');

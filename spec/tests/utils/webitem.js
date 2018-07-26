@@ -126,7 +126,11 @@ describe('webitem utils', () => {
     it('returns options with product context', () => {
       const extensionKey = 'addonKey';
       const key = 'moduleWithCtxKey';
-      const $target = $(`<a class="ap-module-key-${key} ap-target-key-${key} ap-plugin-key-${extensionKey}" href="#productCtx=%7B%22user.key%22:%22admin%22,%22project.key%22:%22FDS%22,%22project.id%22:%2210000%22,%22user.id%22:%22admin%22%7D&uniqueKey=dialog-tester__dialog&origin=http://5c8fb543.ngrok.io&h=100%25&contextJwt=&timeZone=Australia/Sydney&hostOrigin=http://jiratesttenant.localhost.atl-test.space:8090&cp=/jira&url=http://5c8fb543.ngrok.io/dialog?dialog=1&tz=Australia%252FSydney&loc=en-US&user_id=admin&user_key=admin&xdm_e=http%253A%252F%252Fjiratesttenant.localhost.atl-test.space%253A8090&xdm_c=channel-dialog-tester__dialog&cp=%252Fjira&xdm_deprecated_addon_key_do_not_use=dialog-tester&lic=none&cv=2.0.0-SNAPSHOT&uid=admin&general=&contentClassifier=&addon_key=dialog-tester&w=100%25&ukey=admin&structuredContext=%7B%22project%22:%7B%22key%22:%22FDS%22,%22id%22:%2210000%22%7D%7D&key=dialog"></a>`);
+      var urlAnchor = encodeURI(JSON.stringify({
+        structuredContext: '{"project":{"key":"FDS","id":"10000"}}',
+        productCtx:'{"user.key":"admin","project.key":"FDS","key1":"val1","key2":"val2","user.id":"admin","issue.key":"FDS-12","issuetype.id":"10003"}'
+      }));
+      const $target = $(`<a class="ap-module-key-${key} ap-target-key-${key} ap-plugin-key-${extensionKey}" href=""></a>`).attr('href', urlAnchor);
       const optionsForWebItem = WebItemUtils.getOptionsForWebItem($target);
       // from the global options
       expect(optionsForWebItem.productContext['key1']).toEqual('val1');
