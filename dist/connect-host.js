@@ -3176,9 +3176,14 @@
 	  }
 	  if (url) {
 	    var hash = url.substring(url.indexOf('#') + 1);
-	    var queryStringAsObject = index$1.parse(hash);
-	    if (queryStringAsObject && window._AP && window._AP._convertConnectOptions) {
-	      convertedOptions = window._AP._convertConnectOptions(queryStringAsObject);
+	    var iframeData;
+	    try {
+	      iframeData = JSON.parse(decodeURI(hash));
+	    } catch (e) {
+	      console.error('ACJS: cannot decode webitem anchor');
+	    }
+	    if (iframeData && window._AP && window._AP._convertConnectOptions) {
+	      convertedOptions = window._AP._convertConnectOptions(iframeData);
 	    } else {
 	      console.error('ACJS: cannot convert webitem url to connect iframe options');
 	    }
