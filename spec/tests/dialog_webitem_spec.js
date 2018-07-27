@@ -19,7 +19,7 @@ describe('Dialog Webitem', () => {
     };
 
     $('.aui-dialog2').remove();
-    webitemButton = $('<a />').attr('href', 'https://www.example.com?a.x=b');
+    webitemButton = $('<a />').attr('href', 'https://www.example.com?a.x=b#' + encodeURI(JSON.stringify({productCtx:'{"a.x":"b"}'})));
     webitemButton.text('i am a webitem');
     webitemButton.addClass('ap-dialog ap-plugin-key-my-plugin ap-module-key-key');
     webitemButton.appendTo('body');
@@ -144,6 +144,22 @@ describe('Dialog Webitem', () => {
   });
 
   describe('triggers', () => {
+    beforeEach(() => {
+      window._AP = {
+        _convertConnectOptions: function(data){
+          return {
+            options: {
+              productContext: JSON.parse(data.productCtx)
+            }
+          };
+        }
+      }
+    });
+
+    afterEach(() => {
+      delete window._AP._convertConnectOptions;
+    });
+
     it('is set to be triggered by click', () => {
       expect(DialogWebitem.getWebItem().triggers).toEqual(['click']);
     });

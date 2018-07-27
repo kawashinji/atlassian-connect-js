@@ -62,7 +62,8 @@ class WebItem {
       var extension = {
         addon_key: WebItemUtils.getExtensionKey($target),
         key: WebItemUtils.getKey($target),
-        options: WebItemUtils.getOptionsForWebItem($target)
+        options: WebItemUtils.getOptionsForWebItem($target),
+        url: WebItemUtils.getConfigFromTarget($target).url
       };
 
       WebItemActions.webitemInvoked(webitem, event, extension);

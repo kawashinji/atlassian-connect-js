@@ -73,6 +73,14 @@ describe('webitem utils', () => {
 
     beforeEach(() => {
       window._AP = {
+        _convertConnectOptions: function(data){
+          return {
+            options: {
+              productContext: JSON.parse(data.productCtx),
+              structuredContext: JSON.parse(data.structuredContext)
+            }
+          };
+        },
         dialogModules: {
           addonKey: {
             moduleKey: dialogOptions,
@@ -87,7 +95,11 @@ describe('webitem utils', () => {
       };
     });
 
-    it('returns options of exisitng dialog webitem', () => {
+    afterEach(() => {
+      delete window._AP._convertConnectOptions;
+    });
+
+    it('returns options of existing dialog webitem', () => {
       const extensionKey = 'addonKey';
       const key = 'moduleKey';
       const $target = $(`<div class="ap-module-key-${key} ap-target-key-${key} ap-plugin-key-${extensionKey}"></div>`);
@@ -96,7 +108,7 @@ describe('webitem utils', () => {
       expect(optionsForWebItem.productContext).toEqual({});
     });
 
-    it('returns options of exisitng inline dialog webitem', () => {
+    it('returns options of existing inline dialog webitem', () => {
       const extensionKey = 'addonKey';
       const key = 'moduleKey';
       const $target = $(`<div class="ap-inline-dialog ap-module-key-${key} ap-target-key-${key} ap-plugin-key-${extensionKey}"></div>`);
@@ -108,20 +120,30 @@ describe('webitem utils', () => {
     it('returns empty options when not defined', () => {
       const $target = $('<div class="ap-inline-dialog ap-module-key-nothing ap-target-key-nothing ap-plugin-key-something"></div>');
       const optionsForWebItem = WebItemUtils.getOptionsForWebItem($target);
-      expect(optionsForWebItem).toEqual({productContext: {}});
+      expect(optionsForWebItem).toEqual({productContext: {}, structuredContext: {}});
     });
 
     it('returns options with product context', () => {
       const extensionKey = 'addonKey';
       const key = 'moduleWithCtxKey';
-      const $target = $(`<div class="ap-module-key-${key} ap-target-key-${key} ap-plugin-key-${extensionKey}" href="https://some.url.com?key3=val3&key4=val4"></div>`);
+      var urlAnchor = encodeURI(JSON.stringify({
+        structuredContext: '{"project":{"key":"FDS","id":"10000"}}',
+        productCtx:'{"user.key":"admin","project.key":"FDS","key1":"val1","key2":"val2","user.id":"admin","issue.key":"FDS-12","issuetype.id":"10003"}'
+      }));
+      const $target = $(`<a class="ap-module-key-${key} ap-target-key-${key} ap-plugin-key-${extensionKey}" href=""></a>`).attr('href', urlAnchor);
       const optionsForWebItem = WebItemUtils.getOptionsForWebItem($target);
       // from the global options
       expect(optionsForWebItem.productContext['key1']).toEqual('val1');
       expect(optionsForWebItem.productContext['key2']).toEqual('val2');
-      // from query params
-      expect(optionsForWebItem.productContext['key3']).toEqual('val3');
-      expect(optionsForWebItem.productContext['key4']).toEqual('val4');
+      // from anchor params
+      expect(optionsForWebItem.productContext['user.key']).toEqual('admin');
+      expect(optionsForWebItem.productContext['project.key']).toEqual('FDS');
+      expect(optionsForWebItem.structuredContext).toEqual({
+        project: {
+          key: 'FDS',
+          id: '10000'
+        }
+      });
     });
   });
 });

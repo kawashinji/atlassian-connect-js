@@ -1,4 +1,3 @@
-import qs from 'query-string';
 import Util from '../util';
 
 function sanitizeTriggers(triggers) {
@@ -55,6 +54,31 @@ function getModuleOptionsForWebitem(type, $target){
   return getModuleOptionsByAddonAndModuleKey(type, addon_key, targetKey);
 }
 
+//gets the connect config from the encoded webitem target (via the url)
+function getConfigFromTarget($target){
+  var url = $target.attr('href');
+  var convertedOptions = {};
+  // adg3 has classes outside of a tag so look for href inside the a
+  if (!url) {
+    url = $target.find('a').attr('href');
+  }
+  if (url) {
+    var hash = url.substring(url.indexOf('#')+1);
+    var iframeData;
+    try {
+      iframeData = JSON.parse(decodeURI(hash));
+    } catch (e) {
+      console.error('ACJS: cannot decode webitem anchor');
+    }
+    if(iframeData && window._AP && window._AP._convertConnectOptions) {
+      convertedOptions = window._AP._convertConnectOptions(iframeData);
+    } else {
+      console.error('ACJS: cannot convert webitem url to connect iframe options');
+    }
+  }
+  return convertedOptions;
+}
+
 // LEGACY - method for handling webitem options for p2
 function getOptionsForWebItem($target) {
   var fullKey = getFullKey($target);
@@ -69,15 +93,15 @@ function getOptionsForWebItem($target) {
     console.warn('no webitem ' + type + 'Options for ' + fullKey);
   }
   options.productContext = options.productContext || {};
+  options.structuredContext = options.structuredContext || {};
   // create product context from url params
-  var url = $target.attr('href');
-  // adg3 has classes outside of a tag so look for href inside the a
-  if (!url) {
-    url = $target.find('a').attr('href');
-  }
-  if (url) {
-    var query = qs.parse(qs.extract(url));
-    Util.extend(options.productContext, query);
+
+  var convertedConfig = getConfigFromTarget($target);
+
+  if(convertedConfig && convertedConfig.options) {
+    Util.extend(options.productContext, convertedConfig.options.productContext);
+    Util.extend(options.structuredContext, convertedConfig.options.structuredContext);
+    options.contextJwt = convertedConfig.options.contextJwt;
   }
 
   return options;
@@ -89,5 +113,6 @@ export default {
   getExtensionKey,
   getKey,
   getOptionsForWebItem,
-  getModuleOptionsByAddonAndModuleKey
+  getModuleOptionsByAddonAndModuleKey,
+  getConfigFromTarget
 };
