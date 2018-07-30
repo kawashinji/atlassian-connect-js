@@ -3454,13 +3454,17 @@
 	    jwtActions.setClockSkew(skew);
 	  };
 
-	  HostApi.prototype.isJwtExpired = function isJwtExpired(jwtString) {
+	  HostApi.prototype.isJwtExpired = function isJwtExpired(jwtString, tokenOnly) {
+	    if (tokenOnly) {
+	      return jwtUtil.isJwtExpired(jwtString);
+	    }
 	    return urlUtils.isJwtExpired(jwtString);
 	  };
 
 	  HostApi.prototype.hasJwt = function hasJwt(url) {
 	    return urlUtils.hasJwt(url);
 	  };
+
 	  // set configuration option system wide for all extensions
 	  // can be either key,value or an object
 

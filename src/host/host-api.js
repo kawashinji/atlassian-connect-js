@@ -16,6 +16,7 @@ import Util from './util';
 import simpleXdmUtils from './utils/simplexdm';
 import UrlUtils from './utils/url';
 import ExtensionConfigurationOptionsStore from './stores/extension_configuration_options_store';
+import jwtUtil from './utils/jwt';
 
 class HostApi {
   constructor(){
@@ -172,13 +173,17 @@ class HostApi {
     jwtActions.setClockSkew(skew);
   }
 
-  isJwtExpired(jwtString) {
+  isJwtExpired(jwtString, tokenOnly) {
+    if(tokenOnly) {
+      return jwtUtil.isJwtExpired(jwtString);
+    }
     return UrlUtils.isJwtExpired(jwtString);
   }
 
   hasJwt(url) {
     return UrlUtils.hasJwt(url);
   }
+
   // set configuration option system wide for all extensions
   // can be either key,value or an object
   setExtensionConfigurationOptions(obj, value) {
