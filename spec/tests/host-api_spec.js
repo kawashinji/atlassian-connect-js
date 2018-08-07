@@ -30,6 +30,27 @@ describe('Host API', function() {
     HostApi.offPublicEventDispatched(spy);
   });
 
+  it('broadcastPublic sanitises extension options', function(){
+    var spy = jasmine.createSpy('spy');
+    HostApi.onPublicEventDispatched(spy);
+    const type = 'a';
+    const event = {};
+    const extension = {
+      addon_key: 'abc',
+      key: '123',
+      options: { }
+    };
+    eventActions.broadcastPublic(type, event,
+      Object.assign({}, extension, {
+        options: {
+          some_func: function () {}
+        }
+      })
+    );
+    expect(spy).toHaveBeenCalledWith({ event, extension, type });
+    HostApi.offPublicEventDispatched(spy);
+  });
+
   it('offEventDispatched unbinds', function(){
     var spy = jasmine.createSpy('anotherspy');
     HostApi.onPublicEventDispatched(spy);
