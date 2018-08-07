@@ -1,5 +1,6 @@
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import SimpleXDM from 'simple-xdm/host';
+import SimpleXDMUtil from 'simple-xdm/src/common/util';
 
 export default {
   broadcast: function(type, targetSpec, event){
@@ -22,7 +23,7 @@ export default {
       sender: {
         addonKey: sender.addon_key,
         key: sender.key,
-        options: sender.options
+        options: SimpleXDMUtil.sanitizeStructuredClone(sender.options)
       },
       event: event
     });

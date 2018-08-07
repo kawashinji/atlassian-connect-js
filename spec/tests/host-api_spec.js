@@ -2,6 +2,7 @@ import HostApi from 'src/host/host-api';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import eventActions from 'src/host/actions/event_actions';
 import simpleXDM from 'simple-xdm/host';
+import extend from 'object-assign';
 
 describe('Host API', function() {
 
@@ -27,6 +28,40 @@ describe('Host API', function() {
       key: '123'
     });
     expect(spy).toHaveBeenCalled();
+    HostApi.offPublicEventDispatched(spy);
+  });
+
+  it('broadcastPublic sanitises extension options for XDM', function(){
+    spyOn(simpleXDM, 'dispatch');
+    var spy = jasmine.createSpy('spy');
+    HostApi.onPublicEventDispatched(spy);
+    const type = 'a';
+    const event = {};
+    const sanitisedExtension = {
+      addon_key: 'abc',
+      key: '123',
+      options: { }
+    };
+    const unsanitisedExtension = extend({}, sanitisedExtension, {
+      options: {
+        some_func: function () {}
+      }
+    });
+    const sender = {
+      addonKey: sanitisedExtension.addon_key,
+      key: sanitisedExtension.key,
+      options: sanitisedExtension.options
+    };
+    eventActions.broadcastPublic(type, event, unsanitisedExtension);
+    expect(spy).toHaveBeenCalledWith({
+      event,
+      extension: unsanitisedExtension,
+      type
+    });
+    expect(simpleXDM.dispatch).toHaveBeenCalledWith(type, {}, {
+      event,
+      sender
+    });
     HostApi.offPublicEventDispatched(spy);
   });
 
