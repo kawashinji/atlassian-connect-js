@@ -1822,7 +1822,7 @@
 	      sender: {
 	        addonKey: sender.addon_key,
 	        key: sender.key,
-	        options: sender.options
+	        options: util.sanitizeStructuredClone(sender.options)
 	      },
 	      event: event
 	    });
@@ -6040,7 +6040,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.63';
+	  window._AP.version = '5.1.64';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
