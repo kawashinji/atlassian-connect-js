@@ -126,10 +126,11 @@ describe('webitem utils', () => {
     it('returns options with product context', () => {
       const extensionKey = 'addonKey';
       const key = 'moduleWithCtxKey';
-      var urlAnchor = encodeURI(JSON.stringify({
+      var hashFragment = encodeURI(JSON.stringify({
         structuredContext: '{"project":{"key":"FDS","id":"10000"}}',
         productCtx:'{"user.key":"admin","project.key":"FDS","key1":"val1","key2":"val2","user.id":"admin","issue.key":"FDS-12","issuetype.id":"10003"}'
       }));
+      var urlAnchor = '#' + hashFragment;
       const $target = $(`<a class="ap-module-key-${key} ap-target-key-${key} ap-plugin-key-${extensionKey}" href=""></a>`).attr('href', urlAnchor);
       const optionsForWebItem = WebItemUtils.getOptionsForWebItem($target);
       // from the global options
@@ -144,6 +145,26 @@ describe('webitem utils', () => {
           id: '10000'
         }
       });
+      const convertedOptions = WebItemUtils.getConfigFromTarget($target);
+      expect(convertedOptions.options.productContext['issue.key']).toEqual('FDS-12');
+      expect(convertedOptions.options.productContext['project.key']).toEqual('FDS');
+      expect(convertedOptions.options.structuredContext.project.key).toEqual('FDS');
+      expect(convertedOptions.options.structuredContext.project.id).toEqual('10000');
     });
+
+    // test for legacy URL formats in the p2 plugin
+    it('returns options with product context for URLs without hash fragments', () => {
+      const extensionKey = 'addonKey';
+      const key = 'moduleWithCtxKey';
+      const $target = $(`<div class="ap-module-key-${key} ap-target-key-${key} ap-plugin-key-${extensionKey}" href="https://some.url.com?key3=val3&key4=val4"></div>`);
+      const optionsForWebItem = WebItemUtils.getOptionsForWebItem($target);
+      // from the global options
+      expect(optionsForWebItem.productContext['key1']).toEqual('val1');
+      expect(optionsForWebItem.productContext['key2']).toEqual('val2');
+      // from query params
+      expect(optionsForWebItem.productContext['key3']).toEqual('val3');
+      expect(optionsForWebItem.productContext['key4']).toEqual('val4');
+    });
+
   });
 });

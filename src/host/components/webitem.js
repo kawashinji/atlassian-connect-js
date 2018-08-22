@@ -59,11 +59,13 @@ class WebItem {
     webitem._on = (event) => {
       event.preventDefault();
       var $target = $(event.target).closest(webitem.selector);
+      var convertedOptions = WebItemUtils.getConfigFromTarget($target);
+      var extensionUrl = convertedOptions && convertedOptions.url ? convertedOptions.url : undefined;
       var extension = {
         addon_key: WebItemUtils.getExtensionKey($target),
         key: WebItemUtils.getKey($target),
         options: WebItemUtils.getOptionsForWebItem($target),
-        url: WebItemUtils.getConfigFromTarget($target).url
+        url: extensionUrl
       };
 
       WebItemActions.webitemInvoked(webitem, event, extension);
