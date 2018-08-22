@@ -152,15 +152,19 @@ describe('webitem utils', () => {
       expect(convertedOptions.options.structuredContext.project.id).toEqual('10000');
     });
 
-    it('returns options without product context for URLs without hash fragments', () => {
+    // test for legacy URL formats in the p2 plugin
+    it('returns options with product context for URLs without hash fragments', () => {
       const extensionKey = 'addonKey';
       const key = 'moduleWithCtxKey';
-      var urlWithoutHash = 'foo';
-      const $target = $(`<a class="ap-module-key-${key} ap-target-key-${key} ap-plugin-key-${extensionKey}" href=""></a>`).attr('href', urlWithoutHash);
+      const $target = $(`<div class="ap-module-key-${key} ap-target-key-${key} ap-plugin-key-${extensionKey}" href="https://some.url.com?key3=val3&key4=val4"></div>`);
       const optionsForWebItem = WebItemUtils.getOptionsForWebItem($target);
-      expect(optionsForWebItem.structuredContext).toEqual({});
-      const convertedOptions = WebItemUtils.getConfigFromTarget($target);
-      expect(convertedOptions).toEqual({});
+      // from the global options
+      expect(optionsForWebItem.productContext['key1']).toEqual('val1');
+      expect(optionsForWebItem.productContext['key2']).toEqual('val2');
+      // from query params
+      expect(optionsForWebItem.productContext['key3']).toEqual('val3');
+      expect(optionsForWebItem.productContext['key4']).toEqual('val4');
     });
+
   });
 });

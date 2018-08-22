@@ -1,3 +1,4 @@
+import qs from 'query-string';
 import Util from '../util';
 
 function sanitizeTriggers(triggers) {
@@ -58,6 +59,7 @@ function getModuleOptionsForWebitem(type, $target){
 function getConfigFromTarget($target){
   var url = $target.attr('href');
   var convertedOptions = {};
+  var iframeData;
   // adg3 has classes outside of a tag so look for href inside the a
   if (!url) {
     url = $target.find('a').attr('href');
@@ -66,7 +68,6 @@ function getConfigFromTarget($target){
     var hashIndex = url.indexOf('#');
     if (hashIndex >= 0) {
       var hash = url.substring(hashIndex + 1);
-      var iframeData;
       try {
         iframeData = JSON.parse(decodeURI(hash));
       } catch (e) {
@@ -77,12 +78,35 @@ function getConfigFromTarget($target){
       } else {
         console.error('ACJS: cannot convert webitem url to connect iframe options');
       }
+
     } else {
-      // The URL has no hash component so leave convertedOptions as {}. This may be the case
-      // for web items that were persisted prior to the new storage format whereby a hash
+      // The URL has no hash component so fall back to the old behaviour of providing:
+      // add-on key, module key, dialog module options and product context (from the webitem url).
+      // This may be the case for web items that were persisted prior to the new storage format whereby a hash
       // fragment is added into the URL detailing the target module info. If this info is
       // not present, the content resolver will be used to resolve the module after the web
       // item is clicked.
+
+      // Old URL format detected. Falling back to old functionality
+      var fullKey = getFullKey($target);
+      var type = $target.hasClass('ap-inline-dialog') ? 'inlineDialog' : 'dialog';
+      var options = getModuleOptionsForWebitem(type, $target);
+      if(!options && window._AP && window._AP[type + 'Options']) {
+        options = Util.extend({}, window._AP[type + 'Options'][fullKey]) || {};
+      }
+      if(!options){
+        options = {};
+        console.warn('no webitem ' + type + 'Options for ' + fullKey);
+      }
+      options.productContext = options.productContext || {};
+      var query = qs.parse(qs.extract(url));
+      Util.extend(options.productContext, query);
+
+      convertedOptions = {
+        addon_key: getExtensionKey($target),
+        key: getKey($target),
+        options: options
+      };
     }
   }
   return convertedOptions;
