@@ -126,10 +126,11 @@ describe('webitem utils', () => {
     it('returns options with product context', () => {
       const extensionKey = 'addonKey';
       const key = 'moduleWithCtxKey';
-      var urlAnchor = encodeURI(JSON.stringify({
+      var hashFragment = encodeURI(JSON.stringify({
         structuredContext: '{"project":{"key":"FDS","id":"10000"}}',
         productCtx:'{"user.key":"admin","project.key":"FDS","key1":"val1","key2":"val2","user.id":"admin","issue.key":"FDS-12","issuetype.id":"10003"}'
       }));
+      var urlAnchor = '#' + hashFragment;
       const $target = $(`<a class="ap-module-key-${key} ap-target-key-${key} ap-plugin-key-${extensionKey}" href=""></a>`).attr('href', urlAnchor);
       const optionsForWebItem = WebItemUtils.getOptionsForWebItem($target);
       // from the global options
