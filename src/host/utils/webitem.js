@@ -63,17 +63,26 @@ function getConfigFromTarget($target){
     url = $target.find('a').attr('href');
   }
   if (url) {
-    var hash = url.substring(url.indexOf('#')+1);
-    var iframeData;
-    try {
-      iframeData = JSON.parse(decodeURI(hash));
-    } catch (e) {
-      console.error('ACJS: cannot decode webitem anchor');
-    }
-    if(iframeData && window._AP && window._AP._convertConnectOptions) {
-      convertedOptions = window._AP._convertConnectOptions(iframeData);
+    var hashIndex = url.indexOf('#');
+    if (hashIndex >= 0) {
+      var hash = url.substring(hashIndex + 1);
+      var iframeData;
+      try {
+        iframeData = JSON.parse(decodeURI(hash));
+      } catch (e) {
+        console.error('ACJS: cannot decode webitem anchor');
+      }
+      if (iframeData && window._AP && window._AP._convertConnectOptions) {
+        convertedOptions = window._AP._convertConnectOptions(iframeData);
+      } else {
+        console.error('ACJS: cannot convert webitem url to connect iframe options');
+      }
     } else {
-      console.error('ACJS: cannot convert webitem url to connect iframe options');
+      // The URL has no hash component so leave convertedOptions as {}. This may be the case
+      // for web items that were persisted prior to the new storage format whereby a hash
+      // fragment is added into the URL detailing the target module info. If this info is
+      // not present, the content resolver will be used to resolve the module after the web
+      // item is clicked.
     }
   }
   return convertedOptions;
