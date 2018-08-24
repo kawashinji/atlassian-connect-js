@@ -925,7 +925,7 @@ var AP = (function () {
 	          var element = _this5._pendingEvents[index];
 	          var targetSpec = element.targetSpec || {};
 
-	          if (targetSpec.addon_key === registration.extension.addon_key && targetSpec.key === registration.extension.key) {
+	          if (targetSpec.addon_key === registration.extension.addon_key) {
 	            delete _this5._pendingEvents[index];
 	          }
 	        });
@@ -1708,14 +1708,11 @@ var AP = (function () {
 	  ConsumerOptions.prototype._getConsumerOptions = function _getConsumerOptions() {
 	    var options = {},
 	        $optionElement = $("#ac-iframe-options"),
-	        $scriptElement = $("script[src*='/atlassian-connect/all']"),
-	        $cdnScriptElement = $("script[src*='/connect-cdn.atl-paas.net/all']");
+	        $scriptElement = $("script[src*='/atlassian-connect/all']");
 
 	    if (!this._elementExists($optionElement) || !this._elementOptions($optionElement)) {
 	      if (this._elementExists($scriptElement)) {
 	        $optionElement = $scriptElement;
-	      } else if (this._elementExists($cdnScriptElement)) {
-	        $optionElement = $cdnScriptElement;
 	      }
 	    }
 
