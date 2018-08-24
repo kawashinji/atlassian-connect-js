@@ -22,6 +22,9 @@ describe('Analytics Dispatcher', () => {
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.load', {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
+      iframeLoadMillis: jasmine.any(Number),
+      iframeLoadApdex: jasmine.any(Number),
+      iframeIsCacheable: jasmine.any(Boolean),
       value: jasmine.any(Number)
     });
   });
