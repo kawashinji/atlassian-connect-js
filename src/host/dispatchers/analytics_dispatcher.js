@@ -62,7 +62,7 @@ class AnalyticsDispatcher {
 
   trackLoadingEnded(extension) {
     if(this._addons && extension && this._addons[extension.id]) {
-      var href = window && window.location && window.location.href ? window.location.href : '';
+      var href = extension.url;
       var iframeIsCacheable = href && href.indexOf('xdm_e=') === -1;
       var value = this._time() - this._addons[extension.id].startLoading;
       var iframeLoadApdex = this.getIframeLoadApedex();
