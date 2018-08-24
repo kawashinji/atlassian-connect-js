@@ -1661,7 +1661,7 @@
 	          var element = _this5._pendingEvents[index];
 	          var targetSpec = element.targetSpec || {};
 
-	          if (targetSpec.addon_key === registration.extension.addon_key) {
+	          if (targetSpec.addon_key === registration.extension.addon_key && targetSpec.key === registration.extension.key) {
 	            delete _this5._pendingEvents[index];
 	          }
 	        });
