@@ -24,6 +24,7 @@ describe('Analytics Dispatcher', () => {
       moduleKey: extension.key,
       iframeLoadMillis: jasmine.any(Number),
       iframeLoadApdex: jasmine.any(Number),
+      iframeIsCacheable: jasmine.any(Boolean),
       value: jasmine.any(Number)
     });
   });

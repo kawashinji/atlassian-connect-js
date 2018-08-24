@@ -62,21 +62,29 @@ class AnalyticsDispatcher {
 
   trackLoadingEnded(extension) {
     if(this._addons && extension && this._addons[extension.id]) {
+      var href = window && window.location && window.location.href ? window.location.href : '';
+      var iframeIsCacheable = href && href.indexOf('xdm_e=') === -1;
       var value = this._time() - this._addons[extension.id].startLoading;
-      var apdexSatisfiedThresholdMilliseconds = 500;
-      var iframeLoadApdex =
-        value <= apdexSatisfiedThresholdMilliseconds ? 1 :
-        value <= 4 * apdexSatisfiedThresholdMilliseconds ? 0.5 : 0;
+      var iframeLoadApdex = this.getIframeLoadApedex();
       this._track('iframe.performance.load', {
         addonKey: extension.addon_key,
         moduleKey: extension.key,
         iframeLoadMillis: value,
         iframeLoadApdex: iframeLoadApdex,
+        iframeIsCacheable: iframeIsCacheable,
         value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil((value) / LOADING_TIME_TRIMP_PRECISION)
       });
     } else {
       console.error('ACJS: cannot track loading end analytics', this._addons, extension);
     }
+  }
+
+  getIframeLoadApedex(iframeLoadMilliseconds) {
+    var apdexSatisfiedThresholdMilliseconds = 500;
+    var iframeLoadApdex =
+      iframeLoadMilliseconds <= apdexSatisfiedThresholdMilliseconds ? 1 :
+      iframeLoadMilliseconds <= 4 * apdexSatisfiedThresholdMilliseconds ? 0.5 : 0;
+    return iframeLoadApdex;
   }
 
   trackLoadingTimeout(extension) {
