@@ -63,9 +63,15 @@ class AnalyticsDispatcher {
   trackLoadingEnded(extension) {
     if(this._addons && extension && this._addons[extension.id]) {
       var value = this._time() - this._addons[extension.id].startLoading;
+      var apdexSatisfiedThresholdMilliseconds = 500;
+      var iframeLoadApdex =
+        value <= apdexSatisfiedThresholdMilliseconds ? 1 :
+        value <= 4 * apdexSatisfiedThresholdMilliseconds ? 0.5 : 0;
       this._track('iframe.performance.load', {
         addonKey: extension.addon_key,
         moduleKey: extension.key,
+        iframeLoadMillis: value,
+        iframeLoadApdex: iframeLoadApdex,
         value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil((value) / LOADING_TIME_TRIMP_PRECISION)
       });
     } else {
