@@ -639,7 +639,7 @@
 	  };
 
 	  AnalyticsDispatcher.prototype.getIframeLoadApedex = function getIframeLoadApedex(iframeLoadMilliseconds) {
-	    var apdexSatisfiedThresholdMilliseconds = 500;
+	    var apdexSatisfiedThresholdMilliseconds = 300;
 	    var iframeLoadApdex = iframeLoadMilliseconds <= apdexSatisfiedThresholdMilliseconds ? 1 : iframeLoadMilliseconds <= 4 * apdexSatisfiedThresholdMilliseconds ? 0.5 : 0;
 	    return iframeLoadApdex;
 	  };
