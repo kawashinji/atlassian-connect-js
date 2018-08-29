@@ -6085,7 +6085,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.68';
+	  window._AP.version = '5.1.69';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
