@@ -65,7 +65,7 @@ class AnalyticsDispatcher {
       var href = extension.url;
       var iframeIsCacheable = href && href.indexOf('xdm_e=') === -1;
       var value = this._time() - this._addons[extension.id].startLoading;
-      var iframeLoadApdex = this.getIframeLoadApedex();
+      var iframeLoadApdex = this.getIframeLoadApedex(value);
       this._track('iframe.performance.load', {
         addonKey: extension.addon_key,
         moduleKey: extension.key,
