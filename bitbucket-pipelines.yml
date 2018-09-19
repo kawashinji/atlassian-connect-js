@@ -23,7 +23,7 @@ pipelines:
               - rm -rf node_modules
               - npm install --unsafe-perm
               - npm run test-sl
-              - npm publish
+              - npm publish --loglevel silly
               - PACKAGE_VERSION=$(node -p "require('./package.json').version") && git add . && git commit -m "$PACKAGE_VERSION release [skip ci]"
               - git push origin master
               - npm run tag
