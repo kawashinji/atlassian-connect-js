@@ -1,5 +1,6 @@
 import EventDispatcher from './event_dispatcher';
 import $ from '../dollar';
+import util from '../util';
 
 const EVENT_NAME_PREFIX = 'connect.addon.';
 
@@ -122,6 +123,17 @@ class AnalyticsDispatcher {
   dispatch(name, data) {
     this._track(name, data);
   }
+  trackExternalEvent(name, values, extension) {
+    var toTrack = {
+      methodName: name,
+      addonKey: extension.addon_key,
+      moduleKey: extension.key
+    };
+    if(values && typeof values === 'Object') {
+      util.extend(toTrack, values);
+    }
+    this._track('jsapi.external', toTrack);
+  }
 }
 
 var analytics = new AnalyticsDispatcher();
@@ -151,5 +163,8 @@ EventDispatcher.register('iframe-destroyed', function(data) {
   delete analytics._addons[data.extension.extension_id];
 });
 
+EventDispatcher.register('analytics-track-external-event', function(data){
+  analytics.trackExternalEvent(data.name, data.values, data.extension);
+});
 
 export default analytics;
