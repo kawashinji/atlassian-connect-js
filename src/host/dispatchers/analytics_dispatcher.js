@@ -1,5 +1,6 @@
 import EventDispatcher from './event_dispatcher';
 import $ from '../dollar';
+import observe from '../utils/observe';
 
 const EVENT_NAME_PREFIX = 'connect.addon.';
 
@@ -119,6 +120,13 @@ class AnalyticsDispatcher {
     });
   }
 
+  trackVisible(extension) {
+    this._track('iframe.is_visible', {
+      addonKey: extension.addon_key,
+      moduleKey: extension.key
+    });
+  }
+
   dispatch(name, data) {
     this._track(name, data);
   }
@@ -136,6 +144,9 @@ EventDispatcher.register('iframe-bridge-start', function (data){
 });
 EventDispatcher.register('iframe-bridge-established', function(data) {
   analytics.trackLoadingEnded(data.extension);
+  observe(document.getElementById(data.extension.id), () => {
+    analytics.trackVisible(data.extension);
+  });
 });
 EventDispatcher.register('iframe-bridge-timeout', function (data) {
   analytics.trackLoadingTimeout(data.extension);
