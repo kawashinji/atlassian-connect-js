@@ -1,6 +1,7 @@
 import util from 'simple-xdm/src/common/util';
 
 const threshold = 0.25;
+const throttle_delay = 500;
 let targets = [];
 let observe;
 
@@ -17,8 +18,8 @@ const observed = target => {
 if ('IntersectionObserver' in window &&
   'IntersectionObserverEntry' in window) {
   const observer = new IntersectionObserver(entries => {
-    entries.forEach(({ isIntersecting, target }) => {
-      if (isIntersecting) {
+    entries.forEach(({ intersectionRatio, target }) => {
+      if (intersectionRatio > 0) {
         observer.unobserve(target);
         observed(target);
       }
@@ -72,17 +73,19 @@ if ('IntersectionObserver' in window &&
     }
   }
 
-  observe = util.throttle(element => {
-    (element ? [element] : targets).forEach(({ element }) => {
-      if (getIntersection(element) >= threshold) {
-        observed(element);
-      }
-    })
-  }, 500);
+  observe = element => {
+    if (getIntersection(element) >= threshold) {
+      observed(element);
+    }
+  }
 
-  window.addEventListener('resize', () => observe());
-  document.addEventListener('scroll', () => observe());
-  new MutationObserver(() => observe()).observe(document.body, {
+  const throttled_observe = util.throttle(element => {
+    targets.forEach(({ element }) => observe(element));
+  }, throttle_delay);
+
+  window.addEventListener('resize', throttled_observe);
+  document.addEventListener('scroll', throttled_observe);
+  new MutationObserver(throttled_observe).observe(document.body, {
     attributes: true,
     childList: true,
     characterData: true,

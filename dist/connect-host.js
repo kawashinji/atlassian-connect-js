@@ -753,6 +753,7 @@
 	};
 
 	var threshold = 0.25;
+	var throttle_delay = 500;
 	var targets = [];
 	var observe = void 0;
 
@@ -772,10 +773,10 @@
 	if ('IntersectionObserver' in window && 'IntersectionObserverEntry' in window) {
 	  var observer = new IntersectionObserver(function (entries) {
 	    entries.forEach(function (_ref2) {
-	      var isIntersecting = _ref2.isIntersecting,
+	      var intersectionRatio = _ref2.intersectionRatio,
 	          target = _ref2.target;
 
-	      if (isIntersecting) {
+	      if (intersectionRatio > 0) {
 	        observer.unobserve(target);
 	        observed(target);
 	      }
@@ -827,25 +828,22 @@
 	    }
 	  };
 
-	  observe = util.throttle(function (element) {
-	    (element ? [element] : targets).forEach(function (_ref3) {
+	  observe = function observe(element) {
+	    if (getIntersection(element) >= threshold) {
+	      observed(element);
+	    }
+	  };
+
+	  var throttled_observe = util.throttle(function (element) {
+	    targets.forEach(function (_ref3) {
 	      var element = _ref3.element;
-
-	      if (getIntersection(element) >= threshold) {
-	        observed(element);
-	      }
+	      return observe(element);
 	    });
-	  }, 500);
+	  }, throttle_delay);
 
-	  window.addEventListener('resize', function () {
-	    return observe();
-	  });
-	  document.addEventListener('scroll', function () {
-	    return observe();
-	  });
-	  new MutationObserver(function () {
-	    return observe();
-	  }).observe(document.body, {
+	  window.addEventListener('resize', throttled_observe);
+	  document.addEventListener('scroll', throttled_observe);
+	  new MutationObserver(throttled_observe).observe(document.body, {
 	    attributes: true,
 	    childList: true,
 	    characterData: true,
