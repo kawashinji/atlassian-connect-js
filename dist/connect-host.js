@@ -560,263 +560,6 @@
 	 */
 	var $ = window.AJS && window.AJS.$ || function () {};
 
-	var EVENT_NAME_PREFIX = 'connect.addon.';
-
-	/**
-	 * Timings beyond 20 seconds (connect's load timeout) will be clipped to an X.
-	 * @const
-	 * @type {int}
-	 */
-	var LOADING_TIME_THRESHOLD = 20000;
-
-	/**
-	 * Trim extra zeros from the load time.
-	 * @const
-	 * @type {int}
-	 */
-	var LOADING_TIME_TRIMP_PRECISION = 100;
-
-	var AnalyticsDispatcher = function () {
-	  function AnalyticsDispatcher() {
-	    classCallCheck(this, AnalyticsDispatcher);
-
-	    this._addons = {};
-	  }
-
-	  AnalyticsDispatcher.prototype._track = function _track(name, data) {
-	    var w = window;
-	    var prefixedName = EVENT_NAME_PREFIX + name;
-	    data = data || {};
-	    data.version = w._AP && w._AP.version ? w._AP.version : undefined;
-	    data.userAgent = w.navigator.userAgent;
-	    if (!w.AJS) {
-	      return false;
-	    }
-	    if (w.AJS.Analytics) {
-	      w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
-	    } else if (w.AJS.trigger) {
-	      // BTF fallback
-	      AJS.trigger('analyticsEvent', {
-	        name: prefixedName,
-	        data: data
-	      });
-	    } else {
-	      return false;
-	    }
-	    return true;
-	  };
-
-	  AnalyticsDispatcher.prototype._time = function _time() {
-	    return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
-	  };
-
-	  AnalyticsDispatcher.prototype.trackLoadingStarted = function trackLoadingStarted(extension) {
-	    if (this._addons && extension && extension.id) {
-	      extension.startLoading = this._time();
-	      this._addons[extension.id] = extension;
-	    } else {
-	      console.error('ACJS: cannot track loading analytics', this._addons, extension);
-	    }
-	  };
-
-	  AnalyticsDispatcher.prototype.trackLoadingEnded = function trackLoadingEnded(extension) {
-	    if (this._addons && extension && this._addons[extension.id]) {
-	      var href = extension.url;
-	      var iframeIsCacheable = href !== undefined && href.indexOf('xdm_e=') === -1;
-	      var value = this._time() - this._addons[extension.id].startLoading;
-	      var iframeLoadApdex = this.getIframeLoadApdex(value);
-	      this._track('iframe.performance.load', {
-	        addonKey: extension.addon_key,
-	        moduleKey: extension.key,
-	        iframeLoadMillis: value,
-	        iframeLoadApdex: iframeLoadApdex,
-	        iframeIsCacheable: iframeIsCacheable,
-	        value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil(value / LOADING_TIME_TRIMP_PRECISION)
-	      });
-	    } else {
-	      console.error('ACJS: cannot track loading end analytics', this._addons, extension);
-	    }
-	  };
-
-	  AnalyticsDispatcher.prototype.getIframeLoadApdex = function getIframeLoadApdex(iframeLoadMilliseconds) {
-	    var apdexSatisfiedThresholdMilliseconds = 300;
-	    var iframeLoadApdex = iframeLoadMilliseconds <= apdexSatisfiedThresholdMilliseconds ? 1 : iframeLoadMilliseconds <= 4 * apdexSatisfiedThresholdMilliseconds ? 0.5 : 0;
-	    return iframeLoadApdex;
-	  };
-
-	  AnalyticsDispatcher.prototype.trackLoadingTimeout = function trackLoadingTimeout(extension) {
-	    this._track('iframe.performance.timeout', {
-	      addonKey: extension.addon_key,
-	      moduleKey: extension.key
-	    });
-	    //track an end event during a timeout so we always have complete start / end data.
-	    this.trackLoadingEnded(extension);
-	  };
-
-	  AnalyticsDispatcher.prototype.trackLoadingCancel = function trackLoadingCancel(extension) {
-	    this._track('iframe.performance.cancel', {
-	      addonKey: extension.addon_key,
-	      moduleKey: extension.key
-	    });
-	  };
-
-	  AnalyticsDispatcher.prototype.trackUseOfDeprecatedMethod = function trackUseOfDeprecatedMethod(methodUsed, extension) {
-	    this._track('jsapi.deprecated', {
-	      addonKey: extension.addon_key,
-	      moduleKey: extension.key,
-	      methodUsed: methodUsed
-	    });
-	  };
-
-	  AnalyticsDispatcher.prototype.trackMultipleDialogOpening = function trackMultipleDialogOpening(dialogType, extension) {
-	    this._track('jsapi.dialog.multiple', {
-	      addonKey: extension.addon_key,
-	      moduleKey: extension.key,
-	      dialogType: dialogType
-	    });
-	  };
-
-	  AnalyticsDispatcher.prototype.dispatch = function dispatch(name, data) {
-	    this._track(name, data);
-	  };
-
-	  return AnalyticsDispatcher;
-	}();
-
-	var analytics = new AnalyticsDispatcher();
-	if ($.fn) {
-	  EventDispatcher$1.register('iframe-create', function (data) {
-	    analytics.trackLoadingStarted(data.extension);
-	  });
-	}
-
-	EventDispatcher$1.register('iframe-bridge-start', function (data) {
-	  analytics.trackLoadingStarted(data.extension);
-	});
-	EventDispatcher$1.register('iframe-bridge-established', function (data) {
-	  analytics.trackLoadingEnded(data.extension);
-	});
-	EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
-	  analytics.trackLoadingTimeout(data.extension);
-	});
-	EventDispatcher$1.register('iframe-bridge-cancelled', function (data) {
-	  analytics.trackLoadingCancel(data.extension);
-	});
-	EventDispatcher$1.register('analytics-deprecated-method-used', function (data) {
-	  analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
-	});
-
-	EventDispatcher$1.register('iframe-destroyed', function (data) {
-	  delete analytics._addons[data.extension.extension_id];
-	});
-
-	var LoadingIndicatorActions = {
-	  timeout: function timeout($el, extension) {
-	    EventDispatcher$1.dispatch('iframe-bridge-timeout', { $el: $el, extension: extension });
-	  },
-	  cancelled: function cancelled($el, extension) {
-	    EventDispatcher$1.dispatch('iframe-bridge-cancelled', { $el: $el, extension: extension });
-	  }
-	};
-
-	var LOADING_INDICATOR_CLASS = 'ap-status-indicator';
-
-	var LOADING_STATUSES = {
-	  loading: '<div class="ap-loading"><div class="small-spinner"></div>Loading app...</div>',
-	  'load-timeout': '<div class="ap-load-timeout"><div class="small-spinner"></div>App is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?</div>',
-	  'load-error': 'App failed to load.'
-	};
-
-	var LOADING_TIMEOUT = 12000;
-
-	var LoadingIndicator = function () {
-	  function LoadingIndicator() {
-	    classCallCheck(this, LoadingIndicator);
-
-	    this._stateRegistry = {};
-	  }
-
-	  LoadingIndicator.prototype._loadingContainer = function _loadingContainer($iframeContainer) {
-	    return $iframeContainer.find('.' + LOADING_INDICATOR_CLASS);
-	  };
-
-	  LoadingIndicator.prototype.render = function render() {
-	    var container = document.createElement('div');
-	    container.classList.add(LOADING_INDICATOR_CLASS);
-	    container.innerHTML = LOADING_STATUSES.loading;
-	    var $container = $(container);
-	    this._startSpinner($container);
-	    return $container;
-	  };
-
-	  LoadingIndicator.prototype._startSpinner = function _startSpinner($container) {
-	    // TODO: AUI or spin.js broke something. This is bad but ironically matches v3's implementation.
-	    setTimeout(function () {
-	      var spinner = $container.find('.small-spinner');
-	      if (spinner.length && spinner.spin) {
-	        spinner.spin({ lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1 });
-	      }
-	    }, 10);
-	  };
-
-	  LoadingIndicator.prototype.hide = function hide($iframeContainer, extensionId) {
-	    clearTimeout(this._stateRegistry[extensionId]);
-	    delete this._stateRegistry[extensionId];
-	    this._loadingContainer($iframeContainer)[0].style.display = 'none';
-	  };
-
-	  LoadingIndicator.prototype.cancelled = function cancelled($iframeContainer, extensionId) {
-	    var status = LOADING_STATUSES['load-error'];
-	    this._loadingContainer($iframeContainer).empty().text(status);
-	  };
-
-	  LoadingIndicator.prototype._setupTimeout = function _setupTimeout($container, extension) {
-	    this._stateRegistry[extension.id] = setTimeout(function () {
-	      LoadingIndicatorActions.timeout($container, extension);
-	    }, LOADING_TIMEOUT);
-	  };
-
-	  LoadingIndicator.prototype.timeout = function timeout($iframeContainer, extensionId) {
-	    var status = $(LOADING_STATUSES['load-timeout']);
-	    var container = this._loadingContainer($iframeContainer);
-	    container.empty().append(status);
-	    this._startSpinner(container);
-	    $('a.ap-btn-cancel', container).click(function () {
-	      LoadingIndicatorActions.cancelled($iframeContainer, extensionId);
-	    });
-	    delete this._stateRegistry[extensionId];
-	    return container;
-	  };
-
-	  return LoadingIndicator;
-	}();
-
-	var LoadingComponent = new LoadingIndicator();
-
-	EventDispatcher$1.register('iframe-create', function (data) {
-	  if (!data.extension.options.noDom) {
-	    LoadingComponent._setupTimeout(data.$el.parents('.ap-iframe-container'), data.extension);
-	  }
-	});
-
-	EventDispatcher$1.register('iframe-bridge-established', function (data) {
-	  if (!data.extension.options.noDom) {
-	    LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
-	  }
-	});
-
-	EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
-	  if (!data.extension.options.noDom) {
-	    LoadingComponent.timeout(data.$el, data.extension.id);
-	  }
-	});
-
-	EventDispatcher$1.register('iframe-bridge-cancelled', function (data) {
-	  if (!data.extension.options.noDom) {
-	    LoadingComponent.cancelled(data.$el, data.extension.id);
-	  }
-	});
-
 	var LOG_PREFIX = "[Simple-XDM] ";
 	var nativeBind = Function.prototype.bind;
 	var util = {
@@ -1008,6 +751,379 @@
 	    return origin;
 	  }
 	};
+
+	var threshold = 0.25;
+	var throttle_delay = 500;
+	var targets = [];
+	var observe = void 0;
+
+	var observed = function observed(target) {
+	  targets = targets.filter(function (_ref) {
+	    var element = _ref.element,
+	        callback = _ref.callback;
+
+	    if (element === target) {
+	      callback();
+	      return false;
+	    }
+	    return true;
+	  });
+	};
+
+	if ('IntersectionObserver' in window && 'IntersectionObserverEntry' in window) {
+	  var observer = new IntersectionObserver(function (entries) {
+	    entries.forEach(function (_ref2) {
+	      var intersectionRatio = _ref2.intersectionRatio,
+	          target = _ref2.target;
+
+	      if (intersectionRatio > 0) {
+	        observer.unobserve(target);
+	        observed(target);
+	      }
+	    });
+	  }, { threshold: threshold });
+	  observe = observer.observe.bind(observer);
+	} else {
+	  // Ponyfill for SafarIE
+	  var getIntersection = function getIntersection(target) {
+	    var docEl = document.documentElement;
+	    if (!docEl.contains(target) || getComputedStyle(target).display === 'none') {
+	      return;
+	    }
+	    var targetRect = target.getBoundingClientRect();
+	    var parent = target.parentNode;
+	    var intersection = targetRect;
+	    do {
+	      var parentStyle = getComputedStyle(parent);
+	      if (parentStyle.display === 'none') {
+	        return;
+	      }
+	      var parentRect = void 0;
+	      if (parent === document.body) {
+	        parentRect = {
+	          top: 0,
+	          left: 0,
+	          right: docEl.clientWidth,
+	          bottom: docEl.clientHeight
+	        };
+	      } else if (parentStyle.overflow !== 'visible') {
+	        parentRect = parent.getBoundingClientRect();
+	      }
+	      if (parentRect) {
+	        var top = Math.max(parentRect.top, intersection.top);
+	        var left = Math.max(parentRect.left, intersection.left);
+	        var right = Math.min(parentRect.right, intersection.right);
+	        var bottom = Math.min(parentRect.bottom, intersection.bottom);
+	        var width = right - left;
+	        var height = bottom - top;
+	        if (width <= 0 || height <= 0) {
+	          return;
+	        }
+	        intersection = { top: top, left: left, right: right, bottom: bottom, width: width, height: height };
+	      }
+	      parent = parent.parentNode;
+	    } while (parent !== docEl);
+	    if (intersection) {
+	      return intersection.width * intersection.height / (targetRect.width * targetRect.height);
+	    }
+	  };
+
+	  observe = function observe(element) {
+	    if (getIntersection(element) >= threshold) {
+	      observed(element);
+	    }
+	  };
+
+	  var throttled_observe = util.throttle(function (element) {
+	    targets.forEach(function (_ref3) {
+	      var element = _ref3.element;
+	      return observe(element);
+	    });
+	  }, throttle_delay);
+
+	  window.addEventListener('resize', throttled_observe);
+	  document.addEventListener('scroll', throttled_observe);
+	  new MutationObserver(throttled_observe).observe(document.body, {
+	    attributes: true,
+	    childList: true,
+	    characterData: true,
+	    subtree: true
+	  });
+	}
+
+	var observe$1 = (function (element, callback) {
+	  if (typeof callback === 'function' && element instanceof Element) {
+	    targets.push({ element: element, callback: callback });
+	    observe(element);
+	  }
+	});
+
+	var EVENT_NAME_PREFIX = 'connect.addon.';
+
+	/**
+	 * Timings beyond 20 seconds (connect's load timeout) will be clipped to an X.
+	 * @const
+	 * @type {int}
+	 */
+	var LOADING_TIME_THRESHOLD = 20000;
+
+	/**
+	 * Trim extra zeros from the load time.
+	 * @const
+	 * @type {int}
+	 */
+	var LOADING_TIME_TRIMP_PRECISION = 100;
+
+	var AnalyticsDispatcher = function () {
+	  function AnalyticsDispatcher() {
+	    classCallCheck(this, AnalyticsDispatcher);
+
+	    this._addons = {};
+	  }
+
+	  AnalyticsDispatcher.prototype._track = function _track(name, data) {
+	    var w = window;
+	    var prefixedName = EVENT_NAME_PREFIX + name;
+	    data = data || {};
+	    data.version = w._AP && w._AP.version ? w._AP.version : undefined;
+	    data.userAgent = w.navigator.userAgent;
+	    if (!w.AJS) {
+	      return false;
+	    }
+	    if (w.AJS.Analytics) {
+	      w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
+	    } else if (w.AJS.trigger) {
+	      // BTF fallback
+	      AJS.trigger('analyticsEvent', {
+	        name: prefixedName,
+	        data: data
+	      });
+	    } else {
+	      return false;
+	    }
+	    return true;
+	  };
+
+	  AnalyticsDispatcher.prototype._time = function _time() {
+	    return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
+	  };
+
+	  AnalyticsDispatcher.prototype.trackLoadingStarted = function trackLoadingStarted(extension) {
+	    if (this._addons && extension && extension.id) {
+	      extension.startLoading = this._time();
+	      this._addons[extension.id] = extension;
+	    } else {
+	      console.error('ACJS: cannot track loading analytics', this._addons, extension);
+	    }
+	  };
+
+	  AnalyticsDispatcher.prototype.trackLoadingEnded = function trackLoadingEnded(extension) {
+	    if (this._addons && extension && this._addons[extension.id]) {
+	      var href = extension.url;
+	      var iframeIsCacheable = href !== undefined && href.indexOf('xdm_e=') === -1;
+	      var value = this._time() - this._addons[extension.id].startLoading;
+	      var iframeLoadApdex = this.getIframeLoadApdex(value);
+	      this._track('iframe.performance.load', {
+	        addonKey: extension.addon_key,
+	        moduleKey: extension.key,
+	        iframeLoadMillis: value,
+	        iframeLoadApdex: iframeLoadApdex,
+	        iframeIsCacheable: iframeIsCacheable,
+	        value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil(value / LOADING_TIME_TRIMP_PRECISION)
+	      });
+	    } else {
+	      console.error('ACJS: cannot track loading end analytics', this._addons, extension);
+	    }
+	  };
+
+	  AnalyticsDispatcher.prototype.getIframeLoadApdex = function getIframeLoadApdex(iframeLoadMilliseconds) {
+	    var apdexSatisfiedThresholdMilliseconds = 300;
+	    var iframeLoadApdex = iframeLoadMilliseconds <= apdexSatisfiedThresholdMilliseconds ? 1 : iframeLoadMilliseconds <= 4 * apdexSatisfiedThresholdMilliseconds ? 0.5 : 0;
+	    return iframeLoadApdex;
+	  };
+
+	  AnalyticsDispatcher.prototype.trackLoadingTimeout = function trackLoadingTimeout(extension) {
+	    this._track('iframe.performance.timeout', {
+	      addonKey: extension.addon_key,
+	      moduleKey: extension.key
+	    });
+	    //track an end event during a timeout so we always have complete start / end data.
+	    this.trackLoadingEnded(extension);
+	  };
+
+	  AnalyticsDispatcher.prototype.trackLoadingCancel = function trackLoadingCancel(extension) {
+	    this._track('iframe.performance.cancel', {
+	      addonKey: extension.addon_key,
+	      moduleKey: extension.key
+	    });
+	  };
+
+	  AnalyticsDispatcher.prototype.trackUseOfDeprecatedMethod = function trackUseOfDeprecatedMethod(methodUsed, extension) {
+	    this._track('jsapi.deprecated', {
+	      addonKey: extension.addon_key,
+	      moduleKey: extension.key,
+	      methodUsed: methodUsed
+	    });
+	  };
+
+	  AnalyticsDispatcher.prototype.trackMultipleDialogOpening = function trackMultipleDialogOpening(dialogType, extension) {
+	    this._track('jsapi.dialog.multiple', {
+	      addonKey: extension.addon_key,
+	      moduleKey: extension.key,
+	      dialogType: dialogType
+	    });
+	  };
+
+	  AnalyticsDispatcher.prototype.trackVisible = function trackVisible(extension) {
+	    this._track('iframe.is_visible', {
+	      addonKey: extension.addon_key,
+	      moduleKey: extension.key
+	    });
+	  };
+
+	  AnalyticsDispatcher.prototype.dispatch = function dispatch(name, data) {
+	    this._track(name, data);
+	  };
+
+	  return AnalyticsDispatcher;
+	}();
+
+	var analytics = new AnalyticsDispatcher();
+	if ($.fn) {
+	  EventDispatcher$1.register('iframe-create', function (data) {
+	    analytics.trackLoadingStarted(data.extension);
+	  });
+	}
+
+	EventDispatcher$1.register('iframe-bridge-start', function (data) {
+	  analytics.trackLoadingStarted(data.extension);
+	});
+	EventDispatcher$1.register('iframe-bridge-established', function (data) {
+	  analytics.trackLoadingEnded(data.extension);
+	  observe$1(document.getElementById(data.extension.id), function () {
+	    analytics.trackVisible(data.extension);
+	  });
+	});
+	EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
+	  analytics.trackLoadingTimeout(data.extension);
+	});
+	EventDispatcher$1.register('iframe-bridge-cancelled', function (data) {
+	  analytics.trackLoadingCancel(data.extension);
+	});
+	EventDispatcher$1.register('analytics-deprecated-method-used', function (data) {
+	  analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
+	});
+
+	EventDispatcher$1.register('iframe-destroyed', function (data) {
+	  delete analytics._addons[data.extension.extension_id];
+	});
+
+	var LoadingIndicatorActions = {
+	  timeout: function timeout($el, extension) {
+	    EventDispatcher$1.dispatch('iframe-bridge-timeout', { $el: $el, extension: extension });
+	  },
+	  cancelled: function cancelled($el, extension) {
+	    EventDispatcher$1.dispatch('iframe-bridge-cancelled', { $el: $el, extension: extension });
+	  }
+	};
+
+	var LOADING_INDICATOR_CLASS = 'ap-status-indicator';
+
+	var LOADING_STATUSES = {
+	  loading: '<div class="ap-loading"><div class="small-spinner"></div>Loading app...</div>',
+	  'load-timeout': '<div class="ap-load-timeout"><div class="small-spinner"></div>App is not responding. Wait or <a href="#" class="ap-btn-cancel">cancel</a>?</div>',
+	  'load-error': 'App failed to load.'
+	};
+
+	var LOADING_TIMEOUT = 12000;
+
+	var LoadingIndicator = function () {
+	  function LoadingIndicator() {
+	    classCallCheck(this, LoadingIndicator);
+
+	    this._stateRegistry = {};
+	  }
+
+	  LoadingIndicator.prototype._loadingContainer = function _loadingContainer($iframeContainer) {
+	    return $iframeContainer.find('.' + LOADING_INDICATOR_CLASS);
+	  };
+
+	  LoadingIndicator.prototype.render = function render() {
+	    var container = document.createElement('div');
+	    container.classList.add(LOADING_INDICATOR_CLASS);
+	    container.innerHTML = LOADING_STATUSES.loading;
+	    var $container = $(container);
+	    this._startSpinner($container);
+	    return $container;
+	  };
+
+	  LoadingIndicator.prototype._startSpinner = function _startSpinner($container) {
+	    // TODO: AUI or spin.js broke something. This is bad but ironically matches v3's implementation.
+	    setTimeout(function () {
+	      var spinner = $container.find('.small-spinner');
+	      if (spinner.length && spinner.spin) {
+	        spinner.spin({ lines: 12, length: 3, width: 2, radius: 3, trail: 60, speed: 1.5, zIndex: 1 });
+	      }
+	    }, 10);
+	  };
+
+	  LoadingIndicator.prototype.hide = function hide($iframeContainer, extensionId) {
+	    clearTimeout(this._stateRegistry[extensionId]);
+	    delete this._stateRegistry[extensionId];
+	    this._loadingContainer($iframeContainer)[0].style.display = 'none';
+	  };
+
+	  LoadingIndicator.prototype.cancelled = function cancelled($iframeContainer, extensionId) {
+	    var status = LOADING_STATUSES['load-error'];
+	    this._loadingContainer($iframeContainer).empty().text(status);
+	  };
+
+	  LoadingIndicator.prototype._setupTimeout = function _setupTimeout($container, extension) {
+	    this._stateRegistry[extension.id] = setTimeout(function () {
+	      LoadingIndicatorActions.timeout($container, extension);
+	    }, LOADING_TIMEOUT);
+	  };
+
+	  LoadingIndicator.prototype.timeout = function timeout($iframeContainer, extensionId) {
+	    var status = $(LOADING_STATUSES['load-timeout']);
+	    var container = this._loadingContainer($iframeContainer);
+	    container.empty().append(status);
+	    this._startSpinner(container);
+	    $('a.ap-btn-cancel', container).click(function () {
+	      LoadingIndicatorActions.cancelled($iframeContainer, extensionId);
+	    });
+	    delete this._stateRegistry[extensionId];
+	    return container;
+	  };
+
+	  return LoadingIndicator;
+	}();
+
+	var LoadingComponent = new LoadingIndicator();
+
+	EventDispatcher$1.register('iframe-create', function (data) {
+	  if (!data.extension.options.noDom) {
+	    LoadingComponent._setupTimeout(data.$el.parents('.ap-iframe-container'), data.extension);
+	  }
+	});
+
+	EventDispatcher$1.register('iframe-bridge-established', function (data) {
+	  if (!data.extension.options.noDom) {
+	    LoadingComponent.hide(data.$el.parents('.ap-iframe-container'), data.extension.id);
+	  }
+	});
+
+	EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
+	  if (!data.extension.options.noDom) {
+	    LoadingComponent.timeout(data.$el, data.extension.id);
+	  }
+	});
+
+	EventDispatcher$1.register('iframe-bridge-cancelled', function (data) {
+	  if (!data.extension.options.noDom) {
+	    LoadingComponent.cancelled(data.$el, data.extension.id);
+	  }
+	});
 
 	var PostMessage = function () {
 	  function PostMessage(data) {
