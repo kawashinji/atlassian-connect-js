@@ -20,6 +20,7 @@ pipelines:
               - git config user.name "Build bot"
               - npm version patch --no-git-tag-version
               - rm -rf node_modules
+              - npm cache clean --force
               - npm install --unsafe-perm
               - npm run test-sl
               - npm publish --loglevel silly
