@@ -13,7 +13,6 @@ pipelines:
               - cd $BITBUCKET_CLONE_DIR
               - npm set //npm-private-proxy.atlassian.io/:_authToken=$NPM_TOKEN
               - npm set //registry.npmjs.org/:_authToken=$NPM_PUBLISH_TOKEN
-              - npm set loglevel silent
               - npm set spin false
               - TOKEN=`curl -s -S -f -X POST -u "${BUILDBOT_KEY}:${BUILDBOT_SECRET}" https://bitbucket.org/site/oauth2/access_token -d grant_type=client_credentials | python -c "import sys, json; print json.load(sys.stdin)['access_token']"`
               - git remote set-url origin https://x-token-auth:${TOKEN}@bitbucket.org/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}.git
