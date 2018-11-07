@@ -85,12 +85,16 @@ if ('IntersectionObserver' in window &&
 
   window.addEventListener('resize', throttled_observe);
   document.addEventListener('scroll', throttled_observe);
-  new MutationObserver(throttled_observe).observe(document.body, {
-    attributes: true,
-    childList: true,
-    characterData: true,
-    subtree: true
-  });
+  if ('MutationObserver' in window) {
+    document.addEventListener('DOMContentLoaded', () => {
+      new MutationObserver(throttled_observe).observe(document.body, {
+        attributes: true,
+        childList: true,
+        characterData: true,
+        subtree: true
+      });
+    });
+  }
 }
 
 export default (element, callback) => {

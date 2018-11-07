@@ -843,12 +843,16 @@
 
 	  window.addEventListener('resize', throttled_observe);
 	  document.addEventListener('scroll', throttled_observe);
-	  new MutationObserver(throttled_observe).observe(document.body, {
-	    attributes: true,
-	    childList: true,
-	    characterData: true,
-	    subtree: true
-	  });
+	  if ('MutationObserver' in window) {
+	    document.addEventListener('DOMContentLoaded', function () {
+	      new MutationObserver(throttled_observe).observe(document.body, {
+	        attributes: true,
+	        childList: true,
+	        characterData: true,
+	        subtree: true
+	      });
+	    });
+	  }
 	}
 
 	var observe$1 = (function (element, callback) {
