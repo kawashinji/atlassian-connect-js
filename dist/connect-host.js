@@ -834,7 +834,7 @@
 	    }
 	  };
 
-	  var throttled_observe = util.throttle(function (element) {
+	  var throttled_observe = util.throttle(function () {
 	    targets.forEach(function (_ref3) {
 	      var element = _ref3.element;
 	      return observe(element);
