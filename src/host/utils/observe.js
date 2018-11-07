@@ -79,7 +79,7 @@ if ('IntersectionObserver' in window &&
     }
   }
 
-  const throttled_observe = util.throttle(element => {
+  const throttled_observe = util.throttle(() => {
     targets.forEach(({ element }) => observe(element));
   }, throttle_delay);
 
