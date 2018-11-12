@@ -36,7 +36,7 @@ describe('Analytics Dispatcher', () => {
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.timeout', {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
-      connectedStatus: true
+      connectedStatus: 'true'
     });
   });
 
