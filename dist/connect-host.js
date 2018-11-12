@@ -947,9 +947,14 @@
 	  };
 
 	  AnalyticsDispatcher.prototype.trackLoadingTimeout = function trackLoadingTimeout(extension) {
+	    var connectedStatus = window.navigator.onLine;
+	    if (typeof connectedStatus !== 'boolean') {
+	      connectedStatus = 'not-supported';
+	    }
 	    this._track('iframe.performance.timeout', {
 	      addonKey: extension.addon_key,
-	      moduleKey: extension.key
+	      moduleKey: extension.key,
+	      connectedStatus: connectedStatus.toString() // convert boolean to string
 	    });
 	    //track an end event during a timeout so we always have complete start / end data.
 	    this.trackLoadingEnded(extension);
@@ -6205,7 +6210,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.73';
+	  window._AP.version = '5.1.74';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
