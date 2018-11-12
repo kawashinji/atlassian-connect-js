@@ -89,9 +89,14 @@ class AnalyticsDispatcher {
   }
 
   trackLoadingTimeout(extension) {
+    var connectedStatus = window.navigator.onLine;
+    if(typeof connectedStatus !== 'boolean') {
+      connectedStatus = 'not-supported';
+    }
     this._track('iframe.performance.timeout', {
       addonKey: extension.addon_key,
-      moduleKey: extension.key
+      moduleKey: extension.key,
+      connectedStatus: connectedStatus.toString() // convert boolean to string
     });
     //track an end event during a timeout so we always have complete start / end data.
     this.trackLoadingEnded(extension);
