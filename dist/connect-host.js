@@ -3472,8 +3472,18 @@
 	        var completeOptions = Util$1.extend({}, dialogBeanOptions || {}, dialogOptions);
 	        DialogExtensionActions.open(extension, completeOptions);
 	      },
-	      close: function close() {
-	        DialogExtensionActions.close();
+	      close: function close(addon_key, closeData) {
+	        var frameworkAdaptor = HostApi.getFrameworkAdaptor();
+	        var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+	        if (dialogProvider) {
+	          dialogUtilsInstance.assertActiveDialogOrThrow(dialogProvider, addon_key);
+	          EventActions.broadcast('dialog.close', {
+	            addon_key: addon_key
+	          }, closeData);
+	          dialogProvider.close();
+	        } else {
+	          DialogExtensionActions.close();
+	        }
 	      }
 	    };
 	    this.registerContentResolver = {
@@ -4105,7 +4115,37 @@
 
 	var DialogExtensionComponent = new DialogExtension();
 	EventDispatcher$1.register('dialog-extension-open', function (data) {
-	  DialogExtensionComponent.render(data.extension, data.options);
+	  var dialogExtension = data.extension;
+	  var dialogOptions = dialogUtilsInstance.sanitizeOptions(data.options);
+
+	  var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
+	  var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+	  if (dialogProvider) {
+	    // this function should move.
+	    var getOnClickFunction = function getOnClickFunction(action) {
+	      var key = dialogExtension.key;
+	      var addon_key = dialogExtension.addon_key;
+	      var eventData = {
+	        button: {
+	          identifier: action.identifier,
+	          name: action.identifier,
+	          text: action.text
+	        }
+	      };
+	      if (['submit', 'cancel'].indexOf(action.identifier) >= 0) {
+	        EventActions.broadcast('dialog.' + action.identifier, { addon_key: addon_key, key: key }, eventData);
+	      }
+	      EventActions.broadcast('dialog.button.click', { addon_key: addon_key, key: key }, eventData);
+	    };
+
+	    dialogExtension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
+	    dialogOptions.actions.map(function (action) {
+	      return action.onClick = getOnClickFunction.bind(null, action);
+	    });
+	    dialogProvider.create(dialogOptions, dialogExtension);
+	  } else {
+	    DialogExtensionComponent.render(data.extension, data.options);
+	  }
 	});
 
 	var _dialogs = {};
@@ -4167,35 +4207,9 @@
 	  var dialogModuleOptions = dialogUtilsInstance.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
 	  options = Util$1.extend({}, dialogModuleOptions || {}, options);
 	  options.id = _id;
-	  var frameworkAdaptor = HostApi$2.getFrameworkAdaptor();
-	  var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
-	  if (dialogProvider) {
-	    var getOnClickFunction = function getOnClickFunction(action) {
-	      var key = callback._context.extension.key;
-	      var addon_key = callback._context.extension.addon_key;
-	      var eventData = {
-	        button: {
-	          identifier: action.identifier,
-	          name: action.identifier,
-	          text: action.text
-	        }
-	      };
-	      if (['submit', 'cancel'].indexOf(action.identifier) >= 0) {
-	        EventActions.broadcast('dialog.' + action.identifier, { addon_key: addon_key, key: key }, eventData);
-	      }
-	      EventActions.broadcast('dialog.button.click', { addon_key: addon_key, key: key }, eventData);
-	    };
+	  dialogUtilsInstance.trackMultipleDialogOpening(dialogExtension, options);
+	  DialogExtensionActions.open(dialogExtension, options);
 
-	    var dialogOptions = dialogUtilsInstance.sanitizeOptions(options);
-	    dialogExtension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
-	    dialogOptions.actions.map(function (action) {
-	      return action.onClick = getOnClickFunction.bind(null, action);
-	    });
-	    dialogProvider.create(dialogOptions, dialogExtension);
-	  } else {
-	    dialogUtilsInstance.trackMultipleDialogOpening(dialogExtension, options);
-	    DialogExtensionActions.open(dialogExtension, options);
-	  }
 	  this.customData = options.customData;
 	  _dialogs[_id] = this;
 	};
