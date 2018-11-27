@@ -173,7 +173,7 @@ describe('Host API', function() {
     };
     const closeSpy = jasmine.createSpy('spy');
     const frameworkAdaptor = {
-      getProviderByModuleName: function(){ 
+      getProviderByModuleName: function(){
         return {
           close: closeSpy,
           isActiveDialog: jasmine.createSpy('spy').and.returnValue(true)
