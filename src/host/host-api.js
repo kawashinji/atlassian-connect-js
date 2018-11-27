@@ -31,7 +31,7 @@ class HostApi {
         DialogExtensionActions.open(extension, completeOptions);
       },
       close: (addon_key, closeData) => {
-        const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+        const frameworkAdaptor = this.getFrameworkAdaptor();
         const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
         if (dialogProvider) {
           dialogUtils.assertActiveDialogOrThrow(dialogProvider, addon_key);

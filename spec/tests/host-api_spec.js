@@ -164,4 +164,24 @@ describe('Host API', function() {
     HostApi.destroy(extensions[0].extension_id);
     expect(HostApi.getExtensions(spec).length).toEqual(0);
   });
+
+  it('closes a dialog using the provider', () => {
+    const spec = {
+      addon_key: 'abc123-addon-key',
+      key: 'some-key',
+      url: 'http://www.example.com'
+    };
+    const closeSpy = jasmine.createSpy('spy');
+    const frameworkAdaptor = {
+      getProviderByModuleName: function(){ 
+        return {
+          close: closeSpy,
+          isActiveDialog: jasmine.createSpy('spy').and.returnValue(true)
+        };
+      }
+    };
+    HostApi.setFrameworkAdaptor(frameworkAdaptor);
+    HostApi.dialog.close(spec.addon_key);
+    expect(closeSpy).toHaveBeenCalled();
+  });
 });
