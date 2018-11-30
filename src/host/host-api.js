@@ -17,6 +17,7 @@ import simpleXdmUtils from './utils/simplexdm';
 import UrlUtils from './utils/url';
 import ExtensionConfigurationOptionsStore from './stores/extension_configuration_options_store';
 import jwtUtil from './utils/jwt';
+import dialogUtils from './utils/dialog';
 
 class HostApi {
   constructor(){
@@ -29,8 +30,18 @@ class HostApi {
         var completeOptions = Util.extend({}, dialogBeanOptions || {}, dialogOptions);
         DialogExtensionActions.open(extension, completeOptions);
       },
-      close: () => {
-        DialogExtensionActions.close();
+      close: (addon_key, closeData) => {
+        const frameworkAdaptor = this.getFrameworkAdaptor();
+        const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+        if (dialogProvider) {
+          dialogUtils.assertActiveDialogOrThrow(dialogProvider, addon_key);
+          EventActions.broadcast('dialog.close', {
+            addon_key: addon_key
+          }, closeData);
+          dialogProvider.close();
+        } else {
+          DialogExtensionActions.close();
+        }
       }
     }
     this.registerContentResolver = {

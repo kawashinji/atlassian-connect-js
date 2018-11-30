@@ -66,33 +66,9 @@ class Dialog {
     var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
     options = Util.extend({}, dialogModuleOptions || {}, options);
     options.id = _id;
-    const frameworkAdaptor = HostApi.getFrameworkAdaptor();
-    const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
-    if (dialogProvider) {
-      const getOnClickFunction = action => {
-        const key = callback._context.extension.key;
-        const addon_key = callback._context.extension.addon_key;
-        const eventData = {
-          button: {
-            identifier: action.identifier,
-            name: action.identifier,
-            text: action.text
-          }
-        };
-        if (['submit', 'cancel'].indexOf(action.identifier) >= 0) {
-          EventActions.broadcast(`dialog.${action.identifier}`, {addon_key, key}, eventData);
-        }
-        EventActions.broadcast('dialog.button.click', {addon_key, key}, eventData);
-      };
+    dialogUtils.trackMultipleDialogOpening(dialogExtension, options);
+    DialogExtensionActions.open(dialogExtension, options);
 
-      let dialogOptions = dialogUtils.sanitizeOptions(options);
-      dialogExtension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
-      dialogOptions.actions.map(action => action.onClick = getOnClickFunction.bind(null, action));
-      dialogProvider.create(dialogOptions, dialogExtension);
-    } else {
-      dialogUtils.trackMultipleDialogOpening(dialogExtension, options);
-      DialogExtensionActions.open(dialogExtension, options);
-    }
     this.customData = options.customData;
     _dialogs[_id] = this;
   }

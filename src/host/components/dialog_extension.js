@@ -1,6 +1,9 @@
 import DialogComponent from './dialog';
 import IframeContainerComponent from './iframe_container';
 import EventDispatcher from '../dispatchers/event_dispatcher';
+import HostApi from '../host-api';
+import EventActions from '../actions/event_actions';
+import dialogUtils from '../utils/dialog';
 
 class DialogExtension {
 
@@ -54,7 +57,37 @@ class DialogExtension {
 
 var DialogExtensionComponent = new DialogExtension();
 EventDispatcher.register('dialog-extension-open', function(data){
-  DialogExtensionComponent.render(data.extension, data.options);
+  const dialogExtension = data.extension;
+  let dialogOptions = dialogUtils.sanitizeOptions(data.options);
+
+  const frameworkAdaptor = HostApi.getFrameworkAdaptor();
+  const dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
+  if (dialogProvider) {
+    // this function should move.
+    const getOnClickFunction = action => {
+      const key = dialogExtension.key;
+      const addon_key = dialogExtension.addon_key;
+      const eventData = {
+        button: {
+          identifier: action.identifier,
+          name: action.identifier,
+          text: action.text
+        }
+      };
+      if (['submit', 'cancel'].indexOf(action.identifier) >= 0) {
+        EventActions.broadcast(`dialog.${action.identifier}`, {addon_key, key}, eventData);
+      }
+      EventActions.broadcast('dialog.button.click', {addon_key, key}, eventData);
+    }
+
+
+    dialogExtension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
+    dialogOptions.actions.map(action => action.onClick = getOnClickFunction.bind(null, action));
+    dialogProvider.create(dialogOptions, dialogExtension);
+
+  } else {
+    DialogExtensionComponent.render(data.extension, data.options);
+  }
 });
 
 export default DialogExtensionComponent;
