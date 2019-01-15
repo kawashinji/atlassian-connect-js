@@ -2045,7 +2045,7 @@ var AP = (function () {
 	        data.mid = mid;
 	        xdmPromise = new promise(function (resolve, reject) {
 	          that._pendingCallback(data.mid, function (err, result) {
-	            if (err) {
+	            if (err || typeof result === 'undefined' && typeof err === 'undefined') {
 	              reject(err);
 	            } else {
 	              resolve(result);

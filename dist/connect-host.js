@@ -3473,7 +3473,7 @@
 	        DialogExtensionActions.open(extension, completeOptions);
 	      },
 	      close: function close(addon_key, closeData) {
-	        var frameworkAdaptor = HostApi.getFrameworkAdaptor();
+	        var frameworkAdaptor = _this.getFrameworkAdaptor();
 	        var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
 	        if (dialogProvider) {
 	          dialogUtilsInstance.assertActiveDialogOrThrow(dialogProvider, addon_key);
