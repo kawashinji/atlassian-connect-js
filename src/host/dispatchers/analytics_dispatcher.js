@@ -137,6 +137,11 @@ class AnalyticsDispatcher {
   dispatch(name, data) {
     this._track(name, data);
   }
+
+  trackExternal(name, data){
+    this._track(name, data);
+  }
+
 }
 
 var analytics = new AnalyticsDispatcher();
@@ -167,6 +172,10 @@ EventDispatcher.register('analytics-deprecated-method-used', function(data) {
 
 EventDispatcher.register('iframe-destroyed', function(data) {
   delete analytics._addons[data.extension.extension_id];
+});
+
+EventDispatcher.register('analytics-external-event-track', function(data) {
+  analytics.trackExternal(data.eventName, data.values);
 });
 
 
