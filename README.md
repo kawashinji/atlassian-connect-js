@@ -1,5 +1,6 @@
 Atlassian Connect JS
 ====================
+a
 
 The javascript library which backs [Atlassian Connect](http://connect.atlassian.com/).
 
