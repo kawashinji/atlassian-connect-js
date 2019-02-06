@@ -1020,6 +1020,10 @@
 	    this._track(name, data);
 	  };
 
+	  AnalyticsDispatcher.prototype.trackExternal = function trackExternal(name, data) {
+	    this._track(name, data);
+	  };
+
 	  return AnalyticsDispatcher;
 	}();
 
@@ -1051,6 +1055,10 @@
 
 	EventDispatcher$1.register('iframe-destroyed', function (data) {
 	  delete analytics._addons[data.extension.extension_id];
+	});
+
+	EventDispatcher$1.register('analytics-external-event-track', function (data) {
+	  analytics.trackExternal(data.eventName, data.values);
 	});
 
 	var LoadingIndicatorActions = {
@@ -3275,6 +3283,12 @@
 	  },
 	  trackIframeBridgeStart: function trackIframeBridgeStart(extension) {
 	    EventDispatcher$1.dispatch('iframe-bridge-start', { extension: extension });
+	  },
+	  trackExternalEvent: function trackExternalEvent(name, values) {
+	    EventDispatcher$1.dispatch('analytics-external-event-track', {
+	      eventName: name,
+	      values: values
+	    });
 	  }
 	};
 
@@ -3652,6 +3666,10 @@
 
 	  HostApi.prototype.trackDeprecatedMethodUsed = function trackDeprecatedMethodUsed(methodUsed, extension) {
 	    AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
+	  };
+
+	  HostApi.prototype.trackAnalyticsEvent = function trackAnalyticsEvent(name, values) {
+	    AnalyticsAction.trackExternalEvent(name, values);
 	  };
 
 	  HostApi.prototype.setJwtClockSkew = function setJwtClockSkew(skew) {

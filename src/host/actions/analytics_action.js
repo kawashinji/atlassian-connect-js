@@ -6,5 +6,11 @@ export default {
   },
   trackIframeBridgeStart(extension) {
     EventDispatcher.dispatch('iframe-bridge-start', {extension});
+  },
+  trackExternalEvent(name, values){
+    EventDispatcher.dispatch('analytics-external-event-track', {
+      eventName: name,
+      values: values
+    });
   }
 };

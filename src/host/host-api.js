@@ -180,6 +180,10 @@ class HostApi {
     AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
   }
 
+  trackAnalyticsEvent(name, values) {
+    AnalyticsAction.trackExternalEvent(name, values);
+  }
+
   setJwtClockSkew(skew) {
     jwtActions.setClockSkew(skew);
   }

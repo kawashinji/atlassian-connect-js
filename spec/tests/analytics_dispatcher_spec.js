@@ -76,4 +76,13 @@ describe('Analytics Dispatcher', () => {
 
   });
 
+  it('trackExternal triggers _track', () => {
+    spyOn(AnalyticsDispatcher, '_track');
+    var analyticsValue = {some: 'value'};
+    var analyticsName = 'aname';
+    AnalyticsDispatcher.trackExternal(analyticsName, analyticsValue);
+    expect(AnalyticsDispatcher._track).toHaveBeenCalled();
+    expect(AnalyticsDispatcher._track).toHaveBeenCalledWith(analyticsName, analyticsValue);
+  });
+
 });
