@@ -1988,9 +1988,6 @@ var AP = (function () {
           fn[metaDataName] = metaData[metaDataName];
         });
       }
-      if (isPromise) {
-        fn.isPromise = true;
-      }
       this._pendingCallbacks[mid] = fn;
     };
 
