@@ -1080,15 +1080,18 @@ var AP = (function () {
    */
   function finallyConstructor(callback) {
     var constructor = this.constructor;
-    return this.then(function (value) {
-      return constructor.resolve(callback()).then(function () {
-        return value;
-      });
-    }, function (reason) {
-      return constructor.resolve(callback()).then(function () {
-        return constructor.reject(reason);
-      });
-    });
+    return this.then(
+      function(value) {
+        return constructor.resolve(callback()).then(function() {
+          return value;
+        });
+      },
+      function(reason) {
+        return constructor.resolve(callback()).then(function() {
+          return constructor.reject(reason);
+        });
+      }
+    );
   }
 
   // Store setTimeout reference so promise-polyfill will be unaffected by
@@ -1099,7 +1102,7 @@ var AP = (function () {
 
   // Polyfill for Function.prototype.bind
   function bind(fn, thisArg) {
-    return function () {
+    return function() {
       fn.apply(thisArg, arguments);
     };
   }
@@ -1109,7 +1112,8 @@ var AP = (function () {
    * @param {Function} fn
    */
   function Promise$1(fn) {
-    if (!(this instanceof Promise$1)) throw new TypeError('Promises must be constructed via new');
+    if (!(this instanceof Promise$1))
+      throw new TypeError('Promises must be constructed via new');
     if (typeof fn !== 'function') throw new TypeError('not a function');
     /** @type {!number} */
     this._state = 0;
@@ -1132,7 +1136,7 @@ var AP = (function () {
       return;
     }
     self._handled = true;
-    Promise$1._immediateFn(function () {
+    Promise$1._immediateFn(function() {
       var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
       if (cb === null) {
         (self._state === 1 ? resolve : reject)(deferred.promise, self._value);
@@ -1152,8 +1156,12 @@ var AP = (function () {
   function resolve(self, newValue) {
     try {
       // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
-      if (newValue === self) throw new TypeError('A promise cannot be resolved with itself.');
-      if (newValue && ((typeof newValue === 'undefined' ? 'undefined' : _typeof(newValue)) === 'object' || typeof newValue === 'function')) {
+      if (newValue === self)
+        throw new TypeError('A promise cannot be resolved with itself.');
+      if (
+        newValue &&
+        (typeof newValue === 'object' || typeof newValue === 'function')
+      ) {
         var then = newValue.then;
         if (newValue instanceof Promise$1) {
           self._state = 3;
@@ -1181,7 +1189,7 @@ var AP = (function () {
 
   function finale(self) {
     if (self._state === 2 && self._deferreds.length === 0) {
-      Promise$1._immediateFn(function () {
+      Promise$1._immediateFn(function() {
         if (!self._handled) {
           Promise$1._unhandledRejectionFn(self._value);
         }
@@ -1212,15 +1220,18 @@ var AP = (function () {
   function doResolve(fn, self) {
     var done = false;
     try {
-      fn(function (value) {
-        if (done) return;
-        done = true;
-        resolve(self, value);
-      }, function (reason) {
-        if (done) return;
-        done = true;
-        reject(self, reason);
-      });
+      fn(
+        function(value) {
+          if (done) return;
+          done = true;
+          resolve(self, value);
+        },
+        function(reason) {
+          if (done) return;
+          done = true;
+          reject(self, reason);
+        }
+      );
     } catch (ex) {
       if (done) return;
       done = true;
@@ -1228,11 +1239,11 @@ var AP = (function () {
     }
   }
 
-  Promise$1.prototype['catch'] = function (onRejected) {
+  Promise$1.prototype['catch'] = function(onRejected) {
     return this.then(null, onRejected);
   };
 
-  Promise$1.prototype.then = function (onFulfilled, onRejected) {
+  Promise$1.prototype.then = function(onFulfilled, onRejected) {
     // @ts-ignore
     var prom = new this.constructor(noop);
 
@@ -1242,21 +1253,26 @@ var AP = (function () {
 
   Promise$1.prototype['finally'] = finallyConstructor;
 
-  Promise$1.all = function (arr) {
-    return new Promise$1(function (resolve, reject) {
-      if (!arr || typeof arr.length === 'undefined') throw new TypeError('Promise.all accepts an array');
+  Promise$1.all = function(arr) {
+    return new Promise$1(function(resolve, reject) {
+      if (!arr || typeof arr.length === 'undefined')
+        throw new TypeError('Promise.all accepts an array');
       var args = Array.prototype.slice.call(arr);
       if (args.length === 0) return resolve([]);
       var remaining = args.length;
 
       function res(i, val) {
         try {
-          if (val && ((typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' || typeof val === 'function')) {
+          if (val && (typeof val === 'object' || typeof val === 'function')) {
             var then = val.then;
             if (typeof then === 'function') {
-              then.call(val, function (val) {
-                res(i, val);
-              }, reject);
+              then.call(
+                val,
+                function(val) {
+                  res(i, val);
+                },
+                reject
+              );
               return;
             }
           }
@@ -1275,24 +1291,24 @@ var AP = (function () {
     });
   };
 
-  Promise$1.resolve = function (value) {
-    if (value && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && value.constructor === Promise$1) {
+  Promise$1.resolve = function(value) {
+    if (value && typeof value === 'object' && value.constructor === Promise$1) {
       return value;
     }
 
-    return new Promise$1(function (resolve) {
+    return new Promise$1(function(resolve) {
       resolve(value);
     });
   };
 
-  Promise$1.reject = function (value) {
-    return new Promise$1(function (resolve, reject) {
+  Promise$1.reject = function(value) {
+    return new Promise$1(function(resolve, reject) {
       reject(value);
     });
   };
 
-  Promise$1.race = function (values) {
-    return new Promise$1(function (resolve, reject) {
+  Promise$1.race = function(values) {
+    return new Promise$1(function(resolve, reject) {
       for (var i = 0, len = values.length; i < len; i++) {
         values[i].then(resolve, reject);
       }
@@ -1300,11 +1316,14 @@ var AP = (function () {
   };
 
   // Use polyfill for setImmediate for performance gains
-  Promise$1._immediateFn = typeof setImmediate === 'function' && function (fn) {
-    setImmediate(fn);
-  } || function (fn) {
-    setTimeoutFunc(fn, 0);
-  };
+  Promise$1._immediateFn =
+    (typeof setImmediate === 'function' &&
+      function(fn) {
+        setImmediate(fn);
+      }) ||
+    function(fn) {
+      setTimeoutFunc(fn, 0);
+    };
 
   Promise$1._unhandledRejectionFn = function _unhandledRejectionFn(err) {
     if (typeof console !== 'undefined' && console) {
@@ -1777,7 +1796,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.2.4";
+      _this._version = "5.2.5";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
