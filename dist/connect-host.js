@@ -955,6 +955,8 @@
 	      this._track('iframe.performance.load', {
 	        addonKey: extension.addon_key,
 	        moduleKey: extension.key,
+	        moduleType: extension.moduleType,
+	        moduleLocation: extension.moduleLocation,
 	        iframeLoadMillis: value,
 	        iframeLoadApdex: iframeLoadApdex,
 	        iframeIsCacheable: iframeIsCacheable,
@@ -980,6 +982,8 @@
 	    this._track('iframe.performance.timeout', {
 	      addonKey: extension.addon_key,
 	      moduleKey: extension.key,
+	      moduleType: extension.moduleType,
+	      moduleLocation: extension.moduleLocation,
 	      connectedStatus: connectedStatus.toString() // convert boolean to string
 	    });
 	    //track an end event during a timeout so we always have complete start / end data.
@@ -989,7 +993,9 @@
 	  AnalyticsDispatcher.prototype.trackLoadingCancel = function trackLoadingCancel(extension) {
 	    this._track('iframe.performance.cancel', {
 	      addonKey: extension.addon_key,
-	      moduleKey: extension.key
+	      moduleKey: extension.key,
+	      moduleType: extension.moduleType,
+	      moduleLocation: extension.moduleLocation
 	    });
 	  };
 
