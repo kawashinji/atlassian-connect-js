@@ -22,6 +22,8 @@ describe('Analytics Dispatcher', () => {
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.load', {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
+      moduleLocation: undefined,
+      moduleType: undefined,
       iframeLoadMillis: jasmine.any(Number),
       iframeLoadApdex: jasmine.any(Number),
       iframeIsCacheable: jasmine.any(Boolean),
@@ -36,6 +38,8 @@ describe('Analytics Dispatcher', () => {
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.timeout', {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
+      moduleLocation: undefined,
+      moduleType: undefined,
       connectedStatus: 'true'
     });
   });
@@ -46,7 +50,9 @@ describe('Analytics Dispatcher', () => {
     expect(AnalyticsDispatcher._track).toHaveBeenCalled();
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.cancel', {
       addonKey: extension.addon_key,
-      moduleKey: extension.key
+      moduleKey: extension.key,
+      moduleLocation: undefined,
+      moduleType: undefined
     });
   });
 
@@ -73,6 +79,15 @@ describe('Analytics Dispatcher', () => {
     AnalyticsDispatcher.dispatch(eventName, eventValue);
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith(eventName, eventValue);
 
+  });
+
+  it('trackExternal triggers _track', () => {
+    spyOn(AnalyticsDispatcher, '_track');
+    var analyticsValue = {some: 'value'};
+    var analyticsName = 'aname';
+    AnalyticsDispatcher.trackExternal(analyticsName, analyticsValue);
+    expect(AnalyticsDispatcher._track).toHaveBeenCalled();
+    expect(AnalyticsDispatcher._track).toHaveBeenCalledWith(analyticsName, analyticsValue);
   });
 
 });

@@ -70,6 +70,8 @@ class AnalyticsDispatcher {
       this._track('iframe.performance.load', {
         addonKey: extension.addon_key,
         moduleKey: extension.key,
+        moduleType: extension.moduleType,
+        moduleLocation: extension.moduleLocation,
         iframeLoadMillis: value,
         iframeLoadApdex: iframeLoadApdex,
         iframeIsCacheable: iframeIsCacheable,
@@ -96,6 +98,8 @@ class AnalyticsDispatcher {
     this._track('iframe.performance.timeout', {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
+      moduleType: extension.moduleType,
+      moduleLocation: extension.moduleLocation,
       connectedStatus: connectedStatus.toString() // convert boolean to string
     });
     //track an end event during a timeout so we always have complete start / end data.
@@ -105,7 +109,9 @@ class AnalyticsDispatcher {
   trackLoadingCancel(extension) {
     this._track('iframe.performance.cancel', {
       addonKey: extension.addon_key,
-      moduleKey: extension.key
+      moduleKey: extension.key,
+      moduleType: extension.moduleType,
+      moduleLocation: extension.moduleLocation
     });
   }
 
@@ -135,6 +141,11 @@ class AnalyticsDispatcher {
   dispatch(name, data) {
     this._track(name, data);
   }
+
+  trackExternal(name, data){
+    this._track(name, data);
+  }
+
 }
 
 var analytics = new AnalyticsDispatcher();
@@ -165,6 +176,10 @@ EventDispatcher.register('analytics-deprecated-method-used', function(data) {
 
 EventDispatcher.register('iframe-destroyed', function(data) {
   delete analytics._addons[data.extension.extension_id];
+});
+
+EventDispatcher.register('analytics-external-event-track', function(data) {
+  analytics.trackExternal(data.eventName, data.values);
 });
 
 

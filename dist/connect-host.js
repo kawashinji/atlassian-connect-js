@@ -862,6 +862,31 @@
 	  }
 	});
 
+	// Temporary for ACJS-1028 1 week experiment
+	function getFeatureFlag(flagName, defaultValue) {
+	  var flagMeta = document.querySelector('meta[name="ajs-fe-feature-flags"]');
+	  if (!flagMeta) {
+	    return defaultValue;
+	  }
+
+	  var flagContent = flagMeta.getAttribute('content');
+	  if (!flagContent) {
+	    return defaultValue;
+	  }
+
+	  var flagJson = {};
+	  try {
+	    flagJson = JSON.parse(flagContent);
+	  } catch (err) {
+	    return defaultValue;
+	  }
+
+	  if (!flagJson[flagName] || typeof flagJson[flagName].value !== 'boolean') {
+	    return defaultValue;
+	  }
+	  return flagJson[flagName].value;
+	}
+
 	var EVENT_NAME_PREFIX = 'connect.addon.';
 
 	/**
@@ -930,10 +955,13 @@
 	      this._track('iframe.performance.load', {
 	        addonKey: extension.addon_key,
 	        moduleKey: extension.key,
+	        moduleType: extension.moduleType,
+	        moduleLocation: extension.moduleLocation,
 	        iframeLoadMillis: value,
 	        iframeLoadApdex: iframeLoadApdex,
 	        iframeIsCacheable: iframeIsCacheable,
-	        value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil(value / LOADING_TIME_TRIMP_PRECISION)
+	        value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil(value / LOADING_TIME_TRIMP_PRECISION),
+	        dnsPrefetching: getFeatureFlag('connect-app-dns-prefetching', false)
 	      });
 	    } else {
 	      console.error('ACJS: cannot track loading end analytics', this._addons, extension);
@@ -954,6 +982,8 @@
 	    this._track('iframe.performance.timeout', {
 	      addonKey: extension.addon_key,
 	      moduleKey: extension.key,
+	      moduleType: extension.moduleType,
+	      moduleLocation: extension.moduleLocation,
 	      connectedStatus: connectedStatus.toString() // convert boolean to string
 	    });
 	    //track an end event during a timeout so we always have complete start / end data.
@@ -963,7 +993,9 @@
 	  AnalyticsDispatcher.prototype.trackLoadingCancel = function trackLoadingCancel(extension) {
 	    this._track('iframe.performance.cancel', {
 	      addonKey: extension.addon_key,
-	      moduleKey: extension.key
+	      moduleKey: extension.key,
+	      moduleType: extension.moduleType,
+	      moduleLocation: extension.moduleLocation
 	    });
 	  };
 
@@ -991,6 +1023,10 @@
 	  };
 
 	  AnalyticsDispatcher.prototype.dispatch = function dispatch(name, data) {
+	    this._track(name, data);
+	  };
+
+	  AnalyticsDispatcher.prototype.trackExternal = function trackExternal(name, data) {
 	    this._track(name, data);
 	  };
 
@@ -1025,6 +1061,10 @@
 
 	EventDispatcher$1.register('iframe-destroyed', function (data) {
 	  delete analytics._addons[data.extension.extension_id];
+	});
+
+	EventDispatcher$1.register('analytics-external-event-track', function (data) {
+	  analytics.trackExternal(data.eventName, data.values);
 	});
 
 	var LoadingIndicatorActions = {
@@ -3249,6 +3289,12 @@
 	  },
 	  trackIframeBridgeStart: function trackIframeBridgeStart(extension) {
 	    EventDispatcher$1.dispatch('iframe-bridge-start', { extension: extension });
+	  },
+	  trackExternalEvent: function trackExternalEvent(name, values) {
+	    EventDispatcher$1.dispatch('analytics-external-event-track', {
+	      eventName: name,
+	      values: values
+	    });
 	  }
 	};
 
@@ -3473,7 +3519,7 @@
 	        DialogExtensionActions.open(extension, completeOptions);
 	      },
 	      close: function close(addon_key, closeData) {
-	        var frameworkAdaptor = HostApi.getFrameworkAdaptor();
+	        var frameworkAdaptor = _this.getFrameworkAdaptor();
 	        var dialogProvider = frameworkAdaptor.getProviderByModuleName('dialog');
 	        if (dialogProvider) {
 	          dialogUtilsInstance.assertActiveDialogOrThrow(dialogProvider, addon_key);
@@ -3626,6 +3672,10 @@
 
 	  HostApi.prototype.trackDeprecatedMethodUsed = function trackDeprecatedMethodUsed(methodUsed, extension) {
 	    AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
+	  };
+
+	  HostApi.prototype.trackAnalyticsEvent = function trackAnalyticsEvent(name, values) {
+	    AnalyticsAction.trackExternalEvent(name, values);
 	  };
 
 	  HostApi.prototype.setJwtClockSkew = function setJwtClockSkew(skew) {
@@ -6224,7 +6274,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.1.74';
+	  window._AP.version = '5.2.5';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
