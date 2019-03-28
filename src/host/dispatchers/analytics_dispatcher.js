@@ -1,7 +1,6 @@
 import EventDispatcher from './event_dispatcher';
 import $ from '../dollar';
 import observe from '../utils/observe';
-import getFeatureFlag from '../utils/featureflag';
 
 const EVENT_NAME_PREFIX = 'connect.addon.';
 
@@ -76,8 +75,7 @@ class AnalyticsDispatcher {
         iframeLoadMillis: value,
         iframeLoadApdex: iframeLoadApdex,
         iframeIsCacheable: iframeIsCacheable,
-        value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil((value) / LOADING_TIME_TRIMP_PRECISION),
-        dnsPrefetching: getFeatureFlag('connect-app-dns-prefetching', false)
+        value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil((value) / LOADING_TIME_TRIMP_PRECISION)
       });
     } else {
       console.error('ACJS: cannot track loading end analytics', this._addons, extension);
