@@ -70,8 +70,8 @@ class AnalyticsDispatcher {
       this._track('iframe.performance.load', {
         addonKey: extension.addon_key,
         moduleKey: extension.key,
-        moduleType: extension.moduleType,
-        moduleLocation: extension.moduleLocation,
+        moduleType: extension.options ? extension.options.moduleType : undefined,
+        moduleLocation: extension.options ? extension.options.moduleLocation : undefined,
         iframeLoadMillis: value,
         iframeLoadApdex: iframeLoadApdex,
         iframeIsCacheable: iframeIsCacheable,
@@ -98,8 +98,8 @@ class AnalyticsDispatcher {
     this._track('iframe.performance.timeout', {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
-      moduleType: extension.moduleType,
-      moduleLocation: extension.moduleLocation,
+      moduleType: extension.options ? extension.options.moduleType : undefined,
+      moduleLocation: extension.options ? extension.options.moduleLocation : undefined,
       connectedStatus: connectedStatus.toString() // convert boolean to string
     });
     //track an end event during a timeout so we always have complete start / end data.
@@ -110,8 +110,8 @@ class AnalyticsDispatcher {
     this._track('iframe.performance.cancel', {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
-      moduleType: extension.moduleType,
-      moduleLocation: extension.moduleLocation
+      moduleType: extension.options ? extension.options.moduleType : undefined,
+      moduleLocation: extension.options ? extension.options.moduleLocation : undefined
     });
   }
 
