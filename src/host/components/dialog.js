@@ -329,7 +329,7 @@ EventDispatcher.register('dialog-close-active', (data) => {
 });
 
 EventDispatcher.register('dialog-close', (data) => {
-  if (data.dialog) {
+  if (data.dialog && data.extension && data.extension.options && data.extension.options.isDialog) {
     data.dialog.hide();
   }
 });
