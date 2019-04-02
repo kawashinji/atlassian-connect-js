@@ -13,7 +13,7 @@ const _dialogs = {};
 
 EventDispatcher.register('dialog-close', function (data) {
   const dialog = data.dialog;
-  if (dialog && data.extension && data.extension.options && data.extension.options.isDialog) {
+  if (dialog && data.extension) {
     EventActions.broadcast('dialog.close', {
       addon_key: data.extension.addon_key
     }, data.customData);
@@ -29,11 +29,6 @@ EventDispatcher.register('dialog-button-click', (data) => {
     }
   };
   var eventName = 'dialog.button.click';
-
-  // Only fire this for open dialogs
-  if(!(data.extension && data.extension.options && data.extension.options.isDialog)) {
-    return;
-  }
 
   // Old buttons, (submit and cancel) use old events
   if(!data.$el.hasClass('ap-dialog-custom-button')) {
