@@ -37,6 +37,8 @@ if(AP._hostModules && AP._hostModules.dialog) {
 
 const dialogHandlers = {};
 
+console.log('ATLASSIAN CONNECT JS -- WYATT');
+
 EventsInstance.onAny(eventDelegator);
 function eventDelegator(name, args) {
   // CONFCLOUD-62749
