@@ -2912,8 +2912,6 @@ var AP = (function () {
 
   var dialogHandlers = {};
 
-  console.log('ATLASSIAN CONNECT JS -- WYATT');
-
   EventsInstance.onAny(eventDelegator);
   function eventDelegator(name, args) {
     // CONFCLOUD-62749
