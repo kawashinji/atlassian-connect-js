@@ -44,11 +44,15 @@ function eventDelegator(name, args) {
   // iframe, the `window.name` property will contain information about the
   // current module.
   if(window.name) {
-    let extension = JSON.parse(window.name);
+    try {
+      let extension = JSON.parse(window.name);
 
-    if (!(extension && extension.options && extension.options.isDialog)) {
-      // The current context is not a dialog, so don't fire these events
-      return;
+      if (!(extension && extension.options && extension.options.isDialog)) {
+        // The current context is not a dialog, so don't fire these events
+        return;
+      }
+    } catch (err) {
+      console.log(err);
     }
   }
 
