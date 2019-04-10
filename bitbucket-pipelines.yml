@@ -16,8 +16,8 @@ pipelines:
               - npm set spin false
               - TOKEN=`curl -s -S -f -X POST -u "${BUILDBOT_KEY}:${BUILDBOT_SECRET}" https://bitbucket.org/site/oauth2/access_token -d grant_type=client_credentials | python -c "import sys, json; print json.load(sys.stdin)['access_token']"`
               - git remote set-url origin https://x-token-auth:${TOKEN}@bitbucket.org/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}.git
-              - git config user.email "cwhittington@atlassian.com"
-              - git config user.name "Build bot"
+              - git config user.email "${BUILDBOT_EMAIL}"
+              - git config user.name "${BUILDBOT_NAME}"
               - npm version patch --no-git-tag-version
               - rm -rf node_modules
               - npm cache clean --force
