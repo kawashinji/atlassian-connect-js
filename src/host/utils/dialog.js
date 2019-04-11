@@ -169,6 +169,10 @@ class DialogUtils {
     }
   }
 
+  _url(options) {
+    return typeof options.url === 'string' ? options.url : '';
+  }
+
   sanitizeOptions(options){
     options = options || {};
     var sanitized = {
@@ -184,6 +188,7 @@ class DialogUtils {
       size: options.size,
       closeOnEscape: this._closeOnEscape(options),
       onHide: this._onHide(options),
+      url: this._url(options),
     };
     sanitized.size = this._size(sanitized);
 

@@ -2437,6 +2437,10 @@
 	    }
 	  };
 
+	  DialogUtils.prototype._url = function _url(options) {
+	    return typeof options.url === 'string' ? options.url : '';
+	  };
+
 	  DialogUtils.prototype.sanitizeOptions = function sanitizeOptions(options) {
 	    options = options || {};
 	    var sanitized = {
@@ -2451,7 +2455,8 @@
 	      id: this._id(options.id),
 	      size: options.size,
 	      closeOnEscape: this._closeOnEscape(options),
-	      onHide: this._onHide(options)
+	      onHide: this._onHide(options),
+	      url: this._url(options)
 	    };
 	    sanitized.size = this._size(sanitized);
 
@@ -4091,6 +4096,7 @@
 	  DialogExtension.prototype.render = function render(extension, dialogOptions) {
 	    extension.options = extension.options || {};
 	    dialogOptions = dialogOptions || {};
+	    extension.url = dialogOptions.url;
 	    extension.options.isDialog = true;
 	    extension.options.dialogId = dialogOptions.id;
 	    extension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;

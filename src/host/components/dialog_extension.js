@@ -10,6 +10,7 @@ class DialogExtension {
   render(extension, dialogOptions){
     extension.options = extension.options || {};
     dialogOptions = dialogOptions || {};
+    extension.url = dialogOptions.url;
     extension.options.isDialog = true;
     extension.options.dialogId = dialogOptions.id;
     extension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
