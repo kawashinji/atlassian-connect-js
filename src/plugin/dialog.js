@@ -39,23 +39,6 @@ const dialogHandlers = {};
 
 EventsInstance.onAny(eventDelegator);
 function eventDelegator(name, args) {
-  // CONFCLOUD-62749
-  // Check to see if the current context is a dialog. If this is inside an
-  // iframe, the `window.name` property will contain information about the
-  // current module.
-  if(window.name) {
-    try {
-      let extension = JSON.parse(window.name);
-
-      if (!(extension && extension.options && extension.options.isDialog)) {
-        // The current context is not a dialog, so don't fire these events
-        return;
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
   let dialogEventMatch = name.match(/^dialog\.(\w+)/);
   if(!dialogEventMatch) {
     return;
