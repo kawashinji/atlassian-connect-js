@@ -2437,10 +2437,6 @@
 	    }
 	  };
 
-	  DialogUtils.prototype._url = function _url(options) {
-	    return typeof options.url === 'string' ? options.url : '';
-	  };
-
 	  DialogUtils.prototype.sanitizeOptions = function sanitizeOptions(options) {
 	    options = options || {};
 	    var sanitized = {
@@ -2455,8 +2451,7 @@
 	      id: this._id(options.id),
 	      size: options.size,
 	      closeOnEscape: this._closeOnEscape(options),
-	      onHide: this._onHide(options),
-	      url: this._url(options)
+	      onHide: this._onHide(options)
 	    };
 	    sanitized.size = this._size(sanitized);
 
@@ -4096,7 +4091,6 @@
 	  DialogExtension.prototype.render = function render(extension, dialogOptions) {
 	    extension.options = extension.options || {};
 	    dialogOptions = dialogOptions || {};
-	    extension.url = dialogOptions.url;
 	    extension.options.isDialog = true;
 	    extension.options.dialogId = dialogOptions.id;
 	    extension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
@@ -4203,13 +4197,15 @@
 	  if (!data.$el.hasClass('ap-dialog-custom-button')) {
 	    EventActions.broadcast('dialog.' + eventData.button.name, {
 	      addon_key: data.extension.addon_key,
-	      key: data.extension.key
+	      key: data.extension.key,
+	      id: data.extension.id
 	    }, eventData);
 	  }
 
 	  EventActions.broadcast(eventName, {
 	    addon_key: data.extension.addon_key,
-	    key: data.extension.key
+	    key: data.extension.key,
+	    id: data.extension.id
 	  }, eventData);
 	});
 
