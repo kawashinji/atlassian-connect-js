@@ -34,13 +34,15 @@ EventDispatcher.register('dialog-button-click', (data) => {
   if(!data.$el.hasClass('ap-dialog-custom-button')) {
     EventActions.broadcast(`dialog.${eventData.button.name}`, {
       addon_key: data.extension.addon_key,
-      key: data.extension.key
+      key: data.extension.key,
+      id: data.extension.id
     }, eventData);
   }
 
   EventActions.broadcast(eventName, {
     addon_key: data.extension.addon_key,
-    key: data.extension.key
+    key: data.extension.key,
+    id: data.extension.id
   }, eventData);
 });
 

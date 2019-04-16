@@ -4197,13 +4197,15 @@
 	  if (!data.$el.hasClass('ap-dialog-custom-button')) {
 	    EventActions.broadcast('dialog.' + eventData.button.name, {
 	      addon_key: data.extension.addon_key,
-	      key: data.extension.key
+	      key: data.extension.key,
+	      id: data.extension.id
 	    }, eventData);
 	  }
 
 	  EventActions.broadcast(eventName, {
 	    addon_key: data.extension.addon_key,
-	    key: data.extension.key
+	    key: data.extension.key,
+	    id: data.extension.id
 	  }, eventData);
 	});
 
@@ -6248,7 +6250,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.2.6';
+	  window._AP.version = '5.2.7';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
