@@ -30,18 +30,31 @@ EventDispatcher.register('dialog-button-click', (data) => {
   };
   var eventName = 'dialog.button.click';
 
-  // Old buttons, (submit and cancel) use old events
-  if(!data.$el.hasClass('ap-dialog-custom-button')) {
-    EventActions.broadcast(`dialog.${eventData.button.name}`, {
-      addon_key: data.extension.addon_key,
-      key: data.extension.key
-    }, eventData);
-  }
-
-  EventActions.broadcast(eventName, {
+  var buttonEventFilter = {
     addon_key: data.extension.addon_key,
     key: data.extension.key
-  }, eventData);
+  };
+
+  if(
+      window.AJS &&
+      window.AJS.DarkFeatures &&
+      window.AJS.DarkFeatures.isEnabled &&
+      window.AJS.DarkFeatures.isEnabled('connect.js.dialog.idfilter')) {
+    buttonEventFilter.id = data.extension.id;
+  }
+
+  // Old buttons, (submit and cancel) use old events
+  if(!data.$el.hasClass('ap-dialog-custom-button')) {
+    EventActions.broadcast(`dialog.${eventData.button.name}`,
+      buttonEventFilter,
+      eventData
+    );
+  }
+
+  EventActions.broadcast(eventName,
+    buttonEventFilter,
+    eventData
+  );
 });
 
 /**
