@@ -25,7 +25,13 @@ export default {
    */
   getLocation: function(callback) {
     callback = util.last(arguments);
-    callback(window.location.href);
+    let href = window.location.href;
+    let provider = ModuleProviders.getProvider('custom-application-implementations');
+    if (provider && typeof provider.locationTransformer === 'function') {
+      callback(provider.locationTransformer(href));
+    } else {
+      callback(href);
+    }
   },
   /**
    * Resize the iframe to a specified width and height.
