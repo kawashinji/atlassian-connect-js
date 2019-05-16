@@ -25,12 +25,11 @@ export default {
    */
   getLocation: function(callback) {
     callback = util.last(arguments);
-    let href = window.location.href;
-    let provider = ModuleProviders.getProvider('custom-application-implementations');
-    if (provider && typeof provider.locationTransformer === 'function') {
-      callback(provider.locationTransformer(href));
+    let pageLocationProvider = ModuleProviders.getProvider('get-location');
+    if (typeof pageLocationProvider === 'function') {
+      callback(pageLocationProvider());
     } else {
-      callback(href);
+      callback(window.location.href);
     }
   },
   /**
