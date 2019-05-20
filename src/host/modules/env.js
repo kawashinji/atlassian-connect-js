@@ -25,7 +25,12 @@ export default {
    */
   getLocation: function(callback) {
     callback = util.last(arguments);
-    callback(window.location.href);
+    let pageLocationProvider = ModuleProviders.getProvider('get-location');
+    if (typeof pageLocationProvider === 'function') {
+      callback(pageLocationProvider());
+    } else {
+      callback(window.location.href);
+    }
   },
   /**
    * Resize the iframe to a specified width and height.
