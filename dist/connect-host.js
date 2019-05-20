@@ -4732,7 +4732,12 @@
 	   */
 	  getLocation: function getLocation(callback) {
 	    callback = Util$1.last(arguments);
-	    callback(window.location.href);
+	    var pageLocationProvider = ModuleProviders$1.getProvider('get-location');
+	    if (typeof pageLocationProvider === 'function') {
+	      callback(pageLocationProvider());
+	    } else {
+	      callback(window.location.href);
+	    }
 	  },
 	  /**
 	   * Resize the iframe to a specified width and height.
@@ -6251,7 +6256,7 @@
 	 * Add version
 	 */
 	if (!window._AP.version) {
-	  window._AP.version = '5.2.10';
+	  window._AP.version = '5.2.11';
 	}
 
 	simpleXDM$1.defineModule('messages', messages);
