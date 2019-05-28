@@ -1419,7 +1419,7 @@
 	        var promiseResult = method.apply(module, methodArgs);
 
 	        if (method.returnsPromise) {
-	          if (!promiseResult || !(promiseResult instanceof Promise)) {
+	          if (!((typeof promiseResult === 'undefined' ? 'undefined' : _typeof(promiseResult)) === 'object' || typeof promiseResult === 'function') || typeof promiseResult.then !== 'function') {
 	            sendResponse('Defined module method did not return a promise.');
 	          } else {
 	            promiseResult.then(function (result) {
