@@ -41,38 +41,29 @@ module.exports = function(config) {
           'fixtures': path.join(__dirname, '../fixtures/'),
         }
       },
+      plugins: [],
       module: {
-        loaders: [
+        rules: [
           {
             test: /\.js$/,
-            loader: 'babel',
-            query: {
-              cacheDirectory: false,
-              presets: [
-                ['env', {
-                  'targets': {
-                    'browsers': [
-                      'last 1 Chrome versions',
-                      'last 1 Firefox versions',
-                      'last 1 Safari versions',
-                      'Explorer 11',
-                      'last 1 Edge versions'
-                    ]
-                  },
-                  'useBuiltIns': true
+            use: {
+              loader: 'babel-loader',
+              options: {
+                presets: ['@babel/preset-env', {
                 }],
-                'stage-2'
-              ]
+                plugins: [
+                  ['@babel/plugin-proposal-decorators', { 'legacy': true }],
+                  '@babel/plugin-proposal-function-sent',
+                  '@babel/plugin-proposal-export-namespace-from',
+                  '@babel/plugin-proposal-numeric-separator',
+                  '@babel/plugin-proposal-throw-expressions'
+                ]
+              }
             }
           }
-        ],
-        postLoaders: [
         ]
-      },
-      plugins: [
-      ],
+      }
     },
-
     // test results reporter to use
     // possible values: 'jasmine-diff', 'dots', 'progress', 'junit', 'growl', 'coverage'
     reporters: ['jasmine-diff', 'progress', 'dots'],

@@ -1,85 +1,74 @@
 var AP = (function () {
   'use strict';
 
-  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-    return typeof obj;
-  } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-  };
-
-
-
-
-
-
-
-
-
-
-
-  var classCallCheck = function (instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  };
-
-
-
-
-
-
-
-
-
-  var _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-
-
-  var inherits = function (subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-    }
-
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-  };
-
-
-
-
-
-
-
-
-
-
-
-  var possibleConstructorReturn = function (self, call) {
-    if (!self) {
+  function _assertThisInitialized(self) {
+    if (self === void 0) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
     }
 
-    return call && (typeof call === "object" || typeof call === "function") ? call : self;
-  };
+    return self;
+  }
+
+  var assertThisInitialized = _assertThisInitialized;
+
+  function _inheritsLoose(subClass, superClass) {
+    subClass.prototype = Object.create(superClass.prototype);
+    subClass.prototype.constructor = subClass;
+    subClass.__proto__ = superClass;
+  }
+
+  var inheritsLoose = _inheritsLoose;
+
+  function createCommonjsModule(fn, module) {
+  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  }
+
+  var setPrototypeOf = createCommonjsModule(function (module) {
+  function _setPrototypeOf(o, p) {
+    module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+
+    return _setPrototypeOf(o, p);
+  }
+
+  module.exports = _setPrototypeOf;
+  });
+
+  var construct = createCommonjsModule(function (module) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function _construct(Parent, args, Class) {
+    if (isNativeReflectConstruct()) {
+      module.exports = _construct = Reflect.construct;
+    } else {
+      module.exports = _construct = function _construct(Parent, args, Class) {
+        var a = [null];
+        a.push.apply(a, args);
+        var Constructor = Function.bind.apply(Parent, a);
+        var instance = new Constructor();
+        if (Class) setPrototypeOf(instance, Class.prototype);
+        return instance;
+      };
+    }
+
+    return _construct.apply(null, arguments);
+  }
+
+  module.exports = _construct;
+  });
 
   var LOG_PREFIX = "[Simple-XDM] ";
   var nativeBind = Function.prototype.bind;
@@ -120,6 +109,7 @@ var AP = (function () {
           outputError.push(LOG_PREFIX);
           outputError = outputError.concat(Array.prototype.slice.call(arguments));
         }
+
         window.console.error.apply(null, outputError);
       }
     },
@@ -137,6 +127,7 @@ var AP = (function () {
       if (nativeBind && fn.bind === nativeBind) {
         return fn.bind(thisp);
       }
+
       return function () {
         return fn.apply(thisp, arguments);
       };
@@ -145,6 +136,7 @@ var AP = (function () {
       var previous = 0;
       return function () {
         var now = Date.now();
+
         if (now - previous > wait) {
           previous = now;
           func.apply(context, arguments);
@@ -154,14 +146,18 @@ var AP = (function () {
     each: function each(list, iteratee) {
       var length;
       var key;
+
       if (list) {
         length = list.length;
+
         if (length != null && typeof list !== 'function') {
           key = 0;
+
           while (key < length) {
             if (iteratee.call(list[key], key, list[key]) === false) {
               break;
             }
+
             key += 1;
           }
         } else {
@@ -179,7 +175,7 @@ var AP = (function () {
       var args = arguments;
       var srcs = [].slice.call(args, 1, args.length);
       srcs.forEach(function (source) {
-        if ((typeof source === "undefined" ? "undefined" : _typeof(source)) === "object") {
+        if (typeof source === "object") {
           Object.getOwnPropertyNames(source).forEach(function (name) {
             dest[name] = source[name];
           });
@@ -204,15 +200,16 @@ var AP = (function () {
             warn(t.name + " object was detected and removed from the message.");
             return true;
           }
+
           return false;
         })) {
           return {};
         }
 
-        if (value && (typeof value === "undefined" ? "undefined" : _typeof(value)) === 'object' && whiteList.every(function (t) {
+        if (value && typeof value === 'object' && whiteList.every(function (t) {
           return !(value instanceof t);
         })) {
-          var newValue = void 0;
+          var newValue;
 
           if (Array.isArray(value)) {
             newValue = value.map(function (element) {
@@ -225,12 +222,12 @@ var AP = (function () {
             }
 
             visitedObjects.push(value);
-
             newValue = {};
 
             for (var name in value) {
               if (value.hasOwnProperty(name)) {
                 var clonedValue = _clone(value[name]);
+
                 if (clonedValue !== null) {
                   newValue[name] = clonedValue;
                 }
@@ -239,8 +236,10 @@ var AP = (function () {
 
             visitedObjects.pop();
           }
+
           return newValue;
         }
+
         return value;
       }
 
@@ -252,47 +251,53 @@ var AP = (function () {
         try {
           return new URL(url, base).origin;
         } catch (e) {}
-      }
-      // ie11 + safari 10
+      } // ie11 + safari 10
+
+
       var doc = document.implementation.createHTMLDocument('');
+
       if (base) {
         var baseElement = doc.createElement('base');
         baseElement.href = base;
         doc.head.appendChild(baseElement);
       }
+
       var anchorElement = doc.createElement('a');
       anchorElement.href = url;
       doc.body.appendChild(anchorElement);
+      var origin = anchorElement.protocol + '//' + anchorElement.hostname; //ie11, only include port if referenced in initial URL
 
-      var origin = anchorElement.protocol + '//' + anchorElement.hostname;
-      //ie11, only include port if referenced in initial URL
       if (url.match(/\/\/[^/]+:[0-9]+\//)) {
         origin += anchorElement.port ? ':' + anchorElement.port : '';
       }
+
       return origin;
     }
   };
 
-  var PostMessage = function () {
+  var PostMessage =
+  /*#__PURE__*/
+  function () {
     function PostMessage(data) {
-      classCallCheck(this, PostMessage);
-
       var d = data || {};
+
       this._registerListener(d.listenOn);
     }
 
-    PostMessage.prototype._registerListener = function _registerListener(listenOn) {
+    var _proto = PostMessage.prototype;
+
+    _proto._registerListener = function _registerListener(listenOn) {
       if (!listenOn || !listenOn.addEventListener) {
         listenOn = window;
       }
+
       listenOn.addEventListener("message", util._bind(this, this._receiveMessage), false);
     };
 
-    PostMessage.prototype._receiveMessage = function _receiveMessage(event) {
-
+    _proto._receiveMessage = function _receiveMessage(event) {
       var handler = this._messageHandlers[event.data.type],
           extensionId = event.data.eid,
-          reg = void 0;
+          reg;
 
       if (extensionId && this._registeredExtensions) {
         reg = this._registeredExtensions[extensionId];
@@ -308,62 +313,24 @@ var AP = (function () {
     return PostMessage;
   }();
 
-  /**
-  * Postmessage format:
-  *
-  * Initialization
-  * --------------
-  * {
-  *   type: 'init',
-  *   eid: 'my-addon__my-module-xyz'  // the extension identifier, unique across iframes
-  * }
-  *
-  * Request
-  * -------
-  * {
-  *   type: 'req',
-  *   eid: 'my-addon__my-module-xyz',  // the extension identifier, unique for iframe
-  *   mid: 'xyz',  // a unique message identifier, required for callbacks
-  *   mod: 'cookie',  // the module name
-  *   fn: 'read',  // the method name
-  *   args: [arguments]  // the method arguments
-  * }
-  *
-  * Response
-  * --------
-  * {
-  *   type: 'resp'
-  *   eid: 'my-addon__my-module-xyz',  // the extension identifier, unique for iframe
-  *   mid: 'xyz',  // a unique message identifier, obtained from the request
-  *   args: [arguments]  // the callback arguments
-  * }
-  *
-  * Event
-  * -----
-  * {
-  *   type: 'evt',
-  *   etyp: 'some-event',
-  *   evnt: { ... }  // the event data
-  *   mid: 'xyz', // a unique message identifier for the event
-  * }
-  **/
-
   var VALID_EVENT_TIME_MS = 30000; //30 seconds
 
-  var XDMRPC = function (_PostMessage) {
-    inherits(XDMRPC, _PostMessage);
+  var XDMRPC =
+  /*#__PURE__*/
+  function (_PostMessage) {
+    inheritsLoose(XDMRPC, _PostMessage);
 
-    XDMRPC.prototype._padUndefinedArguments = function _padUndefinedArguments(array, length) {
+    var _proto = XDMRPC.prototype;
+
+    _proto._padUndefinedArguments = function _padUndefinedArguments(array, length) {
       return array.length >= length ? array : array.concat(new Array(length - array.length));
     };
 
     function XDMRPC(config) {
-      classCallCheck(this, XDMRPC);
+      var _this;
 
       config = config || {};
-
-      var _this = possibleConstructorReturn(this, _PostMessage.call(this, config));
-
+      _this = _PostMessage.call(this, config) || this;
       _this._registeredExtensions = config.extensions || {};
       _this._registeredAPIModules = {};
       _this._registeredAPIModules._globals = {};
@@ -386,17 +353,19 @@ var AP = (function () {
       return _this;
     }
 
-    XDMRPC.prototype._verifyAPI = function _verifyAPI(event, reg) {
+    _proto._verifyAPI = function _verifyAPI(event, reg) {
       var untrustedTargets = event.data.targets;
+
       if (!untrustedTargets) {
         return;
       }
+
       var trustedSpec = this.getApiSpec();
       var tampered = false;
 
       function check(trusted, untrusted) {
         Object.getOwnPropertyNames(untrusted).forEach(function (name) {
-          if (_typeof(untrusted[name]) === 'object' && trusted[name]) {
+          if (typeof untrusted[name] === 'object' && trusted[name]) {
             check(trusted[name], untrusted[name]);
           } else {
             if (untrusted[name] === 'parent' && trusted[name]) {
@@ -405,6 +374,7 @@ var AP = (function () {
           }
         });
       }
+
       check(trustedSpec, untrustedTargets);
       event.source.postMessage({
         type: 'api_tamper',
@@ -412,26 +382,27 @@ var AP = (function () {
       }, reg.extension.url);
     };
 
-    XDMRPC.prototype._handleInit = function _handleInit(event, reg) {
+    _proto._handleInit = function _handleInit(event, reg) {
       this._registeredExtensions[reg.extension_id].source = event.source;
+
       if (reg.initCallback) {
         reg.initCallback(event.data.eid);
         delete reg.initCallback;
       }
+
       if (event.data.targets) {
         this._verifyAPI(event, reg);
       }
-    };
-    // postMessage method to do registerExtension
+    } // postMessage method to do registerExtension
+    ;
 
-
-    XDMRPC.prototype._handleSubInit = function _handleSubInit(event, reg) {
+    _proto._handleSubInit = function _handleSubInit(event, reg) {
       this.registerExtension(event.data.ext.id, {
         extension: event.data.ext
       });
     };
 
-    XDMRPC.prototype._getHostOffset = function _getHostOffset(event, _window) {
+    _proto._getHostOffset = function _getHostOffset(event, _window) {
       var hostWindow = event.source;
       var hostFrameOffset = null;
       var windowReference = _window || window; // For testing
@@ -441,8 +412,8 @@ var AP = (function () {
       }
 
       if (typeof hostFrameOffset !== 'number') {
-        hostFrameOffset = 0;
-        // Find the closest frame that has the same origin as event source
+        hostFrameOffset = 0; // Find the closest frame that has the same origin as event source
+
         while (!this._hasSameOrigin(hostWindow)) {
           // Climb up the iframe tree 1 layer
           hostFrameOffset++;
@@ -455,7 +426,7 @@ var AP = (function () {
       }, event.origin);
     };
 
-    XDMRPC.prototype._hasSameOrigin = function _hasSameOrigin(window) {
+    _proto._hasSameOrigin = function _hasSameOrigin(window) {
       if (window === window.top) {
         return true;
       }
@@ -467,27 +438,27 @@ var AP = (function () {
         var testVariableName = 'test_var_' + Math.random().toString(16).substr(2);
         window[testVariableName] = true;
         return window[testVariableName];
-      } catch (e) {
-        // A exception will be thrown if the windows doesn't have the same origin
+      } catch (e) {// A exception will be thrown if the windows doesn't have the same origin
       }
 
       return false;
     };
 
-    XDMRPC.prototype._handleResponse = function _handleResponse(event) {
+    _proto._handleResponse = function _handleResponse(event) {
       var data = event.data;
       var pendingCallback = this._pendingCallbacks[data.mid];
+
       if (pendingCallback) {
         delete this._pendingCallbacks[data.mid];
         pendingCallback.apply(window, data.args);
       }
     };
 
-    XDMRPC.prototype.registerRequestNotifier = function registerRequestNotifier(cb) {
+    _proto.registerRequestNotifier = function registerRequestNotifier(cb) {
       this._registeredRequestNotifier = cb;
     };
 
-    XDMRPC.prototype._handleRequest = function _handleRequest(event, reg) {
+    _proto._handleRequest = function _handleRequest(event, reg) {
       function sendResponse() {
         var args = util.sanitizeStructuredClone(util.argumentsToArray(arguments));
         event.source.postMessage({
@@ -501,23 +472,28 @@ var AP = (function () {
       var data = event.data;
       var module = this._registeredAPIModules[data.mod];
       var extension = this.getRegisteredExtensions(reg.extension)[0];
+
       if (module) {
         var fnName = data.fn;
+
         if (data._cls) {
           var Cls = module[data._cls];
           var ns = data.mod + '-' + data._cls + '-';
           sendResponse._id = data._id;
+
           if (fnName === 'constructor') {
             if (!Cls._construct) {
               Cls.constructor.prototype._destroy = function () {
                 delete this._context._proxies[ns + this._id];
               };
+
               Cls._construct = function () {
-                for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
                   args[_key] = arguments[_key];
                 }
 
-                var inst = new (Function.prototype.bind.apply(Cls.constructor, [null].concat(args)))();
+                var inst = construct(Cls.constructor, args);
+
                 var callback = args[args.length - 1];
                 inst._id = callback._id;
                 inst._context = callback._context;
@@ -525,26 +501,31 @@ var AP = (function () {
                 return inst;
               };
             }
+
             module = Cls;
             fnName = '_construct';
           } else {
             module = extension._proxies[ns + data._id];
           }
         }
+
         var method = module[fnName];
+
         if (method) {
           var methodArgs = data.args;
           var padLength = method.length - 1;
+
           if (fnName === '_construct') {
             padLength = module.constructor.length - 1;
           }
+
           sendResponse._context = extension;
           methodArgs = this._padUndefinedArguments(methodArgs, padLength);
           methodArgs.push(sendResponse);
           var promiseResult = method.apply(module, methodArgs);
 
           if (method.returnsPromise) {
-            if (!((typeof promiseResult === 'undefined' ? 'undefined' : _typeof(promiseResult)) === 'object' || typeof promiseResult === 'function') || typeof promiseResult.then !== 'function') {
+            if (!(typeof promiseResult === 'object' || typeof promiseResult === 'function') || typeof promiseResult.then !== 'function') {
               sendResponse('Defined module method did not return a promise.');
             } else {
               promiseResult.then(function (result) {
@@ -570,18 +551,23 @@ var AP = (function () {
       }
     };
 
-    XDMRPC.prototype._handleBroadcast = function _handleBroadcast(event, reg) {
+    _proto._handleBroadcast = function _handleBroadcast(event, reg) {
       var event_data = event.data;
+
       var targetSpec = function targetSpec(r) {
         return r.extension.addon_key === reg.extension.addon_key && r.extension_id !== reg.extension_id;
       };
+
       this.dispatch(event_data.etyp, targetSpec, event_data.evnt, null, null);
     };
 
-    XDMRPC.prototype._handleKeyTriggered = function _handleKeyTriggered(event, reg) {
+    _proto._handleKeyTriggered = function _handleKeyTriggered(event, reg) {
       var eventData = event.data;
+
       var keycodeEntry = this._keycodeKey(eventData.keycode, eventData.modifiers, reg.extension_id);
+
       var listeners = this._keycodeCallbacks[keycodeEntry];
+
       if (listeners) {
         listeners.forEach(function (listener) {
           listener.call(null, {
@@ -595,24 +581,24 @@ var AP = (function () {
       }
     };
 
-    XDMRPC.prototype.defineAPIModule = function defineAPIModule(module, moduleName) {
+    _proto.defineAPIModule = function defineAPIModule(module, moduleName) {
       moduleName = moduleName || '_globals';
       this._registeredAPIModules[moduleName] = util.extend({}, this._registeredAPIModules[moduleName] || {}, module);
       return this._registeredAPIModules;
     };
 
-    XDMRPC.prototype._pendingEventKey = function _pendingEventKey(targetSpec, time) {
+    _proto._pendingEventKey = function _pendingEventKey(targetSpec, time) {
       var key = targetSpec.addon_key || 'global';
+
       if (targetSpec.key) {
-        key = key + '@@' + targetSpec.key;
+        key = key + "@@" + targetSpec.key;
       }
 
-      key = key + '@@' + time;
-
+      key = key + "@@" + time;
       return key;
     };
 
-    XDMRPC.prototype.queueEvent = function queueEvent(type, targetSpec, event, callback) {
+    _proto.queueEvent = function queueEvent(type, targetSpec, event, callback) {
       var loaded_frame,
           targets = this._findRegistrations(targetSpec);
 
@@ -624,6 +610,7 @@ var AP = (function () {
         this.dispatch(type, targetSpec, event, callback);
       } else {
         this._cleanupInvalidEvents();
+
         var time = new Date().getTime();
         this._pendingEvents[this._pendingEventKey(targetSpec, time)] = {
           type: type,
@@ -636,7 +623,7 @@ var AP = (function () {
       }
     };
 
-    XDMRPC.prototype._cleanupInvalidEvents = function _cleanupInvalidEvents() {
+    _proto._cleanupInvalidEvents = function _cleanupInvalidEvents() {
       var _this2 = this;
 
       var now = new Date().getTime();
@@ -644,13 +631,14 @@ var AP = (function () {
       keys.forEach(function (index) {
         var element = _this2._pendingEvents[index];
         var eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
+
         if (!eventIsValid) {
           delete _this2._pendingEvents[index];
         }
       });
     };
 
-    XDMRPC.prototype._handleEventQuery = function _handleEventQuery(message, extension) {
+    _proto._handleEventQuery = function _handleEventQuery(message, extension) {
       var _this3 = this;
 
       var executed = {};
@@ -668,18 +656,17 @@ var AP = (function () {
         if (eventIsValid && isSameTarget) {
           executed[index] = element;
           element.targetSpec = element.targetSpec || {};
+
           _this3.dispatch(element.type, element.targetSpec, element.event, element.callback, message.source);
         } else if (!eventIsValid) {
           delete _this3._pendingEvents[index];
         }
       });
-
       this._registeredExtensions[extension.extension_id].registered_events = message.data.args;
-
       return executed;
     };
 
-    XDMRPC.prototype._handleUnload = function _handleUnload(event, reg) {
+    _proto._handleUnload = function _handleUnload(event, reg) {
       if (!reg) {
         return;
       }
@@ -693,10 +680,11 @@ var AP = (function () {
       }
     };
 
-    XDMRPC.prototype.dispatch = function dispatch(type, targetSpec, event, callback, source) {
+    _proto.dispatch = function dispatch(type, targetSpec, event, callback, source) {
       function sendEvent(reg, evnt) {
         if (reg.source && reg.source.postMessage) {
           var mid;
+
           if (callback) {
             mid = util.randomString();
             this._pendingCallbacks[mid] = callback;
@@ -712,6 +700,7 @@ var AP = (function () {
       }
 
       var registrations = this._findRegistrations(targetSpec || {});
+
       registrations.forEach(function (reg) {
         if (source && !reg.source) {
           reg.source = source;
@@ -723,13 +712,14 @@ var AP = (function () {
       }, this);
     };
 
-    XDMRPC.prototype._findRegistrations = function _findRegistrations(targetSpec) {
+    _proto._findRegistrations = function _findRegistrations(targetSpec) {
       var _this4 = this;
 
       if (this._registeredExtensions.length === 0) {
         util.error('no registered extensions', this._registeredExtensions);
         return [];
       }
+
       var keys = Object.getOwnPropertyNames(targetSpec);
       var registrations = Object.getOwnPropertyNames(this._registeredExtensions).map(function (key) {
         return _this4._registeredExtensions[key];
@@ -746,19 +736,20 @@ var AP = (function () {
       }
     };
 
-    XDMRPC.prototype.registerExtension = function registerExtension(extension_id, data) {
+    _proto.registerExtension = function registerExtension(extension_id, data) {
       data._proxies = {};
       data.extension_id = extension_id;
       this._registeredExtensions[extension_id] = data;
     };
 
-    XDMRPC.prototype._keycodeKey = function _keycodeKey(key, modifiers, extension_id) {
+    _proto._keycodeKey = function _keycodeKey(key, modifiers, extension_id) {
       var code = key;
 
       if (modifiers) {
         if (typeof modifiers === "string") {
           modifiers = [modifiers];
         }
+
         modifiers.sort();
         modifiers.forEach(function (modifier) {
           code += '$$' + modifier;
@@ -768,12 +759,15 @@ var AP = (function () {
       return code + '__' + extension_id;
     };
 
-    XDMRPC.prototype.registerKeyListener = function registerKeyListener(extension_id, key, modifiers, callback) {
+    _proto.registerKeyListener = function registerKeyListener(extension_id, key, modifiers, callback) {
       if (typeof modifiers === "string") {
         modifiers = [modifiers];
       }
+
       var reg = this._registeredExtensions[extension_id];
+
       var keycodeEntry = this._keycodeKey(key, modifiers, extension_id);
+
       if (!this._keycodeCallbacks[keycodeEntry]) {
         this._keycodeCallbacks[keycodeEntry] = [];
         reg.source.postMessage({
@@ -783,21 +777,25 @@ var AP = (function () {
           action: 'add'
         }, reg.extension.url);
       }
+
       this._keycodeCallbacks[keycodeEntry].push(callback);
     };
 
-    XDMRPC.prototype.unregisterKeyListener = function unregisterKeyListener(extension_id, key, modifiers, callback) {
+    _proto.unregisterKeyListener = function unregisterKeyListener(extension_id, key, modifiers, callback) {
       var keycodeEntry = this._keycodeKey(key, modifiers, extension_id);
+
       var potentialCallbacks = this._keycodeCallbacks[keycodeEntry];
       var reg = this._registeredExtensions[extension_id];
 
       if (potentialCallbacks) {
         if (callback) {
           var index = potentialCallbacks.indexOf(callback);
+
           this._keycodeCallbacks[keycodeEntry].splice(index, 1);
         } else {
           delete this._keycodeCallbacks[keycodeEntry];
         }
+
         if (reg.source && reg.source.postMessage) {
           reg.source.postMessage({
             type: 'key_listen',
@@ -809,17 +807,19 @@ var AP = (function () {
       }
     };
 
-    XDMRPC.prototype.registerClickHandler = function registerClickHandler(callback) {
+    _proto.registerClickHandler = function registerClickHandler(callback) {
       if (typeof callback !== 'function') {
         throw new Error('callback must be a function');
       }
+
       if (this._clickHandler !== null) {
         throw new Error('ClickHandler already registered');
       }
+
       this._clickHandler = callback;
     };
 
-    XDMRPC.prototype._handleAddonClick = function _handleAddonClick(event, reg) {
+    _proto._handleAddonClick = function _handleAddonClick(event, reg) {
       if (typeof this._clickHandler === 'function') {
         this._clickHandler({
           addon_key: reg.extension.addon_key,
@@ -829,74 +829,82 @@ var AP = (function () {
       }
     };
 
-    XDMRPC.prototype.unregisterClickHandler = function unregisterClickHandler() {
+    _proto.unregisterClickHandler = function unregisterClickHandler() {
       this._clickHandler = null;
     };
 
-    XDMRPC.prototype.getApiSpec = function getApiSpec() {
+    _proto.getApiSpec = function getApiSpec() {
       var that = this;
+
       function createModule(moduleName) {
         var module = that._registeredAPIModules[moduleName];
+
         if (!module) {
           throw new Error("unregistered API module: " + moduleName);
         }
+
         function getModuleDefinition(mod) {
           return Object.getOwnPropertyNames(mod).reduce(function (accumulator, memberName) {
             var member = mod[memberName];
-            switch (typeof member === 'undefined' ? 'undefined' : _typeof(member)) {
+
+            switch (typeof member) {
               case 'function':
                 accumulator[memberName] = {
                   args: util.argumentNames(member),
                   returnsPromise: member.returnsPromise || false
                 };
                 break;
+
               case 'object':
                 if (member.hasOwnProperty('constructor')) {
                   accumulator[memberName] = getModuleDefinition(member);
                 }
+
                 break;
             }
 
             return accumulator;
           }, {});
         }
+
         return getModuleDefinition(module);
       }
+
       return Object.getOwnPropertyNames(this._registeredAPIModules).reduce(function (accumulator, moduleName) {
         accumulator[moduleName] = createModule(moduleName);
         return accumulator;
       }, {});
     };
 
-    XDMRPC.prototype._originEqual = function _originEqual(url, origin) {
+    _proto._originEqual = function _originEqual(url, origin) {
       function strCheck(str) {
         return typeof str === 'string' && str.length > 0;
       }
-      var urlOrigin = util.getOrigin(url);
-      // check strings are strings and they contain something
+
+      var urlOrigin = util.getOrigin(url); // check strings are strings and they contain something
+
       if (!strCheck(url) || !strCheck(origin) || !strCheck(urlOrigin)) {
         return false;
       }
 
       return origin === urlOrigin;
-    };
+    } // validate origin of postMessage
+    ;
 
-    // validate origin of postMessage
-
-
-    XDMRPC.prototype._checkOrigin = function _checkOrigin(event, reg) {
+    _proto._checkOrigin = function _checkOrigin(event, reg) {
       var no_source_types = ['init'];
       var isNoSourceType = reg && !reg.source && no_source_types.indexOf(event.data.type) > -1;
       var sourceTypeMatches = reg && event.source === reg.source;
-      var hasExtensionUrl = reg && this._originEqual(reg.extension.url, event.origin);
-      var isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches);
 
-      // get_host_offset fires before init
+      var hasExtensionUrl = reg && this._originEqual(reg.extension.url, event.origin);
+
+      var isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches); // get_host_offset fires before init
+
       if (event.data.type === 'get_host_offset' && window === window.top) {
         isValidOrigin = true;
-      }
+      } // check undefined for chromium (Issue 395010)
 
-      // check undefined for chromium (Issue 395010)
+
       if (event.data.type === 'unload' && (sourceTypeMatches || event.source === undefined)) {
         isValidOrigin = true;
       }
@@ -904,18 +912,21 @@ var AP = (function () {
       if (!isValidOrigin) {
         util.log("Failed to validate origin: " + event.origin);
       }
+
       return isValidOrigin;
     };
 
-    XDMRPC.prototype.getRegisteredExtensions = function getRegisteredExtensions(filter) {
+    _proto.getRegisteredExtensions = function getRegisteredExtensions(filter) {
       if (filter) {
         return this._findRegistrations(filter);
       }
+
       return this._registeredExtensions;
     };
 
-    XDMRPC.prototype.unregisterExtension = function unregisterExtension(filter) {
+    _proto.unregisterExtension = function unregisterExtension(filter) {
       var registrations = this._findRegistrations(filter);
+
       if (registrations.length !== 0) {
         registrations.forEach(function (registration) {
           var _this5 = this;
@@ -929,7 +940,6 @@ var AP = (function () {
               delete _this5._pendingEvents[index];
             }
           });
-
           delete this._registeredExtensions[registration.extension_id];
         }, this);
       }
@@ -938,13 +948,12 @@ var AP = (function () {
     return XDMRPC;
   }(PostMessage);
 
-  var Connect = function () {
+  var Connect =
+  /*#__PURE__*/
+  function () {
     function Connect() {
-      classCallCheck(this, Connect);
-
       this._xdm = new XDMRPC();
     }
-
     /**
      * Send a message to iframes matching the targetSpec. This message is added to
      *  a message queue for delivery to ensure the message is received if an iframe
@@ -957,11 +966,13 @@ var AP = (function () {
      */
 
 
-    Connect.prototype.dispatch = function dispatch(type, targetSpec, event, callback) {
-      this._xdm.queueEvent(type, targetSpec, event, callback);
-      return this.getExtensions(targetSpec);
-    };
+    var _proto = Connect.prototype;
 
+    _proto.dispatch = function dispatch(type, targetSpec, event, callback) {
+      this._xdm.queueEvent(type, targetSpec, event, callback);
+
+      return this.getExtensions(targetSpec);
+    }
     /**
      * Send a message to iframes matching the targetSpec immediately. This message will
      *  only be sent to iframes that are already open, and will not be delivered if none
@@ -971,19 +982,21 @@ var AP = (function () {
      * @param targetSpec The spec to match against extensions when sending this event
      * @param event The event payload
      */
+    ;
 
-
-    Connect.prototype.broadcast = function broadcast(type, targetSpec, event) {
+    _proto.broadcast = function broadcast(type, targetSpec, event) {
       this._xdm.dispatch(type, targetSpec, event, null, null);
+
       return this.getExtensions(targetSpec);
     };
 
-    Connect.prototype._createId = function _createId(extension) {
+    _proto._createId = function _createId(extension) {
       if (!extension.addon_key || !extension.key) {
         throw Error('Extensions require addon_key and key');
       }
+
       return extension.addon_key + '__' + extension.key + '__' + util.randomString();
-    };
+    }
     /**
     * Creates a new iframed module, without actually creating the DOM element.
     * The iframe attributes are passed to the 'setupCallback', which is responsible for creating
@@ -1002,19 +1015,17 @@ var AP = (function () {
     *
     * @param initCallback The optional initCallback is called when the bridge between host and iframe is established.
     **/
+    ;
 
-
-    Connect.prototype.create = function create(extension, initCallback, unloadCallback) {
+    _proto.create = function create(extension, initCallback, unloadCallback) {
       var extension_id = this.registerExtension(extension, initCallback, unloadCallback);
       var options = extension.options || {};
-
       var data = {
         extension_id: extension_id,
         api: this._xdm.getApiSpec(),
         origin: util.locationOrigin(),
         options: options
       };
-
       return {
         id: extension_id,
         name: JSON.stringify(data),
@@ -1022,58 +1033,82 @@ var AP = (function () {
       };
     };
 
-    Connect.prototype.registerRequestNotifier = function registerRequestNotifier(callback) {
+    _proto.registerRequestNotifier = function registerRequestNotifier(callback) {
       this._xdm.registerRequestNotifier(callback);
     };
 
-    Connect.prototype.registerExtension = function registerExtension(extension, initCallback, unloadCallback) {
+    _proto.registerExtension = function registerExtension(extension, initCallback, unloadCallback) {
       var extension_id = this._createId(extension);
+
       this._xdm.registerExtension(extension_id, {
         extension: extension,
         initCallback: initCallback,
         unloadCallback: unloadCallback
       });
+
       return extension_id;
     };
 
-    Connect.prototype.registerKeyListener = function registerKeyListener(extension_id, key, modifiers, callback) {
+    _proto.registerKeyListener = function registerKeyListener(extension_id, key, modifiers, callback) {
       this._xdm.registerKeyListener(extension_id, key, modifiers, callback);
     };
 
-    Connect.prototype.unregisterKeyListener = function unregisterKeyListener(extension_id, key, modifiers, callback) {
+    _proto.unregisterKeyListener = function unregisterKeyListener(extension_id, key, modifiers, callback) {
       this._xdm.unregisterKeyListener(extension_id, key, modifiers, callback);
     };
 
-    Connect.prototype.registerClickHandler = function registerClickHandler(callback) {
+    _proto.registerClickHandler = function registerClickHandler(callback) {
       this._xdm.registerClickHandler(callback);
     };
 
-    Connect.prototype.unregisterClickHandler = function unregisterClickHandler() {
+    _proto.unregisterClickHandler = function unregisterClickHandler() {
       this._xdm.unregisterClickHandler();
     };
 
-    Connect.prototype.defineModule = function defineModule(moduleName, module, options) {
+    _proto.defineModule = function defineModule(moduleName, module, options) {
       this._xdm.defineAPIModule(module, moduleName, options);
     };
 
-    Connect.prototype.defineGlobals = function defineGlobals(module) {
+    _proto.defineGlobals = function defineGlobals(module) {
       this._xdm.defineAPIModule(module);
     };
 
-    Connect.prototype.getExtensions = function getExtensions(filter) {
+    _proto.getExtensions = function getExtensions(filter) {
       return this._xdm.getRegisteredExtensions(filter);
     };
 
-    Connect.prototype.unregisterExtension = function unregisterExtension(filter) {
+    _proto.unregisterExtension = function unregisterExtension(filter) {
       return this._xdm.unregisterExtension(filter);
     };
 
-    Connect.prototype.returnsPromise = function returnsPromise(wrappedMethod) {
+    _proto.returnsPromise = function returnsPromise(wrappedMethod) {
       wrappedMethod.returnsPromise = true;
     };
 
     return Connect;
   }();
+
+  var _extends_1 = createCommonjsModule(function (module) {
+  function _extends() {
+    module.exports = _extends = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends.apply(this, arguments);
+  }
+
+  module.exports = _extends;
+  });
 
   /**
    * @this {Promise}
@@ -1111,8 +1146,8 @@ var AP = (function () {
    * @constructor
    * @param {Function} fn
    */
-  function Promise$1(fn) {
-    if (!(this instanceof Promise$1))
+  function Promise(fn) {
+    if (!(this instanceof Promise))
       throw new TypeError('Promises must be constructed via new');
     if (typeof fn !== 'function') throw new TypeError('not a function');
     /** @type {!number} */
@@ -1136,7 +1171,7 @@ var AP = (function () {
       return;
     }
     self._handled = true;
-    Promise$1._immediateFn(function() {
+    Promise._immediateFn(function() {
       var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
       if (cb === null) {
         (self._state === 1 ? resolve : reject)(deferred.promise, self._value);
@@ -1163,7 +1198,7 @@ var AP = (function () {
         (typeof newValue === 'object' || typeof newValue === 'function')
       ) {
         var then = newValue.then;
-        if (newValue instanceof Promise$1) {
+        if (newValue instanceof Promise) {
           self._state = 3;
           self._value = newValue;
           finale(self);
@@ -1189,9 +1224,9 @@ var AP = (function () {
 
   function finale(self) {
     if (self._state === 2 && self._deferreds.length === 0) {
-      Promise$1._immediateFn(function() {
+      Promise._immediateFn(function() {
         if (!self._handled) {
-          Promise$1._unhandledRejectionFn(self._value);
+          Promise._unhandledRejectionFn(self._value);
         }
       });
     }
@@ -1239,11 +1274,11 @@ var AP = (function () {
     }
   }
 
-  Promise$1.prototype['catch'] = function(onRejected) {
+  Promise.prototype['catch'] = function(onRejected) {
     return this.then(null, onRejected);
   };
 
-  Promise$1.prototype.then = function(onFulfilled, onRejected) {
+  Promise.prototype.then = function(onFulfilled, onRejected) {
     // @ts-ignore
     var prom = new this.constructor(noop);
 
@@ -1251,10 +1286,10 @@ var AP = (function () {
     return prom;
   };
 
-  Promise$1.prototype['finally'] = finallyConstructor;
+  Promise.prototype['finally'] = finallyConstructor;
 
-  Promise$1.all = function(arr) {
-    return new Promise$1(function(resolve, reject) {
+  Promise.all = function(arr) {
+    return new Promise(function(resolve, reject) {
       if (!arr || typeof arr.length === 'undefined')
         throw new TypeError('Promise.all accepts an array');
       var args = Array.prototype.slice.call(arr);
@@ -1291,24 +1326,24 @@ var AP = (function () {
     });
   };
 
-  Promise$1.resolve = function(value) {
-    if (value && typeof value === 'object' && value.constructor === Promise$1) {
+  Promise.resolve = function(value) {
+    if (value && typeof value === 'object' && value.constructor === Promise) {
       return value;
     }
 
-    return new Promise$1(function(resolve) {
+    return new Promise(function(resolve) {
       resolve(value);
     });
   };
 
-  Promise$1.reject = function(value) {
-    return new Promise$1(function(resolve, reject) {
+  Promise.reject = function(value) {
+    return new Promise(function(resolve, reject) {
       reject(value);
     });
   };
 
-  Promise$1.race = function(values) {
-    return new Promise$1(function(resolve, reject) {
+  Promise.race = function(values) {
+    return new Promise(function(resolve, reject) {
       for (var i = 0, len = values.length; i < len; i++) {
         values[i].then(resolve, reject);
       }
@@ -1316,7 +1351,7 @@ var AP = (function () {
   };
 
   // Use polyfill for setImmediate for performance gains
-  Promise$1._immediateFn =
+  Promise._immediateFn =
     (typeof setImmediate === 'function' &&
       function(fn) {
         setImmediate(fn);
@@ -1325,20 +1360,19 @@ var AP = (function () {
       setTimeoutFunc(fn, 0);
     };
 
-  Promise$1._unhandledRejectionFn = function _unhandledRejectionFn(err) {
+  Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
     if (typeof console !== 'undefined' && console) {
       console.warn('Possible Unhandled Promise Rejection:', err); // eslint-disable-line no-console
     }
   };
 
-  var _each = util.each;
-  var document$1 = window.document;
+  var _each = util.each,
+      document$1 = window.document;
 
   function $(sel, context) {
-
     context = context || document$1;
-
     var els = [];
+
     if (sel) {
       if (typeof sel === 'string') {
         var results = context.querySelectorAll(sel),
@@ -1356,6 +1390,7 @@ var AP = (function () {
     util.extend(els, {
       each: function each(it) {
         _each(this, it);
+
         return this;
       },
       bind: function bind(name, callback) {
@@ -1386,6 +1421,7 @@ var AP = (function () {
       append: function append(spec) {
         return this.each(function (i, to) {
           var el = context.createElement(spec.tag);
+
           _each(spec, function (k, v) {
             if (k === '$text') {
               if (el.styleSheet) {
@@ -1398,11 +1434,11 @@ var AP = (function () {
               el[k] = v;
             }
           });
+
           to.appendChild(el);
         });
       }
     });
-
     return els;
   }
 
@@ -1444,22 +1480,24 @@ var AP = (function () {
   /**
   * Extension wide configuration values
   */
-  var ConfigurationOptions = function () {
+  var ConfigurationOptions =
+  /*#__PURE__*/
+  function () {
     function ConfigurationOptions() {
-      classCallCheck(this, ConfigurationOptions);
-
       this.options = {};
     }
 
-    ConfigurationOptions.prototype._flush = function _flush() {
+    var _proto = ConfigurationOptions.prototype;
+
+    _proto._flush = function _flush() {
       this.options = {};
     };
 
-    ConfigurationOptions.prototype.get = function get$$1(item) {
+    _proto.get = function get(item) {
       return item ? this.options[item] : this.options;
     };
 
-    ConfigurationOptions.prototype.set = function set$$1(data, value) {
+    _proto.set = function set(data, value) {
       var _this = this;
 
       if (!data) {
@@ -1471,6 +1509,7 @@ var AP = (function () {
 
         data = (_data = {}, _data[data] = value, _data);
       }
+
       var keys = Object.getOwnPropertyNames(data);
       keys.forEach(function (key) {
         _this.options[key] = data[key];
@@ -1483,18 +1522,17 @@ var AP = (function () {
   var ConfigurationOptions$1 = new ConfigurationOptions();
 
   var size = function size(width, height, container) {
-
     var verticalScrollbarWidth = function verticalScrollbarWidth() {
-      var sbWidth = window.innerWidth - container.clientWidth;
-      // sanity check only
+      var sbWidth = window.innerWidth - container.clientWidth; // sanity check only
+
       sbWidth = sbWidth < 0 ? 0 : sbWidth;
       sbWidth = sbWidth > 50 ? 50 : sbWidth;
       return sbWidth;
     };
 
     var horizontalScrollbarHeight = function horizontalScrollbarHeight() {
-      var sbHeight = window.innerHeight - Math.min(container.clientHeight, document.documentElement.clientHeight);
-      // sanity check only
+      var sbHeight = window.innerHeight - Math.min(container.clientHeight, document.documentElement.clientHeight); // sanity check only
+
       sbHeight = sbHeight < 0 ? 0 : sbHeight;
       sbHeight = sbHeight > 50 ? 50 : sbHeight;
       return sbHeight;
@@ -1505,6 +1543,7 @@ var AP = (function () {
         docHeight;
     var widthInPx = Boolean(ConfigurationOptions$1.get('widthinpx'));
     container = container || getContainer();
+
     if (!container) {
       util.warn('size called before container or body appeared, ignoring');
     }
@@ -1512,6 +1551,7 @@ var AP = (function () {
     if (widthInPx && typeof w === "string" && w.search('%') !== -1) {
       w = Math.max(container.scrollWidth, container.offsetWidth, container.clientWidth);
     }
+
     if (height) {
       h = height;
     } else {
@@ -1523,6 +1563,7 @@ var AP = (function () {
       } else {
         var computed = window.getComputedStyle(container);
         h = container.getBoundingClientRect().height;
+
         if (h === 0) {
           h = docHeight;
         } else {
@@ -1533,22 +1574,26 @@ var AP = (function () {
           });
         }
       }
-    }
+    } // Include iframe scroll bars if visible and using exact dimensions
 
-    // Include iframe scroll bars if visible and using exact dimensions
+
     w = typeof w === 'number' && Math.min(container.scrollHeight, document.documentElement.scrollHeight) > Math.min(container.clientHeight, document.documentElement.clientHeight) ? w + verticalScrollbarWidth() : w;
     h = typeof h === 'number' && container.scrollWidth > container.clientWidth ? h + horizontalScrollbarHeight() : h;
-
-    return { w: w, h: h };
+    return {
+      w: w,
+      h: h
+    };
   };
 
   function EventQueue() {
     this.q = [];
+
     this.add = function (ev) {
       this.q.push(ev);
     };
 
     var i, j;
+
     this.call = function () {
       for (i = 0, j = this.q.length; i < j; i++) {
         this.q[i].call();
@@ -1563,9 +1608,9 @@ var AP = (function () {
     } else if (element.resizedAttached) {
       element.resizedAttached.add(resized);
       return;
-    }
+    } // padding / margins on the body causes numerous resizing bugs.
 
-    // padding / margins on the body causes numerous resizing bugs.
+
     if (element.nodeName === 'BODY') {
       ['padding', 'margin'].forEach(function (attr) {
         element.style[attr + '-bottom'] = '0px';
@@ -1577,13 +1622,11 @@ var AP = (function () {
     element.resizeSensor.className = 'ac-resize-sensor';
     var style = 'position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: scroll; z-index: -1; visibility: hidden;';
     var styleChild = 'position: absolute; left: 0; top: 0;';
-
     element.resizeSensor.style.cssText = style;
     element.resizeSensor.innerHTML = '<div class="ac-resize-sensor-expand" style="' + style + '">' + '<div style="' + styleChild + '"></div>' + '</div>' + '<div class="ac-resize-sensor-shrink" style="' + style + '">' + '<div style="' + styleChild + ' width: 200%; height: 200%"></div>' + '</div>';
-    element.appendChild(element.resizeSensor);
-
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=548397
+    element.appendChild(element.resizeSensor); // https://bugzilla.mozilla.org/show_bug.cgi?id=548397
     // do not set body to relative
+
     if (element.nodeName !== 'BODY' && window.getComputedStyle && window.getComputedStyle(element).position === 'static') {
       element.style.position = 'relative';
     }
@@ -1591,7 +1634,6 @@ var AP = (function () {
     var expand = element.resizeSensor.childNodes[0];
     var expandChild = expand.childNodes[0];
     var shrink = element.resizeSensor.childNodes[1];
-
     var lastWidth, lastHeight;
 
     var reset = function reset() {
@@ -1617,17 +1659,16 @@ var AP = (function () {
       if (element.offsetWidth !== lastWidth || element.offsetHeight !== lastHeight) {
         changed();
       }
+
       reset();
     };
 
     expand.addEventListener('scroll', onScroll);
     shrink.addEventListener('scroll', onScroll);
-
     var observerConfig = {
       attributes: true,
       attributeFilter: ['style']
     };
-
     var observer = new MutationObserver(onScroll);
     element.resizeObserver = observer;
     observer.observe(element, observerConfig);
@@ -1640,6 +1681,7 @@ var AP = (function () {
     },
     remove: function remove() {
       var container = getContainer();
+
       if (container.resizeSensor) {
         container.resizeObserver.disconnect();
         container.removeChild(container.resizeSensor);
@@ -1649,14 +1691,13 @@ var AP = (function () {
     }
   };
 
-  var AutoResizeAction = function () {
+  var AutoResizeAction =
+  /*#__PURE__*/
+  function () {
     function AutoResizeAction(callback) {
-      classCallCheck(this, AutoResizeAction);
-
       this.resizeError = util.throttle(function (msg) {
         console.info(msg);
       }, 1000);
-
       this.dimensionStores = {
         width: [],
         height: []
@@ -1664,7 +1705,9 @@ var AP = (function () {
       this.callback = callback;
     }
 
-    AutoResizeAction.prototype._setVal = function _setVal(val, type, time) {
+    var _proto = AutoResizeAction.prototype;
+
+    _proto._setVal = function _setVal(val, type, time) {
       this.dimensionStores[type] = this.dimensionStores[type].filter(function (entry) {
         return time - entry.setAt < 400;
       });
@@ -1674,21 +1717,27 @@ var AP = (function () {
       });
     };
 
-    AutoResizeAction.prototype._isFlicker = function _isFlicker(val, type) {
+    _proto._isFlicker = function _isFlicker(val, type) {
       return this.dimensionStores[type].length >= 5;
     };
 
-    AutoResizeAction.prototype.triggered = function triggered(dimensions) {
+    _proto.triggered = function triggered(dimensions) {
       dimensions = dimensions || size();
       var now = Date.now();
+
       this._setVal(dimensions.w, 'width', now);
+
       this._setVal(dimensions.h, 'height', now);
+
       var isFlickerWidth = this._isFlicker(dimensions.w, 'width', now);
+
       var isFlickerHeight = this._isFlicker(dimensions.h, 'height', now);
+
       if (isFlickerWidth) {
         dimensions.w = "100%";
         this.resizeError("SIMPLE XDM: auto resize flickering width detected, setting to 100%");
       }
+
       if (isFlickerHeight) {
         var vals = this.dimensionStores['height'].map(function (x) {
           return x.val;
@@ -1696,26 +1745,29 @@ var AP = (function () {
         dimensions.h = Math.max.apply(null, vals) + 'px';
         this.resizeError("SIMPLE XDM: auto resize flickering height detected, setting to: " + dimensions.h);
       }
+
       this.callback(dimensions.w, dimensions.h);
     };
 
     return AutoResizeAction;
   }();
 
-  var ConsumerOptions = function () {
-    function ConsumerOptions() {
-      classCallCheck(this, ConsumerOptions);
-    }
+  var ConsumerOptions =
+  /*#__PURE__*/
+  function () {
+    function ConsumerOptions() {}
 
-    ConsumerOptions.prototype._elementExists = function _elementExists($el) {
+    var _proto = ConsumerOptions.prototype;
+
+    _proto._elementExists = function _elementExists($el) {
       return $el && $el.length === 1;
     };
 
-    ConsumerOptions.prototype._elementOptions = function _elementOptions($el) {
+    _proto._elementOptions = function _elementOptions($el) {
       return $el.attr("data-options");
     };
 
-    ConsumerOptions.prototype._getConsumerOptions = function _getConsumerOptions() {
+    _proto._getConsumerOptions = function _getConsumerOptions() {
       var options = {},
           $optionElement = $("#ac-iframe-options"),
           $scriptElement = $("script[src*='/atlassian-connect/all']"),
@@ -1732,14 +1784,17 @@ var AP = (function () {
       if (this._elementExists($optionElement)) {
         // get its data-options attribute, if any
         var optStr = this._elementOptions($optionElement);
+
         if (optStr) {
           // if found, parse the value into kv pairs following the format of a style element
           optStr.split(";").forEach(function (nvpair) {
             nvpair = nvpair.trim();
+
             if (nvpair) {
               var nv = nvpair.split(":"),
                   k = nv[0].trim(),
                   v = nv[1].trim();
+
               if (k && v != null) {
                 options[k] = v === "true" || v === "false" ? v === "true" : v;
               }
@@ -1751,35 +1806,38 @@ var AP = (function () {
       return options;
     };
 
-    ConsumerOptions.prototype._flush = function _flush() {
+    _proto._flush = function _flush() {
       delete this._options;
     };
 
-    ConsumerOptions.prototype.get = function get$$1(key) {
+    _proto.get = function get(key) {
       if (!this._options) {
         this._options = this._getConsumerOptions();
       }
+
       if (key) {
         return this._options[key];
       }
+
       return this._options;
     };
 
     return ConsumerOptions;
   }();
 
-  var ConsumerOptions$1 = new ConsumerOptions();
+  var consumerOptions = new ConsumerOptions();
 
   var POSSIBLE_MODIFIER_KEYS = ['ctrl', 'shift', 'alt', 'meta'];
 
-  var AP$3 = function (_PostMessage) {
-    inherits(AP, _PostMessage);
+  var AP =
+  /*#__PURE__*/
+  function (_PostMessage) {
+    inheritsLoose(AP, _PostMessage);
 
     function AP(options) {
-      classCallCheck(this, AP);
+      var _this;
 
-      var _this = possibleConstructorReturn(this, _PostMessage.call(this));
-
+      _this = _PostMessage.call(this) || this;
       ConfigurationOptions$1.set(options);
       _this._data = _this._parseInitData();
       ConfigurationOptions$1.set(_this._data.options);
@@ -1788,21 +1846,25 @@ var AP = (function () {
       _this._top = window.top;
       _this._host = window.parent || window;
       _this._topHost = _this._getHostFrame(_this._data.options.hostFrameOffset);
+
       if (_this._topHost !== _this._top) {
         _this._verifyHostFrameOffset();
       }
+
       _this._isKeyDownBound = false;
       _this._hostModules = {};
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.2.12";
+      _this._version = "5.2.11";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
-      _this._promise = Promise$1;
+      _this._promise = Promise;
+
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
+
         _this._setupAPIWithoutRequire(_this._data.api);
       }
 
@@ -1815,28 +1877,35 @@ var AP = (function () {
 
       if (_this._data.origin) {
         _this._sendInit(_this._host, _this._data.origin);
+
         if (_this._isSubIframe) {
           _this._sendInit(_this._topHost, _this._hostOrigin);
         }
       }
+
       _this._registerOnUnload();
-      _this.resize = util._bind(_this, function (width, height) {
+
+      _this.resize = util._bind(assertThisInitialized(_this), function (width, height) {
         if (!getContainer()) {
           util.warn('resize called before container or body appeared, ignoring');
           return;
         }
+
         var dimensions = size();
+
         if (!width) {
           width = dimensions.w;
         }
+
         if (!height) {
           height = dimensions.h;
         }
+
         if (_this._hostModules.env && _this._hostModules.env.resize) {
           _this._hostModules.env.resize(width, height);
         }
       });
-      $(util._bind(_this, _this._autoResizer));
+      $(util._bind(assertThisInitialized(_this), _this._autoResizer));
       _this.container = getContainer;
       _this.size = size;
       window.addEventListener('click', function (e) {
@@ -1848,20 +1917,24 @@ var AP = (function () {
       return _this;
     }
 
-    AP.prototype._getHostFrame = function _getHostFrame(offset) {
+    var _proto = AP.prototype;
+
+    _proto._getHostFrame = function _getHostFrame(offset) {
       // Climb up the iframe tree to find the real host
       if (offset && typeof offset === 'number') {
         var hostFrame = window;
+
         for (var i = 0; i < offset; i++) {
           hostFrame = hostFrame.parent;
         }
+
         return hostFrame;
       } else {
         return this._top;
       }
     };
 
-    AP.prototype._verifyHostFrameOffset = function _verifyHostFrameOffset() {
+    _proto._verifyHostFrameOffset = function _verifyHostFrameOffset() {
       var _this2 = this;
 
       // Asynchronously verify the host frame option with this._top
@@ -1875,6 +1948,7 @@ var AP = (function () {
           }
         }
       };
+
       window.addEventListener('message', callback);
 
       this._top.postMessage({
@@ -1882,53 +1956,57 @@ var AP = (function () {
       }, this._hostOrigin);
     };
 
-    AP.prototype._handleApiTamper = function _handleApiTamper(event) {
+    _proto._handleApiTamper = function _handleApiTamper(event) {
       if (event.data.tampered !== false) {
         this._host = undefined;
         this._apiTampered = true;
         util.error('XDM API tampering detected, api disabled');
       } else {
         this._apiTampered = false;
+
         this._onConfirmedFns.forEach(function (cb) {
           cb.apply(null);
         });
       }
+
       this._onConfirmedFns = [];
     };
 
-    AP.prototype._registerOnUnload = function _registerOnUnload() {
+    _proto._registerOnUnload = function _registerOnUnload() {
       $.bind(window, 'unload', util._bind(this, function () {
         this._sendUnload(this._host, this._data.origin);
+
         if (this._isSubIframe) {
           this._sendUnload(this._topHost, this._hostOrigin);
         }
       }));
     };
 
-    AP.prototype._sendUnload = function _sendUnload(frame, origin) {
+    _proto._sendUnload = function _sendUnload(frame, origin) {
       frame.postMessage({
         eid: this._data.extension_id,
         type: 'unload'
       }, origin || '*');
     };
 
-    AP.prototype._bindKeyDown = function _bindKeyDown() {
+    _proto._bindKeyDown = function _bindKeyDown() {
       if (!this._isKeyDownBound) {
         $.bind(window, 'keydown', util._bind(this, this._handleKeyDownDomEvent));
         this._isKeyDownBound = true;
       }
     };
 
-    AP.prototype._autoResizer = function _autoResizer() {
+    _proto._autoResizer = function _autoResizer() {
       this._enableAutoResize = Boolean(ConfigurationOptions$1.get('autoresize'));
-      if (ConsumerOptions$1.get('resize') === false || ConsumerOptions$1.get('sizeToParent') === true) {
+
+      if (consumerOptions.get('resize') === false || consumerOptions.get('sizeToParent') === true) {
         this._enableAutoResize = false;
       }
+
       if (this._enableAutoResize) {
         this._initResize();
       }
-    };
-
+    }
     /**
     * The initialization data is passed in when the iframe is created as its 'name' attribute.
     * Example:
@@ -1945,9 +2023,9 @@ var AP = (function () {
     *   }
     * }
     **/
+    ;
 
-
-    AP.prototype._parseInitData = function _parseInitData(data) {
+    _proto._parseInitData = function _parseInitData(data) {
       try {
         return JSON.parse(data || window.name);
       } catch (e) {
@@ -1955,15 +2033,16 @@ var AP = (function () {
       }
     };
 
-    AP.prototype._findTarget = function _findTarget(moduleName, methodName) {
+    _proto._findTarget = function _findTarget(moduleName, methodName) {
       return this._data.options && this._data.options.targets && this._data.options.targets[moduleName] && this._data.options.targets[moduleName][methodName] ? this._data.options.targets[moduleName][methodName] : 'top';
     };
 
-    AP.prototype._createModule = function _createModule(moduleName, api) {
+    _proto._createModule = function _createModule(moduleName, api) {
       var _this3 = this;
 
       return Object.getOwnPropertyNames(api).reduce(function (accumulator, memberName) {
         var member = api[memberName];
+
         if (member.hasOwnProperty('constructor')) {
           accumulator[memberName] = _this3._createProxy(moduleName, member, memberName);
         } else {
@@ -1973,54 +2052,59 @@ var AP = (function () {
             returnsPromise: member.returnsPromise
           });
         }
+
         return accumulator;
       }, {});
     };
 
-    AP.prototype._setupAPI = function _setupAPI(api) {
+    _proto._setupAPI = function _setupAPI(api) {
       var _this4 = this;
 
       this._hostModules = Object.getOwnPropertyNames(api).reduce(function (accumulator, moduleName) {
         accumulator[moduleName] = _this4._createModule(moduleName, api[moduleName], api[moduleName]._options);
         return accumulator;
       }, {});
-
       Object.getOwnPropertyNames(this._hostModules._globals || {}).forEach(function (global) {
         _this4[global] = _this4._hostModules._globals[global];
       });
     };
 
-    AP.prototype._setupAPIWithoutRequire = function _setupAPIWithoutRequire(api) {
+    _proto._setupAPIWithoutRequire = function _setupAPIWithoutRequire(api) {
       var _this5 = this;
 
       Object.getOwnPropertyNames(api).forEach(function (moduleName) {
         if (typeof _this5[moduleName] !== "undefined") {
           throw new Error('XDM module: ' + moduleName + ' will collide with existing variable');
         }
+
         _this5[moduleName] = _this5._createModule(moduleName, api[moduleName]);
       }, this);
     };
 
-    AP.prototype._pendingCallback = function _pendingCallback(mid, fn, metaData) {
+    _proto._pendingCallback = function _pendingCallback(mid, fn, metaData) {
       if (metaData) {
         Object.getOwnPropertyNames(metaData).forEach(function (metaDataName) {
           fn[metaDataName] = metaData[metaDataName];
         });
       }
+
       this._pendingCallbacks[mid] = fn;
     };
 
-    AP.prototype._createProxy = function _createProxy(moduleName, api, className) {
+    _proto._createProxy = function _createProxy(moduleName, api, className) {
       var module = this._createModule(moduleName, api);
+
       function Cls(args) {
         if (!(this instanceof Cls)) {
           return new Cls(arguments);
         }
+
         this._cls = className;
         this._id = util.randomString();
         module.constructor.apply(this, args);
         return this;
       }
+
       Object.getOwnPropertyNames(module).forEach(function (methodName) {
         if (methodName !== 'constructor') {
           Cls.prototype[methodName] = module[methodName];
@@ -2029,7 +2113,7 @@ var AP = (function () {
       return Cls;
     };
 
-    AP.prototype._createMethodHandler = function _createMethodHandler(methodData) {
+    _proto._createMethodHandler = function _createMethodHandler(methodData) {
       var that = this;
       return function () {
         var args = util.argumentsToArray(arguments);
@@ -2039,10 +2123,9 @@ var AP = (function () {
           mod: methodData.mod,
           fn: methodData.fn
         };
-
         var targetOrigin;
         var target;
-        var xdmPromise = void 0;
+        var xdmPromise;
         var mid = util.randomString();
 
         if (that._findTarget(methodData.mod, methodData.fn) === 'top') {
@@ -2055,13 +2138,14 @@ var AP = (function () {
 
         if (util.hasCallback(args)) {
           data.mid = mid;
+
           that._pendingCallback(data.mid, args.pop(), {
             useCallback: true,
             isPromiseMethod: Boolean(methodData.returnsPromise)
           });
         } else if (methodData.returnsPromise) {
           data.mid = mid;
-          xdmPromise = new Promise$1(function (resolve, reject) {
+          xdmPromise = new Promise(function (resolve, reject) {
             that._pendingCallback(data.mid, function (err, result) {
               if (err || typeof result === 'undefined' && typeof err === 'undefined') {
                 reject(err);
@@ -2073,15 +2157,16 @@ var AP = (function () {
               isPromiseMethod: Boolean(methodData.returnsPromise)
             });
           });
-
           xdmPromise.catch(function (err) {
-            util.warn('Failed promise: ' + err);
+            util.warn("Failed promise: " + err);
           });
         }
+
         if (this && this._cls) {
           data._cls = this._cls;
           data._id = this._id;
         }
+
         data.args = util.sanitizeStructuredClone(args);
 
         if (that._isSubIframe && typeof that._apiTampered === 'undefined') {
@@ -2098,7 +2183,7 @@ var AP = (function () {
       };
     };
 
-    AP.prototype._handleResponse = function _handleResponse(event) {
+    _proto._handleResponse = function _handleResponse(event) {
       var data = event.data;
 
       if (!data.forPlugin) {
@@ -2106,14 +2191,17 @@ var AP = (function () {
       }
 
       var pendingCallback = this._pendingCallbacks[data.mid];
+
       if (pendingCallback) {
         delete this._pendingCallbacks[data.mid];
+
         try {
           // Promise methods always return error result as first arg
           // If a promise method is invoked using callbacks, strip first arg.
           if (pendingCallback.useCallback && pendingCallback.isPromiseMethod) {
             data.args.shift();
           }
+
           pendingCallback.apply(window, data.args);
         } catch (e) {
           util.error(e.message, e.stack);
@@ -2121,7 +2209,7 @@ var AP = (function () {
       }
     };
 
-    AP.prototype._handleEvent = function _handleEvent(event) {
+    _proto._handleEvent = function _handleEvent(event) {
       var sendResponse = function sendResponse() {
         var args = util.argumentsToArray(arguments);
         event.source.postMessage({
@@ -2131,22 +2219,27 @@ var AP = (function () {
           args: args
         }, this._data.origin);
       };
+
       var data = event.data;
       sendResponse = util._bind(this, sendResponse);
       sendResponse._context = {
         eventName: data.etyp
       };
-      function toArray$$1(handlers) {
+
+      function toArray(handlers) {
         if (handlers) {
           if (!Array.isArray(handlers)) {
             handlers = [handlers];
           }
+
           return handlers;
         }
+
         return [];
       }
-      var handlers = toArray$$1(this._eventHandlers[data.etyp]);
-      handlers = handlers.concat(toArray$$1(this._eventHandlers._any));
+
+      var handlers = toArray(this._eventHandlers[data.etyp]);
+      handlers = handlers.concat(toArray(this._eventHandlers._any));
       handlers.forEach(function (handler) {
         try {
           handler(data.evnt, sendResponse);
@@ -2154,20 +2247,24 @@ var AP = (function () {
           util.error('exception thrown in event callback for:' + data.etyp);
         }
       }, this);
+
       if (data.mid) {
         sendResponse();
       }
     };
 
-    AP.prototype._handleKeyDownDomEvent = function _handleKeyDownDomEvent(event) {
+    _proto._handleKeyDownDomEvent = function _handleKeyDownDomEvent(event) {
       var modifiers = [];
       POSSIBLE_MODIFIER_KEYS.forEach(function (modifierKey) {
         if (event[modifierKey + 'Key']) {
           modifiers.push(modifierKey);
         }
       }, this);
+
       var keyListenerId = this._keyListenerId(event.keyCode, modifiers);
+
       var requestedKey = this._keyListeners.indexOf(keyListenerId);
+
       if (requestedKey >= 0) {
         this._host.postMessage({
           eid: this._data.extension_id,
@@ -2178,34 +2275,41 @@ var AP = (function () {
       }
     };
 
-    AP.prototype._keyListenerId = function _keyListenerId(keycode, modifiers) {
+    _proto._keyListenerId = function _keyListenerId(keycode, modifiers) {
       var keyListenerId = keycode;
+
       if (modifiers) {
         if (typeof modifiers === "string") {
           modifiers = [modifiers];
         }
+
         modifiers.sort();
         modifiers.forEach(function (modifier) {
           keyListenerId += '$$' + modifier;
         }, this);
       }
+
       return keyListenerId;
     };
 
-    AP.prototype._handleKeyListen = function _handleKeyListen(postMessageEvent) {
+    _proto._handleKeyListen = function _handleKeyListen(postMessageEvent) {
       var keyListenerId = this._keyListenerId(postMessageEvent.data.keycode, postMessageEvent.data.modifiers);
+
       if (postMessageEvent.data.action === "remove") {
         var index = this._keyListeners.indexOf(keyListenerId);
+
         this._keyListeners.splice(index, 1);
       } else if (postMessageEvent.data.action === "add") {
         // only bind onKeyDown once a key is registered.
         this._bindKeyDown();
+
         this._keyListeners.push(keyListenerId);
       }
     };
 
-    AP.prototype._checkOrigin = function _checkOrigin(event) {
+    _proto._checkOrigin = function _checkOrigin(event) {
       var no_source_types = ['api_tamper'];
+
       if (event.data && no_source_types.indexOf(event.data.type) > -1) {
         return true;
       }
@@ -2217,8 +2321,9 @@ var AP = (function () {
       return event.origin === this._data.origin && event.source === this._host;
     };
 
-    AP.prototype._sendInit = function _sendInit(frame, origin) {
+    _proto._sendInit = function _sendInit(frame, origin) {
       var targets;
+
       if (frame === this._topHost && this._topHost !== window.parent) {
         targets = ConfigurationOptions$1.get('targets');
       }
@@ -2230,8 +2335,9 @@ var AP = (function () {
       }, origin || '*');
     };
 
-    AP.prototype.sendSubCreate = function sendSubCreate(extension_id, options) {
+    _proto.sendSubCreate = function sendSubCreate(extension_id, options) {
       options.id = extension_id;
+
       this._topHost.postMessage({
         eid: this._data.extension_id,
         type: 'sub',
@@ -2239,7 +2345,7 @@ var AP = (function () {
       }, this._hostOrigin);
     };
 
-    AP.prototype.broadcast = function broadcast(event, evnt) {
+    _proto.broadcast = function broadcast(event, evnt) {
       if (!util.isString(event)) {
         throw new Error("Event type must be string");
       }
@@ -2252,7 +2358,7 @@ var AP = (function () {
       }, this._data.origin);
     };
 
-    AP.prototype.require = function require(modules, callback) {
+    _proto.require = function require(modules, callback) {
       var _this6 = this;
 
       var requiredModules = Array.isArray(modules) ? modules : [modules],
@@ -2262,9 +2368,10 @@ var AP = (function () {
       callback.apply(window, args);
     };
 
-    AP.prototype.register = function register(handlers) {
-      if ((typeof handlers === 'undefined' ? 'undefined' : _typeof(handlers)) === "object") {
-        this._eventHandlers = _extends({}, this._eventHandlers, handlers) || {};
+    _proto.register = function register(handlers) {
+      if (typeof handlers === "object") {
+        this._eventHandlers = _extends_1({}, this._eventHandlers, handlers) || {};
+
         this._host.postMessage({
           eid: this._data.extension_id,
           type: 'event_query',
@@ -2273,11 +2380,13 @@ var AP = (function () {
       }
     };
 
-    AP.prototype.registerAny = function registerAny(handlers) {
-      this.register({ '_any': handlers });
+    _proto.registerAny = function registerAny(handlers) {
+      this.register({
+        '_any': handlers
+      });
     };
 
-    AP.prototype._initResize = function _initResize() {
+    _proto._initResize = function _initResize() {
       this.resize();
       var autoresize = new AutoResizeAction(this.resize);
       resizeListener.add(util._bind(autoresize, autoresize.triggered));
@@ -2286,30 +2395,32 @@ var AP = (function () {
     return AP;
   }(PostMessage);
 
-  var Combined = function (_Host) {
-    inherits(Combined, _Host);
+  var Combined =
+  /*#__PURE__*/
+  function (_Host) {
+    inheritsLoose(Combined, _Host);
 
     function Combined() {
-      classCallCheck(this, Combined);
+      var _this;
 
-      var _this = possibleConstructorReturn(this, _Host.call(this));
+      _this = _Host.call(this) || this;
+      _this.parentTargets = {
+        _globals: {}
+      };
+      var plugin = new AP(); // export options from plugin to host.
 
-      _this.parentTargets = { _globals: {} };
-      var plugin = new AP$3();
-      // export options from plugin to host.
       Object.getOwnPropertyNames(plugin).forEach(function (prop) {
         if (['_hostModules', '_globals'].indexOf(prop) === -1 && this[prop] === undefined) {
           this[prop] = plugin[prop];
         }
-      }, _this);
-
+      }, assertThisInitialized(_this));
       ['registerAny', 'register'].forEach(function (prop) {
         this[prop] = Object.getPrototypeOf(plugin)[prop].bind(plugin);
-      }, _this);
+      }, assertThisInitialized(_this)); //write plugin modules to host.
 
-      //write plugin modules to host.
       var moduleSpec = plugin._data.api;
-      if ((typeof moduleSpec === 'undefined' ? 'undefined' : _typeof(moduleSpec)) === 'object') {
+
+      if (typeof moduleSpec === 'object') {
         Object.getOwnPropertyNames(moduleSpec).forEach(function (moduleName) {
           var accumulator = {};
           Object.getOwnPropertyNames(moduleSpec[moduleName]).forEach(function (methodName) {
@@ -2321,19 +2432,22 @@ var AP = (function () {
               accumulator[methodName] = plugin._hostModules[moduleName][methodName];
             }
           }, this);
+
           this._xdm.defineAPIModule(accumulator, moduleName);
-        }, _this);
+        }, assertThisInitialized(_this));
       }
 
       _this._hostModules = plugin._hostModules;
 
       _this.defineGlobal = function (module) {
         this.parentTargets['_globals'] = util.extend({}, this.parentTargets['_globals'], module);
+
         this._xdm.defineAPIModule(module);
       };
 
       _this.defineModule = function (moduleName, module) {
         this._xdm.defineAPIModule(module, moduleName);
+
         this.parentTargets[moduleName] = {};
         Object.getOwnPropertyNames(module).forEach(function (name) {
           this.parentTargets[moduleName][name] = 'parent';
@@ -2347,40 +2461,47 @@ var AP = (function () {
         plugin.sendSubCreate(extension.id, extensionOptions);
         return extension;
       };
+
       return _this;
     }
 
     return Combined;
   }(Connect);
 
-  var AP$2 = new Combined();
+  var combined = new Combined();
 
-  var deprecate = function (fn, name, alternate, sinceVersion) {
+  function deprecate (fn, name, alternate, sinceVersion) {
     var called = false;
     return function () {
       if (!called && typeof console !== 'undefined' && console.warn) {
         called = true;
-        console.warn('DEPRECATED API - ' + name + ' has been deprecated since ACJS ' + sinceVersion + (' and will be removed in a future release. ' + (alternate ? 'Use ' + alternate + ' instead.' : 'No alternative will be provided.')));
-        if (AP$2._analytics) {
-          AP$2._analytics.trackDeprecatedMethodUsed(name);
+        console.warn("DEPRECATED API - " + name + " has been deprecated since ACJS " + sinceVersion + (" and will be removed in a future release. " + (alternate ? "Use " + alternate + " instead." : 'No alternative will be provided.')));
+
+        if (combined._analytics) {
+          combined._analytics.trackDeprecatedMethodUsed(name);
         }
       }
-      return fn.apply(undefined, arguments);
+
+      return fn.apply(void 0, arguments);
     };
-  };
+  }
 
   // universal iterator utility
   function each(o, it) {
     var l;
     var k;
+
     if (o) {
       l = o.length;
+
       if (l != null && typeof o !== 'function') {
         k = 0;
+
         while (k < l) {
           if (it.call(o[k], k, o[k]) === false) {
             break;
           }
+
           k += 1;
         }
       } else {
@@ -2407,16 +2528,20 @@ var AP = (function () {
 
   function log() {
     var console = this.console;
+
     if (console && console.log) {
       var args = [].slice.call(arguments);
+
       if (console.log.apply) {
         console.log.apply(console, args);
       } else {
         for (var i = 0, l = args.length; i < l; i += 1) {
           args[i] = JSON.stringify(args[i]);
         }
+
         console.log(args.join(' '));
       }
+
       return true;
     }
   }
@@ -2425,13 +2550,12 @@ var AP = (function () {
     return encodedURI == null ? null : decodeURIComponent(encodedURI.replace(/\+/g, '%20'));
   }
 
-  var util$1 = {
+  var _util = {
     each: each,
     log: log,
     decodeQueryComponent: decodeQueryComponent,
     bind: binder$1('add', 'attach'),
     unbind: binder$1('remove', 'detach'),
-
     extend: function extend(dest) {
       var args = arguments;
       var srcs = [].slice.call(args, 1, args.length);
@@ -2442,31 +2566,30 @@ var AP = (function () {
       });
       return dest;
     },
-
     trim: function trim(s) {
       return s && s.replace(/^\s+|\s+$/g, '');
     },
-
     debounce: function debounce(fn, wait) {
       var timeout;
       return function () {
         var ctx = this;
         var args = [].slice.call(arguments);
+
         function later() {
           timeout = null;
           fn.apply(ctx, args);
         }
+
         if (timeout) {
           clearTimeout(timeout);
         }
+
         timeout = setTimeout(later, wait || 50);
       };
     },
-
     isFunction: function isFunction(fn) {
       return typeof fn === 'function';
     },
-
     handleError: function handleError(err) {
       if (!log.apply(this, err && err.message ? [err, err.message] : [err])) {
         throw err;
@@ -2474,18 +2597,18 @@ var AP = (function () {
     }
   };
 
-  var _each$1 = util$1.each;
-  var extend = util$1.extend;
+  var _each$1 = _util.each;
+  var extend = _util.extend;
   var document$2 = window.document;
 
-  function $$2(sel, context) {
-
+  function $$1(sel, context) {
     context = context || document$2;
-
     var els = [];
+
     if (sel) {
       if (typeof sel === 'string') {
         var results = context.querySelectorAll(sel);
+
         _each$1(results, function (i, v) {
           els.push(v);
         });
@@ -2499,11 +2622,12 @@ var AP = (function () {
     extend(els, {
       each: function each(it) {
         _each$1(this, it);
+
         return this;
       },
       bind: function bind(name, callback) {
         this.each(function (i, el) {
-          util$1.bind(el, name, callback);
+          _util.bind(el, name, callback);
         });
       },
       attr: function attr(k) {
@@ -2529,6 +2653,7 @@ var AP = (function () {
       append: function append(spec) {
         return this.each(function (i, to) {
           var el = context.createElement(spec.tag);
+
           _each$1(spec, function (k, v) {
             if (k === '$text') {
               if (el.styleSheet) {
@@ -2541,15 +2666,15 @@ var AP = (function () {
               el[k] = v;
             }
           });
+
           to.appendChild(el);
         });
       }
     });
-
     return els;
   }
 
-  var $$3 = extend($$2, util$1);
+  var $$2 = extend($$1, _util);
 
   /**
    * The Events module provides a mechanism for emitting and receiving events.<br>
@@ -2584,16 +2709,18 @@ var AP = (function () {
    * @module
    */
 
-  var Events = function () {
+  var Events =
+  /*#__PURE__*/
+  function () {
     function Events() {
-      classCallCheck(this, Events);
-
       this._events = {};
       this.ANY_PREFIX = '_any';
       this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
     }
 
-    Events.prototype._anyListener = function _anyListener(data, callback) {
+    var _proto = Events.prototype;
+
+    _proto._anyListener = function _anyListener(data, callback) {
       var eventName = callback._context.eventName;
       var any = this._events[this.ANY_PREFIX] || [];
       var byName = this._events[eventName] || [];
@@ -2612,51 +2739,56 @@ var AP = (function () {
         });
         handler.apply(null, args);
       });
-
       byName.forEach(function (handler) {
         handler.apply(null, data);
       });
     };
 
-    Events.prototype.off = function off(name, listener) {
+    _proto.off = function off(name, listener) {
       if (this._events[name]) {
         var index = this._events[name].indexOf(listener);
+
         if (index > -1) {
           this._events[name].splice(index, 1);
         }
+
         if (this._events[name].length === 0) {
           delete this._events[name];
         }
       }
     };
 
-    Events.prototype.offAll = function offAll(name) {
+    _proto.offAll = function offAll(name) {
       delete this._events[name];
     };
 
-    Events.prototype.offAny = function offAny(listener) {
+    _proto.offAny = function offAny(listener) {
       this.off(this.ANY_PREFIX, listener);
     };
 
-    Events.prototype.on = function on(name, listener) {
+    _proto.on = function on(name, listener) {
       if (!this._events[name]) {
         this._events[name] = [];
       }
+
       this._events[name].push(listener);
     };
 
-    Events.prototype.onAny = function onAny(listener) {
+    _proto.onAny = function onAny(listener) {
       this.on(this.ANY_PREFIX, listener);
     };
 
-    Events.prototype.once = function once(name, listener) {
+    _proto.once = function once(name, listener) {
       var _that = this;
+
       function runOnce() {
         listener.apply(null, arguments);
+
         _that.off(name, runOnce);
       }
+
       this.on(name, runOnce);
-    };
+    }
     /**
      * Adds a listener for all occurrences of an event of a particular name.<br>
      * Listener arguments include any arguments passed to `events.emit`, followed by an object describing the complete event information.
@@ -2793,62 +2925,72 @@ var AP = (function () {
      * @param {String} name The name of event to emit
      * @param {String[]} args 0 or more additional data arguments to deliver with the event
      */
-
+    ;
 
     return Events;
   }();
 
   var EventsInstance = new Events();
 
-  var PublicEvents = function (_Events) {
-    inherits(PublicEvents, _Events);
+  var PublicEvents =
+  /*#__PURE__*/
+  function (_Events) {
+    inheritsLoose(PublicEvents, _Events);
 
     function PublicEvents() {
-      classCallCheck(this, PublicEvents);
+      var _this;
 
-      var _this = possibleConstructorReturn(this, _Events.call(this));
-
+      _this = _Events.call(this) || this;
       _this.methods = ['offPublic', 'offAllPublic', 'offAnyPublic', 'onPublic', 'onAnyPublic', 'oncePublic'];
       return _this;
     }
 
-    PublicEvents.prototype._filterEval = function _filterEval(filter, toCompare) {
+    var _proto = PublicEvents.prototype;
+
+    _proto._filterEval = function _filterEval(filter, toCompare) {
       var value = true;
+
       if (!filter) {
         return value;
       }
-      switch (typeof filter === 'undefined' ? 'undefined' : _typeof(filter)) {
+
+      switch (typeof filter) {
         case 'function':
           value = Boolean(filter.call(null, toCompare));
           break;
+
         case 'object':
           value = Object.getOwnPropertyNames(filter).every(function (prop) {
             return toCompare[prop] === filter[prop];
           });
           break;
       }
+
       return value;
     };
 
-    PublicEvents.prototype.once = function once(name, listener, filter) {
+    _proto.once = function once(name, listener, filter) {
       var that = this;
+
       function runOnce(data) {
         listener.apply(null, data);
         that.off(name, runOnce);
       }
+
       this.on(name, runOnce, filter);
     };
 
-    PublicEvents.prototype.on = function on(name, listener, filter) {
+    _proto.on = function on(name, listener, filter) {
       listener._wrapped = function (data) {
         if (this._filterEval(filter, data.sender)) {
           listener.apply(null, data.event);
         }
       }.bind(this);
+
       _Events.prototype.on.call(this, name, listener._wrapped);
     };
 
-    PublicEvents.prototype.off = function off(name, listener) {
+    _proto.off = function off(name, listener) {
       if (listener._wrapped) {
         _Events.prototype.off.call(this, name, listener._wrapped);
       } else {
@@ -2856,16 +2998,17 @@ var AP = (function () {
       }
     };
 
-    PublicEvents.prototype.onAny = function onAny(listener, filter) {
+    _proto.onAny = function onAny(listener, filter) {
       listener._wrapped = function (data) {
         if (data.sender && this._filterEval(filter, data.sender)) {
           listener.apply(null, data.event);
         }
       };
+
       _Events.prototype.onAny.call(this, listener._wrapped);
     };
 
-    PublicEvents.prototype.offAny = function offAny(listener) {
+    _proto.offAny = function offAny(listener) {
       if (listener._wrapped) {
         _Events.prototype.offAny.call(this, name, listener._wrapped);
       } else {
@@ -2879,12 +3022,11 @@ var AP = (function () {
   var PublicEventsInstance = new PublicEvents();
 
   var customButtonIncrement = 1;
-
   var getCustomData = deprecate(function () {
-    return AP$2._data.options.customData;
+    return combined._data.options.customData;
   }, 'AP.dialog.customData', 'AP.dialog.getCustomData()', '5.0');
 
-  if (AP$2._hostModules && AP$2._hostModules.dialog) {
+  if (combined._hostModules && combined._hostModules.dialog) {
     /**
      * Returns the custom data Object passed to the dialog at creation.
      * @noDemo
@@ -2897,27 +3039,29 @@ var AP = (function () {
      *
      * @return {Object} Data Object passed to the dialog on creation.
      */
-    Object.defineProperty(AP$2._hostModules.dialog, 'customData', {
+    Object.defineProperty(combined._hostModules.dialog, 'customData', {
       get: getCustomData
     });
-    Object.defineProperty(AP$2.dialog, 'customData', {
+    Object.defineProperty(combined.dialog, 'customData', {
       get: getCustomData
     });
+    combined.dialog._disableCloseOnSubmit = false;
 
-    AP$2.dialog._disableCloseOnSubmit = false;
-    AP$2.dialog.disableCloseOnSubmit = function () {
-      AP$2.dialog._disableCloseOnSubmit = true;
+    combined.dialog.disableCloseOnSubmit = function () {
+      combined.dialog._disableCloseOnSubmit = true;
     };
   }
 
   var dialogHandlers = {};
-
   EventsInstance.onAny(eventDelegator);
+
   function eventDelegator(name, args) {
     var dialogEventMatch = name.match(/^dialog\.(\w+)/);
+
     if (!dialogEventMatch) {
       return;
     }
+
     if (name === 'dialog.button.click') {
       customButtonEvent(args.button.identifier, args);
     } else {
@@ -2927,6 +3071,7 @@ var AP = (function () {
 
   function customButtonEvent(buttonIdentifier, args) {
     var callbacks = dialogHandlers[buttonIdentifier];
+
     if (callbacks && callbacks.length !== 0) {
       try {
         callbacks.forEach(function (callback) {
@@ -2941,23 +3086,24 @@ var AP = (function () {
   function submitOrCancelEvent(name, args) {
     var handlers = dialogHandlers[name];
     var shouldClose = name !== 'close';
-    var context = null;
-    // ignore events that are triggered by button clicks
+    var context = null; // ignore events that are triggered by button clicks
     // allow dialog.close through for close on ESC
+
     if (shouldClose && typeof args.button === 'undefined') {
       return;
-    }
+    } // if the submit button has been set to not close on click
 
-    // if the submit button has been set to not close on click
-    if (name === 'submit' && AP$2.dialog._disableCloseOnSubmit) {
+
+    if (name === 'submit' && combined.dialog._disableCloseOnSubmit) {
       shouldClose = false;
     }
 
     try {
       if (handlers) {
         if (args && args.button && args.button.name) {
-          context = AP$2.dialog.getButton(args.button.name);
+          context = combined.dialog.getButton(args.button.name);
         }
+
         shouldClose = handlers.reduce(function (result, cb) {
           return cb.call(context, args) && result;
         }, shouldClose);
@@ -2967,8 +3113,9 @@ var AP = (function () {
     } finally {
       delete dialogHandlers[name];
     }
+
     if (shouldClose) {
-      AP$2.dialog.close();
+      combined.dialog.close();
     }
   }
 
@@ -2977,15 +3124,16 @@ var AP = (function () {
       if (!dialogHandlers[event]) {
         dialogHandlers[event] = [];
       }
+
       dialogHandlers[event].push(callback);
     }
   }
 
-  if (AP$2.dialog && AP$2.dialog.create) {
-    var original_dialogCreate = AP$2.dialog.create.prototype.constructor.bind({});
+  if (combined.dialog && combined.dialog.create) {
+    var original_dialogCreate = combined.dialog.create.prototype.constructor.bind({});
 
-    AP$2.dialog.create = AP$2._hostModules.dialog.create = function () {
-      var dialog = original_dialogCreate.apply(undefined, arguments);
+    combined.dialog.create = combined._hostModules.dialog.create = function () {
+      var dialog = original_dialogCreate.apply(void 0, arguments);
       /**
        * Allows the add-on to register a callback function for the given event. The listener is only called once and must be re-registered if needed.
        * @deprecated after August 2017 | Please use <code>AP.events.on("dialog.close", callback)</code> instead.
@@ -2998,15 +3146,16 @@ var AP = (function () {
        * @example
        * AP.dialog.create(opts).on("close", callbackFunc);
        */
+
       dialog.on = deprecate(registerHandler, 'AP.dialog.on("close", callback)', 'AP.events.on("dialog.close", callback)', '5.0');
       return dialog;
     };
   }
 
-  if (AP$2.dialog && AP$2.dialog.getButton) {
-    var original_dialogGetButton = AP$2.dialog.getButton.prototype.constructor.bind({});
+  if (combined.dialog && combined.dialog.getButton) {
+    var original_dialogGetButton = combined.dialog.getButton.prototype.constructor.bind({});
 
-    AP$2.dialog.getButton = AP$2._hostModules.dialog.getButton = function (name) {
+    combined.dialog.getButton = combined._hostModules.dialog.getButton = function (name) {
       try {
         var button = original_dialogGetButton(name);
         /**
@@ -3022,10 +3171,10 @@ var AP = (function () {
          *   alert('clicked!');
          * });
          */
+
         button.bind = deprecate(function (callback) {
           return registerHandler(name, callback);
         }, 'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
-
         return button;
       } catch (e) {
         return {};
@@ -3033,25 +3182,27 @@ var AP = (function () {
     };
   }
 
-  if (AP$2.dialog && AP$2.dialog.createButton) {
-    var original_dialogCreateButton = AP$2.dialog.createButton.prototype.constructor.bind({});
+  if (combined.dialog && combined.dialog.createButton) {
+    var original_dialogCreateButton = combined.dialog.createButton.prototype.constructor.bind({});
 
-    AP$2.dialog.createButton = AP$2._hostModules.dialog.createButton = function (options) {
+    combined.dialog.createButton = combined._hostModules.dialog.createButton = function (options) {
       var buttonProperties = {};
-      if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
+
+      if (typeof options !== 'object') {
         buttonProperties.text = options;
         buttonProperties.identifier = options;
       } else {
         buttonProperties = options;
       }
+
       if (!buttonProperties.identifier) {
         buttonProperties.identifier = 'user.button.' + customButtonIncrement++;
       }
+
       var createButton = original_dialogCreateButton(buttonProperties);
-      return AP$2.dialog.getButton(buttonProperties.identifier);
+      return combined.dialog.getButton(buttonProperties.identifier);
     };
   }
-
   /**
    * Register callbacks responding to messages from the host dialog, such as "submit" or "cancel"
    * @deprecated after August 2017 | Please use <code>AP.events.on("dialog.message", callback)</code> instead.
@@ -3061,12 +3212,14 @@ var AP = (function () {
    * @param {String} buttonName - button either "cancel" or "submit"
    * @param {Function} listener - callback function invoked when the requested button is pressed
    */
-  if (AP$2.dialog) {
-    AP$2.dialog.onDialogMessage = AP$2._hostModules.dialog.onDialogMessage = deprecate(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');
+
+
+  if (combined.dialog) {
+    combined.dialog.onDialogMessage = combined._hostModules.dialog.onDialogMessage = deprecate(registerHandler, 'AP.dialog.onDialogMessage()', 'AP.events.on("dialog.message", callback)', '5.0');
   }
 
-  if (!AP$2.Dialog) {
-    AP$2.Dialog = AP$2._hostModules.Dialog = AP$2.dialog;
+  if (!combined.Dialog) {
+    combined.Dialog = combined._hostModules.Dialog = combined.dialog;
   }
 
   var modules = {};
@@ -3075,19 +3228,24 @@ var AP = (function () {
     var mods = [];
     var i = 0;
     var len = deps.length;
+
     function addOne(mod) {
       mods.push(mod);
+
       if (mods.length === len) {
         var exports = [];
         var i = 0;
+
         for (; i < len; i += 1) {
           exports[i] = mods[i].exports;
         }
+
         if (callback) {
           callback.apply(window, exports);
         }
       }
     }
+
     if (deps && deps.length > 0) {
       for (; i < len; i += 1) {
         reqOne(deps[i], addOne);
@@ -3108,24 +3266,27 @@ var AP = (function () {
     // get defined module
     if (modules[name]) {
       return modules[name];
-    }
+    } // get a host module
 
-    // get a host module
+
     var hostModule = getFromHostModules(name);
+
     if (hostModule) {
       return modules[name] = hostModule;
-    }
+    } // create a new module
 
-    // create a new module
+
     return modules[name] = {
       name: name,
       exports: function () {
         function exports() {
           var target = exports.__target__;
+
           if (target) {
             return target.apply(window, arguments);
           }
         }
+
         return exports;
       }()
     };
@@ -3133,13 +3294,16 @@ var AP = (function () {
 
   function getFromHostModules(name) {
     var module;
-    if (AP$2._hostModules) {
-      if (AP$2._hostModules[name]) {
-        module = AP$2._hostModules[name];
+
+    if (combined._hostModules) {
+      if (combined._hostModules[name]) {
+        module = combined._hostModules[name];
       }
-      if (AP$2._hostModules._globals && AP$2._hostModules._globals[name]) {
-        module = AP$2._hostModules._globals[name];
+
+      if (combined._hostModules._globals && combined._hostModules._globals[name]) {
+        module = combined._hostModules._globals[name];
       }
+
       if (module) {
         return {
           name: name,
@@ -3147,28 +3311,32 @@ var AP = (function () {
         };
       }
     }
-  }
-
-  // define(name, objOrFn)
+  } // define(name, objOrFn)
   // define(name, deps, fn(dep1, dep2, ...))
+
+
   var AMD = {
     define: function define(name, deps, exports) {
       var mod = getOrCreate(name);
       var factory;
+
       if (!exports) {
         exports = deps;
         deps = [];
       }
+
       if (exports) {
         factory = typeof exports !== 'function' ? function () {
           return exports;
         } : exports;
         reqAll(deps, function () {
           var exports = factory.apply(window, arguments);
+
           if (exports) {
             if (typeof exports === 'function') {
               mod.exports.__target__ = exports;
             }
+
             for (var k in exports) {
               if (exports.hasOwnProperty(k)) {
                 mod.exports[k] = exports[k];
@@ -3184,43 +3352,45 @@ var AP = (function () {
   };
 
   function getMeta(name) {
-    return $$3('meta[name=\'ap-' + name + '\']').attr('content');
+    return $$2("meta[name='ap-" + name + "']").attr('content');
   }
 
   var Meta = {
     getMeta: getMeta,
-
     localUrl: function localUrl(path) {
       var url = getMeta('local-base-url');
-      return typeof url === 'undefined' || typeof path === 'undefined' ? url : '' + url + path;
+      return typeof url === 'undefined' || typeof path === 'undefined' ? url : "" + url + path;
     }
   };
 
   // duplicated from ./host/stores/extension_configuration_options_store
-  // due to a huge build size difference
 
-  var ExtensionConfigurationOptionsStore = function () {
+  var ExtensionConfigurationOptionsStore =
+  /*#__PURE__*/
+  function () {
     function ExtensionConfigurationOptionsStore() {
-      classCallCheck(this, ExtensionConfigurationOptionsStore);
-
       this.store = {};
     }
 
-    ExtensionConfigurationOptionsStore.prototype.set = function set$$1(obj, val) {
+    var _proto = ExtensionConfigurationOptionsStore.prototype;
+
+    _proto.set = function set(obj, val) {
       if (val) {
         var toSet = {};
         toSet[obj] = val;
       } else {
         toSet = obj;
       }
-      util$1.extend(this.store, toSet);
+
+      _util.extend(this.store, toSet);
     };
 
-    ExtensionConfigurationOptionsStore.prototype.get = function get$$1(key) {
+    _proto.get = function get(key) {
       if (key) {
         return this.store[key];
       }
-      return util$1.extend({}, this.store); //clone
+
+      return _util.extend({}, this.store); //clone
     };
 
     return ExtensionConfigurationOptionsStore;
@@ -3228,62 +3398,67 @@ var AP = (function () {
 
   var ExtensionConfigurationOptionsStore$1 = new ExtensionConfigurationOptionsStore();
 
-  AP$2._hostModules._dollar = $$3;
-  AP$2._hostModules['inline-dialog'] = AP$2._hostModules.inlineDialog;
+  combined._hostModules._dollar = $$2;
+  combined._hostModules['inline-dialog'] = combined._hostModules.inlineDialog;
 
-  if (ConsumerOptions$1.get('sizeToParent') === true) {
-    AP$2.env.sizeToParent(ConsumerOptions$1.get('hideFooter') === true);
+  if (consumerOptions.get('sizeToParent') === true) {
+    combined.env.sizeToParent(consumerOptions.get('hideFooter') === true);
   } else {
-    AP$2.env.hideFooter(ConsumerOptions$1.get('hideFooter') === true);
+    combined.env.hideFooter(consumerOptions.get('hideFooter') === true);
   }
 
-  if (ConsumerOptions$1.get('base') === true) {
-    AP$2.env.getLocation(function (loc) {
-      $$3('head').append({ tag: 'base', href: loc, target: '_parent' });
+  if (consumerOptions.get('base') === true) {
+    combined.env.getLocation(function (loc) {
+      $$2('head').append({
+        tag: 'base',
+        href: loc,
+        target: '_parent'
+      });
     });
   }
 
-  $$3.each(EventsInstance.methods, function (i, method) {
-    if (AP$2._hostModules && AP$2._hostModules.events) {
-      AP$2._hostModules.events[method] = AP$2.events[method] = EventsInstance[method].bind(EventsInstance);
-      AP$2._hostModules.events[method + 'Public'] = AP$2.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
+  $$2.each(EventsInstance.methods, function (i, method) {
+    if (combined._hostModules && combined._hostModules.events) {
+      combined._hostModules.events[method] = combined.events[method] = EventsInstance[method].bind(EventsInstance);
+      combined._hostModules.events[method + 'Public'] = combined.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
     }
   });
-
-  AP$2.define = deprecate(function () {
+  combined.define = deprecate(function () {
     return AMD.define.apply(AMD, arguments);
   }, 'AP.define()', null, '5.0');
-
-  AP$2.require = deprecate(function () {
+  combined.require = deprecate(function () {
     return AMD.require.apply(AMD, arguments);
   }, 'AP.require()', null, '5.0');
+  var margin = combined._data.options.isDialog ? '10px 10px 0 10px' : '0';
 
-  var margin = AP$2._data.options.isDialog ? '10px 10px 0 10px' : '0';
-  if (ConsumerOptions$1.get('margin') !== false) {
-    $$3('head').append({ tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}' });
+  if (consumerOptions.get('margin') !== false) {
+    $$2('head').append({
+      tag: 'style',
+      type: 'text/css',
+      $text: 'body {margin: ' + margin + ' !important;}'
+    });
   }
 
-  AP$2.Meta = {
+  combined.Meta = {
     get: Meta.getMeta
   };
-  AP$2.meta = Meta.getMeta;
-  AP$2.localUrl = Meta.localUrl;
-
-  AP$2._hostModules._util = AP$2._util = {
-    each: util$1.each,
-    log: util$1.log,
-    decodeQueryComponent: util$1.decodeQueryComponent,
-    bind: util$1.bind,
-    unbind: util$1.unbind,
-    extend: util$1.extend,
-    trim: util$1.trim,
-    debounce: util$1.debounce,
-    isFunction: util$1.isFunction,
-    handleError: util$1.handleError
+  combined.meta = Meta.getMeta;
+  combined.localUrl = Meta.localUrl;
+  combined._hostModules._util = combined._util = {
+    each: _util.each,
+    log: _util.log,
+    decodeQueryComponent: _util.decodeQueryComponent,
+    bind: _util.bind,
+    unbind: _util.unbind,
+    extend: _util.extend,
+    trim: _util.trim,
+    debounce: _util.debounce,
+    isFunction: _util.isFunction,
+    handleError: _util.handleError
   };
 
-  if (AP$2.defineModule) {
-    AP$2.defineModule('env', {
+  if (combined.defineModule) {
+    combined.defineModule('env', {
       resize: function resize(w, h, callback) {
         var iframe = document.getElementById(callback._context.extension_id);
         iframe.style.width = w + (typeof w === 'number' ? 'px' : '');
@@ -3292,8 +3467,8 @@ var AP = (function () {
     });
   }
 
-  if (AP$2._data && AP$2._data.origin) {
-    AP$2.registerAny(function (data, callback) {
+  if (combined._data && combined._data.origin) {
+    combined.registerAny(function (data, callback) {
       // dialog.close event doesn't have event data
       if (data && data.event && data.sender) {
         PublicEventsInstance._anyListener(data, callback);
@@ -3301,11 +3476,11 @@ var AP = (function () {
         EventsInstance._anyListener(data, callback);
       }
     });
-  }
+  } // gets the global options from the parent iframe (if present) so they can propagate to future sub-iframes.
 
-  // gets the global options from the parent iframe (if present) so they can propagate to future sub-iframes.
-  ExtensionConfigurationOptionsStore$1.set(AP$2._data.options.globalOptions);
 
-  return AP$2;
+  ExtensionConfigurationOptionsStore$1.set(combined._data.options.globalOptions);
+
+  return combined;
 
 }());

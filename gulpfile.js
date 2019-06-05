@@ -23,13 +23,17 @@ function getTask(task) {
 
 function build(entryModule, distModule, options) {
   return rollup.rollup({
-    entry: entryModule,
+    input: entryModule,
     plugins: [
       babel({
-        exclude: 'node_modules/promise-polyfill/**',
-        plugins: ['external-helpers'],
+        exclude: new RegExp('node_modules\/(promise\-polyfill|query\-string)'),
+        plugins: [
+          '@babel/plugin-transform-runtime',
+         // Stage 2
+          ['@babel/plugin-proposal-decorators', { 'legacy': true }]
+        ],
         presets: [
-          ['env', {
+          ['@babel/preset-env', {
             'targets': {
               'browsers': [
                 'last 1 Chrome versions',
@@ -43,9 +47,9 @@ function build(entryModule, distModule, options) {
             'useBuiltIns': false,
             'loose': true,
             'debug': true
-          }],
-          'stage-2'
-        ]
+          }]
+        ],
+        runtimeHelpers: true
       }),
       builtins(),
       nodeResolve({
@@ -69,7 +73,8 @@ function build(entryModule, distModule, options) {
       format: options.format || 'umd',
       moduleId: options.standalone || distModule,
       moduleName: options.standalone || distModule,
-      dest: './dist/' + distModule + '.js'
+      name: options.standalone || distModule,
+      file: './dist/' + distModule + '.js'
     });
   });
 }
