@@ -17,19 +17,19 @@
   },
   "devDependencies": {
     "@atlassian/eslint-config-atlassian-fecq": "2.0.3",
-    "assert": "1.4.1",
     "@babel/core": "7.4.5",
-    "babel-loader": "8.0.6",
-    "@babel/preset-env": "7.4.5",
-    "babel-preset-es2015-rollup": "3.0.0",
-    "@babel/preset-stage-2": "7.0.0",
     "@babel/plugin-proposal-decorators": "^7.4.4",
     "@babel/plugin-proposal-export-namespace-from": "^7.2.0",
     "@babel/plugin-proposal-function-sent": "^7.2.0",
     "@babel/plugin-proposal-numeric-separator": "^7.2.0",
     "@babel/plugin-proposal-throw-expressions": "^7.2.0",
     "@babel/plugin-transform-runtime": "^7.4.4",
+    "@babel/preset-env": "7.4.5",
+    "@babel/preset-stage-2": "7.0.0",
     "@babel/runtime": "^7.4.5",
+    "assert": "1.4.1",
+    "babel-loader": "8.0.6",
+    "babel-preset-es2015-rollup": "3.0.0",
     "babelify": "10.0.0",
     "browserify": "16.2.2",
     "drool": "0.6.0",
@@ -90,7 +90,7 @@
     "object-assign": "4.1.1",
     "query-string": "^4.3.1",
     "simple-xdm": "1.0.17",
-    "text-encoder-lite-module": "git+https://github.com/hbenl/TextEncoderLiteModule.git#d6b82fb27f0251b336d61dfb16ec8f9e4eb40b9c"
+    "text-encoder-lite": "2.0.0"
   },
   "browserify": {
     "transform": [
