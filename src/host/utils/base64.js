@@ -1,5 +1,5 @@
 import { toByteArray, fromByteArray } from 'base64-js';
-import { TextEncoderLite, TextDecoderLite } from 'text-encoder-lite-module';
+import { TextEncoderLite, TextDecoderLite } from 'text-encoder-lite';
 
 export function encode(string) {
   return fromByteArray(TextEncoderLite.prototype.encode(string));
