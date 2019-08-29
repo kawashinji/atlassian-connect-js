@@ -77,6 +77,16 @@ class Dialog {
     dialogExtension.options.customData = options.customData;
     // terrible idea! - we need to remove this from p2 ASAP!
     var dialogModuleOptions = DialogUtils.moduleOptionsFromGlobal(dialogExtension.addon_key, dialogExtension.key);
+
+    // There is a hostFrameOffset configuration available
+    // for modals (window._AP.dialogOptions) and inline modals (window._AP.inlineDialogOptions)
+    // which is taken into account during the iframe insertion (inside the dialog).
+    // The change below injects hostFrameOffset value from the global module options (window._AP.dialogModules)
+    // which is required for establishing a contact with a correct host (solves spa iframe problem).
+    if (typeof (dialogModuleOptions || {}).hostFrameOffset === 'number') {
+      dialogExtension.options.hostFrameOffset = dialogModuleOptions.hostFrameOffset;
+    }
+
     options = Util.extend({}, dialogModuleOptions || {}, options);
     options.id = _id;
     dialogUtils.trackMultipleDialogOpening(dialogExtension, options);
