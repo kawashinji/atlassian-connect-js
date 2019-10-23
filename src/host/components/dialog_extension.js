@@ -4,6 +4,7 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
 import HostApi from '../host-api';
 import EventActions from '../actions/event_actions';
 import dialogUtils from '../utils/dialog';
+import getFeatureFlag from '../utils/featureflag';
 
 class DialogExtension {
 
@@ -13,6 +14,9 @@ class DialogExtension {
     extension.options.isDialog = true;
     extension.options.dialogId = dialogOptions.id;
     extension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
+    if (getFeatureFlag('kitkat.connect.dialog-extension.host-offset-fix', false)) {
+      extension.options.hostFrameOffset = dialogOptions.hostFrameOffset;
+    }
     extension.options.hideIframeUntilLoad = true;
     var $iframeContainer = IframeContainerComponent.createExtension(extension);
     var $dialog = DialogComponent.render({
