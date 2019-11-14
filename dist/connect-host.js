@@ -6363,6 +6363,19 @@
     }
   });
 
+  var host$1 = {
+    /**
+     This function could be used in Connect app for moving focus to Host app.
+     As Connect App - iframe app, it can get control. When it's happen - host app events such short-cuts
+     stop working. This function could help in this case.
+     **/
+    focus: function focus() {
+      window.focus();
+      window.document.querySelector('a').focus();
+      window.document.querySelector('a').blur();
+    }
+  };
+
   var WebItem =
   /*#__PURE__*/
   function () {
@@ -6816,6 +6829,7 @@
   host.defineModule('_analytics', analytics$1);
   host.defineModule('scrollPosition', scrollPosition);
   host.defineModule('dropdown', dropdown);
+  host.defineModule('host', host$1);
   EventDispatcher$1.register('module-define-custom', function (data) {
     host.defineModule(data.name, data.methods);
   });

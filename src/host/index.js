@@ -10,6 +10,7 @@ import flag from './modules/flag';
 import analytics from './modules/analytics';
 import scrollPosition from './modules/scroll-position';
 import dropdown from './modules/dropdown';
+import host from './modules/host';
 import HostApi from './host-api';
 import InlineDialogWebItemComponent from './components/inline_dialog_webitem';
 import DialogWebItemComponent from './components/dialog_webitem';
@@ -41,6 +42,7 @@ simpleXDM.defineModule('events', events);
 simpleXDM.defineModule('_analytics', analytics);
 simpleXDM.defineModule('scrollPosition', scrollPosition);
 simpleXDM.defineModule('dropdown', dropdown);
+simpleXDM.defineModule('host', host);
 
 EventDispatcher.register('module-define-custom', function(data){
   simpleXDM.defineModule(data.name, data.methods);
