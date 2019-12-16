@@ -5,8 +5,7 @@ export default {
    stop working. This function could help in this case.
    **/
   focus: () => {
-    window.focus();
-    window.document.querySelector('a').focus();
+    window.document.querySelector('a').focus({preventScroll:true});
     window.document.querySelector('a').blur();
   }
 };
