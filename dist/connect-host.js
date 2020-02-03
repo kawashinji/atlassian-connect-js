@@ -1471,6 +1471,7 @@
           if (method.returnsPromise) {
             if (!(typeof promiseResult === 'object' || typeof promiseResult === 'function') || typeof promiseResult.then !== 'function') {
               sendResponse('Defined module method did not return a promise.');
+              throw new Error('XDM: Defined module method did not return a promise.');
             } else {
               promiseResult.then(function (result) {
                 sendResponse(undefined, result);
@@ -1851,10 +1852,6 @@
 
       if (event.data.type === 'unload' && (sourceTypeMatches || event.source === undefined)) {
         isValidOrigin = true;
-      }
-
-      if (!isValidOrigin) {
-        util.log("Failed to validate origin: " + event.origin);
       }
 
       return isValidOrigin;
