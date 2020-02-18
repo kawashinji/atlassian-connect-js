@@ -1,5 +1,7 @@
-import util from '../util';
-
+/**
+* Hosts are the primary method for Connect apps to interact with the page.
+* @module Host
+*/
 const TEXT_NODE_TYPE = 3;
 
 export default {
@@ -14,7 +16,19 @@ export default {
     window.document.querySelector('a').blur();
   },
 
-  getSelectedText:function(callback) {
+  /**
+   * Gets the selected text on the page.
+   * @noDemo
+   * @name getSelectedText
+   * @method
+   * @param {Function} callback - Callback method to be executed with the selected text.
+   * @example
+   * AP.host.getSelectedText(function (selection) {
+   *   console.log(selection);
+   * });
+   *
+   */
+    getSelectedText:function(callback) {
     let text = '';
     const selection = window.document.getSelection();
     if (selection && selection.anchorNode && selection.anchorNode.nodeType === TEXT_NODE_TYPE) {
