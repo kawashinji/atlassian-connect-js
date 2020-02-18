@@ -28,7 +28,7 @@ export default {
    * });
    *
    */
-    getSelectedText:function(callback) {
+  getSelectedText:function(callback) {
     let text = '';
     const selection = window.document.getSelection();
     if (selection && selection.anchorNode && selection.anchorNode.nodeType === TEXT_NODE_TYPE) {
