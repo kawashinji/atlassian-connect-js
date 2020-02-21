@@ -1471,7 +1471,6 @@
           if (method.returnsPromise) {
             if (!(typeof promiseResult === 'object' || typeof promiseResult === 'function') || typeof promiseResult.then !== 'function') {
               sendResponse('Defined module method did not return a promise.');
-              throw new Error('XDM: Defined module method did not return a promise.');
             } else {
               promiseResult.then(function (result) {
                 sendResponse(undefined, result);
@@ -6396,6 +6395,10 @@
     }
   });
 
+  /**
+  * Hosts are the primary method for Connect apps to interact with the page.
+  * @module Host
+  */
   var TEXT_NODE_TYPE = 3;
   var host$1 = {
     /**
@@ -6409,15 +6412,27 @@
       });
       window.document.querySelector('a').blur();
     },
+
+    /**
+     * Gets the selected text on the page.
+     * @noDemo
+     * @name getSelectedText
+     * @method
+     * @param {Function} callback - Callback method to be executed with the selected text.
+     * @example
+     * AP.host.getSelectedText(function (selection) {
+     *   console.log(selection);
+     * });
+     *
+     */
     getSelectedText: function getSelectedText(callback) {
       var text = '';
       var selection = window.document.getSelection();
 
-      if (selection && selection.anchorNode.nodeType === TEXT_NODE_TYPE) {
+      if (selection && selection.anchorNode && selection.anchorNode.nodeType === TEXT_NODE_TYPE) {
         text = selection.toString();
       }
 
-      callback = Util.last(arguments);
       callback(text);
     }
   };
@@ -6863,7 +6878,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.23';
+    window._AP.version = '5.2.24';
   }
 
   host.defineModule('messages', messages);
