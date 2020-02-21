@@ -527,6 +527,7 @@ var AP = (function () {
           if (method.returnsPromise) {
             if (!(typeof promiseResult === 'object' || typeof promiseResult === 'function') || typeof promiseResult.then !== 'function') {
               sendResponse('Defined module method did not return a promise.');
+              throw new Error('XDM: Defined module method did not return a promise.');
             } else {
               promiseResult.then(function (result) {
                 sendResponse(undefined, result);

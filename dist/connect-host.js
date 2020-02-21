@@ -1471,6 +1471,7 @@
           if (method.returnsPromise) {
             if (!(typeof promiseResult === 'object' || typeof promiseResult === 'function') || typeof promiseResult.then !== 'function') {
               sendResponse('Defined module method did not return a promise.');
+              throw new Error('XDM: Defined module method did not return a promise.');
             } else {
               promiseResult.then(function (result) {
                 sendResponse(undefined, result);
@@ -6395,6 +6396,7 @@
     }
   });
 
+  var TEXT_NODE_TYPE = 3;
   var host$1 = {
     /**
      This function could be used in Connect app for moving focus to Host app.
@@ -6406,6 +6408,17 @@
         preventScroll: true
       });
       window.document.querySelector('a').blur();
+    },
+    getSelectedText: function getSelectedText(callback) {
+      var text = '';
+      var selection = window.document.getSelection();
+
+      if (selection && selection.anchorNode.nodeType === TEXT_NODE_TYPE) {
+        text = selection.toString();
+      }
+
+      callback = Util.last(arguments);
+      callback(text);
     }
   };
 
