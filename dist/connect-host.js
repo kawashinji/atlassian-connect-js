@@ -5145,7 +5145,7 @@
     var $el = Util.getIframeByExtensionId(data.extensionId);
 
     if (getBooleanFeatureFlag('com.atlassian.connect.acjs-nav3')) {
-      height = $(window).height() - $el.position().top - 1; //1px comes from margin given by full-size-general-page
+      height = $(window).height() - $el.offset().top - 1; //1px comes from margin given by full-size-general-page
     } else {
       if (data.hideFooter) {
         $el.addClass('full-size-general-page-no-footer');
@@ -6878,7 +6878,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.24';
+    window._AP.version = '5.2.25';
   }
 
   host.defineModule('messages', messages);
