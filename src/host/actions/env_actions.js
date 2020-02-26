@@ -12,7 +12,7 @@ EventDispatcher.register('iframe-size-to-parent', function(data) {
   var height;
   var $el = util.getIframeByExtensionId(data.extensionId);
   if (getBooleanFeatureFlag('com.atlassian.connect.acjs-nav3')) {
-    height = $(window).height() - $el.position().top - 1; //1px comes from margin given by full-size-general-page
+    height = $(window).height() - $el.offset().top - 1; //1px comes from margin given by full-size-general-page
   } else {
     if (data.hideFooter) {
       $el.addClass('full-size-general-page-no-footer');
