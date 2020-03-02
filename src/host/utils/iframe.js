@@ -10,6 +10,9 @@ export default {
       if(options.height){
         sanitized.height = util.stringToDimension(options.height);
       }
+      if (typeof options.sandbox === 'string'){
+        sanitized.sandbox = options.sandbox;
+      }
     }
     return sanitized;
   }
