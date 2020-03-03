@@ -3220,6 +3220,10 @@
         if (options.height) {
           sanitized.height = Util.stringToDimension(options.height);
         }
+
+        if (typeof options.sandbox === 'string') {
+          sanitized.sandbox = options.sandbox;
+        }
       }
 
       return sanitized;
@@ -6878,7 +6882,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.25';
+    window._AP.version = '5.2.26';
   }
 
   host.defineModule('messages', messages);
