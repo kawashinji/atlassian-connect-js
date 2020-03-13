@@ -1341,9 +1341,13 @@
     ;
 
     _proto._handleSubInit = function _handleSubInit(event, reg) {
-      this.registerExtension(event.data.ext.id, {
-        extension: event.data.ext
-      });
+      if (reg.extension.options.noSub) {
+        util.error("Sub-Extension requested by [" + reg.extension.addon_key + "] but feature is disabled");
+      } else {
+        this.registerExtension(event.data.ext.id, {
+          extension: event.data.ext
+        });
+      }
     };
 
     _proto._getHostOffset = function _getHostOffset(event, _window) {
