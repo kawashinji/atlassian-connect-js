@@ -3226,7 +3226,12 @@
         }
 
         if (typeof options.sandbox === 'string') {
-          sanitized.sandbox = options.sandbox;
+          sanitized.sandbox = options.sandbox; // No Firefox support: allow-top-navigation-by-user-activation
+          // https://bugzilla.mozilla.org/show_bug.cgi?id=1359867
+
+          if (window.navigator.userAgent.indexOf('Firefox') !== -1) {
+            sanitized.sandbox = sanitized.sandbox.replace('allow-top-navigation-by-user-activation', 'allow-top-navigation');
+          }
         }
       }
 
@@ -6886,7 +6891,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.27';
+    window._AP.version = '5.2.28';
   }
 
   host.defineModule('messages', messages);
