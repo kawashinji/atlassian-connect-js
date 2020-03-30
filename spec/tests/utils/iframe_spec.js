@@ -19,5 +19,22 @@ describe('iframe utils', () => {
       expect(attributes.height).toEqual(`${options.height}px`);
       expect(attributes.size).not.toBeDefined();
     });
+
+    it('returns sanitised sandbox', () => {
+      const sandbox = 'sandbox';
+      const attributes = IframeUtils.optionsToAttributes({ sandbox });
+      expect(attributes.sandbox).toEqual(sandbox);
+    });
+
+    it('does not return sandbox if not present', () => {
+      const attributes = IframeUtils.optionsToAttributes({});
+      expect(typeof attributes.sandbox).toEqual('undefined');
+    });
+
+    it('does not return sandbox if wrong type', () => {
+      const sandbox = {};
+      const attributes = IframeUtils.optionsToAttributes({ sandbox });
+      expect(typeof attributes.sandbox).toEqual('undefined');
+    });
   });
 });

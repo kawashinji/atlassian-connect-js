@@ -397,9 +397,13 @@ var AP = (function () {
     ;
 
     _proto._handleSubInit = function _handleSubInit(event, reg) {
-      this.registerExtension(event.data.ext.id, {
-        extension: event.data.ext
-      });
+      if (reg.extension.options.noSub) {
+        util.error("Sub-Extension requested by [" + reg.extension.addon_key + "] but feature is disabled");
+      } else {
+        this.registerExtension(event.data.ext.id, {
+          extension: event.data.ext
+        });
+      }
     };
 
     _proto._getHostOffset = function _getHostOffset(event, _window) {
@@ -527,7 +531,6 @@ var AP = (function () {
           if (method.returnsPromise) {
             if (!(typeof promiseResult === 'object' || typeof promiseResult === 'function') || typeof promiseResult.then !== 'function') {
               sendResponse('Defined module method did not return a promise.');
-              throw new Error('XDM: Defined module method did not return a promise.');
             } else {
               promiseResult.then(function (result) {
                 sendResponse(undefined, result);
@@ -1853,7 +1856,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.2.22";
+      _this._version = "5.2.28";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];

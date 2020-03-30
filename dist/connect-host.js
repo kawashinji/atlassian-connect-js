@@ -1341,9 +1341,13 @@
     ;
 
     _proto._handleSubInit = function _handleSubInit(event, reg) {
-      this.registerExtension(event.data.ext.id, {
-        extension: event.data.ext
-      });
+      if (reg.extension.options.noSub) {
+        util.error("Sub-Extension requested by [" + reg.extension.addon_key + "] but feature is disabled");
+      } else {
+        this.registerExtension(event.data.ext.id, {
+          extension: event.data.ext
+        });
+      }
     };
 
     _proto._getHostOffset = function _getHostOffset(event, _window) {
@@ -1471,7 +1475,6 @@
           if (method.returnsPromise) {
             if (!(typeof promiseResult === 'object' || typeof promiseResult === 'function') || typeof promiseResult.then !== 'function') {
               sendResponse('Defined module method did not return a promise.');
-              throw new Error('XDM: Defined module method did not return a promise.');
             } else {
               promiseResult.then(function (result) {
                 sendResponse(undefined, result);
@@ -3220,6 +3223,15 @@
 
         if (options.height) {
           sanitized.height = Util.stringToDimension(options.height);
+        }
+
+        if (typeof options.sandbox === 'string') {
+          sanitized.sandbox = options.sandbox; // No Firefox support: allow-top-navigation-by-user-activation
+          // https://bugzilla.mozilla.org/show_bug.cgi?id=1359867
+
+          if (window.navigator.userAgent.indexOf('Firefox') !== -1) {
+            sanitized.sandbox = sanitized.sandbox.replace('allow-top-navigation-by-user-activation', 'allow-top-navigation');
+          }
         }
       }
 
@@ -5106,6 +5118,38 @@
     }
   };
 
+  function getBooleanFeatureFlag(flagName) {
+    if (AJS && AJS.DarkFeatures && AJS.DarkFeatures.isEnabled && AJS.DarkFeatures.isEnabled(flagName)) {
+      return true;
+    }
+
+    var flagMeta = document.querySelector('meta[name="ajs-fe-feature-flags"]');
+
+    if (!flagMeta) {
+      return false;
+    }
+
+    var flagContent = flagMeta.getAttribute('content');
+
+    if (!flagContent) {
+      return false;
+    }
+
+    var flagJson = {};
+
+    try {
+      flagJson = JSON.parse(flagContent);
+    } catch (err) {
+      return false;
+    }
+
+    if (!flagJson[flagName] || typeof flagJson[flagName].value !== 'boolean') {
+      return false;
+    }
+
+    return flagJson[flagName].value;
+  }
+
   EventDispatcher$1.register('iframe-resize', function (data) {
     IframeComponent.resize(data.width, data.height, data.$el);
   });
@@ -5113,19 +5157,23 @@
     var height;
     var $el = Util.getIframeByExtensionId(data.extensionId);
 
-    if (data.hideFooter) {
-      $el.addClass('full-size-general-page-no-footer');
-      $('#footer').css({
-        display: 'none'
-      });
-      height = $(window).height() - $('#header > nav').outerHeight();
+    if (getBooleanFeatureFlag('com.atlassian.connect.acjs-nav3')) {
+      height = $(window).height() - $el.offset().top - 1; //1px comes from margin given by full-size-general-page
     } else {
-      height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
+      if (data.hideFooter) {
+        $el.addClass('full-size-general-page-no-footer');
+        $('#footer').css({
+          display: 'none'
+        });
+        height = $(window).height() - $('#header > nav').outerHeight();
+      } else {
+        height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
 
-      $el.removeClass('full-size-general-page-no-footer');
-      $('#footer').css({
-        display: 'block'
-      });
+        $el.removeClass('full-size-general-page-no-footer');
+        $('#footer').css({
+          display: 'block'
+        });
+      }
     }
 
     EventDispatcher$1.dispatch('iframe-resize', {
@@ -6360,6 +6408,10 @@
     }
   });
 
+  /**
+  * Hosts are the primary method for Connect apps to interact with the page.
+  * @module Host
+  */
   var TEXT_NODE_TYPE = 3;
   var host$1 = {
     /**
@@ -6373,15 +6425,27 @@
       });
       window.document.querySelector('a').blur();
     },
+
+    /**
+     * Gets the selected text on the page.
+     * @noDemo
+     * @name getSelectedText
+     * @method
+     * @param {Function} callback - Callback method to be executed with the selected text.
+     * @example
+     * AP.host.getSelectedText(function (selection) {
+     *   console.log(selection);
+     * });
+     *
+     */
     getSelectedText: function getSelectedText(callback) {
       var text = '';
       var selection = window.document.getSelection();
 
-      if (selection && selection.anchorNode.nodeType === TEXT_NODE_TYPE) {
+      if (selection && selection.anchorNode && selection.anchorNode.nodeType === TEXT_NODE_TYPE) {
         text = selection.toString();
       }
 
-      callback = Util.last(arguments);
       callback(text);
     }
   };
@@ -6827,7 +6891,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.22';
+    window._AP.version = '5.2.28';
   }
 
   host.defineModule('messages', messages);
