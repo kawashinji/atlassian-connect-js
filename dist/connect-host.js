@@ -6414,11 +6414,11 @@
   */
   var TEXT_NODE_TYPE = 3;
   var host$1 = {
-    /**
+    /*
      This function could be used in Connect app for moving focus to Host app.
      As Connect App - iframe app, it can get control. When it's happen - host app events such short-cuts
      stop working. This function could help in this case.
-     **/
+    */
     focus: function focus() {
       window.document.querySelector('a').focus({
         preventScroll: true
@@ -6891,7 +6891,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.28';
+    window._AP.version = '5.2.29';
   }
 
   host.defineModule('messages', messages);
