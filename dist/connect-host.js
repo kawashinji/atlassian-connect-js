@@ -4979,7 +4979,7 @@
      * @property {String}        submitText  (optional) text for the submit button if opening a dialog with chrome.
      * @property {String}        cancelText  (optional) text for the cancel button if opening a dialog with chrome.
      * @property {Object}        customData  (optional) custom data object that can be accessed from the actual dialog iFrame.
-     * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC will close the dialog (default is true).
+     * @property {Boolean}       closeOnEscape (optional) if true, pressing ESC inside the dialog will close the dialog (default is true).
      * @property {Array}         buttons     (optional) an array of custom buttons to be added to the dialog if opening a dialog with chrome.
      * @property {String}        hint        (optional) Suggested actions or helpful info that will be added to the dialog if opening with chrome.
      */
@@ -6891,7 +6891,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.29';
+    window._AP.version = '5.2.30';
   }
 
   host.defineModule('messages', messages);
