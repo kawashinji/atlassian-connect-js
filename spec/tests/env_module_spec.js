@@ -7,7 +7,6 @@ describe('env module', () => {
     afterEach(function(){
       $('.tempiframe').remove();
       $('.ac-content-page').remove();
-      $('#footer').remove();
     });
 
     it('disables resize function', (done) => {
@@ -37,40 +36,8 @@ describe('env module', () => {
       envModule.sizeToParent(true, callback);
     });
 
-    it('hideFooter hides the footer on pages', (done) =>{
-      var $contentPage = $('<div class="ac-content-page" />');
-      var $footer = $('<div id="footer" />');
-      var callback = function(){};
-      var $el = $('<iframe class="tempiframe" id="abc123" />');
-      callback._context = {
-        extension_id: 'abc123',
-        extension: {
-          id: 'abc123',
-          $el: $el,
-          options: {
-            isFullPage: true
-          }
-        }
-      };
-
-      $('body').append($el);
-      $contentPage.append($footer);
-      $('body').append($contentPage);
-      function spy (data){
-        if(data.$el.attr('id') === 'abc123') {
-          expect($('#footer').css('display')).toEqual('none');
-          EventDispatcher.unregister('iframe-resize', spy);
-          done();
-        }
-      }
-      EventDispatcher.register('iframe-resize', spy);
-
-      envModule.sizeToParent(true, callback);
-    });
-
     it('changes the dimensions of the iframe to fill the rest of the page', (done) => {
       var $contentPage = $('<div class="ac-content-page" />');
-      var $footer = $('<div id="footer" />').css('height', '50px');
       var $nav = $('<nav />').css('height', '23px');
       var $header = $('<header id="header"></header>').append($nav);
       var callback = function(){};
@@ -92,10 +59,9 @@ describe('env module', () => {
 
       $contentPage.append($header);
       $contentPage.append($el);
-      $contentPage.append($footer);
       $('body').append($contentPage);
-      // full height - header - footer - 1px border = scrollbar only on iframe
-      var correctIframeHeight = $(window).height() - 50 - 23 - 1;
+      // full height - header - 1px border = scrollbar only on iframe
+      var correctIframeHeight = $(window).height() - 23 - 1;
       function spy (data){
         if(data.$el.attr('id') === callback._context.extension_id) {
           expect($el.height()).toEqual(correctIframeHeight);
@@ -180,35 +146,5 @@ describe('env module', () => {
       }, 500);
       done();
     });
-
-
   });
-
-  describe('hideFooter', () => {
-
-    afterEach(function () {
-      $('.ac-content-page').remove();
-      $('#footer').remove();
-    });
-
-    it('hides the footer', (done) => {
-      var $contentPage = $('<div class="ac-content-page" />');
-      var $footer = $('<div id="footer" />');
-      $contentPage.append($footer);
-      $('body').append($contentPage);
-
-      var hideFooter = true;
-      function spy (hideFooter){
-        if(hideFooter) {
-          expect($('#footer').css('display')).toEqual('none');
-          EventDispatcher.unregister('hideFooter', spy);
-          done();
-        }
-      }
-
-      EventDispatcher.register('hide-footer', spy);
-      envModule.hideFooter(hideFooter);
-    });
-  });
-
 });
