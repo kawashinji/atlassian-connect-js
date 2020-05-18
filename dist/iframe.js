@@ -2430,6 +2430,7 @@ var AP = (function () {
             } else {
               // all other methods
               accumulator[methodName] = plugin._hostModules[moduleName][methodName];
+              accumulator[methodName]['returnsPromise'] = moduleSpec[moduleName][methodName]['returnsPromise'] || false;
             }
           }, this);
 
