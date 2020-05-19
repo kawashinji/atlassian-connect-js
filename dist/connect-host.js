@@ -5118,63 +5118,13 @@
     }
   };
 
-  function getBooleanFeatureFlag(flagName) {
-    if (AJS && AJS.DarkFeatures && AJS.DarkFeatures.isEnabled && AJS.DarkFeatures.isEnabled(flagName)) {
-      return true;
-    }
-
-    var flagMeta = document.querySelector('meta[name="ajs-fe-feature-flags"]');
-
-    if (!flagMeta) {
-      return false;
-    }
-
-    var flagContent = flagMeta.getAttribute('content');
-
-    if (!flagContent) {
-      return false;
-    }
-
-    var flagJson = {};
-
-    try {
-      flagJson = JSON.parse(flagContent);
-    } catch (err) {
-      return false;
-    }
-
-    if (!flagJson[flagName] || typeof flagJson[flagName].value !== 'boolean') {
-      return false;
-    }
-
-    return flagJson[flagName].value;
-  }
-
   EventDispatcher$1.register('iframe-resize', function (data) {
     IframeComponent.resize(data.width, data.height, data.$el);
   });
   EventDispatcher$1.register('iframe-size-to-parent', function (data) {
     var height;
     var $el = Util.getIframeByExtensionId(data.extensionId);
-
-    if (getBooleanFeatureFlag('com.atlassian.connect.acjs-nav3')) {
-      height = $(window).height() - $el.offset().top - 1; //1px comes from margin given by full-size-general-page
-    } else {
-      if (data.hideFooter) {
-        $el.addClass('full-size-general-page-no-footer');
-        $('#footer').css({
-          display: 'none'
-        });
-        height = $(window).height() - $('#header > nav').outerHeight();
-      } else {
-        height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
-
-        $el.removeClass('full-size-general-page-no-footer');
-        $('#footer').css({
-          display: 'block'
-        });
-      }
-    }
+    height = $(window).height() - $el.offset().top - 1; //1px comes from margin given by full-size-general-page
 
     EventDispatcher$1.dispatch('iframe-resize', {
       width: '100%',
@@ -6891,7 +6841,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.31';
+    window._AP.version = '5.2.32';
   }
 
   host.defineModule('messages', messages);
