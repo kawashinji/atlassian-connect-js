@@ -11,19 +11,7 @@ EventDispatcher.register('iframe-resize', function(data) {
 EventDispatcher.register('iframe-size-to-parent', function(data) {
   var height;
   var $el = util.getIframeByExtensionId(data.extensionId);
-  if (getBooleanFeatureFlag('com.atlassian.connect.acjs-nav3')) {
-    height = $(window).height() - $el.offset().top - 1; //1px comes from margin given by full-size-general-page
-  } else {
-    if (data.hideFooter) {
-      $el.addClass('full-size-general-page-no-footer');
-      $('#footer').css({ display: 'none' });
-      height = $(window).height() - $('#header > nav').outerHeight();
-    } else {
-      height = $(window).height() - $('#header > nav').outerHeight() - $('#footer').outerHeight() - 1; //1px comes from margin given by full-size-general-page
-      $el.removeClass('full-size-general-page-no-footer');
-      $('#footer').css({ display: 'block' });
-    }
-  }
+  height = $(window).height() - $el.offset().top - 1; //1px comes from margin given by full-size-general-page
 
   EventDispatcher.dispatch('iframe-resize', {
     width: '100%',
