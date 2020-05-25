@@ -1856,7 +1856,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.2.32";
+      _this._version = "5.2.33";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
@@ -3403,13 +3403,13 @@ var AP = (function () {
   combined._hostModules['inline-dialog'] = combined._hostModules.inlineDialog;
 
   if (consumerOptions.get('sizeToParent') === true) {
-    combined.env.sizeToParent(consumerOptions.get('hideFooter') === true);
+    combined.env && combined.env.sizeToParent(consumerOptions.get('hideFooter') === true);
   } else {
-    combined.env.hideFooter(consumerOptions.get('hideFooter') === true);
+    combined.env && combined.env.hideFooter(consumerOptions.get('hideFooter') === true);
   }
 
   if (consumerOptions.get('base') === true) {
-    combined.env.getLocation(function (loc) {
+    combined.env && combined.env.getLocation(function (loc) {
       $$2('head').append({
         tag: 'base',
         href: loc,
