@@ -33,6 +33,55 @@ describe('Host API', function() {
 
   it('broadcastPublic sanitises extension options for XDM', function(){
     spyOn(simpleXDM, 'dispatch');
+
+    AJS.DarkFeatures = {
+      isEnabled: (key) => key !== 'com.atlassian.connect.event-public.jwt-filter'
+    }
+
+    var spy = jasmine.createSpy('spy');
+    HostApi.onPublicEventDispatched(spy);
+    const type = 'a';
+    const event = {};
+    const sanitisedExtension = {
+      addon_key: 'abc',
+      key: '123',
+      options: {
+        origin: 'https://some.host.com/?jwt=secret',
+        contextJwt: 'secretJwtToken'
+      }
+    };
+    const unsanitisedExtension = extend({}, sanitisedExtension, {
+      options: {
+        some_func: function () {},
+        origin: 'https://some.host.com/?jwt=secret',
+        contextJwt: 'secretJwtToken'
+      }
+    });
+    const sender = {
+      addonKey: sanitisedExtension.addon_key,
+      key: sanitisedExtension.key,
+      options: sanitisedExtension.options
+    };
+    eventActions.broadcastPublic(type, event, unsanitisedExtension);
+    expect(spy).toHaveBeenCalledWith({
+      event,
+      extension: unsanitisedExtension,
+      type
+    });
+    expect(simpleXDM.dispatch).toHaveBeenCalledWith(type, {}, {
+      event,
+      sender
+    });
+    HostApi.offPublicEventDispatched(spy);
+  });
+
+  it('broadcastPublic sanitises extension options for XDM including jwt when feature flag is on', function(){
+    spyOn(simpleXDM, 'dispatch');
+
+    AJS.DarkFeatures = {
+      isEnabled: (key) => key === 'com.atlassian.connect.event-public.jwt-filter'
+    }
+
     var spy = jasmine.createSpy('spy');
     HostApi.onPublicEventDispatched(spy);
     const type = 'a';
