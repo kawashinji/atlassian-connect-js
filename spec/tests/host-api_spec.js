@@ -44,7 +44,9 @@ describe('Host API', function() {
     };
     const unsanitisedExtension = extend({}, sanitisedExtension, {
       options: {
-        some_func: function () {}
+        some_func: function () {},
+        origin: 'https://some.host.com/?jwt=secret',
+        contextJwt: 'secretJwtToken'
       }
     });
     const sender = {
