@@ -46,14 +46,14 @@ describe('Host API', function() {
       addon_key: 'abc',
       key: '123',
       options: {
-        origin: 'https://some.host.com/?jwt=secret',
+        url: 'https://some.host.com/?jwt=secret',
         contextJwt: 'secretJwtToken'
       }
     };
     const unsanitisedExtension = extend({}, sanitisedExtension, {
       options: {
         some_func: function () {},
-        origin: 'https://some.host.com/?jwt=secret',
+        url: 'https://some.host.com/?jwt=secret',
         contextJwt: 'secretJwtToken'
       }
     });
@@ -94,7 +94,7 @@ describe('Host API', function() {
     const unsanitisedExtension = extend({}, sanitisedExtension, {
       options: {
         some_func: function () {},
-        origin: 'https://some.host.com/?jwt=secret',
+        url: 'https://some.host.com/?jwt=secret',
         contextJwt: 'secretJwtToken'
       }
     });

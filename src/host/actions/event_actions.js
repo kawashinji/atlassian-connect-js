@@ -20,7 +20,7 @@ export default {
       sender
     });
 
-    const { contextJwt, origin, ...filteredOptions } = sender.options || {};
+    const { contextJwt, url, ...filteredOptions } = sender.options || {};
     const options = getBooleanFeatureFlag('com.atlassian.connect.event-public.jwt-filter') ? filteredOptions : sender.options
     SimpleXDM.dispatch(type, {}, {
       sender: {
