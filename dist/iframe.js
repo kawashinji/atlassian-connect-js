@@ -1458,14 +1458,16 @@ var AP = (function () {
   $.unbind = binder('remove', 'detach');
 
   $.onDomLoad = function (func) {
-    function callIfLoaded(callback) {
-      document$1.body && callback.call(window);
-    }
+    var w = window,
+        readyState = w.document.readyState;
 
-    callIfLoaded(func);
-    new MutationObserver(callIfLoaded.bind(null, func)).observe(document$1.documentElement, {
-      childList: true
-    });
+    if (readyState === "complete") {
+      func.call(w);
+    } else {
+      $.bind(w, "load", function () {
+        func.call(w);
+      });
+    }
   };
 
   function getContainer() {
@@ -1854,7 +1856,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.2.34";
+      _this._version = "5.2.35";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
