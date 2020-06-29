@@ -13,19 +13,14 @@ module.exports = {
     chrome_latest_osx: {
         base: 'SauceLabs',
         browserName: 'chrome',
-        platform: 'OS X 10.14'
+        platform: 'OS X 10.11'
     },
 
-    // Edge latest
-    edge_latest_windows: {
+    // Chrome 45
+    chrome_45: {
         base: 'SauceLabs',
-        browserName: 'microsoftedge',
-        platform: 'Windows 10'
-    },
-        edge_latest_osx: {
-        base: 'SauceLabs',
-        browserName: 'microsoftedge',
-        platform: 'OS X 10.14'
+        browserName: 'chrome',
+        version: '45'
     },
 
     // Firefox latest
@@ -41,13 +36,29 @@ module.exports = {
     firefox_latest_osx: {
         base: 'SauceLabs',
         browserName: 'firefox',
-        platform: 'OS X 10.14'
+        platform: 'OS X 10.11'
     },
 
-    // Safari latest
+    // Firefox 40
+    firefox_40: {
+        base: 'SauceLabs',
+        browserName: 'firefox',
+        version: '40'
+    },
     safari_latest_osx: {
         base: 'SauceLabs',
         browserName: 'safari',
-        platform: 'OS X 10.14'
+        platform: 'OS X 10.11'
+    },
+    ie_11: {
+        base: 'SauceLabs',
+        browserName: 'internet explorer',
+        version: '11',
+        platform: 'Windows 8.1'
+    },
+    ie_edge: {
+        base: 'SauceLabs',
+        browserName: 'microsoftedge',
+        platform: 'Windows 10'
     }
 };
