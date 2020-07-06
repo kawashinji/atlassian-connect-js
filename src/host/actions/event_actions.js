@@ -1,6 +1,7 @@
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import SimpleXDM from 'simple-xdm/host';
 import SimpleXDMUtil from 'simple-xdm/src/common/util';
+import getBooleanFeatureFlag from '../utils/feature-flag';
 
 export default {
   broadcast: function(type, targetSpec, event){
@@ -19,14 +20,15 @@ export default {
       sender
     });
 
+    const { contextJwt, url, ...filteredOptions } = sender.options || {};
+    const options = getBooleanFeatureFlag('com.atlassian.connect.event-public.jwt-filter') ? filteredOptions : sender.options
     SimpleXDM.dispatch(type, {}, {
       sender: {
         addonKey: sender.addon_key,
         key: sender.key,
-        options: SimpleXDMUtil.sanitizeStructuredClone(sender.options)
+        options: SimpleXDMUtil.sanitizeStructuredClone(options)
       },
       event: event
     });
-
   }
 };
