@@ -1168,6 +1168,23 @@
     }
   });
 
+  function _objectWithoutPropertiesLoose(source, excluded) {
+    if (source == null) return {};
+    var target = {};
+    var sourceKeys = Object.keys(source);
+    var key, i;
+
+    for (i = 0; i < sourceKeys.length; i++) {
+      key = sourceKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+
+    return target;
+  }
+
+  var objectWithoutPropertiesLoose = _objectWithoutPropertiesLoose;
+
   function createCommonjsModule(fn, module) {
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
@@ -2034,6 +2051,38 @@
 
   var host = new Connect();
 
+  function getBooleanFeatureFlag(flagName) {
+    if (AJS && AJS.DarkFeatures && AJS.DarkFeatures.isEnabled && AJS.DarkFeatures.isEnabled(flagName)) {
+      return true;
+    }
+
+    var flagMeta = document.querySelector('meta[name="ajs-fe-feature-flags"]');
+
+    if (!flagMeta) {
+      return false;
+    }
+
+    var flagContent = flagMeta.getAttribute('content');
+
+    if (!flagContent) {
+      return false;
+    }
+
+    var flagJson = {};
+
+    try {
+      flagJson = JSON.parse(flagContent);
+    } catch (err) {
+      return false;
+    }
+
+    if (!flagJson[flagName] || typeof flagJson[flagName].value !== 'boolean') {
+      return false;
+    }
+
+    return flagJson[flagName].value;
+  }
+
   var EventActions = {
     broadcast: function broadcast(type, targetSpec, event) {
       host.dispatch(type, targetSpec, event);
@@ -2049,11 +2098,18 @@
         event: event,
         sender: sender
       });
+
+      var _ref = sender.options || {},
+          contextJwt = _ref.contextJwt,
+          url = _ref.url,
+          filteredOptions = objectWithoutPropertiesLoose(_ref, ["contextJwt", "url"]);
+
+      var options = getBooleanFeatureFlag('com.atlassian.connect.event-public.jwt-filter') ? filteredOptions : sender.options;
       host.dispatch(type, {}, {
         sender: {
           addonKey: sender.addon_key,
           key: sender.key,
-          options: util.sanitizeStructuredClone(sender.options)
+          options: util.sanitizeStructuredClone(options)
         },
         event: event
       });
@@ -6841,7 +6897,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.35';
+    window._AP.version = '5.2.36';
   }
 
   host.defineModule('messages', messages);
