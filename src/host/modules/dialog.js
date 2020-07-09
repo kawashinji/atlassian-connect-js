@@ -336,7 +336,7 @@ class CreateButton {
  *
  * To do that, you'll need to add the AUI styles to your dialog.
  *
- * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog.html).
+ * For more information, read about the Atlassian User Interface [dialog component](https://docs.atlassian.com/aui/latest/docs/dialog2.html).
  * @exports Dialog
  */
 export default {
