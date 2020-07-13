@@ -4137,6 +4137,10 @@
 
     _proto.hasJwt = function hasJwt(url) {
       return urlUtils.hasJwt(url);
+    };
+
+    _proto.getBooleanFeatureFlag = function getBooleanFeatureFlag$1(flagName) {
+      return getBooleanFeatureFlag(flagName);
     } // set configuration option system wide for all extensions
     // can be either key,value or an object
     ;
@@ -6897,7 +6901,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.36';
+    window._AP.version = '5.2.37';
   }
 
   host.defineModule('messages', messages);

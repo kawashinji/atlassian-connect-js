@@ -10,6 +10,7 @@ import simpleXDM from 'simple-xdm/host';
 import IframeActions from './actions/iframe_actions';
 import AnalyticsAction from './actions/analytics_action';
 import WebItemUtils from './utils/webitem';
+import getBooleanFeatureFlag from './utils/feature-flag';
 import ModuleProviders from './module-providers';
 import { acjsFrameworkAdaptor } from './ACJSFrameworkAdaptor';
 import Util from './util';
@@ -197,6 +198,10 @@ class HostApi {
 
   hasJwt(url) {
     return UrlUtils.hasJwt(url);
+  }
+
+  getBooleanFeatureFlag(flagName) {
+    return getBooleanFeatureFlag(flagName);
   }
 
   // set configuration option system wide for all extensions
