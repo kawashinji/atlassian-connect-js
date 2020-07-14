@@ -4750,7 +4750,22 @@
     DialogExtensionActions.open(dialogExtension, options);
     this.customData = options.customData;
     _dialogs[_id] = this;
-  };
+  }
+  /**
+   * Registers a callback for a dialog event.
+   * @method on
+   * @memberOf Dialog~Dialog
+   * @param {String} event The dialog event to listen for. Valid options are "close".
+   * @param {Function} callback The function to be invoked.
+   * @noDemo
+   * @example
+   * AP.dialog.create({
+   *   key: 'my-module-key'
+   * }).on("close", function() {
+   *   console.log("Dialog was closed");
+   * });
+   */
+  ;
   /**
    * @class Dialog~DialogButton
    * @description A dialog button that can be controlled with JavaScript
@@ -6901,7 +6916,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.37';
+    window._AP.version = '5.2.38';
   }
 
   host.defineModule('messages', messages);
