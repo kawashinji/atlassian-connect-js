@@ -95,6 +95,21 @@ class Dialog {
     this.customData = options.customData;
     _dialogs[_id] = this;
   }
+
+  /**
+   * Registers a callback for a dialog event.
+   * @method on
+   * @memberOf Dialog~Dialog
+   * @param {String} event The dialog event to listen for. Valid options are "close".
+   * @param {Function} callback The function to be invoked.
+   * @noDemo
+   * @example
+   * AP.dialog.create({
+   *   key: 'my-module-key'
+   * }).on("close", function() {
+   *   console.log("Dialog was closed");
+   * });
+   */
 }
 
 /**
