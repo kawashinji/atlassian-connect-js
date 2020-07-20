@@ -2051,38 +2051,6 @@
 
   var host = new Connect();
 
-  function getBooleanFeatureFlag(flagName) {
-    if (AJS && AJS.DarkFeatures && AJS.DarkFeatures.isEnabled && AJS.DarkFeatures.isEnabled(flagName)) {
-      return true;
-    }
-
-    var flagMeta = document.querySelector('meta[name="ajs-fe-feature-flags"]');
-
-    if (!flagMeta) {
-      return false;
-    }
-
-    var flagContent = flagMeta.getAttribute('content');
-
-    if (!flagContent) {
-      return false;
-    }
-
-    var flagJson = {};
-
-    try {
-      flagJson = JSON.parse(flagContent);
-    } catch (err) {
-      return false;
-    }
-
-    if (!flagJson[flagName] || typeof flagJson[flagName].value !== 'boolean') {
-      return false;
-    }
-
-    return flagJson[flagName].value;
-  }
-
   var EventActions = {
     broadcast: function broadcast(type, targetSpec, event) {
       host.dispatch(type, targetSpec, event);
@@ -2104,12 +2072,11 @@
           url = _ref.url,
           filteredOptions = objectWithoutPropertiesLoose(_ref, ["contextJwt", "url"]);
 
-      var options = getBooleanFeatureFlag('com.atlassian.connect.event-public.jwt-filter') ? filteredOptions : sender.options;
       host.dispatch(type, {}, {
         sender: {
           addonKey: sender.addon_key,
           key: sender.key,
-          options: util.sanitizeStructuredClone(options)
+          options: util.sanitizeStructuredClone(filteredOptions)
         },
         event: event
       });
@@ -3860,6 +3827,38 @@
     getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey,
     getConfigFromTarget: getConfigFromTarget
   };
+
+  function getBooleanFeatureFlag(flagName) {
+    if (AJS && AJS.DarkFeatures && AJS.DarkFeatures.isEnabled && AJS.DarkFeatures.isEnabled(flagName)) {
+      return true;
+    }
+
+    var flagMeta = document.querySelector('meta[name="ajs-fe-feature-flags"]');
+
+    if (!flagMeta) {
+      return false;
+    }
+
+    var flagContent = flagMeta.getAttribute('content');
+
+    if (!flagContent) {
+      return false;
+    }
+
+    var flagJson = {};
+
+    try {
+      flagJson = JSON.parse(flagContent);
+    } catch (err) {
+      return false;
+    }
+
+    if (!flagJson[flagName] || typeof flagJson[flagName].value !== 'boolean') {
+      return false;
+    }
+
+    return flagJson[flagName].value;
+  }
 
   var ModuleProviders = function ModuleProviders() {
     var _this = this;
@@ -6916,7 +6915,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.39';
+    window._AP.version = '5.2.40';
   }
 
   host.defineModule('messages', messages);
