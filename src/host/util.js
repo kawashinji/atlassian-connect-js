@@ -65,6 +65,13 @@ function debounce (fn, wait) {
   };
 }
 
+function isSupported(domElem, attr, value, defaultValue) {
+  if (domElem && domElem[attr] && domElem[attr].supports) {
+    return domElem[attr].supports(value);
+  } else {
+    return defaultValue;
+  }
+}
 
 export default {
   escapeSelector,
