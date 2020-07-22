@@ -17,8 +17,7 @@ export default {
           sanitized.sandbox = options.sandbox
             .split(' ')
             .filter(value => util.isSupported(domElem, 'sandbox', value, true))
-            .reduce((accumulator, currentValue) => accumulator + currentValue + ' ', '')
-            .slice(0, -1);
+            .join(' ');
         } else {
           sanitized.sandbox = options.sandbox;
 
