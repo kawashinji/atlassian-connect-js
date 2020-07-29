@@ -44,17 +44,35 @@ simpleXDM.defineModule('scrollPosition', scrollPosition);
 simpleXDM.defineModule('dropdown', dropdown);
 simpleXDM.defineModule('host', host);
 
-EventDispatcher.register('module-define-custom', function(data){
+EventDispatcher.register('module-define-custom', function (data) {
   simpleXDM.defineModule(data.name, data.methods);
 });
 
-simpleXDM.registerRequestNotifier(function(data){
-  AnalyticsDispatcher.dispatch('bridge.invokemethod', {
+simpleXDM.registerRequestNotifier(function (data) {
+  var eventPayload = {
     module: data.module,
     fn: data.fn,
     addonKey: data.addon_key,
     moduleKey: data.key
-  });
+  }
+
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(() => {
+      AnalyticsDispatcher.dispatch('bridge.invokemethod', {
+        module: data.module,
+        fn: data.fn,
+        addonKey: data.addon_key,
+        moduleKey: data.key
+      });
+    });
+  } else {
+    AnalyticsDispatcher.dispatch('bridge.invokemethod', {
+      module: data.module,
+      fn: data.fn,
+      addonKey: data.addon_key,
+      moduleKey: data.key
+    });
+  }
 });
 
 export default HostApi;
