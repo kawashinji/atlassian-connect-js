@@ -49,29 +49,19 @@ EventDispatcher.register('module-define-custom', function (data) {
 });
 
 simpleXDM.registerRequestNotifier(function (data) {
-  var eventPayload = {
-    module: data.module,
-    fn: data.fn,
-    addonKey: data.addon_key,
-    moduleKey: data.key
-  }
-
-  if (typeof window.requestIdleCallback === 'function') {
-    window.requestIdleCallback(() => {
-      AnalyticsDispatcher.dispatch('bridge.invokemethod', {
-        module: data.module,
-        fn: data.fn,
-        addonKey: data.addon_key,
-        moduleKey: data.key
-      });
-    });
-  } else {
+  var dispatchEvent = () => {
     AnalyticsDispatcher.dispatch('bridge.invokemethod', {
       module: data.module,
       fn: data.fn,
       addonKey: data.addon_key,
       moduleKey: data.key
     });
+  }
+
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(dispatchEvent, { timeout: 1000 });
+  } else {
+    dispatchEvent();
   }
 });
 

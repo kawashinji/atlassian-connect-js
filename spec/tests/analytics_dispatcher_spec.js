@@ -9,26 +9,33 @@ const extension = {
 
 
 describe('Analytics Dispatcher', () => {
+  beforeEach(() => {
+    window.requestIdleCallback = (callback) => setTimeout(callback);
+  });
 
   it('trackLoadingStarted stores the time', () => {
     expect(AnalyticsDispatcher._addons).toEqual({});
     AnalyticsDispatcher.trackLoadingStarted(extension);
     expect(AnalyticsDispatcher._addons[extension.id].startLoading).toEqual(jasmine.any(Number));
   });
-  it('trackLoadingEnded triggers iframe.performance.load', () => {
+  it('trackLoadingEnded triggers iframe.performance.load', (done) => {
     spyOn(AnalyticsDispatcher, '_track');
     AnalyticsDispatcher.trackLoadingEnded(extension);
-    expect(AnalyticsDispatcher._track).toHaveBeenCalled();
-    expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.load', {
-      addonKey: extension.addon_key,
-      moduleKey: extension.key,
-      moduleLocation: undefined,
-      moduleType: undefined,
-      iframeLoadMillis: jasmine.any(Number),
-      iframeLoadApdex: jasmine.any(Number),
-      iframeIsCacheable: jasmine.any(Boolean),
-      value: jasmine.any(Number)
-    });
+
+    setTimeout(() => {
+      expect(AnalyticsDispatcher._track).toHaveBeenCalled();
+      expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.load', {
+        addonKey: extension.addon_key,
+        moduleKey: extension.key,
+        moduleLocation: undefined,
+        moduleType: undefined,
+        iframeLoadMillis: jasmine.any(Number),
+        iframeLoadApdex: jasmine.any(Number),
+        iframeIsCacheable: jasmine.any(Boolean),
+        value: jasmine.any(Number)
+      });
+      done();
+    })
   });
 
   it('trackLoadingTimeout triggers iframe.performance.timeout', () => {
@@ -83,7 +90,7 @@ describe('Analytics Dispatcher', () => {
 
   it('trackExternal triggers _track', () => {
     spyOn(AnalyticsDispatcher, '_track');
-    var analyticsValue = {some: 'value'};
+    var analyticsValue = { some: 'value' };
     var analyticsName = 'aname';
     AnalyticsDispatcher.trackExternal(analyticsName, analyticsValue);
     expect(AnalyticsDispatcher._track).toHaveBeenCalled();

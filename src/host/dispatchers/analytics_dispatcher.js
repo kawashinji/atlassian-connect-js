@@ -79,7 +79,7 @@ class AnalyticsDispatcher {
       };
 
       if (typeof window.requestIdleCallback === 'function') {
-        window.requestIdleCallback(() => this._track('iframe.performance.load', eventPayload));
+        window.requestIdleCallback(() => this._track('iframe.performance.load', eventPayload), { timeout: 100 });
       } else {
         this._track('iframe.performance.load', eventPayload);
       }
