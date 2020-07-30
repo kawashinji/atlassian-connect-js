@@ -918,6 +918,8 @@
     };
 
     _proto.trackLoadingEnded = function trackLoadingEnded(extension) {
+      var _this = this;
+
       if (this._addons && extension && this._addons[extension.id]) {
         var href = extension.url;
         var iframeIsCacheable = href !== undefined && href.indexOf('xdm_e=') === -1;
@@ -925,8 +927,7 @@
         var value = this._time() - this._addons[extension.id].startLoading;
 
         var iframeLoadApdex = this.getIframeLoadApdex(value);
-
-        this._track('iframe.performance.load', {
+        var eventPayload = {
           addonKey: extension.addon_key,
           moduleKey: extension.key,
           moduleType: extension.options ? extension.options.moduleType : undefined,
@@ -935,7 +936,17 @@
           iframeLoadApdex: iframeLoadApdex,
           iframeIsCacheable: iframeIsCacheable,
           value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil(value / LOADING_TIME_TRIMP_PRECISION)
-        });
+        };
+
+        if (typeof window.requestIdleCallback === 'function') {
+          window.requestIdleCallback(function () {
+            return _this._track('iframe.performance.load', eventPayload);
+          }, {
+            timeout: 100
+          });
+        } else {
+          this._track('iframe.performance.load', eventPayload);
+        }
       } else {
         console.error('ACJS: cannot track loading end analytics', this._addons, extension);
       }
@@ -6915,7 +6926,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.40';
+    window._AP.version = '5.2.41';
   }
 
   host.defineModule('messages', messages);
@@ -6932,12 +6943,22 @@
     host.defineModule(data.name, data.methods);
   });
   host.registerRequestNotifier(function (data) {
-    analytics.dispatch('bridge.invokemethod', {
-      module: data.module,
-      fn: data.fn,
-      addonKey: data.addon_key,
-      moduleKey: data.key
-    });
+    var dispatchEvent = function dispatchEvent() {
+      analytics.dispatch('bridge.invokemethod', {
+        module: data.module,
+        fn: data.fn,
+        addonKey: data.addon_key,
+        moduleKey: data.key
+      });
+    };
+
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(dispatchEvent, {
+        timeout: 1000
+      });
+    } else {
+      dispatchEvent();
+    }
   });
 
   return HostApi$1;
