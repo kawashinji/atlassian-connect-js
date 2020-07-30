@@ -31,12 +31,12 @@ class AnalyticsDispatcher {
     data = data || {};
     data.version = (w._AP && w._AP.version) ? w._AP.version : undefined;
     data.userAgent = w.navigator.userAgent;
-    if(!w.AJS) {
+    if (!w.AJS) {
       return false;
     }
-    if(w.AJS.Analytics){
+    if (w.AJS.Analytics) {
       w.AJS.Analytics.triggerPrivacyPolicySafeEvent(prefixedName, data);
-    } else if(w.AJS.trigger) {
+    } else if (w.AJS.trigger) {
       // BTF fallback
       AJS.trigger('analyticsEvent', {
         name: prefixedName,
@@ -53,7 +53,7 @@ class AnalyticsDispatcher {
   }
 
   trackLoadingStarted(extension) {
-    if(this._addons && extension && extension.id) {
+    if (this._addons && extension && extension.id) {
       extension.startLoading = this._time();
       this._addons[extension.id] = extension;
     } else {
@@ -62,12 +62,12 @@ class AnalyticsDispatcher {
   }
 
   trackLoadingEnded(extension) {
-    if(this._addons && extension && this._addons[extension.id]) {
+    if (this._addons && extension && this._addons[extension.id]) {
       var href = extension.url;
       var iframeIsCacheable = href !== undefined && href.indexOf('xdm_e=') === -1;
       var value = this._time() - this._addons[extension.id].startLoading;
       var iframeLoadApdex = this.getIframeLoadApdex(value);
-      this._track('iframe.performance.load', {
+      var eventPayload = {
         addonKey: extension.addon_key,
         moduleKey: extension.key,
         moduleType: extension.options ? extension.options.moduleType : undefined,
@@ -76,7 +76,13 @@ class AnalyticsDispatcher {
         iframeLoadApdex: iframeLoadApdex,
         iframeIsCacheable: iframeIsCacheable,
         value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil((value) / LOADING_TIME_TRIMP_PRECISION)
-      });
+      };
+
+      if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(() => this._track('iframe.performance.load', eventPayload), { timeout: 100 });
+      } else {
+        this._track('iframe.performance.load', eventPayload);
+      }
     } else {
       console.error('ACJS: cannot track loading end analytics', this._addons, extension);
     }
@@ -86,13 +92,13 @@ class AnalyticsDispatcher {
     var apdexSatisfiedThresholdMilliseconds = 300;
     var iframeLoadApdex =
       iframeLoadMilliseconds <= apdexSatisfiedThresholdMilliseconds ? 1 :
-      iframeLoadMilliseconds <= 4 * apdexSatisfiedThresholdMilliseconds ? 0.5 : 0;
+        iframeLoadMilliseconds <= 4 * apdexSatisfiedThresholdMilliseconds ? 0.5 : 0;
     return iframeLoadApdex;
   }
 
   trackLoadingTimeout(extension) {
     var connectedStatus = window.navigator.onLine;
-    if(typeof connectedStatus !== 'boolean') {
+    if (typeof connectedStatus !== 'boolean') {
       connectedStatus = 'not-supported';
     }
     this._track('iframe.performance.timeout', {
@@ -142,23 +148,23 @@ class AnalyticsDispatcher {
     this._track(name, data);
   }
 
-  trackExternal(name, data){
+  trackExternal(name, data) {
     this._track(name, data);
   }
 
 }
 
 var analytics = new AnalyticsDispatcher();
-if($.fn) {
-  EventDispatcher.register('iframe-create', function(data) {
+if ($.fn) {
+  EventDispatcher.register('iframe-create', function (data) {
     analytics.trackLoadingStarted(data.extension);
   });
 }
 
-EventDispatcher.register('iframe-bridge-start', function (data){
+EventDispatcher.register('iframe-bridge-start', function (data) {
   analytics.trackLoadingStarted(data.extension);
 });
-EventDispatcher.register('iframe-bridge-established', function(data) {
+EventDispatcher.register('iframe-bridge-established', function (data) {
   analytics.trackLoadingEnded(data.extension);
   observe(document.getElementById(data.extension.id), () => {
     analytics.trackVisible(data.extension);
@@ -167,18 +173,18 @@ EventDispatcher.register('iframe-bridge-established', function(data) {
 EventDispatcher.register('iframe-bridge-timeout', function (data) {
   analytics.trackLoadingTimeout(data.extension);
 });
-EventDispatcher.register('iframe-bridge-cancelled', function(data) {
+EventDispatcher.register('iframe-bridge-cancelled', function (data) {
   analytics.trackLoadingCancel(data.extension);
 });
-EventDispatcher.register('analytics-deprecated-method-used', function(data) {
+EventDispatcher.register('analytics-deprecated-method-used', function (data) {
   analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
 });
 
-EventDispatcher.register('iframe-destroyed', function(data) {
+EventDispatcher.register('iframe-destroyed', function (data) {
   delete analytics._addons[data.extension.extension_id];
 });
 
-EventDispatcher.register('analytics-external-event-track', function(data) {
+EventDispatcher.register('analytics-external-event-track', function (data) {
   analytics.trackExternal(data.eventName, data.values);
 });
 
