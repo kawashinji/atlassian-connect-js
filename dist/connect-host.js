@@ -1372,9 +1372,20 @@
       if (reg.extension.options.noSub) {
         util.error("Sub-Extension requested by [" + reg.extension.addon_key + "] but feature is disabled");
       } else {
-        this.registerExtension(event.data.ext.id, {
-          extension: event.data.ext
+        var data = event.data;
+        this.registerExtension(data.ext.id, {
+          extension: data.ext
         });
+
+        if (this._registeredRequestNotifier) {
+          this._registeredRequestNotifier.call(null, {
+            sub: data.ext,
+            type: data.type,
+            addon_key: reg.extension.addon_key,
+            key: reg.extension.key,
+            extension_id: reg.extension_id
+          });
+        }
       }
     };
 
@@ -6944,12 +6955,21 @@
   });
   host.registerRequestNotifier(function (data) {
     var dispatchEvent = function dispatchEvent() {
-      analytics.dispatch('bridge.invokemethod', {
-        module: data.module,
-        fn: data.fn,
-        addonKey: data.addon_key,
-        moduleKey: data.key
-      });
+      if (data.type === 'req') {
+        analytics.dispatch('bridge.invokemethod', {
+          module: data.module,
+          fn: data.fn,
+          addonKey: data.addon_key,
+          moduleKey: data.key
+        });
+      } else if (data.type === 'sub') {
+        analytics.dispatch('register.sub', {
+          subAddonKey: data.sub.addon_key,
+          subModuleKey: data.sub.key,
+          addonKey: data.addon_key,
+          moduleKey: data.key
+        });
+      }
     };
 
     if (typeof window.requestIdleCallback === 'function') {
