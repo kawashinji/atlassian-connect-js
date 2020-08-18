@@ -50,12 +50,21 @@ EventDispatcher.register('module-define-custom', function (data) {
 
 simpleXDM.registerRequestNotifier(function (data) {
   var dispatchEvent = () => {
-    AnalyticsDispatcher.dispatch('bridge.invokemethod', {
-      module: data.module,
-      fn: data.fn,
-      addonKey: data.addon_key,
-      moduleKey: data.key
-    });
+    if (data.type === 'req') {
+      AnalyticsDispatcher.dispatch('bridge.invokemethod', {
+        module: data.module,
+        fn: data.fn,
+        addonKey: data.addon_key,
+        moduleKey: data.key
+      });
+    } else if (data.type === 'sub') {
+      AnalyticsDispatcher.dispatch('register.sub', {
+        subAddonKey: data.sub.addon_key,
+        subModuleKey: data.sub.key,
+        addonKey: data.addon_key,
+        moduleKey: data.key
+      });
+    }
   }
 
   if (typeof window.requestIdleCallback === 'function') {
