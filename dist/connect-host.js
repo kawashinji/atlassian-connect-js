@@ -6963,7 +6963,7 @@
           moduleKey: data.key
         });
       } else if (data.type === 'sub') {
-        analytics.dispatch('register.sub', {
+        analytics.dispatch('bridge.register-sub', {
           subAddonKey: data.sub.addon_key,
           subModuleKey: data.sub.key,
           addonKey: data.addon_key,

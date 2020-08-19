@@ -58,7 +58,7 @@ simpleXDM.registerRequestNotifier(function (data) {
         moduleKey: data.key
       });
     } else if (data.type === 'sub') {
-      AnalyticsDispatcher.dispatch('register.sub', {
+      AnalyticsDispatcher.dispatch('bridge.register-sub', {
         subAddonKey: data.sub.addon_key,
         subModuleKey: data.sub.key,
         addonKey: data.addon_key,
