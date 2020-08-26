@@ -4749,7 +4749,7 @@
     var dialogExtension = {
       addon_key: extension.addon_key,
       key: options.key,
-      options: Util.pick(extension.options, ['customData', 'productContext'])
+      options: Util.pick(extension.options, ['customData', 'productContext', 'targetHref'])
     }; // ACJS-185: the following is a really bad idea but we need it
     // for compat until AP.dialog.customData has been deprecated
 
