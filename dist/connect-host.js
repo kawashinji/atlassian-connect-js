@@ -1820,45 +1820,40 @@
       this._clickHandler = null;
     };
 
-    _proto.getApiSpec = function getApiSpec() {
-      var that = this;
+    _proto.getApiSpec = function getApiSpec(addonKey) {
+      var _this5 = this;
 
-      function createModule(moduleName) {
-        var module = that._registeredAPIModules[moduleName];
+      function getModuleDefinition(mod) {
+        return Object.getOwnPropertyNames(mod).reduce(function (accumulator, memberName) {
+          var member = mod[memberName];
 
-        if (!module) {
-          throw new Error("unregistered API module: " + moduleName);
-        }
+          switch (typeof member) {
+            case 'function':
+              accumulator[memberName] = {
+                args: util.argumentNames(member),
+                returnsPromise: member.returnsPromise || false
+              };
+              break;
 
-        function getModuleDefinition(mod) {
-          return Object.getOwnPropertyNames(mod).reduce(function (accumulator, memberName) {
-            var member = mod[memberName];
+            case 'object':
+              if (member.hasOwnProperty('constructor')) {
+                accumulator[memberName] = getModuleDefinition(member);
+              }
 
-            switch (typeof member) {
-              case 'function':
-                accumulator[memberName] = {
-                  args: util.argumentNames(member),
-                  returnsPromise: member.returnsPromise || false
-                };
-                break;
+              break;
+          }
 
-              case 'object':
-                if (member.hasOwnProperty('constructor')) {
-                  accumulator[memberName] = getModuleDefinition(member);
-                }
-
-                break;
-            }
-
-            return accumulator;
-          }, {});
-        }
-
-        return getModuleDefinition(module);
+          return accumulator;
+        }, {});
       }
 
       return Object.getOwnPropertyNames(this._registeredAPIModules).reduce(function (accumulator, moduleName) {
-        accumulator[moduleName] = createModule(moduleName);
+        var module = _this5._registeredAPIModules[moduleName];
+
+        if (typeof module.addonKey === 'undefined' || module.addonKey === addonKey) {
+          accumulator[moduleName] = getModuleDefinition(module);
+        }
+
         return accumulator;
       }, {});
     };
@@ -1912,15 +1907,15 @@
 
       if (registrations.length !== 0) {
         registrations.forEach(function (registration) {
-          var _this5 = this;
+          var _this6 = this;
 
           var keys = Object.keys(this._pendingEvents);
           keys.forEach(function (index) {
-            var element = _this5._pendingEvents[index];
+            var element = _this6._pendingEvents[index];
             var targetSpec = element.targetSpec || {};
 
             if (targetSpec.addon_key === registration.extension.addon_key && targetSpec.key === registration.extension.key) {
-              delete _this5._pendingEvents[index];
+              delete _this6._pendingEvents[index];
             }
           });
           delete this._registeredExtensions[registration.extension_id];
@@ -2005,7 +2000,7 @@
       var options = extension.options || {};
       var data = {
         extension_id: extension_id,
-        api: this._xdm.getApiSpec(),
+        api: this._xdm.getApiSpec(extension.addon_key),
         origin: util.locationOrigin(),
         options: options
       };
@@ -6944,7 +6939,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.44';
+    window._AP.version = '5.2.45';
   }
 
   host.defineModule('messages', messages);
