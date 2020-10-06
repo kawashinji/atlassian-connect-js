@@ -38,22 +38,22 @@ export default {
    * Only content within an element with the class `ac-content` is resized automatically.
    * Content without this identifier is sized according to the `body` element, and
    * is *not* dynamically resized. The recommended DOM layout for your app is:
-   * 
+   *
    * ``` html
    * <div class="ac-content">
    *     <p>Hello World</p>
    *     <div id="your-id-here">
    *         <p>Addon content goes here</p>
    *     </div>
-   * 
+   *
    *     ...this area reserved for our resize sensor divs
    * </div>
    * ```
-   * 
+   *
    * The resize sensor div is added on the iframe's [load event](https://developer.mozilla.org/en-US/docs/Web/API/Window/load_event).
    * Removing the `ac-content` element after this, prevents resizing from working correctly.
-   * 
-   ,* This method cannot be used in dialogs.
+   *
+   * This method cannot be used in dialogs.
    *
    * @method
    * @param {String} width   The desired width.
