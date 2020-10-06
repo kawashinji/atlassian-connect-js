@@ -23,7 +23,6 @@ export default {
    *   alert(location);
    * });
    */
-  @Internal
   getLocation: function(callback) {
     callback = util.last(arguments);
     let pageLocationProvider = ModuleProviders.getProvider('get-location');
