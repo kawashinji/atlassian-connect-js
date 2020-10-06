@@ -10,7 +10,7 @@ var ignoreResizeForExtension = [];
 var sizeToParentExtension = {};
 
 /**
- * Enabled apps to resize their iframe and 'sshow or hide the iframe footer.
+ * Enables apps to resize their iframe and show or hide the iframe footer.
  * @exports iframe
  */
 export default {
