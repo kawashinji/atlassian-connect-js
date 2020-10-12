@@ -602,6 +602,10 @@ var AP = (function () {
       return this._registeredAPIModules;
     };
 
+    _proto.isAPIModuleDefined = function isAPIModuleDefined(moduleName) {
+      return typeof this._registeredAPIModules[moduleName] !== 'undefined';
+    };
+
     _proto._pendingEventKey = function _pendingEventKey(targetSpec, time) {
       var key = targetSpec.addon_key || 'global';
 
@@ -1073,6 +1077,10 @@ var AP = (function () {
 
     _proto.defineModule = function defineModule(moduleName, module, options) {
       this._xdm.defineAPIModule(module, moduleName, options);
+    };
+
+    _proto.isModuleDefined = function isModuleDefined(moduleName) {
+      this._xdm.isAPIModuleDefined(moduleName);
     };
 
     _proto.defineGlobals = function defineGlobals(module) {
@@ -1862,7 +1870,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.2.45";
+      _this._version = "5.2.46";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];

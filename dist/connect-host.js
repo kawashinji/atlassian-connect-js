@@ -1574,6 +1574,10 @@
       return this._registeredAPIModules;
     };
 
+    _proto.isAPIModuleDefined = function isAPIModuleDefined(moduleName) {
+      return typeof this._registeredAPIModules[moduleName] !== 'undefined';
+    };
+
     _proto._pendingEventKey = function _pendingEventKey(targetSpec, time) {
       var key = targetSpec.addon_key || 'global';
 
@@ -2045,6 +2049,10 @@
 
     _proto.defineModule = function defineModule(moduleName, module, options) {
       this._xdm.defineAPIModule(module, moduleName, options);
+    };
+
+    _proto.isModuleDefined = function isModuleDefined(moduleName) {
+      this._xdm.isAPIModuleDefined(moduleName);
     };
 
     _proto.defineGlobals = function defineGlobals(module) {
@@ -6939,7 +6947,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.45';
+    window._AP.version = '5.2.46';
   }
 
   host.defineModule('messages', messages);
