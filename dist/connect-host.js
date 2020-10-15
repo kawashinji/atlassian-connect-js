@@ -5282,19 +5282,20 @@
   var ignoreResizeForExtension = [];
   var sizeToParentExtension = {};
   /**
-   * Utility methods that are available without requiring additional modules.
-   * @exports AP
+   * Enables apps to resize their iframe and show or hide the iframe footer.
+   * @exports iframe
    */
 
   var env = {
     /**
      * Get the location of the current page of the host product.
      *
-     * @param {Function} callback function (location) {...}
+     * @param {Function} callback function (location) {...} The callback to pass the location to.
      * @example
      * AP.getLocation(function(location){
      *   alert(location);
      * });
+     * @ignore
      */
     getLocation: function getLocation(callback) {
       callback = Util.last(arguments);
@@ -5308,20 +5309,31 @@
     },
 
     /**
-     * Resize the iframe to a specified width and height.
+     * Resize the iframe to a width and height.
      *
-     * Only content within an element with the class `ac-content` will be resized automatically.
-     * Content without this identifier is sized according to the `body` element, and will dynamically grow, but not shrink.
-     * ```
+     * Only content within an element with the class `ac-content` is resized automatically.
+     * Content without this identifier is sized according to the `body` element, and
+     * is *not* dynamically resized. The recommended DOM layout for your app is:
+     *
+     * ``` html
      * <div class="ac-content">
-       * <p>Hello World</p>
+     *     <p>Hello World</p>
+     *     <div id="your-id-here">
+     *         <p>Addon content goes here</p>
+     *     </div>
+     *
+     *     ...this area reserved for our resize sensor divs
      * </div>
      * ```
-     * Note that this method cannot be used in dialogs.
+     *
+     * The resize sensor div is added on the iframe's [load event](https://developer.mozilla.org/en-US/docs/Web/API/Window/load_event).
+     * Removing the `ac-content` element after this, prevents resizing from working correctly.
+     *
+     * This method cannot be used in dialogs.
      *
      * @method
-     * @param {String} width   the desired width
-     * @param {String} height  the desired height
+     * @param {String} width   The desired width.
+     * @param {String} height  The desired height.
      */
     resize: function resize(width, height, callback) {
       callback = Util.last(arguments);
@@ -5350,12 +5362,12 @@
     },
 
     /**
-     * Resize the iframe, so that it takes the entire page. Add-on may define to hide the footer using data-options.
+     * Resize the iframe so that it takes the entire page and, optionally, hide the footer.
      *
-     * Note that this method is only available for general page modules.
+     * This method is only available for general page modules.
      *
      * @method
-     * @param {boolean} hideFooter true if the footer is supposed to be hidden
+     * @param {boolean} hideFooter Whether the footer should be hidden.
      */
     sizeToParent: debounce$1(function (hideFooter, callback) {
       callback = Util.last(arguments);
@@ -5381,10 +5393,10 @@
     }),
 
     /**
-    * Hide footer..
+    * Hide the footer.
     *
     * @method
-    * @param {boolean} hideFooter true if the footer is supposed to be hidden
+    * @param {boolean} hideFooter Whether the footer should be hidden.
     */
     hideFooter: function hideFooter(_hideFooter) {
       if (_hideFooter) {
@@ -6947,7 +6959,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.46';
+    window._AP.version = '5.2.47';
   }
 
   host.defineModule('messages', messages);
