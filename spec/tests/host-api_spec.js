@@ -187,4 +187,10 @@ describe('Host API', function() {
     HostApi.dialog.close(spec.addon_key);
     expect(closeSpy).toHaveBeenCalled();
   });
+
+  it('can tell if module is defined', () => {
+    const moduleName = 'foo';
+    simpleXDM.defineModule(moduleName, {});
+    expect(HostApi.isModuleDefined(moduleName)).toBe(true);
+  });
 });

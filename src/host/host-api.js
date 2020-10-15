@@ -169,6 +169,10 @@ class HostApi {
     ModuleActions.defineCustomModule(name, methods);
   }
 
+  isModuleDefined (moduleName) {
+    return simpleXDM.isModuleDefined(moduleName);
+  }
+
   broadcastEvent (type, targetSpec, event) {
     EventActions.broadcast(type, targetSpec, event);
   }
