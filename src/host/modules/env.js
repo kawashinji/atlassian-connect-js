@@ -22,6 +22,7 @@ export default {
    * AP.getLocation(function(location){
    *   alert(location);
    * });
+   * @ignore
    */
   getLocation: function(callback) {
     callback = util.last(arguments);
