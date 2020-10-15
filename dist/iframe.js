@@ -1080,7 +1080,7 @@ var AP = (function () {
     };
 
     _proto.isModuleDefined = function isModuleDefined(moduleName) {
-      this._xdm.isAPIModuleDefined(moduleName);
+      return this._xdm.isAPIModuleDefined(moduleName);
     };
 
     _proto.defineGlobals = function defineGlobals(module) {
@@ -1870,7 +1870,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.2.47";
+      _this._version = "5.2.48";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];

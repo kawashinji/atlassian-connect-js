@@ -2052,7 +2052,7 @@
     };
 
     _proto.isModuleDefined = function isModuleDefined(moduleName) {
-      this._xdm.isAPIModuleDefined(moduleName);
+      return this._xdm.isAPIModuleDefined(moduleName);
     };
 
     _proto.defineGlobals = function defineGlobals(module) {
@@ -4136,6 +4136,10 @@
 
     _proto.defineModule = function defineModule(name, methods) {
       ModuleActions.defineCustomModule(name, methods);
+    };
+
+    _proto.isModuleDefined = function isModuleDefined(moduleName) {
+      return host.isModuleDefined(moduleName);
     };
 
     _proto.broadcastEvent = function broadcastEvent(type, targetSpec, event) {
@@ -6959,7 +6963,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.47';
+    window._AP.version = '5.2.48';
   }
 
   host.defineModule('messages', messages);
