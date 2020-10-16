@@ -2278,6 +2278,14 @@
     };
   }
 
+  function isSupported(domElem, attr, value, defaultValue) {
+    if (domElem && domElem[attr] && domElem[attr].supports) {
+      return domElem[attr].supports(value);
+    } else {
+      return defaultValue;
+    }
+  }
+
   var Util = {
     escapeSelector: escapeSelector,
     stringToDimension: stringToDimension,
@@ -2286,6 +2294,7 @@
     last: last,
     pick: pick,
     debounce: debounce,
+    isSupported: isSupported,
     extend: objectAssign
   };
 
@@ -6963,7 +6972,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.48';
+    window._AP.version = '5.2.49';
   }
 
   host.defineModule('messages', messages);
