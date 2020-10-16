@@ -81,5 +81,6 @@ export default {
   last,
   pick,
   debounce,
+  isSupported,
   extend
 };
