@@ -21,3 +21,13 @@ QUnit.test('all reserved characters are escaped', function(assert) {
   var reserved = '!"#$%&\'()*+,.\/:;<=>?@[\\]^`{|}~';
   assert.equal(util.escapeSelector(reserved), '\\!\\"\\#\\$\\%\\&\\\'\\(\\)\\*\\+\\,\\.\\/\\:\\;\\<\\=\\>\\?\\@\\[\\\\\\]\\^\\`\\{\\|\\}\\~');
 });
+
+QUnit.test('isSupported returns true for a supported sandbox attribute', function(assert) {
+  var frame = document.createElement('iframe');
+  assert.equal(util.isSupported(frame, 'sandbox', 'allow-scripts'), true);
+});
+
+QUnit.test('isSupported returns false for an unsupported sandbox attribute', function(assert) {
+  var frame = document.createElement('iframe');
+  assert.equal(util.isSupported(frame, 'sandbox', 'bogus-attribute'), false);
+});
