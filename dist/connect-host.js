@@ -6975,7 +6975,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.49';
+    window._AP.version = '5.2.50';
   }
 
   host.defineModule('messages', messages);
