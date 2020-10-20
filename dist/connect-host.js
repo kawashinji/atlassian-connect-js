@@ -1355,6 +1355,9 @@
     };
 
     _proto._handleInit = function _handleInit(event, reg) {
+      event.source.postMessage({
+        type: 'init_received'
+      });
       this._registeredExtensions[reg.extension_id].source = event.source;
 
       if (reg.initCallback) {

@@ -383,6 +383,9 @@ var AP = (function () {
     };
 
     _proto._handleInit = function _handleInit(event, reg) {
+      event.source.postMessage({
+        type: 'init_received'
+      });
       this._registeredExtensions[reg.extension_id].source = event.source;
 
       if (reg.initCallback) {
@@ -1848,8 +1851,12 @@ var AP = (function () {
   function (_PostMessage) {
     inheritsLoose(AP, _PostMessage);
 
-    function AP(options) {
+    function AP(options, initCheck) {
       var _this;
+
+      if (initCheck === void 0) {
+        initCheck = true;
+      }
 
       _this = _PostMessage.call(this) || this;
       ConfigurationOptions$1.set(options);
@@ -1865,6 +1872,9 @@ var AP = (function () {
         _this._verifyHostFrameOffset();
       }
 
+      _this._initTimeout = 1000;
+      _this._initReceived = false;
+      _this._initCheck = initCheck;
       _this._isKeyDownBound = false;
       _this._hostModules = {};
       _this._eventHandlers = {};
@@ -1883,6 +1893,7 @@ var AP = (function () {
       }
 
       _this._messageHandlers = {
+        init_received: _this._handleInitReceived,
         resp: _this._handleResponse,
         evt: _this._handleEvent,
         key_listen: _this._handleKeyListen,
@@ -2335,7 +2346,13 @@ var AP = (function () {
       return event.origin === this._data.origin && event.source === this._host;
     };
 
+    _proto._handleInitReceived = function _handleInitReceived() {
+      this._initReceived = true;
+    };
+
     _proto._sendInit = function _sendInit(frame, origin) {
+      var _this6 = this;
+
       var targets;
 
       if (frame === this._topHost && this._topHost !== window.parent) {
@@ -2347,6 +2364,11 @@ var AP = (function () {
         type: 'init',
         targets: targets
       }, origin || '*');
+      this._initCheck && setTimeout(function () {
+        if (!_this6._initReceived) {
+          throw new Error("Initialization message not received");
+        }
+      }, this._initTimeout);
     };
 
     _proto.sendSubCreate = function sendSubCreate(extension_id, options) {
@@ -2373,11 +2395,11 @@ var AP = (function () {
     };
 
     _proto.require = function require(modules, callback) {
-      var _this6 = this;
+      var _this7 = this;
 
       var requiredModules = Array.isArray(modules) ? modules : [modules],
           args = requiredModules.map(function (module) {
-        return _this6._hostModules[module] || _this6._hostModules._globals[module];
+        return _this7._hostModules[module] || _this7._hostModules._globals[module];
       });
       callback.apply(window, args);
     };
@@ -2414,14 +2436,14 @@ var AP = (function () {
   function (_Host) {
     inheritsLoose(Combined, _Host);
 
-    function Combined() {
+    function Combined(initCheck) {
       var _this;
 
       _this = _Host.call(this) || this;
       _this.parentTargets = {
         _globals: {}
       };
-      var plugin = new AP(); // export options from plugin to host.
+      var plugin = new AP(undefined, initCheck); // export options from plugin to host.
 
       Object.getOwnPropertyNames(plugin).forEach(function (prop) {
         if (['_hostModules', '_globals'].indexOf(prop) === -1 && this[prop] === undefined) {
