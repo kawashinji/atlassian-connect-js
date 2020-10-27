@@ -385,7 +385,7 @@ var AP = (function () {
     _proto._handleInit = function _handleInit(event, reg) {
       event.source.postMessage({
         type: 'init_received'
-      });
+      }, reg.extension.url);
       this._registeredExtensions[reg.extension_id].source = event.source;
 
       if (reg.initCallback) {
@@ -1872,7 +1872,7 @@ var AP = (function () {
         _this._verifyHostFrameOffset();
       }
 
-      _this._initTimeout = 1000;
+      _this._initTimeout = 5000;
       _this._initReceived = false;
       _this._initCheck = initCheck;
       _this._isKeyDownBound = false;
