@@ -1372,23 +1372,27 @@
     ;
 
     _proto._handleSubInit = function _handleSubInit(event, reg) {
-      if (reg.extension.options.noSub) {
+      var blocked = reg.extension.options.noSub || this._getBooleanFeatureFlag && this._getBooleanFeatureFlag('com.atlassian.connect.resolve_inner_iframe_url');
+
+      var data = event.data;
+
+      if (blocked) {
         util.error("Sub-Extension requested by [" + reg.extension.addon_key + "] but feature is disabled");
       } else {
-        var data = event.data;
         this.registerExtension(data.ext.id, {
           extension: data.ext
         });
+      }
 
-        if (this._registeredRequestNotifier) {
-          this._registeredRequestNotifier.call(null, {
-            sub: data.ext,
-            type: data.type,
-            addon_key: reg.extension.addon_key,
-            key: reg.extension.key,
-            extension_id: reg.extension_id
-          });
-        }
+      if (this._registeredRequestNotifier) {
+        this._registeredRequestNotifier.call(null, {
+          sub: data.ext,
+          type: data.type,
+          addon_key: reg.extension.addon_key,
+          key: reg.extension.key,
+          extension_id: reg.extension_id,
+          blocked: blocked
+        });
       }
     };
 
@@ -1930,6 +1934,10 @@
       }
     };
 
+    _proto.setFeatureFlagGetter = function setFeatureFlagGetter(getBooleanFeatureFlag) {
+      this._getBooleanFeatureFlag = getBooleanFeatureFlag;
+    };
+
     return XDMRPC;
   }(PostMessage);
 
@@ -2072,6 +2080,10 @@
 
     _proto.returnsPromise = function returnsPromise(wrappedMethod) {
       wrappedMethod.returnsPromise = true;
+    };
+
+    _proto.setFeatureFlagGetter = function setFeatureFlagGetter(getBooleanFeatureFlag) {
+      this._xdm.setFeatureFlagGetter(getBooleanFeatureFlag);
     };
 
     return Connect;
@@ -6975,7 +6987,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.2.51';
+    window._AP.version = '5.3.0';
   }
 
   host.defineModule('messages', messages);
@@ -7005,7 +7017,8 @@
           subAddonKey: data.sub.addon_key,
           subModuleKey: data.sub.key,
           addonKey: data.addon_key,
-          moduleKey: data.key
+          moduleKey: data.key,
+          blocked: data.blocked
         });
       }
     };
@@ -7018,6 +7031,7 @@
       dispatchEvent();
     }
   });
+  host.setFeatureFlagGetter(getBooleanFeatureFlag);
 
   return HostApi$1;
 

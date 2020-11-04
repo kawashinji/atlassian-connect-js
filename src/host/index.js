@@ -16,6 +16,7 @@ import InlineDialogWebItemComponent from './components/inline_dialog_webitem';
 import DialogWebItemComponent from './components/dialog_webitem';
 import DialogExtensionComponent from './components/dialog_extension';
 import simpleXDM from 'simple-xdm/host';
+import getBooleanFeatureFlag from './utils/feature-flag';
 /**
  * Private namespace for host-side code.
  * @type {*|{}}
@@ -62,7 +63,8 @@ simpleXDM.registerRequestNotifier(function (data) {
         subAddonKey: data.sub.addon_key,
         subModuleKey: data.sub.key,
         addonKey: data.addon_key,
-        moduleKey: data.key
+        moduleKey: data.key,
+        blocked: data.blocked,
       });
     }
   }
@@ -73,5 +75,7 @@ simpleXDM.registerRequestNotifier(function (data) {
     dispatchEvent();
   }
 });
+
+simpleXDM.setFeatureFlagGetter(getBooleanFeatureFlag);
 
 export default HostApi;
