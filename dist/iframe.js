@@ -400,23 +400,27 @@ var AP = (function () {
     ;
 
     _proto._handleSubInit = function _handleSubInit(event, reg) {
-      if (reg.extension.options.noSub) {
+      var blocked = reg.extension.options.noSub || this._getBooleanFeatureFlag && this._getBooleanFeatureFlag('com.atlassian.connect.resolve_inner_iframe_url');
+
+      var data = event.data;
+
+      if (blocked) {
         util.error("Sub-Extension requested by [" + reg.extension.addon_key + "] but feature is disabled");
       } else {
-        var data = event.data;
         this.registerExtension(data.ext.id, {
           extension: data.ext
         });
+      }
 
-        if (this._registeredRequestNotifier) {
-          this._registeredRequestNotifier.call(null, {
-            sub: data.ext,
-            type: data.type,
-            addon_key: reg.extension.addon_key,
-            key: reg.extension.key,
-            extension_id: reg.extension_id
-          });
-        }
+      if (this._registeredRequestNotifier) {
+        this._registeredRequestNotifier.call(null, {
+          sub: data.ext,
+          type: data.type,
+          addon_key: reg.extension.addon_key,
+          key: reg.extension.key,
+          extension_id: reg.extension_id,
+          blocked: blocked
+        });
       }
     };
 
@@ -958,6 +962,10 @@ var AP = (function () {
       }
     };
 
+    _proto.setFeatureFlagGetter = function setFeatureFlagGetter(getBooleanFeatureFlag) {
+      this._getBooleanFeatureFlag = getBooleanFeatureFlag;
+    };
+
     return XDMRPC;
   }(PostMessage);
 
@@ -1100,6 +1108,10 @@ var AP = (function () {
 
     _proto.returnsPromise = function returnsPromise(wrappedMethod) {
       wrappedMethod.returnsPromise = true;
+    };
+
+    _proto.setFeatureFlagGetter = function setFeatureFlagGetter(getBooleanFeatureFlag) {
+      this._xdm.setFeatureFlagGetter(getBooleanFeatureFlag);
     };
 
     return Connect;
@@ -1880,7 +1892,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.2.51";
+      _this._version = "5.3.0";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
@@ -2495,7 +2507,11 @@ var AP = (function () {
         extensionOptions.options = extensionOptions.options || {};
         extensionOptions.options.targets = util.extend({}, this.parentTargets, extensionOptions.options.targets);
         var extension = this.create(extensionOptions, initCallback);
-        plugin.sendSubCreate(extension.id, extensionOptions);
+
+        if (!window.AP._data.options.globalOptions.resolve_inner_iframe_url) {
+          plugin.sendSubCreate(extension.id, extensionOptions);
+        }
+
         return extension;
       };
 
