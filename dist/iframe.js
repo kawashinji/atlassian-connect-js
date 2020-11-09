@@ -2376,7 +2376,7 @@ var AP = (function () {
         type: 'init',
         targets: targets
       }, origin || '*');
-      this._initCheck && window.AP._data.options.globalOptions.check_init && setTimeout(function () {
+      this._initCheck && this._data.options.globalOptions.check_init && setTimeout(function () {
         if (!_this6._initReceived) {
           throw new Error("Initialization message not received");
         }
@@ -2508,7 +2508,7 @@ var AP = (function () {
         extensionOptions.options.targets = util.extend({}, this.parentTargets, extensionOptions.options.targets);
         var extension = this.create(extensionOptions, initCallback);
 
-        if (!window.AP._data.options.globalOptions.resolve_inner_iframe_url) {
+        if (!this._data.options.globalOptions.resolve_inner_iframe_url) {
           plugin.sendSubCreate(extension.id, extensionOptions);
         }
 
