@@ -2376,7 +2376,7 @@ var AP = (function () {
         type: 'init',
         targets: targets
       }, origin || '*');
-      this._initCheck && setTimeout(function () {
+      this._initCheck && window.AP._data.options.globalOptions.check_init && setTimeout(function () {
         if (!_this6._initReceived) {
           throw new Error("Initialization message not received");
         }
