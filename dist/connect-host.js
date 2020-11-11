@@ -3284,38 +3284,6 @@
     }
   };
 
-  function getBooleanFeatureFlag(flagName) {
-    if (AJS && AJS.DarkFeatures && AJS.DarkFeatures.isEnabled && AJS.DarkFeatures.isEnabled(flagName)) {
-      return true;
-    }
-
-    var flagMeta = document.querySelector('meta[name="ajs-fe-feature-flags"]');
-
-    if (!flagMeta) {
-      return false;
-    }
-
-    var flagContent = flagMeta.getAttribute('content');
-
-    if (!flagContent) {
-      return false;
-    }
-
-    var flagJson = {};
-
-    try {
-      flagJson = JSON.parse(flagContent);
-    } catch (err) {
-      return false;
-    }
-
-    if (!flagJson[flagName] || typeof flagJson[flagName].value !== 'boolean') {
-      return false;
-    }
-
-    return flagJson[flagName].value;
-  }
-
   var iframeUtils = {
     optionsToAttributes: function optionsToAttributes(options) {
       var sanitized = {};
@@ -3330,19 +3298,10 @@
         }
 
         if (typeof options.sandbox === 'string') {
-          if (getBooleanFeatureFlag('com.atlassian.connect.acjs-sandbox-attr-check')) {
-            var domElem = document.createElement('iframe');
-            sanitized.sandbox = options.sandbox.split(' ').filter(function (value) {
-              return Util.isSupported(domElem, 'sandbox', value, true);
-            }).join(' ');
-          } else {
-            sanitized.sandbox = options.sandbox; // No Firefox support: allow-top-navigation-by-user-activation
-            // https://bugzilla.mozilla.org/show_bug.cgi?id=1359867
-
-            if (window.navigator.userAgent.indexOf('Firefox') !== -1) {
-              sanitized.sandbox = sanitized.sandbox.replace('allow-top-navigation-by-user-activation', 'allow-top-navigation');
-            }
-          }
+          var domElem = document.createElement('iframe');
+          sanitized.sandbox = options.sandbox.split(' ').filter(function (value) {
+            return Util.isSupported(domElem, 'sandbox', value, true);
+          }).join(' ');
         }
       }
 
@@ -3915,6 +3874,38 @@
     getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey,
     getConfigFromTarget: getConfigFromTarget
   };
+
+  function getBooleanFeatureFlag(flagName) {
+    if (AJS && AJS.DarkFeatures && AJS.DarkFeatures.isEnabled && AJS.DarkFeatures.isEnabled(flagName)) {
+      return true;
+    }
+
+    var flagMeta = document.querySelector('meta[name="ajs-fe-feature-flags"]');
+
+    if (!flagMeta) {
+      return false;
+    }
+
+    var flagContent = flagMeta.getAttribute('content');
+
+    if (!flagContent) {
+      return false;
+    }
+
+    var flagJson = {};
+
+    try {
+      flagJson = JSON.parse(flagContent);
+    } catch (err) {
+      return false;
+    }
+
+    if (!flagJson[flagName] || typeof flagJson[flagName].value !== 'boolean') {
+      return false;
+    }
+
+    return flagJson[flagName].value;
+  }
 
   var ModuleProviders = function ModuleProviders() {
     var _this = this;
@@ -6987,7 +6978,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.3';
+    window._AP.version = '5.3.4';
   }
 
   host.defineModule('messages', messages);
