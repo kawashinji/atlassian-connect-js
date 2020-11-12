@@ -10,7 +10,7 @@ var ignoreResizeForExtension = [];
 var sizeToParentExtension = {};
 
 /**
- * Enables apps to resize their iframe and show or hide the iframe footer.
+ * Enables apps to resize their iframes.
  * @exports iframe
  */
 export default {
@@ -44,10 +44,10 @@ export default {
    * <div class="ac-content">
    *     <p>Hello World</p>
    *     <div id="your-id-here">
-   *         <p>Addon content goes here</p>
+   *         <p>App content goes here</p>
    *     </div>
    *
-   *     ...this area reserved for our resize sensor divs
+   *     ...this area reserved for the resize sensor divs
    * </div>
    * ```
    *
@@ -57,8 +57,10 @@ export default {
    * This method cannot be used in dialogs.
    *
    * @method
-   * @param {String} width   The desired width.
-   * @param {String} height  The desired height.
+   * @param {String} width   The desired width in pixels or percentage.
+   * @param {String} height  The desired height in pixels or percentage.
+   * @example
+   * AP.resize('400','400');
    */
   resize: function(width, height, callback) {
     callback = util.last(arguments);
@@ -83,12 +85,13 @@ export default {
     return true;
   },
   /**
-   * Resize the iframe so that it takes the entire page and, optionally, hide the footer.
+   * Resize the iframe so that it takes up the entire page.
    *
    * This method is only available for general page modules.
    *
    * @method
-   * @param {boolean} hideFooter Whether the footer should be hidden.
+   * @example
+   * AP.sizeToParent();
    */
   sizeToParent: debounce(function(hideFooter, callback) {
     callback = util.last(arguments);
@@ -114,6 +117,7 @@ export default {
    *
    * @method
    * @param {boolean} hideFooter Whether the footer should be hidden.
+   * @ignore
    */
   hideFooter: function(hideFooter) {
     if (hideFooter) {
