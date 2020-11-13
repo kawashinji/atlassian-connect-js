@@ -5301,7 +5301,7 @@
   var ignoreResizeForExtension = [];
   var sizeToParentExtension = {};
   /**
-   * Enables apps to resize their iframe and show or hide the iframe footer.
+   * Enables apps to resize their iframes.
    * @exports iframe
    */
 
@@ -5338,10 +5338,10 @@
      * <div class="ac-content">
      *     <p>Hello World</p>
      *     <div id="your-id-here">
-     *         <p>Addon content goes here</p>
+     *         <p>App content goes here</p>
      *     </div>
      *
-     *     ...this area reserved for our resize sensor divs
+     *     ...this area reserved for the resize sensor divs
      * </div>
      * ```
      *
@@ -5351,8 +5351,10 @@
      * This method cannot be used in dialogs.
      *
      * @method
-     * @param {String} width   The desired width.
-     * @param {String} height  The desired height.
+     * @param {String} width   The desired width in pixels or percentage.
+     * @param {String} height  The desired height in pixels or percentage.
+     * @example
+     * AP.resize('400','400');
      */
     resize: function resize(width, height, callback) {
       callback = Util.last(arguments);
@@ -5381,12 +5383,13 @@
     },
 
     /**
-     * Resize the iframe so that it takes the entire page and, optionally, hide the footer.
+     * Resize the iframe so that it takes up the entire page.
      *
      * This method is only available for general page modules.
      *
      * @method
-     * @param {boolean} hideFooter Whether the footer should be hidden.
+     * @example
+     * AP.sizeToParent();
      */
     sizeToParent: debounce$1(function (hideFooter, callback) {
       callback = Util.last(arguments);
@@ -5416,6 +5419,7 @@
     *
     * @method
     * @param {boolean} hideFooter Whether the footer should be hidden.
+    * @ignore
     */
     hideFooter: function hideFooter(_hideFooter) {
       if (_hideFooter) {
@@ -6978,7 +6982,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.4';
+    window._AP.version = '5.3.5';
   }
 
   host.defineModule('messages', messages);
