@@ -68,7 +68,7 @@ describe('Analytics Dispatcher', () => {
 
   it('trackLoadingEnded triggers iframe.performance.load with pearApp info', (done) => {
     spyOn(AnalyticsDispatcher, '_track');
-    AnalyticsDispatcher.trackLoadingEnded({...extension, pearApp: 'true'});
+    AnalyticsDispatcher.trackLoadingEnded({...extension, options: { pearApp: 'true' }});
 
     setTimeout(() => {
       expect(AnalyticsDispatcher._track).toHaveBeenCalled();
@@ -89,7 +89,7 @@ describe('Analytics Dispatcher', () => {
 
   it('trackLoadingTimeout triggers iframe.performance.timeout with pearApp info', () => {
     spyOn(AnalyticsDispatcher, '_track');
-    AnalyticsDispatcher.trackLoadingTimeout({...extension, pearApp: 'true'});
+    AnalyticsDispatcher.trackLoadingTimeout({...extension, options: { pearApp: 'true' }});
     expect(AnalyticsDispatcher._track).toHaveBeenCalled();
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.timeout', {
       addonKey: extension.addon_key,
@@ -103,7 +103,7 @@ describe('Analytics Dispatcher', () => {
 
   it('trackLoadingCancel triggers iframe.performance.cancel with pearApp info', () => {
     spyOn(AnalyticsDispatcher, '_track');
-    AnalyticsDispatcher.trackLoadingCancel({...extension, pearApp: 'true'});
+    AnalyticsDispatcher.trackLoadingCancel({...extension, options: { pearApp: 'true' }});
     expect(AnalyticsDispatcher._track).toHaveBeenCalled();
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.cancel', {
       addonKey: extension.addon_key,
@@ -116,7 +116,7 @@ describe('Analytics Dispatcher', () => {
 
   it('trackIsVisible triggers iframe.performance.is_visible with pearApp info', () => {
     spyOn(AnalyticsDispatcher, '_track');
-    AnalyticsDispatcher.trackLoadingCancel({...extension, pearApp: 'true'});
+    AnalyticsDispatcher.trackLoadingCancel({...extension, options: { pearApp: 'true' }});
     expect(AnalyticsDispatcher._track).toHaveBeenCalled();
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.is_visible', {
       addonKey: extension.addon_key,
