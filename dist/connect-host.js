@@ -932,6 +932,7 @@
           moduleKey: extension.key,
           moduleType: extension.options ? extension.options.moduleType : undefined,
           moduleLocation: extension.options ? extension.options.moduleLocation : undefined,
+          pearApp: extension.options && extension.options.pearApp === 'true' ? 'true' : 'false',
           iframeLoadMillis: value,
           iframeLoadApdex: iframeLoadApdex,
           iframeIsCacheable: iframeIsCacheable,
@@ -970,6 +971,7 @@
         moduleKey: extension.key,
         moduleType: extension.options ? extension.options.moduleType : undefined,
         moduleLocation: extension.options ? extension.options.moduleLocation : undefined,
+        pearApp: extension.options && extension.options.pearApp === 'true' ? 'true' : 'false',
         connectedStatus: connectedStatus.toString() // convert boolean to string
 
       }); //track an end event during a timeout so we always have complete start / end data.
@@ -983,7 +985,8 @@
         addonKey: extension.addon_key,
         moduleKey: extension.key,
         moduleType: extension.options ? extension.options.moduleType : undefined,
-        moduleLocation: extension.options ? extension.options.moduleLocation : undefined
+        moduleLocation: extension.options ? extension.options.moduleLocation : undefined,
+        pearApp: extension.options && extension.options.pearApp === 'true' ? 'true' : 'false'
       });
     };
 
@@ -1006,7 +1009,9 @@
     _proto.trackVisible = function trackVisible(extension) {
       this._track('iframe.is_visible', {
         addonKey: extension.addon_key,
-        moduleKey: extension.key
+        moduleKey: extension.key,
+        moduleType: extension.options ? extension.options.moduleType : undefined,
+        pearApp: extension.options && extension.options.pearApp === 'true' ? 'true' : 'false'
       });
     };
 
@@ -6982,7 +6987,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.5';
+    window._AP.version = '5.3.6';
   }
 
   host.defineModule('messages', messages);
