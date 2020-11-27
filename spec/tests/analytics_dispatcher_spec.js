@@ -39,20 +39,6 @@ describe('Analytics Dispatcher', () => {
     })
   });
 
-  it('trackLoadingTimeout triggers iframe.performance.timeout', () => {
-    spyOn(AnalyticsDispatcher, '_track');
-    AnalyticsDispatcher.trackLoadingTimeout(extension);
-    expect(AnalyticsDispatcher._track).toHaveBeenCalled();
-    expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.timeout', {
-      addonKey: extension.addon_key,
-      moduleKey: extension.key,
-      moduleLocation: undefined,
-      moduleType: undefined,
-      pearApp: 'false',
-      connectedStatus: 'true'
-    });
-  });
-
   it('trackLoadingCancel triggers iframe.performance.cancel', () => {
     spyOn(AnalyticsDispatcher, '_track');
     AnalyticsDispatcher.trackLoadingCancel(extension);
@@ -101,6 +87,20 @@ describe('Analytics Dispatcher', () => {
     });
   });
 
+  it('trackLoadingTimeout triggers iframe.performance.timeout', () => {
+    spyOn(AnalyticsDispatcher, '_track');
+    AnalyticsDispatcher.trackLoadingTimeout(extension);
+    expect(AnalyticsDispatcher._track).toHaveBeenCalled();
+    expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.timeout', {
+      addonKey: extension.addon_key,
+      moduleKey: extension.key,
+      moduleLocation: undefined,
+      moduleType: undefined,
+      pearApp: 'false',
+      connectedStatus: 'true'
+    });
+  });
+
   it('trackLoadingCancel triggers iframe.performance.cancel with pearApp info', () => {
     spyOn(AnalyticsDispatcher, '_track');
     AnalyticsDispatcher.trackLoadingCancel({...extension, options: { pearApp: 'true' }});
@@ -116,7 +116,7 @@ describe('Analytics Dispatcher', () => {
 
   it('trackIsVisible triggers iframe.performance.is_visible with pearApp info', () => {
     spyOn(AnalyticsDispatcher, '_track');
-    AnalyticsDispatcher.trackLoadingCancel({...extension, options: { pearApp: 'true' }});
+    AnalyticsDispatcher.trackVisible({...extension, options: { pearApp: 'true' }});
     expect(AnalyticsDispatcher._track).toHaveBeenCalled();
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.is_visible', {
       addonKey: extension.addon_key,
