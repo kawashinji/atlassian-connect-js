@@ -29,6 +29,7 @@ describe('Analytics Dispatcher', () => {
         moduleKey: extension.key,
         moduleLocation: undefined,
         moduleType: undefined,
+        pearApp: 'false',
         iframeLoadMillis: jasmine.any(Number),
         iframeLoadApdex: jasmine.any(Number),
         iframeIsCacheable: jasmine.any(Boolean),
@@ -36,6 +37,54 @@ describe('Analytics Dispatcher', () => {
       });
       done();
     })
+  });
+
+  it('trackLoadingCancel triggers iframe.performance.cancel', () => {
+    spyOn(AnalyticsDispatcher, '_track');
+    AnalyticsDispatcher.trackLoadingCancel(extension);
+    expect(AnalyticsDispatcher._track).toHaveBeenCalled();
+    expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.cancel', {
+      addonKey: extension.addon_key,
+      moduleKey: extension.key,
+      moduleLocation: undefined,
+      moduleType: undefined,
+      pearApp: 'false'
+    });
+  });
+
+  it('trackLoadingEnded triggers iframe.performance.load with pearApp info', (done) => {
+    spyOn(AnalyticsDispatcher, '_track');
+    AnalyticsDispatcher.trackLoadingEnded({...extension, options: { pearApp: 'true' }});
+
+    setTimeout(() => {
+      expect(AnalyticsDispatcher._track).toHaveBeenCalled();
+      expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.load', {
+        addonKey: extension.addon_key,
+        moduleKey: extension.key,
+        moduleLocation: undefined,
+        moduleType: undefined,
+        pearApp: 'true',
+        iframeLoadMillis: jasmine.any(Number),
+        iframeLoadApdex: jasmine.any(Number),
+        iframeIsCacheable: jasmine.any(Boolean),
+        value: jasmine.any(Number)
+      });
+      done();
+    })
+  });
+
+  it('trackLoadingTimeout triggers iframe.performance.timeout with pearApp info', () => {
+    spyOn(AnalyticsDispatcher, '_track');
+    AnalyticsDispatcher.trackLoadingTimeout({...extension, options: { pearApp: 'true' }});
+    expect(AnalyticsDispatcher._track).toHaveBeenCalled();
+    expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.timeout', {
+      addonKey: extension.addon_key,
+      moduleKey: extension.key,
+      moduleLocation: undefined,
+      moduleType: undefined,
+      pearApp: 'true',
+      connectedStatus: 'true'
+    });
   });
 
   it('trackLoadingTimeout triggers iframe.performance.timeout', () => {
@@ -47,19 +96,33 @@ describe('Analytics Dispatcher', () => {
       moduleKey: extension.key,
       moduleLocation: undefined,
       moduleType: undefined,
+      pearApp: 'false',
       connectedStatus: 'true'
     });
   });
 
-  it('trackLoadingCancel triggers iframe.performance.cancel', () => {
+  it('trackLoadingCancel triggers iframe.performance.cancel with pearApp info', () => {
     spyOn(AnalyticsDispatcher, '_track');
-    AnalyticsDispatcher.trackLoadingCancel(extension);
+    AnalyticsDispatcher.trackLoadingCancel({...extension, options: { pearApp: 'true' }});
     expect(AnalyticsDispatcher._track).toHaveBeenCalled();
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.performance.cancel', {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
       moduleLocation: undefined,
-      moduleType: undefined
+      moduleType: undefined,
+      pearApp: 'true'
+    });
+  });
+
+  it('trackIsVisible triggers iframe.performance.is_visible with pearApp info', () => {
+    spyOn(AnalyticsDispatcher, '_track');
+    AnalyticsDispatcher.trackVisible({...extension, options: { pearApp: 'true' }});
+    expect(AnalyticsDispatcher._track).toHaveBeenCalled();
+    expect(AnalyticsDispatcher._track).toHaveBeenCalledWith('iframe.is_visible', {
+      addonKey: extension.addon_key,
+      moduleKey: extension.key,
+      moduleType: undefined,
+      pearApp: 'true'
     });
   });
 

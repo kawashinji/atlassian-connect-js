@@ -72,6 +72,7 @@ class AnalyticsDispatcher {
         moduleKey: extension.key,
         moduleType: extension.options ? extension.options.moduleType : undefined,
         moduleLocation: extension.options ? extension.options.moduleLocation : undefined,
+        pearApp: (extension.options && extension.options.pearApp === 'true') ? 'true' : 'false',
         iframeLoadMillis: value,
         iframeLoadApdex: iframeLoadApdex,
         iframeIsCacheable: iframeIsCacheable,
@@ -106,6 +107,7 @@ class AnalyticsDispatcher {
       moduleKey: extension.key,
       moduleType: extension.options ? extension.options.moduleType : undefined,
       moduleLocation: extension.options ? extension.options.moduleLocation : undefined,
+      pearApp: (extension.options && extension.options.pearApp === 'true') ? 'true' : 'false',
       connectedStatus: connectedStatus.toString() // convert boolean to string
     });
     //track an end event during a timeout so we always have complete start / end data.
@@ -117,7 +119,8 @@ class AnalyticsDispatcher {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
       moduleType: extension.options ? extension.options.moduleType : undefined,
-      moduleLocation: extension.options ? extension.options.moduleLocation : undefined
+      moduleLocation: extension.options ? extension.options.moduleLocation : undefined,
+      pearApp: (extension.options && extension.options.pearApp === 'true') ? 'true' : 'false',
     });
   }
 
@@ -140,7 +143,9 @@ class AnalyticsDispatcher {
   trackVisible(extension) {
     this._track('iframe.is_visible', {
       addonKey: extension.addon_key,
-      moduleKey: extension.key
+      moduleKey: extension.key,
+      moduleType: extension.options ? extension.options.moduleType : undefined,
+      pearApp: (extension.options && extension.options.pearApp === 'true') ? 'true' : 'false',
     });
   }
 
