@@ -72,7 +72,7 @@ class AnalyticsDispatcher {
         moduleKey: extension.key,
         moduleType: extension.options ? extension.options.moduleType : undefined,
         moduleLocation: extension.options ? extension.options.moduleLocation : undefined,
-        pearApp: extension.options ? extension.options.pearApp : false,
+        pearApp: extension.options ? extension.options.pearApp === 'true' : 'false',
         iframeLoadMillis: value,
         iframeLoadApdex: iframeLoadApdex,
         iframeIsCacheable: iframeIsCacheable,
@@ -107,7 +107,7 @@ class AnalyticsDispatcher {
       moduleKey: extension.key,
       moduleType: extension.options ? extension.options.moduleType : undefined,
       moduleLocation: extension.options ? extension.options.moduleLocation : undefined,
-      pearApp: extension.options ? extension.options.pearApp : false,
+      pearApp: extension.options ? extension.options.pearApp === 'true' : 'false',
       connectedStatus: connectedStatus.toString() // convert boolean to string
     });
     //track an end event during a timeout so we always have complete start / end data.
@@ -120,7 +120,7 @@ class AnalyticsDispatcher {
       moduleKey: extension.key,
       moduleType: extension.options ? extension.options.moduleType : undefined,
       moduleLocation: extension.options ? extension.options.moduleLocation : undefined,
-      pearApp: extension.options ? extension.options.pearApp : false
+      pearApp: extension.options ? extension.options.pearApp === 'true' : 'false',
     });
   }
 
@@ -145,7 +145,7 @@ class AnalyticsDispatcher {
       addonKey: extension.addon_key,
       moduleKey: extension.key,
       moduleType: extension.options ? extension.options.moduleType : undefined,
-      pearApp: extension.options ? extension.options.pearApp : false
+      pearApp: extension.options ? extension.options.pearApp === 'true' : 'false',
     });
   }
 
