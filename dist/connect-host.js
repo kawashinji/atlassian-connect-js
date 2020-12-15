@@ -5319,7 +5319,6 @@
      * AP.getLocation(function(location){
      *   alert(location);
      * });
-     * @ignore
      */
     getLocation: function getLocation(callback) {
       callback = Util.last(arguments);
@@ -6987,7 +6986,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.6';
+    window._AP.version = '5.3.7';
   }
 
   host.defineModule('messages', messages);
