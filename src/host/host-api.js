@@ -113,6 +113,25 @@ class HostApi {
     }
   }
 
+  onIframeDestroyed (callback) {
+    var wrapper = function(data){
+      callback.call({}, {
+        $el: data.$el,
+        extension: this._cleanExtension(data.extension)
+      });
+    };
+    callback._wrapper = wrapper.bind(this);
+    EventDispatcher.register('after:iframe-destroyed', callback._wrapper);
+  }
+
+  offIframeDestroyed (callback) {
+    if(callback._wrapper){
+      EventDispatcher.unregister('after:iframe-destroyed', callback._wrapper);
+    } else {
+      throw new Error('cannot unregister event dispatch listener without _wrapper reference');
+    }
+  }
+
   onIframeUnload(callback){
     EventDispatcher.register('after:iframe-unload', (data) => {
       callback.call({}, {
@@ -120,6 +139,10 @@ class HostApi {
         extension: this._cleanExtension(data.extension)
       });
     });
+  }
+
+  offIframeUnload (callback) {
+    EventDispatcher.unregister('after:iframe-unload', callback);
   }
 
   onPublicEventDispatched(callback) {
