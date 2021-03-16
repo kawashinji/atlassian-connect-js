@@ -2091,6 +2091,10 @@
       this._xdm.setFeatureFlagGetter(getBooleanFeatureFlag);
     };
 
+    _proto.registerExistingExtension = function registerExistingExtension(extension_id, data) {
+      return this._xdm.registerExtension(extension_id, data);
+    };
+
     return Connect;
   }();
 
@@ -4047,6 +4051,15 @@
       var createdExtension = simpleXdmUtils.createSimpleXdmExtension(extension);
       AnalyticsAction.trackIframeBridgeStart(createdExtension.extension);
       return createdExtension;
+    }
+    /**
+     * registers an existing extension with this host
+     * Used when the extension has been created by a sub host
+     */
+    ;
+
+    _proto.registerExistingExtension = function registerExistingExtension(extension_id, data) {
+      return host.registerExistingExtension(extension_id, data);
     }
     /**
      * The product is responsible for setting the framework adaptor.
