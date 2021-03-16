@@ -79,6 +79,14 @@ class HostApi {
   }
 
   /**
+   * registers an existing extension with this host
+   * Used when the extension has been created by a sub host
+   */
+  registerExistingExtension(extension_id, data){
+    return simpleXDM.registerExistingExtension(extension_id, data);
+  }
+
+  /**
    * The product is responsible for setting the framework adaptor.
    * @param frameworkAdaptor the framework adaptor to use.
    */

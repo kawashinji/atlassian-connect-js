@@ -1114,6 +1114,10 @@ var AP = (function () {
       this._xdm.setFeatureFlagGetter(getBooleanFeatureFlag);
     };
 
+    _proto.registerExistingExtension = function registerExistingExtension(extension_id, data) {
+      return this._xdm.registerExtension(extension_id, data);
+    };
+
     return Connect;
   }();
 
