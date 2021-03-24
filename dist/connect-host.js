@@ -6638,6 +6638,10 @@
 
       $(function () {
         $('body').on(onTriggers, webitem.selector, webitem._on);
+
+        if (getBooleanFeatureFlag('com.atlassian.connect.acjs-disable-web-items-onload')) {
+          $(webitem.selector).removeClass('ap-link-disabled');
+        }
       });
     };
 
@@ -6999,7 +7003,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.8';
+    window._AP.version = '5.3.9';
   }
 
   host.defineModule('messages', messages);
