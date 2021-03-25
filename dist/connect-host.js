@@ -630,9 +630,14 @@
       });
       return dest;
     },
-    sanitizeStructuredClone: function sanitizeStructuredClone(object) {
+    sanitizeStructuredClone: function sanitizeStructuredClone(object, preserveNullProperties) {
+      if (preserveNullProperties === void 0) {
+        preserveNullProperties = false;
+      }
+
       var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
       var blackList = [Error, Node];
+      var NULL_PROPERTY = Symbol();
       var warn = util.warn;
       var visitedObjects = [];
 
@@ -651,6 +656,10 @@
           return false;
         })) {
           return {};
+        }
+
+        if (value === null) {
+          return NULL_PROPERTY;
         }
 
         if (value && typeof value === 'object' && whiteList.every(function (t) {
@@ -676,7 +685,13 @@
                 var clonedValue = _clone(value[name]);
 
                 if (clonedValue !== null) {
-                  newValue[name] = clonedValue;
+                  if (clonedValue === NULL_PROPERTY) {
+                    if (preserveNullProperties) {
+                      newValue[name] = null;
+                    }
+                  } else {
+                    newValue[name] = clonedValue;
+                  }
                 }
               }
             }
@@ -1497,8 +1512,10 @@
     };
 
     _proto._handleRequest = function _handleRequest(event, reg) {
+      var preserveNullProperties;
+
       function sendResponse() {
-        var args = util.sanitizeStructuredClone(util.argumentsToArray(arguments));
+        var args = util.sanitizeStructuredClone(util.argumentsToArray(arguments), preserveNullProperties);
         event.source.postMessage({
           mid: event.data.mid,
           type: 'resp',
@@ -1558,6 +1575,7 @@
           }
 
           sendResponse._context = extension;
+          preserveNullProperties = method.preserveNullProperties;
           methodArgs = this._padUndefinedArguments(methodArgs, padLength);
           methodArgs.push(sendResponse);
           var promiseResult = method.apply(module, methodArgs);
