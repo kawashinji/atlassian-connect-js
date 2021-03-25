@@ -853,6 +853,38 @@
     }
   });
 
+  function getBooleanFeatureFlag(flagName) {
+    if (AJS && AJS.DarkFeatures && AJS.DarkFeatures.isEnabled && AJS.DarkFeatures.isEnabled(flagName)) {
+      return true;
+    }
+
+    var flagMeta = document.querySelector('meta[name="ajs-fe-feature-flags"]');
+
+    if (!flagMeta) {
+      return false;
+    }
+
+    var flagContent = flagMeta.getAttribute('content');
+
+    if (!flagContent) {
+      return false;
+    }
+
+    var flagJson = {};
+
+    try {
+      flagJson = JSON.parse(flagContent);
+    } catch (err) {
+      return false;
+    }
+
+    if (!flagJson[flagName] || typeof flagJson[flagName].value !== 'boolean') {
+      return false;
+    }
+
+    return flagJson[flagName].value;
+  }
+
   var EVENT_NAME_PREFIX = 'connect.addon.';
   /**
    * Timings beyond 20 seconds (connect's load timeout) will be clipped to an X.
@@ -927,6 +959,12 @@
         var value = this._time() - this._addons[extension.id].startLoading;
 
         var iframeLoadApdex = this.getIframeLoadApdex(value);
+        var api = 'untracked';
+
+        if (getBooleanFeatureFlag('com.atlassian.connect.acjs-track-api')) {
+          api = Object.keys(JSON.parse(this._addons[extension.id].$el[0].name).api).sort().toString();
+        }
+
         var eventPayload = {
           addonKey: extension.addon_key,
           moduleKey: extension.key,
@@ -936,7 +974,8 @@
           iframeLoadMillis: value,
           iframeLoadApdex: iframeLoadApdex,
           iframeIsCacheable: iframeIsCacheable,
-          value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil(value / LOADING_TIME_TRIMP_PRECISION)
+          value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil(value / LOADING_TIME_TRIMP_PRECISION),
+          api: api
         };
 
         if (typeof window.requestIdleCallback === 'function') {
@@ -3883,38 +3922,6 @@
     getModuleOptionsByAddonAndModuleKey: getModuleOptionsByAddonAndModuleKey,
     getConfigFromTarget: getConfigFromTarget
   };
-
-  function getBooleanFeatureFlag(flagName) {
-    if (AJS && AJS.DarkFeatures && AJS.DarkFeatures.isEnabled && AJS.DarkFeatures.isEnabled(flagName)) {
-      return true;
-    }
-
-    var flagMeta = document.querySelector('meta[name="ajs-fe-feature-flags"]');
-
-    if (!flagMeta) {
-      return false;
-    }
-
-    var flagContent = flagMeta.getAttribute('content');
-
-    if (!flagContent) {
-      return false;
-    }
-
-    var flagJson = {};
-
-    try {
-      flagJson = JSON.parse(flagContent);
-    } catch (err) {
-      return false;
-    }
-
-    if (!flagJson[flagName] || typeof flagJson[flagName].value !== 'boolean') {
-      return false;
-    }
-
-    return flagJson[flagName].value;
-  }
 
   var ModuleProviders = function ModuleProviders() {
     var _this = this;
@@ -7003,7 +7010,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.9';
+    window._AP.version = '5.3.10';
   }
 
   host.defineModule('messages', messages);
