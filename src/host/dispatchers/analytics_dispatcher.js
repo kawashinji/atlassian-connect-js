@@ -1,6 +1,7 @@
 import EventDispatcher from './event_dispatcher';
 import $ from '../dollar';
 import observe from '../utils/observe';
+import getBooleanFeatureFlag from '../utils/feature-flag';
 
 const EVENT_NAME_PREFIX = 'connect.addon.';
 
@@ -67,6 +68,12 @@ class AnalyticsDispatcher {
       var iframeIsCacheable = href !== undefined && href.indexOf('xdm_e=') === -1;
       var value = this._time() - this._addons[extension.id].startLoading;
       var iframeLoadApdex = this.getIframeLoadApdex(value);
+      var api = 'untracked';
+      if (getBooleanFeatureFlag('com.atlassian.connect.acjs-track-api')) {
+        api = Object.keys(JSON.parse(this._addons[extension.id].$el[0].name).api)
+          .sort()
+          .toString();
+      }
       var eventPayload = {
         addonKey: extension.addon_key,
         moduleKey: extension.key,
@@ -76,7 +83,8 @@ class AnalyticsDispatcher {
         iframeLoadMillis: value,
         iframeLoadApdex: iframeLoadApdex,
         iframeIsCacheable: iframeIsCacheable,
-        value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil((value) / LOADING_TIME_TRIMP_PRECISION)
+        value: value > LOADING_TIME_THRESHOLD ? 'x' : Math.ceil((value) / LOADING_TIME_TRIMP_PRECISION),
+        api
       };
 
       if (typeof window.requestIdleCallback === 'function') {

@@ -33,7 +33,8 @@ describe('Analytics Dispatcher', () => {
         iframeLoadMillis: jasmine.any(Number),
         iframeLoadApdex: jasmine.any(Number),
         iframeIsCacheable: jasmine.any(Boolean),
-        value: jasmine.any(Number)
+        value: jasmine.any(Number),
+        api: jasmine.any(String)
       });
       done();
     })
@@ -67,7 +68,8 @@ describe('Analytics Dispatcher', () => {
         iframeLoadMillis: jasmine.any(Number),
         iframeLoadApdex: jasmine.any(Number),
         iframeIsCacheable: jasmine.any(Boolean),
-        value: jasmine.any(Number)
+        value: jasmine.any(Number),
+        api: jasmine.any(String)
       });
       done();
     })
