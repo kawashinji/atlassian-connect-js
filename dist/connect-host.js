@@ -6665,7 +6665,7 @@
         $('body').on(onTriggers, webitem.selector, webitem._on);
 
         if (getBooleanFeatureFlag('com.atlassian.connect.acjs-disable-web-items-onload')) {
-          $(webitem.selector).removeClass('ap-link-disabled');
+          $('head').append("<style type=\"text/css\">" + webitem.selector + ".ap-link-webitem {pointer-events: auto;}</style>");
         }
       });
     };
@@ -7028,7 +7028,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.11';
+    window._AP.version = '5.3.12';
   }
 
   host.defineModule('messages', messages);
