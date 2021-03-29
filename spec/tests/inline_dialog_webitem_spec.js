@@ -22,7 +22,7 @@ describe('Inline Dialog Webitem', () => {
     $('.aui-inline-dialog').remove();
     webitemButton = $('<a />').attr('href', 'https://www.example.com?a.x=b#' + encodeURI(JSON.stringify({productCtx:'{"b.c":"d"}'})));
     webitemButton.text('i am a webitem');
-    webitemButton.addClass('ap-inline-dialog ap-plugin-key-my-plugin ap-module-key-key ap-target-key-key');
+    webitemButton.addClass('ap-inline-dialog ap-plugin-key-my-plugin ap-module-key-key ap-target-key-key ap-link-webitem');
     webitemButton.appendTo('body');
   });
 
