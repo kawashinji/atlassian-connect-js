@@ -74,7 +74,7 @@ class WebItem {
     $(() => {
       $('body').on(onTriggers, webitem.selector, webitem._on);
       if (getBooleanFeatureFlag('com.atlassian.connect.acjs-disable-web-items-onload', false)) {
-        $(webitem.selector).removeClass('ap-link-disabled');
+        $('head').append(`<style type="text/css">${webitem.selector}.ap-link-webitem {pointer-events: auto;}</style>`);
       }
     });
   }
