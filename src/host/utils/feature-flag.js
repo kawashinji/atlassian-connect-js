@@ -3,7 +3,7 @@ export default function getBooleanFeatureFlag(flagName) {
     return true;
   }
 
-  const flagContent = window.featureFlags;
+  const flagContent = window.featureFlags || (AJS && AJS.Meta && AJS.Meta.get && AJS.Meta.get("fe-feature-flags"));
   if (!flagContent) {
     return false;
   }
