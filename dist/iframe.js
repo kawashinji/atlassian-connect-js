@@ -183,14 +183,9 @@ var AP = (function () {
       });
       return dest;
     },
-    sanitizeStructuredClone: function sanitizeStructuredClone(object, preserveNullProperties) {
-      if (preserveNullProperties === void 0) {
-        preserveNullProperties = false;
-      }
-
+    sanitizeStructuredClone: function sanitizeStructuredClone(object) {
       var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
       var blackList = [Error, Node];
-      var NULL_PROPERTY = Symbol();
       var warn = util.warn;
       var visitedObjects = [];
 
@@ -209,10 +204,6 @@ var AP = (function () {
           return false;
         })) {
           return {};
-        }
-
-        if (value === null) {
-          return NULL_PROPERTY;
         }
 
         if (value && typeof value === 'object' && whiteList.every(function (t) {
@@ -238,13 +229,7 @@ var AP = (function () {
                 var clonedValue = _clone(value[name]);
 
                 if (clonedValue !== null) {
-                  if (clonedValue === NULL_PROPERTY) {
-                    if (preserveNullProperties) {
-                      newValue[name] = null;
-                    }
-                  } else {
-                    newValue[name] = clonedValue;
-                  }
+                  newValue[name] = clonedValue;
                 }
               }
             }
@@ -496,10 +481,8 @@ var AP = (function () {
     };
 
     _proto._handleRequest = function _handleRequest(event, reg) {
-      var preserveNullProperties;
-
       function sendResponse() {
-        var args = util.sanitizeStructuredClone(util.argumentsToArray(arguments), preserveNullProperties);
+        var args = util.sanitizeStructuredClone(util.argumentsToArray(arguments));
         event.source.postMessage({
           mid: event.data.mid,
           type: 'resp',
@@ -559,7 +542,6 @@ var AP = (function () {
           }
 
           sendResponse._context = extension;
-          preserveNullProperties = method.preserveNullProperties;
           methodArgs = this._padUndefinedArguments(methodArgs, padLength);
           methodArgs.push(sendResponse);
           var promiseResult = method.apply(module, methodArgs);
@@ -1914,7 +1896,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.3.12";
+      _this._version = "5.3.13";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
