@@ -936,6 +936,17 @@
       return true;
     };
 
+    _proto._trackGasV3 = function _trackGasV3(eventType, event) {
+      if (!window.AJS.trigger) {
+        return false;
+      }
+
+      AJS.trigger('gasV3AnalyticsEvent', {
+        eventType: eventType,
+        event: event
+      });
+    };
+
     _proto._time = function _time() {
       return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
     };
@@ -1037,6 +1048,49 @@
       });
     };
 
+    _proto.trackMacroCombination = function trackMacroCombination(parentExtensionId, childExtension) {
+      if (!getBooleanFeatureFlag('com.atlassian.connect.track-macro-combination')) {
+        return;
+      }
+
+      var partsOfParentExtensionId = parentExtensionId.split('__');
+
+      if (partsOfParentExtensionId.length !== 3) {
+        // this case shouldn't happen generally, adding this just in case
+        this._trackGasV3('operational', {
+          source: 'page',
+          action: 'rendered',
+          actionSubject: 'nestedBodyMacro',
+          objectType: childExtension.options.structuredContext.confluence.content.type,
+          objectId: childExtension.options.structuredContext.confluence.content.id,
+          attributes: {
+            parentExtensionId: parentExtensionId,
+            childAddonKey: childExtension['addon_key'],
+            childKey: childExtension['key']
+          }
+        });
+
+        return;
+      }
+
+      var parentAddonKey = partsOfParentExtensionId[0];
+      var parentKey = partsOfParentExtensionId[1];
+
+      this._trackGasV3('operational', {
+        source: 'viewPageScreen',
+        action: 'rendered',
+        actionSubject: 'nestedBodyMacro',
+        objectType: childExtension.options.structuredContext.confluence.content.type,
+        objectId: childExtension.options.structuredContext.confluence.content.id,
+        attributes: {
+          parentAddonKey: parentAddonKey,
+          parentKey: parentKey,
+          childAddonKey: childExtension['addon_key'],
+          childKey: childExtension['key']
+        }
+      });
+    };
+
     _proto.trackMultipleDialogOpening = function trackMultipleDialogOpening(dialogType, extension) {
       this._track('jsapi.dialog.multiple', {
         addonKey: extension.addon_key,
@@ -1090,6 +1144,9 @@
   });
   EventDispatcher$1.register('analytics-deprecated-method-used', function (data) {
     analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
+  });
+  EventDispatcher$1.register('analytics-macro-combination', function (data) {
+    analytics.trackMacroCombination(data.parentExtensionId, data.childExtension);
   });
   EventDispatcher$1.register('iframe-destroyed', function (data) {
     delete analytics._addons[data.extension.extension_id];
@@ -3755,6 +3812,12 @@
         extension: extension
       });
     },
+    trackMacroCombination: function trackMacroCombination(parentExtensionId, childExtension) {
+      EventDispatcher$1.dispatch('analytics-macro-combination', {
+        parentExtensionId: parentExtensionId,
+        childExtension: childExtension
+      });
+    },
     trackIframeBridgeStart: function trackIframeBridgeStart(extension) {
       EventDispatcher$1.dispatch('iframe-bridge-start', {
         extension: extension
@@ -4192,6 +4255,10 @@
 
     _proto.trackDeprecatedMethodUsed = function trackDeprecatedMethodUsed(methodUsed, extension) {
       AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
+    };
+
+    _proto.trackMacroCombination = function trackMacroCombination(parentExtensionId, childExtension) {
+      AnalyticsAction.trackMacroCombination(parentExtensionId, childExtension);
     };
 
     _proto.trackAnalyticsEvent = function trackAnalyticsEvent(name, values) {
@@ -6161,6 +6228,9 @@
     trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, callback) {
       callback = Util.last(arguments);
       AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
+    },
+    trackMacroCombination: function trackMacroCombination(parentExtensionId, childExtension) {
+      AnalyticsAction.trackMacroCombination(parentExtensionId, childExtension);
     }
   };
 

@@ -4,6 +4,12 @@ export default {
   trackDeprecatedMethodUsed(methodUsed, extension) {
     EventDispatcher.dispatch('analytics-deprecated-method-used', {methodUsed, extension});
   },
+  trackMacroCombination: function trackMacroCombination(parentExtensionId, childExtension) {
+    EventDispatcher.dispatch('analytics-macro-combination', {
+      parentExtensionId: parentExtensionId,
+      childExtension: childExtension
+    });
+  },
   trackIframeBridgeStart(extension) {
     EventDispatcher.dispatch('iframe-bridge-start', {extension});
   },
