@@ -3,12 +3,7 @@ export default function getBooleanFeatureFlag(flagName) {
     return true;
   }
 
-  const flagMeta = document.querySelector('meta[name="ajs-fe-feature-flags"]');
-  if (!flagMeta) {
-    return false;
-  }
-
-  const flagContent = flagMeta.getAttribute('content');
+  const flagContent = window.featureFlags || (AJS && AJS.Meta && AJS.Meta.get && AJS.Meta.get('fe-feature-flags'));
   if (!flagContent) {
     return false;
   }
