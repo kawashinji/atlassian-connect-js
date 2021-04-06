@@ -858,13 +858,7 @@
       return true;
     }
 
-    var flagMeta = document.querySelector('meta[name="ajs-fe-feature-flags"]');
-
-    if (!flagMeta) {
-      return false;
-    }
-
-    var flagContent = flagMeta.getAttribute('content');
+    var flagContent = window.featureFlags || AJS && AJS.Meta && AJS.Meta.get && AJS.Meta.get('fe-feature-flags');
 
     if (!flagContent) {
       return false;
@@ -7010,7 +7004,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.13';
+    window._AP.version = '5.3.14';
   }
 
   host.defineModule('messages', messages);
