@@ -5,5 +5,8 @@ export default {
   trackDeprecatedMethodUsed: function (methodUsed, callback) {
     callback = util.last(arguments);
     AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
+  },
+  trackMacroCombination: function trackMacroCombination(parentExtensionId, childExtension) {
+    AnalyticsAction.trackMacroCombination(parentExtensionId, childExtension);
   }
 }
