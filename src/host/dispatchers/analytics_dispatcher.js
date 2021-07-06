@@ -209,6 +209,24 @@ class AnalyticsDispatcher {
     });
   }
 
+  trackIframePerformance(metrics, extension) {
+    this._trackGasV3('operational', {
+      source: 'page',
+      action: 'rendered',
+      actionSubject: 'connectIframe',
+      attributes: {
+        addonKey: extension['addon_key'],
+        key: extension['key'],
+        domainLookupTime: metrics.domainLookupTime,
+        connectionTime: metrics.connectionTime,
+        decodedBodySize: metrics.decodedBodySize,
+        domContentLoadedTime: metrics.domContentLoadedTime,
+        fetchTime: metrics.fetchTime
+      }
+    });
+
+  }
+
   dispatch(name, data) {
     this._track(name, data);
   }
@@ -246,6 +264,9 @@ EventDispatcher.register('analytics-deprecated-method-used', function (data) {
 });
 EventDispatcher.register('analytics-macro-combination', function (data) {
   analytics.trackMacroCombination(data.parentExtensionId, data.childExtension);
+});
+EventDispatcher.register('analytics-iframe-performance', function (data) {
+  analytics.trackIframePerformance(data.metrics, data.extension);
 });
 
 EventDispatcher.register('iframe-destroyed', function (data) {

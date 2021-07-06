@@ -18,5 +18,8 @@ export default {
       eventName: name,
       values: values
     });
+  },
+  trackIframePerformanceMetrics(metrics, extension) {
+    EventDispatcher.dispatch('analytics-iframe-performance', {metrics, extension});
   }
 };

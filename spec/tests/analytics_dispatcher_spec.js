@@ -162,4 +162,31 @@ describe('Analytics Dispatcher', () => {
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith(analyticsName, analyticsValue);
   });
 
+  it('trackIframePerformanceMetrics triggers _analytics.trackIframePerformanceMetrics', () => {
+    spyOn(AnalyticsDispatcher, '_trackGasV3');
+    var metrics = {
+      domainLookupTime: 111,
+      connectionTime: 2222,
+      decodedBodySize: 333,
+      domContentLoadedTime: 444,
+      fetchTime: 555
+    };
+    AnalyticsDispatcher.trackIframePerformance(metrics, extension);
+    expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalled();
+    expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
+      source: 'page',
+      action: 'rendered',
+      actionSubject: 'connectIframe',
+      attributes: {
+        addonKey: extension['addon_key'],
+        key: extension['key'],
+        domainLookupTime: metrics.domainLookupTime,
+        connectionTime: metrics.connectionTime,
+        decodedBodySize: metrics.decodedBodySize,
+        domContentLoadedTime: metrics.domContentLoadedTime,
+        fetchTime: metrics.fetchTime
+      }
+    });
+  });
+
 });
