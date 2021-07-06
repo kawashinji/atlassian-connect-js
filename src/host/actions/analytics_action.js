@@ -20,6 +20,8 @@ export default {
     });
   },
   trackIframePerformanceMetrics(metrics, extension) {
-    EventDispatcher.dispatch('analytics-iframe-performance', {metrics, extension});
+    if(metrics && Object.getOwnPropertyNames(metrics).length > 0) {
+      EventDispatcher.dispatch('analytics-iframe-performance', {metrics, extension});
+    }
   }
 };

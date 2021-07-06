@@ -3844,10 +3844,12 @@
       });
     },
     trackIframePerformanceMetrics: function trackIframePerformanceMetrics(metrics, extension) {
-      EventDispatcher$1.dispatch('analytics-iframe-performance', {
-        metrics: metrics,
-        extension: extension
-      });
+      if (metrics && Object.getOwnPropertyNames(metrics).length > 0) {
+        EventDispatcher$1.dispatch('analytics-iframe-performance', {
+          metrics: metrics,
+          extension: extension
+        });
+      }
     }
   };
 
