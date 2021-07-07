@@ -16,10 +16,13 @@ describe('Plugin Performance Analytics', () => {
     analytics.sendMetrics();
     expect(AP._analytics.trackIframePerformanceMetrics).toHaveBeenCalled();
     const firstCallArg = AP._analytics.trackIframePerformanceMetrics.calls.first().args[0];
-    expect(firstCallArg.connectionTime).toEqual(jasmine.any(Number));
-    expect(firstCallArg.decodedBodySize).toEqual(jasmine.any(Number));
-    expect(firstCallArg.domContentLoadedTime).toEqual(jasmine.any(Number));
-    expect(firstCallArg.domainLookupTime).toEqual(jasmine.any(Number));
-    expect(firstCallArg.fetchTime).toEqual(jasmine.any(Number));
+    // We skip these assertions for the p2 plugin integration test version of chrome used in webdriver tests because the API does not exist in that version.
+    if(navigator.appVersion.indexOf('Chrome/48.') === -1) {
+      expect(firstCallArg.connectionTime).toEqual(jasmine.any(Number));
+      expect(firstCallArg.decodedBodySize).toEqual(jasmine.any(Number));
+      expect(firstCallArg.domContentLoadedTime).toEqual(jasmine.any(Number));
+      expect(firstCallArg.domainLookupTime).toEqual(jasmine.any(Number));
+      expect(firstCallArg.fetchTime).toEqual(jasmine.any(Number));
+    }
   });
 });
