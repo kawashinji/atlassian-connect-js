@@ -18,5 +18,10 @@ export default {
       eventName: name,
       values: values
     });
+  },
+  trackIframePerformanceMetrics(metrics, extension) {
+    if(metrics && Object.getOwnPropertyNames(metrics).length > 0) {
+      EventDispatcher.dispatch('analytics-iframe-performance', {metrics, extension});
+    }
   }
 };

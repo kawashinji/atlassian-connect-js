@@ -3455,6 +3455,51 @@ var AP = (function () {
 
   var ExtensionConfigurationOptionsStore$1 = new ExtensionConfigurationOptionsStore();
 
+  function getMetrics() {
+    if (window.performance && window.performance.getEntries) {
+      var navigationEntries = window.performance.getEntriesByType('navigation');
+
+      if (navigationEntries && navigationEntries[0]) {
+        var timingInfo = navigationEntries[0]; // dns loookup time
+
+        var domainLookupTime = timingInfo.domainLookupEnd - timingInfo.domainLookupStart;
+        var connectStart = timingInfo.connectStart; // if it's a tls connection, use the secure connection start instead
+
+        if (timingInfo.secureConnectionStart > 0) {
+          connectStart = timingInfo.secureConnectionStart;
+        } // connection negotiation time
+
+
+        var connectionTime = timingInfo.connectEnd - connectStart; // page body size
+
+        var decodedBodySize = timingInfo.decodedBodySize; // time to load dom
+
+        var domContentLoadedTime = timingInfo.domContentLoadedEventEnd - timingInfo.domContentLoadedEventStart; // time to download the page
+
+        var fetchTime = timingInfo.responseEnd - timingInfo.fetchStart;
+        return {
+          domainLookupTime: domainLookupTime,
+          connectionTime: connectionTime,
+          decodedBodySize: decodedBodySize,
+          domContentLoadedTime: domContentLoadedTime,
+          fetchTime: fetchTime
+        };
+      }
+    }
+  }
+
+  function sendMetrics() {
+    var metrics = getMetrics();
+
+    if (combined._analytics && combined._analytics.trackIframePerformanceMetrics) {
+      combined._analytics.trackIframePerformanceMetrics(metrics);
+    }
+  }
+
+  var analytics = {
+    sendMetrics: sendMetrics
+  };
+
   combined._hostModules._dollar = $$2;
   combined._hostModules['inline-dialog'] = combined._hostModules.inlineDialog;
 
@@ -3537,6 +3582,12 @@ var AP = (function () {
 
 
   ExtensionConfigurationOptionsStore$1.set(combined._data.options.globalOptions);
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', analytics.sendMetrics);
+  } else {
+    analytics.sendMetrics();
+  }
 
   return combined;
 

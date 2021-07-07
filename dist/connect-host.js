@@ -1102,6 +1102,23 @@
       });
     };
 
+    _proto.trackIframePerformance = function trackIframePerformance(metrics, extension) {
+      this._trackGasV3('operational', {
+        source: 'page',
+        action: 'rendered',
+        actionSubject: 'connectIframe',
+        attributes: {
+          addonKey: extension['addon_key'],
+          key: extension['key'],
+          domainLookupTime: metrics.domainLookupTime,
+          connectionTime: metrics.connectionTime,
+          decodedBodySize: metrics.decodedBodySize,
+          domContentLoadedTime: metrics.domContentLoadedTime,
+          fetchTime: metrics.fetchTime
+        }
+      });
+    };
+
     _proto.dispatch = function dispatch(name, data) {
       this._track(name, data);
     };
@@ -1141,6 +1158,9 @@
   });
   EventDispatcher$1.register('analytics-macro-combination', function (data) {
     analytics.trackMacroCombination(data.parentExtensionId, data.childExtension);
+  });
+  EventDispatcher$1.register('analytics-iframe-performance', function (data) {
+    analytics.trackIframePerformance(data.metrics, data.extension);
   });
   EventDispatcher$1.register('iframe-destroyed', function (data) {
     delete analytics._addons[data.extension.extension_id];
@@ -3822,6 +3842,14 @@
         eventName: name,
         values: values
       });
+    },
+    trackIframePerformanceMetrics: function trackIframePerformanceMetrics(metrics, extension) {
+      if (metrics && Object.getOwnPropertyNames(metrics).length > 0) {
+        EventDispatcher$1.dispatch('analytics-iframe-performance', {
+          metrics: metrics,
+          extension: extension
+        });
+      }
     }
   };
 
