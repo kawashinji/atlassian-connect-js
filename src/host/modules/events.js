@@ -15,5 +15,14 @@ export default {
     var extension = callback._context.extension;
     args = Util.first(args, -1);
     EventActions.broadcastPublic(name, args, extension);
-  }
+  },
+
+  emitToDataProvider: function(...args) {
+    var callback = Util.last(args);
+    var extension = callback._context.extension;
+    args = Util.first(args, -1);
+    EventActions.broadcast('dataProviderEvent', {
+      addon_key: callback._context.extension.addon_key
+    }, args);
+  },
 };
