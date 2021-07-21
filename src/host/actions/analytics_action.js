@@ -23,5 +23,5 @@ export default {
     if(metrics && Object.getOwnPropertyNames(metrics).length > 0) {
       EventDispatcher.dispatch('analytics-iframe-performance', {metrics, extension});
     }
-  }
+  },
 };
