@@ -8,5 +8,9 @@ export default {
   },
   trackMacroCombination: function trackMacroCombination(parentExtensionId, childExtension) {
     AnalyticsAction.trackMacroCombination(parentExtensionId, childExtension);
+  },
+  trackIframePerformanceMetrics: function trackIframePerformanceMetrics(metrics, extension) {
+    AnalyticsAction.trackIframePerformanceMetrics(metrics, extension);
   }
+
 }
