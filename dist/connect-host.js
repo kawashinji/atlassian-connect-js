@@ -2453,6 +2453,18 @@
       var extension = callback._context.extension;
       args = Util.first(args, -1);
       EventActions.broadcastPublic(name, args, extension);
+    },
+    emitToDataProvider: function emitToDataProvider() {
+      for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+        args[_key3] = arguments[_key3];
+      }
+
+      var callback = Util.last(args);
+      var extension = callback._context.extension;
+      args = Util.first(args, -1);
+      EventActions.broadcast('dataProviderEvent', {
+        addon_key: callback._context.extension.addon_key
+      }, args);
     }
   };
 
@@ -6253,6 +6265,10 @@
     },
     trackMacroCombination: function trackMacroCombination(parentExtensionId, childExtension) {
       AnalyticsAction.trackMacroCombination(parentExtensionId, childExtension);
+    },
+    trackIframePerformanceMetrics: function trackIframePerformanceMetrics(metrics, callback) {
+      callback = Util.last(arguments);
+      AnalyticsAction.trackIframePerformanceMetrics(metrics, callback._context.extension);
     }
   };
 
@@ -7102,7 +7118,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.16';
+    window._AP.version = '5.3.17';
   }
 
   host.defineModule('messages', messages);
