@@ -41,8 +41,7 @@ class LoadingIndicator {
   }
 
   hide($iframeContainer, extensionId){
-    clearTimeout(this._stateRegistry[extensionId]);
-    delete this._stateRegistry[extensionId];
+    this._clearTimeout(extensionId);
     this._loadingContainer($iframeContainer)[0].style.display = 'none';
   }
 
@@ -57,6 +56,13 @@ class LoadingIndicator {
     }, LOADING_TIMEOUT);
   }
 
+  _clearTimeout(extensionId) {
+    if(this._stateRegistry[extensionId]) {
+      clearTimeout(this._stateRegistry[extensionId]);
+      delete this._stateRegistry[extensionId];
+    }
+  }
+
   timeout($iframeContainer, extensionId){
     var status = $(LOADING_STATUSES['load-timeout']);
     var container = this._loadingContainer($iframeContainer);
@@ -65,7 +71,7 @@ class LoadingIndicator {
     $('a.ap-btn-cancel', container).click(function () {
       LoadingIndicatorActions.cancelled($iframeContainer, extensionId);
     });
-    delete this._stateRegistry[extensionId];
+    this._clearTimeout(extensionId);
     return container;
   }
 }
@@ -95,5 +101,10 @@ EventDispatcher.register('iframe-bridge-cancelled', (data) => {
     LoadingComponent.cancelled(data.$el, data.extension.id);
   }
 });
+
+EventDispatcher.register('iframe-destroyed', function (data) {
+  LoadingComponent._clearTimeout(data.extension.extension_id);
+});
+
 
 export default LoadingComponent;

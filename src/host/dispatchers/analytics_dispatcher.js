@@ -235,6 +235,26 @@ class AnalyticsDispatcher {
     this._track(name, data);
   }
 
+  /**
+  * method called when an iframe's loading metrics gets corrupted
+  * to destroy the analytics as they cannot be reliable
+  * this should be called when:
+  * 1. the product calls iframe creation multiple times for the same connect addon
+  * 2. the iframe is moved / repainted causing a window.reload event
+  * 3. user right clicks iframe and reloads it
+  */
+  _resetAnalyticsDueToUnreliable(extensionId) {
+    if(!extensionId) {
+      throw new Error('Cannot reset analytics due to no extension id');
+    }
+    if(this._addons[extensionId]) {
+      clearTimeout(this._addons[extensionId]);
+      delete this._addons[extensionId];
+    } else {
+      console.info('Cannot clear analytics, cache does not contain extension id');
+    }
+  }
+
 }
 
 var analytics = new AnalyticsDispatcher();
@@ -270,7 +290,7 @@ EventDispatcher.register('analytics-iframe-performance', function (data) {
 });
 
 EventDispatcher.register('iframe-destroyed', function (data) {
-  delete analytics._addons[data.extension.extension_id];
+  analytics._resetAnalyticsDueToUnreliable(data.extension.extension_id);
 });
 
 EventDispatcher.register('analytics-external-event-track', function (data) {
