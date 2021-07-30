@@ -68,6 +68,14 @@ class LoadingIndicator {
     delete this._stateRegistry[extensionId];
     return container;
   }
+
+  // called when the iframe-unload event is invoked
+  // when an iframe is being reloaded, or dom is destroyed / repainted.
+  // these events are no longer accurate so cancel them.
+  unloaded(extensionId) {
+    clearTimeout(this._stateRegistry[extensionId]);
+    delete this._stateRegistry[extensionId];
+  }
 }
 
 var LoadingComponent = new LoadingIndicator();
@@ -94,6 +102,10 @@ EventDispatcher.register('iframe-bridge-cancelled', (data) => {
   if(!data.extension.options.noDom) {
     LoadingComponent.cancelled(data.$el, data.extension.id);
   }
+});
+
+EventDispatcher.register('before:iframe-unload', (data) => {
+  LoadingComponent.unloaded(data.extension.id);
 });
 
 export default LoadingComponent;

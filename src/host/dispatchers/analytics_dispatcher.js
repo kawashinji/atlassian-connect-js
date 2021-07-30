@@ -141,6 +141,7 @@ class AnalyticsDispatcher {
       moduleLocation: extension.options ? extension.options.moduleLocation : undefined,
       pearApp: (extension.options && extension.options.pearApp === 'true') ? 'true' : 'false',
     });
+    this.trackGasV3LoadingTimeout(extension);
   }
 
   trackUseOfDeprecatedMethod(methodUsed, extension) {
@@ -235,6 +236,93 @@ class AnalyticsDispatcher {
     this._track(name, data);
   }
 
+  _isCacheable(extension) {
+    const href = extension.url;
+    return href !== undefined && href.indexOf('xdm_e=') === -1;
+  }
+
+  _getModuleType(extension) {
+    return extension.options ? extension.options.moduleType : undefined;
+  }
+  _getModuleLocation(extension) {
+    return extension.options ? extension.options.moduleLocation : undefined;
+  }
+  
+  _getPearApp(extension) {
+    return (extension.options && extension.options.pearApp === 'true') ? 'true' : 'false';
+  }
+
+  trackGasV3LoadingEnded (extension) {
+    var iframeLoadMillis = this._time() - this._addons[extension.id].startLoading;
+    this._trackGasV3('operational', {
+      source: 'page',
+      action: 'rendered',
+      actionSubject: 'ModuleLoaded',
+      actionSubjectId: extension['addon_key'],
+      attributes: {
+        iframeIsCacheable: this._isCacheable(extension),
+        iframeLoadMillis: iframeLoadMillis,
+        ModuleType: this._getModuleType(extension),
+        moduleKey: extension.key,
+        moduleLocation: this._getModuleLocation(extension),
+        PearApp: this._getPearApp(extension)
+      }
+    });
+  }
+
+  trackGasV3LoadingTimeout (extension) {
+    this._trackGasV3('operational', {
+      source: 'page',
+      action: 'rendered',
+      actionSubject: 'ModuleCancelled',
+      actionSubjectId: extension['addon_key'],
+      attributes: {
+        iframeIsCacheable: this._isCacheable(extension),
+        ModuleType: this._getModuleType(extension),
+        moduleKey: extension.key,
+        moduleLocation: this._getModuleLocation(extension),
+        PearApp: this._getPearApp(extension)
+      }
+    });
+  }
+
+
+  trackFortifiedLoadingTimeout (extension) {
+    this._trackGasV3('operational', {
+      source: 'page',
+      action: 'rendered',
+      actionSubject: 'ModuleTimeout',
+      actionSubjectId: extension['addon_key'],
+      attributes: {
+        iframeIsCacheable: this._isCacheable(extension),
+        ModuleType: this._getModuleType(extension),
+        moduleKey: extension.key,
+        moduleLocation: this._getModuleLocation(extension),
+        PearApp: this._getPearApp(extension)
+      }
+    });
+  }
+
+  /**
+  * method called when an iframe's loading metrics gets corrupted
+  * to destroy the analytics as they cannot be reliable
+  * this should be called when:
+  * 1. the product calls iframe creation multiple times for the same connect addon
+  * 2. the iframe is moved / repainted causing a window.reload event 
+  * 3. user right clicks iframe and reloads it
+  */
+  resetAnalyticsDueToUnreliable(extension) {
+    if(!extenson || !extension.id) {
+      throw new Error('Cannot reset analytics due to no extension id');
+    }
+    const extensionId = extension.id;
+    if(this._addons[extensionId]) {
+      clearTimeout(this._addons[extensionId]);
+      delete this._addons[extensionId];  
+    } else {
+      console.info('Cannot clear analytics, cache does not contain extension id');
+    }
+  }
 }
 
 var analytics = new AnalyticsDispatcher();
@@ -253,6 +341,23 @@ EventDispatcher.register('iframe-bridge-established', function (data) {
     analytics.trackVisible(data.extension);
   });
 });
+
+EventDispatcher.register('iframe-bridge-established', function (data) {
+  analytics.trackGasV3LoadingEnded(data.extension);
+});
+
+EventDispatcher.register('iframe-bridge-timeout', function (data) {
+  // iframes that are not present in the dom cannot timeout.
+  if(document.getElementById(data.extension.id)) {
+    analytics.trackFortifiedLoadingTimeout(data.extension);
+  }
+});
+
+// todo: enable this after initial rollout
+// EventDispatcher.register('iframe-unload', function (data) {
+//   analytics.resetAnalyticsDueToUnreliable(data.extension);
+// });
+
 EventDispatcher.register('iframe-bridge-timeout', function (data) {
   analytics.trackLoadingTimeout(data.extension);
 });
@@ -269,8 +374,8 @@ EventDispatcher.register('analytics-iframe-performance', function (data) {
   analytics.trackIframePerformance(data.metrics, data.extension);
 });
 
-EventDispatcher.register('iframe-destroyed', function (data) {
-  delete analytics._addons[data.extension.extension_id];
+EventDispatcher.register('before:iframe-destroyed', function (data) {
+  analytics.resetAnalyticsDueToUnreliable(data.extension);
 });
 
 EventDispatcher.register('analytics-external-event-track', function (data) {
