@@ -1125,6 +1125,28 @@
 
     _proto.trackExternal = function trackExternal(name, data) {
       this._track(name, data);
+    }
+    /**
+    * method called when an iframe's loading metrics gets corrupted
+    * to destroy the analytics as they cannot be reliable
+    * this should be called when:
+    * 1. the product calls iframe creation multiple times for the same connect addon
+    * 2. the iframe is moved / repainted causing a window.reload event
+    * 3. user right clicks iframe and reloads it
+    */
+    ;
+
+    _proto._resetAnalyticsDueToUnreliable = function _resetAnalyticsDueToUnreliable(extensionId) {
+      if (!extensionId) {
+        throw new Error('Cannot reset analytics due to no extension id');
+      }
+
+      if (this._addons[extensionId]) {
+        clearTimeout(this._addons[extensionId]);
+        delete this._addons[extensionId];
+      } else {
+        console.info('Cannot clear analytics, cache does not contain extension id');
+      }
     };
 
     return AnalyticsDispatcher;
@@ -1163,7 +1185,7 @@
     analytics.trackIframePerformance(data.metrics, data.extension);
   });
   EventDispatcher$1.register('iframe-destroyed', function (data) {
-    delete analytics._addons[data.extension.extension_id];
+    analytics._resetAnalyticsDueToUnreliable(data.extension.extension_id);
   });
   EventDispatcher$1.register('analytics-external-event-track', function (data) {
     analytics.trackExternal(data.eventName, data.values);
@@ -1236,8 +1258,8 @@
     };
 
     _proto.hide = function hide($iframeContainer, extensionId) {
-      clearTimeout(this._stateRegistry[extensionId]);
-      delete this._stateRegistry[extensionId];
+      this._clearTimeout(extensionId);
+
       this._loadingContainer($iframeContainer)[0].style.display = 'none';
     };
 
@@ -1253,6 +1275,13 @@
       }, LOADING_TIMEOUT);
     };
 
+    _proto._clearTimeout = function _clearTimeout(extensionId) {
+      if (this._stateRegistry[extensionId]) {
+        clearTimeout(this._stateRegistry[extensionId]);
+        delete this._stateRegistry[extensionId];
+      }
+    };
+
     _proto.timeout = function timeout($iframeContainer, extensionId) {
       var status = $(LOADING_STATUSES['load-timeout']);
 
@@ -1265,7 +1294,9 @@
       $('a.ap-btn-cancel', container).click(function () {
         LoadingIndicatorActions.cancelled($iframeContainer, extensionId);
       });
-      delete this._stateRegistry[extensionId];
+
+      this._clearTimeout(extensionId);
+
       return container;
     };
 
@@ -1292,6 +1323,9 @@
     if (!data.extension.options.noDom) {
       LoadingComponent.cancelled(data.$el, data.extension.id);
     }
+  });
+  EventDispatcher$1.register('iframe-destroyed', function (data) {
+    LoadingComponent._clearTimeout(data.extension.extension_id);
   });
 
   function _objectWithoutPropertiesLoose(source, excluded) {
@@ -7118,7 +7152,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.17';
+    window._AP.version = '5.3.18';
   }
 
   host.defineModule('messages', messages);
