@@ -162,6 +162,17 @@ describe('Analytics Dispatcher', () => {
     expect(AnalyticsDispatcher._track).toHaveBeenCalledWith(analyticsName, analyticsValue);
   });
 
+  it('removes the timeout when the entry is removed from addon store', () => {
+    AnalyticsDispatcher.trackLoadingStarted(extension);
+    expect(AnalyticsDispatcher._addons[extension.id]).toBeDefined();
+    let TimeoutId = AnalyticsDispatcher._addons[extension.id];
+    spyOn(window, 'clearTimeout');
+
+    AnalyticsDispatcher._resetAnalyticsDueToUnreliable(extension.id);
+    expect(AnalyticsDispatcher._addons[extension.id]).toBeUndefined();
+    expect(window.clearTimeout).toHaveBeenCalledWith(TimeoutId);
+  });
+
   it('trackIframePerformanceMetrics triggers _analytics.trackIframePerformanceMetrics', () => {
     spyOn(AnalyticsDispatcher, '_trackGasV3');
     var metrics = {
