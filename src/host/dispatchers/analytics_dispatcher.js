@@ -255,6 +255,43 @@ class AnalyticsDispatcher {
     }
   }
 
+  _isCacheable(extension) {
+    const href = extension.url;
+    return href !== undefined && href.indexOf('xdm_e=') === -1;
+  }
+
+  _getModuleType(extension) {
+    return extension.options ? extension.options.moduleType : undefined;
+  }
+
+  _getModuleLocation(extension) {
+    return extension.options ? extension.options.moduleLocation : undefined;
+  }
+
+  _getPearApp(extension) {
+    return (extension.options && extension.options.pearApp === 'true') ? 'true' : 'false';
+  }
+
+
+  //'I AM IN LOADING END', Object{addon_key: 'some-addon-key', key: 'some-module-key', options: Object{moduleType: 'some-module-type', pearApp: 'true', moduleLocation: 'some-module-location'}, id: 'some-addon-key__some-module-key_1y28nd', startLoading: 1628009843659}
+  trackGasV3LoadingEnded (extension) {
+    var iframeLoadMillis = this._time() - this._addons[extension.id].startLoading;
+    this._trackGasV3('operational', {
+      action: 'rendered',
+      actionSubject: 'ModuleLoaded',
+      actionSubjectId: extension['addon_key'],
+      attributes: {
+        moduleType: this._getModuleType(extension),
+        iframeIsCacheable: this._isCacheable(extension),
+        iframeLoadMillis: iframeLoadMillis,
+        moduleKey: extension.key,
+        moduleLocation: this._getModuleLocation(extension),
+        PearApp: this._getPearApp(extension)
+      },
+      source: 'page'
+    });
+  }
+
 }
 
 var analytics = new AnalyticsDispatcher();
@@ -273,6 +310,11 @@ EventDispatcher.register('iframe-bridge-established', function (data) {
     analytics.trackVisible(data.extension);
   });
 });
+
+EventDispatcher.register('iframe-bridge-established', function (data) {
+  analytics.trackGasV3LoadingEnded(data.extension);
+});
+
 EventDispatcher.register('iframe-bridge-timeout', function (data) {
   analytics.trackLoadingTimeout(data.extension);
 });

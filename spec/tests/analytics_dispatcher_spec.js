@@ -1,4 +1,5 @@
 import AnalyticsDispatcher from 'src/host/dispatchers/analytics_dispatcher';
+import IframeActions from 'src/host/actions/iframe_actions';
 
 const extension = {
   id: 'xxxewjkd',
@@ -196,6 +197,40 @@ describe('Analytics Dispatcher', () => {
         decodedBodySize: metrics.decodedBodySize,
         domContentLoadedTime: metrics.domContentLoadedTime,
         fetchTime: metrics.fetchTime
+      }
+    });
+  });
+
+
+  it('on iframe-bridge-established trigger a gasv3 analytics call', () => {
+    spyOn(AnalyticsDispatcher, '_trackGasV3');
+    const extension = {
+      addon_key: 'some-addon-key',
+      key: 'some-module-key',
+      options: {
+        moduleType: 'some-module-type',
+        pearApp: 'true',
+        moduleLocation: 'some-module-location'
+      },
+      id: 'some-addon-key__some-module-key_1y28nd',
+      startLoading: Date.now()
+    };
+    AnalyticsDispatcher._addons[extension.id] = extension;
+
+    IframeActions.notifyBridgeEstablished(document.createElement('div'), extension);
+
+    expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
+      source: 'page',
+      action: 'rendered',
+      actionSubject: 'ModuleLoaded',
+      actionSubjectId: 'some-addon-key',
+      attributes: {
+        iframeIsCacheable: false,
+        iframeLoadMillis: jasmine.any(Number),
+        moduleType: 'some-module-type',
+        moduleKey: 'some-module-key',
+        moduleLocation: 'some-module-location',
+        PearApp: 'true'
       }
     });
   });
