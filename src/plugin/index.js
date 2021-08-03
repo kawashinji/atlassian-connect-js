@@ -85,10 +85,14 @@ if (AP._data && AP._data.origin) {
 // gets the global options from the parent iframe (if present) so they can propagate to future sub-iframes.
 ExtensionConfigurationOptionsStore.set(AP._data.options.globalOptions);
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', analytics.sendMetrics);
+if (document.readyState === 'complete') {
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(analytics.sendMetrics, { timeout: 1000 });
+  } else {
+    analytics.sendMetrics();
+  }
 } else {
-  analytics.sendMetrics();
+  document.addEventListener('DOMContentLoaded', analytics.sendMetrics);
 }
 
 export default AP;
