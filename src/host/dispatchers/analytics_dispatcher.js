@@ -272,8 +272,6 @@ class AnalyticsDispatcher {
     return (extension.options && extension.options.pearApp === 'true') ? 'true' : 'false';
   }
 
-
-  //'I AM IN LOADING END', Object{addon_key: 'some-addon-key', key: 'some-module-key', options: Object{moduleType: 'some-module-type', pearApp: 'true', moduleLocation: 'some-module-location'}, id: 'some-addon-key__some-module-key_1y28nd', startLoading: 1628009843659}
   trackGasV3LoadingEnded (extension) {
     var iframeLoadMillis = this._time() - this._addons[extension.id].startLoading;
     this._trackGasV3('operational', {
