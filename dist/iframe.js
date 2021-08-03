@@ -1896,7 +1896,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.3.18";
+      _this._version = "5.3.19";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
@@ -3583,10 +3583,16 @@ var AP = (function () {
 
   ExtensionConfigurationOptionsStore$1.set(combined._data.options.globalOptions);
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', analytics.sendMetrics);
+  if (document.readyState === 'complete') {
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(analytics.sendMetrics, {
+        timeout: 1000
+      });
+    } else {
+      analytics.sendMetrics();
+    }
   } else {
-    analytics.sendMetrics();
+    document.addEventListener('DOMContentLoaded', analytics.sendMetrics);
   }
 
   return combined;
