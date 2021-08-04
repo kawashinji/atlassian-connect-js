@@ -10,7 +10,7 @@ export default function getBooleanFeatureFlag(flagName) {
 
   let flagJson = {};
   try {
-    flagJson = typeof flagContent === "object" ? flagContent : JSON.parse(flagContent);
+    flagJson = typeof flagContent === 'object' ? flagContent : JSON.parse(flagContent);
   } catch (err) {
     return false;
   }
