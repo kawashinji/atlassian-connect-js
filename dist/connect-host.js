@@ -867,7 +867,7 @@
     var flagJson = {};
 
     try {
-      flagJson = JSON.parse(flagContent);
+      flagJson = typeof flagContent === 'object' ? flagContent : JSON.parse(flagContent);
     } catch (err) {
       return false;
     }
@@ -7191,7 +7191,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.20';
+    window._AP.version = '5.3.21';
   }
 
   host.defineModule('messages', messages);
