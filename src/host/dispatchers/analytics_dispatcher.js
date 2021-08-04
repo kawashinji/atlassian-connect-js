@@ -290,6 +290,22 @@ class AnalyticsDispatcher {
     });
   }
 
+  trackGasV3LoadingTimeout (extension) {
+    this._trackGasV3('operational', {
+      action: 'rendered',
+      actionSubject: 'ModuleTimeout',
+      actionSubjectId: extension['addon_key'],
+      attributes: {
+        moduleType: this._getModuleType(extension),
+        iframeIsCacheable: this._isCacheable(extension),
+        moduleKey: extension.key,
+        moduleLocation: this._getModuleLocation(extension),
+        PearApp: this._getPearApp(extension)
+      },
+      source: 'page'
+    });
+  }
+
 }
 
 var analytics = new AnalyticsDispatcher();
@@ -335,6 +351,10 @@ EventDispatcher.register('iframe-destroyed', function (data) {
 
 EventDispatcher.register('analytics-external-event-track', function (data) {
   analytics.trackExternal(data.eventName, data.values);
+});
+
+EventDispatcher.register('iframe-bridge-timeout', function (data) {
+  analytics.trackGasV3LoadingTimeout(data.extension);
 });
 
 

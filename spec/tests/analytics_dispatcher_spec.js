@@ -1,5 +1,6 @@
 import AnalyticsDispatcher from 'src/host/dispatchers/analytics_dispatcher';
 import IframeActions from 'src/host/actions/iframe_actions';
+import LoadingIndicatorActions from 'src/host/actions/loading_indicator_actions';
 
 const extension = {
   id: 'xxxewjkd',
@@ -201,7 +202,6 @@ describe('Analytics Dispatcher', () => {
     });
   });
 
-
   it('on iframe-bridge-established trigger a gasv3 analytics call', () => {
     spyOn(AnalyticsDispatcher, '_trackGasV3');
     const extension = {
@@ -227,6 +227,36 @@ describe('Analytics Dispatcher', () => {
       attributes: {
         iframeIsCacheable: false,
         iframeLoadMillis: jasmine.any(Number),
+        moduleType: 'some-module-type',
+        moduleKey: 'some-module-key',
+        moduleLocation: 'some-module-location',
+        PearApp: 'true'
+      }
+    });
+  });
+
+  it('on iframe-bridge-timeout trigger a gasv3 analytics call', () => {
+    spyOn(AnalyticsDispatcher, '_trackGasV3');
+    const extension = {
+      addon_key: 'some-addon-key',
+      key: 'some-module-key',
+      options: {
+        moduleType: 'some-module-type',
+        pearApp: 'true',
+        moduleLocation: 'some-module-location'
+      },
+      id: 'some-addon-key__some-module-key_1d28nd'
+    };
+
+    LoadingIndicatorActions.timeout(document.createElement('div'), extension);
+
+    expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
+      source: 'page',
+      action: 'rendered',
+      actionSubject: 'ModuleTimeout',
+      actionSubjectId: 'some-addon-key',
+      attributes: {
+        iframeIsCacheable: false,
         moduleType: 'some-module-type',
         moduleKey: 'some-module-key',
         moduleLocation: 'some-module-location',
