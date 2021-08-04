@@ -1149,6 +1149,42 @@
       }
     };
 
+    _proto._isCacheable = function _isCacheable(extension) {
+      var href = extension.url;
+      return href !== undefined && href.indexOf('xdm_e=') === -1;
+    };
+
+    _proto._getModuleType = function _getModuleType(extension) {
+      return extension.options ? extension.options.moduleType : undefined;
+    };
+
+    _proto._getModuleLocation = function _getModuleLocation(extension) {
+      return extension.options ? extension.options.moduleLocation : undefined;
+    };
+
+    _proto._getPearApp = function _getPearApp(extension) {
+      return extension.options && extension.options.pearApp === 'true' ? 'true' : 'false';
+    };
+
+    _proto.trackGasV3LoadingEnded = function trackGasV3LoadingEnded(extension) {
+      var iframeLoadMillis = this._time() - this._addons[extension.id].startLoading;
+
+      this._trackGasV3('operational', {
+        action: 'rendered',
+        actionSubject: 'ModuleLoaded',
+        actionSubjectId: extension['addon_key'],
+        attributes: {
+          moduleType: this._getModuleType(extension),
+          iframeIsCacheable: this._isCacheable(extension),
+          iframeLoadMillis: iframeLoadMillis,
+          moduleKey: extension.key,
+          moduleLocation: this._getModuleLocation(extension),
+          PearApp: this._getPearApp(extension)
+        },
+        source: 'page'
+      });
+    };
+
     return AnalyticsDispatcher;
   }();
 
@@ -1168,6 +1204,9 @@
     observe$1(document.getElementById(data.extension.id), function () {
       analytics.trackVisible(data.extension);
     });
+  });
+  EventDispatcher$1.register('iframe-bridge-established', function (data) {
+    analytics.trackGasV3LoadingEnded(data.extension);
   });
   EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
     analytics.trackLoadingTimeout(data.extension);
@@ -7152,7 +7191,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.19';
+    window._AP.version = '5.3.20';
   }
 
   host.defineModule('messages', messages);
