@@ -92,7 +92,7 @@ if (document.readyState === 'complete') {
     analytics.sendMetrics();
   }
 } else {
-  document.addEventListener('DOMContentLoaded', analytics.sendMetrics);
+  window.addEventListener('load', analytics.sendMetrics);
 }
 
 export default AP;
