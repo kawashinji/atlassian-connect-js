@@ -33,6 +33,46 @@ $.each(EventsInstance.methods, (i, method) => {
   }
 });
 
+// add support for handling async calls to provide data to client
+var extensionCallbacks = new Map();
+AP.events.onDataProvider = (callback) => {
+  if(!callback || typeof callback !== 'function') {
+    throw new Error('callback must be a function')
+  }
+
+  var eid = AP._data.extension_id;
+  extensionCallbacks.set(eid, callback);
+
+  return callback
+}
+AP._messageHandlers.data_provider = function(event, reg) {
+  var payload = event.data;
+  var eid = payload.eid;
+  var callback = extensionCallbacks.get(eid);
+
+  if (!callback) {
+    event.source.postMessage(
+      {
+        type: 'data_provider_error',
+        error: 'no callback registered',
+        eid: eid,
+      },
+      reg.extension.url
+    )
+  }
+
+  if (typeof callback === 'function') {
+    callback(payload);
+    event.source.postMessage(
+      {
+        type: 'data_provider_success',
+        eid: eid,
+      },
+      reg.extension.url
+    )
+  }
+}
+
 AP.define = deprecate((...args) => AMD.define(...args), 'AP.define()', null, '5.0');
 
 AP.require = deprecate((...args) => AMD.require(...args), 'AP.require()', null, '5.0');
