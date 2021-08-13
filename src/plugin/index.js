@@ -35,20 +35,22 @@ $.each(EventsInstance.methods, (i, method) => {
 
 // add support for handling async calls to provide data to client
 var extensionCallbacks = new Map();
+AP.events = AP.events || {};
 AP.events.onDataProvider = (callback) => {
-  if(!callback || typeof callback !== 'function') {
-    throw new Error('callback must be a function')
+  if (!callback || typeof callback !== 'function') {
+    throw new Error('callback must be a function');
   }
 
   var eid = AP._data.extension_id;
   extensionCallbacks.set(eid, callback);
 
-  return callback
-}
-AP._messageHandlers.data_provider = function(event, reg) {
+  return callback;
+};
+AP._messageHandlers.data_provider = function (event) {
   var payload = event.data;
   var eid = payload.eid;
   var callback = extensionCallbacks.get(eid);
+  var targetOrigin = AP._data.origin || '*';
 
   if (!callback) {
     event.source.postMessage(
@@ -57,8 +59,8 @@ AP._messageHandlers.data_provider = function(event, reg) {
         error: 'no callback registered',
         eid: eid,
       },
-      reg.extension.url
-    )
+      targetOrigin
+    );
   }
 
   if (typeof callback === 'function') {
@@ -68,10 +70,10 @@ AP._messageHandlers.data_provider = function(event, reg) {
         type: 'data_provider_success',
         eid: eid,
       },
-      reg.extension.url
-    )
+      targetOrigin
+    );
   }
-}
+};
 
 AP.define = deprecate((...args) => AMD.define(...args), 'AP.define()', null, '5.0');
 
