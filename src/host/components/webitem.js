@@ -3,7 +3,8 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
 import WebItemActions from '../actions/webitem_actions';
 import WebItemUtils from '../utils/webitem';
 import Util from '../util';
-import getBooleanFeatureFlag from '../utils/feature-flag';
+import getBooleanFeatureFlag, {Flags} from '../utils/feature-flag';
+import HostApi from '../host-api';
 
 class WebItem {
 
@@ -69,6 +70,13 @@ class WebItem {
         url: extensionUrl
       };
 
+      if (extension.addon_key === 'com.addonengine.analytics' &&
+        Flags.getBooleanFeatureFlag('com.atlassian.connect.acjs-conf-analytics-dialog-wait-onload') &&
+        !HostApi.isModuleDefined('analytics')
+      ) {
+        console.log(`ACJS-1164 Dropping event ${event.type} for plugin ${extension.addon_key} until AP.analytics loads...`);
+        return;
+      }
       WebItemActions.webitemInvoked(webitem, event, extension);
     };
     $(() => {

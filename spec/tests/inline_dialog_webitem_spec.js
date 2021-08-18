@@ -1,3 +1,4 @@
+import simpleXDM from 'simple-xdm/host';
 import InlineDialogWebitem from 'src/host/components/inline_dialog_webitem';
 import InlineDialogActions from 'src/host/actions/inline_dialog_actions';
 import InlineDialogComponent from 'src/host/components/inline_dialog';
@@ -6,9 +7,11 @@ import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import IframeContainer from 'src/host/components/iframe_container';
 import jwtActions from 'src/host/actions/jwt_actions';
 import base64 from 'src/host/utils/base64';
+import {Flags} from '../../src/host/utils/feature-flag';
 
 describe('Inline Dialog Webitem', () => {
   var webitemButton;
+  const classPluginKey = 'ap-plugin-key-my-plugin';
 
   function buildJWT(exp){
     const claim = {
@@ -22,14 +25,16 @@ describe('Inline Dialog Webitem', () => {
     $('.aui-inline-dialog').remove();
     webitemButton = $('<a />').attr('href', 'https://www.example.com?a.x=b#' + encodeURI(JSON.stringify({productCtx:'{"b.c":"d"}'})));
     webitemButton.text('i am a webitem');
-    webitemButton.addClass('ap-inline-dialog ap-plugin-key-my-plugin ap-module-key-key ap-target-key-key ap-link-webitem');
+    webitemButton.addClass(`ap-inline-dialog ${classPluginKey} ap-module-key-key ap-target-key-key ap-link-webitem`);
     webitemButton.appendTo('body');
   });
 
   afterEach(() => {
     jasmine.clock().uninstall();
     webitemButton.remove();
-    delete window._AP.inlineDialogModules;
+    if (window && window._AP) {
+      delete window._AP.inlineDialogModules;
+    }
   });
 
   it('getWebItem returns a webitem compatible object', function(){
@@ -296,6 +301,30 @@ describe('Inline Dialog Webitem', () => {
       };
       expect(InlineDialogWebitem.opened(data)).toEqual(true);
       expect(InlineDialogWebitem.opened(data)).toEqual(false);
+    });
+  });
+
+  it('drops events for confluence com.addonengine.analytics plugin until analytics module is loaded', (done) => {
+    spyOn(WebItemActions, 'webitemInvoked');
+    spyOn(Flags, 'getBooleanFeatureFlag').and.callFake((flag) => (
+      flag === 'com.atlassian.connect.acjs-conf-analytics-dialog-wait-onload' ||
+      flag === 'com.atlassian.connect.acjs-disable-web-items-onload'
+    ));
+    $(function(){
+      // With a regular plugin key, the click should pass through uninterrupted
+      $(webitemButton).trigger('click');
+      expect(WebItemActions.webitemInvoked.calls.count()).toEqual(1);
+
+      // With the special plugin key, the click should be blocked if the analytics module isn't loaded
+      $(webitemButton).removeClass(classPluginKey).addClass('ap-plugin-key-com.addonengine.analytics');
+      $(webitemButton).trigger('click');
+      expect(WebItemActions.webitemInvoked.calls.count()).toEqual(1);
+
+      // When we load the analytics module the click passes through again
+      simpleXDM.defineModule('analytics', {});
+      $(webitemButton).trigger('click');
+      expect(WebItemActions.webitemInvoked.calls.count()).toEqual(2);
+      done();
     });
   });
 
