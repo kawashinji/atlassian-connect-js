@@ -878,6 +878,9 @@
 
     return flagJson[flagName].value;
   }
+  var Flags = {
+    getBooleanFeatureFlag: getBooleanFeatureFlag
+  };
 
   var EVENT_NAME_PREFIX = 'connect.addon.';
   /**
@@ -6821,6 +6824,12 @@
           options: WebItemUtils.getOptionsForWebItem($target),
           url: extensionUrl
         };
+
+        if (extension.addon_key === 'com.addonengine.analytics' && Flags.getBooleanFeatureFlag('com.atlassian.connect.acjs-conf-analytics-dialog-wait-onload') && !HostApi$1.isModuleDefined('analytics')) {
+          console.log("ACJS-1164 Dropping event " + event.type + " for plugin " + extension.addon_key + " until AP.analytics loads...");
+          return;
+        }
+
         WebItemActions.webitemInvoked(webitem, event, extension);
       };
 
@@ -7191,7 +7200,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.22';
+    window._AP.version = '5.3.23';
   }
 
   host.defineModule('messages', messages);
