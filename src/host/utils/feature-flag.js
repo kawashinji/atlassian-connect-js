@@ -19,4 +19,8 @@ export default function getBooleanFeatureFlag(flagName) {
     return false;
   }
   return flagJson[flagName].value;
-};
+}
+
+export const Flags = {
+  getBooleanFeatureFlag
+}
