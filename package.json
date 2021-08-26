@@ -1,6 +1,6 @@
 {
   "name": "atlassian-connect-js",
-  "version": "5.3.20",
+  "version": "5.3.24",
   "license": "Apache-2.0",
   "description": "Atlassian Connect JavaScript bridge",
   "main": "dist/connect-host.js",
@@ -27,6 +27,7 @@
     "@babel/preset-env": "7.4.5",
     "@babel/preset-stage-2": "7.0.0",
     "@babel/runtime": "^7.4.5",
+    "@types/jasmine": "^2.5.54",
     "assert": "1.4.1",
     "babel-loader": "8.0.6",
     "babel-preset-es2015-rollup": "3.0.0",

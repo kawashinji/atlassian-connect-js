@@ -1896,7 +1896,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.3.20";
+      _this._version = "5.3.24";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
@@ -3592,7 +3592,7 @@ var AP = (function () {
       analytics.sendMetrics();
     }
   } else {
-    document.addEventListener('DOMContentLoaded', analytics.sendMetrics);
+    window.addEventListener('load', analytics.sendMetrics);
   }
 
   return combined;
