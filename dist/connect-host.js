@@ -1169,6 +1169,22 @@
       return extension.options && extension.options.pearApp === 'true' ? 'true' : 'false';
     };
 
+    _proto.trackGasV3Visible = function trackGasV3Visible(extension) {
+      this._trackGasV3('operational', {
+        action: 'rendered',
+        actionSubject: 'moduleViewed',
+        actionSubjectId: extension['addon_key'],
+        attributes: {
+          moduleType: this._getModuleType(extension),
+          iframeIsCacheable: this._isCacheable(extension),
+          moduleKey: extension.key,
+          moduleLocation: this._getModuleLocation(extension),
+          PearApp: this._getPearApp(extension)
+        },
+        source: 'page'
+      });
+    };
+
     _proto.trackGasV3LoadingEnded = function trackGasV3LoadingEnded(extension) {
       var iframeLoadMillis = this._time() - this._addons[extension.id].startLoading;
 
@@ -1206,6 +1222,7 @@
     analytics.trackLoadingEnded(data.extension);
     observe$1(document.getElementById(data.extension.id), function () {
       analytics.trackVisible(data.extension);
+      analytics.trackGasV3Visible(data.extension);
     });
   });
   EventDispatcher$1.register('iframe-bridge-established', function (data) {
@@ -7200,7 +7217,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.23';
+    window._AP.version = '5.3.24';
   }
 
   host.defineModule('messages', messages);
