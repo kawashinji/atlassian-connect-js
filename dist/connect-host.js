@@ -1204,6 +1204,22 @@
       });
     };
 
+    _proto.trackGasV3LoadingTimeout = function trackGasV3LoadingTimeout(extension) {
+      this._trackGasV3('operational', {
+        action: 'rendered',
+        actionSubject: 'ModuleTimeout',
+        actionSubjectId: extension['addon_key'],
+        attributes: {
+          moduleType: this._getModuleType(extension),
+          iframeIsCacheable: this._isCacheable(extension),
+          moduleKey: extension.key,
+          moduleLocation: this._getModuleLocation(extension),
+          PearApp: this._getPearApp(extension)
+        },
+        source: 'page'
+      });
+    };
+
     return AnalyticsDispatcher;
   }();
 
@@ -1248,6 +1264,9 @@
   });
   EventDispatcher$1.register('analytics-external-event-track', function (data) {
     analytics.trackExternal(data.eventName, data.values);
+  });
+  EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
+    analytics.trackGasV3LoadingTimeout(data.extension);
   });
 
   var LoadingIndicatorActions = {
@@ -7217,7 +7236,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.24';
+    window._AP.version = '5.3.25';
   }
 
   host.defineModule('messages', messages);
