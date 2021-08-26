@@ -201,6 +201,35 @@ describe('Analytics Dispatcher', () => {
     });
   });
 
+  it('on iframe viewed trigger a gasv3 analytics call', () => {
+    spyOn(AnalyticsDispatcher, '_trackGasV3');
+    const extension = {
+      addon_key: 'some-addon-key',
+      key: 'some-module-key',
+      options: {
+        moduleType: 'some-module-type',
+        pearApp: 'true',
+        moduleLocation: 'some-module-location'
+      },
+      id: 'some-addon-key__some-module-key_1y28nd',
+      startLoading: Date.now()
+    };
+    AnalyticsDispatcher.trackGasV3Visible(extension);
+
+    expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
+      source: 'page',
+      action: 'rendered',
+      actionSubject: 'moduleViewed',
+      actionSubjectId: 'some-addon-key',
+      attributes: {
+        iframeIsCacheable: false,
+        moduleType: 'some-module-type',
+        moduleKey: 'some-module-key',
+        moduleLocation: 'some-module-location',
+        PearApp: 'true'
+      }
+    });
+  });
 
   it('on iframe-bridge-established trigger a gasv3 analytics call', () => {
     spyOn(AnalyticsDispatcher, '_trackGasV3');

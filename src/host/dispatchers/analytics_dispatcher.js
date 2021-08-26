@@ -272,6 +272,22 @@ class AnalyticsDispatcher {
     return (extension.options && extension.options.pearApp === 'true') ? 'true' : 'false';
   }
 
+  trackGasV3Visible (extension) {
+    this._trackGasV3('operational', {
+      action: 'rendered',
+      actionSubject: 'moduleViewed',
+      actionSubjectId: extension['addon_key'],
+      attributes: {
+        moduleType: this._getModuleType(extension),
+        iframeIsCacheable: this._isCacheable(extension),
+        moduleKey: extension.key,
+        moduleLocation: this._getModuleLocation(extension),
+        PearApp: this._getPearApp(extension)
+      },
+      source: 'page'
+    });
+  }
+
   trackGasV3LoadingEnded (extension) {
     var iframeLoadMillis = this._time() - this._addons[extension.id].startLoading;
     this._trackGasV3('operational', {
@@ -306,6 +322,7 @@ EventDispatcher.register('iframe-bridge-established', function (data) {
   analytics.trackLoadingEnded(data.extension);
   observe(document.getElementById(data.extension.id), () => {
     analytics.trackVisible(data.extension);
+    analytics.trackGasV3Visible(data.extension);
   });
 });
 
