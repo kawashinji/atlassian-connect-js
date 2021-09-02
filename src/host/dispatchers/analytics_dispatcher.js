@@ -80,7 +80,11 @@ class AnalyticsDispatcher {
       var value = this._time() - this._addons[extension.id].startLoading;
       var iframeLoadApdex = this.getIframeLoadApdex(value);
       var api = 'untracked';
-      if (getBooleanFeatureFlag('com.atlassian.connect.acjs-track-api')) {
+      if (
+        this._addons[extension.id].$el &&
+        this._addons[extension.id].$el[0] &&
+        this._addons[extension.id].$el[0].name
+      ) {
         api = Object.keys(JSON.parse(this._addons[extension.id].$el[0].name).api)
           .sort()
           .toString();
