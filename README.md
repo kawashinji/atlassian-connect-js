@@ -141,6 +141,20 @@ function contentResolver(extension) {
 connectHost.registerContentResolver.resolveByExtension(contentResolver);
 ```
 
+Analytics
+---
+
+You can expose an analytics event reciever as follows:
+
+```javascript
+define('ac/analytics', () => {
+    return {
+        emitGasV3: (eventType, eventData) => {
+            console.log('this is an alaytics event', eventType, eventData);
+        }
+    };
+});
+```
 
 Requirements
 ------------
