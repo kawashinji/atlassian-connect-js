@@ -934,14 +934,13 @@
     };
 
     _proto._trackGasV3 = function _trackGasV3(eventType, event) {
-      if (!window.AJS.trigger) {
-        return false;
-      }
+      try {
+        var analyticsCrossProduct = window.require('ac/analytics');
 
-      AJS.trigger('gasV3AnalyticsEvent', {
-        eventType: eventType,
-        event: event
-      });
+        analyticsCrossProduct.emitGasV3(eventType, event);
+      } catch (e) {
+        console.error('Connect GasV3 Error', e);
+      }
     };
 
     _proto._time = function _time() {
@@ -7236,7 +7235,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.25';
+    window._AP.version = '5.3.26';
   }
 
   host.defineModule('messages', messages);
