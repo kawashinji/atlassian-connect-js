@@ -50,14 +50,12 @@ class AnalyticsDispatcher {
   }
 
   _trackGasV3(eventType, event) {
-    if (!window.AJS.trigger) {
-      return false;
+    try {
+      const analyticsCrossProduct = window.require('ac/analytics');
+      analyticsCrossProduct.emitGasV3(eventType, event);
+    } catch (e) {
+      console.error('Connect GasV3 Error', e);
     }
-
-    AJS.trigger('gasV3AnalyticsEvent', {
-      eventType,
-      event
-    });
   }
 
   _time() {
