@@ -1112,6 +1112,10 @@
         attributes: {
           addonKey: extension['addon_key'],
           key: extension['key'],
+          PearApp: this._getPearApp(extension),
+          moduleType: this._getModuleType(extension),
+          iframeIsCacheable: this._isCacheable(extension),
+          moduleLocation: this._getModuleLocation(extension),
           domainLookupTime: metrics.domainLookupTime,
           connectionTime: metrics.connectionTime,
           decodedBodySize: metrics.decodedBodySize,
@@ -7235,7 +7239,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.26';
+    window._AP.version = '5.3.27';
   }
 
   host.defineModule('messages', messages);
