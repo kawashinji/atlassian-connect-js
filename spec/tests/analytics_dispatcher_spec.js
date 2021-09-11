@@ -184,7 +184,11 @@ describe('Analytics Dispatcher', () => {
       domContentLoadedTime: 444,
       fetchTime: 555
     };
-    AnalyticsDispatcher.trackIframePerformance(metrics, extension);
+    AnalyticsDispatcher.trackIframePerformance(metrics, Object.assign({}, extension, {options: {
+      pearApp: 'true',
+      moduleLocation: 'some-module-location',
+      moduleType: 'some-module-type'
+    }}));
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalled();
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
       source: 'page',
@@ -193,11 +197,15 @@ describe('Analytics Dispatcher', () => {
       attributes: {
         addonKey: extension['addon_key'],
         key: extension['key'],
+        PearApp: 'true',
         domainLookupTime: metrics.domainLookupTime,
         connectionTime: metrics.connectionTime,
         decodedBodySize: metrics.decodedBodySize,
         domContentLoadedTime: metrics.domContentLoadedTime,
-        fetchTime: metrics.fetchTime
+        fetchTime: metrics.fetchTime,
+        moduleLocation: 'some-module-location',
+        moduleType: 'some-module-type',
+        iframeIsCacheable: false
       }
     });
   });

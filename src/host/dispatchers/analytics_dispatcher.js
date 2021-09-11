@@ -215,6 +215,10 @@ class AnalyticsDispatcher {
       attributes: {
         addonKey: extension['addon_key'],
         key: extension['key'],
+        PearApp: this._getPearApp(extension),
+        moduleType: this._getModuleType(extension),
+        iframeIsCacheable: this._isCacheable(extension),
+        moduleLocation: this._getModuleLocation(extension),
         domainLookupTime: metrics.domainLookupTime,
         connectionTime: metrics.connectionTime,
         decodedBodySize: metrics.decodedBodySize,
