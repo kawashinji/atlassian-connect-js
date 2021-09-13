@@ -210,8 +210,9 @@ class AnalyticsDispatcher {
   trackIframePerformance(metrics, extension) {
     this._trackGasV3('operational', {
       source: 'page',
-      action: 'rendered',
-      actionSubject: 'connectIframe',
+      action: 'iframeRendered',
+      actionSubject: 'connectAddon',
+      actionSubjectId: extension.addon_key,
       attributes: {
         addonKey: extension['addon_key'],
         key: extension['key'],
@@ -276,8 +277,8 @@ class AnalyticsDispatcher {
 
   trackGasV3Visible (extension) {
     this._trackGasV3('operational', {
-      action: 'rendered',
-      actionSubject: 'moduleViewed',
+      action: 'iframeViewed',
+      actionSubject: 'connectAddon',
       actionSubjectId: extension['addon_key'],
       attributes: {
         moduleType: this._getModuleType(extension),
@@ -293,8 +294,8 @@ class AnalyticsDispatcher {
   trackGasV3LoadingEnded (extension) {
     var iframeLoadMillis = this._time() - this._addons[extension.id].startLoading;
     this._trackGasV3('operational', {
-      action: 'rendered',
-      actionSubject: 'ModuleLoaded',
+      action: 'iframeLoaded',
+      actionSubject: 'connectAddon',
       actionSubjectId: extension['addon_key'],
       attributes: {
         moduleType: this._getModuleType(extension),
@@ -310,8 +311,8 @@ class AnalyticsDispatcher {
 
   trackGasV3LoadingTimeout (extension) {
     this._trackGasV3('operational', {
-      action: 'rendered',
-      actionSubject: 'ModuleTimeout',
+      action: 'iframeTimeout',
+      actionSubject: 'connectAddon',
       actionSubjectId: extension['addon_key'],
       attributes: {
         moduleType: this._getModuleType(extension),

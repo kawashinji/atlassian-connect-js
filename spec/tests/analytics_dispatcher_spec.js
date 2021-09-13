@@ -192,8 +192,9 @@ describe('Analytics Dispatcher', () => {
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalled();
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
       source: 'page',
-      action: 'rendered',
-      actionSubject: 'connectIframe',
+      action: 'iframeRendered',
+      actionSubject: 'connectAddon',
+      actionSubjectId: extension['addon_key'],
       attributes: {
         addonKey: extension['addon_key'],
         key: extension['key'],
@@ -227,8 +228,8 @@ describe('Analytics Dispatcher', () => {
 
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
       source: 'page',
-      action: 'rendered',
-      actionSubject: 'moduleViewed',
+      action: 'iframeViewed',
+      actionSubject: 'connectAddon',
       actionSubjectId: 'some-addon-key',
       attributes: {
         iframeIsCacheable: false,
@@ -259,8 +260,8 @@ describe('Analytics Dispatcher', () => {
 
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
       source: 'page',
-      action: 'rendered',
-      actionSubject: 'ModuleLoaded',
+      action: 'iframeLoaded',
+      actionSubject: 'connectAddon',
       actionSubjectId: 'some-addon-key',
       attributes: {
         iframeIsCacheable: false,
@@ -290,8 +291,8 @@ describe('Analytics Dispatcher', () => {
 
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
       source: 'page',
-      action: 'rendered',
-      actionSubject: 'ModuleTimeout',
+      action: 'iframeTimeout',
+      actionSubject: 'connectAddon',
       actionSubjectId: 'some-addon-key',
       attributes: {
         iframeIsCacheable: false,
