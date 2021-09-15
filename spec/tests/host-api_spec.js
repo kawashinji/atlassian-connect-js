@@ -193,4 +193,19 @@ describe('Host API', function() {
     simpleXDM.defineModule(moduleName, {});
     expect(HostApi.isModuleDefined(moduleName)).toBe(true);
   });
+
+  it('onIframeTimeout binds', function() {
+    var spy = jasmine.createSpy('spy');
+    HostApi.onIframeTimeout(spy);
+    EventDispatcher.dispatch('after:iframe-bridge-timeout', {extension:{options:{}}});
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('onIframePerformanceTelemetry binds', function() {
+    var spy = jasmine.createSpy('spy');
+    HostApi.onIframePerformanceTelemetry(spy);
+    EventDispatcher.dispatch('after:analytics-iframe-performance', {extension:{options:{}}, metrics: {}});
+    expect(spy).toHaveBeenCalled();
+  });
+
 });

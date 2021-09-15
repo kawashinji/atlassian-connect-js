@@ -339,6 +339,7 @@ EventDispatcher.register('iframe-bridge-start', function (data) {
 EventDispatcher.register('iframe-bridge-established', function (data) {
   analytics.trackLoadingEnded(data.extension);
   observe(document.getElementById(data.extension.id), () => {
+    EventDispatcher.emit('iframe-visible', data.extension);
     analytics.trackVisible(data.extension);
     analytics.trackGasV3Visible(data.extension);
   });
