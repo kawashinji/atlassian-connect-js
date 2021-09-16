@@ -191,12 +191,11 @@ describe('Analytics Dispatcher', () => {
     }}));
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalled();
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
-      source: 'page',
+      source: extension['addon_key'],
       action: 'iframeRendered',
       actionSubject: 'connectAddon',
       actionSubjectId: extension['addon_key'],
       attributes: {
-        addonKey: extension['addon_key'],
         key: extension['key'],
         PearApp: 'true',
         domainLookupTime: metrics.domainLookupTime,
@@ -227,7 +226,7 @@ describe('Analytics Dispatcher', () => {
     AnalyticsDispatcher.trackGasV3Visible(extension);
 
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
-      source: 'page',
+      source: 'some-addon-key',
       action: 'iframeViewed',
       actionSubject: 'connectAddon',
       actionSubjectId: 'some-addon-key',
@@ -259,7 +258,7 @@ describe('Analytics Dispatcher', () => {
     IframeActions.notifyBridgeEstablished(document.createElement('div'), extension);
 
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
-      source: 'page',
+      source: 'some-addon-key',
       action: 'iframeLoaded',
       actionSubject: 'connectAddon',
       actionSubjectId: 'some-addon-key',
@@ -290,7 +289,7 @@ describe('Analytics Dispatcher', () => {
     LoadingIndicatorActions.timeout(document.createElement('div'), extension);
 
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
-      source: 'page',
+      source: 'some-addon-key',
       action: 'iframeTimeout',
       actionSubject: 'connectAddon',
       actionSubjectId: 'some-addon-key',

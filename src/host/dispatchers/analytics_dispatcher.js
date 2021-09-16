@@ -209,12 +209,11 @@ class AnalyticsDispatcher {
 
   trackIframePerformance(metrics, extension) {
     this._trackGasV3('operational', {
-      source: 'page',
+      source: extension.addon_key,
       action: 'iframeRendered',
       actionSubject: 'connectAddon',
       actionSubjectId: extension.addon_key,
       attributes: {
-        addonKey: extension['addon_key'],
         key: extension['key'],
         PearApp: this._getPearApp(extension),
         moduleType: this._getModuleType(extension),
@@ -287,7 +286,7 @@ class AnalyticsDispatcher {
         moduleLocation: this._getModuleLocation(extension),
         PearApp: this._getPearApp(extension)
       },
-      source: 'page'
+      source: extension.addon_key
     });
   }
 
@@ -305,7 +304,7 @@ class AnalyticsDispatcher {
         moduleLocation: this._getModuleLocation(extension),
         PearApp: this._getPearApp(extension)
       },
-      source: 'page'
+      source: extension.addon_key
     });
   }
 
@@ -321,7 +320,7 @@ class AnalyticsDispatcher {
         moduleLocation: this._getModuleLocation(extension),
         PearApp: this._getPearApp(extension)
       },
-      source: 'page'
+      source: extension.addon_key
     });
   }
 
