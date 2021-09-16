@@ -197,7 +197,7 @@ describe('Analytics Dispatcher', () => {
       actionSubjectId: extension['addon_key'],
       attributes: {
         key: extension['key'],
-        PearApp: 'true',
+        pearApp: true,
         domainLookupTime: metrics.domainLookupTime,
         connectionTime: metrics.connectionTime,
         decodedBodySize: metrics.decodedBodySize,
@@ -235,7 +235,7 @@ describe('Analytics Dispatcher', () => {
         moduleType: 'some-module-type',
         moduleKey: 'some-module-key',
         moduleLocation: 'some-module-location',
-        PearApp: 'true'
+        pearApp: true
       }
     });
   });
@@ -268,7 +268,7 @@ describe('Analytics Dispatcher', () => {
         moduleType: 'some-module-type',
         moduleKey: 'some-module-key',
         moduleLocation: 'some-module-location',
-        PearApp: 'true'
+        pearApp: true
       }
     });
   });
@@ -298,7 +298,7 @@ describe('Analytics Dispatcher', () => {
         moduleType: 'some-module-type',
         moduleKey: 'some-module-key',
         moduleLocation: 'some-module-location',
-        PearApp: 'true'
+        pearApp: true
       }
     });
   });

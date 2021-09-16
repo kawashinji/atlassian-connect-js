@@ -215,7 +215,7 @@ class AnalyticsDispatcher {
       actionSubjectId: extension.addon_key,
       attributes: {
         key: extension['key'],
-        PearApp: this._getPearApp(extension),
+        pearApp: this._getPearApp(extension),
         moduleType: this._getModuleType(extension),
         iframeIsCacheable: this._isCacheable(extension),
         moduleLocation: this._getModuleLocation(extension),
@@ -271,7 +271,7 @@ class AnalyticsDispatcher {
   }
 
   _getPearApp(extension) {
-    return (extension.options && extension.options.pearApp === 'true') ? 'true' : 'false';
+    return extension.options && extension.options.pearApp === 'true';
   }
 
   trackGasV3Visible (extension) {
@@ -284,7 +284,7 @@ class AnalyticsDispatcher {
         iframeIsCacheable: this._isCacheable(extension),
         moduleKey: extension.key,
         moduleLocation: this._getModuleLocation(extension),
-        PearApp: this._getPearApp(extension)
+        pearApp: this._getPearApp(extension)
       },
       source: extension.addon_key
     });
@@ -302,7 +302,7 @@ class AnalyticsDispatcher {
         iframeLoadMillis: iframeLoadMillis,
         moduleKey: extension.key,
         moduleLocation: this._getModuleLocation(extension),
-        PearApp: this._getPearApp(extension)
+        pearApp: this._getPearApp(extension)
       },
       source: extension.addon_key
     });
@@ -318,7 +318,7 @@ class AnalyticsDispatcher {
         iframeIsCacheable: this._isCacheable(extension),
         moduleKey: extension.key,
         moduleLocation: this._getModuleLocation(extension),
-        PearApp: this._getPearApp(extension)
+        pearApp: this._getPearApp(extension)
       },
       source: extension.addon_key
     });
