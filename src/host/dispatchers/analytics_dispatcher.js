@@ -209,13 +209,13 @@ class AnalyticsDispatcher {
 
   trackIframePerformance(metrics, extension) {
     this._trackGasV3('operational', {
-      source: 'page',
-      action: 'rendered',
-      actionSubject: 'connectIframe',
+      source: extension.addon_key,
+      action: 'iframeRendered',
+      actionSubject: 'connectAddon',
+      actionSubjectId: extension.addon_key,
       attributes: {
-        addonKey: extension['addon_key'],
         key: extension['key'],
-        PearApp: this._getPearApp(extension),
+        pearApp: this._getPearApp(extension),
         moduleType: this._getModuleType(extension),
         iframeIsCacheable: this._isCacheable(extension),
         moduleLocation: this._getModuleLocation(extension),
@@ -271,30 +271,30 @@ class AnalyticsDispatcher {
   }
 
   _getPearApp(extension) {
-    return (extension.options && extension.options.pearApp === 'true') ? 'true' : 'false';
+    return extension.options && extension.options.pearApp === 'true';
   }
 
   trackGasV3Visible (extension) {
     this._trackGasV3('operational', {
-      action: 'rendered',
-      actionSubject: 'moduleViewed',
+      action: 'iframeViewed',
+      actionSubject: 'connectAddon',
       actionSubjectId: extension['addon_key'],
       attributes: {
         moduleType: this._getModuleType(extension),
         iframeIsCacheable: this._isCacheable(extension),
         moduleKey: extension.key,
         moduleLocation: this._getModuleLocation(extension),
-        PearApp: this._getPearApp(extension)
+        pearApp: this._getPearApp(extension)
       },
-      source: 'page'
+      source: extension.addon_key
     });
   }
 
   trackGasV3LoadingEnded (extension) {
     var iframeLoadMillis = this._time() - this._addons[extension.id].startLoading;
     this._trackGasV3('operational', {
-      action: 'rendered',
-      actionSubject: 'ModuleLoaded',
+      action: 'iframeLoaded',
+      actionSubject: 'connectAddon',
       actionSubjectId: extension['addon_key'],
       attributes: {
         moduleType: this._getModuleType(extension),
@@ -302,25 +302,25 @@ class AnalyticsDispatcher {
         iframeLoadMillis: iframeLoadMillis,
         moduleKey: extension.key,
         moduleLocation: this._getModuleLocation(extension),
-        PearApp: this._getPearApp(extension)
+        pearApp: this._getPearApp(extension)
       },
-      source: 'page'
+      source: extension.addon_key
     });
   }
 
   trackGasV3LoadingTimeout (extension) {
     this._trackGasV3('operational', {
-      action: 'rendered',
-      actionSubject: 'ModuleTimeout',
+      action: 'iframeTimeout',
+      actionSubject: 'connectAddon',
       actionSubjectId: extension['addon_key'],
       attributes: {
         moduleType: this._getModuleType(extension),
         iframeIsCacheable: this._isCacheable(extension),
         moduleKey: extension.key,
         moduleLocation: this._getModuleLocation(extension),
-        PearApp: this._getPearApp(extension)
+        pearApp: this._getPearApp(extension)
       },
-      source: 'page'
+      source: extension.addon_key
     });
   }
 
