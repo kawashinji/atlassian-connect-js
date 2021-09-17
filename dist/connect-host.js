@@ -1106,13 +1106,13 @@
 
     _proto.trackIframePerformance = function trackIframePerformance(metrics, extension) {
       this._trackGasV3('operational', {
-        source: 'page',
-        action: 'rendered',
-        actionSubject: 'connectIframe',
+        source: extension.addon_key,
+        action: 'iframeRendered',
+        actionSubject: 'connectAddon',
+        actionSubjectId: extension.addon_key,
         attributes: {
-          addonKey: extension['addon_key'],
           key: extension['key'],
-          PearApp: this._getPearApp(extension),
+          pearApp: this._getPearApp(extension),
           moduleType: this._getModuleType(extension),
           iframeIsCacheable: this._isCacheable(extension),
           moduleLocation: this._getModuleLocation(extension),
@@ -1169,22 +1169,22 @@
     };
 
     _proto._getPearApp = function _getPearApp(extension) {
-      return extension.options && extension.options.pearApp === 'true' ? 'true' : 'false';
+      return extension.options && extension.options.pearApp === 'true';
     };
 
     _proto.trackGasV3Visible = function trackGasV3Visible(extension) {
       this._trackGasV3('operational', {
-        action: 'rendered',
-        actionSubject: 'moduleViewed',
+        action: 'iframeViewed',
+        actionSubject: 'connectAddon',
         actionSubjectId: extension['addon_key'],
         attributes: {
           moduleType: this._getModuleType(extension),
           iframeIsCacheable: this._isCacheable(extension),
           moduleKey: extension.key,
           moduleLocation: this._getModuleLocation(extension),
-          PearApp: this._getPearApp(extension)
+          pearApp: this._getPearApp(extension)
         },
-        source: 'page'
+        source: extension.addon_key
       });
     };
 
@@ -1192,8 +1192,8 @@
       var iframeLoadMillis = this._time() - this._addons[extension.id].startLoading;
 
       this._trackGasV3('operational', {
-        action: 'rendered',
-        actionSubject: 'ModuleLoaded',
+        action: 'iframeLoaded',
+        actionSubject: 'connectAddon',
         actionSubjectId: extension['addon_key'],
         attributes: {
           moduleType: this._getModuleType(extension),
@@ -1201,25 +1201,25 @@
           iframeLoadMillis: iframeLoadMillis,
           moduleKey: extension.key,
           moduleLocation: this._getModuleLocation(extension),
-          PearApp: this._getPearApp(extension)
+          pearApp: this._getPearApp(extension)
         },
-        source: 'page'
+        source: extension.addon_key
       });
     };
 
     _proto.trackGasV3LoadingTimeout = function trackGasV3LoadingTimeout(extension) {
       this._trackGasV3('operational', {
-        action: 'rendered',
-        actionSubject: 'ModuleTimeout',
+        action: 'iframeTimeout',
+        actionSubject: 'connectAddon',
         actionSubjectId: extension['addon_key'],
         attributes: {
           moduleType: this._getModuleType(extension),
           iframeIsCacheable: this._isCacheable(extension),
           moduleKey: extension.key,
           moduleLocation: this._getModuleLocation(extension),
-          PearApp: this._getPearApp(extension)
+          pearApp: this._getPearApp(extension)
         },
-        source: 'page'
+        source: extension.addon_key
       });
     };
 
@@ -7239,7 +7239,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.27';
+    window._AP.version = '5.3.28';
   }
 
   host.defineModule('messages', messages);
