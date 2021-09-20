@@ -206,8 +206,27 @@ class AnalyticsDispatcher {
       pearApp: (extension.options && extension.options.pearApp === 'true') ? 'true' : 'false',
     });
   }
+  // buckets of 250ms for up to 6 seconds
+  _getBucket(val){
+    const BUCKET_DISTRIBUTION = 250;
+    const MAX_VAL = 6000;
+    
+    let bucket = Math.floor(val/BUCKET_DISTRIBUTION) * BUCKET_DISTRIBUTION;
+    // less than the first bucket.
+    if(bucket === 0) {
+      return `<${BUCKET_DISTRIBUTION}`;
+    }
+    // greater than the last bucket
+    if(bucket > MAX_VAL) {
+      return `>${MAX_VAL}`;
+    }
+    250
+
+    return `${bucket}-${bucket + BUCKET_DISTRIBUTION}`;
+  }
 
   trackIframePerformance(metrics, extension) {
+    this._valueBuckets(metrics.fetchTime);
     this._trackGasV3('operational', {
       source: extension.addon_key,
       action: 'iframeRendered',
