@@ -191,13 +191,13 @@ describe('Analytics Dispatcher', () => {
     }}));
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalled();
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
-      source: 'page',
-      action: 'rendered',
-      actionSubject: 'connectIframe',
+      source: extension['addon_key'],
+      action: 'iframeRendered',
+      actionSubject: 'connectAddon',
+      actionSubjectId: extension['addon_key'],
       attributes: {
-        addonKey: extension['addon_key'],
         key: extension['key'],
-        PearApp: 'true',
+        pearApp: true,
         domainLookupTime: metrics.domainLookupTime,
         connectionTime: metrics.connectionTime,
         decodedBodySize: metrics.decodedBodySize,
@@ -226,16 +226,16 @@ describe('Analytics Dispatcher', () => {
     AnalyticsDispatcher.trackGasV3Visible(extension);
 
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
-      source: 'page',
-      action: 'rendered',
-      actionSubject: 'moduleViewed',
+      source: 'some-addon-key',
+      action: 'iframeViewed',
+      actionSubject: 'connectAddon',
       actionSubjectId: 'some-addon-key',
       attributes: {
         iframeIsCacheable: false,
         moduleType: 'some-module-type',
         moduleKey: 'some-module-key',
         moduleLocation: 'some-module-location',
-        PearApp: 'true'
+        pearApp: true
       }
     });
   });
@@ -258,9 +258,9 @@ describe('Analytics Dispatcher', () => {
     IframeActions.notifyBridgeEstablished(document.createElement('div'), extension);
 
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
-      source: 'page',
-      action: 'rendered',
-      actionSubject: 'ModuleLoaded',
+      source: 'some-addon-key',
+      action: 'iframeLoaded',
+      actionSubject: 'connectAddon',
       actionSubjectId: 'some-addon-key',
       attributes: {
         iframeIsCacheable: false,
@@ -268,7 +268,7 @@ describe('Analytics Dispatcher', () => {
         moduleType: 'some-module-type',
         moduleKey: 'some-module-key',
         moduleLocation: 'some-module-location',
-        PearApp: 'true'
+        pearApp: true
       }
     });
   });
@@ -289,16 +289,16 @@ describe('Analytics Dispatcher', () => {
     LoadingIndicatorActions.timeout(document.createElement('div'), extension);
 
     expect(AnalyticsDispatcher._trackGasV3).toHaveBeenCalledWith('operational', {
-      source: 'page',
-      action: 'rendered',
-      actionSubject: 'ModuleTimeout',
+      source: 'some-addon-key',
+      action: 'iframeTimeout',
+      actionSubject: 'connectAddon',
       actionSubjectId: 'some-addon-key',
       attributes: {
         iframeIsCacheable: false,
         moduleType: 'some-module-type',
         moduleKey: 'some-module-key',
         moduleLocation: 'some-module-location',
-        PearApp: 'true'
+        pearApp: true
       }
     });
   });
