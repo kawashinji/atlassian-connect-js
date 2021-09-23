@@ -229,6 +229,44 @@ class HostApi {
   getExtensionConfigurationOption(val) {
     return ExtensionConfigurationOptionsStore.get(val);
   }
+
+  onIframeTimeout (callback) {
+    var wrapper = function(data){
+      callback.call({}, {
+        extension: this._cleanExtension(data.extension)
+      });
+    };
+    callback._wrapper = wrapper.bind(this);
+    EventDispatcher.register('after:iframe-bridge-timeout', callback._wrapper);
+  }
+
+  offIframeTimeout (callback) {
+    if(callback._wrapper){
+      EventDispatcher.unregister('after:iframe-bridge-timeout', callback._wrapper);
+    } else {
+      throw new Error('cannot unregister event dispatch listener without _wrapper reference');
+    }
+  }
+
+  onIframePerformanceTelemetry (callback) {
+    var wrapper = function(data){
+      callback.call({}, {
+        metrics: data.metrics,
+        extension: this._cleanExtension(data.extension)
+      });
+    };
+    callback._wrapper = wrapper.bind(this);
+    EventDispatcher.register('after:analytics-iframe-performance', callback._wrapper);
+  }
+
+  offIframePerformanceTelemetry (callback) {
+    if(callback._wrapper){
+      EventDispatcher.unregister('after:analytics-iframe-performance', callback._wrapper);
+    } else {
+      throw new Error('cannot unregister event dispatch listener without _wrapper reference');
+    }
+  }
+
 }
 
 export default new HostApi();
