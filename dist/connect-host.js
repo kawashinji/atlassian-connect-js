@@ -1240,6 +1240,7 @@
   EventDispatcher$1.register('iframe-bridge-established', function (data) {
     analytics.trackLoadingEnded(data.extension);
     observe$1(document.getElementById(data.extension.id), function () {
+      EventDispatcher$1.emit('iframe-visible', data.extension);
       analytics.trackVisible(data.extension);
       analytics.trackGasV3Visible(data.extension);
     });
@@ -4444,6 +4445,45 @@
       return ExtensionConfigurationOptionsStore$1.get(val);
     };
 
+    _proto.onIframeTimeout = function onIframeTimeout(callback) {
+      var wrapper = function wrapper(data) {
+        callback.call({}, {
+          extension: this._cleanExtension(data.extension)
+        });
+      };
+
+      callback._wrapper = wrapper.bind(this);
+      EventDispatcher$1.register('after:iframe-bridge-timeout', callback._wrapper);
+    };
+
+    _proto.offIframeTimeout = function offIframeTimeout(callback) {
+      if (callback._wrapper) {
+        EventDispatcher$1.unregister('after:iframe-bridge-timeout', callback._wrapper);
+      } else {
+        throw new Error('cannot unregister event dispatch listener without _wrapper reference');
+      }
+    };
+
+    _proto.onIframePerformanceTelemetry = function onIframePerformanceTelemetry(callback) {
+      var wrapper = function wrapper(data) {
+        callback.call({}, {
+          metrics: data.metrics,
+          extension: this._cleanExtension(data.extension)
+        });
+      };
+
+      callback._wrapper = wrapper.bind(this);
+      EventDispatcher$1.register('after:analytics-iframe-performance', callback._wrapper);
+    };
+
+    _proto.offIframePerformanceTelemetry = function offIframePerformanceTelemetry(callback) {
+      if (callback._wrapper) {
+        EventDispatcher$1.unregister('after:analytics-iframe-performance', callback._wrapper);
+      } else {
+        throw new Error('cannot unregister event dispatch listener without _wrapper reference');
+      }
+    };
+
     return HostApi;
   }();
 
@@ -7239,7 +7279,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.28';
+    window._AP.version = '5.3.29';
   }
 
   host.defineModule('messages', messages);
