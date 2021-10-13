@@ -39,7 +39,13 @@ AP.require = deprecate((...args) => AMD.require(...args), 'AP.require()', null, 
 
 var margin = AP._data.options.isDialog ? '10px 10px 0 10px' : '0';
 if (consumerOptions.get('margin') !== false) {
-  $('head').append({ tag: 'style', type: 'text/css', $text: 'body {margin: ' + margin + ' !important;}' });
+  var setBodyMargin = function() {
+    if (document.body) {
+      document.body.style.setProperty('margin', margin, 'important');
+    }
+  }
+  setBodyMargin(); // Try to set it straight away
+  window.addEventListener('load', setBodyMargin); // If it doesn't exist now (likely) we can set it later
 }
 
 AP.Meta = {
