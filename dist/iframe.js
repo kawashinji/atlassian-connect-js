@@ -1656,7 +1656,20 @@ var AP = (function () {
     var style = 'position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: scroll; z-index: -1; visibility: hidden;';
     var styleChild = 'position: absolute; left: 0; top: 0;';
     element.resizeSensor.style.cssText = style;
-    element.resizeSensor.innerHTML = '<div class="ac-resize-sensor-expand" style="' + style + '">' + '<div style="' + styleChild + '"></div>' + '</div>' + '<div class="ac-resize-sensor-shrink" style="' + style + '">' + '<div style="' + styleChild + ' width: 200%; height: 200%"></div>' + '</div>';
+    var expand = document.createElement('div');
+    expand.className = "ac-resize-sensor-expand";
+    expand.style.cssText = style;
+    var expandChild = document.createElement('div');
+    expand.appendChild(expandChild);
+    expandChild.style.cssText = styleChild;
+    var shrink = document.createElement('div');
+    shrink.className = "ac-resize-sensor-shrink";
+    shrink.style.cssText = style;
+    var shrinkChild = document.createElement('div');
+    shrink.appendChild(shrinkChild);
+    shrinkChild.style.cssText = styleChild + ' width: 200%; height: 200%';
+    element.resizeSensor.appendChild(expand);
+    element.resizeSensor.appendChild(shrink);
     element.appendChild(element.resizeSensor); // https://bugzilla.mozilla.org/show_bug.cgi?id=548397
     // do not set body to relative
 
@@ -1664,9 +1677,6 @@ var AP = (function () {
       element.style.position = 'relative';
     }
 
-    var expand = element.resizeSensor.childNodes[0];
-    var expandChild = expand.childNodes[0];
-    var shrink = element.resizeSensor.childNodes[1];
     var lastWidth, lastHeight;
 
     var reset = function reset() {
@@ -1896,7 +1906,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.3.29";
+      _this._version = "5.3.30";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
@@ -3534,11 +3544,15 @@ var AP = (function () {
   var margin = combined._data.options.isDialog ? '10px 10px 0 10px' : '0';
 
   if (consumerOptions.get('margin') !== false) {
-    $$2('head').append({
-      tag: 'style',
-      type: 'text/css',
-      $text: 'body {margin: ' + margin + ' !important;}'
-    });
+    var setBodyMargin = function setBodyMargin() {
+      if (document.body) {
+        document.body.style.setProperty('margin', margin, 'important');
+      }
+    };
+
+    setBodyMargin(); // Try to set it straight away
+
+    window.addEventListener('load', setBodyMargin); // If it doesn't exist now (likely) we can set it later
   }
 
   combined.Meta = {
