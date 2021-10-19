@@ -45,7 +45,7 @@ if (consumerOptions.get('margin') !== false) {
     }
   }
   setBodyMargin(); // Try to set it straight away
-  window.addEventListener('load', setBodyMargin); // If it doesn't exist now (likely) we can set it later
+  window.addEventListener('DOMContentLoaded', setBodyMargin); // If it doesn't exist now (likely) we can set it later
 }
 
 AP.Meta = {
