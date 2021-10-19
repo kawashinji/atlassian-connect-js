@@ -1906,7 +1906,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.3.30";
+      _this._version = "5.3.31";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
@@ -3552,7 +3552,7 @@ var AP = (function () {
 
     setBodyMargin(); // Try to set it straight away
 
-    window.addEventListener('load', setBodyMargin); // If it doesn't exist now (likely) we can set it later
+    window.addEventListener('DOMContentLoaded', setBodyMargin); // If it doesn't exist now (likely) we can set it later
   }
 
   combined.Meta = {
