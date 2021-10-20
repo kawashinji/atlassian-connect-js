@@ -77,11 +77,13 @@ class AnalyticsDispatcher {
       var iframeIsCacheable = href !== undefined && href.indexOf('xdm_e=') === -1;
       var value = this._time() - this._addons[extension.id].startLoading;
       var iframeLoadApdex = this.getIframeLoadApdex(value);
-      var api = 'untracked';
-      if (getBooleanFeatureFlag('com.atlassian.connect.acjs-track-api')) {
+      var api;
+      try {
         api = Object.keys(JSON.parse(this._addons[extension.id].$el[0].name).api)
           .sort()
           .toString();
+      } catch (e) {
+        api = 'error';
       }
       var eventPayload = {
         addonKey: extension.addon_key,
