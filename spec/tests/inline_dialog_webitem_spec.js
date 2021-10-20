@@ -307,8 +307,7 @@ describe('Inline Dialog Webitem', () => {
   it('drops events for confluence com.addonengine.analytics plugin until analytics module is loaded', (done) => {
     spyOn(WebItemActions, 'webitemInvoked');
     spyOn(Flags, 'getBooleanFeatureFlag').and.callFake((flag) => (
-      flag === 'com.atlassian.connect.acjs-conf-analytics-dialog-wait-onload' ||
-      flag === 'com.atlassian.connect.acjs-disable-web-items-onload'
+      flag === 'com.atlassian.connect.acjs-conf-analytics-dialog-wait-onload'
     ));
     $(function(){
       // With a regular plugin key, the click should pass through uninterrupted
