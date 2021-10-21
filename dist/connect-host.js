@@ -966,10 +966,12 @@
         var value = this._time() - this._addons[extension.id].startLoading;
 
         var iframeLoadApdex = this.getIframeLoadApdex(value);
-        var api = 'untracked';
+        var api;
 
-        if (getBooleanFeatureFlag('com.atlassian.connect.acjs-track-api')) {
+        try {
           api = Object.keys(JSON.parse(this._addons[extension.id].$el[0].name).api).sort().toString();
+        } catch (e) {
+          api = 'error';
         }
 
         var eventPayload = {
@@ -6914,10 +6916,7 @@
 
       $(function () {
         $('body').on(onTriggers, webitem.selector, webitem._on);
-
-        if (getBooleanFeatureFlag('com.atlassian.connect.acjs-disable-web-items-onload')) {
-          $('head').append("<style type=\"text/css\">" + webitem.selector + ".ap-link-webitem {pointer-events: auto;}</style>");
-        }
+        $('head').append("<style type=\"text/css\">" + webitem.selector + ".ap-link-webitem {pointer-events: auto;}</style>");
       });
     };
 
@@ -7279,7 +7278,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.31';
+    window._AP.version = '5.3.32';
   }
 
   host.defineModule('messages', messages);
