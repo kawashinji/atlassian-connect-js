@@ -70,10 +70,7 @@ class WebItem {
         url: extensionUrl
       };
 
-      if (extension.addon_key === 'com.addonengine.analytics' &&
-        Flags.getBooleanFeatureFlag('com.atlassian.connect.acjs-conf-analytics-dialog-wait-onload') &&
-        !HostApi.isModuleDefined('analytics')
-      ) {
+      if (extension.addon_key === 'com.addonengine.analytics' && !HostApi.isModuleDefined('analytics')) {
         console.log(`ACJS-1164 Dropping event ${event.type} for plugin ${extension.addon_key} until AP.analytics loads...`);
         return;
       }
