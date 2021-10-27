@@ -1,5 +1,5 @@
 import simpleXDM from 'simple-xdm/host';
-import InlineDialogWebitem from 'src/host/components/inline_dialog_webitem';
+import { InlineDialogWebItem as InlineDialogWebItemConstructor } from 'src/host/components/inline_dialog_webitem';
 import InlineDialogActions from 'src/host/actions/inline_dialog_actions';
 import InlineDialogComponent from 'src/host/components/inline_dialog';
 import WebItemActions from 'src/host/actions/webitem_actions';
@@ -11,6 +11,7 @@ import {Flags} from '../../src/host/utils/feature-flag';
 
 describe('Inline Dialog Webitem', () => {
   var webitemButton;
+  var InlineDialogWebitem;
   const classPluginKey = 'ap-plugin-key-my-plugin';
 
   function buildJWT(exp){
@@ -27,6 +28,10 @@ describe('Inline Dialog Webitem', () => {
     webitemButton.text('i am a webitem');
     webitemButton.addClass(`ap-inline-dialog ${classPluginKey} ap-module-key-key ap-target-key-key ap-link-webitem`);
     webitemButton.appendTo('body');
+
+    // We must do it this way as InlineDialogWebItem exports a singleton which is created before this value can be mocked
+    spyOn(Flags, 'isInlineDialogStickyFixFlagEnabled').and.returnValue(true)
+    InlineDialogWebitem = new InlineDialogWebItemConstructor()
   });
 
   afterEach(() => {
@@ -42,7 +47,7 @@ describe('Inline Dialog Webitem', () => {
     expect(inlineDialogWebitemSpec).toEqual({
       name: 'inline-dialog',
       selector: '.ap-inline-dialog',
-      triggers: [ 'mouseover', 'click' ]
+      triggers: [ 'mouseenter', 'click' ]
     });
   });
 
@@ -82,6 +87,7 @@ describe('Inline Dialog Webitem', () => {
         width: '100px'
       };
 
+      window._AP = window._AP || {};
       window._AP.inlineDialogModules = {};
       window._AP.inlineDialogModules['my-plugin'] = {
         key: {
@@ -120,7 +126,7 @@ describe('Inline Dialog Webitem', () => {
     });
 
     it('is set to be triggered by hover and click', () => {
-      expect(InlineDialogWebitem.getWebItem().triggers).toEqual(['mouseover', 'click']);
+      expect(InlineDialogWebitem.getWebItem().triggers).toEqual(['mouseenter', 'click']);
     });
 
     it('responds to a click event', (done) => {
@@ -133,11 +139,11 @@ describe('Inline Dialog Webitem', () => {
       });
     });
 
-    it('responds to a mouseover event', (done) => {
+    it('responds to a mouseenter event', (done) => {
       var spy = jasmine.createSpy('spy');
       spyOn(WebItemActions, 'webitemInvoked');
       $(function(){
-        $('.ap-inline-dialog').trigger('mouseover');
+        $('.ap-inline-dialog').trigger('mouseenter');
         expect(WebItemActions.webitemInvoked.calls.count()).toEqual(1);
         done();
       });

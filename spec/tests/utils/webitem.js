@@ -3,14 +3,14 @@ import WebItemUtils from 'src/host/utils/webitem';
 describe('webitem utils', () => {
   describe('sanitizeTriggers', () => {
     it('sanitizes array', () => {
-      const triggers = ['mouseover', 'click'];
-      const expected = 'mouseover click';
+      const triggers = ['mouseenter', 'click'];
+      const expected = 'mouseenter click';
       expect(WebItemUtils.sanitizeTriggers(triggers));
     });
 
     it('sanitizes string', () => {
-      const triggers = '   mouseover click  ';
-      const expected = 'mouseover click';
+      const triggers = '   mouseenter click  ';
+      const expected = 'mouseenter click';
       expect(WebItemUtils.sanitizeTriggers(triggers));
     });
   });
