@@ -3,7 +3,6 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
 import WebItemActions from '../actions/webitem_actions';
 import WebItemUtils from '../utils/webitem';
 import Util from '../util';
-import getBooleanFeatureFlag, {Flags} from '../utils/feature-flag';
 import HostApi from '../host-api';
 
 class WebItem {

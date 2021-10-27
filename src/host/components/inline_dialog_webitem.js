@@ -9,10 +9,11 @@ import $ from '../dollar';
 import IframeCreate from '../iframe-create';
 import Util from '../util';
 import urlUtils from '../utils/url';
+import {Flags} from '../utils/feature-flag';
 
 const ITEM_NAME = 'inline-dialog';
 const SELECTOR = '.ap-inline-dialog';
-const TRIGGERS = ['mouseover', 'click'];
+const TRIGGERS = [Flags.isInlineDialogStickyFixFlagEnabled() ? 'mouseenter' : 'mouseover', 'click'];
 const WEBITEM_UID_KEY = 'inline-dialog-target-uid';
 
 class InlineDialogWebItem {
