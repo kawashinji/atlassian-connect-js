@@ -936,7 +936,8 @@
 
         analyticsCrossProduct.emitGasV3(eventType, event);
       } catch (e) {
-        console.error('Connect GasV3 Error', e);
+        // this is not serious. It usually means the product is doing analytics using another mechanism
+        console.info('Connect GasV3 catch', e);
       }
     };
 
@@ -7275,7 +7276,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.34';
+    window._AP.version = '5.3.35';
   }
 
   host.defineModule('messages', messages);
