@@ -13,15 +13,14 @@ import {Flags} from '../utils/feature-flag';
 
 const ITEM_NAME = 'inline-dialog';
 const SELECTOR = '.ap-inline-dialog';
-const TRIGGERS = [Flags.isInlineDialogStickyFixFlagEnabled() ? 'mouseenter' : 'mouseover', 'click'];
 const WEBITEM_UID_KEY = 'inline-dialog-target-uid';
 
-class InlineDialogWebItem {
+export class InlineDialogWebItem {
   constructor(){
     this._inlineDialogWebItemSpec = {
       name: ITEM_NAME,
       selector: SELECTOR,
-      triggers: TRIGGERS
+      triggers: [Flags.isInlineDialogStickyFixFlagEnabled() ? 'mouseenter' : 'mouseover', 'click']
     };
     this._inlineDialogWebItems = {};
   }
