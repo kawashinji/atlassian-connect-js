@@ -879,6 +879,15 @@
     return flagJson[flagName].value;
   }
 
+  function isInlineDialogStickyFixFlagEnabled() {
+    return getBooleanFeatureFlag('com.atlassian.connect.acjs-oc-1684-inline-dialog-sticky-fix');
+  }
+
+  var Flags = {
+    getBooleanFeatureFlag: getBooleanFeatureFlag,
+    isInlineDialogStickyFixFlagEnabled: isInlineDialogStickyFixFlagEnabled
+  };
+
   var EVENT_NAME_PREFIX = 'connect.addon.';
   /**
    * Timings beyond 20 seconds (connect's load timeout) will be clipped to an X.
@@ -6996,6 +7005,10 @@
     };
 
     _proto.refresh = function refresh($el) {
+      if (Flags.isInlineDialogStickyFixFlagEnabled() && !$el.is(':visible')) {
+        return;
+      }
+
       $el[0].popup.reset();
     };
 
@@ -7076,9 +7089,7 @@
 
   var ITEM_NAME = 'inline-dialog';
   var SELECTOR = '.ap-inline-dialog';
-  var TRIGGERS = ['mouseover', 'click'];
   var WEBITEM_UID_KEY = 'inline-dialog-target-uid';
-
   var InlineDialogWebItem =
   /*#__PURE__*/
   function () {
@@ -7086,7 +7097,7 @@
       this._inlineDialogWebItemSpec = {
         name: ITEM_NAME,
         selector: SELECTOR,
-        triggers: TRIGGERS
+        triggers: [Flags.isInlineDialogStickyFixFlagEnabled() ? 'mouseenter' : 'mouseover', 'click']
       };
       this._inlineDialogWebItems = {};
     }
@@ -7183,7 +7194,6 @@
 
     return InlineDialogWebItem;
   }();
-
   var inlineDialogInstance = new InlineDialogWebItem();
   var webitem = inlineDialogInstance.getWebItem();
   EventDispatcher$1.register('before:webitem-invoked:' + webitem.name, function (data) {
@@ -7202,7 +7212,7 @@
 
   var ITEM_NAME$1 = 'dialog';
   var SELECTOR$1 = '.ap-dialog';
-  var TRIGGERS$1 = ['click'];
+  var TRIGGERS = ['click'];
   var WEBITEM_UID_KEY$1 = 'dialog-target-uid';
   var DEFAULT_WEBITEM_OPTIONS = {
     chrome: true
@@ -7215,7 +7225,7 @@
       this._dialogWebItem = {
         name: ITEM_NAME$1,
         selector: SELECTOR$1,
-        triggers: TRIGGERS$1
+        triggers: TRIGGERS
       };
     }
 
@@ -7276,7 +7286,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.35';
+    window._AP.version = '5.3.36';
   }
 
   host.defineModule('messages', messages);
