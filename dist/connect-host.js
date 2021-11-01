@@ -4493,6 +4493,25 @@
       }
     };
 
+    _proto.onIframeVisible = function onIframeVisible(callback) {
+      var wrapper = function wrapper(extension) {
+        callback.call({}, {
+          extension: this._cleanExtension(extension)
+        });
+      };
+
+      callback._wrapper = wrapper.bind(this);
+      EventDispatcher$1.register('after:iframe-visible', callback._wrapper);
+    };
+
+    _proto.offIframeVisible = function offIframeVisible(callback) {
+      if (callback._wrapper) {
+        EventDispatcher$1.unregister('after:iframe-visible', callback._wrapper);
+      } else {
+        throw new Error('cannot unregister event dispatch listener without _wrapper reference');
+      }
+    };
+
     return HostApi;
   }();
 

@@ -208,4 +208,11 @@ describe('Host API', function() {
     expect(spy).toHaveBeenCalled();
   });
 
+  it('onIframeVisible binds', function() {
+    var spy = jasmine.createSpy('spy');
+    HostApi.onIframeVisible(spy);
+    EventDispatcher.dispatch('iframe-visible', {options:{}});
+    expect(spy).toHaveBeenCalled();
+  });
+
 });
