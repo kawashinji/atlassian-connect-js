@@ -4,6 +4,8 @@ import IframeActions from '../actions/iframe_actions';
 import util from '../util';
 import $ from '../dollar';
 import ExtensionConfigurationOptionStore from '../stores/extension_configuration_options_store';
+import getBooleanFeatureFlag from './feature-flag';
+import definePerformanceModule from '../modules/_performance';
 
 // nowhere better to put this. Wires an extension for oldschool and new enviroments
 function createSimpleXdmExtension(extension){
@@ -11,6 +13,7 @@ function createSimpleXdmExtension(extension){
   const systemExtensionConfigOptions = ExtensionConfigurationOptionStore.get();
   extension.options = extensionConfig.options = util.extend({}, extensionConfig.options);
   extension.options.globalOptions = systemExtensionConfigOptions;
+  loadConditionalModules(extension.addon_key);
   const iframeAttributes = simpleXDM.create(extensionConfig, () => {
     if(!extension.options.noDOM){
       extension.$el = $(document.getElementById(extension.id));
@@ -41,6 +44,13 @@ function extensionConfigSanitizer(extension) {
   };
 }
 
+function loadConditionalModules(addonKey) {
+  if (getBooleanFeatureFlag('com.atlassian.connect.acjs-oc-1657-add-performance-timing-api')
+      && addonKey === 'com.codebarrel.addons.automation'
+  ) {
+    definePerformanceModule();
+  }
+}
 
 export default {
   createSimpleXdmExtension,
