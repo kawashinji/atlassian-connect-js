@@ -267,6 +267,24 @@ class HostApi {
     }
   }
 
+  onIframeVisible (callback) {
+    var wrapper = function(extension){
+      callback.call({}, {
+        extension: this._cleanExtension(extension)
+      });
+    };
+    callback._wrapper = wrapper.bind(this);
+    EventDispatcher.register('after:iframe-visible', callback._wrapper);
+  }
+
+  offIframeVisible (callback) {
+    if(callback._wrapper){
+      EventDispatcher.unregister('after:iframe-visible', callback._wrapper);
+    } else {
+      throw new Error('cannot unregister event dispatch listener without _wrapper reference');
+    }
+  }
+
 }
 
 export default new HostApi();
