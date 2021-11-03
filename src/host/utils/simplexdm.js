@@ -5,7 +5,7 @@ import util from '../util';
 import $ from '../dollar';
 import ExtensionConfigurationOptionStore from '../stores/extension_configuration_options_store';
 import getBooleanFeatureFlag from './feature-flag';
-import definePerformanceModule from '../modules/_performance';
+import definePerformanceModule, {ADDON_KEY_CODEBARREL} from '../modules/_performance';
 
 // nowhere better to put this. Wires an extension for oldschool and new enviroments
 function createSimpleXdmExtension(extension){
@@ -46,7 +46,7 @@ function extensionConfigSanitizer(extension) {
 
 function loadConditionalModules(addonKey) {
   if (getBooleanFeatureFlag('com.atlassian.connect.acjs-oc-1657-add-performance-timing-api')
-      && addonKey === 'com.codebarrel.addons.automation'
+      && addonKey === ADDON_KEY_CODEBARREL
   ) {
     definePerformanceModule();
   }

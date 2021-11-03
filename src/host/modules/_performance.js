@@ -1,9 +1,10 @@
 import simpleXDM from 'simple-xdm/host';
 
-var performanceModuleDefined = false;
+let performanceModuleDefined = false;
+export const ADDON_KEY_CODEBARREL = 'com.codebarrel.addons.automation';
 
 /**
- * This is a temporary module that will be removed when no longer needed.
+ * This is a temporary module for Code Barrel that will be removed when no longer needed.
  */
 export default function definePerformanceModule() {
   if (performanceModuleDefined) {
@@ -11,10 +12,14 @@ export default function definePerformanceModule() {
   }
   performanceModuleDefined = true;
 
+  function isPerformanceModuleAllowed(cb) {
+    return cb._context.extension.addon_key === ADDON_KEY_CODEBARREL
+  }
+
   function numberValuesOnly(obj) {
-    var safeObj = {};
-    Object.keys(obj).forEach(function (key) {
-      var value = obj[key];
+    const safeObj = {};
+    Object.keys(obj).forEach(key => {
+      const value = obj[key];
       if (typeof value === 'number') {
         safeObj[key] = value;
       }
@@ -22,13 +27,16 @@ export default function definePerformanceModule() {
     return safeObj;
   }
 
-  var performanceModule = {
+  const performanceModule = {
     /**
      * @see https://developer.mozilla.org/en-US/docs/web/api/performance/timing
      * @returns {Promise<PerformanceTiming>}
      */
-    getPerformanceTiming() {
-      return new Promise(function (resolve) {
+    getPerformanceTiming(cb) {
+      return new Promise((resolve, reject) =>  {
+        if (!isPerformanceModuleAllowed(cb)) {
+          reject(new Error('This is a restricted API'));
+        }
         // We need to parse + stringify otherwise we get an empty object
         resolve(JSON.parse(JSON.stringify(window.performance.timing)));
       });
@@ -37,13 +45,16 @@ export default function definePerformanceModule() {
      * @see https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming
      * @returns {Promise<PerformanceNavigationTiming[] | void>}
      */
-    getPerformanceNavigationTiming() {
-      return new Promise(function (resolve) {
+    getPerformanceNavigationTiming(cb) {
+      return new Promise((resolve, reject) =>  {
+        if (!isPerformanceModuleAllowed(cb)) {
+          reject(new Error('This is a restricted API'));
+        }
         if (!window.PerformanceNavigationTiming) {
           resolve(undefined);
         }
-        var timing = window.performance.getEntriesByType('navigation');
-        var safeTiming = timing.map(function (entry) {
+        const timing = window.performance.getEntriesByType('navigation');
+        const safeTiming = timing.map(entry => {
           // For some reason Object.keys doesn't work on the native object
           entry = JSON.parse(JSON.stringify(entry));
           // For security reasons we strip out everything that isn't numeric (like the .name property)
