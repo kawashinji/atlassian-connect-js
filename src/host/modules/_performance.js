@@ -16,17 +16,6 @@ export default function definePerformanceModule() {
     return cb._context.extension.addon_key === ADDON_KEY_CODEBARREL
   }
 
-  function numberValuesOnly(obj) {
-    const safeObj = {};
-    Object.keys(obj).forEach(key => {
-      const value = obj[key];
-      if (typeof value === 'number') {
-        safeObj[key] = value;
-      }
-    });
-    return safeObj;
-  }
-
   const performanceModule = {
     /**
      * @see https://developer.mozilla.org/en-US/docs/web/api/performance/timing
@@ -54,13 +43,7 @@ export default function definePerformanceModule() {
           resolve(undefined);
         }
         const timing = window.performance.getEntriesByType('navigation');
-        const safeTiming = timing.map(entry => {
-          // For some reason Object.keys doesn't work on the native object
-          entry = JSON.parse(JSON.stringify(entry));
-          // For security reasons we strip out everything that isn't numeric (like the .name property)
-          return numberValuesOnly(entry);
-        });
-        resolve(safeTiming);
+        resolve(JSON.parse(JSON.stringify(timing)));
       })
     }
   }
