@@ -3598,11 +3598,69 @@
 
   var ExtensionConfigurationOptionsStore$1 = new ExtensionConfigurationOptionsStore();
 
+  var performanceModuleDefined = false;
+  var ADDON_KEY_CODEBARREL = 'com.codebarrel.addons.automation';
+  /**
+   * This is a temporary module for Code Barrel that will be removed when no longer needed.
+   */
+
+  function definePerformanceModule() {
+    if (performanceModuleDefined) {
+      return;
+    }
+
+    performanceModuleDefined = true;
+
+    function isPerformanceModuleAllowed(cb) {
+      return cb._context.extension.addon_key === ADDON_KEY_CODEBARREL;
+    }
+
+    var performanceModule = {
+      /**
+       * @see https://developer.mozilla.org/en-US/docs/web/api/performance/timing
+       * @returns {Promise<PerformanceTiming>}
+       */
+      getPerformanceTiming: function getPerformanceTiming(cb) {
+        return new Promise(function (resolve, reject) {
+          if (!isPerformanceModuleAllowed(cb)) {
+            reject(new Error('This is a restricted API'));
+          } // We need to parse + stringify otherwise we get an empty object
+
+
+          resolve(JSON.parse(JSON.stringify(window.performance.timing)));
+        });
+      },
+
+      /**
+       * @see https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming
+       * @returns {Promise<PerformanceNavigationTiming[] | void>}
+       */
+      getPerformanceNavigationTiming: function getPerformanceNavigationTiming(cb) {
+        return new Promise(function (resolve, reject) {
+          if (!isPerformanceModuleAllowed(cb)) {
+            reject(new Error('This is a restricted API'));
+          }
+
+          if (!window.PerformanceNavigationTiming) {
+            resolve(undefined);
+          }
+
+          var timing = window.performance.getEntriesByType('navigation');
+          resolve(JSON.parse(JSON.stringify(timing)));
+        });
+      }
+    };
+    host.returnsPromise(performanceModule.getPerformanceTiming);
+    host.returnsPromise(performanceModule.getPerformanceNavigationTiming);
+    host.defineModule('_performance', performanceModule);
+  }
+
   function createSimpleXdmExtension(extension) {
     var extensionConfig = extensionConfigSanitizer(extension);
     var systemExtensionConfigOptions = ExtensionConfigurationOptionsStore$1.get();
     extension.options = extensionConfig.options = Util.extend({}, extensionConfig.options);
     extension.options.globalOptions = systemExtensionConfigOptions;
+    loadConditionalModules(extension.addon_key);
     var iframeAttributes = host.create(extensionConfig, function () {
       if (!extension.options.noDOM) {
         extension.$el = $(document.getElementById(extension.id));
@@ -3632,6 +3690,12 @@
       url: extension.url,
       options: extension.options
     };
+  }
+
+  function loadConditionalModules(addonKey) {
+    if (getBooleanFeatureFlag('com.atlassian.connect.acjs-oc-1657-add-performance-timing-api') && addonKey === ADDON_KEY_CODEBARREL) {
+      definePerformanceModule();
+    }
   }
 
   var simpleXdmUtils = {
@@ -7305,7 +7369,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.38';
+    window._AP.version = '5.3.39';
   }
 
   host.defineModule('messages', messages);
