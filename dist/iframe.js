@@ -1,100 +1,41 @@
 var AP = (function () {
   'use strict';
 
-  function _assertThisInitialized(self) {
-    if (self === void 0) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-
-    return self;
-  }
-
-  var assertThisInitialized = _assertThisInitialized;
-
-  function _inheritsLoose(subClass, superClass) {
-    subClass.prototype = Object.create(superClass.prototype);
-    subClass.prototype.constructor = subClass;
-    subClass.__proto__ = superClass;
-  }
-
-  var inheritsLoose = _inheritsLoose;
-
-  function _setPrototypeOf(o, p) {
-    setPrototypeOf$1 = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-      o.__proto__ = p;
-      return o;
-    };
-
-    return _setPrototypeOf(o, p);
-  }
-
-  var setPrototypeOf$1 = _setPrototypeOf;
-
-  var setPrototypeOf = setPrototypeOf$1;
-
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function _construct(Parent, args, Class) {
-    if (isNativeReflectConstruct()) {
-      construct = _construct = Reflect.construct;
-    } else {
-      construct = _construct = function _construct(Parent, args, Class) {
-        var a = [null];
-        a.push.apply(a, args);
-        var Constructor = Function.bind.apply(Parent, a);
-        var instance = new Constructor();
-        if (Class) setPrototypeOf(instance, Class.prototype);
-        return instance;
-      };
-    }
-
-    return _construct.apply(null, arguments);
-  }
-
-  var construct = _construct;
-
-  var _construct$1 = construct;
-
-  var LOG_PREFIX = "[Simple-XDM] ";
-  var nativeBind = Function.prototype.bind;
-  var util = {
-    locationOrigin: function locationOrigin() {
+  const LOG_PREFIX = "[Simple-XDM] ";
+  const nativeBind = Function.prototype.bind;
+  const util = {
+    locationOrigin() {
       if (!window.location.origin) {
         return window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
       } else {
         return window.location.origin;
       }
     },
-    randomString: function randomString() {
+
+    randomString() {
       return Math.floor(Math.random() * 1000000000).toString(16);
     },
-    isString: function isString(str) {
+
+    isString(str) {
       return typeof str === "string" || str instanceof String;
     },
-    argumentsToArray: function argumentsToArray(arrayLike) {
+
+    argumentsToArray(arrayLike) {
       return Array.prototype.slice.call(arrayLike);
     },
-    argumentNames: function argumentNames(fn) {
+
+    argumentNames(fn) {
       return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
       .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
       .match(/([^\s,]+)/g) || [];
     },
-    hasCallback: function hasCallback(args) {
+
+    hasCallback(args) {
       var length = args.length;
       return length > 0 && typeof args[length - 1] === 'function';
     },
-    error: function error(msg) {
+
+    error(msg) {
       if (window.console && window.console.error) {
         var outputError = [];
 
@@ -109,17 +50,20 @@ var AP = (function () {
         window.console.error.apply(null, outputError);
       }
     },
-    warn: function warn(msg) {
+
+    warn(msg) {
       if (window.console) {
         console.warn(LOG_PREFIX + msg);
       }
     },
-    log: function log(msg) {
+
+    log(msg) {
       if (window.console) {
         window.console.log(LOG_PREFIX + msg);
       }
     },
-    _bind: function _bind(thisp, fn) {
+
+    _bind(thisp, fn) {
       if (nativeBind && fn.bind === nativeBind) {
         return fn.bind(thisp);
       }
@@ -128,7 +72,8 @@ var AP = (function () {
         return fn.apply(thisp, arguments);
       };
     },
-    throttle: function throttle(func, wait, context) {
+
+    throttle(func, wait, context) {
       var previous = 0;
       return function () {
         var now = Date.now();
@@ -139,7 +84,8 @@ var AP = (function () {
         }
       };
     },
-    each: function each(list, iteratee) {
+
+    each(list, iteratee) {
       var length;
       var key;
 
@@ -167,7 +113,8 @@ var AP = (function () {
         }
       }
     },
-    extend: function extend(dest) {
+
+    extend(dest) {
       var args = arguments;
       var srcs = [].slice.call(args, 1, args.length);
       srcs.forEach(function (source) {
@@ -179,10 +126,11 @@ var AP = (function () {
       });
       return dest;
     },
-    sanitizeStructuredClone: function sanitizeStructuredClone(object) {
-      var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
-      var blackList = [Error, Node];
-      var warn = util.warn;
+
+    sanitizeStructuredClone(object) {
+      const whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
+      const blackList = [Error, Node];
+      const warn = util.warn;
       var visitedObjects = [];
 
       function _clone(value) {
@@ -191,9 +139,9 @@ var AP = (function () {
           return null;
         }
 
-        if (blackList.some(function (t) {
+        if (blackList.some(t => {
           if (value instanceof t) {
-            warn(t.name + " object was detected and removed from the message.");
+            warn("".concat(t.name, " object was detected and removed from the message."));
             return true;
           }
 
@@ -202,10 +150,8 @@ var AP = (function () {
           return {};
         }
 
-        if (value && typeof value === 'object' && whiteList.every(function (t) {
-          return !(value instanceof t);
-        })) {
-          var newValue;
+        if (value && typeof value === 'object' && whiteList.every(t => !(value instanceof t))) {
+          let newValue;
 
           if (Array.isArray(value)) {
             newValue = value.map(function (element) {
@@ -220,9 +166,9 @@ var AP = (function () {
             visitedObjects.push(value);
             newValue = {};
 
-            for (var name in value) {
+            for (let name in value) {
               if (value.hasOwnProperty(name)) {
-                var clonedValue = _clone(value[name]);
+                let clonedValue = _clone(value[name]);
 
                 if (clonedValue !== null) {
                   newValue[name] = clonedValue;
@@ -241,7 +187,8 @@ var AP = (function () {
 
       return _clone(object);
     },
-    getOrigin: function getOrigin(url, base) {
+
+    getOrigin(url, base) {
       // everything except IE11
       if (typeof URL === 'function') {
         try {
@@ -269,29 +216,26 @@ var AP = (function () {
 
       return origin;
     }
+
   };
 
-  var PostMessage =
-  /*#__PURE__*/
-  function () {
-    function PostMessage(data) {
-      var d = data || {};
+  class PostMessage {
+    constructor(data) {
+      let d = data || {};
 
       this._registerListener(d.listenOn);
     }
 
-    var _proto = PostMessage.prototype;
-
-    _proto._registerListener = function _registerListener(listenOn) {
+    _registerListener(listenOn) {
       if (!listenOn || !listenOn.addEventListener) {
         listenOn = window;
       }
 
       listenOn.addEventListener("message", util._bind(this, this._receiveMessage), false);
-    };
+    }
 
-    _proto._receiveMessage = function _receiveMessage(event) {
-      var handler = this._messageHandlers[event.data.type],
+    _receiveMessage(event) {
+      let handler = this._messageHandlers[event.data.type],
           extensionId = event.data.eid,
           reg;
 
@@ -304,52 +248,81 @@ var AP = (function () {
       }
 
       handler.call(this, event, reg);
-    };
-
-    return PostMessage;
-  }();
-
-  var VALID_EVENT_TIME_MS = 30000; //30 seconds
-
-  var XDMRPC =
-  /*#__PURE__*/
-  function (_PostMessage) {
-    inheritsLoose(XDMRPC, _PostMessage);
-
-    var _proto = XDMRPC.prototype;
-
-    _proto._padUndefinedArguments = function _padUndefinedArguments(array, length) {
-      return array.length >= length ? array : array.concat(new Array(length - array.length));
-    };
-
-    function XDMRPC(config) {
-      var _this;
-
-      config = config || {};
-      _this = _PostMessage.call(this, config) || this;
-      _this._registeredExtensions = config.extensions || {};
-      _this._registeredAPIModules = {};
-      _this._registeredAPIModules._globals = {};
-      _this._pendingCallbacks = {};
-      _this._keycodeCallbacks = {};
-      _this._clickHandler = null;
-      _this._pendingEvents = {};
-      _this._messageHandlers = {
-        init: _this._handleInit,
-        req: _this._handleRequest,
-        resp: _this._handleResponse,
-        broadcast: _this._handleBroadcast,
-        event_query: _this._handleEventQuery,
-        key_triggered: _this._handleKeyTriggered,
-        addon_clicked: _this._handleAddonClick,
-        get_host_offset: _this._getHostOffset,
-        unload: _this._handleUnload,
-        sub: _this._handleSubInit
-      };
-      return _this;
     }
 
-    _proto._verifyAPI = function _verifyAPI(event, reg) {
+  }
+
+  /**
+  * Postmessage format:
+  *
+  * Initialization
+  * --------------
+  * {
+  *   type: 'init',
+  *   eid: 'my-addon__my-module-xyz'  // the extension identifier, unique across iframes
+  * }
+  *
+  * Request
+  * -------
+  * {
+  *   type: 'req',
+  *   eid: 'my-addon__my-module-xyz',  // the extension identifier, unique for iframe
+  *   mid: 'xyz',  // a unique message identifier, required for callbacks
+  *   mod: 'cookie',  // the module name
+  *   fn: 'read',  // the method name
+  *   args: [arguments]  // the method arguments
+  * }
+  *
+  * Response
+  * --------
+  * {
+  *   type: 'resp'
+  *   eid: 'my-addon__my-module-xyz',  // the extension identifier, unique for iframe
+  *   mid: 'xyz',  // a unique message identifier, obtained from the request
+  *   args: [arguments]  // the callback arguments
+  * }
+  *
+  * Event
+  * -----
+  * {
+  *   type: 'evt',
+  *   etyp: 'some-event',
+  *   evnt: { ... }  // the event data
+  *   mid: 'xyz', // a unique message identifier for the event
+  * }
+  **/
+  let VALID_EVENT_TIME_MS = 30000; //30 seconds
+
+  class XDMRPC extends PostMessage {
+    _padUndefinedArguments(array, length) {
+      return array.length >= length ? array : array.concat(new Array(length - array.length));
+    }
+
+    constructor(config) {
+      config = config || {};
+      super(config);
+      this._registeredExtensions = config.extensions || {};
+      this._registeredAPIModules = {};
+      this._registeredAPIModules._globals = {};
+      this._pendingCallbacks = {};
+      this._keycodeCallbacks = {};
+      this._clickHandler = null;
+      this._pendingEvents = {};
+      this._messageHandlers = {
+        init: this._handleInit,
+        req: this._handleRequest,
+        resp: this._handleResponse,
+        broadcast: this._handleBroadcast,
+        event_query: this._handleEventQuery,
+        key_triggered: this._handleKeyTriggered,
+        addon_clicked: this._handleAddonClick,
+        get_host_offset: this._getHostOffset,
+        unload: this._handleUnload,
+        sub: this._handleSubInit
+      };
+    }
+
+    _verifyAPI(event, reg) {
       var untrustedTargets = event.data.targets;
 
       if (!untrustedTargets) {
@@ -376,9 +349,9 @@ var AP = (function () {
         type: 'api_tamper',
         tampered: tampered
       }, reg.extension.url);
-    };
+    }
 
-    _proto._handleInit = function _handleInit(event, reg) {
+    _handleInit(event, reg) {
       event.source.postMessage({
         type: 'init_received'
       }, reg.extension.url);
@@ -393,9 +366,9 @@ var AP = (function () {
         this._verifyAPI(event, reg);
       }
     } // postMessage method to do registerExtension
-    ;
 
-    _proto._handleSubInit = function _handleSubInit(event, reg) {
+
+    _handleSubInit(event, reg) {
       var blocked = reg.extension.options.noSub || this._getBooleanFeatureFlag && this._getBooleanFeatureFlag('com.atlassian.connect.resolve_inner_iframe_url');
 
       var data = event.data;
@@ -418,9 +391,9 @@ var AP = (function () {
           blocked: blocked
         });
       }
-    };
+    }
 
-    _proto._getHostOffset = function _getHostOffset(event, _window) {
+    _getHostOffset(event, _window) {
       var hostWindow = event.source;
       var hostFrameOffset = null;
       var windowReference = _window || window; // For testing
@@ -442,9 +415,9 @@ var AP = (function () {
       event.source.postMessage({
         hostFrameOffset: hostFrameOffset
       }, event.origin);
-    };
+    }
 
-    _proto._hasSameOrigin = function _hasSameOrigin(window) {
+    _hasSameOrigin(window) {
       if (window === window.top) {
         return true;
       }
@@ -460,9 +433,9 @@ var AP = (function () {
       }
 
       return false;
-    };
+    }
 
-    _proto._handleResponse = function _handleResponse(event) {
+    _handleResponse(event) {
       var data = event.data;
       var pendingCallback = this._pendingCallbacks[data.mid];
 
@@ -470,13 +443,13 @@ var AP = (function () {
         delete this._pendingCallbacks[data.mid];
         pendingCallback.apply(window, data.args);
       }
-    };
+    }
 
-    _proto.registerRequestNotifier = function registerRequestNotifier(cb) {
+    registerRequestNotifier(cb) {
       this._registeredRequestNotifier = cb;
-    };
+    }
 
-    _proto._handleRequest = function _handleRequest(event, reg) {
+    _handleRequest(event, reg) {
       function sendResponse() {
         var args = util.sanitizeStructuredClone(util.argumentsToArray(arguments));
         event.source.postMessage({
@@ -489,14 +462,14 @@ var AP = (function () {
 
       var data = event.data;
       var module = this._registeredAPIModules[data.mod];
-      var extension = this.getRegisteredExtensions(reg.extension)[0];
+      const extension = this.getRegisteredExtensions(reg.extension)[0];
 
       if (module) {
-        var fnName = data.fn;
+        let fnName = data.fn;
 
         if (data._cls) {
-          var Cls = module[data._cls];
-          var ns = data.mod + '-' + data._cls + '-';
+          const Cls = module[data._cls];
+          const ns = data.mod + '-' + data._cls + '-';
           sendResponse._id = data._id;
 
           if (fnName === 'constructor') {
@@ -510,9 +483,8 @@ var AP = (function () {
                   args[_key] = arguments[_key];
                 }
 
-                var inst = _construct$1(Cls.constructor, args);
-
-                var callback = args[args.length - 1];
+                const inst = new Cls.constructor(...args);
+                const callback = args[args.length - 1];
                 inst._id = callback._id;
                 inst._context = callback._context;
                 inst._context._proxies[ns + inst._id] = inst;
@@ -527,7 +499,7 @@ var AP = (function () {
           }
         }
 
-        var method = module[fnName];
+        let method = module[fnName];
 
         if (method) {
           var methodArgs = data.args;
@@ -540,15 +512,15 @@ var AP = (function () {
           sendResponse._context = extension;
           methodArgs = this._padUndefinedArguments(methodArgs, padLength);
           methodArgs.push(sendResponse);
-          var promiseResult = method.apply(module, methodArgs);
+          const promiseResult = method.apply(module, methodArgs);
 
           if (method.returnsPromise) {
             if (!(typeof promiseResult === 'object' || typeof promiseResult === 'function') || typeof promiseResult.then !== 'function') {
               sendResponse('Defined module method did not return a promise.');
             } else {
-              promiseResult.then(function (result) {
+              promiseResult.then(result => {
                 sendResponse(undefined, result);
-              }).catch(function (err) {
+              }).catch(err => {
                 err = err instanceof Error ? err.message : err;
                 sendResponse(err);
               });
@@ -567,19 +539,17 @@ var AP = (function () {
           }
         }
       }
-    };
+    }
 
-    _proto._handleBroadcast = function _handleBroadcast(event, reg) {
+    _handleBroadcast(event, reg) {
       var event_data = event.data;
 
-      var targetSpec = function targetSpec(r) {
-        return r.extension.addon_key === reg.extension.addon_key && r.extension_id !== reg.extension_id;
-      };
+      var targetSpec = r => r.extension.addon_key === reg.extension.addon_key && r.extension_id !== reg.extension_id;
 
       this.dispatch(event_data.etyp, targetSpec, event_data.evnt, null, null);
-    };
+    }
 
-    _proto._handleKeyTriggered = function _handleKeyTriggered(event, reg) {
+    _handleKeyTriggered(event, reg) {
       var eventData = event.data;
 
       var keycodeEntry = this._keycodeKey(eventData.keycode, eventData.modifiers, reg.extension_id);
@@ -587,7 +557,7 @@ var AP = (function () {
       var listeners = this._keycodeCallbacks[keycodeEntry];
 
       if (listeners) {
-        listeners.forEach(function (listener) {
+        listeners.forEach(listener => {
           listener.call(null, {
             addon_key: reg.extension.addon_key,
             key: reg.extension.key,
@@ -597,34 +567,34 @@ var AP = (function () {
           });
         }, this);
       }
-    };
+    }
 
-    _proto.defineAPIModule = function defineAPIModule(module, moduleName) {
+    defineAPIModule(module, moduleName) {
       moduleName = moduleName || '_globals';
       this._registeredAPIModules[moduleName] = util.extend({}, this._registeredAPIModules[moduleName] || {}, module);
       return this._registeredAPIModules;
-    };
+    }
 
-    _proto.isAPIModuleDefined = function isAPIModuleDefined(moduleName) {
+    isAPIModuleDefined(moduleName) {
       return typeof this._registeredAPIModules[moduleName] !== 'undefined';
-    };
+    }
 
-    _proto._pendingEventKey = function _pendingEventKey(targetSpec, time) {
+    _pendingEventKey(targetSpec, time) {
       var key = targetSpec.addon_key || 'global';
 
       if (targetSpec.key) {
-        key = key + "@@" + targetSpec.key;
+        key = "".concat(key, "@@").concat(targetSpec.key);
       }
 
-      key = key + "@@" + time;
+      key = "".concat(key, "@@").concat(time);
       return key;
-    };
+    }
 
-    _proto.queueEvent = function queueEvent(type, targetSpec, event, callback) {
+    queueEvent(type, targetSpec, event, callback) {
       var loaded_frame,
           targets = this._findRegistrations(targetSpec);
 
-      loaded_frame = targets.some(function (target) {
+      loaded_frame = targets.some(target => {
         return target.registered_events !== undefined;
       }, this);
 
@@ -635,41 +605,37 @@ var AP = (function () {
 
         var time = new Date().getTime();
         this._pendingEvents[this._pendingEventKey(targetSpec, time)] = {
-          type: type,
-          targetSpec: targetSpec,
-          event: event,
-          callback: callback,
-          time: time,
+          type,
+          targetSpec,
+          event,
+          callback,
+          time,
           uid: util.randomString()
         };
       }
-    };
+    }
 
-    _proto._cleanupInvalidEvents = function _cleanupInvalidEvents() {
-      var _this2 = this;
-
-      var now = new Date().getTime();
-      var keys = Object.keys(this._pendingEvents);
-      keys.forEach(function (index) {
-        var element = _this2._pendingEvents[index];
-        var eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
+    _cleanupInvalidEvents() {
+      let now = new Date().getTime();
+      let keys = Object.keys(this._pendingEvents);
+      keys.forEach(index => {
+        let element = this._pendingEvents[index];
+        let eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
 
         if (!eventIsValid) {
-          delete _this2._pendingEvents[index];
+          delete this._pendingEvents[index];
         }
       });
-    };
+    }
 
-    _proto._handleEventQuery = function _handleEventQuery(message, extension) {
-      var _this3 = this;
-
-      var executed = {};
-      var now = new Date().getTime();
-      var keys = Object.keys(this._pendingEvents);
-      keys.forEach(function (index) {
-        var element = _this3._pendingEvents[index];
-        var eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
-        var isSameTarget = !element.targetSpec || _this3._findRegistrations(element.targetSpec).length !== 0;
+    _handleEventQuery(message, extension) {
+      let executed = {};
+      let now = new Date().getTime();
+      let keys = Object.keys(this._pendingEvents);
+      keys.forEach(index => {
+        let element = this._pendingEvents[index];
+        let eventIsValid = now - element.time <= VALID_EVENT_TIME_MS;
+        let isSameTarget = !element.targetSpec || this._findRegistrations(element.targetSpec).length !== 0;
 
         if (isSameTarget && element.targetSpec.key) {
           isSameTarget = element.targetSpec.addon_key === extension.extension.addon_key && element.targetSpec.key === extension.extension.key;
@@ -678,17 +644,16 @@ var AP = (function () {
         if (eventIsValid && isSameTarget) {
           executed[index] = element;
           element.targetSpec = element.targetSpec || {};
-
-          _this3.dispatch(element.type, element.targetSpec, element.event, element.callback, message.source);
+          this.dispatch(element.type, element.targetSpec, element.event, element.callback, message.source);
         } else if (!eventIsValid) {
-          delete _this3._pendingEvents[index];
+          delete this._pendingEvents[index];
         }
       });
       this._registeredExtensions[extension.extension_id].registered_events = message.data.args;
       return executed;
-    };
+    }
 
-    _proto._handleUnload = function _handleUnload(event, reg) {
+    _handleUnload(event, reg) {
       if (!reg) {
         return;
       }
@@ -700,9 +665,9 @@ var AP = (function () {
       if (reg.unloadCallback) {
         reg.unloadCallback(event.data.eid);
       }
-    };
+    }
 
-    _proto.dispatch = function dispatch(type, targetSpec, event, callback, source) {
+    dispatch(type, targetSpec, event, callback, source) {
       function sendEvent(reg, evnt) {
         if (reg.source && reg.source.postMessage) {
           var mid;
@@ -732,19 +697,17 @@ var AP = (function () {
           util._bind(this, sendEvent)(reg, event);
         }
       }, this);
-    };
+    }
 
-    _proto._findRegistrations = function _findRegistrations(targetSpec) {
-      var _this4 = this;
-
+    _findRegistrations(targetSpec) {
       if (this._registeredExtensions.length === 0) {
         util.error('no registered extensions', this._registeredExtensions);
         return [];
       }
 
       var keys = Object.getOwnPropertyNames(targetSpec);
-      var registrations = Object.getOwnPropertyNames(this._registeredExtensions).map(function (key) {
-        return _this4._registeredExtensions[key];
+      var registrations = Object.getOwnPropertyNames(this._registeredExtensions).map(key => {
+        return this._registeredExtensions[key];
       });
 
       if (targetSpec instanceof Function) {
@@ -756,15 +719,15 @@ var AP = (function () {
           });
         });
       }
-    };
+    }
 
-    _proto.registerExtension = function registerExtension(extension_id, data) {
+    registerExtension(extension_id, data) {
       data._proxies = {};
       data.extension_id = extension_id;
       this._registeredExtensions[extension_id] = data;
-    };
+    }
 
-    _proto._keycodeKey = function _keycodeKey(key, modifiers, extension_id) {
+    _keycodeKey(key, modifiers, extension_id) {
       var code = key;
 
       if (modifiers) {
@@ -773,15 +736,15 @@ var AP = (function () {
         }
 
         modifiers.sort();
-        modifiers.forEach(function (modifier) {
+        modifiers.forEach(modifier => {
           code += '$$' + modifier;
         }, this);
       }
 
       return code + '__' + extension_id;
-    };
+    }
 
-    _proto.registerKeyListener = function registerKeyListener(extension_id, key, modifiers, callback) {
+    registerKeyListener(extension_id, key, modifiers, callback) {
       if (typeof modifiers === "string") {
         modifiers = [modifiers];
       }
@@ -801,9 +764,9 @@ var AP = (function () {
       }
 
       this._keycodeCallbacks[keycodeEntry].push(callback);
-    };
+    }
 
-    _proto.unregisterKeyListener = function unregisterKeyListener(extension_id, key, modifiers, callback) {
+    unregisterKeyListener(extension_id, key, modifiers, callback) {
       var keycodeEntry = this._keycodeKey(key, modifiers, extension_id);
 
       var potentialCallbacks = this._keycodeCallbacks[keycodeEntry];
@@ -827,9 +790,9 @@ var AP = (function () {
           }, reg.extension.url);
         }
       }
-    };
+    }
 
-    _proto.registerClickHandler = function registerClickHandler(callback) {
+    registerClickHandler(callback) {
       if (typeof callback !== 'function') {
         throw new Error('callback must be a function');
       }
@@ -839,9 +802,9 @@ var AP = (function () {
       }
 
       this._clickHandler = callback;
-    };
+    }
 
-    _proto._handleAddonClick = function _handleAddonClick(event, reg) {
+    _handleAddonClick(event, reg) {
       if (typeof this._clickHandler === 'function') {
         this._clickHandler({
           addon_key: reg.extension.addon_key,
@@ -849,18 +812,16 @@ var AP = (function () {
           extension_id: reg.extension_id
         });
       }
-    };
+    }
 
-    _proto.unregisterClickHandler = function unregisterClickHandler() {
+    unregisterClickHandler() {
       this._clickHandler = null;
-    };
+    }
 
-    _proto.getApiSpec = function getApiSpec(addonKey) {
-      var _this5 = this;
-
+    getApiSpec(addonKey) {
       function getModuleDefinition(mod) {
-        return Object.getOwnPropertyNames(mod).reduce(function (accumulator, memberName) {
-          var member = mod[memberName];
+        return Object.getOwnPropertyNames(mod).reduce((accumulator, memberName) => {
+          const member = mod[memberName];
 
           switch (typeof member) {
             case 'function':
@@ -882,8 +843,8 @@ var AP = (function () {
         }, {});
       }
 
-      return Object.getOwnPropertyNames(this._registeredAPIModules).reduce(function (accumulator, moduleName) {
-        var module = _this5._registeredAPIModules[moduleName];
+      return Object.getOwnPropertyNames(this._registeredAPIModules).reduce((accumulator, moduleName) => {
+        var module = this._registeredAPIModules[moduleName];
 
         if (typeof module.addonKey === 'undefined' || module.addonKey === addonKey) {
           accumulator[moduleName] = getModuleDefinition(module);
@@ -891,14 +852,14 @@ var AP = (function () {
 
         return accumulator;
       }, {});
-    };
+    }
 
-    _proto._originEqual = function _originEqual(url, origin) {
+    _originEqual(url, origin) {
       function strCheck(str) {
         return typeof str === 'string' && str.length > 0;
       }
 
-      var urlOrigin = util.getOrigin(url); // check strings are strings and they contain something
+      let urlOrigin = util.getOrigin(url); // check strings are strings and they contain something
 
       if (!strCheck(url) || !strCheck(origin) || !strCheck(urlOrigin)) {
         return false;
@@ -906,16 +867,16 @@ var AP = (function () {
 
       return origin === urlOrigin;
     } // validate origin of postMessage
-    ;
 
-    _proto._checkOrigin = function _checkOrigin(event, reg) {
-      var no_source_types = ['init'];
-      var isNoSourceType = reg && !reg.source && no_source_types.indexOf(event.data.type) > -1;
-      var sourceTypeMatches = reg && event.source === reg.source;
 
-      var hasExtensionUrl = reg && this._originEqual(reg.extension.url, event.origin);
+    _checkOrigin(event, reg) {
+      let no_source_types = ['init'];
+      let isNoSourceType = reg && !reg.source && no_source_types.indexOf(event.data.type) > -1;
+      let sourceTypeMatches = reg && event.source === reg.source;
 
-      var isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches); // get_host_offset fires before init
+      let hasExtensionUrl = reg && this._originEqual(reg.extension.url, event.origin);
+
+      let isValidOrigin = hasExtensionUrl && (isNoSourceType || sourceTypeMatches); // get_host_offset fires before init
 
       if (event.data.type === 'get_host_offset' && window === window.top) {
         isValidOrigin = true;
@@ -927,48 +888,43 @@ var AP = (function () {
       }
 
       return isValidOrigin;
-    };
+    }
 
-    _proto.getRegisteredExtensions = function getRegisteredExtensions(filter) {
+    getRegisteredExtensions(filter) {
       if (filter) {
         return this._findRegistrations(filter);
       }
 
       return this._registeredExtensions;
-    };
+    }
 
-    _proto.unregisterExtension = function unregisterExtension(filter) {
-      var registrations = this._findRegistrations(filter);
+    unregisterExtension(filter) {
+      let registrations = this._findRegistrations(filter);
 
       if (registrations.length !== 0) {
         registrations.forEach(function (registration) {
-          var _this6 = this;
-
-          var keys = Object.keys(this._pendingEvents);
-          keys.forEach(function (index) {
-            var element = _this6._pendingEvents[index];
-            var targetSpec = element.targetSpec || {};
+          let keys = Object.keys(this._pendingEvents);
+          keys.forEach(index => {
+            let element = this._pendingEvents[index];
+            let targetSpec = element.targetSpec || {};
 
             if (targetSpec.addon_key === registration.extension.addon_key && targetSpec.key === registration.extension.key) {
-              delete _this6._pendingEvents[index];
+              delete this._pendingEvents[index];
             }
           });
           delete this._registeredExtensions[registration.extension_id];
         }, this);
       }
-    };
+    }
 
-    _proto.setFeatureFlagGetter = function setFeatureFlagGetter(getBooleanFeatureFlag) {
+    setFeatureFlagGetter(getBooleanFeatureFlag) {
       this._getBooleanFeatureFlag = getBooleanFeatureFlag;
-    };
+    }
 
-    return XDMRPC;
-  }(PostMessage);
+  }
 
-  var Connect =
-  /*#__PURE__*/
-  function () {
-    function Connect() {
+  class Connect {
+    constructor() {
       this._xdm = new XDMRPC();
     }
     /**
@@ -983,9 +939,7 @@ var AP = (function () {
      */
 
 
-    var _proto = Connect.prototype;
-
-    _proto.dispatch = function dispatch(type, targetSpec, event, callback) {
+    dispatch(type, targetSpec, event, callback) {
       this._xdm.queueEvent(type, targetSpec, event, callback);
 
       return this.getExtensions(targetSpec);
@@ -999,15 +953,15 @@ var AP = (function () {
      * @param targetSpec The spec to match against extensions when sending this event
      * @param event The event payload
      */
-    ;
 
-    _proto.broadcast = function broadcast(type, targetSpec, event) {
+
+    broadcast(type, targetSpec, event) {
       this._xdm.dispatch(type, targetSpec, event, null, null);
 
       return this.getExtensions(targetSpec);
-    };
+    }
 
-    _proto._createId = function _createId(extension) {
+    _createId(extension) {
       if (!extension.addon_key || !extension.key) {
         throw Error('Extensions require addon_key and key');
       }
@@ -1032,12 +986,12 @@ var AP = (function () {
     *
     * @param initCallback The optional initCallback is called when the bridge between host and iframe is established.
     **/
-    ;
 
-    _proto.create = function create(extension, initCallback, unloadCallback) {
-      var extension_id = this.registerExtension(extension, initCallback, unloadCallback);
-      var options = extension.options || {};
-      var data = {
+
+    create(extension, initCallback, unloadCallback) {
+      let extension_id = this.registerExtension(extension, initCallback, unloadCallback);
+      let options = extension.options || {};
+      let data = {
         extension_id: extension_id,
         api: this._xdm.getApiSpec(extension.addon_key),
         origin: util.locationOrigin(),
@@ -1048,14 +1002,14 @@ var AP = (function () {
         name: JSON.stringify(data),
         src: extension.url
       };
-    };
+    }
 
-    _proto.registerRequestNotifier = function registerRequestNotifier(callback) {
+    registerRequestNotifier(callback) {
       this._xdm.registerRequestNotifier(callback);
-    };
+    }
 
-    _proto.registerExtension = function registerExtension(extension, initCallback, unloadCallback) {
-      var extension_id = this._createId(extension);
+    registerExtension(extension, initCallback, unloadCallback) {
+      let extension_id = this._createId(extension);
 
       this._xdm.registerExtension(extension_id, {
         extension: extension,
@@ -1064,80 +1018,74 @@ var AP = (function () {
       });
 
       return extension_id;
-    };
+    }
 
-    _proto.registerKeyListener = function registerKeyListener(extension_id, key, modifiers, callback) {
+    registerKeyListener(extension_id, key, modifiers, callback) {
       this._xdm.registerKeyListener(extension_id, key, modifiers, callback);
-    };
+    }
 
-    _proto.unregisterKeyListener = function unregisterKeyListener(extension_id, key, modifiers, callback) {
+    unregisterKeyListener(extension_id, key, modifiers, callback) {
       this._xdm.unregisterKeyListener(extension_id, key, modifiers, callback);
-    };
+    }
 
-    _proto.registerClickHandler = function registerClickHandler(callback) {
+    registerClickHandler(callback) {
       this._xdm.registerClickHandler(callback);
-    };
+    }
 
-    _proto.unregisterClickHandler = function unregisterClickHandler() {
+    unregisterClickHandler() {
       this._xdm.unregisterClickHandler();
-    };
+    }
 
-    _proto.defineModule = function defineModule(moduleName, module, options) {
+    defineModule(moduleName, module, options) {
       this._xdm.defineAPIModule(module, moduleName, options);
-    };
+    }
 
-    _proto.isModuleDefined = function isModuleDefined(moduleName) {
+    isModuleDefined(moduleName) {
       return this._xdm.isAPIModuleDefined(moduleName);
-    };
+    }
 
-    _proto.defineGlobals = function defineGlobals(module) {
+    defineGlobals(module) {
       this._xdm.defineAPIModule(module);
-    };
+    }
 
-    _proto.getExtensions = function getExtensions(filter) {
+    getExtensions(filter) {
       return this._xdm.getRegisteredExtensions(filter);
-    };
+    }
 
-    _proto.unregisterExtension = function unregisterExtension(filter) {
+    unregisterExtension(filter) {
       return this._xdm.unregisterExtension(filter);
-    };
+    }
 
-    _proto.returnsPromise = function returnsPromise(wrappedMethod) {
+    returnsPromise(wrappedMethod) {
       wrappedMethod.returnsPromise = true;
-    };
+    }
 
-    _proto.setFeatureFlagGetter = function setFeatureFlagGetter(getBooleanFeatureFlag) {
+    setFeatureFlagGetter(getBooleanFeatureFlag) {
       this._xdm.setFeatureFlagGetter(getBooleanFeatureFlag);
-    };
+    }
 
-    _proto.registerExistingExtension = function registerExistingExtension(extension_id, data) {
+    registerExistingExtension(extension_id, data) {
       return this._xdm.registerExtension(extension_id, data);
-    };
+    }
 
-    return Connect;
-  }();
-
-  function _extends() {
-    _extends_1 = _extends = Object.assign || function (target) {
-      for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i];
-
-        for (var key in source) {
-          if (Object.prototype.hasOwnProperty.call(source, key)) {
-            target[key] = source[key];
-          }
-        }
-      }
-
-      return target;
-    };
-
-    return _extends.apply(this, arguments);
   }
 
-  var _extends_1 = _extends;
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
 
-  var _extends$1 = _extends_1;
+    return obj;
+  }
+
+  var defineProperty = _defineProperty;
 
   /**
    * @this {Promise}
@@ -1395,7 +1343,7 @@ var AP = (function () {
     }
   };
 
-  var _each$1 = util.each,
+  var each$2 = util.each,
       document$2 = window.document;
 
   function $$2(sel, context) {
@@ -1417,17 +1365,16 @@ var AP = (function () {
     }
 
     util.extend(els, {
-      each: function each(it) {
-        _each$1(this, it);
-
+      each: function (it) {
+        each$2(this, it);
         return this;
       },
-      bind: function bind(name, callback) {
+      bind: function (name, callback) {
         this.each(function (i, el) {
           this.bind(el, name, callback);
         });
       },
-      attr: function attr(k) {
+      attr: function (k) {
         var v;
         this.each(function (i, el) {
           v = el[k] || el.getAttribute && el.getAttribute(k);
@@ -1435,23 +1382,22 @@ var AP = (function () {
         });
         return v;
       },
-      removeClass: function removeClass(className) {
+      removeClass: function (className) {
         return this.each(function (i, el) {
           if (el.className) {
             el.className = el.className.replace(new RegExp('(^|\\s)' + className + '(\\s|$)'), ' ');
           }
         });
       },
-      html: function html(_html) {
+      html: function (html) {
         return this.each(function (i, el) {
-          el.innerHTML = _html;
+          el.innerHTML = html;
         });
       },
-      append: function append(spec) {
+      append: function (spec) {
         return this.each(function (i, to) {
           var el = context.createElement(spec.tag);
-
-          _each$1(spec, function (k, v) {
+          each$2(spec, function (k, v) {
             if (k === '$text') {
               if (el.styleSheet) {
                 // style tags in ie
@@ -1463,7 +1409,6 @@ var AP = (function () {
               el[k] = v;
             }
           });
-
           to.appendChild(el);
         });
       }
@@ -1509,49 +1454,42 @@ var AP = (function () {
   /**
   * Extension wide configuration values
   */
-  var ConfigurationOptions =
-  /*#__PURE__*/
-  function () {
-    function ConfigurationOptions() {
+  class ConfigurationOptions {
+    constructor() {
       this.options = {};
     }
 
-    var _proto = ConfigurationOptions.prototype;
-
-    _proto._flush = function _flush() {
+    _flush() {
       this.options = {};
-    };
+    }
 
-    _proto.get = function get(item) {
+    get(item) {
       return item ? this.options[item] : this.options;
-    };
+    }
 
-    _proto.set = function set(data, value) {
-      var _this = this;
-
+    set(data, value) {
       if (!data) {
         return;
       }
 
       if (value) {
-        var _data;
-
-        data = (_data = {}, _data[data] = value, _data);
+        data = {
+          [data]: value
+        };
       }
 
       var keys = Object.getOwnPropertyNames(data);
-      keys.forEach(function (key) {
-        _this.options[key] = data[key];
+      keys.forEach(key => {
+        this.options[key] = data[key];
       }, this);
-    };
+    }
 
-    return ConfigurationOptions;
-  }();
+  }
 
   var ConfigurationOptions$1 = new ConfigurationOptions();
 
-  var size = function size(width, height, container) {
-    var verticalScrollbarWidth = function verticalScrollbarWidth() {
+  var size = function (width, height, container) {
+    var verticalScrollbarWidth = function () {
       var sbWidth = window.innerWidth - container.clientWidth; // sanity check only
 
       sbWidth = sbWidth < 0 ? 0 : sbWidth;
@@ -1559,7 +1497,7 @@ var AP = (function () {
       return sbWidth;
     };
 
-    var horizontalScrollbarHeight = function horizontalScrollbarHeight() {
+    var horizontalScrollbarHeight = function () {
       var sbHeight = window.innerHeight - Math.min(container.clientHeight, document.documentElement.clientHeight); // sanity check only
 
       sbHeight = sbHeight < 0 ? 0 : sbHeight;
@@ -1641,7 +1579,7 @@ var AP = (function () {
 
 
     if (element.nodeName === 'BODY') {
-      ['padding', 'margin'].forEach(function (attr) {
+      ['padding', 'margin'].forEach(attr => {
         element.style[attr + '-bottom'] = '0px';
         element.style[attr + '-top'] = '0px';
       }, this);
@@ -1675,7 +1613,7 @@ var AP = (function () {
 
     var lastWidth, lastHeight;
 
-    var reset = function reset() {
+    var reset = function () {
       expandChild.style.width = expand.offsetWidth + 10 + 'px';
       expandChild.style.height = expand.offsetHeight + 10 + 'px';
       expand.scrollLeft = expand.scrollWidth;
@@ -1688,13 +1626,13 @@ var AP = (function () {
 
     reset();
 
-    var changed = function changed() {
+    var changed = function () {
       if (element.resizedAttached) {
         element.resizedAttached.call();
       }
     };
 
-    var onScroll = function onScroll() {
+    var onScroll = function () {
       if (element.offsetWidth !== lastWidth || element.offsetHeight !== lastHeight) {
         changed();
       }
@@ -1714,11 +1652,11 @@ var AP = (function () {
   }
 
   var resizeListener = {
-    add: function add(fn) {
+    add: function (fn) {
       var container = getContainer();
       attachResizeEvent(container, fn);
     },
-    remove: function remove() {
+    remove: function () {
       var container = getContainer();
 
       if (container.resizeSensor) {
@@ -1730,10 +1668,8 @@ var AP = (function () {
     }
   };
 
-  var AutoResizeAction =
-  /*#__PURE__*/
-  function () {
-    function AutoResizeAction(callback) {
+  class AutoResizeAction {
+    constructor(callback) {
       this.resizeError = util.throttle(function (msg) {
         console.info(msg);
       }, 1000);
@@ -1744,9 +1680,7 @@ var AP = (function () {
       this.callback = callback;
     }
 
-    var _proto = AutoResizeAction.prototype;
-
-    _proto._setVal = function _setVal(val, type, time) {
+    _setVal(val, type, time) {
       this.dimensionStores[type] = this.dimensionStores[type].filter(function (entry) {
         return time - entry.setAt < 400;
       });
@@ -1754,15 +1688,15 @@ var AP = (function () {
         val: parseInt(val, 10),
         setAt: time
       });
-    };
+    }
 
-    _proto._isFlicker = function _isFlicker(val, type) {
+    _isFlicker(val, type) {
       return this.dimensionStores[type].length >= 5;
-    };
+    }
 
-    _proto.triggered = function triggered(dimensions) {
+    triggered(dimensions) {
       dimensions = dimensions || size();
-      var now = Date.now();
+      let now = Date.now();
 
       this._setVal(dimensions.w, 'width', now);
 
@@ -1778,7 +1712,7 @@ var AP = (function () {
       }
 
       if (isFlickerHeight) {
-        var vals = this.dimensionStores['height'].map(function (x) {
+        var vals = this.dimensionStores['height'].map(x => {
           return x.val;
         });
         dimensions.h = Math.max.apply(null, vals) + 'px';
@@ -1786,27 +1720,20 @@ var AP = (function () {
       }
 
       this.callback(dimensions.w, dimensions.h);
-    };
+    }
 
-    return AutoResizeAction;
-  }();
+  }
 
-  var ConsumerOptions =
-  /*#__PURE__*/
-  function () {
-    function ConsumerOptions() {}
-
-    var _proto = ConsumerOptions.prototype;
-
-    _proto._elementExists = function _elementExists($el) {
+  class ConsumerOptions {
+    _elementExists($el) {
       return $el && $el.length === 1;
-    };
+    }
 
-    _proto._elementOptions = function _elementOptions($el) {
+    _elementOptions($el) {
       return $el.attr("data-options");
-    };
+    }
 
-    _proto._getConsumerOptions = function _getConsumerOptions() {
+    _getConsumerOptions() {
       var options = {},
           $optionElement = $$2("#ac-iframe-options"),
           $scriptElement = $$2("script[src*='/atlassian-connect/all']"),
@@ -1826,7 +1753,7 @@ var AP = (function () {
 
         if (optStr) {
           // if found, parse the value into kv pairs following the format of a style element
-          optStr.split(";").forEach(function (nvpair) {
+          optStr.split(";").forEach(nvpair => {
             nvpair = nvpair.trim();
 
             if (nvpair) {
@@ -1843,13 +1770,13 @@ var AP = (function () {
       }
 
       return options;
-    };
+    }
 
-    _proto._flush = function _flush() {
+    _flush() {
       delete this._options;
-    };
+    }
 
-    _proto.get = function get(key) {
+    get(key) {
       if (!this._options) {
         this._options = this._getConsumerOptions();
       }
@@ -1859,80 +1786,73 @@ var AP = (function () {
       }
 
       return this._options;
-    };
+    }
 
-    return ConsumerOptions;
-  }();
+  }
 
   var consumerOptions = new ConsumerOptions();
 
-  var POSSIBLE_MODIFIER_KEYS = ['ctrl', 'shift', 'alt', 'meta'];
+  function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
-  var AP =
-  /*#__PURE__*/
-  function (_PostMessage) {
-    inheritsLoose(AP, _PostMessage);
+  function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+  const POSSIBLE_MODIFIER_KEYS = ['ctrl', 'shift', 'alt', 'meta'];
 
-    function AP(options, initCheck) {
-      var _this;
-
-      if (initCheck === void 0) {
-        initCheck = true;
-      }
-
-      _this = _PostMessage.call(this) || this;
+  class AP extends PostMessage {
+    constructor(options) {
+      let initCheck = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+      super();
       ConfigurationOptions$1.set(options);
-      _this._data = _this._parseInitData();
-      ConfigurationOptions$1.set(_this._data.options);
-      _this._data.options = _this._data.options || {};
-      _this._hostOrigin = _this._data.options.hostOrigin || '*';
-      _this._top = window.top;
-      _this._host = window.parent || window;
-      _this._topHost = _this._getHostFrame(_this._data.options.hostFrameOffset);
+      this._data = this._parseInitData();
+      ConfigurationOptions$1.set(this._data.options);
+      this._data.options = this._data.options || {};
+      this._hostOrigin = this._data.options.hostOrigin || '*';
+      this._top = window.top;
+      this._host = window.parent || window;
+      this._topHost = this._getHostFrame(this._data.options.hostFrameOffset);
 
-      if (_this._topHost !== _this._top) {
-        _this._verifyHostFrameOffset();
+      if (this._topHost !== this._top) {
+        this._verifyHostFrameOffset();
       }
 
-      _this._initTimeout = 5000;
-      _this._initReceived = false;
-      _this._initCheck = initCheck;
-      _this._isKeyDownBound = false;
-      _this._hostModules = {};
-      _this._eventHandlers = {};
-      _this._pendingCallbacks = {};
-      _this._keyListeners = [];
-      _this._version = "5.3.47";
-      _this._apiTampered = undefined;
-      _this._isSubIframe = _this._topHost !== window.parent;
-      _this._onConfirmedFns = [];
-      _this._promise = Promise$1;
+      this._initTimeout = 5000;
+      this._initReceived = false;
+      this._initCheck = initCheck;
+      this._isKeyDownBound = false;
+      this._hostModules = {};
+      this._eventHandlers = {};
+      this._pendingCallbacks = {};
+      this._keyListeners = [];
+      this._version = "5.3.47";
+      this._apiTampered = undefined;
+      this._isSubIframe = this._topHost !== window.parent;
+      this._onConfirmedFns = [];
+      this._promise = Promise$1;
 
-      if (_this._data.api) {
-        _this._setupAPI(_this._data.api);
+      if (this._data.api) {
+        this._setupAPI(this._data.api);
 
-        _this._setupAPIWithoutRequire(_this._data.api);
+        this._setupAPIWithoutRequire(this._data.api);
       }
 
-      _this._messageHandlers = {
-        init_received: _this._handleInitReceived,
-        resp: _this._handleResponse,
-        evt: _this._handleEvent,
-        key_listen: _this._handleKeyListen,
-        api_tamper: _this._handleApiTamper
+      this._messageHandlers = {
+        init_received: this._handleInitReceived,
+        resp: this._handleResponse,
+        evt: this._handleEvent,
+        key_listen: this._handleKeyListen,
+        api_tamper: this._handleApiTamper
       };
 
-      if (_this._data.origin) {
-        _this._sendInit(_this._host, _this._data.origin);
+      if (this._data.origin) {
+        this._sendInit(this._host, this._data.origin);
 
-        if (_this._isSubIframe) {
-          _this._sendInit(_this._topHost, _this._hostOrigin);
+        if (this._isSubIframe) {
+          this._sendInit(this._topHost, this._hostOrigin);
         }
       }
 
-      _this._registerOnUnload();
+      this._registerOnUnload();
 
-      _this.resize = util._bind(assertThisInitialized(_this), function (width, height) {
+      this.resize = util._bind(this, (width, height) => {
         if (!getContainer()) {
           util.warn('resize called before container or body appeared, ignoring');
           return;
@@ -1948,25 +1868,22 @@ var AP = (function () {
           height = dimensions.h;
         }
 
-        if (_this._hostModules.env && _this._hostModules.env.resize) {
-          _this._hostModules.env.resize(width, height);
+        if (this._hostModules.env && this._hostModules.env.resize) {
+          this._hostModules.env.resize(width, height);
         }
       });
-      $$2(util._bind(assertThisInitialized(_this), _this._autoResizer));
-      _this.container = getContainer;
-      _this.size = size;
-      window.addEventListener('click', function (e) {
-        _this._host.postMessage({
-          eid: _this._data.extension_id,
+      $$2(util._bind(this, this._autoResizer));
+      this.container = getContainer;
+      this.size = size;
+      window.addEventListener('click', e => {
+        this._host.postMessage({
+          eid: this._data.extension_id,
           type: 'addon_clicked'
-        }, _this._hostOrigin);
+        }, this._hostOrigin);
       });
-      return _this;
     }
 
-    var _proto = AP.prototype;
-
-    _proto._getHostFrame = function _getHostFrame(offset) {
+    _getHostFrame(offset) {
       // Climb up the iframe tree to find the real host
       if (offset && typeof offset === 'number') {
         var hostFrame = window;
@@ -1979,19 +1896,17 @@ var AP = (function () {
       } else {
         return this._top;
       }
-    };
+    }
 
-    _proto._verifyHostFrameOffset = function _verifyHostFrameOffset() {
-      var _this2 = this;
-
+    _verifyHostFrameOffset() {
       // Asynchronously verify the host frame option with this._top
-      var callback = function callback(e) {
-        if (e.source === _this2._top && e.data && typeof e.data.hostFrameOffset === 'number') {
+      var callback = e => {
+        if (e.source === this._top && e.data && typeof e.data.hostFrameOffset === 'number') {
           window.removeEventListener('message', callback);
 
-          if (_this2._getHostFrame(e.data.hostFrameOffset) !== _this2._topHost) {
+          if (this._getHostFrame(e.data.hostFrameOffset) !== this._topHost) {
             util.error('hostFrameOffset tampering detected, setting host frame to top window');
-            _this2._topHost = _this2._top;
+            this._topHost = this._top;
           }
         }
       };
@@ -2001,9 +1916,9 @@ var AP = (function () {
       this._top.postMessage({
         type: 'get_host_offset'
       }, this._hostOrigin);
-    };
+    }
 
-    _proto._handleApiTamper = function _handleApiTamper(event) {
+    _handleApiTamper(event) {
       if (event.data.tampered !== false) {
         this._host = undefined;
         this._apiTampered = true;
@@ -2017,9 +1932,9 @@ var AP = (function () {
       }
 
       this._onConfirmedFns = [];
-    };
+    }
 
-    _proto._registerOnUnload = function _registerOnUnload() {
+    _registerOnUnload() {
       $$2.bind(window, 'unload', util._bind(this, function () {
         this._sendUnload(this._host, this._data.origin);
 
@@ -2027,23 +1942,23 @@ var AP = (function () {
           this._sendUnload(this._topHost, this._hostOrigin);
         }
       }));
-    };
+    }
 
-    _proto._sendUnload = function _sendUnload(frame, origin) {
+    _sendUnload(frame, origin) {
       frame.postMessage({
         eid: this._data.extension_id,
         type: 'unload'
       }, origin || '*');
-    };
+    }
 
-    _proto._bindKeyDown = function _bindKeyDown() {
+    _bindKeyDown() {
       if (!this._isKeyDownBound) {
         $$2.bind(window, 'keydown', util._bind(this, this._handleKeyDownDomEvent));
         this._isKeyDownBound = true;
       }
-    };
+    }
 
-    _proto._autoResizer = function _autoResizer() {
+    _autoResizer() {
       this._enableAutoResize = Boolean(ConfigurationOptions$1.get('autoresize'));
 
       if (consumerOptions.get('resize') === false || consumerOptions.get('sizeToParent') === true) {
@@ -2070,30 +1985,28 @@ var AP = (function () {
     *   }
     * }
     **/
-    ;
 
-    _proto._parseInitData = function _parseInitData(data) {
+
+    _parseInitData(data) {
       try {
         return JSON.parse(data || window.name);
       } catch (e) {
         return {};
       }
-    };
+    }
 
-    _proto._findTarget = function _findTarget(moduleName, methodName) {
+    _findTarget(moduleName, methodName) {
       return this._data.options && this._data.options.targets && this._data.options.targets[moduleName] && this._data.options.targets[moduleName][methodName] ? this._data.options.targets[moduleName][methodName] : 'top';
-    };
+    }
 
-    _proto._createModule = function _createModule(moduleName, api) {
-      var _this3 = this;
-
-      return Object.getOwnPropertyNames(api).reduce(function (accumulator, memberName) {
-        var member = api[memberName];
+    _createModule(moduleName, api) {
+      return Object.getOwnPropertyNames(api).reduce((accumulator, memberName) => {
+        const member = api[memberName];
 
         if (member.hasOwnProperty('constructor')) {
-          accumulator[memberName] = _this3._createProxy(moduleName, member, memberName);
+          accumulator[memberName] = this._createProxy(moduleName, member, memberName);
         } else {
-          accumulator[memberName] = _this3._createMethodHandler({
+          accumulator[memberName] = this._createMethodHandler({
             mod: moduleName,
             fn: memberName,
             returnsPromise: member.returnsPromise
@@ -2102,44 +2015,40 @@ var AP = (function () {
 
         return accumulator;
       }, {});
-    };
+    }
 
-    _proto._setupAPI = function _setupAPI(api) {
-      var _this4 = this;
-
-      this._hostModules = Object.getOwnPropertyNames(api).reduce(function (accumulator, moduleName) {
-        accumulator[moduleName] = _this4._createModule(moduleName, api[moduleName], api[moduleName]._options);
+    _setupAPI(api) {
+      this._hostModules = Object.getOwnPropertyNames(api).reduce((accumulator, moduleName) => {
+        accumulator[moduleName] = this._createModule(moduleName, api[moduleName], api[moduleName]._options);
         return accumulator;
       }, {});
-      Object.getOwnPropertyNames(this._hostModules._globals || {}).forEach(function (global) {
-        _this4[global] = _this4._hostModules._globals[global];
+      Object.getOwnPropertyNames(this._hostModules._globals || {}).forEach(global => {
+        this[global] = this._hostModules._globals[global];
       });
-    };
+    }
 
-    _proto._setupAPIWithoutRequire = function _setupAPIWithoutRequire(api) {
-      var _this5 = this;
-
-      Object.getOwnPropertyNames(api).forEach(function (moduleName) {
-        if (typeof _this5[moduleName] !== "undefined") {
+    _setupAPIWithoutRequire(api) {
+      Object.getOwnPropertyNames(api).forEach(moduleName => {
+        if (typeof this[moduleName] !== "undefined") {
           throw new Error('XDM module: ' + moduleName + ' will collide with existing variable');
         }
 
-        _this5[moduleName] = _this5._createModule(moduleName, api[moduleName]);
+        this[moduleName] = this._createModule(moduleName, api[moduleName]);
       }, this);
-    };
+    }
 
-    _proto._pendingCallback = function _pendingCallback(mid, fn, metaData) {
+    _pendingCallback(mid, fn, metaData) {
       if (metaData) {
-        Object.getOwnPropertyNames(metaData).forEach(function (metaDataName) {
+        Object.getOwnPropertyNames(metaData).forEach(metaDataName => {
           fn[metaDataName] = metaData[metaDataName];
         });
       }
 
       this._pendingCallbacks[mid] = fn;
-    };
+    }
 
-    _proto._createProxy = function _createProxy(moduleName, api, className) {
-      var module = this._createModule(moduleName, api);
+    _createProxy(moduleName, api, className) {
+      const module = this._createModule(moduleName, api);
 
       function Cls(args) {
         if (!(this instanceof Cls)) {
@@ -2152,19 +2061,19 @@ var AP = (function () {
         return this;
       }
 
-      Object.getOwnPropertyNames(module).forEach(function (methodName) {
+      Object.getOwnPropertyNames(module).forEach(methodName => {
         if (methodName !== 'constructor') {
           Cls.prototype[methodName] = module[methodName];
         }
       });
       return Cls;
-    };
+    }
 
-    _proto._createMethodHandler = function _createMethodHandler(methodData) {
-      var that = this;
+    _createMethodHandler(methodData) {
+      let that = this;
       return function () {
-        var args = util.argumentsToArray(arguments);
-        var data = {
+        const args = util.argumentsToArray(arguments);
+        const data = {
           eid: that._data.extension_id,
           type: 'req',
           mod: methodData.mod,
@@ -2172,8 +2081,8 @@ var AP = (function () {
         };
         var targetOrigin;
         var target;
-        var xdmPromise;
-        var mid = util.randomString();
+        let xdmPromise;
+        const mid = util.randomString();
 
         if (that._findTarget(methodData.mod, methodData.fn) === 'top') {
           target = that._topHost;
@@ -2192,7 +2101,7 @@ var AP = (function () {
           });
         } else if (methodData.returnsPromise) {
           data.mid = mid;
-          xdmPromise = new Promise$1(function (resolve, reject) {
+          xdmPromise = new Promise$1((resolve, reject) => {
             that._pendingCallback(data.mid, function (err, result) {
               if (err || typeof result === 'undefined' && typeof err === 'undefined') {
                 reject(err);
@@ -2204,8 +2113,8 @@ var AP = (function () {
               isPromiseMethod: Boolean(methodData.returnsPromise)
             });
           });
-          xdmPromise.catch(function (err) {
-            util.warn("Failed promise: " + err);
+          xdmPromise.catch(err => {
+            util.warn("Failed promise: ".concat(err));
           });
         }
 
@@ -2228,9 +2137,9 @@ var AP = (function () {
           return xdmPromise;
         }
       };
-    };
+    }
 
-    _proto._handleResponse = function _handleResponse(event) {
+    _handleResponse(event) {
       var data = event.data;
 
       if (!data.forPlugin) {
@@ -2254,10 +2163,10 @@ var AP = (function () {
           util.error(e.message, e.stack);
         }
       }
-    };
+    }
 
-    _proto._handleEvent = function _handleEvent(event) {
-      var sendResponse = function sendResponse() {
+    _handleEvent(event) {
+      var sendResponse = function () {
         var args = util.argumentsToArray(arguments);
         event.source.postMessage({
           eid: this._data.extension_id,
@@ -2287,7 +2196,7 @@ var AP = (function () {
 
       var handlers = toArray(this._eventHandlers[data.etyp]);
       handlers = handlers.concat(toArray(this._eventHandlers._any));
-      handlers.forEach(function (handler) {
+      handlers.forEach(handler => {
         try {
           handler(data.evnt, sendResponse);
         } catch (e) {
@@ -2298,11 +2207,11 @@ var AP = (function () {
       if (data.mid) {
         sendResponse();
       }
-    };
+    }
 
-    _proto._handleKeyDownDomEvent = function _handleKeyDownDomEvent(event) {
+    _handleKeyDownDomEvent(event) {
       var modifiers = [];
-      POSSIBLE_MODIFIER_KEYS.forEach(function (modifierKey) {
+      POSSIBLE_MODIFIER_KEYS.forEach(modifierKey => {
         if (event[modifierKey + 'Key']) {
           modifiers.push(modifierKey);
         }
@@ -2320,9 +2229,9 @@ var AP = (function () {
           type: 'key_triggered'
         }, this._data.origin);
       }
-    };
+    }
 
-    _proto._keyListenerId = function _keyListenerId(keycode, modifiers) {
+    _keyListenerId(keycode, modifiers) {
       var keyListenerId = keycode;
 
       if (modifiers) {
@@ -2331,15 +2240,15 @@ var AP = (function () {
         }
 
         modifiers.sort();
-        modifiers.forEach(function (modifier) {
+        modifiers.forEach(modifier => {
           keyListenerId += '$$' + modifier;
         }, this);
       }
 
       return keyListenerId;
-    };
+    }
 
-    _proto._handleKeyListen = function _handleKeyListen(postMessageEvent) {
+    _handleKeyListen(postMessageEvent) {
       var keyListenerId = this._keyListenerId(postMessageEvent.data.keycode, postMessageEvent.data.modifiers);
 
       if (postMessageEvent.data.action === "remove") {
@@ -2352,10 +2261,10 @@ var AP = (function () {
 
         this._keyListeners.push(keyListenerId);
       }
-    };
+    }
 
-    _proto._checkOrigin = function _checkOrigin(event) {
-      var no_source_types = ['api_tamper'];
+    _checkOrigin(event) {
+      let no_source_types = ['api_tamper'];
 
       if (event.data && no_source_types.indexOf(event.data.type) > -1) {
         return true;
@@ -2366,15 +2275,13 @@ var AP = (function () {
       }
 
       return event.origin === this._data.origin && event.source === this._host;
-    };
+    }
 
-    _proto._handleInitReceived = function _handleInitReceived() {
+    _handleInitReceived() {
       this._initReceived = true;
-    };
+    }
 
-    _proto._sendInit = function _sendInit(frame, origin) {
-      var _this6 = this;
-
+    _sendInit(frame, origin) {
       var targets;
 
       if (frame === this._topHost && this._topHost !== window.parent) {
@@ -2386,14 +2293,14 @@ var AP = (function () {
         type: 'init',
         targets: targets
       }, origin || '*');
-      this._initCheck && this._data.options.globalOptions.check_init && setTimeout(function () {
-        if (!_this6._initReceived) {
+      this._initCheck && this._data.options.globalOptions.check_init && setTimeout(() => {
+        if (!this._initReceived) {
           throw new Error("Initialization message not received");
         }
       }, this._initTimeout);
-    };
+    }
 
-    _proto.sendSubCreate = function sendSubCreate(extension_id, options) {
+    sendSubCreate(extension_id, options) {
       options.id = extension_id;
 
       this._topHost.postMessage({
@@ -2401,9 +2308,9 @@ var AP = (function () {
         type: 'sub',
         ext: options
       }, this._hostOrigin);
-    };
+    }
 
-    _proto.broadcast = function broadcast(event, evnt) {
+    broadcast(event, evnt) {
       if (!util.isString(event)) {
         throw new Error("Event type must be string");
       }
@@ -2414,21 +2321,19 @@ var AP = (function () {
         etyp: event,
         evnt: evnt
       }, this._data.origin);
-    };
+    }
 
-    _proto.require = function require(modules, callback) {
-      var _this7 = this;
-
-      var requiredModules = Array.isArray(modules) ? modules : [modules],
-          args = requiredModules.map(function (module) {
-        return _this7._hostModules[module] || _this7._hostModules._globals[module];
+    require(modules, callback) {
+      let requiredModules = Array.isArray(modules) ? modules : [modules],
+          args = requiredModules.map(module => {
+        return this._hostModules[module] || this._hostModules._globals[module];
       });
       callback.apply(window, args);
-    };
+    }
 
-    _proto.register = function register(handlers) {
+    register(handlers) {
       if (typeof handlers === "object") {
-        this._eventHandlers = _extends$1({}, this._eventHandlers, handlers) || {};
+        this._eventHandlers = _objectSpread(_objectSpread({}, this._eventHandlers), handlers) || {};
 
         this._host.postMessage({
           eid: this._data.extension_id,
@@ -2436,33 +2341,26 @@ var AP = (function () {
           args: Object.getOwnPropertyNames(handlers)
         }, this._data.origin);
       }
-    };
+    }
 
-    _proto.registerAny = function registerAny(handlers) {
+    registerAny(handlers) {
       this.register({
         '_any': handlers
       });
-    };
+    }
 
-    _proto._initResize = function _initResize() {
+    _initResize() {
       this.resize();
       var autoresize = new AutoResizeAction(this.resize);
       resizeListener.add(util._bind(autoresize, autoresize.triggered));
-    };
+    }
 
-    return AP;
-  }(PostMessage);
+  }
 
-  var Combined =
-  /*#__PURE__*/
-  function (_Host) {
-    inheritsLoose(Combined, _Host);
-
-    function Combined(initCheck) {
-      var _this;
-
-      _this = _Host.call(this) || this;
-      _this.parentTargets = {
+  class Combined extends Connect {
+    constructor(initCheck) {
+      super();
+      this.parentTargets = {
         _globals: {}
       };
       var plugin = new AP(undefined, initCheck); // export options from plugin to host.
@@ -2471,10 +2369,10 @@ var AP = (function () {
         if (['_hostModules', '_globals'].indexOf(prop) === -1 && this[prop] === undefined) {
           this[prop] = plugin[prop];
         }
-      }, assertThisInitialized(_this));
+      }, this);
       ['registerAny', 'register'].forEach(function (prop) {
         this[prop] = Object.getPrototypeOf(plugin)[prop].bind(plugin);
-      }, assertThisInitialized(_this)); //write plugin modules to host.
+      }, this); //write plugin modules to host.
 
       var moduleSpec = plugin._data.api;
 
@@ -2493,18 +2391,18 @@ var AP = (function () {
           }, this);
 
           this._xdm.defineAPIModule(accumulator, moduleName);
-        }, assertThisInitialized(_this));
+        }, this);
       }
 
-      _this._hostModules = plugin._hostModules;
+      this._hostModules = plugin._hostModules;
 
-      _this.defineGlobal = function (module) {
+      this.defineGlobal = function (module) {
         this.parentTargets['_globals'] = util.extend({}, this.parentTargets['_globals'], module);
 
         this._xdm.defineAPIModule(module);
       };
 
-      _this.defineModule = function (moduleName, module) {
+      this.defineModule = function (moduleName, module) {
         this._xdm.defineAPIModule(module, moduleName);
 
         this.parentTargets[moduleName] = {};
@@ -2513,7 +2411,7 @@ var AP = (function () {
         }, this);
       };
 
-      _this.subCreate = function (extensionOptions, initCallback) {
+      this.subCreate = function (extensionOptions, initCallback) {
         extensionOptions.options = extensionOptions.options || {};
         extensionOptions.options.targets = util.extend({}, this.parentTargets, extensionOptions.options.targets);
         var extension = this.create(extensionOptions, initCallback);
@@ -2524,33 +2422,30 @@ var AP = (function () {
 
         return extension;
       };
-
-      return _this;
     }
 
-    return Combined;
-  }(Connect);
+  }
 
   var combined = new Combined();
 
   function deprecate (fn, name, alternate, sinceVersion) {
-    var called = false;
+    let called = false;
     return function () {
       if (!called && typeof console !== 'undefined' && console.warn) {
         called = true;
-        console.warn("DEPRECATED API - " + name + " has been deprecated " + (sinceVersion ? "since ACJS " + sinceVersion : 'in ACJS') + (" and will be removed in a future release. " + (alternate ? "Use " + alternate + " instead." : 'No alternative will be provided.')));
+        console.warn("DEPRECATED API - ".concat(name, " has been deprecated ").concat(sinceVersion ? "since ACJS ".concat(sinceVersion) : 'in ACJS') + " and will be removed in a future release. ".concat(alternate ? "Use ".concat(alternate, " instead.") : 'No alternative will be provided.'));
 
         if (combined._analytics) {
           combined._analytics.trackDeprecatedMethodUsed(name);
         }
       }
 
-      return fn.apply(void 0, arguments);
+      return fn(...arguments);
     };
   }
 
   // universal iterator utility
-  function each(o, it) {
+  function each$1(o, it) {
     var l;
     var k;
 
@@ -2614,25 +2509,25 @@ var AP = (function () {
   }
 
   var _util = {
-    each: each,
-    log: log,
-    decodeQueryComponent: decodeQueryComponent,
+    each: each$1,
+    log,
+    decodeQueryComponent,
     bind: binder('add', 'attach'),
     unbind: binder('remove', 'detach'),
-    extend: function extend(dest) {
+    extend: function (dest) {
       var args = arguments;
       var srcs = [].slice.call(args, 1, args.length);
-      each(srcs, function (i, src) {
-        each(src, function (k, v) {
+      each$1(srcs, function (i, src) {
+        each$1(src, function (k, v) {
           dest[k] = v;
         });
       });
       return dest;
     },
-    trim: function trim(s) {
+    trim: function (s) {
       return s && s.replace(/^\s+|\s+$/g, '');
     },
-    debounce: function debounce(fn, wait) {
+    debounce: function (fn, wait) {
       var timeout;
       return function () {
         var ctx = this;
@@ -2650,17 +2545,17 @@ var AP = (function () {
         timeout = setTimeout(later, wait || 50);
       };
     },
-    isFunction: function isFunction(fn) {
+    isFunction: function (fn) {
       return typeof fn === 'function';
     },
-    handleError: function handleError(err) {
+    handleError: function (err) {
       if (!log.apply(this, err && err.message ? [err, err.message] : [err])) {
         throw err;
       }
     }
   };
 
-  var _each = _util.each;
+  var each = _util.each;
   var extend = _util.extend;
   var document$1 = window.document;
 
@@ -2671,8 +2566,7 @@ var AP = (function () {
     if (sel) {
       if (typeof sel === 'string') {
         var results = context.querySelectorAll(sel);
-
-        _each(results, function (i, v) {
+        each(results, function (i, v) {
           els.push(v);
         });
       } else if (sel.nodeType === 1) {
@@ -2683,17 +2577,16 @@ var AP = (function () {
     }
 
     extend(els, {
-      each: function each(it) {
-        _each(this, it);
-
+      each: function (it) {
+        each(this, it);
         return this;
       },
-      bind: function bind(name, callback) {
+      bind: function (name, callback) {
         this.each(function (i, el) {
           _util.bind(el, name, callback);
         });
       },
-      attr: function attr(k) {
+      attr: function (k) {
         var v;
         this.each(function (i, el) {
           v = el[k] || el.getAttribute && el.getAttribute(k);
@@ -2701,23 +2594,22 @@ var AP = (function () {
         });
         return v;
       },
-      removeClass: function removeClass(className) {
+      removeClass: function (className) {
         return this.each(function (i, el) {
           if (el.className) {
             el.className = el.className.replace(new RegExp('(^|\\s)' + className + '(\\s|$)'), ' ');
           }
         });
       },
-      html: function html(_html) {
+      html: function (html) {
         return this.each(function (i, el) {
-          el.innerHTML = _html;
+          el.innerHTML = html;
         });
       },
-      append: function append(spec) {
+      append: function (spec) {
         return this.each(function (i, to) {
           var el = context.createElement(spec.tag);
-
-          _each(spec, function (k, v) {
+          each(spec, function (k, v) {
             if (k === '$text') {
               if (el.styleSheet) {
                 // style tags in ie
@@ -2729,7 +2621,6 @@ var AP = (function () {
               el[k] = v;
             }
           });
-
           to.appendChild(el);
         });
       }
@@ -2772,18 +2663,14 @@ var AP = (function () {
    * @module
    */
 
-  var Events =
-  /*#__PURE__*/
-  function () {
-    function Events() {
+  class Events {
+    constructor() {
       this._events = {};
       this.ANY_PREFIX = '_any';
       this.methods = ['off', 'offAll', 'offAny', 'on', 'onAny', 'once'];
     }
 
-    var _proto = Events.prototype;
-
-    _proto._anyListener = function _anyListener(data, callback) {
+    _anyListener(data, callback) {
       var eventName = callback._context.eventName;
       var any = this._events[this.ANY_PREFIX] || [];
       var byName = this._events[eventName] || [];
@@ -2792,7 +2679,7 @@ var AP = (function () {
         data = [data];
       }
 
-      any.forEach(function (handler) {
+      any.forEach(handler => {
         //clone data before modifying
         var args = data.slice(0);
         args.unshift(eventName);
@@ -2802,12 +2689,12 @@ var AP = (function () {
         });
         handler.apply(null, args);
       });
-      byName.forEach(function (handler) {
+      byName.forEach(handler => {
         handler.apply(null, data);
       });
-    };
+    }
 
-    _proto.off = function off(name, listener) {
+    off(name, listener) {
       if (this._events[name]) {
         var index = this._events[name].indexOf(listener);
 
@@ -2819,29 +2706,29 @@ var AP = (function () {
           delete this._events[name];
         }
       }
-    };
+    }
 
-    _proto.offAll = function offAll(name) {
+    offAll(name) {
       delete this._events[name];
-    };
+    }
 
-    _proto.offAny = function offAny(listener) {
+    offAny(listener) {
       this.off(this.ANY_PREFIX, listener);
-    };
+    }
 
-    _proto.on = function on(name, listener) {
+    on(name, listener) {
       if (!this._events[name]) {
         this._events[name] = [];
       }
 
       this._events[name].push(listener);
-    };
+    }
 
-    _proto.onAny = function onAny(listener) {
+    onAny(listener) {
       this.on(this.ANY_PREFIX, listener);
-    };
+    }
 
-    _proto.once = function once(name, listener) {
+    once(name, listener) {
       var _that = this;
 
       function runOnce() {
@@ -2988,29 +2875,19 @@ var AP = (function () {
      * @param {String} name The name of event to emit
      * @param {String[]} args 0 or more additional data arguments to deliver with the event
      */
-    ;
 
-    return Events;
-  }();
+
+  }
 
   var EventsInstance = new Events();
 
-  var PublicEvents =
-  /*#__PURE__*/
-  function (_Events) {
-    inheritsLoose(PublicEvents, _Events);
-
-    function PublicEvents() {
-      var _this;
-
-      _this = _Events.call(this) || this;
-      _this.methods = ['offPublic', 'offAllPublic', 'offAnyPublic', 'onPublic', 'onAnyPublic', 'oncePublic'];
-      return _this;
+  class PublicEvents extends Events {
+    constructor() {
+      super();
+      this.methods = ['offPublic', 'offAllPublic', 'offAnyPublic', 'onPublic', 'onAnyPublic', 'oncePublic'];
     }
 
-    var _proto = PublicEvents.prototype;
-
-    _proto._filterEval = function _filterEval(filter, toCompare) {
+    _filterEval(filter, toCompare) {
       var value = true;
 
       if (!filter) {
@@ -3030,9 +2907,9 @@ var AP = (function () {
       }
 
       return value;
-    };
+    }
 
-    _proto.once = function once(name, listener, filter) {
+    once(name, listener, filter) {
       var that = this;
 
       function runOnce(data) {
@@ -3041,51 +2918,50 @@ var AP = (function () {
       }
 
       this.on(name, runOnce, filter);
-    };
+    }
 
-    _proto.on = function on(name, listener, filter) {
+    on(name, listener, filter) {
       listener._wrapped = function (data) {
         if (this._filterEval(filter, data.sender)) {
           listener.apply(null, data.event);
         }
       }.bind(this);
 
-      _Events.prototype.on.call(this, name, listener._wrapped);
-    };
+      super.on(name, listener._wrapped);
+    }
 
-    _proto.off = function off(name, listener) {
+    off(name, listener) {
       if (listener._wrapped) {
-        _Events.prototype.off.call(this, name, listener._wrapped);
+        super.off(name, listener._wrapped);
       } else {
-        _Events.prototype.off.call(this, name, listener);
+        super.off(name, listener);
       }
-    };
+    }
 
-    _proto.onAny = function onAny(listener, filter) {
+    onAny(listener, filter) {
       listener._wrapped = function (data) {
         if (data.sender && this._filterEval(filter, data.sender)) {
           listener.apply(null, data.event);
         }
       };
 
-      _Events.prototype.onAny.call(this, listener._wrapped);
-    };
+      super.onAny(listener._wrapped);
+    }
 
-    _proto.offAny = function offAny(listener) {
+    offAny(listener) {
       if (listener._wrapped) {
-        _Events.prototype.offAny.call(this, name, listener._wrapped);
+        super.offAny(name, listener._wrapped);
       } else {
-        _Events.prototype.offAny.call(this, name, listener);
+        super.offAny(name, listener);
       }
-    };
+    }
 
-    return PublicEvents;
-  }(Events);
+  }
 
   var PublicEventsInstance = new PublicEvents();
 
-  var customButtonIncrement = 1;
-  var getCustomData = deprecate(function () {
+  let customButtonIncrement = 1;
+  const getCustomData = deprecate(() => {
     return combined._data.options.customData;
   }, 'AP.dialog.customData', 'AP.dialog.getCustomData()', '5.0');
 
@@ -3115,11 +2991,11 @@ var AP = (function () {
     };
   }
 
-  var dialogHandlers = {};
+  const dialogHandlers = {};
   EventsInstance.onAny(eventDelegator);
 
   function eventDelegator(name, args) {
-    var dialogEventMatch = name.match(/^dialog\.(\w+)/);
+    let dialogEventMatch = name.match(/^dialog\.(\w+)/);
 
     if (!dialogEventMatch) {
       return;
@@ -3137,7 +3013,7 @@ var AP = (function () {
 
     if (callbacks && callbacks.length !== 0) {
       try {
-        callbacks.forEach(function (callback) {
+        callbacks.forEach(callback => {
           callback.call(null, args);
         });
       } catch (err) {
@@ -3147,8 +3023,8 @@ var AP = (function () {
   }
 
   function submitOrCancelEvent(name, args) {
-    var handlers = dialogHandlers[name];
-    var shouldClose = name !== 'close';
+    let handlers = dialogHandlers[name];
+    let shouldClose = name !== 'close';
     var context = null; // ignore events that are triggered by button clicks
     // allow dialog.close through for close on ESC
 
@@ -3167,9 +3043,7 @@ var AP = (function () {
           context = combined.dialog.getButton(args.button.name);
         }
 
-        shouldClose = handlers.reduce(function (result, cb) {
-          return cb.call(context, args) && result;
-        }, shouldClose);
+        shouldClose = handlers.reduce((result, cb) => cb.call(context, args) && result, shouldClose);
       }
     } catch (err) {
       console.error(err);
@@ -3193,10 +3067,10 @@ var AP = (function () {
   }
 
   if (combined.dialog && combined.dialog.create) {
-    var original_dialogCreate = combined.dialog.create.prototype.constructor.bind({});
+    const original_dialogCreate = combined.dialog.create.prototype.constructor.bind({});
 
     combined.dialog.create = combined._hostModules.dialog.create = function () {
-      var dialog = original_dialogCreate.apply(void 0, arguments);
+      const dialog = original_dialogCreate(...arguments);
       /**
        * Allows the add-on to register a callback function for the given event. The listener is only called once and must be re-registered if needed.
        * @deprecated after August 2017 | Please use <code>AP.events.on("dialog.close", callback)</code> instead.
@@ -3216,11 +3090,11 @@ var AP = (function () {
   }
 
   if (combined.dialog && combined.dialog.getButton) {
-    var original_dialogGetButton = combined.dialog.getButton.prototype.constructor.bind({});
+    let original_dialogGetButton = combined.dialog.getButton.prototype.constructor.bind({});
 
     combined.dialog.getButton = combined._hostModules.dialog.getButton = function (name) {
       try {
-        var button = original_dialogGetButton(name);
+        const button = original_dialogGetButton(name);
         /**
          * Registers a function to be called when the button is clicked.
          * @deprecated after August 2017 | Please use <code>AP.events.on("dialog.message", callback)</code> instead.
@@ -3235,9 +3109,7 @@ var AP = (function () {
          * });
          */
 
-        button.bind = deprecate(function (callback) {
-          return registerHandler(name, callback);
-        }, 'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
+        button.bind = deprecate(callback => registerHandler(name, callback), 'AP.dialog.getDialogButton().bind()', 'AP.events.on("dialog.message", callback)', '5.0');
         return button;
       } catch (e) {
         return {};
@@ -3246,10 +3118,10 @@ var AP = (function () {
   }
 
   if (combined.dialog && combined.dialog.createButton) {
-    var original_dialogCreateButton = combined.dialog.createButton.prototype.constructor.bind({});
+    let original_dialogCreateButton = combined.dialog.createButton.prototype.constructor.bind({});
 
     combined.dialog.createButton = combined._hostModules.dialog.createButton = function (options) {
-      var buttonProperties = {};
+      let buttonProperties = {};
 
       if (typeof options !== 'object') {
         buttonProperties.text = options;
@@ -3379,7 +3251,7 @@ var AP = (function () {
 
 
   var AMD = {
-    define: function define(name, deps, exports) {
+    define: function (name, deps, exports) {
       var mod = getOrCreate(name);
       var factory;
 
@@ -3409,35 +3281,31 @@ var AP = (function () {
         });
       }
     },
-    require: function require(deps, callback) {
+    require: function (deps, callback) {
       reqAll(typeof deps === 'string' ? [deps] : deps, callback);
     }
   };
 
   function getMeta(name) {
-    return $$1("meta[name='ap-" + name + "']").attr('content');
+    return $$1("meta[name='ap-".concat(name, "']")).attr('content');
   }
 
   var Meta = {
     getMeta: getMeta,
-    localUrl: function localUrl(path) {
-      var url = getMeta('local-base-url');
-      return typeof url === 'undefined' || typeof path === 'undefined' ? url : "" + url + path;
+    localUrl: function (path) {
+      const url = getMeta('local-base-url');
+      return typeof url === 'undefined' || typeof path === 'undefined' ? url : "".concat(url).concat(path);
     }
   };
 
   // duplicated from ./host/stores/extension_configuration_options_store
 
-  var ExtensionConfigurationOptionsStore =
-  /*#__PURE__*/
-  function () {
-    function ExtensionConfigurationOptionsStore() {
+  class ExtensionConfigurationOptionsStore {
+    constructor() {
       this.store = {};
     }
 
-    var _proto = ExtensionConfigurationOptionsStore.prototype;
-
-    _proto.set = function set(obj, val) {
+    set(obj, val) {
       if (val) {
         var toSet = {};
         toSet[obj] = val;
@@ -3446,56 +3314,55 @@ var AP = (function () {
       }
 
       _util.extend(this.store, toSet);
-    };
+    }
 
-    _proto.get = function get(key) {
+    get(key) {
       if (key) {
         return this.store[key];
       }
 
       return _util.extend({}, this.store); //clone
-    };
+    }
 
-    return ExtensionConfigurationOptionsStore;
-  }();
+  }
 
   var ExtensionConfigurationOptionsStore$1 = new ExtensionConfigurationOptionsStore();
 
   function getMetrics() {
     if (window.performance && window.performance.getEntries) {
-      var navigationEntries = window.performance.getEntriesByType('navigation');
+      let navigationEntries = window.performance.getEntriesByType('navigation');
 
       if (navigationEntries && navigationEntries[0]) {
-        var timingInfo = navigationEntries[0]; // dns loookup time
+        let timingInfo = navigationEntries[0]; // dns loookup time
 
-        var domainLookupTime = timingInfo.domainLookupEnd - timingInfo.domainLookupStart;
-        var connectStart = timingInfo.connectStart; // if it's a tls connection, use the secure connection start instead
+        let domainLookupTime = timingInfo.domainLookupEnd - timingInfo.domainLookupStart;
+        let connectStart = timingInfo.connectStart; // if it's a tls connection, use the secure connection start instead
 
         if (timingInfo.secureConnectionStart > 0) {
           connectStart = timingInfo.secureConnectionStart;
         } // connection negotiation time
 
 
-        var connectionTime = timingInfo.connectEnd - connectStart; // page body size
+        let connectionTime = timingInfo.connectEnd - connectStart; // page body size
 
-        var decodedBodySize = timingInfo.decodedBodySize; // time to load dom
+        let decodedBodySize = timingInfo.decodedBodySize; // time to load dom
 
-        var domContentLoadedTime = timingInfo.domContentLoadedEventEnd - timingInfo.domContentLoadedEventStart; // time to download the page
+        let domContentLoadedTime = timingInfo.domContentLoadedEventEnd - timingInfo.domContentLoadedEventStart; // time to download the page
 
-        var fetchTime = timingInfo.responseEnd - timingInfo.fetchStart;
+        let fetchTime = timingInfo.responseEnd - timingInfo.fetchStart;
         return {
-          domainLookupTime: domainLookupTime,
-          connectionTime: connectionTime,
-          decodedBodySize: decodedBodySize,
-          domContentLoadedTime: domContentLoadedTime,
-          fetchTime: fetchTime
+          domainLookupTime,
+          connectionTime,
+          decodedBodySize,
+          domContentLoadedTime,
+          fetchTime
         };
       }
     }
   }
 
   function sendMetrics() {
-    var metrics = getMetrics();
+    let metrics = getMetrics();
 
     if (combined._analytics && combined._analytics.trackIframePerformanceMetrics) {
       combined._analytics.trackIframePerformanceMetrics(metrics);
@@ -3503,7 +3370,7 @@ var AP = (function () {
   }
 
   var analytics = {
-    sendMetrics: sendMetrics
+    sendMetrics
   };
 
   combined._hostModules._dollar = $$1;
@@ -3516,7 +3383,7 @@ var AP = (function () {
   }
 
   if (consumerOptions.get('base') === true) {
-    combined.env && combined.env.getLocation(function (loc) {
+    combined.env && combined.env.getLocation(loc => {
       $$1('head').append({
         tag: 'base',
         href: loc,
@@ -3525,22 +3392,22 @@ var AP = (function () {
     });
   }
 
-  $$1.each(EventsInstance.methods, function (i, method) {
+  $$1.each(EventsInstance.methods, (i, method) => {
     if (combined._hostModules && combined._hostModules.events) {
       combined._hostModules.events[method] = combined.events[method] = EventsInstance[method].bind(EventsInstance);
       combined._hostModules.events[method + 'Public'] = combined.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
     }
   });
   combined.define = deprecate(function () {
-    return AMD.define.apply(AMD, arguments);
+    return AMD.define(...arguments);
   }, 'AP.define()', null, '5.0');
   combined.require = deprecate(function () {
-    return AMD.require.apply(AMD, arguments);
+    return AMD.require(...arguments);
   }, 'AP.require()', null, '5.0');
   var margin = combined._data.options.isDialog ? '10px 10px 0 10px' : '0';
 
   if (consumerOptions.get('margin') !== false) {
-    var setBodyMargin = function setBodyMargin() {
+    var setBodyMargin = function () {
       if (document.body) {
         document.body.style.setProperty('margin', margin, 'important');
       }
@@ -3571,7 +3438,7 @@ var AP = (function () {
 
   if (combined.defineModule) {
     combined.defineModule('env', {
-      resize: function resize(w, h, callback) {
+      resize: function (w, h, callback) {
         var iframe = document.getElementById(callback._context.extension_id);
         iframe.style.width = w + (typeof w === 'number' ? 'px' : '');
         iframe.style.height = h + (typeof h === 'number' ? 'px' : '');

@@ -42,7 +42,11 @@ module.exports = function(config) {
         ]
       },
       plugins: [
-      ]
+      ],
+      mode: 'development',
+      optimization: {
+        minimize: false
+      },
     },
 
     // test results reporter to use

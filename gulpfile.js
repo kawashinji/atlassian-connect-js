@@ -25,22 +25,12 @@ function build(entryModule, distModule, options) {
         plugins: [
           '@babel/plugin-transform-runtime',
           // Stage 2
-          ['@babel/plugin-proposal-decorators', { 'legacy': true }]
+          ['@babel/plugin-proposal-decorators', { 'legacy': true }],
+          '@babel/plugin-proposal-object-rest-spread'
         ],
         presets: [
           ['@babel/preset-env', {
-            'targets': {
-              'browsers': [
-                'last 1 Chrome versions',
-                'last 1 Firefox versions',
-                'last 1 Safari versions',
-                'Explorer 11',
-                'last 1 Edge versions'
-              ]
-            },
-            'modules': false,
             'useBuiltIns': false,
-            'loose': true,
             'debug': true
           }]
         ],
