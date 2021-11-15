@@ -153,10 +153,6 @@ class AnalyticsDispatcher {
   }
 
   trackMacroCombination(parentExtensionId, childExtension) {
-    if (!getBooleanFeatureFlag('com.atlassian.connect.track-macro-combination')) {
-      return;
-    }
-
     var partsOfParentExtensionId = parentExtensionId.split('__');
     if(partsOfParentExtensionId.length !== 3) {
       // this case shouldn't happen generally, adding this just in case
