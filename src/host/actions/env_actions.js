@@ -2,7 +2,6 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
 import IframeComponent from '../components/iframe';
 import $ from '../dollar';
-import getBooleanFeatureFlag from '../utils/feature-flag';
 
 EventDispatcher.register('iframe-resize', function(data) {
   IframeComponent.resize(data.width, data.height, data.$el);
