@@ -7,7 +7,9 @@ export default {
     AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
   },
   trackMacroCombination: function trackMacroCombination(parentExtensionId, childExtension) {
-    AnalyticsAction.trackMacroCombination(parentExtensionId, childExtension);
+    if(parentExtensionId && childExtension) {
+      AnalyticsAction.trackMacroCombination(parentExtensionId, childExtension);
+    }
   },
   trackIframePerformanceMetrics: function trackIframePerformanceMetrics(metrics, callback) {
     callback = util.last(arguments);

@@ -35,13 +35,7 @@ EventDispatcher.register('dialog-button-click', (data) => {
     key: data.extension.key
   };
 
-  if(
-      window.AJS &&
-      window.AJS.DarkFeatures &&
-      window.AJS.DarkFeatures.isEnabled &&
-      window.AJS.DarkFeatures.isEnabled('connect.js.dialog.idfilter')) {
-    buttonEventFilter.id = data.extension.id;
-  }
+  buttonEventFilter.id = data.extension.id;
 
   // Old buttons, (submit and cancel) use old events
   if(!data.$el.hasClass('ap-dialog-custom-button')) {

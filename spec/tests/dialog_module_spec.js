@@ -190,10 +190,10 @@ describe('Dialog module', () => {
       expect(EventActions.broadcast.calls.count()).toEqual(2);
       expect(EventActions.broadcast.calls.first().args).toEqual([
         'dialog.cancel',
-        {
+        jasmine.objectContaining({
           addon_key: extension.addon_key,
           key: extension.key
-        },
+        }),
         {
           button: {
             name: 'cancel',
@@ -204,10 +204,10 @@ describe('Dialog module', () => {
       ]);
       expect(EventActions.broadcast.calls.all()[1].args).toEqual([
         'dialog.button.click',
-        {
+        jasmine.objectContaining({
           addon_key: extension.addon_key,
           key: extension.key
-        },
+        }),
         {
           button: {
             name: 'cancel',
