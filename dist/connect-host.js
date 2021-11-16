@@ -1054,10 +1054,6 @@
     };
 
     _proto.trackMacroCombination = function trackMacroCombination(parentExtensionId, childExtension) {
-      if (!getBooleanFeatureFlag('com.atlassian.connect.track-macro-combination')) {
-        return;
-      }
-
       var partsOfParentExtensionId = parentExtensionId.split('__');
 
       if (partsOfParentExtensionId.length !== 3) {
@@ -5127,11 +5123,7 @@
       addon_key: data.extension.addon_key,
       key: data.extension.key
     };
-
-    if (window.AJS && window.AJS.DarkFeatures && window.AJS.DarkFeatures.isEnabled && window.AJS.DarkFeatures.isEnabled('connect.js.dialog.idfilter')) {
-      buttonEventFilter.id = data.extension.id;
-    } // Old buttons, (submit and cancel) use old events
-
+    buttonEventFilter.id = data.extension.id; // Old buttons, (submit and cancel) use old events
 
     if (!data.$el.hasClass('ap-dialog-custom-button')) {
       EventActions.broadcast("dialog." + eventData.button.name, buttonEventFilter, eventData);
@@ -6511,7 +6503,9 @@
       AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
     },
     trackMacroCombination: function trackMacroCombination(parentExtensionId, childExtension) {
-      AnalyticsAction.trackMacroCombination(parentExtensionId, childExtension);
+      if (parentExtensionId && childExtension) {
+        AnalyticsAction.trackMacroCombination(parentExtensionId, childExtension);
+      }
     },
     trackIframePerformanceMetrics: function trackIframePerformanceMetrics(metrics, callback) {
       callback = Util.last(arguments);
@@ -7369,7 +7363,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.39';
+    window._AP.version = '5.3.40';
   }
 
   host.defineModule('messages', messages);
