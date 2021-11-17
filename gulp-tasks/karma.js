@@ -1,10 +1,10 @@
-module.exports = function () {
+const { Server } = require('karma');
+
+module.exports = function (singleRun = false) {
   return function (done) {
-    var _ = require('lodash');
-    var Server = require('karma').Server;
 
     function runKarma(options, karmaDone) {
-      options = _.assign(options, {
+      options = Object.assign(options, {
         configFile: process.cwd() + '/spec/config/karma.conf'
       }, options);
       var server = new Server(options, karmaDone);
@@ -12,9 +12,10 @@ module.exports = function () {
     }
 
     runKarma({
-      action: 'run'
-    }, function () {
-      done();
+      action: 'run',
+      singleRun
+    }, function (result) {
+      done(singleRun ? result : undefined);
     });
   };
 };

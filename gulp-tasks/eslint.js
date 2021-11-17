@@ -1,14 +1,13 @@
-module.exports = function (gulp) {
+const gulp = require('gulp');
+const eslint = require('gulp-eslint');
+
+module.exports = function () {
   var filesToLint = [
     '**/*.js'
   ];
 
-  return function () {
-    var eslint = require('gulp-eslint');
-
-    return gulp.src(filesToLint)
-      .pipe(eslint())
-      .pipe(eslint.format())
-      .pipe(eslint.failOnError());
-  };
+  return gulp.src(filesToLint)
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failOnError());
 };
