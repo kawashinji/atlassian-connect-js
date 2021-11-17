@@ -1,25 +1,23 @@
 /* eslint-env node */
-var buffer = require('vinyl-buffer');
-var gulp = require('gulp');
-var source = require('vinyl-source-stream');
-var watch = require('gulp-watch');
-var concat = require('gulp-concat');
-var cleanCSS = require('gulp-clean-css');
-var merge = require('merge-stream');
-var argv = require('yargs').argv;
-var runSequence = require('run-sequence');
-var deployPath = argv.deployPath || '../atlassian-connect/jsapi-v5/src/main/resources/v5';
-var rollup = require('rollup');
-var babel = require('rollup-plugin-babel');
-var commonjs = require('rollup-plugin-commonjs');
-var nodeResolve = require('rollup-plugin-node-resolve');
-var builtins = require('rollup-plugin-node-builtins');
-var replace = require('rollup-plugin-replace');
-var fs = require('fs');
+const fs = require('fs');
+const gulp = require('gulp');
+const watch = require('gulp-watch');
+const concat = require('gulp-concat');
+const cleanCSS = require('gulp-clean-css');
+const merge = require('merge-stream');
+const { argv } = require('yargs');
+const rollup = require('rollup');
+const { babel } = require('@rollup/plugin-babel');
+const commonjs = require('@rollup/plugin-commonjs');
+const { nodeResolve } = require('@rollup/plugin-node-resolve');
+const builtins = require('rollup-plugin-node-builtins');
+const replace = require('@rollup/plugin-replace');
+const { visualizer } = require('rollup-plugin-visualizer');
 
-function getTask(task) {
-  return require('./gulp-tasks/' + task)(gulp);
-}
+const taskLint = require('./gulp-tasks/eslint');
+const taskKarma = require('./gulp-tasks/karma');
+
+const deployPath = argv.deployPath || '../atlassian-connect/jsapi-v5/src/main/resources/v5';
 
 function build(entryModule, distModule, options) {
   return rollup.rollup({
@@ -29,7 +27,7 @@ function build(entryModule, distModule, options) {
         exclude: new RegExp('node_modules\/(promise\-polyfill|query\-string)'),
         plugins: [
           '@babel/plugin-transform-runtime',
-         // Stage 2
+          // Stage 2
           ['@babel/plugin-proposal-decorators', { 'legacy': true }]
         ],
         presets: [
@@ -49,7 +47,7 @@ function build(entryModule, distModule, options) {
             'debug': true
           }]
         ],
-        runtimeHelpers: true
+        babelHelpers: 'runtime'
       }),
       builtins(),
       nodeResolve({
@@ -64,15 +62,20 @@ function build(entryModule, distModule, options) {
       }),
       replace({
         delimiters: [ '%%', '%%' ],
+        preventAssignment: true,
         GULP_INJECT_VERSION: JSON.parse(fs.readFileSync('package.json', 'utf8')).version
+      }),
+      // https://github.com/btd/rollup-plugin-visualizer#options
+      visualizer({
+        filename: `reports/stats-${distModule || 'default'}.html`,
+        gzipSize: true,
+        open: false
       })
     ]
   }).then(function (bundle) {
     return bundle.write({
       indent: true,
       format: options.format || 'umd',
-      moduleId: options.standalone || distModule,
-      moduleName: options.standalone || distModule,
       name: options.standalone || distModule,
       file: './dist/' + distModule + '.js'
     });
@@ -142,21 +145,16 @@ gulp.task('host:watch', watchHost);
 gulp.task('css:build', buildCss);
 gulp.task('css:minify', buildCss.bind(null, {minify: true}));
 
-gulp.task('watch', ['plugin:watch', 'host:watch']);
-gulp.task('build', ['plugin:build', 'host:build']);
+gulp.task('watch', gulp.series(['plugin:watch', 'host:watch']));
+gulp.task('build', gulp.series(['plugin:build', 'host:build']));
 
 gulp.task('deploy', deploy);
 
-gulp.task('default', ['build', 'css:minify']);
+gulp.task('default', gulp.series(['build', 'css:minify']));
 
-gulp.task('lint', getTask('eslint'));
-gulp.task('karma', getTask('karma'));
-gulp.task('karma-ci', getTask('karma-ci'));
+gulp.task('lint', taskLint);
+gulp.task('karma', taskKarma(false));
+gulp.task('karma-ci', taskKarma(true));
 
-gulp.task('test', function(done) {
-  runSequence('lint', 'karma', done);
-});
-
-gulp.task('test-ci', function(done) {
-  runSequence('lint', 'karma-ci', done);
-});
+gulp.task('test', gulp.series('lint', 'karma'));
+gulp.task('test-ci', gulp.series('lint', 'karma-ci'));

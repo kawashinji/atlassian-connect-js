@@ -14,7 +14,6 @@ module.exports = function(config) {
     basePath: '../../',
 
     // frameworks to use
-    //frameworks: ['browserify', 'qunit', 'sinon'],
     // list of files / patterns to load in the browser
     files: [
       'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js',
