@@ -1,4 +1,3 @@
-import extend from 'object-assign';
 import FlagModule from 'src/host/modules/flag';
 import ModuleProviders from 'src/host/module-providers';
 import EventActions from 'src/host/actions/event_actions';
