@@ -1,0 +1,14 @@
+{
+  "files": [
+    {
+      "path": "./dist/connect-host.js",
+      "maxSize": "250 kB",
+      "compression": "none"
+    },
+    {
+      "path": "./dist/iframe.js",
+      "maxSize": "110 kB",
+      "compression": "none"
+    }
+  ]
+}
