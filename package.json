@@ -9,6 +9,10 @@
     "url": "ssh://git@bitbucket.org:atlassian/atlassian-connect-js.git"
   },
   "scripts": {
+    "bundlesize": "bundlesize --config=bundlesize.config.json",
+    "bundlesize:all": "npm run bundlesize; npm run bundlesize:nozip",
+    "bundlesize:nozip": "bundlesize --config=bundlesize-nozip.config.json",
+    "depcheck": "depcheck --config=.depcheckrc.json",
     "test-sl": "SAUCE_LABS=true SAUCE_USERNAME=$SAUCE_USERNAME SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY npm test",
     "prepublish": "node_modules/gulp/bin/gulp.js",
     "test": "gulp test-ci",
@@ -33,6 +37,8 @@
     "@rollup/plugin-replace": "^3.0.0",
     "@types/jasmine": "^2.5.54",
     "babel-loader": "8.0.6",
+    "bundlesize": "^0.18.1",
+    "depcheck": "^1.4.2",
     "drool": "0.6.0",
     "envify": "3.4.1",
     "eslint": "3.9.1",
