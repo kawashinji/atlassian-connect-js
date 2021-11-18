@@ -2,7 +2,6 @@ import DropdownModule from 'src/host/modules/dropdown';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import EventActions from 'src/host/actions/event_actions';
 import HostApi from 'src/host/host-api';
-import extend from 'object-assign';
 
 describe('dropdown api module', () => {
   const frameworkAdaptor = HostApi.getFrameworkAdaptor();
@@ -58,7 +57,7 @@ describe('dropdown api module', () => {
           ]
         }]
       };
-      let formattedOptions = DropdownModule.create(extend({}, options), fakeCallback);
+      let formattedOptions = DropdownModule.create(Object.assign({}, options), fakeCallback);
       expect(formattedOptions).toEqual({
         dropdownId: options.dropdownId,
         dropdownGroups: [{
