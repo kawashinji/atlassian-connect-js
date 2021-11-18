@@ -61,6 +61,10 @@ module.exports = function(config) {
             }
           }
         ]
+      },
+      mode: 'development',
+      optimization: {
+        minimize: false
       }
     },
     // test results reporter to use

@@ -32,18 +32,7 @@ function build(entryModule, distModule, options) {
         ],
         presets: [
           ['@babel/preset-env', {
-            'targets': {
-              'browsers': [
-                'last 1 Chrome versions',
-                'last 1 Firefox versions',
-                'last 1 Safari versions',
-                'Explorer 11',
-                'last 1 Edge versions'
-              ]
-            },
-            'modules': false,
             'useBuiltIns': false,
-            'loose': true,
             'debug': true
           }]
         ],
