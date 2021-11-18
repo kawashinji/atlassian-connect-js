@@ -1,4 +1,3 @@
-import extend from 'object-assign';
 import DialogModule from 'src/host/modules/dialog';
 import EventActions from 'src/host/actions/event_actions';
 import { acjsFrameworkAdaptor } from 'src/host/ACJSFrameworkAdaptor';
@@ -12,7 +11,7 @@ callback._context = {
     options: jasmine.objectContaining({})
   }
 };
-const otherAddonCallback = extend({}, callback, {_context: {extension: {addon_key: 'some-other-addon-key'}}});
+const otherAddonCallback = Object.assign({}, callback, {_context: {extension: {addon_key: 'some-other-addon-key'}}});
 
 const providerSpy = {
   create: jasmine.createSpy('create'),
@@ -108,7 +107,7 @@ describe('AP.dialog', () => {
       },
       {
         it: 'provides custom height and widths over default',
-        javaScriptAPIOptions: extend({}, minOptions, {
+        javaScriptAPIOptions: Object.assign({}, minOptions, {
           height: '111px',
           width: '222px'
         }),
@@ -150,7 +149,7 @@ describe('AP.dialog', () => {
       },
       {
         it: 'provides custom value for close on escape',
-        javaScriptAPIOptions: extend({}, maxOptions, {
+        javaScriptAPIOptions: Object.assign({}, maxOptions, {
           closeOnEscape: false
         }),
         dialogProviderOptions: {
@@ -159,7 +158,7 @@ describe('AP.dialog', () => {
       },
       {
         it: 'provides multiple user buttons',
-        javaScriptAPIOptions: extend({}, maxOptions, {
+        javaScriptAPIOptions: Object.assign({}, maxOptions, {
           buttons: [
             {
               identifier: 'button1-id',

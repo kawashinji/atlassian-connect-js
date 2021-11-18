@@ -1,8 +1,7 @@
 import { toByteArray, fromByteArray } from 'base64-js';
-import { TextEncoderLite, TextDecoderLite } from 'text-encoder-lite';
 
 export function encode(string) {
-  return fromByteArray(TextEncoderLite.prototype.encode(string));
+  return fromByteArray(new TextEncoder().encode(string));
 }
 
 export function decode(string) {
@@ -12,7 +11,7 @@ export function decode(string) {
   } else if (padding === 2) {
     string += '==';
   }
-  return TextDecoderLite.prototype.decode(toByteArray(string));
+  return new TextDecoder().decode(toByteArray(string));
 }
 
 export default {

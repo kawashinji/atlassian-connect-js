@@ -2359,101 +2359,6 @@
     }
   };
 
-  /*
-  object-assign
-  (c) Sindre Sorhus
-  @license MIT
-  */
-  /* eslint-disable no-unused-vars */
-
-  var getOwnPropertySymbols = Object.getOwnPropertySymbols;
-  var hasOwnProperty = Object.prototype.hasOwnProperty;
-  var propIsEnumerable = Object.prototype.propertyIsEnumerable;
-
-  function toObject(val) {
-    if (val === null || val === undefined) {
-      throw new TypeError('Object.assign cannot be called with null or undefined');
-    }
-
-    return Object(val);
-  }
-
-  function shouldUseNative() {
-    try {
-      if (!Object.assign) {
-        return false;
-      } // Detect buggy property enumeration order in older V8 versions.
-      // https://bugs.chromium.org/p/v8/issues/detail?id=4118
-
-
-      var test1 = new String('abc'); // eslint-disable-line no-new-wrappers
-
-      test1[5] = 'de';
-
-      if (Object.getOwnPropertyNames(test1)[0] === '5') {
-        return false;
-      } // https://bugs.chromium.org/p/v8/issues/detail?id=3056
-
-
-      var test2 = {};
-
-      for (var i = 0; i < 10; i++) {
-        test2['_' + String.fromCharCode(i)] = i;
-      }
-
-      var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
-        return test2[n];
-      });
-
-      if (order2.join('') !== '0123456789') {
-        return false;
-      } // https://bugs.chromium.org/p/v8/issues/detail?id=3056
-
-
-      var test3 = {};
-      'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
-        test3[letter] = letter;
-      });
-
-      if (Object.keys(Object.assign({}, test3)).join('') !== 'abcdefghijklmnopqrst') {
-        return false;
-      }
-
-      return true;
-    } catch (err) {
-      // We don't expect any of the above to throw, but better to be safe.
-      return false;
-    }
-  }
-
-  var objectAssign$1 = shouldUseNative() ? Object.assign : function (target, source) {
-    var from;
-    var to = toObject(target);
-    var symbols;
-
-    for (var s = 1; s < arguments.length; s++) {
-      from = Object(arguments[s]);
-
-      for (var key in from) {
-        if (hasOwnProperty.call(from, key)) {
-          to[key] = from[key];
-        }
-      }
-
-      if (getOwnPropertySymbols) {
-        symbols = getOwnPropertySymbols(from);
-
-        for (var i = 0; i < symbols.length; i++) {
-          if (propIsEnumerable.call(from, symbols[i])) {
-            to[symbols[i]] = from[symbols[i]];
-          }
-        }
-      }
-    }
-
-    return to;
-  };
-
   function escapeSelector(s) {
     if (!s) {
       throw new Error('No selector to escape');
@@ -2506,7 +2411,7 @@
     }).reduce(function (newObj, key) {
       var _extend;
 
-      return objectAssign$1(newObj, (_extend = {}, _extend[key] = obj[key], _extend));
+      return extend(newObj, (_extend = {}, _extend[key] = obj[key], _extend));
     }, {});
   }
 
@@ -2546,7 +2451,7 @@
     pick: pick,
     debounce: debounce$1,
     isSupported: isSupported,
-    extend: objectAssign$1
+    extend: Object.assign
   };
 
   var events = {
@@ -2988,6 +2893,101 @@
     });
   };
 
+  /*
+  object-assign
+  (c) Sindre Sorhus
+  @license MIT
+  */
+  /* eslint-disable no-unused-vars */
+
+  var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+  var hasOwnProperty = Object.prototype.hasOwnProperty;
+  var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+  function toObject(val) {
+    if (val === null || val === undefined) {
+      throw new TypeError('Object.assign cannot be called with null or undefined');
+    }
+
+    return Object(val);
+  }
+
+  function shouldUseNative() {
+    try {
+      if (!Object.assign) {
+        return false;
+      } // Detect buggy property enumeration order in older V8 versions.
+      // https://bugs.chromium.org/p/v8/issues/detail?id=4118
+
+
+      var test1 = new String('abc'); // eslint-disable-line no-new-wrappers
+
+      test1[5] = 'de';
+
+      if (Object.getOwnPropertyNames(test1)[0] === '5') {
+        return false;
+      } // https://bugs.chromium.org/p/v8/issues/detail?id=3056
+
+
+      var test2 = {};
+
+      for (var i = 0; i < 10; i++) {
+        test2['_' + String.fromCharCode(i)] = i;
+      }
+
+      var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+        return test2[n];
+      });
+
+      if (order2.join('') !== '0123456789') {
+        return false;
+      } // https://bugs.chromium.org/p/v8/issues/detail?id=3056
+
+
+      var test3 = {};
+      'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+        test3[letter] = letter;
+      });
+
+      if (Object.keys(Object.assign({}, test3)).join('') !== 'abcdefghijklmnopqrst') {
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      // We don't expect any of the above to throw, but better to be safe.
+      return false;
+    }
+  }
+
+  var objectAssign$1 = shouldUseNative() ? Object.assign : function (target, source) {
+    var from;
+    var to = toObject(target);
+    var symbols;
+
+    for (var s = 1; s < arguments.length; s++) {
+      from = Object(arguments[s]);
+
+      for (var key in from) {
+        if (hasOwnProperty.call(from, key)) {
+          to[key] = from[key];
+        }
+      }
+
+      if (getOwnPropertySymbols) {
+        symbols = getOwnPropertySymbols(from);
+
+        for (var i = 0; i < symbols.length; i++) {
+          if (propIsEnumerable.call(from, symbols[i])) {
+            to[symbols[i]] = from[symbols[i]];
+          }
+        }
+      }
+    }
+
+    return to;
+  };
+
   var strictUriEncode = strictUriEncode$1;
   var objectAssign = objectAssign$1;
 
@@ -3259,132 +3259,6 @@
     return arr;
   }
 
-  var textEncoderLite = {exports: {}};
-
-  (function (module) {
-  function TextEncoderLite() {}
-
-  function TextDecoderLite() {}
-
-  (function () {
-    // Thanks Feross et al! :-)
-
-    function utf8ToBytes(string, units) {
-      units = units || Infinity;
-      var codePoint;
-      var length = string.length;
-      var leadSurrogate = null;
-      var bytes = [];
-      var i = 0;
-
-      for (; i < length; i++) {
-        codePoint = string.charCodeAt(i); // is surrogate component
-
-        if (codePoint > 0xD7FF && codePoint < 0xE000) {
-          // last char was a lead
-          if (leadSurrogate) {
-            // 2 leads in a row
-            if (codePoint < 0xDC00) {
-              if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-              leadSurrogate = codePoint;
-              continue;
-            } else {
-              // valid surrogate pair
-              codePoint = leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00 | 0x10000;
-              leadSurrogate = null;
-            }
-          } else {
-            // no lead yet
-            if (codePoint > 0xDBFF) {
-              // unexpected trail
-              if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-              continue;
-            } else if (i + 1 === length) {
-              // unpaired lead
-              if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-              continue;
-            } else {
-              // valid lead
-              leadSurrogate = codePoint;
-              continue;
-            }
-          }
-        } else if (leadSurrogate) {
-          // valid bmp char, but last char was a lead
-          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-          leadSurrogate = null;
-        } // encode utf8
-
-
-        if (codePoint < 0x80) {
-          if ((units -= 1) < 0) break;
-          bytes.push(codePoint);
-        } else if (codePoint < 0x800) {
-          if ((units -= 2) < 0) break;
-          bytes.push(codePoint >> 0x6 | 0xC0, codePoint & 0x3F | 0x80);
-        } else if (codePoint < 0x10000) {
-          if ((units -= 3) < 0) break;
-          bytes.push(codePoint >> 0xC | 0xE0, codePoint >> 0x6 & 0x3F | 0x80, codePoint & 0x3F | 0x80);
-        } else if (codePoint < 0x200000) {
-          if ((units -= 4) < 0) break;
-          bytes.push(codePoint >> 0x12 | 0xF0, codePoint >> 0xC & 0x3F | 0x80, codePoint >> 0x6 & 0x3F | 0x80, codePoint & 0x3F | 0x80);
-        } else {
-          throw new Error('Invalid code point');
-        }
-      }
-
-      return bytes;
-    }
-
-    function utf8Slice(buf, start, end) {
-      var res = '';
-      var tmp = '';
-      end = Math.min(buf.length, end || Infinity);
-      start = start || 0;
-
-      for (var i = start; i < end; i++) {
-        if (buf[i] <= 0x7F) {
-          res += decodeUtf8Char(tmp) + String.fromCharCode(buf[i]);
-          tmp = '';
-        } else {
-          tmp += '%' + buf[i].toString(16);
-        }
-      }
-
-      return res + decodeUtf8Char(tmp);
-    }
-
-    function decodeUtf8Char(str) {
-      try {
-        return decodeURIComponent(str);
-      } catch (err) {
-        return String.fromCharCode(0xFFFD); // UTF 8 invalid char
-      }
-    }
-
-    TextEncoderLite.prototype.encode = function (str) {
-      var result;
-
-      if ('undefined' === typeof Uint8Array) {
-        result = utf8ToBytes(str);
-      } else {
-        result = new Uint8Array(utf8ToBytes(str));
-      }
-
-      return result;
-    };
-
-    TextDecoderLite.prototype.decode = function (bytes) {
-      return utf8Slice(bytes, 0, bytes.length);
-    };
-  })();
-
-  if (module) {
-    module.exports.TextDecoderLite = TextDecoderLite;
-    module.exports.TextEncoderLite = TextEncoderLite;
-  }
-  }(textEncoderLite));
-
   function decode(string) {
     var padding = 4 - string.length % 4;
 
@@ -3394,7 +3268,7 @@
       string += '==';
     }
 
-    return textEncoderLite.exports.TextDecoderLite.prototype.decode(toByteArray_1(string));
+    return new TextDecoder().decode(toByteArray_1(string));
   }
 
   var JWT_SKEW = 60; // in seconds.
