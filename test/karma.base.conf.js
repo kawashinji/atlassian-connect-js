@@ -13,7 +13,6 @@ module.exports = function(config) {
     basePath: '../',
 
     // frameworks to use
-    //frameworks: ['browserify', 'qunit', 'sinon'],
     frameworks: ['qunit', 'sinon'],
 
     // list of files / patterns to load in the browser
