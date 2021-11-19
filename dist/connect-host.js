@@ -1245,7 +1245,7 @@
   EventDispatcher$1.register('iframe-bridge-established', function (data) {
     analytics.trackLoadingEnded(data.extension);
     observe$1(document.getElementById(data.extension.id), function () {
-      EventDispatcher$1.emit('iframe-visible', data.extension);
+      EventDispatcher$1.dispatch('iframe-visible', data.extension);
       analytics.trackVisible(data.extension);
       analytics.trackGasV3Visible(data.extension);
     });
@@ -7363,7 +7363,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.40';
+    window._AP.version = '5.3.41';
   }
 
   host.defineModule('messages', messages);
