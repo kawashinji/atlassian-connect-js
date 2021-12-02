@@ -7363,7 +7363,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.41';
+    window._AP.version = '5.3.42';
   }
 
   host.defineModule('messages', messages);
