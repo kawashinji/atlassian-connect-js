@@ -5,7 +5,7 @@ The javascript library which backs [Atlassian Connect](http://connect.atlassian.
 
 Based on [Simple XDM](https://bitbucket.org/atlassian/simple-xdm/)
 
-![build-status](https://bitbucket-badges.atlassian.io/badge/atlassian/atlassian-connect-js.svg)
+![Bitbucket Pipelines build status](https://img.shields.io/bitbucket/pipelines/atlassian/atlassian-connect-js/master)
 
 Hello API example
 -----------------------
