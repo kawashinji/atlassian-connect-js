@@ -8,7 +8,7 @@ module.exports = {
     chrome_latest_osx: {
         base: 'SauceLabs',
         browserName: 'chrome',
-        platform: 'OS X 10.14'
+        platform: 'OS X 10.15'
     },
 
     // Edge latest
@@ -20,7 +20,7 @@ module.exports = {
         edge_latest_osx: {
         base: 'SauceLabs',
         browserName: 'microsoftedge',
-        platform: 'OS X 10.14'
+        platform: 'OS X 10.15'
     },
 
     // Firefox latest
@@ -32,13 +32,13 @@ module.exports = {
     firefox_latest_osx: {
         base: 'SauceLabs',
         browserName: 'firefox',
-        platform: 'OS X 10.14'
+        platform: 'OS X 10.15'
     },
 
     // Safari latest
     safari_latest_osx: {
         base: 'SauceLabs',
         browserName: 'safari',
-        platform: 'OS X 10.14'
+        platform: 'OS X 10.15'
     }
 };
