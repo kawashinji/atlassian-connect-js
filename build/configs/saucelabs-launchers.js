@@ -1,10 +1,5 @@
 module.exports = {
     // Chrome latest
-    chrome_latest_linux: {
-        base: 'SauceLabs',
-        browserName: 'chrome',
-        platform: 'Linux'
-    },
     chrome_latest_windows: {
         base: 'SauceLabs',
         browserName: 'chrome',
@@ -29,10 +24,6 @@ module.exports = {
     },
 
     // Firefox latest
-    firefox_latest_linux: {
-        base: 'SauceLabs',
-        browserName: 'firefox'
-    },
     firefox_latest_windows: {
         base: 'SauceLabs',
         browserName: 'firefox',
