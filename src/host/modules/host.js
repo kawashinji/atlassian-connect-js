@@ -2,6 +2,9 @@
 * Hosts are the primary method for Connect apps to interact with the page.
 * @module Host
 */
+import deprecate from '../../plugin/deprecate';
+import getBooleanFeatureFlag from '../utils/feature-flag';
+
 const TEXT_NODE_TYPE = 3;
 
 export default {
@@ -19,6 +22,7 @@ export default {
   /**
    * Gets the selected text on the page.
    * @noDemo
+   * @deprecated This feature is no longer supported, for security and privacy reasons.
    * @name getSelectedText
    * @method
    * @param {Function} callback - Callback method to be executed with the selected text.
@@ -28,12 +32,16 @@ export default {
    * });
    *
    */
-  getSelectedText:function(callback) {
+  getSelectedText: deprecate(function(callback) {
+    if (getBooleanFeatureFlag('com.atlassian.connect.acjs-vuln-610109-deprecate-getselectedtext')) {
+      callback('');
+      return;
+    }
     let text = '';
     const selection = window.document.getSelection();
     if (selection && selection.anchorNode && selection.anchorNode.nodeType === TEXT_NODE_TYPE) {
       text = selection.toString();
     }
     callback(text);
-  }
+  }, 'AP.host.getSelectedText()')
 };
