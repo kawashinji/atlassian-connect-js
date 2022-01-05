@@ -517,213 +517,7 @@
    */
   var $ = window.AJS && window.AJS.$ || function () {};
 
-  var LOG_PREFIX = "[Simple-XDM] ";
-  var nativeBind = Function.prototype.bind;
-  var util = {
-    locationOrigin: function locationOrigin() {
-      if (!window.location.origin) {
-        return window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-      } else {
-        return window.location.origin;
-      }
-    },
-    randomString: function randomString() {
-      return Math.floor(Math.random() * 1000000000).toString(16);
-    },
-    isString: function isString(str) {
-      return typeof str === "string" || str instanceof String;
-    },
-    argumentsToArray: function argumentsToArray(arrayLike) {
-      return Array.prototype.slice.call(arrayLike);
-    },
-    argumentNames: function argumentNames(fn) {
-      return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
-      .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
-      .match(/([^\s,]+)/g) || [];
-    },
-    hasCallback: function hasCallback(args) {
-      var length = args.length;
-      return length > 0 && typeof args[length - 1] === 'function';
-    },
-    error: function error(msg) {
-      if (window.console && window.console.error) {
-        var outputError = [];
-
-        if (typeof msg === "string") {
-          outputError.push(LOG_PREFIX + msg);
-          outputError = outputError.concat(Array.prototype.slice.call(arguments, 1));
-        } else {
-          outputError.push(LOG_PREFIX);
-          outputError = outputError.concat(Array.prototype.slice.call(arguments));
-        }
-
-        window.console.error.apply(null, outputError);
-      }
-    },
-    warn: function warn(msg) {
-      if (window.console) {
-        console.warn(LOG_PREFIX + msg);
-      }
-    },
-    log: function log(msg) {
-      if (window.console) {
-        window.console.log(LOG_PREFIX + msg);
-      }
-    },
-    _bind: function _bind(thisp, fn) {
-      if (nativeBind && fn.bind === nativeBind) {
-        return fn.bind(thisp);
-      }
-
-      return function () {
-        return fn.apply(thisp, arguments);
-      };
-    },
-    throttle: function throttle(func, wait, context) {
-      var previous = 0;
-      return function () {
-        var now = Date.now();
-
-        if (now - previous > wait) {
-          previous = now;
-          func.apply(context, arguments);
-        }
-      };
-    },
-    each: function each(list, iteratee) {
-      var length;
-      var key;
-
-      if (list) {
-        length = list.length;
-
-        if (length != null && typeof list !== 'function') {
-          key = 0;
-
-          while (key < length) {
-            if (iteratee.call(list[key], key, list[key]) === false) {
-              break;
-            }
-
-            key += 1;
-          }
-        } else {
-          for (key in list) {
-            if (list.hasOwnProperty(key)) {
-              if (iteratee.call(list[key], key, list[key]) === false) {
-                break;
-              }
-            }
-          }
-        }
-      }
-    },
-    extend: function extend(dest) {
-      var args = arguments;
-      var srcs = [].slice.call(args, 1, args.length);
-      srcs.forEach(function (source) {
-        if (typeof source === "object") {
-          Object.getOwnPropertyNames(source).forEach(function (name) {
-            dest[name] = source[name];
-          });
-        }
-      });
-      return dest;
-    },
-    sanitizeStructuredClone: function sanitizeStructuredClone(object) {
-      var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
-      var blackList = [Error, Node];
-      var warn = util.warn;
-      var visitedObjects = [];
-
-      function _clone(value) {
-        if (typeof value === 'function') {
-          warn("A function was detected and removed from the message.");
-          return null;
-        }
-
-        if (blackList.some(function (t) {
-          if (value instanceof t) {
-            warn(t.name + " object was detected and removed from the message.");
-            return true;
-          }
-
-          return false;
-        })) {
-          return {};
-        }
-
-        if (value && typeof value === 'object' && whiteList.every(function (t) {
-          return !(value instanceof t);
-        })) {
-          var newValue;
-
-          if (Array.isArray(value)) {
-            newValue = value.map(function (element) {
-              return _clone(element);
-            });
-          } else {
-            if (visitedObjects.indexOf(value) > -1) {
-              warn("A circular reference was detected and removed from the message.");
-              return null;
-            }
-
-            visitedObjects.push(value);
-            newValue = {};
-
-            for (var name in value) {
-              if (value.hasOwnProperty(name)) {
-                var clonedValue = _clone(value[name]);
-
-                if (clonedValue !== null) {
-                  newValue[name] = clonedValue;
-                }
-              }
-            }
-
-            visitedObjects.pop();
-          }
-
-          return newValue;
-        }
-
-        return value;
-      }
-
-      return _clone(object);
-    },
-    getOrigin: function getOrigin(url, base) {
-      // everything except IE11
-      if (typeof URL === 'function') {
-        try {
-          return new URL(url, base).origin;
-        } catch (e) {}
-      } // ie11 + safari 10
-
-
-      var doc = document.implementation.createHTMLDocument('');
-
-      if (base) {
-        var baseElement = doc.createElement('base');
-        baseElement.href = base;
-        doc.head.appendChild(baseElement);
-      }
-
-      var anchorElement = doc.createElement('a');
-      anchorElement.href = url;
-      doc.body.appendChild(anchorElement);
-      var origin = anchorElement.protocol + '//' + anchorElement.hostname; //ie11, only include port if referenced in initial URL
-
-      if (url.match(/\/\/[^/]+:[0-9]+\//)) {
-        origin += anchorElement.port ? ':' + anchorElement.port : '';
-      }
-
-      return origin;
-    }
-  };
-
   var threshold = 0.25;
-  var throttle_delay = 500;
   var targets = [];
   var observe;
 
@@ -756,91 +550,6 @@
       threshold: threshold
     });
     observe = observer.observe.bind(observer);
-  } else {
-    // Ponyfill for SafarIE
-    var getIntersection = function getIntersection(target) {
-      var docEl = document.documentElement;
-
-      if (!docEl.contains(target) || getComputedStyle(target).display === 'none') {
-        return;
-      }
-      var targetRect = target.getBoundingClientRect();
-      var parent = target.parentNode;
-      var intersection = targetRect;
-
-      do {
-        var parentStyle = getComputedStyle(parent);
-
-        if (parentStyle.display === 'none') {
-          return;
-        }
-        var parentRect = void 0;
-
-        if (parent === document.body) {
-          parentRect = {
-            top: 0,
-            left: 0,
-            right: docEl.clientWidth,
-            bottom: docEl.clientHeight
-          };
-        } else if (parentStyle.overflow !== 'visible') {
-          parentRect = parent.getBoundingClientRect();
-        }
-
-        if (parentRect) {
-          var top = Math.max(parentRect.top, intersection.top);
-          var left = Math.max(parentRect.left, intersection.left);
-          var right = Math.min(parentRect.right, intersection.right);
-          var bottom = Math.min(parentRect.bottom, intersection.bottom);
-          var width = right - left;
-          var height = bottom - top;
-
-          if (width <= 0 || height <= 0) {
-            return;
-          }
-          intersection = {
-            top: top,
-            left: left,
-            right: right,
-            bottom: bottom,
-            width: width,
-            height: height
-          };
-        }
-
-        parent = parent.parentNode;
-      } while (parent !== docEl);
-
-      if (intersection) {
-        return intersection.width * intersection.height / (targetRect.width * targetRect.height);
-      }
-    };
-
-    observe = function observe(element) {
-      if (getIntersection(element) >= threshold) {
-        observed(element);
-      }
-    };
-
-    var throttled_observe = util.throttle(function () {
-      targets.forEach(function (_ref3) {
-        var element = _ref3.element;
-        return observe(element);
-      });
-    }, throttle_delay);
-    window.addEventListener('resize', throttled_observe);
-    document.addEventListener('scroll', throttled_observe);
-
-    if ('MutationObserver' in window) {
-      document.addEventListener('DOMContentLoaded', function () {
-        new MutationObserver(throttled_observe).observe(document.body, {
-          attributes: true,
-          childList: true,
-          characterData: true,
-          subtree: true
-        });
-      });
-    }
   }
 
   var observe$1 = (function (element, callback) {
@@ -1482,6 +1191,211 @@
 
   module.exports = _construct;
   });
+
+  var LOG_PREFIX = "[Simple-XDM] ";
+  var nativeBind = Function.prototype.bind;
+  var util = {
+    locationOrigin: function locationOrigin() {
+      if (!window.location.origin) {
+        return window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+      } else {
+        return window.location.origin;
+      }
+    },
+    randomString: function randomString() {
+      return Math.floor(Math.random() * 1000000000).toString(16);
+    },
+    isString: function isString(str) {
+      return typeof str === "string" || str instanceof String;
+    },
+    argumentsToArray: function argumentsToArray(arrayLike) {
+      return Array.prototype.slice.call(arrayLike);
+    },
+    argumentNames: function argumentNames(fn) {
+      return fn.toString().replace(/((\/\/.*$)|(\/\*[^]*?\*\/))/mg, '') // strip comments
+      .replace(/[^(]+\(([^)]*)[^]+/, '$1') // get signature
+      .match(/([^\s,]+)/g) || [];
+    },
+    hasCallback: function hasCallback(args) {
+      var length = args.length;
+      return length > 0 && typeof args[length - 1] === 'function';
+    },
+    error: function error(msg) {
+      if (window.console && window.console.error) {
+        var outputError = [];
+
+        if (typeof msg === "string") {
+          outputError.push(LOG_PREFIX + msg);
+          outputError = outputError.concat(Array.prototype.slice.call(arguments, 1));
+        } else {
+          outputError.push(LOG_PREFIX);
+          outputError = outputError.concat(Array.prototype.slice.call(arguments));
+        }
+
+        window.console.error.apply(null, outputError);
+      }
+    },
+    warn: function warn(msg) {
+      if (window.console) {
+        console.warn(LOG_PREFIX + msg);
+      }
+    },
+    log: function log(msg) {
+      if (window.console) {
+        window.console.log(LOG_PREFIX + msg);
+      }
+    },
+    _bind: function _bind(thisp, fn) {
+      if (nativeBind && fn.bind === nativeBind) {
+        return fn.bind(thisp);
+      }
+
+      return function () {
+        return fn.apply(thisp, arguments);
+      };
+    },
+    throttle: function throttle(func, wait, context) {
+      var previous = 0;
+      return function () {
+        var now = Date.now();
+
+        if (now - previous > wait) {
+          previous = now;
+          func.apply(context, arguments);
+        }
+      };
+    },
+    each: function each(list, iteratee) {
+      var length;
+      var key;
+
+      if (list) {
+        length = list.length;
+
+        if (length != null && typeof list !== 'function') {
+          key = 0;
+
+          while (key < length) {
+            if (iteratee.call(list[key], key, list[key]) === false) {
+              break;
+            }
+
+            key += 1;
+          }
+        } else {
+          for (key in list) {
+            if (list.hasOwnProperty(key)) {
+              if (iteratee.call(list[key], key, list[key]) === false) {
+                break;
+              }
+            }
+          }
+        }
+      }
+    },
+    extend: function extend(dest) {
+      var args = arguments;
+      var srcs = [].slice.call(args, 1, args.length);
+      srcs.forEach(function (source) {
+        if (typeof source === "object") {
+          Object.getOwnPropertyNames(source).forEach(function (name) {
+            dest[name] = source[name];
+          });
+        }
+      });
+      return dest;
+    },
+    sanitizeStructuredClone: function sanitizeStructuredClone(object) {
+      var whiteList = [Boolean, String, Date, RegExp, Blob, File, FileList, ArrayBuffer];
+      var blackList = [Error, Node];
+      var warn = util.warn;
+      var visitedObjects = [];
+
+      function _clone(value) {
+        if (typeof value === 'function') {
+          warn("A function was detected and removed from the message.");
+          return null;
+        }
+
+        if (blackList.some(function (t) {
+          if (value instanceof t) {
+            warn(t.name + " object was detected and removed from the message.");
+            return true;
+          }
+
+          return false;
+        })) {
+          return {};
+        }
+
+        if (value && typeof value === 'object' && whiteList.every(function (t) {
+          return !(value instanceof t);
+        })) {
+          var newValue;
+
+          if (Array.isArray(value)) {
+            newValue = value.map(function (element) {
+              return _clone(element);
+            });
+          } else {
+            if (visitedObjects.indexOf(value) > -1) {
+              warn("A circular reference was detected and removed from the message.");
+              return null;
+            }
+
+            visitedObjects.push(value);
+            newValue = {};
+
+            for (var name in value) {
+              if (value.hasOwnProperty(name)) {
+                var clonedValue = _clone(value[name]);
+
+                if (clonedValue !== null) {
+                  newValue[name] = clonedValue;
+                }
+              }
+            }
+
+            visitedObjects.pop();
+          }
+
+          return newValue;
+        }
+
+        return value;
+      }
+
+      return _clone(object);
+    },
+    getOrigin: function getOrigin(url, base) {
+      // everything except IE11
+      if (typeof URL === 'function') {
+        try {
+          return new URL(url, base).origin;
+        } catch (e) {}
+      } // ie11 + safari 10
+
+
+      var doc = document.implementation.createHTMLDocument('');
+
+      if (base) {
+        var baseElement = doc.createElement('base');
+        baseElement.href = base;
+        doc.head.appendChild(baseElement);
+      }
+
+      var anchorElement = doc.createElement('a');
+      anchorElement.href = url;
+      doc.body.appendChild(anchorElement);
+      var origin = anchorElement.protocol + '//' + anchorElement.hostname; //ie11, only include port if referenced in initial URL
+
+      if (url.match(/\/\/[^/]+:[0-9]+\//)) {
+        origin += anchorElement.port ? ':' + anchorElement.port : '';
+      }
+
+      return origin;
+    }
+  };
 
   var PostMessage =
   /*#__PURE__*/
@@ -7363,7 +7277,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.42';
+    window._AP.version = '5.3.43';
   }
 
   host.defineModule('messages', messages);
