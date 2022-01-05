@@ -592,9 +592,14 @@
     return getBooleanFeatureFlag('com.atlassian.connect.acjs-oc-1684-inline-dialog-sticky-fix');
   }
 
+  function isFeatureFlagNativeTextEncoder() {
+    return getBooleanFeatureFlag('com.atlassian.connect.acjs-oc-1779-use-native-textencoder');
+  }
+
   var Flags = {
     getBooleanFeatureFlag: getBooleanFeatureFlag,
-    isInlineDialogStickyFixFlagEnabled: isInlineDialogStickyFixFlagEnabled
+    isInlineDialogStickyFixFlagEnabled: isInlineDialogStickyFixFlagEnabled,
+    isFeatureFlagNativeTextEncoder: isFeatureFlagNativeTextEncoder
   };
 
   var EVENT_NAME_PREFIX = 'connect.addon.';
@@ -2277,101 +2282,6 @@
     }
   };
 
-  /*
-  object-assign
-  (c) Sindre Sorhus
-  @license MIT
-  */
-  /* eslint-disable no-unused-vars */
-
-  var getOwnPropertySymbols = Object.getOwnPropertySymbols;
-  var hasOwnProperty = Object.prototype.hasOwnProperty;
-  var propIsEnumerable = Object.prototype.propertyIsEnumerable;
-
-  function toObject(val) {
-    if (val === null || val === undefined) {
-      throw new TypeError('Object.assign cannot be called with null or undefined');
-    }
-
-    return Object(val);
-  }
-
-  function shouldUseNative() {
-    try {
-      if (!Object.assign) {
-        return false;
-      } // Detect buggy property enumeration order in older V8 versions.
-      // https://bugs.chromium.org/p/v8/issues/detail?id=4118
-
-
-      var test1 = new String('abc'); // eslint-disable-line no-new-wrappers
-
-      test1[5] = 'de';
-
-      if (Object.getOwnPropertyNames(test1)[0] === '5') {
-        return false;
-      } // https://bugs.chromium.org/p/v8/issues/detail?id=3056
-
-
-      var test2 = {};
-
-      for (var i = 0; i < 10; i++) {
-        test2['_' + String.fromCharCode(i)] = i;
-      }
-
-      var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
-        return test2[n];
-      });
-
-      if (order2.join('') !== '0123456789') {
-        return false;
-      } // https://bugs.chromium.org/p/v8/issues/detail?id=3056
-
-
-      var test3 = {};
-      'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
-        test3[letter] = letter;
-      });
-
-      if (Object.keys(Object.assign({}, test3)).join('') !== 'abcdefghijklmnopqrst') {
-        return false;
-      }
-
-      return true;
-    } catch (err) {
-      // We don't expect any of the above to throw, but better to be safe.
-      return false;
-    }
-  }
-
-  var objectAssign = shouldUseNative() ? Object.assign : function (target, source) {
-    var from;
-    var to = toObject(target);
-    var symbols;
-
-    for (var s = 1; s < arguments.length; s++) {
-      from = Object(arguments[s]);
-
-      for (var key in from) {
-        if (hasOwnProperty.call(from, key)) {
-          to[key] = from[key];
-        }
-      }
-
-      if (getOwnPropertySymbols) {
-        symbols = getOwnPropertySymbols(from);
-
-        for (var i = 0; i < symbols.length; i++) {
-          if (propIsEnumerable.call(from, symbols[i])) {
-            to[symbols[i]] = from[symbols[i]];
-          }
-        }
-      }
-    }
-
-    return to;
-  };
-
   function escapeSelector(s) {
     if (!s) {
       throw new Error('No selector to escape');
@@ -2422,9 +2332,9 @@
     return Object.keys(obj).filter(function (key) {
       return keys.indexOf(key) >= 0;
     }).reduce(function (newObj, key) {
-      var _extend;
+      var _Object$assign;
 
-      return objectAssign(newObj, (_extend = {}, _extend[key] = obj[key], _extend));
+      return Object.assign(newObj, (_Object$assign = {}, _Object$assign[key] = obj[key], _Object$assign));
     }, {});
   }
 
@@ -2464,7 +2374,7 @@
     pick: pick,
     debounce: debounce,
     isSupported: isSupported,
-    extend: objectAssign
+    extend: Object.assign
   };
 
   var events = {
@@ -2899,55 +2809,237 @@
   };
 
   var strictUriEncode = function (str) {
-    return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
-      return '%' + c.charCodeAt(0).toString(16).toUpperCase();
+    return encodeURIComponent(str).replace(/[!'()*]/g, function (x) {
+      return "%" + x.charCodeAt(0).toString(16).toUpperCase();
     });
   };
 
-  function encoderForArrayFormat(opts) {
-  	switch (opts.arrayFormat) {
+  var token = '%[a-f0-9]{2}';
+  var singleMatcher = new RegExp(token, 'gi');
+  var multiMatcher = new RegExp('(' + token + ')+', 'gi');
+
+  function decodeComponents(components, split) {
+    try {
+      // Try to decode the entire string first
+      return decodeURIComponent(components.join(''));
+    } catch (err) {// Do nothing
+    }
+
+    if (components.length === 1) {
+      return components;
+    }
+
+    split = split || 1; // Split the array in 2 parts
+
+    var left = components.slice(0, split);
+    var right = components.slice(split);
+    return Array.prototype.concat.call([], decodeComponents(left), decodeComponents(right));
+  }
+
+  function decode(input) {
+    try {
+      return decodeURIComponent(input);
+    } catch (err) {
+      var tokens = input.match(singleMatcher);
+
+      for (var i = 1; i < tokens.length; i++) {
+        input = decodeComponents(tokens, i).join('');
+        tokens = input.match(singleMatcher);
+      }
+
+      return input;
+    }
+  }
+
+  function customDecodeURIComponent(input) {
+    // Keep track of all the replacements and prefill the map with the `BOM`
+    var replaceMap = {
+      '%FE%FF': "\uFFFD\uFFFD",
+      '%FF%FE': "\uFFFD\uFFFD"
+    };
+    var match = multiMatcher.exec(input);
+
+    while (match) {
+      try {
+        // Decode as big chunks as possible
+        replaceMap[match[0]] = decodeURIComponent(match[0]);
+      } catch (err) {
+        var result = decode(match[0]);
+
+        if (result !== match[0]) {
+          replaceMap[match[0]] = result;
+        }
+      }
+
+      match = multiMatcher.exec(input);
+    } // Add `%C2` at the end of the map to make sure it does not replace the combinator before everything else
+
+
+    replaceMap['%C2'] = "\uFFFD";
+    var entries = Object.keys(replaceMap);
+
+    for (var i = 0; i < entries.length; i++) {
+      // Replace all decoded components
+      var key = entries[i];
+      input = input.replace(new RegExp(key, 'g'), replaceMap[key]);
+    }
+
+    return input;
+  }
+
+  var decodeUriComponent = function (encodedURI) {
+    if (typeof encodedURI !== 'string') {
+      throw new TypeError('Expected `encodedURI` to be of type `string`, got `' + typeof encodedURI + '`');
+    }
+
+    try {
+      encodedURI = encodedURI.replace(/\+/g, ' '); // Try the built in decoder first
+
+      return decodeURIComponent(encodedURI);
+    } catch (err) {
+      // Fallback to a more advanced decoder
+      return customDecodeURIComponent(encodedURI);
+    }
+  };
+
+  var splitOnFirst = function (string, separator) {
+    if (!(typeof string === 'string' && typeof separator === 'string')) {
+      throw new TypeError('Expected the arguments to be of type `string`');
+    }
+
+    if (separator === '') {
+      return [string];
+    }
+
+    var separatorIndex = string.indexOf(separator);
+
+    if (separatorIndex === -1) {
+      return [string];
+    }
+
+    return [string.slice(0, separatorIndex), string.slice(separatorIndex + separator.length)];
+  };
+
+  var filterObj = function (obj, predicate) {
+    var ret = {};
+    var keys = Object.keys(obj);
+    var isArr = Array.isArray(predicate);
+
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      var val = obj[key];
+
+      if (isArr ? predicate.indexOf(key) !== -1 : predicate(key, val, obj)) {
+        ret[key] = val;
+      }
+    }
+
+    return ret;
+  };
+
+  var queryString = createCommonjsModule(function (module, exports) {
+
+
+
+
+
+  const isNullOrUndefined = value => value === null || value === undefined;
+
+  const encodeFragmentIdentifier = Symbol('encodeFragmentIdentifier');
+
+  function encoderForArrayFormat(options) {
+  	switch (options.arrayFormat) {
   		case 'index':
-  			return function (key, value, index) {
-  				return value === null ? [
-  					encode(key, opts),
-  					'[',
-  					index,
-  					']'
-  				].join('') : [
-  					encode(key, opts),
-  					'[',
-  					encode(index, opts),
-  					']=',
-  					encode(value, opts)
-  				].join('');
+  			return key => (result, value) => {
+  				const index = result.length;
+
+  				if (
+  					value === undefined ||
+  					(options.skipNull && value === null) ||
+  					(options.skipEmptyString && value === '')
+  				) {
+  					return result;
+  				}
+
+  				if (value === null) {
+  					return [...result, [encode(key, options), '[', index, ']'].join('')];
+  				}
+
+  				return [
+  					...result,
+  					[encode(key, options), '[', encode(index, options), ']=', encode(value, options)].join('')
+  				];
   			};
 
   		case 'bracket':
-  			return function (key, value) {
-  				return value === null ? encode(key, opts) : [
-  					encode(key, opts),
-  					'[]=',
-  					encode(value, opts)
-  				].join('');
+  			return key => (result, value) => {
+  				if (
+  					value === undefined ||
+  					(options.skipNull && value === null) ||
+  					(options.skipEmptyString && value === '')
+  				) {
+  					return result;
+  				}
+
+  				if (value === null) {
+  					return [...result, [encode(key, options), '[]'].join('')];
+  				}
+
+  				return [...result, [encode(key, options), '[]=', encode(value, options)].join('')];
   			};
 
+  		case 'comma':
+  		case 'separator':
+  		case 'bracket-separator': {
+  			const keyValueSep = options.arrayFormat === 'bracket-separator' ?
+  				'[]=' :
+  				'=';
+
+  			return key => (result, value) => {
+  				if (
+  					value === undefined ||
+  					(options.skipNull && value === null) ||
+  					(options.skipEmptyString && value === '')
+  				) {
+  					return result;
+  				}
+
+  				// Translate null to an empty string so that it doesn't serialize as 'null'
+  				value = value === null ? '' : value;
+
+  				if (result.length === 0) {
+  					return [[encode(key, options), keyValueSep, encode(value, options)].join('')];
+  				}
+
+  				return [[result, encode(value, options)].join(options.arrayFormatSeparator)];
+  			};
+  		}
+
   		default:
-  			return function (key, value) {
-  				return value === null ? encode(key, opts) : [
-  					encode(key, opts),
-  					'=',
-  					encode(value, opts)
-  				].join('');
+  			return key => (result, value) => {
+  				if (
+  					value === undefined ||
+  					(options.skipNull && value === null) ||
+  					(options.skipEmptyString && value === '')
+  				) {
+  					return result;
+  				}
+
+  				if (value === null) {
+  					return [...result, encode(key, options)];
+  				}
+
+  				return [...result, [encode(key, options), '=', encode(value, options)].join('')];
   			};
   	}
   }
 
-  function parserForArrayFormat(opts) {
-  	var result;
+  function parserForArrayFormat(options) {
+  	let result;
 
-  	switch (opts.arrayFormat) {
+  	switch (options.arrayFormat) {
   		case 'index':
-  			return function (key, value, accumulator) {
+  			return (key, value, accumulator) => {
   				result = /\[(\d*)\]$/.exec(key);
 
   				key = key.replace(/\[\d*\]$/, '');
@@ -2965,14 +3057,16 @@
   			};
 
   		case 'bracket':
-  			return function (key, value, accumulator) {
+  			return (key, value, accumulator) => {
   				result = /(\[\])$/.exec(key);
   				key = key.replace(/\[\]$/, '');
 
   				if (!result) {
   					accumulator[key] = value;
   					return;
-  				} else if (accumulator[key] === undefined) {
+  				}
+
+  				if (accumulator[key] === undefined) {
   					accumulator[key] = [value];
   					return;
   				}
@@ -2980,8 +3074,40 @@
   				accumulator[key] = [].concat(accumulator[key], value);
   			};
 
+  		case 'comma':
+  		case 'separator':
+  			return (key, value, accumulator) => {
+  				const isArray = typeof value === 'string' && value.includes(options.arrayFormatSeparator);
+  				const isEncodedArray = (typeof value === 'string' && !isArray && decode(value, options).includes(options.arrayFormatSeparator));
+  				value = isEncodedArray ? decode(value, options) : value;
+  				const newValue = isArray || isEncodedArray ? value.split(options.arrayFormatSeparator).map(item => decode(item, options)) : value === null ? value : decode(value, options);
+  				accumulator[key] = newValue;
+  			};
+
+  		case 'bracket-separator':
+  			return (key, value, accumulator) => {
+  				const isArray = /(\[\])$/.test(key);
+  				key = key.replace(/\[\]$/, '');
+
+  				if (!isArray) {
+  					accumulator[key] = value ? decode(value, options) : value;
+  					return;
+  				}
+
+  				const arrayValue = value === null ?
+  					[] :
+  					value.split(options.arrayFormatSeparator).map(item => decode(item, options));
+
+  				if (accumulator[key] === undefined) {
+  					accumulator[key] = arrayValue;
+  					return;
+  				}
+
+  				accumulator[key] = [].concat(accumulator[key], arrayValue);
+  			};
+
   		default:
-  			return function (key, value, accumulator) {
+  			return (key, value, accumulator) => {
   				if (accumulator[key] === undefined) {
   					accumulator[key] = value;
   					return;
@@ -2992,9 +3118,23 @@
   	}
   }
 
-  function encode(value, opts) {
-  	if (opts.encode) {
-  		return opts.strict ? strictUriEncode(value) : encodeURIComponent(value);
+  function validateArrayFormatSeparator(value) {
+  	if (typeof value !== 'string' || value.length !== 1) {
+  		throw new TypeError('arrayFormatSeparator must be single character string');
+  	}
+  }
+
+  function encode(value, options) {
+  	if (options.encode) {
+  		return options.strict ? strictUriEncode(value) : encodeURIComponent(value);
+  	}
+
+  	return value;
+  }
+
+  function decode(value, options) {
+  	if (options.decode) {
+  		return decodeUriComponent(value);
   	}
 
   	return value;
@@ -3003,114 +3143,255 @@
   function keysSorter(input) {
   	if (Array.isArray(input)) {
   		return input.sort();
-  	} else if (typeof input === 'object') {
-  		return keysSorter(Object.keys(input)).sort(function (a, b) {
-  			return Number(a) - Number(b);
-  		}).map(function (key) {
-  			return input[key];
-  		});
+  	}
+
+  	if (typeof input === 'object') {
+  		return keysSorter(Object.keys(input))
+  			.sort((a, b) => Number(a) - Number(b))
+  			.map(key => input[key]);
   	}
 
   	return input;
   }
 
-  var extract = function (str) {
-  	return str.split('?')[1] || '';
-  };
+  function removeHash(input) {
+  	const hashStart = input.indexOf('#');
+  	if (hashStart !== -1) {
+  		input = input.slice(0, hashStart);
+  	}
 
-  var parse = function (str, opts) {
-  	opts = objectAssign({arrayFormat: 'none'}, opts);
+  	return input;
+  }
 
-  	var formatter = parserForArrayFormat(opts);
+  function getHash(url) {
+  	let hash = '';
+  	const hashStart = url.indexOf('#');
+  	if (hashStart !== -1) {
+  		hash = url.slice(hashStart);
+  	}
+
+  	return hash;
+  }
+
+  function extract(input) {
+  	input = removeHash(input);
+  	const queryStart = input.indexOf('?');
+  	if (queryStart === -1) {
+  		return '';
+  	}
+
+  	return input.slice(queryStart + 1);
+  }
+
+  function parseValue(value, options) {
+  	if (options.parseNumbers && !Number.isNaN(Number(value)) && (typeof value === 'string' && value.trim() !== '')) {
+  		value = Number(value);
+  	} else if (options.parseBooleans && value !== null && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')) {
+  		value = value.toLowerCase() === 'true';
+  	}
+
+  	return value;
+  }
+
+  function parse(query, options) {
+  	options = Object.assign({
+  		decode: true,
+  		sort: true,
+  		arrayFormat: 'none',
+  		arrayFormatSeparator: ',',
+  		parseNumbers: false,
+  		parseBooleans: false
+  	}, options);
+
+  	validateArrayFormatSeparator(options.arrayFormatSeparator);
+
+  	const formatter = parserForArrayFormat(options);
 
   	// Create an object with no prototype
-  	// https://github.com/sindresorhus/query-string/issues/47
-  	var ret = Object.create(null);
+  	const ret = Object.create(null);
 
-  	if (typeof str !== 'string') {
+  	if (typeof query !== 'string') {
   		return ret;
   	}
 
-  	str = str.trim().replace(/^(\?|#|&)/, '');
+  	query = query.trim().replace(/^[?#&]/, '');
 
-  	if (!str) {
+  	if (!query) {
   		return ret;
   	}
 
-  	str.split('&').forEach(function (param) {
-  		var parts = param.replace(/\+/g, ' ').split('=');
-  		// Firefox (pre 40) decodes `%3D` to `=`
-  		// https://github.com/sindresorhus/query-string/pull/37
-  		var key = parts.shift();
-  		var val = parts.length > 0 ? parts.join('=') : undefined;
+  	for (const param of query.split('&')) {
+  		if (param === '') {
+  			continue;
+  		}
 
-  		// missing `=` should be `null`:
+  		let [key, value] = splitOnFirst(options.decode ? param.replace(/\+/g, ' ') : param, '=');
+
+  		// Missing `=` should be `null`:
   		// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
-  		val = val === undefined ? null : decodeURIComponent(val);
+  		value = value === undefined ? null : ['comma', 'separator', 'bracket-separator'].includes(options.arrayFormat) ? value : decode(value, options);
+  		formatter(decode(key, options), value, ret);
+  	}
 
-  		formatter(decodeURIComponent(key), val, ret);
-  	});
-
-  	return Object.keys(ret).sort().reduce(function (result, key) {
-  		var val = ret[key];
-  		if (Boolean(val) && typeof val === 'object' && !Array.isArray(val)) {
-  			// Sort object keys, not values
-  			result[key] = keysSorter(val);
+  	for (const key of Object.keys(ret)) {
+  		const value = ret[key];
+  		if (typeof value === 'object' && value !== null) {
+  			for (const k of Object.keys(value)) {
+  				value[k] = parseValue(value[k], options);
+  			}
   		} else {
-  			result[key] = val;
+  			ret[key] = parseValue(value, options);
+  		}
+  	}
+
+  	if (options.sort === false) {
+  		return ret;
+  	}
+
+  	return (options.sort === true ? Object.keys(ret).sort() : Object.keys(ret).sort(options.sort)).reduce((result, key) => {
+  		const value = ret[key];
+  		if (Boolean(value) && typeof value === 'object' && !Array.isArray(value)) {
+  			// Sort object keys, not values
+  			result[key] = keysSorter(value);
+  		} else {
+  			result[key] = value;
   		}
 
   		return result;
   	}, Object.create(null));
-  };
+  }
 
-  var stringify = function (obj, opts) {
-  	var defaults = {
+  exports.extract = extract;
+  exports.parse = parse;
+
+  exports.stringify = (object, options) => {
+  	if (!object) {
+  		return '';
+  	}
+
+  	options = Object.assign({
   		encode: true,
   		strict: true,
-  		arrayFormat: 'none'
-  	};
+  		arrayFormat: 'none',
+  		arrayFormatSeparator: ','
+  	}, options);
 
-  	opts = objectAssign(defaults, opts);
+  	validateArrayFormatSeparator(options.arrayFormatSeparator);
 
-  	var formatter = encoderForArrayFormat(opts);
+  	const shouldFilter = key => (
+  		(options.skipNull && isNullOrUndefined(object[key])) ||
+  		(options.skipEmptyString && object[key] === '')
+  	);
 
-  	return obj ? Object.keys(obj).sort().map(function (key) {
-  		var val = obj[key];
+  	const formatter = encoderForArrayFormat(options);
 
-  		if (val === undefined) {
+  	const objectCopy = {};
+
+  	for (const key of Object.keys(object)) {
+  		if (!shouldFilter(key)) {
+  			objectCopy[key] = object[key];
+  		}
+  	}
+
+  	const keys = Object.keys(objectCopy);
+
+  	if (options.sort !== false) {
+  		keys.sort(options.sort);
+  	}
+
+  	return keys.map(key => {
+  		const value = object[key];
+
+  		if (value === undefined) {
   			return '';
   		}
 
-  		if (val === null) {
-  			return encode(key, opts);
+  		if (value === null) {
+  			return encode(key, options);
   		}
 
-  		if (Array.isArray(val)) {
-  			var result = [];
+  		if (Array.isArray(value)) {
+  			if (value.length === 0 && options.arrayFormat === 'bracket-separator') {
+  				return encode(key, options) + '[]';
+  			}
 
-  			val.slice().forEach(function (val2) {
-  				if (val2 === undefined) {
-  					return;
-  				}
-
-  				result.push(formatter(key, val2, result.length));
-  			});
-
-  			return result.join('&');
+  			return value
+  				.reduce(formatter(key), [])
+  				.join('&');
   		}
 
-  		return encode(key, opts) + '=' + encode(val, opts);
-  	}).filter(function (x) {
-  		return x.length > 0;
-  	}).join('&') : '';
+  		return encode(key, options) + '=' + encode(value, options);
+  	}).filter(x => x.length > 0).join('&');
   };
 
-  var queryString = {
-  	extract: extract,
-  	parse: parse,
-  	stringify: stringify
+  exports.parseUrl = (url, options) => {
+  	options = Object.assign({
+  		decode: true
+  	}, options);
+
+  	const [url_, hash] = splitOnFirst(url, '#');
+
+  	return Object.assign(
+  		{
+  			url: url_.split('?')[0] || '',
+  			query: parse(extract(url), options)
+  		},
+  		options && options.parseFragmentIdentifier && hash ? {fragmentIdentifier: decode(hash, options)} : {}
+  	);
   };
+
+  exports.stringifyUrl = (object, options) => {
+  	options = Object.assign({
+  		encode: true,
+  		strict: true,
+  		[encodeFragmentIdentifier]: true
+  	}, options);
+
+  	const url = removeHash(object.url).split('?')[0] || '';
+  	const queryFromUrl = exports.extract(object.url);
+  	const parsedQueryFromUrl = exports.parse(queryFromUrl, {sort: false});
+
+  	const query = Object.assign(parsedQueryFromUrl, object.query);
+  	let queryString = exports.stringify(query, options);
+  	if (queryString) {
+  		queryString = `?${queryString}`;
+  	}
+
+  	let hash = getHash(object.url);
+  	if (object.fragmentIdentifier) {
+  		hash = `#${options[encodeFragmentIdentifier] ? encode(object.fragmentIdentifier, options) : object.fragmentIdentifier}`;
+  	}
+
+  	return `${url}${queryString}${hash}`;
+  };
+
+  exports.pick = (input, filter, options) => {
+  	options = Object.assign({
+  		parseFragmentIdentifier: true,
+  		[encodeFragmentIdentifier]: false
+  	}, options);
+
+  	const {url, query, fragmentIdentifier} = exports.parseUrl(input, options);
+  	return exports.stringifyUrl({
+  		url,
+  		query: filterObj(query, filter),
+  		fragmentIdentifier
+  	}, options);
+  };
+
+  exports.exclude = (input, filter, options) => {
+  	const exclusionFilter = Array.isArray(filter) ? key => !filter.includes(key) : (key, value) => !filter(key, value);
+
+  	return exports.pick(input, exclusionFilter, options);
+  };
+  });
+  var queryString_1 = queryString.extract;
+  var queryString_2 = queryString.parse;
+  var queryString_3 = queryString.stringify;
+  var queryString_4 = queryString.parseUrl;
+  var queryString_5 = queryString.stringifyUrl;
+  var queryString_6 = queryString.pick;
+  var queryString_7 = queryString.exclude;
 
   var toByteArray_1 = toByteArray;
   var lookup = [];
@@ -3304,7 +3585,7 @@
   var textEncoderLite_1 = textEncoderLite.TextDecoderLite;
   var textEncoderLite_2 = textEncoderLite.TextEncoderLite;
 
-  function decode(string) {
+  function decode$1(string) {
     var padding = 4 - string.length % 4;
 
     if (padding === 1) {
@@ -3313,7 +3594,7 @@
       string += '==';
     }
 
-    return textEncoderLite_1.prototype.decode(toByteArray_1(string));
+    return Flags.isFeatureFlagNativeTextEncoder() ? new TextDecoder().decode(toByteArray_1(string)) : textEncoderLite_1.prototype.decode(toByteArray_1(string));
   }
 
   var JWT_SKEW = 60; // in seconds.
@@ -3340,7 +3621,7 @@
       throw 'Invalid JWT: encoded claims must be neither null nor empty-string.';
     }
 
-    var claimsString = decode.call(window, encodedClaims);
+    var claimsString = decode$1.call(window, encodedClaims);
     return JSON.parse(claimsString);
   }
 

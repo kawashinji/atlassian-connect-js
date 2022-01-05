@@ -2,7 +2,6 @@ import HostApi from 'src/host/host-api';
 import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import eventActions from 'src/host/actions/event_actions';
 import simpleXDM from 'simple-xdm/host';
-import extend from 'object-assign';
 
 describe('Host API', function() {
 
@@ -43,7 +42,7 @@ describe('Host API', function() {
       key: '123',
       options: { }
     };
-    const unsanitisedExtension = extend({}, sanitisedExtension, {
+    const unsanitisedExtension = Object.assign({}, sanitisedExtension, {
       options: {
         some_func: function () {},
         url: 'https://some.host.com/?jwt=secret',
