@@ -31,8 +31,6 @@ pipelines:
     default:
         - step:
             script:
-                - npm set loglevel silent
-                - npm set spin false
                 - npm set //packages.atlassian.com/:_authToken=$NPM_TOKEN
-                - npm install
+                - npm ci
                 - npm run test-sl

@@ -20,7 +20,7 @@
     "test": "npm run lint && npm run karma",
     "test-ci": "npm run lint && npm run karma-ci",
     "test-mem": "cd memleak-check && node index",
-    "test-sl": "SAUCE_LABS=true SAUCE_USERNAME=$SAUCE_USERNAME SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY npm test-ci",
+    "test-sl": "SAUCE_LABS=true SAUCE_USERNAME=$SAUCE_USERNAME SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY npm run test-ci",
     "tag": "PACKAGE_VERSION=$(node -p \"require('./package.json').version\") && git tag $PACKAGE_VERSION && git push --tags"
   },
   "devDependencies": {
