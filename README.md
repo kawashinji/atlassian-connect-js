@@ -1,7 +1,7 @@
 Atlassian Connect JS
 ====================
 
-The javascript library which backs [Atlassian Connect](http://connect.atlassian.com/).
+The javascript library which backs [Atlassian Connect](https://developer.atlassian.com/cloud/jira/platform/getting-started-with-connect).
 
 Based on [Simple XDM](https://bitbucket.org/atlassian/simple-xdm/)
 
@@ -179,11 +179,11 @@ To build the distribution:
 Running tests
 -------------
 
-We use [Karma](http://karma-runner.github.io/0.13/index.html) for running our [Jasmine](http://jasmine.github.io/) tests.
+We use [Karma](https://karma-runner.github.io/latest/index.html) for running our [Jasmine](https://jasmine.github.io/) tests.
 
 To run tests in watch mode:
 
-    gulp karma
+    npm run karma
 
 Running tests with saucelabs
 ----------------------------
@@ -203,20 +203,20 @@ Alternatively you can enter Sauce Labs credentials at run time with:
 Linting && Coding Style Checks
 ------------------------------
 
-ACJS follows the Atlassian [Front-End Code Quality](https://extranet.atlassian.com/display/FED/The+Front-End+Code+Quality+%28FECQ%29+project) guidelines
+ACJS follows the Atlassian Front-End Code Quality guidelines.
 
-    gulp lint
+    npm run lint
 
 Point IntelliJ / Sublime / your editor of choice at the .eslintrc for linting as you edit.
 
 Code Coverage
 -------------
 
-We use [Istanbul](http://gotwarlost.github.io/istanbul/) for code coverage statistics.
+We use [Istanbul](https://istanbul.js.org/) for code coverage statistics.
 
 To run tests and generate coverage results:
 
-    COVERAGE=true gulp karma-ci
+    COVERAGE=true npm run karma-ci
 
 Then point your browser at:
 
@@ -271,7 +271,7 @@ To ensure that the local node_modules are cleaned before releasing
 
 
 If you're an Atlassian developer and you wish to release a new version of Atlassian Connect JS for Atlassian products to use,
-follow [this HOWTO](https://extranet.atlassian.com/display/ECO/HOW-TO%3A+Release+ACJS+for+products+to+use).
+follow [this HOWTO](https://hello.atlassian.net/wiki/spaces/ECO/pages/144776697/HOW-TO+Release+ACJS+for+products+to+use).
 
 
 Compatibility
@@ -281,4 +281,3 @@ Atlassian Connect supports the following browsers:
 - Chrome latest stable
 - Firefox latest stable
 - Safari latest stable (on OS X only)
-- IE 11+

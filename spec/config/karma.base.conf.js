@@ -163,15 +163,15 @@ module.exports = function(config) {
   }
 
   if(coverage === 'true') {
-    karmaConfig.webpack.module.postLoaders.push(
-      {
-        test: /\/src\/host\/.*?\.js$/,
-        loader: 'istanbul-instrumenter'
-      }
+    // Add plugin to babel config
+    karmaConfig.webpack.module.rules[0].use.options.plugins.push(
+      [
+        'istanbul',
+        {
+          'include': 'src/host/**/*.js'
+        }
+      ]
     );
-    karmaConfig['webpackMiddleware'] = {
-      noInfo: true
-    };
     karmaConfig.reporters.push('coverage');
     karmaConfig.plugins.push('karma-coverage');
     karmaConfig.coverageReporter.reporters.push({type: 'html', dir: 'coverage/', subdir: '.'});

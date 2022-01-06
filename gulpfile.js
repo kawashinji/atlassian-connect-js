@@ -14,9 +14,6 @@ const builtins = require('rollup-plugin-node-builtins');
 const replace = require('@rollup/plugin-replace');
 const { visualizer } = require('rollup-plugin-visualizer');
 
-const taskLint = require('./gulp-tasks/eslint');
-const taskKarma = require('./gulp-tasks/karma');
-
 const deployPath = argv.deployPath || '../atlassian-connect/jsapi-v5/src/main/resources/v5';
 
 function build(entryModule, distModule, options) {
@@ -151,10 +148,3 @@ gulp.task('build', gulp.series(['plugin:build', 'host:build']));
 gulp.task('deploy', deploy);
 
 gulp.task('default', gulp.series(['build', 'css:minify']));
-
-gulp.task('lint', taskLint);
-gulp.task('karma', taskKarma(false));
-gulp.task('karma-ci', taskKarma(true));
-
-gulp.task('test', gulp.series('lint', 'karma'));
-gulp.task('test-ci', gulp.series('lint', 'karma-ci'));

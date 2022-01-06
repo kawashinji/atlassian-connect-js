@@ -1,21 +1,17 @@
 const { Server } = require('karma');
+const { argv } = require('yargs');
 
-module.exports = function (singleRun = false) {
-  return function (done) {
+function runKarma(options, karmaDone) {
+  options = Object.assign(options, {
+    configFile: process.cwd() + '/spec/config/karma.conf'
+  }, options);
+  var server = new Server(options, karmaDone);
+  server.start();
+}
 
-    function runKarma(options, karmaDone) {
-      options = Object.assign(options, {
-        configFile: process.cwd() + '/spec/config/karma.conf'
-      }, options);
-      var server = new Server(options, karmaDone);
-      server.start();
-    }
+const singleRun = !!argv.ci;
 
-    runKarma({
-      action: 'run',
-      singleRun
-    }, function (result) {
-      done(singleRun ? result : undefined);
-    });
-  };
-};
+runKarma({
+  action: 'run',
+  singleRun
+});
