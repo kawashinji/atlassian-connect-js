@@ -152,10 +152,7 @@ module.exports = function(config) {
     karmaConfig.captureTimeout = 120000;
     karmaConfig.singleRun = true;
     karmaConfig.sauceLabs = {
-      testName: 'Connect JS unit tests',
-      connectOptions : {
-        verbose: true
-      }
+      testName: 'Connect JS unit tests'
     };
     karmaConfig.customLaunchers = customLaunchers;
     karmaConfig.browsers = Object.keys(customLaunchers);
