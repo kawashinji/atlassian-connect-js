@@ -1906,7 +1906,7 @@ var AP = (function () {
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.3.44";
+      _this._version = "5.3.45";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
@@ -2542,7 +2542,7 @@ var AP = (function () {
     return function () {
       if (!called && typeof console !== 'undefined' && console.warn) {
         called = true;
-        console.warn("DEPRECATED API - " + name + " has been deprecated since ACJS " + sinceVersion + (" and will be removed in a future release. " + (alternate ? "Use " + alternate + " instead." : 'No alternative will be provided.')));
+        console.warn("DEPRECATED API - " + name + " has been deprecated " + (sinceVersion ? "since ACJS " + sinceVersion : 'in ACJS') + (" and will be removed in a future release. " + (alternate ? "Use " + alternate + " instead." : 'No alternative will be provided.')));
 
         if (combined._analytics) {
           combined._analytics.trackDeprecatedMethodUsed(name);

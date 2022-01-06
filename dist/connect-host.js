@@ -7067,6 +7067,1448 @@
     }
   });
 
+  function _assertThisInitialized(self) {
+    if (self === void 0) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return self;
+  }
+
+  var assertThisInitialized = _assertThisInitialized;
+
+  var _extends_1 = createCommonjsModule(function (module) {
+  function _extends() {
+    module.exports = _extends = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends.apply(this, arguments);
+  }
+
+  module.exports = _extends;
+  });
+
+  /**
+   * @this {Promise}
+   */
+  function finallyConstructor(callback) {
+    var constructor = this.constructor;
+    return this.then(
+      function(value) {
+        return constructor.resolve(callback()).then(function() {
+          return value;
+        });
+      },
+      function(reason) {
+        return constructor.resolve(callback()).then(function() {
+          return constructor.reject(reason);
+        });
+      }
+    );
+  }
+
+  // Store setTimeout reference so promise-polyfill will be unaffected by
+  // other code modifying setTimeout (like sinon.useFakeTimers())
+  var setTimeoutFunc = setTimeout;
+
+  function noop() {}
+
+  // Polyfill for Function.prototype.bind
+  function bind(fn, thisArg) {
+    return function() {
+      fn.apply(thisArg, arguments);
+    };
+  }
+
+  /**
+   * @constructor
+   * @param {Function} fn
+   */
+  function Promise$1(fn) {
+    if (!(this instanceof Promise$1))
+      throw new TypeError('Promises must be constructed via new');
+    if (typeof fn !== 'function') throw new TypeError('not a function');
+    /** @type {!number} */
+    this._state = 0;
+    /** @type {!boolean} */
+    this._handled = false;
+    /** @type {Promise|undefined} */
+    this._value = undefined;
+    /** @type {!Array<!Function>} */
+    this._deferreds = [];
+
+    doResolve(fn, this);
+  }
+
+  function handle(self, deferred) {
+    while (self._state === 3) {
+      self = self._value;
+    }
+    if (self._state === 0) {
+      self._deferreds.push(deferred);
+      return;
+    }
+    self._handled = true;
+    Promise$1._immediateFn(function() {
+      var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
+      if (cb === null) {
+        (self._state === 1 ? resolve : reject)(deferred.promise, self._value);
+        return;
+      }
+      var ret;
+      try {
+        ret = cb(self._value);
+      } catch (e) {
+        reject(deferred.promise, e);
+        return;
+      }
+      resolve(deferred.promise, ret);
+    });
+  }
+
+  function resolve(self, newValue) {
+    try {
+      // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
+      if (newValue === self)
+        throw new TypeError('A promise cannot be resolved with itself.');
+      if (
+        newValue &&
+        (typeof newValue === 'object' || typeof newValue === 'function')
+      ) {
+        var then = newValue.then;
+        if (newValue instanceof Promise$1) {
+          self._state = 3;
+          self._value = newValue;
+          finale(self);
+          return;
+        } else if (typeof then === 'function') {
+          doResolve(bind(then, newValue), self);
+          return;
+        }
+      }
+      self._state = 1;
+      self._value = newValue;
+      finale(self);
+    } catch (e) {
+      reject(self, e);
+    }
+  }
+
+  function reject(self, newValue) {
+    self._state = 2;
+    self._value = newValue;
+    finale(self);
+  }
+
+  function finale(self) {
+    if (self._state === 2 && self._deferreds.length === 0) {
+      Promise$1._immediateFn(function() {
+        if (!self._handled) {
+          Promise$1._unhandledRejectionFn(self._value);
+        }
+      });
+    }
+
+    for (var i = 0, len = self._deferreds.length; i < len; i++) {
+      handle(self, self._deferreds[i]);
+    }
+    self._deferreds = null;
+  }
+
+  /**
+   * @constructor
+   */
+  function Handler(onFulfilled, onRejected, promise) {
+    this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
+    this.onRejected = typeof onRejected === 'function' ? onRejected : null;
+    this.promise = promise;
+  }
+
+  /**
+   * Take a potentially misbehaving resolver function and make sure
+   * onFulfilled and onRejected are only called once.
+   *
+   * Makes no guarantees about asynchrony.
+   */
+  function doResolve(fn, self) {
+    var done = false;
+    try {
+      fn(
+        function(value) {
+          if (done) return;
+          done = true;
+          resolve(self, value);
+        },
+        function(reason) {
+          if (done) return;
+          done = true;
+          reject(self, reason);
+        }
+      );
+    } catch (ex) {
+      if (done) return;
+      done = true;
+      reject(self, ex);
+    }
+  }
+
+  Promise$1.prototype['catch'] = function(onRejected) {
+    return this.then(null, onRejected);
+  };
+
+  Promise$1.prototype.then = function(onFulfilled, onRejected) {
+    // @ts-ignore
+    var prom = new this.constructor(noop);
+
+    handle(this, new Handler(onFulfilled, onRejected, prom));
+    return prom;
+  };
+
+  Promise$1.prototype['finally'] = finallyConstructor;
+
+  Promise$1.all = function(arr) {
+    return new Promise$1(function(resolve, reject) {
+      if (!arr || typeof arr.length === 'undefined')
+        throw new TypeError('Promise.all accepts an array');
+      var args = Array.prototype.slice.call(arr);
+      if (args.length === 0) return resolve([]);
+      var remaining = args.length;
+
+      function res(i, val) {
+        try {
+          if (val && (typeof val === 'object' || typeof val === 'function')) {
+            var then = val.then;
+            if (typeof then === 'function') {
+              then.call(
+                val,
+                function(val) {
+                  res(i, val);
+                },
+                reject
+              );
+              return;
+            }
+          }
+          args[i] = val;
+          if (--remaining === 0) {
+            resolve(args);
+          }
+        } catch (ex) {
+          reject(ex);
+        }
+      }
+
+      for (var i = 0; i < args.length; i++) {
+        res(i, args[i]);
+      }
+    });
+  };
+
+  Promise$1.resolve = function(value) {
+    if (value && typeof value === 'object' && value.constructor === Promise$1) {
+      return value;
+    }
+
+    return new Promise$1(function(resolve) {
+      resolve(value);
+    });
+  };
+
+  Promise$1.reject = function(value) {
+    return new Promise$1(function(resolve, reject) {
+      reject(value);
+    });
+  };
+
+  Promise$1.race = function(values) {
+    return new Promise$1(function(resolve, reject) {
+      for (var i = 0, len = values.length; i < len; i++) {
+        values[i].then(resolve, reject);
+      }
+    });
+  };
+
+  // Use polyfill for setImmediate for performance gains
+  Promise$1._immediateFn =
+    (typeof setImmediate === 'function' &&
+      function(fn) {
+        setImmediate(fn);
+      }) ||
+    function(fn) {
+      setTimeoutFunc(fn, 0);
+    };
+
+  Promise$1._unhandledRejectionFn = function _unhandledRejectionFn(err) {
+    if (typeof console !== 'undefined' && console) {
+      console.warn('Possible Unhandled Promise Rejection:', err); // eslint-disable-line no-console
+    }
+  };
+
+  var _each = util.each,
+      document$1 = window.document;
+
+  function $$1(sel, context) {
+    context = context || document$1;
+    var els = [];
+
+    if (sel) {
+      if (typeof sel === 'string') {
+        var results = context.querySelectorAll(sel),
+            arr_results = Array.prototype.slice.call(results);
+        Array.prototype.push.apply(els, arr_results);
+      } else if (sel.nodeType === 1) {
+        els.push(sel);
+      } else if (sel === window) {
+        els.push(sel);
+      } else if (typeof sel === 'function') {
+        $$1.onDomLoad(sel);
+      }
+    }
+
+    util.extend(els, {
+      each: function each(it) {
+        _each(this, it);
+
+        return this;
+      },
+      bind: function bind(name, callback) {
+        this.each(function (i, el) {
+          this.bind(el, name, callback);
+        });
+      },
+      attr: function attr(k) {
+        var v;
+        this.each(function (i, el) {
+          v = el[k] || el.getAttribute && el.getAttribute(k);
+          return !v;
+        });
+        return v;
+      },
+      removeClass: function removeClass(className) {
+        return this.each(function (i, el) {
+          if (el.className) {
+            el.className = el.className.replace(new RegExp('(^|\\s)' + className + '(\\s|$)'), ' ');
+          }
+        });
+      },
+      html: function html(_html) {
+        return this.each(function (i, el) {
+          el.innerHTML = _html;
+        });
+      },
+      append: function append(spec) {
+        return this.each(function (i, to) {
+          var el = context.createElement(spec.tag);
+
+          _each(spec, function (k, v) {
+            if (k === '$text') {
+              if (el.styleSheet) {
+                // style tags in ie
+                el.styleSheet.cssText = v;
+              } else {
+                el.appendChild(context.createTextNode(v));
+              }
+            } else if (k !== 'tag') {
+              el[k] = v;
+            }
+          });
+
+          to.appendChild(el);
+        });
+      }
+    });
+    return els;
+  }
+
+  function binder(std, odd) {
+    std += 'EventListener';
+    odd += 'Event';
+    return function (el, e, fn) {
+      if (el[std]) {
+        el[std](e, fn, false);
+      } else if (el[odd]) {
+        el[odd]('on' + e, fn);
+      }
+    };
+  }
+
+  $$1.bind = binder('add', 'attach');
+  $$1.unbind = binder('remove', 'detach');
+
+  $$1.onDomLoad = function (func) {
+    var w = window,
+        readyState = w.document.readyState;
+
+    if (readyState === "complete") {
+      func.call(w);
+    } else {
+      $$1.bind(w, "load", function () {
+        func.call(w);
+      });
+    }
+  };
+
+  function getContainer() {
+    // Look for these two selectors first... you need these to allow for the auto-shrink to work
+    // Otherwise, it'll default to document.body which can't auto-grow or auto-shrink
+    var container = $$1('.ac-content, #content');
+    return container.length > 0 ? container[0] : document.body;
+  }
+
+  /**
+  * Extension wide configuration values
+  */
+  var ConfigurationOptions =
+  /*#__PURE__*/
+  function () {
+    function ConfigurationOptions() {
+      this.options = {};
+    }
+
+    var _proto = ConfigurationOptions.prototype;
+
+    _proto._flush = function _flush() {
+      this.options = {};
+    };
+
+    _proto.get = function get(item) {
+      return item ? this.options[item] : this.options;
+    };
+
+    _proto.set = function set(data, value) {
+      var _this = this;
+
+      if (!data) {
+        return;
+      }
+
+      if (value) {
+        var _data;
+
+        data = (_data = {}, _data[data] = value, _data);
+      }
+
+      var keys = Object.getOwnPropertyNames(data);
+      keys.forEach(function (key) {
+        _this.options[key] = data[key];
+      }, this);
+    };
+
+    return ConfigurationOptions;
+  }();
+
+  var ConfigurationOptions$1 = new ConfigurationOptions();
+
+  var size = function size(width, height, container) {
+    var verticalScrollbarWidth = function verticalScrollbarWidth() {
+      var sbWidth = window.innerWidth - container.clientWidth; // sanity check only
+
+      sbWidth = sbWidth < 0 ? 0 : sbWidth;
+      sbWidth = sbWidth > 50 ? 50 : sbWidth;
+      return sbWidth;
+    };
+
+    var horizontalScrollbarHeight = function horizontalScrollbarHeight() {
+      var sbHeight = window.innerHeight - Math.min(container.clientHeight, document.documentElement.clientHeight); // sanity check only
+
+      sbHeight = sbHeight < 0 ? 0 : sbHeight;
+      sbHeight = sbHeight > 50 ? 50 : sbHeight;
+      return sbHeight;
+    };
+
+    var w = width == null ? '100%' : width,
+        h,
+        docHeight;
+    var widthInPx = Boolean(ConfigurationOptions$1.get('widthinpx'));
+    container = container || getContainer();
+
+    if (!container) {
+      util.warn('size called before container or body appeared, ignoring');
+    }
+
+    if (widthInPx && typeof w === "string" && w.search('%') !== -1) {
+      w = Math.max(container.scrollWidth, container.offsetWidth, container.clientWidth);
+    }
+
+    if (height) {
+      h = height;
+    } else {
+      // Determine height of document element
+      docHeight = Math.max(container.scrollHeight, document.documentElement.scrollHeight, container.offsetHeight, document.documentElement.offsetHeight, container.clientHeight, document.documentElement.clientHeight);
+
+      if (container === document.body) {
+        h = docHeight;
+      } else {
+        var computed = window.getComputedStyle(container);
+        h = container.getBoundingClientRect().height;
+
+        if (h === 0) {
+          h = docHeight;
+        } else {
+          var additionalProperties = ['margin-top', 'margin-bottom'];
+          additionalProperties.forEach(function (property) {
+            var floated = parseFloat(computed[property]);
+            h += floated;
+          });
+        }
+      }
+    } // Include iframe scroll bars if visible and using exact dimensions
+
+
+    w = typeof w === 'number' && Math.min(container.scrollHeight, document.documentElement.scrollHeight) > Math.min(container.clientHeight, document.documentElement.clientHeight) ? w + verticalScrollbarWidth() : w;
+    h = typeof h === 'number' && container.scrollWidth > container.clientWidth ? h + horizontalScrollbarHeight() : h;
+    return {
+      w: w,
+      h: h
+    };
+  };
+
+  function EventQueue() {
+    this.q = [];
+
+    this.add = function (ev) {
+      this.q.push(ev);
+    };
+
+    var i, j;
+
+    this.call = function () {
+      for (i = 0, j = this.q.length; i < j; i++) {
+        this.q[i].call();
+      }
+    };
+  }
+
+  function attachResizeEvent(element, resized) {
+    if (!element.resizedAttached) {
+      element.resizedAttached = new EventQueue();
+      element.resizedAttached.add(resized);
+    } else if (element.resizedAttached) {
+      element.resizedAttached.add(resized);
+      return;
+    } // padding / margins on the body causes numerous resizing bugs.
+
+
+    if (element.nodeName === 'BODY') {
+      ['padding', 'margin'].forEach(function (attr) {
+        element.style[attr + '-bottom'] = '0px';
+        element.style[attr + '-top'] = '0px';
+      }, this);
+    }
+
+    element.resizeSensor = document.createElement('div');
+    element.resizeSensor.className = 'ac-resize-sensor';
+    var style = 'position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: scroll; z-index: -1; visibility: hidden;';
+    var styleChild = 'position: absolute; left: 0; top: 0;';
+    element.resizeSensor.style.cssText = style;
+    var expand = document.createElement('div');
+    expand.className = "ac-resize-sensor-expand";
+    expand.style.cssText = style;
+    var expandChild = document.createElement('div');
+    expand.appendChild(expandChild);
+    expandChild.style.cssText = styleChild;
+    var shrink = document.createElement('div');
+    shrink.className = "ac-resize-sensor-shrink";
+    shrink.style.cssText = style;
+    var shrinkChild = document.createElement('div');
+    shrink.appendChild(shrinkChild);
+    shrinkChild.style.cssText = styleChild + ' width: 200%; height: 200%';
+    element.resizeSensor.appendChild(expand);
+    element.resizeSensor.appendChild(shrink);
+    element.appendChild(element.resizeSensor); // https://bugzilla.mozilla.org/show_bug.cgi?id=548397
+    // do not set body to relative
+
+    if (element.nodeName !== 'BODY' && window.getComputedStyle && window.getComputedStyle(element).position === 'static') {
+      element.style.position = 'relative';
+    }
+
+    var lastWidth, lastHeight;
+
+    var reset = function reset() {
+      expandChild.style.width = expand.offsetWidth + 10 + 'px';
+      expandChild.style.height = expand.offsetHeight + 10 + 'px';
+      expand.scrollLeft = expand.scrollWidth;
+      expand.scrollTop = expand.scrollHeight;
+      shrink.scrollLeft = shrink.scrollWidth;
+      shrink.scrollTop = shrink.scrollHeight;
+      lastWidth = element.offsetWidth;
+      lastHeight = element.offsetHeight;
+    };
+
+    reset();
+
+    var changed = function changed() {
+      if (element.resizedAttached) {
+        element.resizedAttached.call();
+      }
+    };
+
+    var onScroll = function onScroll() {
+      if (element.offsetWidth !== lastWidth || element.offsetHeight !== lastHeight) {
+        changed();
+      }
+
+      reset();
+    };
+
+    expand.addEventListener('scroll', onScroll);
+    shrink.addEventListener('scroll', onScroll);
+    var observerConfig = {
+      attributes: true,
+      attributeFilter: ['style']
+    };
+    var observer = new MutationObserver(onScroll);
+    element.resizeObserver = observer;
+    observer.observe(element, observerConfig);
+  }
+
+  var resizeListener = {
+    add: function add(fn) {
+      var container = getContainer();
+      attachResizeEvent(container, fn);
+    },
+    remove: function remove() {
+      var container = getContainer();
+
+      if (container.resizeSensor) {
+        container.resizeObserver.disconnect();
+        container.removeChild(container.resizeSensor);
+        delete container.resizeSensor;
+        delete container.resizedAttached;
+      }
+    }
+  };
+
+  var AutoResizeAction =
+  /*#__PURE__*/
+  function () {
+    function AutoResizeAction(callback) {
+      this.resizeError = util.throttle(function (msg) {
+        console.info(msg);
+      }, 1000);
+      this.dimensionStores = {
+        width: [],
+        height: []
+      };
+      this.callback = callback;
+    }
+
+    var _proto = AutoResizeAction.prototype;
+
+    _proto._setVal = function _setVal(val, type, time) {
+      this.dimensionStores[type] = this.dimensionStores[type].filter(function (entry) {
+        return time - entry.setAt < 400;
+      });
+      this.dimensionStores[type].push({
+        val: parseInt(val, 10),
+        setAt: time
+      });
+    };
+
+    _proto._isFlicker = function _isFlicker(val, type) {
+      return this.dimensionStores[type].length >= 5;
+    };
+
+    _proto.triggered = function triggered(dimensions) {
+      dimensions = dimensions || size();
+      var now = Date.now();
+
+      this._setVal(dimensions.w, 'width', now);
+
+      this._setVal(dimensions.h, 'height', now);
+
+      var isFlickerWidth = this._isFlicker(dimensions.w, 'width', now);
+
+      var isFlickerHeight = this._isFlicker(dimensions.h, 'height', now);
+
+      if (isFlickerWidth) {
+        dimensions.w = "100%";
+        this.resizeError("SIMPLE XDM: auto resize flickering width detected, setting to 100%");
+      }
+
+      if (isFlickerHeight) {
+        var vals = this.dimensionStores['height'].map(function (x) {
+          return x.val;
+        });
+        dimensions.h = Math.max.apply(null, vals) + 'px';
+        this.resizeError("SIMPLE XDM: auto resize flickering height detected, setting to: " + dimensions.h);
+      }
+
+      this.callback(dimensions.w, dimensions.h);
+    };
+
+    return AutoResizeAction;
+  }();
+
+  var ConsumerOptions =
+  /*#__PURE__*/
+  function () {
+    function ConsumerOptions() {}
+
+    var _proto = ConsumerOptions.prototype;
+
+    _proto._elementExists = function _elementExists($el) {
+      return $el && $el.length === 1;
+    };
+
+    _proto._elementOptions = function _elementOptions($el) {
+      return $el.attr("data-options");
+    };
+
+    _proto._getConsumerOptions = function _getConsumerOptions() {
+      var options = {},
+          $optionElement = $$1("#ac-iframe-options"),
+          $scriptElement = $$1("script[src*='/atlassian-connect/all']"),
+          $cdnScriptElement = $$1("script[src*='/connect-cdn.atl-paas.net/all']");
+
+      if (!this._elementExists($optionElement) || !this._elementOptions($optionElement)) {
+        if (this._elementExists($scriptElement)) {
+          $optionElement = $scriptElement;
+        } else if (this._elementExists($cdnScriptElement)) {
+          $optionElement = $cdnScriptElement;
+        }
+      }
+
+      if (this._elementExists($optionElement)) {
+        // get its data-options attribute, if any
+        var optStr = this._elementOptions($optionElement);
+
+        if (optStr) {
+          // if found, parse the value into kv pairs following the format of a style element
+          optStr.split(";").forEach(function (nvpair) {
+            nvpair = nvpair.trim();
+
+            if (nvpair) {
+              var nv = nvpair.split(":"),
+                  k = nv[0].trim(),
+                  v = nv[1].trim();
+
+              if (k && v != null) {
+                options[k] = v === "true" || v === "false" ? v === "true" : v;
+              }
+            }
+          });
+        }
+      }
+
+      return options;
+    };
+
+    _proto._flush = function _flush() {
+      delete this._options;
+    };
+
+    _proto.get = function get(key) {
+      if (!this._options) {
+        this._options = this._getConsumerOptions();
+      }
+
+      if (key) {
+        return this._options[key];
+      }
+
+      return this._options;
+    };
+
+    return ConsumerOptions;
+  }();
+
+  var ConsumerOptions$1 = new ConsumerOptions();
+
+  var POSSIBLE_MODIFIER_KEYS = ['ctrl', 'shift', 'alt', 'meta'];
+
+  var AP =
+  /*#__PURE__*/
+  function (_PostMessage) {
+    inheritsLoose(AP, _PostMessage);
+
+    function AP(options, initCheck) {
+      var _this;
+
+      if (initCheck === void 0) {
+        initCheck = true;
+      }
+
+      _this = _PostMessage.call(this) || this;
+      ConfigurationOptions$1.set(options);
+      _this._data = _this._parseInitData();
+      ConfigurationOptions$1.set(_this._data.options);
+      _this._data.options = _this._data.options || {};
+      _this._hostOrigin = _this._data.options.hostOrigin || '*';
+      _this._top = window.top;
+      _this._host = window.parent || window;
+      _this._topHost = _this._getHostFrame(_this._data.options.hostFrameOffset);
+
+      if (_this._topHost !== _this._top) {
+        _this._verifyHostFrameOffset();
+      }
+
+      _this._initTimeout = 5000;
+      _this._initReceived = false;
+      _this._initCheck = initCheck;
+      _this._isKeyDownBound = false;
+      _this._hostModules = {};
+      _this._eventHandlers = {};
+      _this._pendingCallbacks = {};
+      _this._keyListeners = [];
+      _this._version = "5.3.45";
+      _this._apiTampered = undefined;
+      _this._isSubIframe = _this._topHost !== window.parent;
+      _this._onConfirmedFns = [];
+      _this._promise = Promise$1;
+
+      if (_this._data.api) {
+        _this._setupAPI(_this._data.api);
+
+        _this._setupAPIWithoutRequire(_this._data.api);
+      }
+
+      _this._messageHandlers = {
+        init_received: _this._handleInitReceived,
+        resp: _this._handleResponse,
+        evt: _this._handleEvent,
+        key_listen: _this._handleKeyListen,
+        api_tamper: _this._handleApiTamper
+      };
+
+      if (_this._data.origin) {
+        _this._sendInit(_this._host, _this._data.origin);
+
+        if (_this._isSubIframe) {
+          _this._sendInit(_this._topHost, _this._hostOrigin);
+        }
+      }
+
+      _this._registerOnUnload();
+
+      _this.resize = util._bind(assertThisInitialized(_this), function (width, height) {
+        if (!getContainer()) {
+          util.warn('resize called before container or body appeared, ignoring');
+          return;
+        }
+
+        var dimensions = size();
+
+        if (!width) {
+          width = dimensions.w;
+        }
+
+        if (!height) {
+          height = dimensions.h;
+        }
+
+        if (_this._hostModules.env && _this._hostModules.env.resize) {
+          _this._hostModules.env.resize(width, height);
+        }
+      });
+      $$1(util._bind(assertThisInitialized(_this), _this._autoResizer));
+      _this.container = getContainer;
+      _this.size = size;
+      window.addEventListener('click', function (e) {
+        _this._host.postMessage({
+          eid: _this._data.extension_id,
+          type: 'addon_clicked'
+        }, _this._hostOrigin);
+      });
+      return _this;
+    }
+
+    var _proto = AP.prototype;
+
+    _proto._getHostFrame = function _getHostFrame(offset) {
+      // Climb up the iframe tree to find the real host
+      if (offset && typeof offset === 'number') {
+        var hostFrame = window;
+
+        for (var i = 0; i < offset; i++) {
+          hostFrame = hostFrame.parent;
+        }
+
+        return hostFrame;
+      } else {
+        return this._top;
+      }
+    };
+
+    _proto._verifyHostFrameOffset = function _verifyHostFrameOffset() {
+      var _this2 = this;
+
+      // Asynchronously verify the host frame option with this._top
+      var callback = function callback(e) {
+        if (e.source === _this2._top && e.data && typeof e.data.hostFrameOffset === 'number') {
+          window.removeEventListener('message', callback);
+
+          if (_this2._getHostFrame(e.data.hostFrameOffset) !== _this2._topHost) {
+            util.error('hostFrameOffset tampering detected, setting host frame to top window');
+            _this2._topHost = _this2._top;
+          }
+        }
+      };
+
+      window.addEventListener('message', callback);
+
+      this._top.postMessage({
+        type: 'get_host_offset'
+      }, this._hostOrigin);
+    };
+
+    _proto._handleApiTamper = function _handleApiTamper(event) {
+      if (event.data.tampered !== false) {
+        this._host = undefined;
+        this._apiTampered = true;
+        util.error('XDM API tampering detected, api disabled');
+      } else {
+        this._apiTampered = false;
+
+        this._onConfirmedFns.forEach(function (cb) {
+          cb.apply(null);
+        });
+      }
+
+      this._onConfirmedFns = [];
+    };
+
+    _proto._registerOnUnload = function _registerOnUnload() {
+      $$1.bind(window, 'unload', util._bind(this, function () {
+        this._sendUnload(this._host, this._data.origin);
+
+        if (this._isSubIframe) {
+          this._sendUnload(this._topHost, this._hostOrigin);
+        }
+      }));
+    };
+
+    _proto._sendUnload = function _sendUnload(frame, origin) {
+      frame.postMessage({
+        eid: this._data.extension_id,
+        type: 'unload'
+      }, origin || '*');
+    };
+
+    _proto._bindKeyDown = function _bindKeyDown() {
+      if (!this._isKeyDownBound) {
+        $$1.bind(window, 'keydown', util._bind(this, this._handleKeyDownDomEvent));
+        this._isKeyDownBound = true;
+      }
+    };
+
+    _proto._autoResizer = function _autoResizer() {
+      this._enableAutoResize = Boolean(ConfigurationOptions$1.get('autoresize'));
+
+      if (ConsumerOptions$1.get('resize') === false || ConsumerOptions$1.get('sizeToParent') === true) {
+        this._enableAutoResize = false;
+      }
+
+      if (this._enableAutoResize) {
+        this._initResize();
+      }
+    }
+    /**
+    * The initialization data is passed in when the iframe is created as its 'name' attribute.
+    * Example:
+    * {
+    *   extension_id: The ID of this iframe as defined by the host
+    *   origin: 'https://example.org'  // The parent's window origin
+    *   api: {
+    *     _globals: { ... },
+    *     messages = {
+    *       clear: {},
+    *       ...
+    *     },
+    *     ...
+    *   }
+    * }
+    **/
+    ;
+
+    _proto._parseInitData = function _parseInitData(data) {
+      try {
+        return JSON.parse(data || window.name);
+      } catch (e) {
+        return {};
+      }
+    };
+
+    _proto._findTarget = function _findTarget(moduleName, methodName) {
+      return this._data.options && this._data.options.targets && this._data.options.targets[moduleName] && this._data.options.targets[moduleName][methodName] ? this._data.options.targets[moduleName][methodName] : 'top';
+    };
+
+    _proto._createModule = function _createModule(moduleName, api) {
+      var _this3 = this;
+
+      return Object.getOwnPropertyNames(api).reduce(function (accumulator, memberName) {
+        var member = api[memberName];
+
+        if (member.hasOwnProperty('constructor')) {
+          accumulator[memberName] = _this3._createProxy(moduleName, member, memberName);
+        } else {
+          accumulator[memberName] = _this3._createMethodHandler({
+            mod: moduleName,
+            fn: memberName,
+            returnsPromise: member.returnsPromise
+          });
+        }
+
+        return accumulator;
+      }, {});
+    };
+
+    _proto._setupAPI = function _setupAPI(api) {
+      var _this4 = this;
+
+      this._hostModules = Object.getOwnPropertyNames(api).reduce(function (accumulator, moduleName) {
+        accumulator[moduleName] = _this4._createModule(moduleName, api[moduleName], api[moduleName]._options);
+        return accumulator;
+      }, {});
+      Object.getOwnPropertyNames(this._hostModules._globals || {}).forEach(function (global) {
+        _this4[global] = _this4._hostModules._globals[global];
+      });
+    };
+
+    _proto._setupAPIWithoutRequire = function _setupAPIWithoutRequire(api) {
+      var _this5 = this;
+
+      Object.getOwnPropertyNames(api).forEach(function (moduleName) {
+        if (typeof _this5[moduleName] !== "undefined") {
+          throw new Error('XDM module: ' + moduleName + ' will collide with existing variable');
+        }
+
+        _this5[moduleName] = _this5._createModule(moduleName, api[moduleName]);
+      }, this);
+    };
+
+    _proto._pendingCallback = function _pendingCallback(mid, fn, metaData) {
+      if (metaData) {
+        Object.getOwnPropertyNames(metaData).forEach(function (metaDataName) {
+          fn[metaDataName] = metaData[metaDataName];
+        });
+      }
+
+      this._pendingCallbacks[mid] = fn;
+    };
+
+    _proto._createProxy = function _createProxy(moduleName, api, className) {
+      var module = this._createModule(moduleName, api);
+
+      function Cls(args) {
+        if (!(this instanceof Cls)) {
+          return new Cls(arguments);
+        }
+
+        this._cls = className;
+        this._id = util.randomString();
+        module.constructor.apply(this, args);
+        return this;
+      }
+
+      Object.getOwnPropertyNames(module).forEach(function (methodName) {
+        if (methodName !== 'constructor') {
+          Cls.prototype[methodName] = module[methodName];
+        }
+      });
+      return Cls;
+    };
+
+    _proto._createMethodHandler = function _createMethodHandler(methodData) {
+      var that = this;
+      return function () {
+        var args = util.argumentsToArray(arguments);
+        var data = {
+          eid: that._data.extension_id,
+          type: 'req',
+          mod: methodData.mod,
+          fn: methodData.fn
+        };
+        var targetOrigin;
+        var target;
+        var xdmPromise;
+        var mid = util.randomString();
+
+        if (that._findTarget(methodData.mod, methodData.fn) === 'top') {
+          target = that._topHost;
+          targetOrigin = that._hostOrigin;
+        } else {
+          target = that._host;
+          targetOrigin = that._data.origin;
+        }
+
+        if (util.hasCallback(args)) {
+          data.mid = mid;
+
+          that._pendingCallback(data.mid, args.pop(), {
+            useCallback: true,
+            isPromiseMethod: Boolean(methodData.returnsPromise)
+          });
+        } else if (methodData.returnsPromise) {
+          data.mid = mid;
+          xdmPromise = new Promise$1(function (resolve, reject) {
+            that._pendingCallback(data.mid, function (err, result) {
+              if (err || typeof result === 'undefined' && typeof err === 'undefined') {
+                reject(err);
+              } else {
+                resolve(result);
+              }
+            }, {
+              useCallback: false,
+              isPromiseMethod: Boolean(methodData.returnsPromise)
+            });
+          });
+          xdmPromise.catch(function (err) {
+            util.warn("Failed promise: " + err);
+          });
+        }
+
+        if (this && this._cls) {
+          data._cls = this._cls;
+          data._id = this._id;
+        }
+
+        data.args = util.sanitizeStructuredClone(args);
+
+        if (that._isSubIframe && typeof that._apiTampered === 'undefined') {
+          that._onConfirmedFns.push(function () {
+            target.postMessage(data, targetOrigin);
+          });
+        } else {
+          target.postMessage(data, targetOrigin);
+        }
+
+        if (xdmPromise) {
+          return xdmPromise;
+        }
+      };
+    };
+
+    _proto._handleResponse = function _handleResponse(event) {
+      var data = event.data;
+
+      if (!data.forPlugin) {
+        return;
+      }
+
+      var pendingCallback = this._pendingCallbacks[data.mid];
+
+      if (pendingCallback) {
+        delete this._pendingCallbacks[data.mid];
+
+        try {
+          // Promise methods always return error result as first arg
+          // If a promise method is invoked using callbacks, strip first arg.
+          if (pendingCallback.useCallback && pendingCallback.isPromiseMethod) {
+            data.args.shift();
+          }
+
+          pendingCallback.apply(window, data.args);
+        } catch (e) {
+          util.error(e.message, e.stack);
+        }
+      }
+    };
+
+    _proto._handleEvent = function _handleEvent(event) {
+      var sendResponse = function sendResponse() {
+        var args = util.argumentsToArray(arguments);
+        event.source.postMessage({
+          eid: this._data.extension_id,
+          mid: event.data.mid,
+          type: 'resp',
+          args: args
+        }, this._data.origin);
+      };
+
+      var data = event.data;
+      sendResponse = util._bind(this, sendResponse);
+      sendResponse._context = {
+        eventName: data.etyp
+      };
+
+      function toArray(handlers) {
+        if (handlers) {
+          if (!Array.isArray(handlers)) {
+            handlers = [handlers];
+          }
+
+          return handlers;
+        }
+
+        return [];
+      }
+
+      var handlers = toArray(this._eventHandlers[data.etyp]);
+      handlers = handlers.concat(toArray(this._eventHandlers._any));
+      handlers.forEach(function (handler) {
+        try {
+          handler(data.evnt, sendResponse);
+        } catch (e) {
+          util.error('exception thrown in event callback for:' + data.etyp);
+        }
+      }, this);
+
+      if (data.mid) {
+        sendResponse();
+      }
+    };
+
+    _proto._handleKeyDownDomEvent = function _handleKeyDownDomEvent(event) {
+      var modifiers = [];
+      POSSIBLE_MODIFIER_KEYS.forEach(function (modifierKey) {
+        if (event[modifierKey + 'Key']) {
+          modifiers.push(modifierKey);
+        }
+      }, this);
+
+      var keyListenerId = this._keyListenerId(event.keyCode, modifiers);
+
+      var requestedKey = this._keyListeners.indexOf(keyListenerId);
+
+      if (requestedKey >= 0) {
+        this._host.postMessage({
+          eid: this._data.extension_id,
+          keycode: event.keyCode,
+          modifiers: modifiers,
+          type: 'key_triggered'
+        }, this._data.origin);
+      }
+    };
+
+    _proto._keyListenerId = function _keyListenerId(keycode, modifiers) {
+      var keyListenerId = keycode;
+
+      if (modifiers) {
+        if (typeof modifiers === "string") {
+          modifiers = [modifiers];
+        }
+
+        modifiers.sort();
+        modifiers.forEach(function (modifier) {
+          keyListenerId += '$$' + modifier;
+        }, this);
+      }
+
+      return keyListenerId;
+    };
+
+    _proto._handleKeyListen = function _handleKeyListen(postMessageEvent) {
+      var keyListenerId = this._keyListenerId(postMessageEvent.data.keycode, postMessageEvent.data.modifiers);
+
+      if (postMessageEvent.data.action === "remove") {
+        var index = this._keyListeners.indexOf(keyListenerId);
+
+        this._keyListeners.splice(index, 1);
+      } else if (postMessageEvent.data.action === "add") {
+        // only bind onKeyDown once a key is registered.
+        this._bindKeyDown();
+
+        this._keyListeners.push(keyListenerId);
+      }
+    };
+
+    _proto._checkOrigin = function _checkOrigin(event) {
+      var no_source_types = ['api_tamper'];
+
+      if (event.data && no_source_types.indexOf(event.data.type) > -1) {
+        return true;
+      }
+
+      if (this._isSubIframe && event.source === this._topHost) {
+        return true;
+      }
+
+      return event.origin === this._data.origin && event.source === this._host;
+    };
+
+    _proto._handleInitReceived = function _handleInitReceived() {
+      this._initReceived = true;
+    };
+
+    _proto._sendInit = function _sendInit(frame, origin) {
+      var _this6 = this;
+
+      var targets;
+
+      if (frame === this._topHost && this._topHost !== window.parent) {
+        targets = ConfigurationOptions$1.get('targets');
+      }
+
+      frame.postMessage({
+        eid: this._data.extension_id,
+        type: 'init',
+        targets: targets
+      }, origin || '*');
+      this._initCheck && this._data.options.globalOptions.check_init && setTimeout(function () {
+        if (!_this6._initReceived) {
+          throw new Error("Initialization message not received");
+        }
+      }, this._initTimeout);
+    };
+
+    _proto.sendSubCreate = function sendSubCreate(extension_id, options) {
+      options.id = extension_id;
+
+      this._topHost.postMessage({
+        eid: this._data.extension_id,
+        type: 'sub',
+        ext: options
+      }, this._hostOrigin);
+    };
+
+    _proto.broadcast = function broadcast(event, evnt) {
+      if (!util.isString(event)) {
+        throw new Error("Event type must be string");
+      }
+
+      this._host.postMessage({
+        eid: this._data.extension_id,
+        type: 'broadcast',
+        etyp: event,
+        evnt: evnt
+      }, this._data.origin);
+    };
+
+    _proto.require = function require(modules, callback) {
+      var _this7 = this;
+
+      var requiredModules = Array.isArray(modules) ? modules : [modules],
+          args = requiredModules.map(function (module) {
+        return _this7._hostModules[module] || _this7._hostModules._globals[module];
+      });
+      callback.apply(window, args);
+    };
+
+    _proto.register = function register(handlers) {
+      if (typeof handlers === "object") {
+        this._eventHandlers = _extends_1({}, this._eventHandlers, handlers) || {};
+
+        this._host.postMessage({
+          eid: this._data.extension_id,
+          type: 'event_query',
+          args: Object.getOwnPropertyNames(handlers)
+        }, this._data.origin);
+      }
+    };
+
+    _proto.registerAny = function registerAny(handlers) {
+      this.register({
+        '_any': handlers
+      });
+    };
+
+    _proto._initResize = function _initResize() {
+      this.resize();
+      var autoresize = new AutoResizeAction(this.resize);
+      resizeListener.add(util._bind(autoresize, autoresize.triggered));
+    };
+
+    return AP;
+  }(PostMessage);
+
+  var Combined =
+  /*#__PURE__*/
+  function (_Host) {
+    inheritsLoose(Combined, _Host);
+
+    function Combined(initCheck) {
+      var _this;
+
+      _this = _Host.call(this) || this;
+      _this.parentTargets = {
+        _globals: {}
+      };
+      var plugin = new AP(undefined, initCheck); // export options from plugin to host.
+
+      Object.getOwnPropertyNames(plugin).forEach(function (prop) {
+        if (['_hostModules', '_globals'].indexOf(prop) === -1 && this[prop] === undefined) {
+          this[prop] = plugin[prop];
+        }
+      }, assertThisInitialized(_this));
+      ['registerAny', 'register'].forEach(function (prop) {
+        this[prop] = Object.getPrototypeOf(plugin)[prop].bind(plugin);
+      }, assertThisInitialized(_this)); //write plugin modules to host.
+
+      var moduleSpec = plugin._data.api;
+
+      if (typeof moduleSpec === 'object') {
+        Object.getOwnPropertyNames(moduleSpec).forEach(function (moduleName) {
+          var accumulator = {};
+          Object.getOwnPropertyNames(moduleSpec[moduleName]).forEach(function (methodName) {
+            // class proxies
+            if (moduleSpec[moduleName][methodName].hasOwnProperty('constructor')) {
+              accumulator[methodName] = plugin._hostModules[moduleName][methodName].prototype;
+            } else {
+              // all other methods
+              accumulator[methodName] = plugin._hostModules[moduleName][methodName];
+              accumulator[methodName]['returnsPromise'] = moduleSpec[moduleName][methodName]['returnsPromise'] || false;
+            }
+          }, this);
+
+          this._xdm.defineAPIModule(accumulator, moduleName);
+        }, assertThisInitialized(_this));
+      }
+
+      _this._hostModules = plugin._hostModules;
+
+      _this.defineGlobal = function (module) {
+        this.parentTargets['_globals'] = util.extend({}, this.parentTargets['_globals'], module);
+
+        this._xdm.defineAPIModule(module);
+      };
+
+      _this.defineModule = function (moduleName, module) {
+        this._xdm.defineAPIModule(module, moduleName);
+
+        this.parentTargets[moduleName] = {};
+        Object.getOwnPropertyNames(module).forEach(function (name) {
+          this.parentTargets[moduleName][name] = 'parent';
+        }, this);
+      };
+
+      _this.subCreate = function (extensionOptions, initCallback) {
+        extensionOptions.options = extensionOptions.options || {};
+        extensionOptions.options.targets = util.extend({}, this.parentTargets, extensionOptions.options.targets);
+        var extension = this.create(extensionOptions, initCallback);
+
+        if (!this._data.options.globalOptions.resolve_inner_iframe_url) {
+          plugin.sendSubCreate(extension.id, extensionOptions);
+        }
+
+        return extension;
+      };
+
+      return _this;
+    }
+
+    return Combined;
+  }(Connect);
+
+  var combined = new Combined();
+
+  function deprecate (fn, name, alternate, sinceVersion) {
+    var called = false;
+    return function () {
+      if (!called && typeof console !== 'undefined' && console.warn) {
+        called = true;
+        console.warn("DEPRECATED API - " + name + " has been deprecated " + (sinceVersion ? "since ACJS " + sinceVersion : 'in ACJS') + (" and will be removed in a future release. " + (alternate ? "Use " + alternate + " instead." : 'No alternative will be provided.')));
+
+        if (combined._analytics) {
+          combined._analytics.trackDeprecatedMethodUsed(name);
+        }
+      }
+
+      return fn.apply(void 0, arguments);
+    };
+  }
+
   /**
   * Hosts are the primary method for Connect apps to interact with the page.
   * @module Host
@@ -7088,6 +8530,7 @@
     /**
      * Gets the selected text on the page.
      * @noDemo
+     * @deprecated This feature is no longer supported, for security and privacy reasons.
      * @name getSelectedText
      * @method
      * @param {Function} callback - Callback method to be executed with the selected text.
@@ -7097,7 +8540,12 @@
      * });
      *
      */
-    getSelectedText: function getSelectedText(callback) {
+    getSelectedText: deprecate(function (callback) {
+      if (getBooleanFeatureFlag('com.atlassian.connect.acjs-vuln-610109-deprecate-getselectedtext')) {
+        callback('');
+        return;
+      }
+
       var text = '';
       var selection = window.document.getSelection();
 
@@ -7106,7 +8554,7 @@
       }
 
       callback(text);
-    }
+    }, 'AP.host.getSelectedText()')
   };
 
   var WebItem =
@@ -7558,7 +9006,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.44';
+    window._AP.version = '5.3.45';
   }
 
   host.defineModule('messages', messages);
