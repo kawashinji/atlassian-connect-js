@@ -2,6 +2,7 @@ import EnvActions from '../actions/env_actions';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import util from '../util';
 import ModuleProviders from '../module-providers';
+import getBooleanFeatureFlag from '../utils/feature-flag';
 
 var debounce = util.debounce;
 var resizeFuncHolder = {};
@@ -125,6 +126,14 @@ export default {
   }
 };
 
+const _removeIframeReferenceAfterUnloadAndDestroyed = (extensionId) => {
+  delete resizeFuncHolder[extensionId];
+  delete sizeToParentExtension[extensionId];
+  if (ignoreResizeForExtension.indexOf(extensionId) !== -1) {
+    ignoreResizeForExtension.splice(ignoreResizeForExtension.indexOf(extensionId), 1);
+  }
+}
+
 EventDispatcher.register('host-window-resize', data => {
   Object.getOwnPropertyNames(sizeToParentExtension).forEach(extensionId => {
     EnvActions.sizeToParent(extensionId, sizeToParentExtension[extensionId].hideFooter);
@@ -132,10 +141,12 @@ EventDispatcher.register('host-window-resize', data => {
 });
 
 EventDispatcher.register('after:iframe-unload', function(data) {
-  delete resizeFuncHolder[data.extension.id];
-  delete sizeToParentExtension[data.extension.id];
-  if (ignoreResizeForExtension.indexOf(data.extension.id) !== -1) {
-    ignoreResizeForExtension.splice(ignoreResizeForExtension.indexOf(data.extension.id), 1);
+  _removeIframeReferenceAfterUnloadAndDestroyed(data.extension.id);
+});
+
+EventDispatcher.register('after:iframe-destroyed', function(data) {
+  if (getBooleanFeatureFlag('com.atlassian.connect.acjs-oc-1869-remove-extension-id-references-after-iframe-destroyed')) {
+    _removeIframeReferenceAfterUnloadAndDestroyed(data.extension.extension.id);
   }
 });
 
