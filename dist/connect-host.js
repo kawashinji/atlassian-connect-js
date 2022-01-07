@@ -515,7 +515,7 @@
    * This runs on the product side to provide AJS.$ under a _dollar module to provide a consistent interface
    * to code that runs on host and iframe.
    */
-  var $ = window.AJS && window.AJS.$ || function () {};
+  var $$1 = window.AJS && window.AJS.$ || function () {};
 
   var threshold = 0.25;
   var targets = [];
@@ -947,7 +947,7 @@
 
   var analytics$1 = new AnalyticsDispatcher();
 
-  if ($.fn) {
+  if ($$1.fn) {
     EventDispatcher$1.register('iframe-create', function (data) {
       analytics$1.trackLoadingStarted(data.extension);
     });
@@ -1032,7 +1032,7 @@
       var container = document.createElement('div');
       container.classList.add(LOADING_INDICATOR_CLASS);
       container.innerHTML = LOADING_STATUSES.loading;
-      var $container = $(container);
+      var $container = $$1(container);
 
       this._startSpinner($container);
 
@@ -1084,7 +1084,7 @@
     };
 
     _proto.timeout = function timeout($iframeContainer, extensionId) {
-      var status = $(LOADING_STATUSES['load-timeout']);
+      var status = $$1(LOADING_STATUSES['load-timeout']);
 
       var container = this._loadingContainer($iframeContainer);
 
@@ -1092,7 +1092,7 @@
 
       this._startSpinner(container);
 
-      $('a.ap-btn-cancel', container).click(function () {
+      $$1('a.ap-btn-cancel', container).click(function () {
         LoadingIndicatorActions.cancelled($iframeContainer, extensionId);
       });
 
@@ -2305,7 +2305,7 @@
   }
 
   function getIframeByExtensionId(id) {
-    return $('iframe#' + escapeSelector(id));
+    return $$1('iframe#' + escapeSelector(id));
   }
 
   function first(arr, numb) {
@@ -2597,7 +2597,7 @@
       }
 
       if (options.width) {
-        return this._maxDimension(options.width, $(window).width());
+        return this._maxDimension(options.width, $$1(window).width());
       }
 
       return '50%';
@@ -2609,7 +2609,7 @@
       }
 
       if (options.height) {
-        return this._maxDimension(options.height, $(window).height());
+        return this._maxDimension(options.height, $$1(window).height());
       }
 
       return '50%';
@@ -2738,9 +2738,9 @@
 
       var size = this._size(options);
 
-      if ($('.ap-aui-dialog2:visible').length) {
+      if ($$1('.ap-aui-dialog2:visible').length) {
         // am i in the confluence editor? first check for macro dialogs opened through macro browser, second is editing an existing macro
-        if ($('#macro-browser-dialog').length || AJS.Confluence && AJS.Confluence.Editor && AJS.Confluence.Editor.currentEditMode) {
+        if ($$1('#macro-browser-dialog').length || AJS.Confluence && AJS.Confluence.Editor && AJS.Confluence.Editor.currentEditMode) {
           if (size === 'fullscreen') {
             trackingDescription = 'connect-macro-multiple-fullscreen';
           } else {
@@ -3845,7 +3845,7 @@
     loadConditionalModules(extension.addon_key);
     var iframeAttributes = host$1.create(extensionConfig, function () {
       if (!extension.options.noDOM) {
-        extension.$el = $(document.getElementById(extension.id));
+        extension.$el = $$1(document.getElementById(extension.id));
       }
 
       IframeActions.notifyBridgeEstablished(extension.$el, extension);
@@ -3956,8 +3956,8 @@
     };
 
     _proto._appendExtensionError = function _appendExtensionError($container, text) {
-      var $error = $('<div class="connect-resolve-error"></div>');
-      var $additionalText = $('<p />').text(text);
+      var $error = $$1('<div class="connect-resolve-error"></div>');
+      var $additionalText = $$1('<p />').text(text);
       $error.append('<p class="error">Error: The content resolver threw the following error:</p>');
       $error.append($additionalText);
       $container.prepend($error);
@@ -3976,7 +3976,7 @@
     _proto.render = function render(attributes) {
       attributes = attributes || {};
       attributes.referrerpolicy = 'no-referrer';
-      return $('<iframe />').attr(attributes).addClass('ap-iframe');
+      return $$1('<iframe />').attr(attributes).addClass('ap-iframe');
     };
 
     return Iframe;
@@ -4082,27 +4082,27 @@
     };
 
     _proto.getName = function getName($button) {
-      return $($button).data('name');
+      return $$1($button).data('name');
     };
 
     _proto.getText = function getText($button) {
-      return $($button).text();
+      return $$1($button).text();
     };
 
     _proto.getIdentifier = function getIdentifier($button) {
-      return $($button).data('identifier');
+      return $$1($button).data('identifier');
     };
 
     _proto.isVisible = function isVisible($button) {
-      return $($button).is(':visible');
+      return $$1($button).is(':visible');
     };
 
     _proto.isEnabled = function isEnabled($button) {
-      return !($($button).attr('aria-disabled') === 'true');
+      return !($$1($button).attr('aria-disabled') === 'true');
     };
 
     _proto.render = function render(options) {
-      var $button = $('<button />');
+      var $button = $$1('<button />');
       options = options || {};
       $button.addClass('aui-button ' + this.AP_BUTTON_CLASS);
       $button.text(options.text);
@@ -4128,9 +4128,9 @@
 
   var ButtonComponent = new Button$1(); // register 1 button listener globally on dom load
 
-  $(function () {
-    $('body').on('click', '.' + ButtonComponent.AP_BUTTON_CLASS, function (e) {
-      var $button = $(e.target).closest('.' + ButtonComponent.AP_BUTTON_CLASS);
+  $$1(function () {
+    $$1('body').on('click', '.' + ButtonComponent.AP_BUTTON_CLASS, function (e) {
+      var $button = $$1(e.target).closest('.' + ButtonComponent.AP_BUTTON_CLASS);
 
       if ($button.attr('aria-disabled') !== 'true') {
         ButtonActions.clicked($button);
@@ -4165,7 +4165,7 @@
     };
 
     _proto._renderContainer = function _renderContainer(attributes) {
-      var container = $('<div />').attr(attributes || {});
+      var container = $$1('<div />').attr(attributes || {});
       container.addClass(CONTAINER_CLASSES.join(' '));
       return container;
     };
@@ -4808,30 +4808,30 @@
     var _proto = Dialog.prototype;
 
     _proto._renderHeaderCloseBtn = function _renderHeaderCloseBtn() {
-      var $close = $('<a />').addClass('aui-dialog2-header-close');
-      var $closeBtn = $('<span />').addClass('aui-icon aui-icon-small aui-iconfont-close-dialog').text('Close');
+      var $close = $$1('<a />').addClass('aui-dialog2-header-close');
+      var $closeBtn = $$1('<span />').addClass('aui-icon aui-icon-small aui-iconfont-close-dialog').text('Close');
       $close.append($closeBtn);
       return $close;
     } //v3 ask DT about this DOM.
     ;
 
     _proto._renderFullScreenHeader = function _renderFullScreenHeader($header, options) {
-      var $titleContainer = $('<div />').addClass('header-title-container aui-item expanded');
-      var $title = $('<div />').append($('<span />').addClass('header-title').text(options.header || ''));
+      var $titleContainer = $$1('<div />').addClass('header-title-container aui-item expanded');
+      var $title = $$1('<div />').append($$1('<span />').addClass('header-title').text(options.header || ''));
       $titleContainer.append($title);
       $header.append($titleContainer).append(this._renderHeaderActions(options.actions, options.extension));
       return $header;
     };
 
     _proto._renderHeader = function _renderHeader(options) {
-      var $header = $('<header />').addClass('aui-dialog2-header');
+      var $header = $$1('<header />').addClass('aui-dialog2-header');
 
       if (options.size === 'fullscreen') {
         return this._renderFullScreenHeader($header, options);
       }
 
       if (options.header) {
-        var $title = $('<h2 />').addClass('aui-dialog2-header-main').text(options.header);
+        var $title = $$1('<h2 />').addClass('aui-dialog2-header-main').text(options.header);
         $header.append($title);
       }
 
@@ -4840,7 +4840,7 @@
     };
 
     _proto._renderHeaderActions = function _renderHeaderActions(actions, extension) {
-      var $headerControls = $('<div />').addClass('aui-item ' + DIALOG_HEADER_ACTIONS_CLASS);
+      var $headerControls = $$1('<div />').addClass('aui-item ' + DIALOG_HEADER_ACTIONS_CLASS);
       actions[0].additionalClasses = ['aui-icon', 'aui-icon-small', 'aui-iconfont-success'];
       actions[1].additionalClasses = ['aui-icon', 'aui-icon-small', 'aui-iconfont-close-dialog'];
 
@@ -4853,7 +4853,7 @@
     };
 
     _proto._renderContent = function _renderContent($content) {
-      var $el = $('<div />').addClass('aui-dialog2-content');
+      var $el = $$1('<div />').addClass('aui-dialog2-content');
 
       if ($content) {
         $el.append($content);
@@ -4863,7 +4863,7 @@
     };
 
     _proto._renderFooter = function _renderFooter(options) {
-      var $footer = $('<footer />').addClass(DIALOG_FOOTER_CLASS);
+      var $footer = $$1('<footer />').addClass(DIALOG_FOOTER_CLASS);
 
       if (options.size !== 'fullscreen') {
         var $actions = this._renderFooterActions(options.actions, options.extension);
@@ -4872,7 +4872,7 @@
       }
 
       if (options.hint) {
-        var $hint = $('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
+        var $hint = $$1('<div />').addClass('aui-dialog2-footer-hint').text(options.hint);
         $footer.append($hint);
       }
 
@@ -4899,7 +4899,7 @@
     };
 
     _proto._renderFooterActions = function _renderFooterActions(actions, extension) {
-      var $actions = $('<div />').addClass(DIALOG_FOOTER_ACTIONS_CLASS);
+      var $actions = $$1('<div />').addClass(DIALOG_FOOTER_ACTIONS_CLASS);
 
       var $buttons = this._renderActionButtons(actions, extension);
 
@@ -4935,7 +4935,7 @@
     _proto.render = function render(options) {
       var originalOptions = Util.extend({}, options);
       var sanitizedOptions = dialogUtilsInstance.sanitizeOptions(options);
-      var $dialog = $('<section />').attr({
+      var $dialog = $$1('<section />').attr({
         role: 'dialog',
         id: DLGID_PREFIX + sanitizedOptions.id
       });
@@ -5037,14 +5037,14 @@
         var keys = Object.getOwnPropertyNames(extension);
 
         filterFunction = function filterFunction(dialog) {
-          var dialogData = $(dialog).data('extension');
+          var dialogData = $$1(dialog).data('extension');
           return keys.every(function (key) {
             return dialogData[key] === extension[key];
           });
         };
       }
 
-      return $('.' + DIALOG_CLASS).toArray().filter(filterFunction).map(function ($el) {
+      return $$1('.' + DIALOG_CLASS).toArray().filter(filterFunction).map(function ($el) {
         return AJS.dialog2($el);
       });
     } // add user defined button to an existing dialog
@@ -5156,7 +5156,7 @@
     }
   });
 
-  if ($.fn) {
+  if ($$1.fn) {
     EventDispatcher$1.register('iframe-create', function (data) {
       if (data.extension.options && data.extension.options.isDialog) {
         DialogComponent.setIframeDimensions(data.extension.$el);
@@ -5166,8 +5166,8 @@
       DialogComponent.addButton(data.extension, data.button);
     });
     EventDispatcher$1.register('host-window-resize', Util.debounce(function () {
-      $('.' + DIALOG_CLASS).each(function (i, dialog) {
-        var $dialog = $(dialog);
+      $$1('.' + DIALOG_CLASS).each(function (i, dialog) {
+        var $dialog = $$1(dialog);
         var sanitizedOptions = dialogUtilsInstance.sanitizeOptions($dialog.data('originalOptions'));
         dialog.style.width = sanitizedOptions.width;
         dialog.style.height = sanitizedOptions.height;
@@ -5800,7 +5800,7 @@
   EventDispatcher$1.register('iframe-size-to-parent', function (data) {
     var height;
     var $el = Util.getIframeByExtensionId(data.extensionId);
-    height = $(window).height() - $el.offset().top - 1; //1px comes from margin given by full-size-general-page
+    height = $$1(window).height() - $el.offset().top - 1; //1px comes from margin given by full-size-general-page
 
     EventDispatcher$1.dispatch('iframe-resize', {
       width: '100%',
@@ -5810,7 +5810,7 @@
   });
   EventDispatcher$1.register('hide-footer', function (hideFooter) {
     if (hideFooter) {
-      $('#footer').css({
+      $$1('#footer').css({
         display: 'none'
       });
     }
@@ -6081,10 +6081,10 @@
   }
 
   function getMessageBar() {
-    var $msgBar = $('#' + MESSAGE_BAR_ID);
+    var $msgBar = $$1('#' + MESSAGE_BAR_ID);
 
     if ($msgBar.length < 1) {
-      $msgBar = $('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
+      $msgBar = $$1('<div id="' + MESSAGE_BAR_ID + '" />').appendTo('body');
     }
 
     return $msgBar;
@@ -6115,7 +6115,7 @@
 
     var $msgBar = getMessageBar();
     options = filterMessageOptions(options);
-    $.extend(options, {
+    $$1.extend(options, {
       title: title,
       body: AJS.escapeHtml(body)
     });
@@ -6154,11 +6154,11 @@
   }
 
   function createMessageCloseListener() {
-    $(document).on('aui-message-close', function (e, $msg) {
+    $$1(document).on('aui-message-close', function (e, $msg) {
       var _id = $msg.attr('id').replace(MSGID_PREFIX, '');
 
       if (_messages[_id]) {
-        if ($.isFunction(_messages[_id].onCloseTrigger)) {
+        if ($$1.isFunction(_messages[_id].onCloseTrigger)) {
           _messages[_id].onCloseTrigger();
         }
 
@@ -6217,7 +6217,7 @@
         if (messageProvider) {
           messageProvider.clear(id);
         } else {
-          $('#' + id).closeMessage();
+          $$1('#' + id).closeMessage();
         }
       }
     },
@@ -6424,9 +6424,9 @@
     };
 
     _proto._toHtmlString = function _toHtmlString(str) {
-      if ($.type(str) === 'string') {
+      if ($$1.type(str) === 'string') {
         return str;
-      } else if ($.type(str) === 'object' && str instanceof $) {
+      } else if ($$1.type(str) === 'object' && str instanceof $$1) {
         return str.html();
       }
     };
@@ -6434,8 +6434,8 @@
     _proto._renderBody = function _renderBody(body) {
       var body = this._toHtmlString(body);
 
-      var $body = $('<div />').html(body);
-      $('<p />').addClass(FLAG_ACTION_CLASS).appendTo($body);
+      var $body = $$1('<div />').html(body);
+      $$1('<p />').addClass(FLAG_ACTION_CLASS).appendTo($body);
       return $body.html();
     };
 
@@ -6444,7 +6444,7 @@
       actions = actions || {};
       var $action;
       Object.getOwnPropertyNames(actions).forEach(function (key) {
-        $action = $('<a />').attr('href', '#').data({
+        $action = $$1('<a />').attr('href', '#').data({
           'key': key,
           'flag_id': flagId
         }).text(actions[key]);
@@ -6465,7 +6465,7 @@
         close: options.close
       });
       auiFlag.setAttribute('id', _id);
-      var $auiFlag = $(auiFlag);
+      var $auiFlag = $$1(auiFlag);
 
       this._renderActions($auiFlag, options.id, options.actions);
 
@@ -6490,13 +6490,13 @@
       return;
     }
 
-    $(document).on('aui-flag-close', function (e) {
+    $$1(document).on('aui-flag-close', function (e) {
       var _id = e.target.id;
       var cleanFlagId = FlagComponent.cleanKey(_id);
       FlagActions.closed(cleanFlagId);
     });
-    $(document).on('click', '.' + FLAG_ACTION_CLASS, function (e) {
-      var $target = $(e.target);
+    $$1(document).on('click', '.' + FLAG_ACTION_CLASS, function (e) {
+      var $target = $$1(e.target);
       var actionKey = $target.data('key');
       var flagId = $target.data('flag_id');
       FlagActions.actionInvoked(actionKey, flagId);
@@ -6763,7 +6763,7 @@
       if (callback._context.extension.options.isFullPage) {
         var $el = Util.getIframeByExtensionId(callback._context.extension_id);
         var offset = $el.offset();
-        var $window = $(window);
+        var $window = $$1(window);
         callback({
           scrollY: $window.scrollTop() - offset.top,
           scrollX: $window.scrollLeft() - offset.left,
@@ -7068,9 +7068,8 @@
 
   var assertThisInitialized = _assertThisInitialized;
 
-  var _extends_1 = createCommonjsModule(function (module) {
   function _extends() {
-    module.exports = _extends = Object.assign || function (target) {
+    _extends_1 = _extends = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -7087,8 +7086,9 @@
     return _extends.apply(this, arguments);
   }
 
-  module.exports = _extends;
-  });
+  var _extends_1 = _extends;
+
+  var _extends$1 = _extends_1;
 
   /**
    * @this {Promise}
@@ -7349,7 +7349,7 @@
   var _each = util.each,
       document$1 = window.document;
 
-  function $$1(sel, context) {
+  function $(sel, context) {
     context = context || document$1;
     var els = [];
 
@@ -7363,7 +7363,7 @@
       } else if (sel === window) {
         els.push(sel);
       } else if (typeof sel === 'function') {
-        $$1.onDomLoad(sel);
+        $.onDomLoad(sel);
       }
     }
 
@@ -7434,17 +7434,17 @@
     };
   }
 
-  $$1.bind = binder('add', 'attach');
-  $$1.unbind = binder('remove', 'detach');
+  $.bind = binder('add', 'attach');
+  $.unbind = binder('remove', 'detach');
 
-  $$1.onDomLoad = function (func) {
+  $.onDomLoad = function (func) {
     var w = window,
         readyState = w.document.readyState;
 
     if (readyState === "complete") {
       func.call(w);
     } else {
-      $$1.bind(w, "load", function () {
+      $.bind(w, "load", function () {
         func.call(w);
       });
     }
@@ -7453,7 +7453,7 @@
   function getContainer() {
     // Look for these two selectors first... you need these to allow for the auto-shrink to work
     // Otherwise, it'll default to document.body which can't auto-grow or auto-shrink
-    var container = $$1('.ac-content, #content');
+    var container = $('.ac-content, #content');
     return container.length > 0 ? container[0] : document.body;
   }
 
@@ -7759,9 +7759,9 @@
 
     _proto._getConsumerOptions = function _getConsumerOptions() {
       var options = {},
-          $optionElement = $$1("#ac-iframe-options"),
-          $scriptElement = $$1("script[src*='/atlassian-connect/all']"),
-          $cdnScriptElement = $$1("script[src*='/connect-cdn.atl-paas.net/all']");
+          $optionElement = $("#ac-iframe-options"),
+          $scriptElement = $("script[src*='/atlassian-connect/all']"),
+          $cdnScriptElement = $("script[src*='/connect-cdn.atl-paas.net/all']");
 
       if (!this._elementExists($optionElement) || !this._elementOptions($optionElement)) {
         if (this._elementExists($scriptElement)) {
@@ -7853,7 +7853,7 @@
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.3.45";
+      _this._version = "5.3.46";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
@@ -7903,7 +7903,7 @@
           _this._hostModules.env.resize(width, height);
         }
       });
-      $$1(util._bind(assertThisInitialized(_this), _this._autoResizer));
+      $(util._bind(assertThisInitialized(_this), _this._autoResizer));
       _this.container = getContainer;
       _this.size = size;
       window.addEventListener('click', function (e) {
@@ -7971,7 +7971,7 @@
     };
 
     _proto._registerOnUnload = function _registerOnUnload() {
-      $$1.bind(window, 'unload', util._bind(this, function () {
+      $.bind(window, 'unload', util._bind(this, function () {
         this._sendUnload(this._host, this._data.origin);
 
         if (this._isSubIframe) {
@@ -7989,7 +7989,7 @@
 
     _proto._bindKeyDown = function _bindKeyDown() {
       if (!this._isKeyDownBound) {
-        $$1.bind(window, 'keydown', util._bind(this, this._handleKeyDownDomEvent));
+        $.bind(window, 'keydown', util._bind(this, this._handleKeyDownDomEvent));
         this._isKeyDownBound = true;
       }
     };
@@ -8379,7 +8379,7 @@
 
     _proto.register = function register(handlers) {
       if (typeof handlers === "object") {
-        this._eventHandlers = _extends_1({}, this._eventHandlers, handlers) || {};
+        this._eventHandlers = _extends$1({}, this._eventHandlers, handlers) || {};
 
         this._host.postMessage({
           eid: this._data.extension_id,
@@ -8603,8 +8603,8 @@
       var _this2 = this;
 
       var onTriggers = WebItemUtils.sanitizeTriggers(webitem.triggers);
-      $(function () {
-        $('body').off(onTriggers, webitem.selector, _this2._webitems[webitem.name]._on);
+      $$1(function () {
+        $$1('body').off(onTriggers, webitem.selector, _this2._webitems[webitem.name]._on);
       });
       delete this._webitems[webitem.name]._on;
     };
@@ -8614,7 +8614,7 @@
 
       webitem._on = function (event) {
         event.preventDefault();
-        var $target = $(event.target).closest(webitem.selector);
+        var $target = $$1(event.target).closest(webitem.selector);
         var convertedOptions = WebItemUtils.getConfigFromTarget($target);
         var extensionUrl = convertedOptions && convertedOptions.url ? convertedOptions.url : undefined;
         var extension = {
@@ -8632,9 +8632,9 @@
         WebItemActions.webitemInvoked(webitem, event, extension);
       };
 
-      $(function () {
-        $('body').on(onTriggers, webitem.selector, webitem._on);
-        $('head').append("<style type=\"text/css\">" + webitem.selector + ".ap-link-webitem {pointer-events: auto;}</style>");
+      $$1(function () {
+        $$1('body').on(onTriggers, webitem.selector, webitem._on);
+        $$1('head').append("<style type=\"text/css\">" + webitem.selector + ".ap-link-webitem {pointer-events: auto;}</style>");
       });
     };
 
@@ -8728,7 +8728,7 @@
     };
 
     _proto._renderContainer = function _renderContainer() {
-      return $('<div />').addClass('aui-inline-dialog-contents');
+      return $$1('<div />').addClass('aui-inline-dialog-contents');
     };
 
     _proto._displayInlineDialog = function _displayInlineDialog(data) {
@@ -8744,15 +8744,15 @@
     };
 
     _proto.closeInlineDialog = function closeInlineDialog() {
-      $('.aui-inline-dialog').filter(function () {
-        return $(this).find('.ap-iframe-container').length > 0;
+      $$1('.aui-inline-dialog').filter(function () {
+        return $$1(this).find('.ap-iframe-container').length > 0;
       }).hide();
     };
 
     _proto.render = function render(data) {
       var _this = this;
 
-      var $inlineDialog = $(document.getElementById('inline-dialog-' + data.id));
+      var $inlineDialog = $$1(document.getElementById('inline-dialog-' + data.id));
 
       if ($inlineDialog.length !== 0) {
         $inlineDialog.remove();
@@ -8824,7 +8824,7 @@
         extension: data.extension,
         id: data.id,
         bindTo: data.$target,
-        $content: $('<div />'),
+        $content: $$1('<div />'),
         inlineDialogOptions: data.extension.options
       });
       return $inlineDialog;
@@ -8836,7 +8836,7 @@
         return;
       }
 
-      var $target = $(data.event.currentTarget);
+      var $target = $$1(data.event.currentTarget);
       var webitemId = $target.data(WEBITEM_UID_KEY$1);
 
       var $inlineDialog = this._createInlineDialog({
@@ -8894,7 +8894,7 @@
     };
 
     _proto.createIfNotExists = function createIfNotExists(data) {
-      var $target = $(data.event.currentTarget);
+      var $target = $$1(data.event.currentTarget);
       var uid = $target.data(WEBITEM_UID_KEY$1);
 
       if (!uid) {
@@ -8951,7 +8951,7 @@
     };
 
     _proto.triggered = function triggered(data) {
-      var $target = $(data.event.currentTarget);
+      var $target = $$1(data.event.currentTarget);
       var webitemId = $target.data(WEBITEM_UID_KEY);
 
       var dialogOptions = this._dialogOptions(data.extension.options);
@@ -8961,7 +8961,7 @@
     };
 
     _proto.createIfNotExists = function createIfNotExists(data) {
-      var $target = $(data.event.currentTarget);
+      var $target = $$1(data.event.currentTarget);
       var uid = $target.data(WEBITEM_UID_KEY);
 
       if (!uid) {
@@ -8997,7 +8997,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.45';
+    window._AP.version = '5.3.46';
   }
 
   host$1.defineModule('messages', messages);
