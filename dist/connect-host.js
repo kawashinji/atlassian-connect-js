@@ -5977,17 +5977,27 @@
       }
     }
   };
+
+  var _removeIframeReferenceAfterUnloadAndDestroyed = function _removeIframeReferenceAfterUnloadAndDestroyed(extensionId) {
+    delete resizeFuncHolder[extensionId];
+    delete sizeToParentExtension[extensionId];
+
+    if (ignoreResizeForExtension.indexOf(extensionId) !== -1) {
+      ignoreResizeForExtension.splice(ignoreResizeForExtension.indexOf(extensionId), 1);
+    }
+  };
+
   EventDispatcher$1.register('host-window-resize', function (data) {
     Object.getOwnPropertyNames(sizeToParentExtension).forEach(function (extensionId) {
       EnvActions.sizeToParent(extensionId, sizeToParentExtension[extensionId].hideFooter);
     });
   });
   EventDispatcher$1.register('after:iframe-unload', function (data) {
-    delete resizeFuncHolder[data.extension.id];
-    delete sizeToParentExtension[data.extension.id];
-
-    if (ignoreResizeForExtension.indexOf(data.extension.id) !== -1) {
-      ignoreResizeForExtension.splice(ignoreResizeForExtension.indexOf(data.extension.id), 1);
+    _removeIframeReferenceAfterUnloadAndDestroyed(data.extension.id);
+  });
+  EventDispatcher$1.register('after:iframe-destroyed', function (data) {
+    if (getBooleanFeatureFlag('com.atlassian.connect.acjs-oc-1869-remove-extension-id-references-after-iframe-destroyed')) {
+      _removeIframeReferenceAfterUnloadAndDestroyed(data.extension.extension.id);
     }
   });
   EventDispatcher$1.register('before:iframe-size-to-parent', function (data) {
@@ -7853,7 +7863,7 @@
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.3.46";
+      _this._version = "5.3.47";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
@@ -8997,7 +9007,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.46';
+    window._AP.version = '5.3.47';
   }
 
   host$1.defineModule('messages', messages);
