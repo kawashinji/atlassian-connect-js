@@ -1,0 +1,14 @@
+{
+  "ignores": [
+    "@babel/*",
+    "@types/*",
+    "babel-loader",
+    "babel-plugin-istanbul",
+    "eslint",
+    "jasmine-core",
+    "karma-*",
+    "qunitjs",
+    "sinon"
+  ],
+  "skip-missing": false
+}

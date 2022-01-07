@@ -2,17 +2,19 @@
 const drool = require('drool');
 const assert = require('assert');
 const httpServer = require('http-server');
+const { argv } = require('yargs');
 const server = httpServer.createServer();
 const driver = drool.start({
   chromeOptions: ['no-sandbox', 'headless']
 });
 const MAX_LEAK = 750000;
+const port = argv.port ? parseInt(argv.port) : 8080;
 
-server.listen(8080);
+server.listen(port);
 drool.flow({
   repeatCount: 1000,
   setup: function() {
-    driver.get('http://localhost:8080/');
+    driver.get(`http://localhost:${port}/`);
   },
   action: function() {
     driver.executeScript('loadAndRemoveAppIframe()');

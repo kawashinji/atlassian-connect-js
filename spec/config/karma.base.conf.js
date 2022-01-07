@@ -14,7 +14,6 @@ module.exports = function(config) {
     basePath: '../../',
 
     // frameworks to use
-    //frameworks: ['browserify', 'qunit', 'sinon'],
     // list of files / patterns to load in the browser
     files: [
       'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js',
@@ -153,10 +152,7 @@ module.exports = function(config) {
     karmaConfig.captureTimeout = 120000;
     karmaConfig.singleRun = true;
     karmaConfig.sauceLabs = {
-      testName: 'Connect JS unit tests',
-      connectOptions : {
-        verbose: true
-      }
+      testName: 'Connect JS unit tests'
     };
     karmaConfig.customLaunchers = customLaunchers;
     karmaConfig.browsers = Object.keys(customLaunchers);
@@ -164,15 +160,15 @@ module.exports = function(config) {
   }
 
   if(coverage === 'true') {
-    karmaConfig.webpack.module.postLoaders.push(
-      {
-        test: /\/src\/host\/.*?\.js$/,
-        loader: 'istanbul-instrumenter'
-      }
+    // Add plugin to babel config
+    karmaConfig.webpack.module.rules[0].use.options.plugins.push(
+      [
+        'istanbul',
+        {
+          'include': 'src/host/**/*.js'
+        }
+      ]
     );
-    karmaConfig['webpackMiddleware'] = {
-      noInfo: true
-    };
     karmaConfig.reporters.push('coverage');
     karmaConfig.plugins.push('karma-coverage');
     karmaConfig.coverageReporter.reporters.push({type: 'html', dir: 'coverage/', subdir: '.'});

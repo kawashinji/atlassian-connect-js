@@ -14,7 +14,7 @@ describe('scroll position', () => {
     var elementId = Math.random().toString(36).substring(2, 8);
     var callback = function (position) {
       expect(position).toEqual({
-        scrollY: 900,
+        scrollY: 2400,
         scrollX: -100,
         width: window.innerWidth,
         height: window.innerHeight
@@ -31,10 +31,10 @@ describe('scroll position', () => {
     };
     $('<iframe>').attr({id: elementId}).appendTo('body');
     $('body').css({
-      height: 2000,
+      height: 5000,
       margin: 100
     });
-    window.scrollTo(0, 1000);
+    window.scrollTo(0, 2500);
     ScrollPosition.getPosition(callback);
   });
 
@@ -56,7 +56,7 @@ describe('scroll position', () => {
     };
     $('<iframe>').attr({id: elementId}).css({
       width: '300px',
-      height: '2000px'
+      height: '5000px'
     }).appendTo('body');
     window.scrollTo(0, 0);
     ScrollPosition.setVerticalPosition(scrollPosition, callback);

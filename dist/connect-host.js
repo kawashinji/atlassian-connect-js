@@ -1,8 +1,8 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (global = global || self, global.connectHost = factory());
-}(this, function () { 'use strict';
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.connectHost = factory());
+})(this, (function () { 'use strict';
 
   function _inheritsLoose(subClass, superClass) {
     subClass.prototype = Object.create(superClass.prototype);
@@ -39,7 +39,7 @@
 
     if (EventEmitter.usingDomains) {
       // if there is an active domain, then attach to it.
-      if (domain.active && !(this instanceof domain.Domain)) ;
+      if (domain.active ) ;
     }
 
     if (!this._events || this._events === Object.getPrototypeOf(this)._events) {
@@ -945,51 +945,51 @@
     return AnalyticsDispatcher;
   }();
 
-  var analytics = new AnalyticsDispatcher();
+  var analytics$1 = new AnalyticsDispatcher();
 
   if ($.fn) {
     EventDispatcher$1.register('iframe-create', function (data) {
-      analytics.trackLoadingStarted(data.extension);
+      analytics$1.trackLoadingStarted(data.extension);
     });
   }
 
   EventDispatcher$1.register('iframe-bridge-start', function (data) {
-    analytics.trackLoadingStarted(data.extension);
+    analytics$1.trackLoadingStarted(data.extension);
   });
   EventDispatcher$1.register('iframe-bridge-established', function (data) {
-    analytics.trackLoadingEnded(data.extension);
+    analytics$1.trackLoadingEnded(data.extension);
     observe$1(document.getElementById(data.extension.id), function () {
       EventDispatcher$1.dispatch('iframe-visible', data.extension);
-      analytics.trackVisible(data.extension);
-      analytics.trackGasV3Visible(data.extension);
+      analytics$1.trackVisible(data.extension);
+      analytics$1.trackGasV3Visible(data.extension);
     });
   });
   EventDispatcher$1.register('iframe-bridge-established', function (data) {
-    analytics.trackGasV3LoadingEnded(data.extension);
+    analytics$1.trackGasV3LoadingEnded(data.extension);
   });
   EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
-    analytics.trackLoadingTimeout(data.extension);
+    analytics$1.trackLoadingTimeout(data.extension);
   });
   EventDispatcher$1.register('iframe-bridge-cancelled', function (data) {
-    analytics.trackLoadingCancel(data.extension);
+    analytics$1.trackLoadingCancel(data.extension);
   });
   EventDispatcher$1.register('analytics-deprecated-method-used', function (data) {
-    analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
+    analytics$1.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
   });
   EventDispatcher$1.register('analytics-macro-combination', function (data) {
-    analytics.trackMacroCombination(data.parentExtensionId, data.childExtension);
+    analytics$1.trackMacroCombination(data.parentExtensionId, data.childExtension);
   });
   EventDispatcher$1.register('analytics-iframe-performance', function (data) {
-    analytics.trackIframePerformance(data.metrics, data.extension);
+    analytics$1.trackIframePerformance(data.metrics, data.extension);
   });
   EventDispatcher$1.register('iframe-destroyed', function (data) {
-    analytics._resetAnalyticsDueToUnreliable(data.extension.extension_id);
+    analytics$1._resetAnalyticsDueToUnreliable(data.extension.extension_id);
   });
   EventDispatcher$1.register('analytics-external-event-track', function (data) {
-    analytics.trackExternal(data.eventName, data.values);
+    analytics$1.trackExternal(data.eventName, data.values);
   });
   EventDispatcher$1.register('iframe-bridge-timeout', function (data) {
-    analytics.trackGasV3LoadingTimeout(data.extension);
+    analytics$1.trackGasV3LoadingTimeout(data.extension);
   });
 
   var LoadingIndicatorActions = {
@@ -1146,13 +1146,8 @@
 
   var objectWithoutPropertiesLoose = _objectWithoutPropertiesLoose;
 
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
-
-  var setPrototypeOf = createCommonjsModule(function (module) {
   function _setPrototypeOf(o, p) {
-    module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    setPrototypeOf$1 = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
       o.__proto__ = p;
       return o;
     };
@@ -1160,10 +1155,10 @@
     return _setPrototypeOf(o, p);
   }
 
-  module.exports = _setPrototypeOf;
-  });
+  var setPrototypeOf$1 = _setPrototypeOf;
 
-  var construct = createCommonjsModule(function (module) {
+  var setPrototypeOf = setPrototypeOf$1;
+
   function isNativeReflectConstruct() {
     if (typeof Reflect === "undefined" || !Reflect.construct) return false;
     if (Reflect.construct.sham) return false;
@@ -1179,9 +1174,9 @@
 
   function _construct(Parent, args, Class) {
     if (isNativeReflectConstruct()) {
-      module.exports = _construct = Reflect.construct;
+      construct = _construct = Reflect.construct;
     } else {
-      module.exports = _construct = function _construct(Parent, args, Class) {
+      construct = _construct = function _construct(Parent, args, Class) {
         var a = [null];
         a.push.apply(a, args);
         var Constructor = Function.bind.apply(Parent, a);
@@ -1194,8 +1189,9 @@
     return _construct.apply(null, arguments);
   }
 
-  module.exports = _construct;
-  });
+  var construct = _construct;
+
+  var _construct$1 = construct;
 
   var LOG_PREFIX = "[Simple-XDM] ";
   var nativeBind = Function.prototype.bind;
@@ -1641,7 +1637,7 @@
                   args[_key] = arguments[_key];
                 }
 
-                var inst = construct(Cls.constructor, args);
+                var inst = _construct$1(Cls.constructor, args);
 
                 var callback = args[args.length - 1];
                 inst._id = callback._id;
@@ -2248,11 +2244,11 @@
     return Connect;
   }();
 
-  var host = new Connect();
+  var host$1 = new Connect();
 
   var EventActions = {
     broadcast: function broadcast(type, targetSpec, event) {
-      host.dispatch(type, targetSpec, event);
+      host$1.dispatch(type, targetSpec, event);
       EventDispatcher$1.dispatch('event-dispatch', {
         type: type,
         targetSpec: targetSpec,
@@ -2266,12 +2262,12 @@
         sender: sender
       });
 
-      var _ref = sender.options || {},
-          contextJwt = _ref.contextJwt,
-          url = _ref.url,
-          filteredOptions = objectWithoutPropertiesLoose(_ref, ["contextJwt", "url"]);
+      var _ref = sender.options || {};
+          _ref.contextJwt;
+          _ref.url;
+          var filteredOptions = objectWithoutPropertiesLoose(_ref, ["contextJwt", "url"]);
 
-      host.dispatch(type, {}, {
+      host$1.dispatch(type, {}, {
         sender: {
           addonKey: sender.addon_key,
           key: sender.key,
@@ -2338,7 +2334,7 @@
     }, {});
   }
 
-  function debounce(fn, wait) {
+  function debounce$1(fn, wait) {
     var timeout;
     return function () {
       var ctx = this;
@@ -2372,7 +2368,7 @@
     first: first,
     last: last,
     pick: pick,
-    debounce: debounce,
+    debounce: debounce$1,
     isSupported: isSupported,
     extend: Object.assign
   };
@@ -2405,7 +2401,7 @@
       }
 
       var callback = Util.last(args);
-      var extension = callback._context.extension;
+      callback._context.extension;
       args = Util.first(args, -1);
       EventActions.broadcast('dataProviderEvent', {
         addon_key: callback._context.extension.addon_key
@@ -2465,11 +2461,11 @@
 
   var DomEventActions = {
     registerKeyEvent: function registerKeyEvent(data) {
-      host.registerKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
+      host$1.registerKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
       EventDispatcher$1.dispatch('dom-event-register', data);
     },
     unregisterKeyEvent: function unregisterKeyEvent(data) {
-      host.unregisterKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
+      host$1.unregisterKeyListener(data.extension_id, data.key, data.modifiers, data.callback);
       EventDispatcher$1.dispatch('dom-event-unregister', data);
     },
     registerWindowKeyEvent: function registerWindowKeyEvent(data) {
@@ -2480,7 +2476,7 @@
       });
     },
     registerClickHandler: function registerClickHandler(handleIframeClick) {
-      host.registerClickHandler(function (data) {
+      host$1.registerClickHandler(function (data) {
         var iframe = document.getElementById(data.extension_id);
 
         if (iframe) {
@@ -2489,7 +2485,7 @@
       });
     },
     unregisterClickHandler: function unregisterClickHandler() {
-      host.unregisterClickHandler();
+      host$1.unregisterClickHandler();
     }
   };
 
@@ -2754,7 +2750,7 @@
           trackingDescription = 'connect-multiple';
         }
 
-        analytics.trackMultipleDialogOpening(trackingDescription, dialogExtension);
+        analytics$1.trackMultipleDialogOpening(trackingDescription, dialogExtension);
       }
     } // abstracts and handles a failure to find active dialog
     ;
@@ -2790,12 +2786,12 @@
         };
       }
 
-      var extensions = host.getExtensions(filter);
+      var extensions = host$1.getExtensions(filter);
       extensions.forEach(function (extension) {
         EventDispatcher$1.dispatch('iframe-destroyed', {
           extension: extension
         });
-        host.unregisterExtension({
+        host$1.unregisterExtension({
           id: extension.extension_id
         });
       }, this);
@@ -2807,6 +2803,8 @@
       });
     }
   };
+
+  var queryString = {};
 
   var strictUriEncode = function (str) {
     return encodeURIComponent(str).replace(/[!'()*]/g, function (x) {
@@ -2836,7 +2834,7 @@
     return Array.prototype.concat.call([], decodeComponents(left), decodeComponents(right));
   }
 
-  function decode(input) {
+  function decode$1(input) {
     try {
       return decodeURIComponent(input);
     } catch (err) {
@@ -2864,7 +2862,7 @@
         // Decode as big chunks as possible
         replaceMap[match[0]] = decodeURIComponent(match[0]);
       } catch (err) {
-        var result = decode(match[0]);
+        var result = decode$1(match[0]);
 
         if (result !== match[0]) {
           replaceMap[match[0]] = result;
@@ -2937,11 +2935,11 @@
     return ret;
   };
 
-  var queryString = createCommonjsModule(function (module, exports) {
-
-
-
-
+  (function (exports) {
+  const strictUriEncode$1 = strictUriEncode;
+  const decodeComponent = decodeUriComponent;
+  const splitOnFirst$1 = splitOnFirst;
+  const filterObject = filterObj;
 
   const isNullOrUndefined = value => value === null || value === undefined;
 
@@ -3126,7 +3124,7 @@
 
   function encode(value, options) {
   	if (options.encode) {
-  		return options.strict ? strictUriEncode(value) : encodeURIComponent(value);
+  		return options.strict ? strictUriEncode$1(value) : encodeURIComponent(value);
   	}
 
   	return value;
@@ -3134,7 +3132,7 @@
 
   function decode(value, options) {
   	if (options.decode) {
-  		return decodeUriComponent(value);
+  		return decodeComponent(value);
   	}
 
   	return value;
@@ -3225,7 +3223,7 @@
   			continue;
   		}
 
-  		let [key, value] = splitOnFirst(options.decode ? param.replace(/\+/g, ' ') : param, '=');
+  		let [key, value] = splitOnFirst$1(options.decode ? param.replace(/\+/g, ' ') : param, '=');
 
   		// Missing `=` should be `null`:
   		// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
@@ -3329,7 +3327,7 @@
   		decode: true
   	}, options);
 
-  	const [url_, hash] = splitOnFirst(url, '#');
+  	const [url_, hash] = splitOnFirst$1(url, '#');
 
   	return Object.assign(
   		{
@@ -3374,7 +3372,7 @@
   	const {url, query, fragmentIdentifier} = exports.parseUrl(input, options);
   	return exports.stringifyUrl({
   		url,
-  		query: filterObj(query, filter),
+  		query: filterObject(query, filter),
   		fragmentIdentifier
   	}, options);
   };
@@ -3384,14 +3382,7 @@
 
   	return exports.pick(input, exclusionFilter, options);
   };
-  });
-  var queryString_1 = queryString.extract;
-  var queryString_2 = queryString.parse;
-  var queryString_3 = queryString.stringify;
-  var queryString_4 = queryString.parseUrl;
-  var queryString_5 = queryString.stringifyUrl;
-  var queryString_6 = queryString.pick;
-  var queryString_7 = queryString.exclude;
+  }(queryString));
 
   var toByteArray_1 = toByteArray;
   var lookup = [];
@@ -3459,7 +3450,9 @@
     return arr;
   }
 
-  var textEncoderLite = createCommonjsModule(function (module) {
+  var textEncoderLite = {exports: {}};
+
+  (function (module) {
   function TextEncoderLite() {}
 
   function TextDecoderLite() {}
@@ -3581,11 +3574,9 @@
     module.exports.TextDecoderLite = TextDecoderLite;
     module.exports.TextEncoderLite = TextEncoderLite;
   }
-  });
-  var textEncoderLite_1 = textEncoderLite.TextDecoderLite;
-  var textEncoderLite_2 = textEncoderLite.TextEncoderLite;
+  }(textEncoderLite));
 
-  function decode$1(string) {
+  function decode(string) {
     var padding = 4 - string.length % 4;
 
     if (padding === 1) {
@@ -3594,7 +3585,7 @@
       string += '==';
     }
 
-    return Flags.isFeatureFlagNativeTextEncoder() ? new TextDecoder().decode(toByteArray_1(string)) : textEncoderLite_1.prototype.decode(toByteArray_1(string));
+    return Flags.isFeatureFlagNativeTextEncoder() ? new TextDecoder().decode(toByteArray_1(string)) : textEncoderLite.exports.TextDecoderLite.prototype.decode(toByteArray_1(string));
   }
 
   var JWT_SKEW = 60; // in seconds.
@@ -3621,11 +3612,11 @@
       throw 'Invalid JWT: encoded claims must be neither null nor empty-string.';
     }
 
-    var claimsString = decode$1.call(window, encodedClaims);
+    var claimsString = decode.call(window, encodedClaims);
     return JSON.parse(claimsString);
   }
 
-  function isJwtExpired(jwtString, skew) {
+  function isJwtExpired$1(jwtString, skew) {
     if (skew === undefined) {
       skew = JWT_SKEW;
     }
@@ -3651,10 +3642,10 @@
   var jwtUtil = {
     parseJwtIssuer: parseJwtIssuer,
     parseJwtClaims: parseJwtClaims,
-    isJwtExpired: isJwtExpired
+    isJwtExpired: isJwtExpired$1
   };
 
-  function isJwtExpired$1(urlStr) {
+  function isJwtExpired(urlStr) {
     var jwtStr = _getJwt(urlStr);
 
     return jwtUtil.isJwtExpired(jwtStr);
@@ -3673,7 +3664,7 @@
 
   var urlUtils = {
     hasJwt: hasJwt,
-    isJwtExpired: isJwtExpired$1
+    isJwtExpired: isJwtExpired
   };
 
   var jwtActions = {
@@ -3841,9 +3832,9 @@
         });
       }
     };
-    host.returnsPromise(performanceModule.getPerformanceTiming);
-    host.returnsPromise(performanceModule.getPerformanceNavigationTiming);
-    host.defineModule('_performance', performanceModule);
+    host$1.returnsPromise(performanceModule.getPerformanceTiming);
+    host$1.returnsPromise(performanceModule.getPerformanceNavigationTiming);
+    host$1.defineModule('_performance', performanceModule);
   }
 
   function createSimpleXdmExtension(extension) {
@@ -3852,7 +3843,7 @@
     extension.options = extensionConfig.options = Util.extend({}, extensionConfig.options);
     extension.options.globalOptions = systemExtensionConfigOptions;
     loadConditionalModules(extension.addon_key);
-    var iframeAttributes = host.create(extensionConfig, function () {
+    var iframeAttributes = host$1.create(extensionConfig, function () {
       if (!extension.options.noDOM) {
         extension.$el = $(document.getElementById(extension.id));
       }
@@ -4035,7 +4026,7 @@
   var BUTTON_TYPES = ['primary', 'link', 'secondary'];
   var buttonId = 0;
 
-  var Button =
+  var Button$1 =
   /*#__PURE__*/
   function () {
     function Button() {
@@ -4135,7 +4126,7 @@
     return Button;
   }();
 
-  var ButtonComponent = new Button(); // register 1 button listener globally on dom load
+  var ButtonComponent = new Button$1(); // register 1 button listener globally on dom load
 
   $(function () {
     $('body').on('click', '.' + ButtonComponent.AP_BUTTON_CLASS, function (e) {
@@ -4543,7 +4534,7 @@
     ;
 
     _proto.registerExistingExtension = function registerExistingExtension(extension_id, data) {
-      return host.registerExistingExtension(extension_id, data);
+      return host$1.registerExistingExtension(extension_id, data);
     }
     /**
      * The product is responsible for setting the framework adaptor.
@@ -4656,7 +4647,7 @@
     };
 
     _proto.isModuleDefined = function isModuleDefined(moduleName) {
-      return host.isModuleDefined(moduleName);
+      return host$1.isModuleDefined(moduleName);
     };
 
     _proto.broadcastEvent = function broadcastEvent(type, targetSpec, event) {
@@ -4664,7 +4655,7 @@
     };
 
     _proto.getExtensions = function getExtensions(filter) {
-      return host.getExtensions(filter);
+      return host$1.getExtensions(filter);
     };
 
     _proto.trackDeprecatedMethodUsed = function trackDeprecatedMethodUsed(methodUsed, extension) {
@@ -4809,7 +4800,7 @@
     });
   }
 
-  var Dialog =
+  var Dialog$1 =
   /*#__PURE__*/
   function () {
     function Dialog() {}
@@ -5076,7 +5067,7 @@
     return Dialog;
   }();
 
-  var DialogComponent = new Dialog();
+  var DialogComponent = new Dialog$1();
   EventDispatcher$1.register('iframe-bridge-established', function (data) {
     if (data.extension.options.isDialog) {
       var callback;
@@ -5331,7 +5322,7 @@
    * @description A dialog object that is returned when a dialog is created using the [dialog module](module-Dialog.html).
    */
 
-  var Dialog$1 = function Dialog(options, callback) {
+  var Dialog = function Dialog(options, callback) {
     callback = Util.last(arguments);
     var _id = callback._id;
     var extension = callback._context.extension;
@@ -5382,7 +5373,7 @@
    */
 
 
-  var Button$1 =
+  var Button =
   /*#__PURE__*/
   function () {
     function Button(identifier, callback) {
@@ -5691,7 +5682,7 @@
      * @return {Dialog~Dialog} Dialog object allowing for callback registrations
      */
     create: {
-      constructor: Dialog$1
+      constructor: Dialog
     },
 
     /**
@@ -5776,15 +5767,15 @@
      * AP.dialog.getButton('submit');
      */
     getButton: {
-      constructor: Button$1,
-      enable: Button$1.prototype.enable,
-      disable: Button$1.prototype.disable,
-      toggle: Button$1.prototype.toggle,
-      isEnabled: Button$1.prototype.isEnabled,
-      trigger: Button$1.prototype.trigger,
-      hide: Button$1.prototype.hide,
-      show: Button$1.prototype.show,
-      isHidden: Button$1.prototype.isHidden
+      constructor: Button,
+      enable: Button.prototype.enable,
+      disable: Button.prototype.disable,
+      toggle: Button.prototype.toggle,
+      isEnabled: Button.prototype.isEnabled,
+      trigger: Button.prototype.trigger,
+      hide: Button.prototype.hide,
+      show: Button.prototype.show,
+      isHidden: Button.prototype.isHidden
     },
 
     /**
@@ -5855,7 +5846,7 @@
     }
   };
 
-  var debounce$1 = Util.debounce;
+  var debounce = Util.debounce;
   var resizeFuncHolder = {}; // ignore resize events for iframes that use sizeToParent
 
   var ignoreResizeForExtension = [];
@@ -5930,7 +5921,7 @@
         }
 
         if (!resizeFuncHolder[iframeId]) {
-          resizeFuncHolder[iframeId] = debounce$1(function (dwidth, dheight, dcallback) {
+          resizeFuncHolder[iframeId] = debounce(function (dwidth, dheight, dcallback) {
             EnvActions.iframeResize(dwidth, dheight, dcallback._context);
           }, 50);
         }
@@ -5950,7 +5941,7 @@
      * @example
      * AP.sizeToParent();
      */
-    sizeToParent: debounce$1(function (hideFooter, callback) {
+    sizeToParent: debounce(function (hideFooter, callback) {
       callback = Util.last(arguments);
       var addon = ModuleProviders$1.getProvider('addon');
 
@@ -6414,7 +6405,7 @@
   var FLAG_CLASS = 'ac-aui-flag';
   var FLAG_ACTION_CLASS = 'ac-flag-actions';
 
-  var Flag =
+  var Flag$1 =
   /*#__PURE__*/
   function () {
     function Flag() {}
@@ -6491,7 +6482,7 @@
     return Flag;
   }();
 
-  var FlagComponent = new Flag();
+  var FlagComponent = new Flag$1();
   var flagDomEventsBound = false;
 
   function bindFlagDomEvents() {
@@ -6552,7 +6543,7 @@
   * });
   */
 
-  var Flag$1 =
+  var Flag =
   /*#__PURE__*/
   function () {
     function Flag(options, callback) {
@@ -6687,12 +6678,12 @@
     * });
     */
     create: {
-      constructor: Flag$1,
-      close: Flag$1.prototype.close
+      constructor: Flag,
+      close: Flag.prototype.close
     }
   };
 
-  var analytics$1 = {
+  var analytics = {
     trackDeprecatedMethodUsed: function trackDeprecatedMethodUsed(methodUsed, callback) {
       callback = Util.last(arguments);
       AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, callback._context.extension);
@@ -8514,7 +8505,7 @@
   * @module Host
   */
   var TEXT_NODE_TYPE = 3;
-  var host$1 = {
+  var host = {
     /*
      This function could be used in Connect app for moving focus to Host app.
      As Connect App - iframe app, it can get control. When it's happen - host app events such short-cuts
@@ -8586,7 +8577,7 @@
       var _this = this;
 
       var returnVal;
-      var keys = Object.getOwnPropertyNames(this._webitems).some(function (key) {
+      Object.getOwnPropertyNames(this._webitems).some(function (key) {
         var obj = _this._webitems[key];
 
         if (obj.selector) {
@@ -8807,16 +8798,16 @@
     InlineDialogComponent.closeInlineDialog();
   });
 
-  var ITEM_NAME = 'inline-dialog';
-  var SELECTOR = '.ap-inline-dialog';
-  var WEBITEM_UID_KEY = 'inline-dialog-target-uid';
+  var ITEM_NAME$1 = 'inline-dialog';
+  var SELECTOR$1 = '.ap-inline-dialog';
+  var WEBITEM_UID_KEY$1 = 'inline-dialog-target-uid';
   var InlineDialogWebItem =
   /*#__PURE__*/
   function () {
     function InlineDialogWebItem() {
       this._inlineDialogWebItemSpec = {
-        name: ITEM_NAME,
-        selector: SELECTOR,
+        name: ITEM_NAME$1,
+        selector: SELECTOR$1,
         triggers: [Flags.isInlineDialogStickyFixFlagEnabled() ? 'mouseenter' : 'mouseover', 'click']
       };
       this._inlineDialogWebItems = {};
@@ -8846,7 +8837,7 @@
       }
 
       var $target = $(data.event.currentTarget);
-      var webitemId = $target.data(WEBITEM_UID_KEY);
+      var webitemId = $target.data(WEBITEM_UID_KEY$1);
 
       var $inlineDialog = this._createInlineDialog({
         id: webitemId,
@@ -8904,22 +8895,22 @@
 
     _proto.createIfNotExists = function createIfNotExists(data) {
       var $target = $(data.event.currentTarget);
-      var uid = $target.data(WEBITEM_UID_KEY);
+      var uid = $target.data(WEBITEM_UID_KEY$1);
 
       if (!uid) {
         uid = WebItemUtils.uniqueId();
-        $target.data(WEBITEM_UID_KEY, uid);
+        $target.data(WEBITEM_UID_KEY$1, uid);
       }
     };
 
     return InlineDialogWebItem;
   }();
   var inlineDialogInstance = new InlineDialogWebItem();
-  var webitem = inlineDialogInstance.getWebItem();
-  EventDispatcher$1.register('before:webitem-invoked:' + webitem.name, function (data) {
+  var webitem$1 = inlineDialogInstance.getWebItem();
+  EventDispatcher$1.register('before:webitem-invoked:' + webitem$1.name, function (data) {
     inlineDialogInstance.createIfNotExists(data);
   });
-  EventDispatcher$1.register('webitem-invoked:' + webitem.name, function (data) {
+  EventDispatcher$1.register('webitem-invoked:' + webitem$1.name, function (data) {
     inlineDialogInstance.triggered(data);
   });
   EventDispatcher$1.register('inline-dialog-opened', function (data) {
@@ -8928,12 +8919,12 @@
   EventDispatcher$1.register('inline-dialog-extension', function (data) {
     inlineDialogInstance.addExtension(data);
   });
-  WebItemActions.addWebItem(webitem);
+  WebItemActions.addWebItem(webitem$1);
 
-  var ITEM_NAME$1 = 'dialog';
-  var SELECTOR$1 = '.ap-dialog';
+  var ITEM_NAME = 'dialog';
+  var SELECTOR = '.ap-dialog';
   var TRIGGERS = ['click'];
-  var WEBITEM_UID_KEY$1 = 'dialog-target-uid';
+  var WEBITEM_UID_KEY = 'dialog-target-uid';
   var DEFAULT_WEBITEM_OPTIONS = {
     chrome: true
   };
@@ -8943,8 +8934,8 @@
   function () {
     function DialogWebItem() {
       this._dialogWebItem = {
-        name: ITEM_NAME$1,
-        selector: SELECTOR$1,
+        name: ITEM_NAME,
+        selector: SELECTOR,
         triggers: TRIGGERS
       };
     }
@@ -8961,7 +8952,7 @@
 
     _proto.triggered = function triggered(data) {
       var $target = $(data.event.currentTarget);
-      var webitemId = $target.data(WEBITEM_UID_KEY$1);
+      var webitemId = $target.data(WEBITEM_UID_KEY);
 
       var dialogOptions = this._dialogOptions(data.extension.options);
 
@@ -8971,11 +8962,11 @@
 
     _proto.createIfNotExists = function createIfNotExists(data) {
       var $target = $(data.event.currentTarget);
-      var uid = $target.data(WEBITEM_UID_KEY$1);
+      var uid = $target.data(WEBITEM_UID_KEY);
 
       if (!uid) {
         uid = WebItemUtils.uniqueId();
-        $target.data(WEBITEM_UID_KEY$1, uid);
+        $target.data(WEBITEM_UID_KEY, uid);
       }
     };
 
@@ -8983,12 +8974,12 @@
   }();
 
   var dialogInstance = new DialogWebItem();
-  var webitem$1 = dialogInstance.getWebItem();
-  EventDispatcher$1.register('webitem-invoked:' + webitem$1.name, function (data) {
+  var webitem = dialogInstance.getWebItem();
+  EventDispatcher$1.register('webitem-invoked:' + webitem.name, function (data) {
     dialogInstance.triggered(data);
   });
-  EventDispatcher$1.register('before:webitem-invoked:' + webitem$1.name, dialogInstance.createIfNotExists);
-  WebItemActions.addWebItem(webitem$1);
+  EventDispatcher$1.register('before:webitem-invoked:' + webitem.name, dialogInstance.createIfNotExists);
+  WebItemActions.addWebItem(webitem);
 
   /**
    * Private namespace for host-side code.
@@ -9009,30 +9000,30 @@
     window._AP.version = '5.3.45';
   }
 
-  host.defineModule('messages', messages);
-  host.defineModule('flag', flag);
-  host.defineModule('dialog', dialog);
-  host.defineModule('inlineDialog', inlineDialog);
-  host.defineModule('env', env);
-  host.defineModule('events', events);
-  host.defineModule('_analytics', analytics$1);
-  host.defineModule('scrollPosition', scrollPosition);
-  host.defineModule('dropdown', dropdown);
-  host.defineModule('host', host$1);
+  host$1.defineModule('messages', messages);
+  host$1.defineModule('flag', flag);
+  host$1.defineModule('dialog', dialog);
+  host$1.defineModule('inlineDialog', inlineDialog);
+  host$1.defineModule('env', env);
+  host$1.defineModule('events', events);
+  host$1.defineModule('_analytics', analytics);
+  host$1.defineModule('scrollPosition', scrollPosition);
+  host$1.defineModule('dropdown', dropdown);
+  host$1.defineModule('host', host);
   EventDispatcher$1.register('module-define-custom', function (data) {
-    host.defineModule(data.name, data.methods);
+    host$1.defineModule(data.name, data.methods);
   });
-  host.registerRequestNotifier(function (data) {
+  host$1.registerRequestNotifier(function (data) {
     var dispatchEvent = function dispatchEvent() {
       if (data.type === 'req') {
-        analytics.dispatch('bridge.invokemethod', {
+        analytics$1.dispatch('bridge.invokemethod', {
           module: data.module,
           fn: data.fn,
           addonKey: data.addon_key,
           moduleKey: data.key
         });
       } else if (data.type === 'sub') {
-        analytics.dispatch('bridge.register-sub', {
+        analytics$1.dispatch('bridge.register-sub', {
           subAddonKey: data.sub.addon_key,
           subModuleKey: data.sub.key,
           addonKey: data.addon_key,
@@ -9050,7 +9041,7 @@
       dispatchEvent();
     }
   });
-  host.setFeatureFlagGetter(getBooleanFeatureFlag);
+  host$1.setFeatureFlagGetter(getBooleanFeatureFlag);
 
   return HostApi$1;
 

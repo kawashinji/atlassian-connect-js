@@ -19,13 +19,8 @@ var AP = (function () {
 
   var inheritsLoose = _inheritsLoose;
 
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
-
-  var setPrototypeOf = createCommonjsModule(function (module) {
   function _setPrototypeOf(o, p) {
-    module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    setPrototypeOf$1 = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
       o.__proto__ = p;
       return o;
     };
@@ -33,10 +28,10 @@ var AP = (function () {
     return _setPrototypeOf(o, p);
   }
 
-  module.exports = _setPrototypeOf;
-  });
+  var setPrototypeOf$1 = _setPrototypeOf;
 
-  var construct = createCommonjsModule(function (module) {
+  var setPrototypeOf = setPrototypeOf$1;
+
   function isNativeReflectConstruct() {
     if (typeof Reflect === "undefined" || !Reflect.construct) return false;
     if (Reflect.construct.sham) return false;
@@ -52,9 +47,9 @@ var AP = (function () {
 
   function _construct(Parent, args, Class) {
     if (isNativeReflectConstruct()) {
-      module.exports = _construct = Reflect.construct;
+      construct = _construct = Reflect.construct;
     } else {
-      module.exports = _construct = function _construct(Parent, args, Class) {
+      construct = _construct = function _construct(Parent, args, Class) {
         var a = [null];
         a.push.apply(a, args);
         var Constructor = Function.bind.apply(Parent, a);
@@ -67,8 +62,9 @@ var AP = (function () {
     return _construct.apply(null, arguments);
   }
 
-  module.exports = _construct;
-  });
+  var construct = _construct;
+
+  var _construct$1 = construct;
 
   var LOG_PREFIX = "[Simple-XDM] ";
   var nativeBind = Function.prototype.bind;
@@ -514,7 +510,7 @@ var AP = (function () {
                   args[_key] = arguments[_key];
                 }
 
-                var inst = construct(Cls.constructor, args);
+                var inst = _construct$1(Cls.constructor, args);
 
                 var callback = args[args.length - 1];
                 inst._id = callback._id;
@@ -1121,9 +1117,8 @@ var AP = (function () {
     return Connect;
   }();
 
-  var _extends_1 = createCommonjsModule(function (module) {
   function _extends() {
-    module.exports = _extends = Object.assign || function (target) {
+    _extends_1 = _extends = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -1140,8 +1135,9 @@ var AP = (function () {
     return _extends.apply(this, arguments);
   }
 
-  module.exports = _extends;
-  });
+  var _extends_1 = _extends;
+
+  var _extends$1 = _extends_1;
 
   /**
    * @this {Promise}
@@ -1179,8 +1175,8 @@ var AP = (function () {
    * @constructor
    * @param {Function} fn
    */
-  function Promise(fn) {
-    if (!(this instanceof Promise))
+  function Promise$1(fn) {
+    if (!(this instanceof Promise$1))
       throw new TypeError('Promises must be constructed via new');
     if (typeof fn !== 'function') throw new TypeError('not a function');
     /** @type {!number} */
@@ -1204,7 +1200,7 @@ var AP = (function () {
       return;
     }
     self._handled = true;
-    Promise._immediateFn(function() {
+    Promise$1._immediateFn(function() {
       var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
       if (cb === null) {
         (self._state === 1 ? resolve : reject)(deferred.promise, self._value);
@@ -1231,7 +1227,7 @@ var AP = (function () {
         (typeof newValue === 'object' || typeof newValue === 'function')
       ) {
         var then = newValue.then;
-        if (newValue instanceof Promise) {
+        if (newValue instanceof Promise$1) {
           self._state = 3;
           self._value = newValue;
           finale(self);
@@ -1257,9 +1253,9 @@ var AP = (function () {
 
   function finale(self) {
     if (self._state === 2 && self._deferreds.length === 0) {
-      Promise._immediateFn(function() {
+      Promise$1._immediateFn(function() {
         if (!self._handled) {
-          Promise._unhandledRejectionFn(self._value);
+          Promise$1._unhandledRejectionFn(self._value);
         }
       });
     }
@@ -1307,11 +1303,11 @@ var AP = (function () {
     }
   }
 
-  Promise.prototype['catch'] = function(onRejected) {
+  Promise$1.prototype['catch'] = function(onRejected) {
     return this.then(null, onRejected);
   };
 
-  Promise.prototype.then = function(onFulfilled, onRejected) {
+  Promise$1.prototype.then = function(onFulfilled, onRejected) {
     // @ts-ignore
     var prom = new this.constructor(noop);
 
@@ -1319,10 +1315,10 @@ var AP = (function () {
     return prom;
   };
 
-  Promise.prototype['finally'] = finallyConstructor;
+  Promise$1.prototype['finally'] = finallyConstructor;
 
-  Promise.all = function(arr) {
-    return new Promise(function(resolve, reject) {
+  Promise$1.all = function(arr) {
+    return new Promise$1(function(resolve, reject) {
       if (!arr || typeof arr.length === 'undefined')
         throw new TypeError('Promise.all accepts an array');
       var args = Array.prototype.slice.call(arr);
@@ -1359,24 +1355,24 @@ var AP = (function () {
     });
   };
 
-  Promise.resolve = function(value) {
-    if (value && typeof value === 'object' && value.constructor === Promise) {
+  Promise$1.resolve = function(value) {
+    if (value && typeof value === 'object' && value.constructor === Promise$1) {
       return value;
     }
 
-    return new Promise(function(resolve) {
+    return new Promise$1(function(resolve) {
       resolve(value);
     });
   };
 
-  Promise.reject = function(value) {
-    return new Promise(function(resolve, reject) {
+  Promise$1.reject = function(value) {
+    return new Promise$1(function(resolve, reject) {
       reject(value);
     });
   };
 
-  Promise.race = function(values) {
-    return new Promise(function(resolve, reject) {
+  Promise$1.race = function(values) {
+    return new Promise$1(function(resolve, reject) {
       for (var i = 0, len = values.length; i < len; i++) {
         values[i].then(resolve, reject);
       }
@@ -1384,7 +1380,7 @@ var AP = (function () {
   };
 
   // Use polyfill for setImmediate for performance gains
-  Promise._immediateFn =
+  Promise$1._immediateFn =
     (typeof setImmediate === 'function' &&
       function(fn) {
         setImmediate(fn);
@@ -1393,17 +1389,17 @@ var AP = (function () {
       setTimeoutFunc(fn, 0);
     };
 
-  Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
+  Promise$1._unhandledRejectionFn = function _unhandledRejectionFn(err) {
     if (typeof console !== 'undefined' && console) {
       console.warn('Possible Unhandled Promise Rejection:', err); // eslint-disable-line no-console
     }
   };
 
-  var _each = util.each,
-      document$1 = window.document;
+  var _each$1 = util.each,
+      document$2 = window.document;
 
-  function $(sel, context) {
-    context = context || document$1;
+  function $$2(sel, context) {
+    context = context || document$2;
     var els = [];
 
     if (sel) {
@@ -1416,13 +1412,13 @@ var AP = (function () {
       } else if (sel === window) {
         els.push(sel);
       } else if (typeof sel === 'function') {
-        $.onDomLoad(sel);
+        $$2.onDomLoad(sel);
       }
     }
 
     util.extend(els, {
       each: function each(it) {
-        _each(this, it);
+        _each$1(this, it);
 
         return this;
       },
@@ -1455,7 +1451,7 @@ var AP = (function () {
         return this.each(function (i, to) {
           var el = context.createElement(spec.tag);
 
-          _each(spec, function (k, v) {
+          _each$1(spec, function (k, v) {
             if (k === '$text') {
               if (el.styleSheet) {
                 // style tags in ie
@@ -1475,7 +1471,7 @@ var AP = (function () {
     return els;
   }
 
-  function binder(std, odd) {
+  function binder$1(std, odd) {
     std += 'EventListener';
     odd += 'Event';
     return function (el, e, fn) {
@@ -1487,17 +1483,17 @@ var AP = (function () {
     };
   }
 
-  $.bind = binder('add', 'attach');
-  $.unbind = binder('remove', 'detach');
+  $$2.bind = binder$1('add', 'attach');
+  $$2.unbind = binder$1('remove', 'detach');
 
-  $.onDomLoad = function (func) {
+  $$2.onDomLoad = function (func) {
     var w = window,
         readyState = w.document.readyState;
 
     if (readyState === "complete") {
       func.call(w);
     } else {
-      $.bind(w, "load", function () {
+      $$2.bind(w, "load", function () {
         func.call(w);
       });
     }
@@ -1506,7 +1502,7 @@ var AP = (function () {
   function getContainer() {
     // Look for these two selectors first... you need these to allow for the auto-shrink to work
     // Otherwise, it'll default to document.body which can't auto-grow or auto-shrink
-    var container = $('.ac-content, #content');
+    var container = $$2('.ac-content, #content');
     return container.length > 0 ? container[0] : document.body;
   }
 
@@ -1812,9 +1808,9 @@ var AP = (function () {
 
     _proto._getConsumerOptions = function _getConsumerOptions() {
       var options = {},
-          $optionElement = $("#ac-iframe-options"),
-          $scriptElement = $("script[src*='/atlassian-connect/all']"),
-          $cdnScriptElement = $("script[src*='/connect-cdn.atl-paas.net/all']");
+          $optionElement = $$2("#ac-iframe-options"),
+          $scriptElement = $$2("script[src*='/atlassian-connect/all']"),
+          $cdnScriptElement = $$2("script[src*='/connect-cdn.atl-paas.net/all']");
 
       if (!this._elementExists($optionElement) || !this._elementOptions($optionElement)) {
         if (this._elementExists($scriptElement)) {
@@ -1910,7 +1906,7 @@ var AP = (function () {
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
-      _this._promise = Promise;
+      _this._promise = Promise$1;
 
       if (_this._data.api) {
         _this._setupAPI(_this._data.api);
@@ -1956,7 +1952,7 @@ var AP = (function () {
           _this._hostModules.env.resize(width, height);
         }
       });
-      $(util._bind(assertThisInitialized(_this), _this._autoResizer));
+      $$2(util._bind(assertThisInitialized(_this), _this._autoResizer));
       _this.container = getContainer;
       _this.size = size;
       window.addEventListener('click', function (e) {
@@ -2024,7 +2020,7 @@ var AP = (function () {
     };
 
     _proto._registerOnUnload = function _registerOnUnload() {
-      $.bind(window, 'unload', util._bind(this, function () {
+      $$2.bind(window, 'unload', util._bind(this, function () {
         this._sendUnload(this._host, this._data.origin);
 
         if (this._isSubIframe) {
@@ -2042,7 +2038,7 @@ var AP = (function () {
 
     _proto._bindKeyDown = function _bindKeyDown() {
       if (!this._isKeyDownBound) {
-        $.bind(window, 'keydown', util._bind(this, this._handleKeyDownDomEvent));
+        $$2.bind(window, 'keydown', util._bind(this, this._handleKeyDownDomEvent));
         this._isKeyDownBound = true;
       }
     };
@@ -2196,7 +2192,7 @@ var AP = (function () {
           });
         } else if (methodData.returnsPromise) {
           data.mid = mid;
-          xdmPromise = new Promise(function (resolve, reject) {
+          xdmPromise = new Promise$1(function (resolve, reject) {
             that._pendingCallback(data.mid, function (err, result) {
               if (err || typeof result === 'undefined' && typeof err === 'undefined') {
                 reject(err);
@@ -2432,7 +2428,7 @@ var AP = (function () {
 
     _proto.register = function register(handlers) {
       if (typeof handlers === "object") {
-        this._eventHandlers = _extends_1({}, this._eventHandlers, handlers) || {};
+        this._eventHandlers = _extends$1({}, this._eventHandlers, handlers) || {};
 
         this._host.postMessage({
           eid: this._data.extension_id,
@@ -2581,7 +2577,7 @@ var AP = (function () {
     }
   }
 
-  function binder$1(std, odd) {
+  function binder(std, odd) {
     std += 'EventListener';
     odd += 'Event';
     return function (el, e, fn) {
@@ -2621,8 +2617,8 @@ var AP = (function () {
     each: each,
     log: log,
     decodeQueryComponent: decodeQueryComponent,
-    bind: binder$1('add', 'attach'),
-    unbind: binder$1('remove', 'detach'),
+    bind: binder('add', 'attach'),
+    unbind: binder('remove', 'detach'),
     extend: function extend(dest) {
       var args = arguments;
       var srcs = [].slice.call(args, 1, args.length);
@@ -2664,19 +2660,19 @@ var AP = (function () {
     }
   };
 
-  var _each$1 = _util.each;
+  var _each = _util.each;
   var extend = _util.extend;
-  var document$2 = window.document;
+  var document$1 = window.document;
 
-  function $$1(sel, context) {
-    context = context || document$2;
+  function $(sel, context) {
+    context = context || document$1;
     var els = [];
 
     if (sel) {
       if (typeof sel === 'string') {
         var results = context.querySelectorAll(sel);
 
-        _each$1(results, function (i, v) {
+        _each(results, function (i, v) {
           els.push(v);
         });
       } else if (sel.nodeType === 1) {
@@ -2688,7 +2684,7 @@ var AP = (function () {
 
     extend(els, {
       each: function each(it) {
-        _each$1(this, it);
+        _each(this, it);
 
         return this;
       },
@@ -2721,7 +2717,7 @@ var AP = (function () {
         return this.each(function (i, to) {
           var el = context.createElement(spec.tag);
 
-          _each$1(spec, function (k, v) {
+          _each(spec, function (k, v) {
             if (k === '$text') {
               if (el.styleSheet) {
                 // style tags in ie
@@ -2741,7 +2737,7 @@ var AP = (function () {
     return els;
   }
 
-  var $$2 = extend($$1, _util);
+  var $$1 = extend($, _util);
 
   /**
    * The Events module provides a mechanism for emitting and receiving events.<br>
@@ -3266,7 +3262,7 @@ var AP = (function () {
         buttonProperties.identifier = 'user.button.' + customButtonIncrement++;
       }
 
-      var createButton = original_dialogCreateButton(buttonProperties);
+      original_dialogCreateButton(buttonProperties);
       return combined.dialog.getButton(buttonProperties.identifier);
     };
   }
@@ -3419,7 +3415,7 @@ var AP = (function () {
   };
 
   function getMeta(name) {
-    return $$2("meta[name='ap-" + name + "']").attr('content');
+    return $$1("meta[name='ap-" + name + "']").attr('content');
   }
 
   var Meta = {
@@ -3510,7 +3506,7 @@ var AP = (function () {
     sendMetrics: sendMetrics
   };
 
-  combined._hostModules._dollar = $$2;
+  combined._hostModules._dollar = $$1;
   combined._hostModules['inline-dialog'] = combined._hostModules.inlineDialog;
 
   if (consumerOptions.get('sizeToParent') === true) {
@@ -3521,7 +3517,7 @@ var AP = (function () {
 
   if (consumerOptions.get('base') === true) {
     combined.env && combined.env.getLocation(function (loc) {
-      $$2('head').append({
+      $$1('head').append({
         tag: 'base',
         href: loc,
         target: '_parent'
@@ -3529,7 +3525,7 @@ var AP = (function () {
     });
   }
 
-  $$2.each(EventsInstance.methods, function (i, method) {
+  $$1.each(EventsInstance.methods, function (i, method) {
     if (combined._hostModules && combined._hostModules.events) {
       combined._hostModules.events[method] = combined.events[method] = EventsInstance[method].bind(EventsInstance);
       combined._hostModules.events[method + 'Public'] = combined.events[method + 'Public'] = PublicEventsInstance[method].bind(PublicEventsInstance);
@@ -3611,4 +3607,4 @@ var AP = (function () {
 
   return combined;
 
-}());
+})();
