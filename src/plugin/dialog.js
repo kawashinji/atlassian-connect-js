@@ -88,7 +88,9 @@ function submitOrCancelEvent(name, args) {
   } catch (err) {
     console.error(err);
   } finally {
-    delete dialogHandlers[name];
+    if (shouldClose) {
+      delete dialogHandlers[name];
+    }
   }
   if (shouldClose) {
     AP.dialog.close();
