@@ -29,10 +29,12 @@ module.exports = function(config) {
     //do not process my html files.
     preprocessors: {
       'spec/tests/**/*.js': ['webpack'],
-      'src/**/*.js': ['webpack']
+      'src/**/*.js': ['webpack', 'sourcemap']
     },
 
     webpack: {
+      mode: 'development',
+      devtool: 'inline-source-map',
       cache: true,
       resolve: {
         alias: {
@@ -99,6 +101,7 @@ module.exports = function(config) {
     plugins: [
       'karma-jasmine',
       'karma-webpack',
+      'karma-sourcemap-loader',
       'karma-chrome-launcher',
       'karma-firefox-launcher',
       'karma-nyan-reporter',

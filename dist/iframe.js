@@ -3174,7 +3174,9 @@ var AP = (function () {
     } catch (err) {
       console.error(err);
     } finally {
-      delete dialogHandlers[name];
+      if (shouldClose) {
+        delete dialogHandlers[name];
+      }
     }
 
     if (shouldClose) {
