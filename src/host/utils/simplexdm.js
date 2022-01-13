@@ -6,6 +6,7 @@ import $ from '../dollar';
 import ExtensionConfigurationOptionStore from '../stores/extension_configuration_options_store';
 import getBooleanFeatureFlag from './feature-flag';
 import definePerformanceModule, {ADDON_KEY_CODEBARREL} from '../modules/_performance';
+import defineFeatureFlagModule from '../modules/_featureFlag';
 
 // nowhere better to put this. Wires an extension for oldschool and new enviroments
 function createSimpleXdmExtension(extension){
@@ -49,6 +50,9 @@ function loadConditionalModules(addonKey) {
       && addonKey === ADDON_KEY_CODEBARREL
   ) {
     definePerformanceModule();
+  }
+  if (getBooleanFeatureFlag('com.atlassian.connect.acjs.oc-1890-enable-iframe-feature-flags')) {
+    defineFeatureFlagModule();
   }
 }
 

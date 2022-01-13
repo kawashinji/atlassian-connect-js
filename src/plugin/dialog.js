@@ -88,7 +88,18 @@ function submitOrCancelEvent(name, args) {
   } catch (err) {
     console.error(err);
   } finally {
-    if (shouldClose) {
+    if (AP._featureFlag) {
+      AP._featureFlag.getBooleanFeatureFlag('com.atlassian.connect.acjs.iframe.oc-1786-dialog-callback-run-once')
+        .then(flagEnabled => {
+          if (flagEnabled) {
+            if (shouldClose) {
+              delete dialogHandlers[name];
+            }
+          } else {
+            delete dialogHandlers[name];
+          }
+        })
+    } else {
       delete dialogHandlers[name];
     }
   }

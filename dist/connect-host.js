@@ -3837,6 +3837,29 @@
     host$1.defineModule('_performance', performanceModule);
   }
 
+  var defined = false;
+  function defineFeatureFlagModule() {
+    if (defined) {
+      return;
+    }
+
+    defined = true;
+    var featureFlagModule = {
+      getBooleanFeatureFlag: function getBooleanFeatureFlag$1(flagName) {
+        return new Promise(function (resolve, reject) {
+          if (flagName.indexOf('com.atlassian.connect.acjs.iframe.') !== 0) {
+            reject(new Error('Only allowlisted flags can be accessed from the iframe.'));
+            return;
+          }
+
+          resolve(getBooleanFeatureFlag(flagName));
+        });
+      }
+    };
+    host$1.returnsPromise(featureFlagModule.getBooleanFeatureFlag);
+    host$1.defineModule('_featureFlag', featureFlagModule);
+  }
+
   function createSimpleXdmExtension(extension) {
     var extensionConfig = extensionConfigSanitizer(extension);
     var systemExtensionConfigOptions = ExtensionConfigurationOptionsStore$1.get();
@@ -3877,6 +3900,10 @@
   function loadConditionalModules(addonKey) {
     if (getBooleanFeatureFlag('com.atlassian.connect.acjs-oc-1657-add-performance-timing-api') && addonKey === ADDON_KEY_CODEBARREL) {
       definePerformanceModule();
+    }
+
+    if (getBooleanFeatureFlag('com.atlassian.connect.acjs.oc-1890-enable-iframe-feature-flags')) {
+      defineFeatureFlagModule();
     }
   }
 
