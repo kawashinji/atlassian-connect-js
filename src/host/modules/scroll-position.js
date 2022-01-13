@@ -3,6 +3,7 @@ import $ from '../dollar';
 import EventDispatcher from '../dispatchers/event_dispatcher';
 import EventActions from '../actions/event_actions';
 
+
 const TRIGGER_PERCENTAGE = 10; //% before scroll events are fired
 let activeGeneralPageAddon;
 let lastScrollEventTriggered; //top or bottom
@@ -50,9 +51,13 @@ function triggerEvent(type) {
   lastScrollEventTriggered = type;
 }
 
+/**
+ * Enables apps to get and set the scroll position.
+ * @exports Scroll-position
+ */
 export default {
   /**
-   * Get's the scroll position relative to the browser viewport
+   * Gets the scroll position relative to the browser viewport
    *
    * @param callback {Function} callback to pass the scroll position
    * @noDemo
@@ -75,6 +80,15 @@ export default {
       });
     }
   },
+  /**
+   * Sets the vertical scroll position relative to the iframe
+   *
+   * @param y {Number} vertical offset position
+   * @param callback {Function} callback to pass the scroll position
+   * @noDemo
+   * @example
+   * AP.scrollPosition.setVerticalPosition(30, function(obj) { console.log(obj); });
+   */
   setVerticalPosition: function(y, callback) {
     callback = util.last(arguments);
     if (callback._context.extension.options && callback._context.extension.options.isFullPage) {

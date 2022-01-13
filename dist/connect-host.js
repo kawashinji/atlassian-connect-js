@@ -6757,10 +6757,15 @@
     }, {});
     lastScrollEventTriggered = type;
   }
+  /**
+   * Enables apps to get and set the scroll position.
+   * @exports Scroll-position
+   */
+
 
   var scrollPosition = {
     /**
-     * Get's the scroll position relative to the browser viewport
+     * Gets the scroll position relative to the browser viewport
      *
      * @param callback {Function} callback to pass the scroll position
      * @noDemo
@@ -6782,6 +6787,16 @@
         });
       }
     },
+
+    /**
+     * Sets the vertical scroll position relative to the iframe
+     *
+     * @param y {Number} vertical offset position
+     * @param callback {Function} callback to pass the scroll position
+     * @noDemo
+     * @example
+     * AP.scrollPosition.setVerticalPosition(30, function(obj) { console.log(obj); });
+     */
     setVerticalPosition: function setVerticalPosition(y, callback) {
       callback = Util.last(arguments);
 
