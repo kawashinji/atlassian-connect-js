@@ -7878,7 +7878,7 @@
       _this._eventHandlers = {};
       _this._pendingCallbacks = {};
       _this._keyListeners = [];
-      _this._version = "5.3.47";
+      _this._version = "5.3.48";
       _this._apiTampered = undefined;
       _this._isSubIframe = _this._topHost !== window.parent;
       _this._onConfirmedFns = [];
@@ -9022,7 +9022,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.47';
+    window._AP.version = '5.3.48';
   }
 
   host$1.defineModule('messages', messages);
