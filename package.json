@@ -8,6 +8,9 @@
     "type": "git",
     "url": "ssh://git@bitbucket.org:atlassian/atlassian-connect-js.git"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "bundlesize": "bundlesize --config=bundlesize.config.json",
     "bundlesize:all": "npm run bundlesize; npm run bundlesize:nozip",
