@@ -3174,7 +3174,19 @@ var AP = (function () {
     } catch (err) {
       console.error(err);
     } finally {
-      delete dialogHandlers[name];
+      if (combined._featureFlag) {
+        combined._featureFlag.getBooleanFeatureFlag('com.atlassian.connect.acjs.iframe.oc-1786-dialog-callback-run-once').then(function (flagEnabled) {
+          if (flagEnabled) {
+            if (shouldClose) {
+              delete dialogHandlers[name];
+            }
+          } else {
+            delete dialogHandlers[name];
+          }
+        });
+      } else {
+        delete dialogHandlers[name];
+      }
     }
 
     if (shouldClose) {
