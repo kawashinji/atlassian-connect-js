@@ -193,10 +193,6 @@ class HostApi {
     AnalyticsAction.trackDeprecatedMethodUsed(methodUsed, extension);
   }
 
-  trackMacroCombination(parentExtensionId, childExtension) {
-    AnalyticsAction.trackMacroCombination(parentExtensionId, childExtension);
-  }
-
   trackAnalyticsEvent(name, values) {
     AnalyticsAction.trackExternalEvent(name, values);
   }

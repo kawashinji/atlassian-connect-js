@@ -152,43 +152,6 @@ class AnalyticsDispatcher {
     });
   }
 
-  trackMacroCombination(parentExtensionId, childExtension) {
-    var partsOfParentExtensionId = parentExtensionId.split('__');
-    if(partsOfParentExtensionId.length !== 3) {
-      // this case shouldn't happen generally, adding this just in case
-      this._trackGasV3('operational', {
-        source: 'page',
-        action: 'rendered',
-        actionSubject: 'nestedBodyMacro',
-        objectType: childExtension.options.structuredContext.confluence.content.type,
-        objectId: childExtension.options.structuredContext.confluence.content.id,
-        attributes: {
-          parentExtensionId: parentExtensionId,
-          childAddonKey: childExtension['addon_key'],
-          childKey: childExtension['key'],
-        }
-      });
-
-      return;
-    }
-
-    var parentAddonKey = partsOfParentExtensionId[0];
-    var parentKey = partsOfParentExtensionId[1];
-    this._trackGasV3('operational', {
-      source: 'viewPageScreen',
-      action: 'rendered',
-      actionSubject: 'nestedBodyMacro',
-      objectType: childExtension.options.structuredContext.confluence.content.type,
-      objectId: childExtension.options.structuredContext.confluence.content.id,
-      attributes: {
-        parentAddonKey: parentAddonKey,
-        parentKey: parentKey,
-        childAddonKey: childExtension['addon_key'],
-        childKey: childExtension['key']
-      }
-    });
-  };
-
   trackMultipleDialogOpening(dialogType, extension) {
     this._track('jsapi.dialog.multiple', {
       addonKey: extension.addon_key,
@@ -356,9 +319,6 @@ EventDispatcher.register('iframe-bridge-cancelled', function (data) {
 });
 EventDispatcher.register('analytics-deprecated-method-used', function (data) {
   analytics.trackUseOfDeprecatedMethod(data.methodUsed, data.extension);
-});
-EventDispatcher.register('analytics-macro-combination', function (data) {
-  analytics.trackMacroCombination(data.parentExtensionId, data.childExtension);
 });
 EventDispatcher.register('analytics-iframe-performance', function (data) {
   analytics.trackIframePerformance(data.metrics, data.extension);
