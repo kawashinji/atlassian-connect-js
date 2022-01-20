@@ -89,13 +89,23 @@ function submitOrCancelEvent(name, args) {
     console.error(err);
   } finally {
     if (AP._featureFlag) {
+      let shouldRemoveHandler = true;
       AP._featureFlag.getBooleanFeatureFlag('com.atlassian.connect.acjs.iframe.oc-1786-dialog-callback-run-once')
         .then(flagEnabled => {
           if (flagEnabled) {
-            if (shouldClose) {
-              delete dialogHandlers[name];
-            }
-          } else {
+            shouldRemoveHandler = shouldClose;
+          }
+          if (shouldRemoveHandler) {
+            delete dialogHandlers[name];
+          }
+        })
+      AP._featureFlag.getBooleanFeatureFlag('com.atlassian.connect.acjs.iframe.acjs-981-handle-nested-dialog-close-event')
+        .then(flagEnabled => {
+          if (flagEnabled) {
+            // on dialog.close event, remove handler as dialog has been closed
+            shouldRemoveHandler = shouldClose || name === 'close';
+          }
+          if (shouldRemoveHandler) {
             delete dialogHandlers[name];
           }
         })

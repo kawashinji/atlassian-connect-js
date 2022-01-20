@@ -5032,6 +5032,11 @@
       dialogOptions = dialogOptions || {};
       extension.options.isDialog = true;
       extension.options.dialogId = dialogOptions.id;
+
+      if (getBooleanFeatureFlag('com.atlassian.connect.acjs.iframe.acjs-981-handle-nested-dialog-close-event')) {
+        extension.options.callbackExtensionId = extension.callback_extension_id;
+      }
+
       extension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
       extension.options.hostFrameOffset = dialogOptions.hostFrameOffset;
       extension.options.hideIframeUntilLoad = true;
@@ -5126,9 +5131,15 @@
     var dialog = data.dialog;
 
     if (dialog && data.extension) {
-      EventActions.broadcast('dialog.close', {
+      var targetSpec = {
         addon_key: data.extension.addon_key
-      }, data.customData);
+      };
+
+      if (getBooleanFeatureFlag('com.atlassian.connect.acjs.iframe.acjs-981-handle-nested-dialog-close-event')) {
+        targetSpec.id = data.extension.options.callbackExtensionId;
+      }
+
+      EventActions.broadcast('dialog.close', targetSpec, data.customData);
     }
   });
   EventDispatcher$1.register('dialog-button-click', function (data) {
@@ -5165,8 +5176,13 @@
       addon_key: extension.addon_key,
       key: options.key,
       options: Util.pick(extension.options, ['customData', 'productContext'])
-    }; // ACJS-185: the following is a really bad idea but we need it
+    };
+
+    if (getBooleanFeatureFlag('com.atlassian.connect.acjs.iframe.acjs-981-handle-nested-dialog-close-event')) {
+      dialogExtension.callback_extension_id = extension.id;
+    } // ACJS-185: the following is a really bad idea but we need it
     // for compat until AP.dialog.customData has been deprecated
+
 
     dialogExtension.options.customData = options.customData; // terrible idea! - we need to remove this from p2 ASAP!
 
