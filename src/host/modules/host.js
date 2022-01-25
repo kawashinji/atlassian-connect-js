@@ -2,7 +2,7 @@
 * Hosts are the primary method for Connect apps to interact with the page.
 * @module Host
 */
-import deprecate from '../../plugin/deprecate';
+import deprecateHost from '../deprecate';
 import getBooleanFeatureFlag from '../utils/feature-flag';
 
 const TEXT_NODE_TYPE = 3;
@@ -32,7 +32,7 @@ export default {
    * });
    *
    */
-  getSelectedText: deprecate(function(callback) {
+  getSelectedText: deprecateHost(function(callback) {
     if (getBooleanFeatureFlag('com.atlassian.connect.acjs-vuln-610109-deprecate-getselectedtext')) {
       callback('');
       return;
