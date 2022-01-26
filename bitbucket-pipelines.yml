@@ -33,4 +33,5 @@ pipelines:
             script:
                 - npm set //packages.atlassian.com/:_authToken=$NPM_TOKEN
                 - npm ci
+                - npm run bundlesize:all
                 - npm run test-sl
