@@ -7066,7 +7066,7 @@
         var callback = Util.last(args);
 
         if (callback && callback._context && callback._context.extension) {
-          analytics.trackDeprecatedMethodUsed(name);
+          analytics.trackDeprecatedMethodUsed(name, callback);
         }
       }
 
@@ -7571,7 +7571,7 @@
 
 
   if (!window._AP.version) {
-    window._AP.version = '5.3.52';
+    window._AP.version = '5.3.53';
   }
 
   host$1.defineModule('messages', messages);
