@@ -11,7 +11,7 @@ function deprecateHost (fn, name, alternate, sinceVersion) {
 
       const callback = util.last(args);
       if (callback && callback._context && callback._context.extension) {
-        Analytics.trackDeprecatedMethodUsed(name);
+        Analytics.trackDeprecatedMethodUsed(name, callback);
       }
     }
     return fn(...args);
