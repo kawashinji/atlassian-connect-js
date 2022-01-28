@@ -21,11 +21,6 @@ export default function getBooleanFeatureFlag(flagName) {
   return flagJson[flagName].value;
 }
 
-function isFeatureFlagNativeTextEncoder() {
-  return getBooleanFeatureFlag('com.atlassian.connect.acjs-oc-1779-use-native-textencoder')
-}
-
 export const Flags = {
   getBooleanFeatureFlag,
-  isFeatureFlagNativeTextEncoder
 }
