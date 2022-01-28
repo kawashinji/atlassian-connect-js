@@ -12,6 +12,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
+    "bump-acjs-external": "./scripts/bump-acjs-external.sh",
     "bundlesize": "bundlesize --config=bundlesize.config.json",
     "bundlesize:all": "npm run bundlesize; npm run bundlesize:nozip",
     "bundlesize:nozip": "bundlesize --config=bundlesize-nozip.config.json",

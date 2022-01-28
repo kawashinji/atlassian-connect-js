@@ -27,6 +27,7 @@ pipelines:
               - PACKAGE_VERSION=$(node -p "require('./package.json').version") && git add . && git commit -m "$PACKAGE_VERSION release [skip ci]"
               - git push origin master
               - npm run tag
+              - npm run bump-acjs-external ${TOKEN} ${PACKAGE_VERSION} ${BITBUCKET_BUILD_NUMBER}
 
     default:
         - step:
@@ -35,3 +36,5 @@ pipelines:
                 - npm ci
                 - npm run bundlesize:all
                 - npm run test-sl
+                # - apt-get update
+                # - apt-get -y install xmlstarlet

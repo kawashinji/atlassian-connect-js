@@ -17,3 +17,4 @@ reports
 bower_components
 test/test-reports
 /coverage
+scripts/atlassian-connect
