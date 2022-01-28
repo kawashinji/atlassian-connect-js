@@ -7,7 +7,6 @@ import EventDispatcher from 'src/host/dispatchers/event_dispatcher';
 import IframeContainer from 'src/host/components/iframe_container';
 import jwtActions from 'src/host/actions/jwt_actions';
 import base64 from 'src/host/utils/base64';
-import {Flags} from '../../src/host/utils/feature-flag';
 
 describe('Inline Dialog Webitem', () => {
   var webitemButton;
@@ -30,7 +29,6 @@ describe('Inline Dialog Webitem', () => {
     webitemButton.appendTo('body');
 
     // We must do it this way as InlineDialogWebItem exports a singleton which is created before this value can be mocked
-    spyOn(Flags, 'isInlineDialogStickyFixFlagEnabled').and.returnValue(true)
     InlineDialogWebitem = new InlineDialogWebItemConstructor()
   });
 
