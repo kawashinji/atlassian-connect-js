@@ -21,16 +21,11 @@ export default function getBooleanFeatureFlag(flagName) {
   return flagJson[flagName].value;
 }
 
-function isInlineDialogStickyFixFlagEnabled() {
-  return getBooleanFeatureFlag('com.atlassian.connect.acjs-oc-1684-inline-dialog-sticky-fix')
-}
-
 function isFeatureFlagNativeTextEncoder() {
   return getBooleanFeatureFlag('com.atlassian.connect.acjs-oc-1779-use-native-textencoder')
 }
 
 export const Flags = {
   getBooleanFeatureFlag,
-  isInlineDialogStickyFixFlagEnabled,
   isFeatureFlagNativeTextEncoder
 }

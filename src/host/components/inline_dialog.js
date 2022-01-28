@@ -2,7 +2,6 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
 import InlineDialogActions from '../actions/inline_dialog_actions';
 import $ from '../dollar';
 import util from '../util';
-import {Flags} from '../utils/feature-flag';
 
 class InlineDialog {
 
@@ -20,7 +19,7 @@ class InlineDialog {
   }
 
   refresh($el){
-    if (Flags.isInlineDialogStickyFixFlagEnabled() && !$el.is(':visible')) {
+    if (!$el.is(':visible')) {
       return
     }
     $el[0].popup.reset();

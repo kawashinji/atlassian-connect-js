@@ -9,7 +9,6 @@ import $ from '../dollar';
 import IframeCreate from '../iframe-create';
 import Util from '../util';
 import urlUtils from '../utils/url';
-import {Flags} from '../utils/feature-flag';
 
 const ITEM_NAME = 'inline-dialog';
 const SELECTOR = '.ap-inline-dialog';
@@ -20,7 +19,7 @@ export class InlineDialogWebItem {
     this._inlineDialogWebItemSpec = {
       name: ITEM_NAME,
       selector: SELECTOR,
-      triggers: [Flags.isInlineDialogStickyFixFlagEnabled() ? 'mouseenter' : 'mouseover', 'click']
+      triggers: ['mouseenter', 'click']
     };
     this._inlineDialogWebItems = {};
   }
