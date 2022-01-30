@@ -5831,9 +5831,7 @@
     _removeIframeReferenceAfterUnloadAndDestroyed(data.extension.id);
   });
   EventDispatcher$1.register('after:iframe-destroyed', function (data) {
-    if (getBooleanFeatureFlag('com.atlassian.connect.acjs-oc-1869-remove-extension-id-references-after-iframe-destroyed')) {
-      _removeIframeReferenceAfterUnloadAndDestroyed(data.extension.extension.id);
-    }
+    _removeIframeReferenceAfterUnloadAndDestroyed(data.extension.extension.id);
   });
   EventDispatcher$1.register('before:iframe-size-to-parent', function (data) {
     if (ignoreResizeForExtension.indexOf(data.extensionId) === -1) {
