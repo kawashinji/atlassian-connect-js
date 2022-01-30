@@ -145,9 +145,7 @@ EventDispatcher.register('after:iframe-unload', function(data) {
 });
 
 EventDispatcher.register('after:iframe-destroyed', function(data) {
-  if (getBooleanFeatureFlag('com.atlassian.connect.acjs-oc-1869-remove-extension-id-references-after-iframe-destroyed')) {
-    _removeIframeReferenceAfterUnloadAndDestroyed(data.extension.extension.id);
-  }
+  _removeIframeReferenceAfterUnloadAndDestroyed(data.extension.extension.id);
 });
 
 EventDispatcher.register('before:iframe-size-to-parent', function(data) {
