@@ -4,6 +4,7 @@ import EventDispatcher from '../dispatchers/event_dispatcher';
 import HostApi from '../host-api';
 import EventActions from '../actions/event_actions';
 import dialogUtils from '../utils/dialog';
+import getBooleanFeatureFlag from '../utils/feature-flag';
 
 class DialogExtension {
 
@@ -12,6 +13,9 @@ class DialogExtension {
     dialogOptions = dialogOptions || {};
     extension.options.isDialog = true;
     extension.options.dialogId = dialogOptions.id;
+    if (getBooleanFeatureFlag('com.atlassian.connect.acjs.iframe.acjs-981-handle-nested-dialog-close-event')) {
+      extension.options.callbackExtensionId = extension.callback_extension_id;
+    }
     extension.options.preventDialogCloseOnEscape = dialogOptions.closeOnEscape === false;
     extension.options.hostFrameOffset = dialogOptions.hostFrameOffset;
     extension.options.hideIframeUntilLoad = true;
