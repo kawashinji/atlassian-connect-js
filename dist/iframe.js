@@ -2919,26 +2919,35 @@ var AP = (function () {
       console.error(err);
     } finally {
       if (combined._featureFlag) {
-        var shouldRemoveHandler = true;
-
         combined._featureFlag.getBooleanFeatureFlag('com.atlassian.connect.acjs.iframe.oc-1786-dialog-callback-run-once').then(function (flagEnabled) {
+          var shouldRemoveHandler = false;
+
           if (flagEnabled) {
             shouldRemoveHandler = shouldClose;
-          }
 
-          if (shouldRemoveHandler) {
-            delete dialogHandlers[name];
-          }
-        });
+            combined._featureFlag.getBooleanFeatureFlag('com.atlassian.connect.acjs.iframe.acjs-981-handle-nested-dialog-close-event').then(function (enabled) {
+              if (enabled) {
+                // on dialog.close event, remove handler as dialog has been closed
+                shouldRemoveHandler = shouldClose || name === 'close';
+              }
 
-        combined._featureFlag.getBooleanFeatureFlag('com.atlassian.connect.acjs.iframe.acjs-981-handle-nested-dialog-close-event').then(function (flagEnabled) {
-          if (flagEnabled) {
-            // on dialog.close event, remove handler as dialog has been closed
-            shouldRemoveHandler = shouldClose || name === 'close';
-          }
+              if (shouldRemoveHandler) {
+                delete dialogHandlers[name];
+              }
+            });
+          } else {
+            combined._featureFlag.getBooleanFeatureFlag('com.atlassian.connect.acjs.iframe.acjs-981-handle-nested-dialog-close-event').then(function (enabled) {
+              if (enabled) {
+                // on dialog.close event, remove handler as dialog has been closed
+                shouldRemoveHandler = shouldClose || name === 'close';
 
-          if (shouldRemoveHandler) {
-            delete dialogHandlers[name];
+                if (shouldRemoveHandler) {
+                  delete dialogHandlers[name];
+                }
+              } else {
+                delete dialogHandlers[name];
+              }
+            });
           }
         });
       } else {
