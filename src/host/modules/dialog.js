@@ -15,10 +15,7 @@ const _dialogs = {};
 EventDispatcher.register('dialog-close', function (data) {
   const dialog = data.dialog;
   if (dialog && data.extension) {
-    let targetSpec = { addon_key: data.extension.addon_key };
-    if (getBooleanFeatureFlag('com.atlassian.connect.acjs.iframe.acjs-981-handle-nested-dialog-close-event')) {
-      targetSpec.id = data.extension.options.callbackExtensionId;
-    }
+    const targetSpec = { addon_key: data.extension.addon_key, id: data.extension.options.callbackExtensionId };
     EventActions.broadcast('dialog.close', targetSpec, data.customData);
   }
 });
@@ -66,12 +63,9 @@ class Dialog {
     let dialogExtension = {
       addon_key: extension.addon_key,
       key: options.key,
-      options: Util.pick(extension.options, ['customData', 'productContext'])
+      options: Util.pick(extension.options, ['customData', 'productContext']),
+      callback_extension_id: extension.id
     };
-
-    if (getBooleanFeatureFlag('com.atlassian.connect.acjs.iframe.acjs-981-handle-nested-dialog-close-event')) {
-      dialogExtension.callback_extension_id = extension.id;
-    }
 
     // ACJS-185: the following is a really bad idea but we need it
     // for compat until AP.dialog.customData has been deprecated
