@@ -10,6 +10,7 @@ import FlagComponent from '../components/flag';
 import util from '../util';
 import EventActions from '../actions/event_actions';
 import ModuleProviders from '../module-providers';
+import getBooleanFeatureFlag from '../utils/feature-flag';
 
 const _flags = {};
 
@@ -123,9 +124,10 @@ function invokeTrigger(id, eventName, data) {
     let extension = _flags[id].extension;
     data = data || {};
     data.flagIdentifier = id;
-    EventActions.broadcast(eventName, {
-      extension_id: extension.extension_id
-    }, data);
+    const targetSpec = getBooleanFeatureFlag('com.atlassian.connect.acjs-vuln-662510-send-flag-event-to-appropriate-plugin')
+    ? { addon_key: extension.addon_key }
+    : { extension_id: extension.extension_id };
+    EventActions.broadcast(eventName, targetSpec, data);
   }
 }
 
