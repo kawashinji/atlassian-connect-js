@@ -6484,7 +6484,7 @@
       data = data || {};
       data.flagIdentifier = id;
       var targetSpec = getBooleanFeatureFlag('com.atlassian.connect.acjs-vuln-662510-send-flag-event-to-appropriate-plugin') ? {
-        addon_key: extension.addon_key
+        id: extension.id
       } : {
         extension_id: extension.extension_id
       };
