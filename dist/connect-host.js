@@ -4819,7 +4819,11 @@
       }
 
       if (!sanitizedOptions.size || sanitizedOptions.size === 'fullscreen') {
-        AJS.layer($dialog).changeSize(sanitizedOptions.width, sanitizedOptions.height);
+        AJS.layer($dialog).changeSize(sanitizedOptions.width, sanitizedOptions.height); // https://jira.atlassian.com/browse/CONFCLOUD-73967
+        // We couldn't find how this issue started happening, it might have been there for some time but noone noticed it before.
+        // Easiest solution is just adding top:0 to fullscreen dialogs.
+
+        dialog.$el.css('top', 0);
       }
 
       if (sanitizedOptions.onHide) {
