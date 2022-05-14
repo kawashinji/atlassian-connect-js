@@ -15,12 +15,17 @@
 
 /* add new aui dialog size of fullscreen */
 .ap-aui-dialog2.aui-dialog2-fullscreen {
-    top: 0;
+    /*
+    https://jira.atlassian.com/browse/CONFCLOUD-73967
+    We couldn't find how this issue started happening, it might have been there for some time but noone noticed it before.
+    Adding !important to increase priority of this over .aui-dialog2.aui-layer
+    */
+    top: 0 !important;
 }
 
 /* add new aui dialog size of maximum */
 .ap-aui-dialog2.aui-dialog2-maximum {
-    top: 0;
+    top: 0 !important;
     height: 100%;
 }
 .ap-aui-dialog2.aui-dialog2-maximum .aui-dialog2-content {
