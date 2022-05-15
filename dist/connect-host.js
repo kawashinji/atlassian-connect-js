@@ -6483,10 +6483,8 @@
       var extension = _flags[id].extension;
       data = data || {};
       data.flagIdentifier = id;
-      var targetSpec = getBooleanFeatureFlag('com.atlassian.connect.acjs-vuln-662510-send-flag-event-to-appropriate-plugin') ? {
+      var targetSpec = {
         id: extension.id
-      } : {
-        extension_id: extension.extension_id
       };
       EventActions.broadcast(eventName, targetSpec, data);
     }

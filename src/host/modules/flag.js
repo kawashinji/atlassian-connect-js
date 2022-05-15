@@ -124,9 +124,7 @@ function invokeTrigger(id, eventName, data) {
     let extension = _flags[id].extension;
     data = data || {};
     data.flagIdentifier = id;
-    const targetSpec = getBooleanFeatureFlag('com.atlassian.connect.acjs-vuln-662510-send-flag-event-to-appropriate-plugin')
-    ? { id: extension.id }
-    : { extension_id: extension.extension_id };
+    const targetSpec = { id: extension.id };
     EventActions.broadcast(eventName, targetSpec, data);
   }
 }
